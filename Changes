@@ -1,0 +1,21 @@
+K518-014 Preserve IR and DR bits during interrupts (22-06-2011)
+
+  MSR IR and DR bits (instruction and data translation) are now preserved
+  during interruptions. This is necessary to keep MMU always enabled, which
+  might be required if the caches are enabled.
+
+K518-014 Initialize stack pointer in RAM configuration (22-06-2011)
+
+  The stack pointer (r1) is now initialized in the RAM configuration. You don't
+  need anymore to initialize it if you download the application in RAM using
+  a probe.
+
+K606-023 Easily build the runtime within GPS (22-06-2011)
+
+  Package IDE has been added to the project file so that it is now easy to
+  rebuild the runtime from GPS.
+
+K630-009 Incorrect result from Duration'Image (08-06-2011)
+
+  Attribute Image might generate an incorrect result if the type is a 64 bits
+  type.

@@ -1,0 +1,3 @@
+project leds is
+  for Main use ("leds.adb");
+end leds;

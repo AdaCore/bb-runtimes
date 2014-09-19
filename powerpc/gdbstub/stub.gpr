@@ -1,0 +1,10 @@
+project Stub extends "../zfp-prep/runtime.gpr" is
+  for Languages use ("Ada", "Asm_Cpp");
+  for Source_Dirs use (".");
+  for Main use ("stub");
+  package Compiler is
+     for Default_Switches ("Ada") use Runtime.Compiler'Default_Switches ("Ada")
+         & ("-gnatyg", "-gnatwn", "-g");
+  end Compiler;
+
+end Stub;

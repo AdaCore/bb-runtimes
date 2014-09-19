@@ -1,0 +1,4 @@
+project hello_sfp extends "../../install/runtime" is
+  for Source_Dirs use (".");
+  for Main use ("test");
+end hello_sfp;

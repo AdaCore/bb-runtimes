@@ -1,0 +1,21 @@
+project Tetris is
+
+   for Main use ("main.adb");
+
+   package Compiler is
+      for Default_Switches ("ada") use
+       ("-gnatyr", "-g", "-gnata", "-gnatwa.X");
+   end Compiler;
+
+   package Builder is
+      for Executable ("main.adb") use "tetris.elf";
+   end Builder;
+
+   package Ide is
+      for Gnat use "arm-eabi-gnat";
+      for Gnatlist use "arm-eabi-gnatls";
+      for Debugger_Command use "arm-eabi-gdb";
+   end Ide;
+
+end Tetris;
+

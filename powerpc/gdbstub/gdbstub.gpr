@@ -1,0 +1,9 @@
+project gdbstub is
+  for Languages use ("Ada", "Asm_Cpp");
+  for Source_Dirs use (".");
+  for Main use ("stub");
+  package Compiler is
+     for Switches ("Ada") use ("-gnatyg", "-gnatwn", "-g");
+  end Compiler;
+
+end gdbstub;

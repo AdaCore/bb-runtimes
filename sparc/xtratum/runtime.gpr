@@ -1,0 +1,35 @@
+abstract project Runtime is
+  
+  XtratuM_Install := external ("XTRATUM_PATH", "/usr/local/xtratum/xm");
+
+  XM_Include  := XtratuM_Install & "/include";
+  XAL_Include := XtratuM_Install & "/../xal/include";
+    
+  package Builder is
+     for Switches ("Ada") use ("--RTS=" & Project'project_dir);
+  end Builder;
+
+  package Compiler is
+     Common_Required_Switches :=
+        ("-Dsparcv8", "-D__XM_INCFLD(_fld)=<xm_inc/_fld>",
+         "-I", XM_Include,
+         "--include", "xm_inc/config.h",
+         "--include", "xm_inc/arch/arch_types.h",
+         "-I", XAL_Include);
+
+     for Switches ("Asm_Cpp") use Compiler'Switches ("Asm_Cpp") &
+       ("-DLEON", "-DLEON3", "-DXTRATUM", "-D__ASSEMBLY__") &
+       Common_Required_Switches;
+     
+     for Switches ("C") use Compiler'Switches ("C") &
+       Common_Required_Switches;
+
+     for Switches ("Ada") use Compiler'Switches ("Ada") &
+       ("-fno-function-sections", "-fno-data-sections");
+     --  The -ffunction-sections and -fdata-sections are problematic
+     --  with XtratuM 4.2.0 because the linker script does not handle
+     --  these sections correctly. Hence you may end up with data or
+     --  code which is not aligned as expected.
+  end Compiler;
+
+  end Runtime;

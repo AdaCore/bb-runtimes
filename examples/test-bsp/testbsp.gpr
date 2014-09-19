@@ -1,0 +1,14 @@
+project testbsp is
+   --  Use --target on command line, or add:
+   --    for Target use "arm-eabi"; --  or similar
+   for Main use ("testbsp");
+   --  for Target use "arm-eabi";
+
+   package Compiler is
+      for Switches ("Ada") use ("-g", "-O0", "-gnata", "-gnatg");
+   end Compiler;
+
+   package Builder is
+      --  for Switches ("Ada") use ("--RTS=../../install");
+   end Builder;
+end testbsp;

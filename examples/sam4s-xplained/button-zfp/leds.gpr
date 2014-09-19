@@ -1,0 +1,20 @@
+project Leds is
+
+   for Main use ("leds.adb");
+
+   package Compiler is
+      for Default_Switches ("ada") use ("-gnatyr", "-g");
+   end Compiler;
+
+   package Builder is
+      for Executable ("leds.adb") use "leds.elf";
+   end Builder;
+
+   package Ide is
+      for Gnat use "arm-eabi-gnat";
+      for Gnatlist use "arm-eabi-gnatls";
+      for Debugger_Command use "arm-eabi-gdb";
+   end Ide;
+
+end Leds;
+

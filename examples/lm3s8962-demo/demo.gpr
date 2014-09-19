@@ -1,0 +1,7 @@
+project demo is
+   for Main use ("main.adb");
+   package Compiler is
+      for Switches ("Ada") use Compiler'Switches ("Ada")
+         & ("-O", "-g");
+   end Compiler;
+end demo;

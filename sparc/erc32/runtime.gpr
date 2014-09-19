@@ -1,0 +1,19 @@
+abstract project Runtime is
+  package Builder is
+     for Switches ("Ada") use ("--RTS=" & Project'project_dir);
+  end Builder;
+
+  package Compiler is
+     for Switches ("Ada") use Compiler'Switches ("Ada");
+  end Compiler;
+
+  package Linker is
+      for Linker_Options use
+          ("-lgnat", "-nostartfiles",
+           "-T", Project'Project_dir & "erc32.ld");
+  end Linker;
+
+  package Binder is
+     for Switches ("Ada") use Binder'Switches ("Ada") & ("-nostdlib");
+  end Binder;
+end Runtime;

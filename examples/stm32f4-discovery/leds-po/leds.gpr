@@ -1,0 +1,7 @@
+project leds is
+  for Main use ("main.adb");
+
+  package Compiler is
+    for Switches ("Ada") use ("-O", "-g", "-gnatwa");
+  end Compiler;
+end leds;

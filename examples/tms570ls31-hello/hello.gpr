@@ -1,0 +1,3 @@
+project hello is
+   for Main use ("hello.adb");
+end hello;

@@ -1,0 +1,11 @@
+project leds is
+  for Main use ("leds.adb");
+
+  package Compiler is
+     For Default_Switches ("Ada") use ("-gnatyr");
+  end Compiler;
+
+  package Builder is
+     For Executable ("leds.adb") use "leds.elf";
+  end Builder;
+end leds;

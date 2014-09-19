@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+
+<gprconfig>
+  <configuration>
+   <config>
+  package Compiler is
+     Common_Required_Switches := ("-mhard-float");
+
+     for Leading_Required_Switches ("Ada") use
+        Compiler'Leading_Required_Switches ("Ada") &amp;
+        Common_Required_Switches;
+
+     for Leading_Required_Switches ("C") use
+        Compiler'Leading_Required_Switches ("C") &amp;
+        Common_Required_Switches;
+  end Compiler;
+
+  package Linker is
+      for Required_Switches use Linker'Required_Switches &amp;
+        ("-L${RUNTIME_DIR(ada)}/adalib", "-lgnat") &amp;
+        Compiler.Common_Required_Switches;
+
+      for Required_Switches use Linker'Required_Switches &amp;
+        ("-Wl,-u_start", "-Wl,-Ttext=0x100000");
+
+  end Linker;
+
+   package Binder is
+      for Required_Switches ("Ada") use Binder'Required_Switches ("Ada")
+        &amp; ("-nostdlib");
+   end Binder;
+   </config>
+  </configuration>
+</gprconfig>

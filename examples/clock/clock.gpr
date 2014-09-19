@@ -1,0 +1,6 @@
+project clock is
+  For Main use ("clock.adb");
+  package Compiler is
+    for Switches ("Ada") use ("-g");
+  end Compiler;
+end clock;

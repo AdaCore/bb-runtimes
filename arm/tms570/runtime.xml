@@ -1,0 +1,74 @@
+<?xml version="1.0" ?>
+
+<gprconfig>
+  <configuration>
+   <config>
+
+   type Loaders is ("PROBE", "FLASH", "MONITOR", "HIRAM", "LORAM");
+
+   Loader : Loaders := external ("LOADER", "PROBE");
+
+   package Compiler is
+     Common_Required_Switches := ("-mbig-endian", "-mhard-float",
+        "-mcpu=cortex-r4", "-mfpu=vfpv3-d16", "-marm");
+
+     Asm_Required_Switches := ();
+
+     for Leading_Required_Switches ("Ada") use
+        Compiler'Leading_Required_Switches ("Ada") &amp;
+        Common_Required_Switches;
+
+     for Leading_Required_Switches ("C") use
+        Compiler'Leading_Required_Switches ("C") &amp;
+        Common_Required_Switches;
+
+     for Leading_Required_Switches ("Asm") use
+        Compiler'Leading_Required_Switches ("Asm") &amp;
+        Common_Required_Switches;
+
+     for Leading_Required_Switches ("Asm2") use
+        Compiler'Leading_Required_Switches ("Asm2") &amp;
+        Common_Required_Switches;
+
+     for Leading_Required_Switches ("Asm_Cpp") use
+        Compiler'Leading_Required_Switches ("Asm_Cpp") &amp;
+        Common_Required_Switches &amp;
+        Asm_Required_Switches;
+   end Compiler;
+
+   package Linker is
+      for Required_Switches use Linker'Required_Switches &amp;
+        ("-L${RUNTIME_DIR(ada)}/adalib", "-lgnat") &amp;
+        Compiler.Common_Required_Switches &amp;
+        ("-nostdlib", "-lgcc");
+
+      case Loader is
+         when "PROBE" =>
+	    for Required_Switches use Linker'Required_Switches &amp;
+	       ("-T", "${RUNTIME_DIR(ada)}/arch/tms570.ld");
+         when "FLASH" =>
+	    for Required_Switches use Linker'Required_Switches &amp;
+	       ("-T", "${RUNTIME_DIR(ada)}/arch/flash.ld",
+                "-Wl,-z,max-page-size=0x1000");
+         when "MONITOR" =>
+	    for Required_Switches use Linker'Required_Switches &amp;
+	       ("-T", "${RUNTIME_DIR(ada)}/arch/monitor.ld",
+                "-Wl,-z,max-page-size=0x1000");
+         when "HIRAM" =>
+	    for Required_Switches use Linker'Required_Switches &amp;
+	       ("-T", "${RUNTIME_DIR(ada)}/arch/hiram.ld",
+                "-Wl,-z,max-page-size=0x1000");
+         when "LORAM" =>
+	    for Required_Switches use Linker'Required_Switches &amp;
+	       ("-T", "${RUNTIME_DIR(ada)}/arch/loram.ld",
+                "-Wl,-z,max-page-size=0x1000");
+       end case;
+   end Linker;
+
+   package Binder is
+      for Required_Switches ("Ada") use Binder'Required_Switches ("Ada")
+        &amp; ("-nostdlib");
+   end Binder;
+   </config>
+  </configuration>
+</gprconfig>

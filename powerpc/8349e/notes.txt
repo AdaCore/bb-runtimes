@@ -1,0 +1,451 @@
+Notes about ravenscar-minimal on 8321/8349
+-------------------------------------
+
+Linking:
+
+It is possible to override the linker script by defining the builder variable
+LDSCRIPT.
+
+Starting the runtime:
+
+* The entry point is start_ram. Before executing the entry point, interrupts
+should be masked and privileged mode enabled (MSR.PR cleared). MSR.IP
+must be 0.
+
+* The board must be initialized, including memory and cache. If MMU is
+enabled, memory must be mapped 1:1 (ie real addresses are equal to virtual
+addresses).
+
+* The runtime only set the Decrementer and External Interrupt exceptions,
+using 0x000n_nnn as exception prefix. Other exceptions should be set by
+user.
+
+* The package System.BB.Board_Parameters define the frequency of the
+cpu time base and the value of the IMMRBAR.
+
+* The IPIC (interrupt controler) is initialized by the runtime, and initially
+all interrupts are masked.  The runtime never unmask interrupts, that
+should be done by the user.
+
+* The console input/output are done by System.Text_IO, which uses UART1.
+If UART1 is needed for other purpose, the user should verify that this units
+is not in the program (it is included units such as Ada.Text_IO or GNAT.IO
+are with'ed).
+
+* The runtime supports 8 interrupt priorities. The package
+GNAT.Interrupt_Priorities (in g-intpri.ads) provides a procedure to define
+the priority of an interrupt, as well as its mask bit. The runtime set the
+interrupt mask registers, so the user shouldn't set it.
+
+Segregation
+
+* The runtime supports a segregation mechanism: during interruptions and
+context switch, all the user context is preserved, including MSR.PR, MSR.DR
+and MSR.IR.  As a consequence, user code can switch to user mode.
+
+In non privileged mode, user code must not use construct or call subprograms
+that use the executive kernel, as the executive kernel needs to mask
+interrupts (which is a privileged operation). This includes tasking construct,
+and operations on the clock.
+
+The interrupt handler uses a dedicated interrupt stack and never use the user
+stack. So it is possible to protect the user stack from privileged accesses.
+
+Some Ada constructs implicitly call non-pure routines to perform some complex
+actions (such as secondary stack handling or memory allocator). These routines
+maintain a state in memory, and if the state is protected against user code
+access, these Ada constructs will trigger a fault.
+
+It is possible to manipulate the secondary stack pointer using package
+GNAT.Secondary_Stack.
+
+Only a few routines in libgcc will be certified:
+
+__divdi3
+__moddi3
+__udivdi3
+__umoddi3
+__ashldi3
+__ashrdi3
+__lshrdi3
+
+There is an Ada implementation of them in System.GCC packages
+
+Runtime source files:
+
+install/arch/:
+* a-intnam.ads
+Ada.Interrupts.Names (only declarations)
+
+* context_switch.S
+* handler.S
+Tasking
+
+* ram.ld
+Linker script
+
+* s-bbbosu.adb
+* s-macres.adb
+Tasking
+
+* s-textio.adb
+System.Text_IO (write to board registers)
+
+* setup.S
+* start-ram.S
+Initialization
+
+* system.ads
+System package
+
+install/common/:
+* a-elchha.adb
+* a-elchha.ads
+Default last chance handler, calls GNAT.IO to display the traceback
+
+* a-except.adb
+* a-except.ads
+Ada.Exceptions
+
+* a-exctra.ads
+Exception traceback
+
+* a-exetim.adb
+* a-exetim.ads
+Ada.Execution_Time, no side effect
+
+* a-extiin.adb
+* a-extiin.ads
+Ada.Execution_Time.Interrupts, no side effect
+
+* a-interr.adb
+* a-interr.ads
+Ada.Interrupts, stubs
+
+* a-reatim.adb
+* a-reatim.ads
+Ada.Real_Time, clock can be read on PowerPc even in non-privileged mode
+
+* a-retide.adb
+* a-retide.ads
+Ada.Real_Time.Delays, provided to implement delay
+
+* a-rttiev.adb
+* a-rttiev.ads
+Ada.Real_Time.TIming_Events (tasking)
+
+* a-sytaco.adb
+* a-sytaco.ads
+Ada.Synchronous_Task_Control (tasking)
+
+* a-tags.adb
+* a-tags.ads
+Ada.Tags, no side effect
+
+* a-taside.adb
+* a-taside.ads
+Ada.Task_Identification (tasking)
+
+* a-taster.adb
+* a-taster.ads
+Ada.Task_Termination (tasking)
+
+* a-textio.adb
+* a-textio.ads
+Ada.Text_IO, stripped-down version of the standardized Ada.Text_IO
+
+* a-unccon.ads
+Ada.Unchecked_Conversion (no side effect)
+
+* a-uncdea.ads
+Ada.Unchecked_Deallocation (cannot be used)
+
+* ada.ads
+Ada package (Pure)
+
+* g-debuti.adb
+* g-debuti.ads
+GNAT.Debug_Utilities (Pure)
+
+* g-intpri.ads
+GNAT.Interrupt_Priorities (side effect)
+
+* g-io-put.adb
+* g-io.adb
+* g-io.ads
+GNAT.IO (has side effect)
+
+* g-secsta.ads
+GNAT.Secondary_Stack (side effect)
+
+* g-souinf.ads
+GNAT.Source_Info (Pure)
+
+* gnat.ads
+GNAT package (Pure)
+
+* i-c.ads
+Interfaces.C (Pure)
+
+* interfac.ads
+Interfaces (Pure)
+
+* machcode.ads
+Machine_Code (Pure)
+
+* memory_compare.adb
+* memory_compare.ads
+memcmp (Pure)
+
+* memory_copy.adb
+* memory_copy.ads
+memcpy/memmove (Pure)
+
+* memory_set.adb
+* memory_set.ads
+memset (Pure)
+
+* s-addope.adb
+* s-addope.ads
+System.Address_Operations (Pure)
+
+* s-arit64.adb
+* s-arit64.ads
+System.Arith_64 (Pure)
+
+* s-assert.adb
+* s-assert.ads
+System.Assertion (raise an exception)
+
+* s-atacco.adb
+* s-atacco.ads
+System.Address_To_Access_Conversion (Preelaborate)
+
+* s-bb.ads
+* s-bbbopa.ads
+* s-bbbosu.ads
+* s-bbcppr.adb
+* s-bbcppr.ads
+* s-bbcpsp.adb
+* s-bbcpsp.ads
+* s-bbexti.adb
+* s-bbexti.ads
+* s-bbinte.adb
+* s-bbinte.ads
+* s-bbpara.ads
+* s-bbprot.adb
+* s-bbprot.ads
+* s-bbthqu.adb
+* s-bbthqu.ads
+* s-bbthre.adb
+* s-bbthre.ads
+* s-bbtiev.adb
+* s-bbtiev.ads
+* s-bbtime.adb
+* s-bbtime.ads
+* s-bcprmu.adb
+* s-bcprmu.ads
+Executive kernel
+
+* s-bitops.adb
+* s-bitops.ads
+System.Bit_Ops, provide operations on packed bit strings. May raise an exception.
+
+* s-boarop.ads
+System.Boolean_Array_Operations (Pure)
+
+* s-carsi8.adb
+* s-carsi8.ads
+System.Compare_Array_Signed_8 (no state)
+
+* s-carun8.adb
+* s-carun8.ads
+System.Compare_Array_Unsigned_8 (no state)
+
+* s-casi16.adb
+* s-casi16.ads
+System.Compare_Array_Signed_16 (no state)
+
+* s-casi32.adb
+* s-casi32.ads
+System.Compare_Array_Signed_32 (no state)
+
+* s-casi64.adb
+* s-casi64.ads
+System.Compare_Array_Signed_64 (no state)
+
+* s-caun16.adb
+* s-caun16.ads
+System.Compare_Array_Unsigned_16 (no state)
+
+* s-caun32.adb
+* s-caun32.ads
+System.Compare_Array_Unsigned_32 (no state)
+
+* s-caun64.adb
+* s-caun64.ads
+System.Compare_Array_Unsigned_64 (no state)
+
+* s-exnint.adb
+* s-exnint.ads
+System.Exn_Int (Pure)
+
+* s-exnlli.adb
+* s-exnlli.ads
+System.Exn_LLI (Pure)
+
+* s-expint.adb
+* s-expint.ads
+System.Exp_Int (Pure)
+
+* s-explli.adb
+* s-explli.ads
+System.Exp_LLI (Pure)
+
+* s-expllu.adb
+* s-expllu.ads
+System.Exp_LLU (Pure)
+
+* s-expmod.adb
+* s-expmod.ads
+System.Exp_Mod (Pure)
+
+* s-expuns.adb
+* s-expuns.ads
+System.Exp_Uns (Pure)
+
+* s-gcc.adb
+* s-gcc.ads
+* s-gccshi.adb
+* s-gccshi.ads
+* s-gccdiv.adb
+* s-gccdiv.ads
+System.GCC.* (Pure)
+
+* s-geveop.adb
+* s-geveop.ads
+System.Generic_Vector_Operations (Generic, Pure)
+
+* s-imgboo.adb
+* s-imgboo.ads
+System.Img_Bool (Pure)
+
+* s-imgint.adb
+* s-imgint.ads
+System.Img_Int (Pure)
+
+* s-imglli.adb
+* s-imglli.ads
+System.Img_LLI (Pure)
+
+* s-imgllu.adb
+* s-imgllu.ads
+System.Img_LLU (Pure)
+
+* s-imguns.adb
+* s-imguns.ads
+System.Img_Uns (Pure)
+
+* s-interr.adb
+* s-interr.ads
+System.Interrupts (tasking)
+
+* s-maccod.ads
+System.Machine_Code (Pure)
+
+* s-macres.ads
+System.Machine_Reset (write in cpu registers)
+
+* s-memory.adb
+* s-memory.ads
+System.Memory (memory allocation)
+
+* s-mufalo.adb
+* s-mufalo.ads
+System.Multiprocessors.Fair_Locks (tasking)
+
+* s-multip.adb
+* s-multip.ads
+System.Multiprocessors (tasking)
+
+* s-musplo.adb
+* s-musplo.ads
+System.Multiprocessors.Spin_Locks (tasking)
+
+* s-osinte.ads
+System.OS_Interfaces (tasking)
+
+* s-parame.adb
+* s-parame.ads
+System.Parameters (Pure)
+
+* s-secsta.adb
+* s-secsta.ads
+System.Secondary_Stack (has side effects on the secondary stack)
+
+* s-stoele.adb
+* s-stoele.ads
+System.Storage_Elements (Pure)
+
+* s-strops.adb
+* s-strops.ads
+System.String_Ops (Pure)
+
+* s-taprob.adb
+* s-taprob.ads
+* s-taprop.adb
+* s-taprop.ads
+* s-tarest.adb
+* s-tarest.ads
+* s-tasdeb.adb
+* s-tasdeb.ads
+* s-tasinf.adb
+* s-tasinf.ads
+* s-tasres.ads
+* s-tpobmu.adb
+* s-tpobmu.ads
+* s-tposen.adb
+* s-tposen.ads
+System.Tasking.*
+
+* s-taskin.adb
+* s-taskin.ads
+System.Task_Info (Tasking)
+
+* s-taspri.ads
+System.Task_Primitives (tasking)
+
+* s-textio.ads
+System.Text_IO. Write in board registers
+
+* s-traceb.adb
+* s-traceb.ads
+System.Traceback (walk the stack)
+
+* s-tracon.adb
+* s-tracon.ads
+System.Traceback_Control (no side effect)
+
+* s-traent.adb
+* s-traent.ads
+System.Traceback_Entries (no side effect)
+
+* s-unstyp.ads
+System.Unsigned_Types (pure)
+
+* s-veboop.adb
+* s-veboop.ads
+System.Vectors.Boolean_Operations (Pure)
+
+* s-vector.ads
+System.Vector (Pure)
+
+* text_io.ads
+Text_IO (renaming of Ada.Text_IO)
+
+* unchconv.ads
+Unchecked_Conversion (renaming of Ada.Unchecked_Conversion)
+
+* unchdeal.ads
+Unchecked_Deallocation (renaming of Ada.Unchecked_Deallocation)
+

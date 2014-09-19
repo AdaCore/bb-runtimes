@@ -1,0 +1,4 @@
+project info extends "../../install/runtime" is
+  for Source_Dirs use (".");
+  for Main use ("info");
+end info;

@@ -1,0 +1,5 @@
+project hello is
+  for Source_Dirs use (".");
+  for Languages use ("Ada");
+  for Main use ("test");
+end hello;
