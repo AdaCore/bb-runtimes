@@ -17,7 +17,7 @@ if [ -d /netopt/xtratum/xtratum-4.2.0-tsim/xm ] ; then
     export XTRATUM_PATH=/netopt/xtratum/xtratum-4.2.0-tsim/xm
 fi
 
-parentdir=$(dirname $(dirname $PWD))
+parentdir=$(dirname $PWD)
 export XTRATUM_PATH=${XTRATUM_PATH:-$parentdir/XtratuM/xm}
 GNAT_SRC_DIR=${GNAT_SRC_DIR:-$parentdir/gnat}
 GCC_SRC_DIR=${GCC_SRC_DIR:-$parentdir/gcc}
