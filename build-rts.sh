@@ -333,12 +333,19 @@ if [ $debug -ge 1 ]; then
 fi
 
 # Changes in sources list common to all runtimes
-extra_gnat_files="s-memcop.ads s-memcop.adb
-                  s-memmov.ads s-memmov.adb
-                  s-memset.ads s-memset.adb
-                  s-memcom.ads s-memcom.adb"
-extra_target_pairs="s-memcop.ads:s-memcop-zfp.ads
-                    s-memcop.adb:s-memcop-zfp.adb"
+case $config in
+  zfp-support/mcm)
+	# MCM has its own version of memcpy/memset/xxx
+	;;
+  *)
+	extra_gnat_files="s-memcop.ads s-memcop.adb
+                          s-memmov.ads s-memmov.adb
+                          s-memset.ads s-memset.adb
+                          s-memcom.ads s-memcom.adb"
+	extra_target_pairs="s-memcop.ads:s-memcop-zfp.ads
+                            s-memcop.adb:s-memcop-zfp.adb"
+      ;;
+esac
 
 case $gnat_rts in
   zfp)
