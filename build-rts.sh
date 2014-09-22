@@ -587,7 +587,10 @@ case $config in
                             s-macres.adb:s-macres-mcm.adb
                             $textio_pairs"
         copy $PWD/lmp/support/runtime.xml $objdir/runtime.xml
-        copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
+	# Don't use "gnat" as library name, to linke with both the runtime
+	# and this zfp-support.
+	sed -e 's/"gnat"/"zfp"/' < $PWD/src/runtime_build.gpr \
+	    > $objdir/runtime_build.gpr
         ;;
     "zfp/psim")
         arch_files="powerpc/psim/start.S"
