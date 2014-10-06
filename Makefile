@@ -132,9 +132,9 @@ install: $(INSTALL_PREREQUISITES)
 	   echo "PREFIX variable should be specified"; \
 	   exit 1; \
 	fi
-	mkdir -p $(PREFIX)/lib/gnat/$(TARGET)
-	rm -rf $(PREFIX)/lib/gnat/$(TARGET)/$*
-	cp -rp obj/$*.build $(PREFIX)/lib/gnat/$(TARGET)/$*
+	mkdir -p $(PREFIX)/$(TARGET)/lib/gnat
+	rm -rf $(PREFIX)/$(TARGET)/lib/gnat/$*
+	cp -rp obj/$*.build $(PREFIX)/$(TARGET)/lib/gnat/$*
 
 # GDB stub.
 test-gdbstub:
