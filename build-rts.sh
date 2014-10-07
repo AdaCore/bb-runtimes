@@ -100,20 +100,35 @@ libc_pairs="s-c.ads:s-c-zfp.ads
 # Most of the libm files are already part of ravenscar-full sources
 # We need the a-numaux version without -lm
 libm_files="s-gcmain.ads s-gcmain.adb
-            s-libaux.adb s-libaux.ads
-            s-libm.adb s-libm.ads"
+            s-libm.ads s-libm.adb
+            s-libsin.adb s-libsin.ads
+            s-libdou.adb s-libdou.ads
+            s-lisisq.ads s-lisisq.adb
+            s-lidosq.ads s-lidosq.adb"
 
-libm_pairs="a-ngelfu.adb:a-ngelfu-ada.adb
-            a-ngelfu.ads:a-ngelfu-ada.ads
-            a-nlelfu.ads:a-nlelfu-ada.ads
-            a-nuelfu.ads:a-nuelfu-ada.ads
-            a-numaux.ads:a-numaux-vxworks.ads
-            s-gcmain.ads:s-gcmain-ada.ads
-            s-gcmain.adb:s-gcmain-ada.adb
-            s-libaux.adb:s-libaux-ada.adb
-            s-libaux.ads:s-libaux-ada.ads
-            s-libm.adb:s-libm-ada.adb
-            s-libm.ads:s-libm-ada.ads"
+libm_common_pairs="a-ngelfu.adb:a-ngelfu-ada.adb
+            	   a-ngelfu.ads:a-ngelfu-ada.ads
+            	   a-nlelfu.ads:a-nlelfu-ada.ads
+            	   a-nuelfu.ads:a-nuelfu-ada.ads
+            	   a-numaux.ads:a-numaux-vxworks.ads
+            	   s-gcmain.ads:s-gcmain-ada.ads
+            	   s-gcmain.adb:s-gcmain-ada.adb
+                   s-libm.ads:s-libm-ada.ads
+                   s-libm.adb:s-libm-ada.adb
+            	   s-libsin.adb:s-libsin-ada.adb
+            	   s-libsin.ads:s-libsin-ada.ads
+            	   s-libdou.adb:s-libdou-ada.adb
+            	   s-libdou.ads:s-libdou-ada.ads
+                   s-lisisq.ads:s-lisisq-ada.ads
+                   s-lidosq.ads:s-lidosq-ada.ads"
+
+libm_ada_pairs="$libm_common_pairs
+                s-lisisq.adb:s-lisisq-ada.adb
+                s-lidosq.adb:s-lidosq-ada.adb"
+
+libm_fpu_pairs="$libm_common_pairs
+                s-lisisq.adb:s-lisisq-fpu.adb
+                s-lidosq.adb:s-lidosq-fpu.adb"
 
 # Files and pairs for ZCX (ravenscar-full only)
 zcx_files="s-except.ads s-except.adb
@@ -448,17 +463,14 @@ case $config in
         discarded_sources="s-sssita.ads s-sssita.adb"
         extra_gnat_files="$extra_gnat_files
                           $extra_gnat_raven $libc_files $libm_files $zcx_files
-                          s-lisqro.ads s-lisqro.adb
                           s-bbbopa.ads"
 	extra_gnarl_files="$extra_gnarl_raven"
         extra_target_pairs="$extra_target_pairs
                             s-textio.adb:s-textio-p2020.adb
                             $raven_ppc_pairs
                             $libc_pairs
-                            $libm_pairs
+                            $libm_ada_pairs
                             $zcx_pairs
-                            s-lisqro.ads:s-lisqro-ada.ads
-                            s-lisqro.adb:s-lisqro-ada.adb
                             s-multip.adb:s-multip-raven-default.adb
                             s-bbcpsp.ads:s-bbcpsp-spe.ads
                             s-bbcpsp.adb:s-bbcpsp-spe.adb
@@ -549,17 +561,14 @@ case $config in
         arch_files="$p55_arch_files $ppcspe_raven_files"
         discarded_sources="s-sssita.ads s-sssita.adb"
         extra_gnat_files="$extra_gnat_files
-                          $extra_gnat_raven $libc_files $zcx_files $libm_files
-                          s-lisqro.ads s-lisqro.adb"
+                          $extra_gnat_raven $libc_files $zcx_files $libm_files"
 	extra_gnarl_files="$extra_gnarl_raven s-bbbopa.ads"
         extra_target_pairs="$extra_target_pairs
                             s-textio.adb:s-textio-p55.adb
                             $raven_ppc_pairs
                             $libc_pairs
                             $zcx_pairs
-                            $libm_pairs
-                            s-lisqro.ads:s-lisqro-ada.ads
-                            s-lisqro.adb:s-lisqro-ada.adb
+                            $libm_ada_pairs
                             s-multip.adb:s-multip-raven-default.adb
                             s-bbcpsp.ads:s-bbcpsp-spe.ads
                             s-bbcpsp.adb:s-bbcpsp-spe.adb
@@ -677,17 +686,14 @@ case $config in
         extra_gnat_files="$extra_gnat_files
                           $extra_gnat_raven $libc_files $libm_files
                           s-ioport.ads s-ioport.adb
-                          s-lisqro.ads s-lisqro.adb
                           $zcx_files"
         extra_gnarl_files="$extra_gnarl_raven"
         extra_target_pairs="$extra_target_pairs
                             s-textio.adb:s-textio-prep.adb
                             $raven_ppc_pairs
                             $libc_pairs
-                            $libm_pairs
+                            $libm_ada_pairs
                             $zcx_pairs
-                            s-lisqro.ads:s-lisqro-ada.ads
-                            s-lisqro.adb:s-lisqro-ada.adb
                             s-multip.adb:s-multip-raven-default.adb
                             s-bbcpsp.ads:s-bbcpsp-6xx.ads
                             s-bbcpsp.adb:s-bbcpsp-6xx.adb
@@ -828,7 +834,6 @@ case $config in
         arch_files="$tms570_arch_files arm/tms570/nozcx.S"
 	extra_gnat_files="$extra_gnat_files
                           $textio_src $libc_files $libm_files $zcx_files
-                          s-lisqro.ads s-lisqro.adb
                           s-macres.ads s-macres.adb"
         extra_target_pairs="$extra_target_pairs
                             a-intnam.ads:a-intnam-xi-tms570.ads
@@ -840,12 +845,10 @@ case $config in
                             s-bbbosu.adb:s-bbbosu-tms570.adb
                             s-traceb.adb:s-traceb-xi-armeabi.adb
                             s-parame.ads:s-parame-xi-small.ads
-                            s-lisqro.ads:s-lisqro-ada.ads
-                            s-lisqro.adb:s-lisqro-fpu.adb
                             $zcx_pairs
                             $textio_pairs
                             $libc_pairs
-                            $libm_pairs"
+                            $libm_fpu_pairs"
         if [ "$config" = "ravenscar-full/tms570-sci" ]; then
             extra_target_pairs="$extra_target_pairs
                                 s-textio.adb:s-textio-tms570-sci.adb"
@@ -1029,12 +1032,9 @@ case $config in
 		;;
 	   ravenscar-full/*)
 		extra_gnat_files="$extra_gnat_files
-                                  $zcx_files $libm_files
-                                  s-lisqro.ads s-lisqro.adb"
+                                  $zcx_files $libm_files"
 		extra_target_pairs="$extra_target_pairs
-                                    $zcx_pairs $libm_pairs
-                                    s-lisqro.ads:s-lisqro-ada.ads
-                                    s-lisqro.adb:s-lisqro-fpu.adb"
+                                    $zcx_pairs $libm_fpu_pairs"
 		zcx_copy
 		;;
 	esac
