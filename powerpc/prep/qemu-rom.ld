@@ -14,6 +14,7 @@ SECTIONS
   /* Code sections, merged into text segment: */
   .text :
   {
+    __text = .;
     *(.text .text.* .gnu.linkonce.t.*)
     *(.gnu.warning)
   } = 0
@@ -36,7 +37,12 @@ SECTIONS
   .ctors : { KEEP(SORT_BY_NAME(*)(.ctors)) }
   .dtors : { KEEP(SORT_BY_NAME(*)(.dtors)) }
 
-  .eh_frame_hdr : { *(.eh_frame_hdr) }
+  .eh_frame_hdr :
+  {
+     __eh_frame_hdr = .;
+    *(.eh_frame_hdr)
+  }
+
   .eh_frame  : { KEEP (*(.eh_frame)) }
   .gcc_except_table : { *(.gcc_except_table .gcc_except_table.*) }
 
@@ -65,6 +71,7 @@ SECTIONS
 
   .data : AT(__data_load)
   {
+    __data = .;
     *(.data .data.* .gnu.linkonce.d.*)
     KEEP (*(.gnu.linkonce.d.*personality*))
     SORT(CONSTRUCTORS)

@@ -156,6 +156,13 @@ zcx_copy()
  copy $gccdir/libgcc/unwind-pe.h $objdir/common
 }
 
+zcx_dw2_copy()
+{
+ zcx_copy
+ copy $PWD/src/unwind-dw2-fde-bb.c $objdir/common
+ copy $gccdir/libgcc/unwind-dw2-fde.h $objdir/common
+}
+
 # libgcc in Ada (div, shifts)
 libgcc_files="s-gcc.ads s-gcc.adb
               s-gccshi.ads s-gccshi.adb
@@ -457,7 +464,7 @@ case $config in
 	#  ZCX tables registering) are called
         sed -e 's/ASMFLAGS := (/ASMFLAGS := ("-DCALL__init") \& (/' \
             < src/runtime_build.gpr > $objdir/runtime_build.gpr
-	zcx_copy
+	zcx_dw2_copy
         copy $PWD/powerpc/prep/link-zcx.spec $objdir/link.spec
         arch_files="$p2020_raven_files"
         discarded_sources="s-sssita.ads s-sssita.adb"
@@ -556,7 +563,7 @@ case $config in
 	#  ZCX tables registering) are called
         sed -e 's/ASMFLAGS := (/ASMFLAGS := ("-DCALL__init") \& (/' \
             < src/runtime_build.gpr > $objdir/runtime_build.gpr
-	zcx_copy
+	zcx_dw2_copy
         copy $PWD/powerpc/prep/link-zcx.spec $objdir/link.spec
         arch_files="$p55_arch_files $ppcspe_raven_files"
         discarded_sources="s-sssita.ads s-sssita.adb"
@@ -705,7 +712,7 @@ case $config in
                             s-ioport.adb:s-ioport-prep.adb
                             system.ads:system-xi-ppc-full.ads"
         copy $PWD/powerpc/prep/link-zcx.spec $objdir/link.spec
-	zcx_copy
+	zcx_dw2_copy
         ;;
     "zfp/8349e")
         arch_files=$w8349e_arch_files

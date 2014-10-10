@@ -1,5 +1,5 @@
 *endfile:
-crtend.o%s ecrtn.o%s
+ecrtn.o%s -u _Unwind_Find_FDE
 
 *startfile:
-ecrti.o%s crtbegin.o%s
+ecrti.o%s

@@ -13,6 +13,7 @@ SECTIONS
   /* Code sections, merged into text segment: */
   .text :
   {
+    __text = .;
     *(.interrupt) /* Interrupt vector table, must be within a 64KB window */
     *(.init)
     *(.text .text.* .gnu.linkonce.t.*)
@@ -27,7 +28,11 @@ SECTIONS
     . = ALIGN(4);
   } =0
 
-  .eh_frame_hdr : { *(.eh_frame_hdr) }
+  .eh_frame_hdr :
+  {
+    __eh_frame_hdr = .;
+    *(.eh_frame_hdr)
+  }
   .eh_frame       : { KEEP (*(.eh_frame)) }
   .gcc_except_table : { *(.gcc_except_table .gcc_except_table.*) }
 
@@ -48,6 +53,7 @@ SECTIONS
   }
   .data :
   {
+    __data = .;
     __data_start = .;
     *(.data .data.* .gnu.linkonce.d.*)
     KEEP (*(.gnu.linkonce.d.*personality*))

@@ -15,6 +15,7 @@ SECTIONS
 
   .text           :
   {
+    __text = .;
     *(.interrupt)
     *(.text.unlikely .text.*_unlikely)
     *(.text.exit .text.exit.*)
@@ -52,7 +53,12 @@ SECTIONS
     *(.sbss2 .sbss2.* .gnu.linkonce.sb2.*)
     __sbss2_end = .;
   }
-  .eh_frame_hdr : { *(.eh_frame_hdr) }
+
+  .eh_frame_hdr :
+  {
+     __eh_frame_hdr = .;
+    *(.eh_frame_hdr)
+  }
   .eh_frame       : ONLY_IF_RO { KEEP (*(.eh_frame)) }
   .gcc_except_table : ONLY_IF_RO { *(.gcc_except_table .gcc_except_table.*) }
 
@@ -64,6 +70,7 @@ SECTIONS
   .got2           : { *(.got2) }
   .data           :
   {
+    __data = .;
     *(.data .data.* .gnu.linkonce.d.*)
     SORT(CONSTRUCTORS)
   }
