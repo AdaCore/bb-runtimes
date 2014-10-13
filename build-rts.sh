@@ -1042,7 +1042,7 @@ case $config in
                                   $zcx_files $libm_files"
 		extra_target_pairs="$extra_target_pairs
                                     $zcx_pairs $libm_fpu_pairs"
-		zcx_copy
+		zcx_dw2_copy
 		;;
 	esac
 
