@@ -456,6 +456,7 @@ else
   # Parse commands
   for opt; do
       case $target in
+	  # PowerPc based
           prep)
               case $opt in
                   full) build_full_prep ;;
@@ -469,12 +470,63 @@ else
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
+          8349e)
+              case $opt in
+                  zfp)  build_zfp_8349e ;;
+                  sfp)  build_sfp_8349e ;;
+                  minimal)  build_minimal_8349e ;;
+		  raven-minimal) raven_testsuite ravenscar-minimal/8349e ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
+          8321e)
+              case $opt in
+                  minimal)  build_minimal_8321e ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
           psim)
               case $opt in
                   zfp)  build_zfp_psim ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
+
+	  # e500 based
+          mpc5554)
+              case $opt in
+                  zfp)  build_zfp_mpc5554 ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
+          mpc5634)
+              case $opt in
+                  zfp)  build_zfp_mpc5634 ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
+          p2020)
+              case $opt in
+                  sfp)  build_sfp_p2020 ;;
+                  full)  build_full_p2020 ;;
+                  zfp)  build_zfp_p2020 ;;
+                  raven-sfp) raven_testsuite ravenscar-sfp/p2020 ;;
+                  raven-full) raven_testsuite ravenscar-full/p2020 ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
+          p5566)
+              case $opt in
+                  zfp)  build_zfp_p5566 ;;
+                  sfp)  build_sfp_p5566 ;;
+                  full)  build_full_p5566 ;;
+                  raven-sfp) raven_testsuite ravenscar-sfp/p5566 ;;
+                  raven-full) raven_testsuite ravenscar-full/p5566 ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
+
+	  # GR
           mcm)
               case $opt in
                   zfp)  build_zfp_lmp ;;
@@ -482,6 +534,8 @@ else
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
+
+	  # ARM based
           lm3s)
               case $opt in
                   zfp)  build_zfp_lm3s ;;
@@ -521,53 +575,8 @@ else
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
-          8349e)
-              case $opt in
-                  zfp)  build_zfp_8349e ;;
-                  sfp)  build_sfp_8349e ;;
-                  minimal)  build_minimal_8349e ;;
-		  raven-minimal) raven_testsuite ravenscar-minimal/8349e ;;
-                  *) echo "Unknown command $opt for target $target"; exit 2;;
-              esac
-              ;;
-          8321e)
-              case $opt in
-                  minimal)  build_minimal_8321e ;;
-                  *) echo "Unknown command $opt for target $target"; exit 2;;
-              esac
-              ;;
-          mpc5554)
-              case $opt in
-                  zfp)  build_zfp_mpc5554 ;;
-                  *) echo "Unknown command $opt for target $target"; exit 2;;
-              esac
-              ;;
-          mpc5634)
-              case $opt in
-                  zfp)  build_zfp_mpc5634 ;;
-                  *) echo "Unknown command $opt for target $target"; exit 2;;
-              esac
-              ;;
-          p2020)
-              case $opt in
-                  sfp)  build_sfp_p2020 ;;
-                  full)  build_full_p2020 ;;
-                  zfp)  build_zfp_p2020 ;;
-                  raven-sfp) raven_testsuite ravenscar-sfp/p2020 ;;
-                  raven-full) raven_testsuite ravenscar-full/p2020 ;;
-                  *) echo "Unknown command $opt for target $target"; exit 2;;
-              esac
-              ;;
-          p5566)
-              case $opt in
-                  zfp)  build_zfp_p5566 ;;
-                  sfp)  build_sfp_p5566 ;;
-                  full)  build_full_p5566 ;;
-                  raven-sfp) raven_testsuite ravenscar-sfp/p5566 ;;
-                  raven-full) raven_testsuite ravenscar-full/p5566 ;;
-                  *) echo "Unknown command $opt for target $target"; exit 2;;
-              esac
-              ;;
+
+	  # Sparc based
           erc32)
               case $opt in
                   sfp) build_sfp_erc32 ;;
@@ -592,6 +601,8 @@ else
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
+
+	  # Misc
 	  x86-linux)
               case $opt in
                   zfp) build_zfp_x86_linux ;;
