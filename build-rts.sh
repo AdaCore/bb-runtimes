@@ -192,6 +192,11 @@ w8349e_arch_files="powerpc/8349e/ram.ld
 
 w8349e_raven_files="$w8349e_arch_files $ppc6xx_raven_files"
 
+# Arch files for 8641d
+mpc8641d_arch_files="powerpc/8641d/qemu-rom.ld
+ 		     powerpc/8641d/start-rom.S
+		     powerpc/8641d/setup.S"
+
 p2020_arch_files="powerpc/p2020/start-ram.S
 		  powerpc/p2020/setup.S
 		  powerpc/p2020/p2020.ld"
@@ -306,7 +311,7 @@ case $config in
     */sparc-solaris)
         gnat_target=sparc-solaris
 	;;
-    */psim | */prep* | */8349e | */8321e)
+    */psim | */prep* | */8349e | */8321e | */8641d)
         gnat_target=powerpc-elf
 	;;
     */p2020 | */mpc5554 | */mpc5634 | */p5566)
@@ -714,8 +719,7 @@ case $config in
         copy $PWD/powerpc/prep/link-zcx.spec $objdir/link.spec
 	zcx_dw2_copy
         ;;
-    "zfp/8349e")
-        arch_files=$w8349e_arch_files
+    "zfp/8349e" | "zfp/8641d")
         extra_gnat_files="$extra_gnat_files
                           $textio_src s-textio.ads s-textio.adb
                           s-bb.ads
@@ -724,10 +728,25 @@ case $config in
         extra_target_pairs="$extra_target_pairs
                             s-textio.adb:s-textio-p2020.adb
                             s-textio.ads:s-textio-zfp.ads
-                            s-bbbopa.ads:s-bbbopa-8349e.ads
                             $textio_pairs
                             s-macres.adb:s-macres-8349e.adb"
-        copy $PWD/powerpc/8349e/runtime.xml $objdir/runtime.xml
+	case $config in
+	    */8349e)
+		arch_files=$w8349e_arch_files
+		extra_target_pairs="$extra_target_pairs
+                                    s-bbbopa.ads:s-bbbopa-8349e.ads
+                                    s-macres.adb:s-macres-8349e.adb"
+		copy $PWD/powerpc/8349e/runtime.xml $objdir/runtime.xml
+		;;
+	    */8641d)
+		arch_files=$mpc8641d_arch_files
+		extra_target_pairs="$extra_target_pairs
+                                    s-bbbopa.ads:s-bbbopa-8641d.ads
+                                    s-macres.adb:s-macres-p2020.adb"
+		copy $PWD/powerpc/8641d/runtime.xml $objdir/runtime.xml
+		;;
+	    *) exit 2;;
+	esac
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         ;;
     "ravenscar-sfp/8349e")

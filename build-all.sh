@@ -181,6 +181,11 @@ build_sfp_8349e()
     do_ravenscar powerpc-elf ravenscar-sfp/8349e
 }
 
+build_zfp_8641d()
+{
+    do_zfp powerpc-elf zfp/8641d
+}
+
 build_minimal_8349e()
 {
     do_ravenscar powerpc-elf ravenscar-minimal/8349e
@@ -482,6 +487,12 @@ else
           8321e)
               case $opt in
                   minimal)  build_minimal_8321e ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
+          8641d)
+              case $opt in
+                  zfp)  build_zfp_8641d ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
