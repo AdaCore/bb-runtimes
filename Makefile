@@ -47,7 +47,7 @@ ifeq ($(TARGET), leon3-elf)
     RTS_LIST=zfp-leon3 ravenscar-sfp-leon3 ravenscar-full-leon3
 endif
 
-ifeq ($(TARGET), lmp-elf)
+ifeq ($(TARGET), visium-elf)
     RTS_LIST=zfp-mcm zfp-support-mcm
 endif
 

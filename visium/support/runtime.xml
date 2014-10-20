@@ -24,7 +24,7 @@
 
    package Binder is
       for Required_Switches ("Ada") use
-        ("gnatbind_prefix=lmp-elf-", "--RTS=zfp",
+        ("gnatbind_prefix=visium-elf-", "--RTS=zfp",
 	 "-aO${RUNTIME_DIR(ada)}/adalib");
    end Binder;
    </config>
