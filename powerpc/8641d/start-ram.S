@@ -6,7 +6,7 @@
 #                                                                           #
 #                               Assembly File                               #
 #                                                                           #
-#                      Copyright (C) 2012-2013 AdaCore                      #
+#                      Copyright (C) 2012-2014 AdaCore                      #
 #                                                                           #
 #  GNAT is free software;  you can  redistribute it  and/or modify it under #
 #  terms of the  GNU General Public License as published  by the Free Soft- #
@@ -26,31 +26,21 @@
 #                                                                           #
 #############################################################################
 
+/* This is an -*- asm -*- file.  */
 	.section ".text"
         .global _start_ram
 
 _start_ram:
-  	# Load the new stack pointer
-        lis	%r11,(__stack_end - 16)@h
-        ori	%r11,%r11,(__stack_end - 16)@l
-        # back-link to the previous one.
-        stw	%r1,0(%r11)
-        # Set the stack.
-        mr      %r1,%r11
+	# Load the stack, but back-link to the previous one.
+        lis	%r0,(__stack_end - 16)@h
+        ori	%r0,%r0,(__stack_end - 16)@l
+        stw	%r1,0(%r0)
+        ori	%r1,%r0,%r0
 
         mflr	%r0
         stw	%r0,12(%r1)
-	
         bl	_setup
-
-#ifdef CALL__init
-	# Call constructors
-	bl    __init
-#endif
-
         bl	main
-
-	# Return to the caller	
         lwz	%r0,12(%r1)
         lwz	%r1,0(%r1)
         mtlr	%r0

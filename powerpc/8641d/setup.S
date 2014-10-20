@@ -2,11 +2,11 @@
 #                                                                           #
 #                 GNAT RUN-TIME LIBRARY (GNARL) COMPONENTS                  #
 #                                                                           #
-#                                 S T A R T                                 #
+#                                 S E T U P                                 #
 #                                                                           #
 #                               Assembly File                               #
 #                                                                           #
-#                      Copyright (C) 2012-2013 AdaCore                      #
+#                      Copyright (C) 2012-2014 AdaCore                      #
 #                                                                           #
 #  GNAT is free software;  you can  redistribute it  and/or modify it under #
 #  terms of the  GNU General Public License as published  by the Free Soft- #
@@ -27,32 +27,71 @@
 #############################################################################
 
 	.section ".text"
-        .global _start_ram
+        .global _setup
+	.global _setup_cpu
 
-_start_ram:
-  	# Load the new stack pointer
-        lis	%r11,(__stack_end - 16)@h
-        ori	%r11,%r11,(__stack_end - 16)@l
-        # back-link to the previous one.
-        stw	%r1,0(%r11)
-        # Set the stack.
-        mr      %r1,%r11
+	# Per-CPU setup (init fpu)
+_setup_cpu:
+#ifndef NOFPU
+        # Enable FPU.
+	li    %r3,0x2000
+	mtmsr %r3
+        isync
 
-        mflr	%r0
-        stw	%r0,12(%r1)
-	
-        bl	_setup
-
-#ifdef CALL__init
-	# Call constructors
-	bl    __init
+        # Disable overflow and underflow exceptions.
+        mtfsb0 25
+        mtfsb0 26
+#else
+	# Disable FPU.
+	li	%r3,0
+	mtmsr	%r3
+	isync
 #endif
+	blr
+	.size _setup_cpu, . - _setup
 
-        bl	main
+_setup:
+        li    %r0,0
 
-	# Return to the caller	
-        lwz	%r0,12(%r1)
-        lwz	%r1,0(%r1)
-        mtlr	%r0
+        # Clear sbss2
+	lis   %r11,(__sbss2_start - 1)@ha
+	la    %r11,(__sbss2_start - 1)@l(%r11)
+	lis   %r10,(__sbss2_end)@ha
+        la    %r10,(__sbss2_end)@l(%r10)
+        subf  %r10,%r11,%r10
+	mtctr %r10
+	b     1f
+0:	stbu  %r0,1(%r11)
+1:
+	bdnz  0b
+
+        # Clear sbss
+	lis   %r11,(__sbss_start - 1)@ha
+	la    %r11,(__sbss_start - 1)@l(%r11)
+	lis   %r10,(__sbss_end)@ha
+        la    %r10,(__sbss_end)@l(%r10)
+        subf  %r10,%r11,%r10
+	mtctr %r10
+	b     1f
+0:	stbu  %r0,1(%r11)
+1:
+	bdnz  0b
+
+        # Clear bss
+	lis   %r11,(__bss_start - 1)@ha
+	la    %r11,(__bss_start - 1)@l(%r11)
+	lis   %r10,(__bss_end)@ha
+        la    %r10,(__bss_end)@l(%r10)
+        subf  %r10,%r11,%r10
+	mtctr %r10
+	b     1f
+0:	stbu  %r0,1(%r11)
+1:
+	bdnz  0b
         blr
-	.size _start_ram, . - _start_ram
+	.size _setup, . - _setup
+
+	.global __eabi
+__eabi:
+	blr
+	.size __eabi, . - __eabi
