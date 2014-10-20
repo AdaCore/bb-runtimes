@@ -238,7 +238,7 @@ ravenscar-sfp-stm32f4.src:
 ravenscar-full-stm32f4.src:
 	@$(BUILD_RTS) ravenscar-full/stm32f4 --gcc-dir=$(GCC_SOURCES)
 
-# lmp-elf
+# visium-elf
 zfp-support-mcm.src:
 	@$(BUILD_RTS) zfp-support/mcm
 
