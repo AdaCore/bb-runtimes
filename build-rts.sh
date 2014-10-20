@@ -776,6 +776,7 @@ case $config in
                             s-bbpara.ads:s-bbpara-ppc.ads
                             a-intnam.ads:a-intnam-xi-${config_arch}.ads
                             system.ads:system-xi-ppc-minimal.ads
+                            s-tracon.adb:s-tracon-ppc-eabi.adb
                             s-secsta.ads:s-secsta-zfp.ads
                             s-secsta.adb:s-secsta-zfp.adb
                             s-macres.adb:s-macres-8349e.adb
