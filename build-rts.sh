@@ -214,7 +214,7 @@ p55_arch_files="powerpc/p5566/start-bam.S
 		powerpc/p5566/flash.ld
 		powerpc/p5566/ram.ld"
 
-lmpmcm_arch_files="lmp/mcm/start.S"
+visiummcm_arch_files="visium/mcm/start.S"
 
 tms570_arch_files="arm/tms570/tms570.ld
                    arm/tms570/sys_startup.S
@@ -333,7 +333,7 @@ case $config in
 	gnat_target=leon3-elf
 	;;
     */mcm)
-	gnat_target=lmp-elf
+	gnat_target=visium-elf
 	;;
     *)
 	echo "unhandled target in config $config"; exit 1
@@ -600,7 +600,7 @@ case $config in
                             s-textio.ads:s-textio-zfp.ads
                             s-macres.adb:s-macres-mcm.adb
                             $textio_pairs"
-        copy $PWD/lmp/mcm/runtime.xml $objdir/runtime.xml
+        copy $PWD/visium/mcm/runtime.xml $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         ;;
     "zfp-support/mcm")
@@ -614,7 +614,7 @@ case $config in
                             s-textio.ads:s-textio-zfp.ads
                             s-macres.adb:s-macres-mcm.adb
                             $textio_pairs"
-        copy $PWD/lmp/support/runtime.xml $objdir/runtime.xml
+        copy $PWD/visium/support/runtime.xml $objdir/runtime.xml
 	# Don't use "gnat" as library name, to linke with both the runtime
 	# and this zfp-support.
 	sed -e 's/"gnat"/"zfp"/' < $PWD/src/runtime_build.gpr \

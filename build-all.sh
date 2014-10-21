@@ -306,14 +306,14 @@ build_sfp_sam4s()
     do_ravenscar arm-eabi ravenscar-sfp/sam4s
 }
 
-build_zfp_lmp()
+build_zfp_visium()
 {
-    do_zfp lmp-elf zfp/mcm
+    do_zfp visium-elf zfp/mcm
 }
 
-build_zfp_support_lmp()
+build_zfp_support_visium()
 {
-    do_zfp lmp-elf zfp-support/mcm
+    do_zfp visium-elf zfp-support/mcm
 }
 
 build_sfp_erc32()
@@ -546,8 +546,8 @@ else
 	  # GR
           mcm)
               case $opt in
-                  zfp)  build_zfp_lmp ;;
-                  zfp-support)  build_zfp_support_lmp ;;
+                  zfp)  build_zfp_visium ;;
+                  zfp-support)  build_zfp_support_visium ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
