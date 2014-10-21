@@ -95,7 +95,8 @@ _cpu1_zfp_mode:
         stw	%r0,12(1)
 
 	bl	main
-	b	_cpu1_exit
+1:	bl	exit
+	b	1b
 
 _cpu0_start:
 	# Load the stack.

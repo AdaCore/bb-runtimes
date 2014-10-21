@@ -20,11 +20,12 @@ SECTIONS
   . = 0xfff00200;
 
   /* Code sections, merged into text segment: */
-  .text           :
+  .text :
   {
+    __text = .;
     *(.text .text.* .gnu.linkonce.t.*)
     *(.gnu.warning)
-  } =0
+  } = 0
 
   /* Read-only sections, merged into rodata segment: */
   .rodata :
@@ -34,11 +35,29 @@ SECTIONS
     *(.rodata1)
     *(.got2)
     . = ALIGN(4);
-    __rom_end = .;
   } =0
 
+  /* init, ctors and dtors sections.  Assume we really need them
+     when they happen to be generated, so KEEP to prevent garbage
+     collection of per-object pieces.  */
+
+  .init  : { KEEP(*(.init)) }
+  .ctors : { KEEP(SORT_BY_NAME(*)(.ctors)) }
+  .dtors : { KEEP(SORT_BY_NAME(*)(.dtors)) }
+
+  .eh_frame_hdr :
+  {
+     __eh_frame_hdr = .;
+    *(.eh_frame_hdr)
+  }
+
+  .eh_frame  : { KEEP (*(.eh_frame)) }
+  .gcc_except_table : { *(.gcc_except_table .gcc_except_table.*) }
+
+  __rom_end = .;
+
   /* Leave room for exception vectors.  */
-  . = 0x1000;
+  . = 0x2000;
   __sdata2_load = __rom_end;
   .sdata2 : AT (__sdata2_load)
   {
@@ -56,9 +75,11 @@ SECTIONS
     __sbss2_end = .;
   }
   __data_load = LOADADDR(.sdata2) + SIZEOF(.sdata2);
+  __data_start = .;
+
   .data : AT(__data_load)
   {
-    __data_start = .;
+    __data = .;
     *(.data .data.* .gnu.linkonce.d.*)
     KEEP (*(.gnu.linkonce.d.*personality*))
     SORT(CONSTRUCTORS)
@@ -66,8 +87,10 @@ SECTIONS
     PROVIDE (_SDA_BASE_ = 32768);
     *(.sdata .sdata.* .gnu.linkonce.s.*)
     . = ALIGN(4);
-    __data_end = .;
   }
+
+  __data_end = .;
+
   .sbss :
   {
     __sbss_start = .;
@@ -76,14 +99,12 @@ SECTIONS
     *(.scommon)
     __sbss_end = .;
   }
-  .bss  :
+  .stacks :
   {
-   __bss_start = .;
-   *(.dynbss)
-   *(.bss .bss.* .gnu.linkonce.b.*)
-   *(COMMON)
-   . = ALIGN(4);
-   __bss_end = .;
+   . = ALIGN(8);
+   __interrupt_stack_start = .;
+   *(.interrupt_stacks)
+   __interrupt_stack_end = .;
 
    /* Separate stack per CPU */
    __stack_start = .;
@@ -97,12 +118,22 @@ SECTIONS
    __cpu1_stack_end = .;
 
    __stack_end = .;
+  }
+  .bss :
+  {
+   __bss_start = .;
+   *(.dynbss)
+   *(.bss .bss.* .gnu.linkonce.b.*)
+   *(COMMON)
+   . = ALIGN(4);
+   __bss_end = .;
 
    . = ALIGN(8);
    /* One heap */
    __heap_start = .;
    . = . + __heap_size;
    __heap_end = .;
+
    _end = .;
   }
 
@@ -122,5 +153,5 @@ SECTIONS
   .debug_funcnames 0 : { *(.debug_funcnames) }
   .debug_typenames 0 : { *(.debug_typenames) }
   .debug_varnames  0 : { *(.debug_varnames) }
-  /DISCARD/ : { *(.note.GNU-stack) *(.eh_frame) }
+  /DISCARD/ : { *(.note.GNU-stack) }
 }
