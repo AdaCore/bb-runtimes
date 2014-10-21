@@ -728,8 +728,7 @@ case $config in
         extra_target_pairs="$extra_target_pairs
                             s-textio.adb:s-textio-p2020.adb
                             s-textio.ads:s-textio-zfp.ads
-                            $textio_pairs
-                            s-macres.adb:s-macres-8349e.adb"
+                            $textio_pairs"
 	case $config in
 	    */8349e)
 		arch_files=$w8349e_arch_files
@@ -770,6 +769,30 @@ case $config in
                             s-macres.adb:s-macres-8349e.adb"
 	sed -e "$SED_REMOVE_BIND" \
 	    < $PWD/powerpc/8349e/runtime.xml > $objdir/runtime.xml
+        copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
+        copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
+        ;;
+    "ravenscar-sfp/8641d")
+        arch_files="$mpc8641d_arch_files $ppc6xx_raven_files"
+        extra_gnat_files="$extra_gnat_files
+                          $extra_gnat_raven
+                          s-bbbopa.ads
+                          $libgcc_files"
+        extra_gnarl_files="$extra_gnarl_raven"
+        extra_target_pairs="$extra_target_pairs
+                            s-textio.adb:s-textio-p2020.adb
+                            $raven_ppc_pairs
+                            s-multip.adb:s-multip-raven-default.adb
+                            s-bbcpsp.ads:s-bbcpsp-6xx.ads
+                            s-bbcpsp.adb:s-bbcpsp-6xx.adb
+                            s-bbbopa.ads:s-bbbopa-8641d.ads
+                            s-bbbosu.adb:s-bbbosu-8641d.adb
+                            s-bbpara.ads:s-bbpara-ppc.ads
+                            a-intnam.ads:a-intnam-xi-p2020.ads
+                            system.ads:system-xi-e500v2-sfp.ads
+                            s-macres.adb:s-macres-p2020.adb"
+	sed -e "$SED_REMOVE_BIND" \
+	    < $PWD/powerpc/8641d/runtime.xml > $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
         ;;

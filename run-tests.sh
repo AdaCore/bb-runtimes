@@ -59,6 +59,12 @@ case $config in
         cross=powerpc-elf
         run=run_8349e
         ;;
+    ravenscar-sfp/8641d)
+        support_dirs="powerpc-eabispe-p2010 ravenscar-sfp"
+        discr="no_libc,no_serial_output,no_cache_control,no_accurate_clock,no_long_delay,powerpc,powerpc-elf,high_interrupt"
+        cross=powerpc-elf
+        run=run_8641d
+        ;;
     ravenscar-sfp/lm3s)
         support_dirs="powerpc-elf ravenscar-sfp"
         discr="no_libc,no_serial_output,no_cache_control,no_accurate_clock,no_long_delay,arm,lm3s,high_interrupt"
@@ -117,6 +123,11 @@ run_prep()
 run_p2020()
 {
  ~/work/qemu-e500v2/ppc-softmmu/qemu-system-ppc -M p2010rdb -nographic -no-reboot -kernel $1
+}
+
+run_8641d()
+{
+ /gournay.a/users/gingold/sandbox-49/x86-linux/gnatpython/install/lib/python2.7/site-packages/gnatpython/internal/data/libexec/x86-linux/qemu-2.0.0/qemu-system-ppc-20140720 -nographic -M wrsbc8641d_vxworks -no-reboot -bios - -kernel $1
 }
 
 run_p5566()
