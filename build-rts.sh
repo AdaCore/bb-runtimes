@@ -596,9 +596,9 @@ case $config in
                           $textio_src s-textio.ads s-textio.adb
                           s-macres.ads s-macres.adb"
         extra_target_pairs="$extra_target_pairs
-                            s-textio.adb:s-textio-mcm.adb
+                            s-textio.adb:s-textio-stdio.adb
                             s-textio.ads:s-textio-zfp.ads
-                            s-macres.adb:s-macres-mcm.adb
+                            s-macres.adb:s-macres-native.adb
                             $textio_pairs"
         copy $PWD/visium/mcm/runtime.xml $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
@@ -610,9 +610,9 @@ case $config in
                           $textio_src s-textio.ads s-textio.adb
                           s-macres.ads s-macres.adb"
         extra_target_pairs="$extra_target_pairs
-                            s-textio.adb:s-textio-mcm.adb
+                            s-textio.adb:s-textio-stdio.adb
                             s-textio.ads:s-textio-zfp.ads
-                            s-macres.adb:s-macres-mcm.adb
+                            s-macres.adb:s-macres-native.adb
                             $textio_pairs"
         copy $PWD/visium/support/runtime.xml $objdir/runtime.xml
 	# Don't use "gnat" as library name, to linke with both the runtime
