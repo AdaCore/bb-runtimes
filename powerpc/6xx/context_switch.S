@@ -16,9 +16,9 @@
 	.globl context_switch
 	.type  context_switch, @function
 context_switch:
+	# The context address of the current thread is in r3
         # Read current thread,
-  	lis     %r7,__gnat_running_thread_table@ha
-        lwz     %r5,__gnat_running_thread_table@l(%r7)
+        lwz     %r5,0(%r3)
 
 	mfcr    %r6                  # Condition register
         mflr    %r9		     # Link register
@@ -73,9 +73,8 @@ context_switch:
 #endif
 
         # Load the context address of the next thread.
-  	lis     %r8,first_thread_table@ha
-        lwz     %r5,first_thread_table@l(%r8)
-        stw     %r5,__gnat_running_thread_table@l(%r7)
+        lwz     %r5,0(%r4)
+        stw     %r5,0(%r3)
 
        	lwz     %r6, 84(%r5)            # load Cond. Reg.
        	lwz     %r9, 88(%r5)            # load Link Reg.
