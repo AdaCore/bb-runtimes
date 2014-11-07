@@ -782,12 +782,13 @@ case $config in
         extra_target_pairs="$extra_target_pairs
                             s-textio.adb:s-textio-p2020.adb
                             $raven_ppc_pairs
-                            s-multip.adb:s-multip-raven-default.adb
+                            s-multip.adb:s-multip-8641d.adb
                             s-bbcpsp.ads:s-bbcpsp-6xx.ads
                             s-bbcpsp.adb:s-bbcpsp-6xx.adb
                             s-bbbopa.ads:s-bbbopa-8641d.ads
                             s-bbbosu.adb:s-bbbosu-8641d.adb
-                            s-bbpara.ads:s-bbpara-ppc.ads
+                            s-bbpara.ads:s-bbpara-8641d.ads
+                            s-bcprmu.adb:s-bcprmu-8641d.adb
                             a-intnam.ads:a-intnam-xi-p2020.ads
                             system.ads:system-xi-e500v2-sfp.ads
                             s-macres.adb:s-macres-p2020.adb"

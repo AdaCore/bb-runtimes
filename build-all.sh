@@ -499,6 +499,7 @@ else
               case $opt in
                   zfp)  build_zfp_8641d ;;
                   sfp)  build_sfp_8641d ;;
+		  raven-sfp) raven_testsuite ravenscar-sfp/8641d ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
