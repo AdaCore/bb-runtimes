@@ -61,7 +61,7 @@ case $config in
         ;;
     ravenscar-sfp/8641d)
         support_dirs="powerpc-eabispe-p2010 ravenscar-sfp"
-        discr="no_libc,no_serial_output,no_cache_control,no_accurate_clock,no_long_delay,powerpc,powerpc-elf,high_interrupt"
+        discr="no_libc,no_serial_output,no_cache_control,no_accurate_clock,no_long_delay,powerpc,powerpc-elf,high_interrupt,smp"
         cross=powerpc-elf
         run=run_8641d
         ;;
