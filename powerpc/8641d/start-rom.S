@@ -58,9 +58,10 @@ _cpu1_start:
 	/* If not, we are in zfp.  */
 	beq	_cpu1_zfp_mode
 
-	/* Load the stack from slave_stack_table */
+	/* Load the stack from slave_stack_table. This is generic code and
+	   over-engineered for our case (8641d has only one slave).  */
 	GET_CPU_ID(%r3)
-	addi	%r4,%r3,-1
+	addi	%r4,%r3,-1	/* Offset 0 is for first slave.  */
 	slwi	%r4,%r4,2
 	lwzx	%r1,%r5,%r4
 
