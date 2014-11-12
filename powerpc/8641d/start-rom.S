@@ -51,31 +51,23 @@ _start_rom:
 
 _cpu1_start:
 	/* Check if slave_stack_table is linked (sfp).  */
-	lis	%r3, slave_stack_table@h
-	ori	%r3, %r3, slave_stack_table@l
-	cmpli	0,0,%r3,0
+	lis	%r5, slave_stack_table@h
+	ori	%r5, %r5, slave_stack_table@l
+	cmplwi	%r5, 0
 	
 	/* If not, we are in zfp.  */
 	beq	_cpu1_zfp_mode
 
-_cpu1_loop:
-	/* Busy loop until all tasks are activated */
-	lis	%r3, __gnarl_tasks_activated@h
-	lwz	%r3, __gnarl_tasks_activated@l(%r3)
-	beq	_cpu1_loop
-	
 	/* Load the stack from slave_stack_table */
-	lis	%r4,slave_stack_table@h
-	ori	%r4,%r4,slave_stack_table@l
 	GET_CPU_ID(%r3)
-	li	%r5,2
-	slw	%r5,%r3,%r5
+	addi	%r4,%r3,-1
+	slwi	%r4,%r4,2
 	lwzx	%r1,%r5,%r4
 
         # Allocate a cleared frame
         li	%r0, 0
-	stwu	%r0, -16(1)
-        stw	%r0, 12(1)
+	stwu	%r0, -16(%r1)
+        stw	%r0, 12(%r1)
 
 	/* Initialize_Slave takes a 1-based CPU ID as an argument */
 	addi	%r3,%r3,1
@@ -153,6 +145,5 @@ _reset:
 	b	_start_rom
 	.size _reset, . - _reset
 
-	.weak	__gnarl_tasks_activated
 	.weak	__gnat_initialize_slave
 	.weak   slave_stack_table
