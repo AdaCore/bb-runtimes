@@ -19,7 +19,7 @@ project Runtime_Build is
   end Builder;
 
   package Compiler is
-     CFLAGS := ("-fcallgraph-info=da",
+     CFLAGS := ("-fcallgraph-info=su,da",
                 "-ffunction-sections", "-fdata-sections");
      ASMFLAGS := ();
      case Build is
