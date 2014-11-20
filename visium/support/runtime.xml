@@ -16,9 +16,9 @@
   end Compiler;
 
   package Linker is
-      --  Force the use of -msim, and depends on gnat.
+      --  Force link with the gnat libraries.
       for Required_Switches use Linker'Required_Switches &amp;
-        ("-msim", "-L${RUNTIME_DIR(ada)}/adalib", "-lzfp", "-lgnat") &amp;
+        ("-L${RUNTIME_DIR(ada)}/adalib", "-lzfp", "-lgnat") &amp;
         Compiler.Common_Required_Switches;
   end Linker;
 
