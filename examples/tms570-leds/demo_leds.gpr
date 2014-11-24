@@ -1,0 +1,25 @@
+project Demo_Leds is
+
+   for Languages use ("ada");
+   for Main use ("demo.adb");
+   for Source_Dirs use ("src");
+   for Object_Dir use "obj";
+
+   package Compiler is
+      for Default_Switches ("ada") use ("-g", "-gnatwa", "-gnatQ", "-gnatw.X", "-gnat95");
+   end Compiler;
+
+   package Builder is
+      for Default_Switches ("ada") use ("-g", "--RTS=C:\GNATPRO\7.4.0w-20141101\arm-eabi\lib\gnat\ravenscar-full-tms570");
+   end Builder;
+
+   package Ide is
+      for Gnat use "arm-eabi-gnat";
+      for Gnatlist use "arm-eabi-gnatls";
+      for Debugger_Command use "arm-eabi-gdb";
+      for Program_Host use "192.168.3.79:2001";
+      for Communication_Protocol use "remote";
+   end Ide;
+
+end Demo_Leds;
+
