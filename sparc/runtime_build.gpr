@@ -11,7 +11,7 @@ project Runtime_Build is
   for Source_Dirs use ("adainclude");
 
   package Compiler is
-     CFLAGS := ("-O2", "-fcallgraph-info=da",
+     CFLAGS := ("-O2", "-fcallgraph-info=su,da",
                 "-ffunction-sections", "-fdata-sections");
      ALL_ADAFLAGS := ("-gnatpgn", "-nostdinc") & CFLAGS;
      ALL_CFLAGS := ("-DIN_RTS") & CFLAGS;
