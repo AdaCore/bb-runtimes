@@ -142,12 +142,20 @@ zcx_files="s-except.ads s-except.adb
            raise-gcc.c raise.h
            adaint-xi.c"
 
-zcx_pairs="s-stalib.ads:s-stalib.ads
-           s-stalib.adb:s-stalib.adb
-           a-except.adb:a-except-2005.adb
-           a-except.ads:a-except-2005.ads
-           a-exexpr.adb:a-exexpr-gcc.adb
-           s-excmac.ads:s-excmac-gcc.ads"
+# Not to be used directly, common between arm and gcc.
+zcx_common_pairs="s-stalib.ads:s-stalib.ads
+                  s-stalib.adb:s-stalib.adb
+                  a-except.adb:a-except-2005.adb
+                  a-except.ads:a-except-2005.ads
+                  a-exexpr.adb:a-exexpr-gcc.adb"
+
+# For gcc zcx
+zcx_gcc_pairs="$zcx_common_pairs
+               s-excmac.ads:s-excmac-gcc.ads"
+
+# For ARM zcx
+zcx_arm_pairs="$zcx_common_pairs
+               s-excmac.ads:s-excmac-arm.ads"
 
 zcx_copy()
 {
@@ -482,7 +490,7 @@ case $config in
                             $raven_ppc_pairs
                             $libc_pairs
                             $libm_ada_pairs
-                            $zcx_pairs
+                            $zcx_gcc_pairs
                             s-multip.adb:s-multip-raven-default.adb
                             s-bbcpsp.ads:s-bbcpsp-spe.ads
                             s-bbcpsp.adb:s-bbcpsp-spe.adb
@@ -579,7 +587,7 @@ case $config in
                             s-textio.adb:s-textio-p55.adb
                             $raven_ppc_pairs
                             $libc_pairs
-                            $zcx_pairs
+                            $zcx_gcc_pairs
                             $libm_ada_pairs
                             s-multip.adb:s-multip-raven-default.adb
                             s-bbcpsp.ads:s-bbcpsp-spe.ads
@@ -705,7 +713,7 @@ case $config in
                             $raven_ppc_pairs
                             $libc_pairs
                             $libm_ada_pairs
-                            $zcx_pairs
+                            $zcx_gcc_pairs
                             s-multip.adb:s-multip-raven-default.adb
                             s-bbcpsp.ads:s-bbcpsp-6xx.ads
                             s-bbcpsp.adb:s-bbcpsp-6xx.adb
@@ -896,7 +904,7 @@ case $config in
                             s-bbbosu.adb:s-bbbosu-tms570.adb
                             s-traceb.adb:s-traceb-xi-armeabi.adb
                             s-parame.ads:s-parame-xi-small.ads
-                            $zcx_pairs
+                            $zcx_arm_pairs
                             $textio_pairs
                             $libc_pairs
                             $libm_fpu_pairs"
@@ -1085,7 +1093,7 @@ case $config in
 		extra_gnat_files="$extra_gnat_files
                                   $zcx_files $libm_files"
 		extra_target_pairs="$extra_target_pairs
-                                    $zcx_pairs $libm_fpu_pairs"
+                                    $zcx_gcc_pairs $libm_fpu_pairs"
 		zcx_dw2_copy
 		;;
 	esac
