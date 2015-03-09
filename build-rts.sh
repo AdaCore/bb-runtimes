@@ -1235,10 +1235,11 @@ fi
 # Copy libgnat sources.
 for f in $libgnat_sources $img_src $extra_gnat_files; do
     case $f in
-	system.ads | s-textio.adb | s-macres.adb | s-bbbopa.ads | *.ld)
+	system.ads | s-textio.adb | s-macres.adb | s-bbbopa.ads | *.ld \
+	 | s-bbpara.ads | s-stm32f.ads)
             dest=$objdir/arch/$f
 	    ;;
-      *)
+	*)
 	    dest=$objdir/common/$f
 	    ;;
     esac
@@ -1258,7 +1259,7 @@ done
 # Copy libgnarl sources.
 for f in $libgnarl_sources $extra_gnarl_files; do
     case $f in
-	s-bbbosu.adb | a-intnam.ads | s-bbbopa.ads)
+	s-bbbosu.adb | a-intnam.ads | s-bbbopa.ads | s-bbpara.ads)
             dest=$objdir/gnarl-arch/$f
 	    ;;
 	*)
