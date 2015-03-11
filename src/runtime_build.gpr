@@ -26,7 +26,7 @@ project Runtime_Build is
         when "Production" =>
            CFLAGS := CFLAGS & ("-O2");
         when "Debug" =>
-           CFLAGS := CFLAGS & ("-O", "-g");
+           CFLAGS := CFLAGS & ("-O0", "-g");
            ASMFLAGS := ASMFLAGS & ("-g");
      end case;
      ALL_ADAFLAGS := ("-gnatpg", "-gnatn2", "-nostdinc") & CFLAGS;
