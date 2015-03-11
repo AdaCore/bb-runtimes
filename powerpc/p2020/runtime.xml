@@ -19,9 +19,8 @@
 
   package Linker is
     for Required_Switches use Linker'Required_Switches &amp;
-      ("-L${RUNTIME_DIR(ada)}/adalib",
-      "-Wl,-u_start_ram",
-      "-Wl,-T${RUNTIME_DIR(ada)}/arch/p2020.ld") &amp;
+      "-L${RUNTIME_DIR(ada)}/adalib" &amp;
+      ("-Wl,-u_start_ram", "-Wl,-T${RUNTIME_DIR(ada)}/arch/p2020.ld") &amp;
       Compiler.Common_Required_Switches;
   end Linker;
 

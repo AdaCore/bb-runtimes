@@ -304,6 +304,13 @@ zfp_support_prj_files="$PWD/support-prj/runtime.gpr
         $PWD/support-prj/support.gpr"
 
 SED_REMOVE_BIND='/package Binder/,/end Binder/d'
+SED_ADD_BIND="/end Linker;/a \\
+\\
+   package Binder is\\
+      for Required_Switches (\\\"Ada\\\") use Binder'Required_Switches (\\\"Ada\\\")\\
+        &amp; (\\\"-nostdlib\\\");\\
+   end Binder;\\
+"
 
 # Arch part of the config (ie the string after the /)
 config_arch=$(echo $config | sed -e "s,.*/,,")
@@ -461,8 +468,7 @@ case $config in
                             s-bbbosu.adb:s-bbbosu-p2020.adb
                             a-intnam.ads:a-intnam-xi-p2020.ads
                             system.ads:system-xi-e500v2-sfp.ads"
-	sed -e "$SED_REMOVE_BIND" \
-	    < powerpc/p2020/runtime.xml > $objdir/runtime.xml
+	copy $PWD/powerpc/p2020/runtime.xml $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
         ;;
@@ -470,8 +476,10 @@ case $config in
 	# For ZCX -lgcc is required (must be before libravenscar for strlen
 	#  and other libc routines).
 	# Need additional specs (to re-add crtbegin/crtend)
-        sed -e 's@"-lgnat",@"-lgnat", "-lgcc", "-lgnat", \
-         "--specs=${RUNTIME_DIR(ada)}/link.spec",@' \
+        sed -e "$SED_ADD_BIND" \
+         -e '/-L/a \
+        ("-lgnat", "-lgcc", "-lgnat", \
+         "--specs=${RUNTIME_DIR(ada)}/link.spec") &amp;' \
             < powerpc/p2020/runtime.xml > $objdir/runtime.xml
 	# Need to define CALL_init so that constructors (in particular
 	#  ZCX tables registering) are called
@@ -559,8 +567,7 @@ case $config in
                             s-bbbosu.adb:s-bbbosu-p55.adb
                             a-intnam.ads:a-intnam-xi-p55.ads
                             system.ads:system-xi-e500v2-sfp.ads"
-	sed -e "$SED_REMOVE_BIND" \
-	    < powerpc/p5566/runtime.xml > $objdir/runtime.xml
+	copy $PWD/powerpc/p5566/runtime.xml $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
         ;;
@@ -568,9 +575,10 @@ case $config in
 	# For ZCX -lgcc is required (must be before libravenscar for strlen
 	#  and other libc routines).
 	# Need additional specs (to re-add crtbegin/crtend)
-        sed -e 's@, "-lgnat"@, "-lgnat", "-lgcc", "-lgnat", \
-         "--specs=${RUNTIME_DIR(ada)}/link.spec"@' \
-         -e 's/("-nostdlib", "-lgcc")/()/' \
+        sed -e "$SED_ADD_BIND" \
+         -e '/-L/a \
+        ("-lgnat", "-lgcc", "-lgnat", \
+         "--specs=${RUNTIME_DIR(ada)}/link.spec") &amp;' \
             < powerpc/p5566/runtime.xml > $objdir/runtime.xml
 	# Need to define CALL_init so that constructors (in particular
 	#  ZCX tables registering) are called
@@ -692,9 +700,10 @@ case $config in
 	# For ZCX -lgcc is required (must be before libravenscar for strlen
 	#  and other libc routines).
 	# Need additional specs (to re-add crtbegin/crtend)
-        sed -e \
-         's@, "-lgnat"@, "-lgnat", "-lgcc", "-lgnat", \
-         "--specs=${RUNTIME_DIR(ada)}/link.spec"@' \
+        sed -e "$SED_ADD_BIND" \
+         -e '/-L/a \
+        ("-lgnat", "-lgcc", "-lgnat", \
+         "--specs=${RUNTIME_DIR(ada)}/link.spec") &amp;' \
             < powerpc/prep/runtime.xml > $objdir/runtime.xml
 	# Need to define CALL_init so that constructors (in particular
 	#  ZCX tables registering) are called
