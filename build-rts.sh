@@ -1132,10 +1132,11 @@ case $config in
 	case $config in
 	   ravenscar-full/*)
   	      # We also need -lgnat after -lc for abort(3).
-	      sed -e 's@"-nostartfiles",@@' \
-		  -e 's@"-lgnat"@"-lgnat", "-lgcc", "-lgnat",\
-                   "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"@' \
-		  < $PWD/sparc/$config_arch/runtime.xml > $objdir/runtime.xml
+	      sed  -e 's@"-nostartfiles",@@' -e "$SED_ADD_BIND" \
+                -e '/-L/a \
+                "-lgnat", "-lgcc", "-lgnat", \
+                "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec",' \
+		< $PWD/sparc/$config_arch/runtime.xml > $objdir/runtime.xml
 	      discarded_sources="s-sssita.ads s-sssita.adb"
               # Need to define CALL_init so that constructors (in particular
 	      #  ZCX tables registering) are called
