@@ -2,6 +2,9 @@ OUTPUT_FORMAT("elf32-powerpc", "elf32-powerpc",
               "elf32-powerpc")
 OUTPUT_ARCH(powerpc:common)
 ENTRY(_start_ram)
+
+__heap_size = 1024 * 1024;
+
 SECTIONS
 {
   /* Leave room for exception vectors and stub memory  */
@@ -10,15 +13,18 @@ SECTIONS
   /* Code sections, merged into text segment: */
   .text :
   {
+    __text = .;
     *(.text .text.* .gnu.linkonce.t.*)
     *(.gnu.warning)
   } = 0
 
+  /* Read-only sections, merged into rodata segment: */
   .rodata :
   {
     . = ALIGN(4);
     *(.rodata .rodata.* .gnu.linkonce.r.*)
     *(.rodata1)
+    *(.got2)
     . = ALIGN(4);
   } =0
 
@@ -30,7 +36,12 @@ SECTIONS
   .ctors : { KEEP(SORT_BY_NAME(*)(.ctors)) }
   .dtors : { KEEP(SORT_BY_NAME(*)(.dtors)) }
 
-  .eh_frame_hdr : { *(.eh_frame_hdr) }
+  .eh_frame_hdr :
+  {
+     __eh_frame_hdr = .;
+    *(.eh_frame_hdr)
+  }
+
   .eh_frame  : { KEEP (*(.eh_frame)) }
   .gcc_except_table : { *(.gcc_except_table .gcc_except_table.*) }
 
@@ -49,9 +60,11 @@ SECTIONS
     . = ALIGN(4);
     __sbss2_end = .;
   }
+  __data_start = .;
+
   .data :
   {
-    __data_start = .;
+    __data = .;
     *(.data .data.* .gnu.linkonce.d.*)
     KEEP (*(.gnu.linkonce.d.*personality*))
     SORT(CONSTRUCTORS)
@@ -59,8 +72,10 @@ SECTIONS
     PROVIDE (_SDA_BASE_ = 32768);
     *(.sdata .sdata.* .gnu.linkonce.s.*)
     . = ALIGN(4);
-    __data_end = .;
   }
+
+  __data_end = .;
+
   .sbss :
   {
     __sbss_start = .;
@@ -92,7 +107,7 @@ SECTIONS
 
    . = ALIGN(8);
    __heap_start = .;
-   . = . + 0x100000;
+   . = . + __heap_size;
    __heap_end = .;
 
    _end = .;
