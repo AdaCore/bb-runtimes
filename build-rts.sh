@@ -202,6 +202,7 @@ w8349e_raven_files="$w8349e_arch_files $ppc6xx_raven_files"
 
 # Arch files for 8641d
 mpc8641d_arch_files="powerpc/8641d/qemu-rom.ld
+                     powerpc/8641d/ram.ld
  		     powerpc/8641d/start-rom.S
 		     powerpc/8641d/setup.S"
 
@@ -809,8 +810,7 @@ case $config in
                             a-intnam.ads:a-intnam-xi-p2020.ads
                             system.ads:system-xi-e500v2-sfp.ads
                             s-macres.adb:s-macres-p2020.adb"
-	sed -e "$SED_REMOVE_BIND" \
-	    < $PWD/powerpc/8641d/runtime.xml > $objdir/runtime.xml
+	copy $PWD/powerpc/8641d/runtime.xml $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
         ;;

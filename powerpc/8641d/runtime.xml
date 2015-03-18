@@ -21,7 +21,7 @@
 
   package Linker is
       for Required_Switches use Linker'Required_Switches &amp;
-        ("-L${RUNTIME_DIR(ada)}/adalib", "-lgnat") &amp;
+        "-L${RUNTIME_DIR(ada)}/adalib" &amp;
         Compiler.Common_Required_Switches;
 
       case Loader is
@@ -36,11 +36,6 @@
       end case;
 
   end Linker;
-
-   package Binder is
-      for Required_Switches ("Ada") use Binder'Required_Switches ("Ada")
-        &amp; ("-nostdlib");
-   end Binder;
    </config>
   </configuration>
 </gprconfig>
