@@ -191,6 +191,11 @@ build_sfp_8641d()
     do_ravenscar powerpc-elf ravenscar-sfp/8641d
 }
 
+build_full_8641d()
+{
+    do_ravenscar powerpc-elf ravenscar-full/8641d
+}
+
 build_minimal_8349e()
 {
     do_ravenscar powerpc-elf ravenscar-minimal/8349e
@@ -499,6 +504,7 @@ else
               case $opt in
                   zfp)  build_zfp_8641d ;;
                   sfp)  build_sfp_8641d ;;
+                  full) build_full_8641d ;;
 		  raven-sfp) raven_testsuite ravenscar-sfp/8641d ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac

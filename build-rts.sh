@@ -814,6 +814,46 @@ case $config in
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
         ;;
+    "ravenscar-full/8641d" )
+	# For ZCX -lgcc is required (must be before libravenscar for strlen
+	#  and other libc routines).
+	# Need additional specs (to re-add crtbegin/crtend)
+        sed -e "$SED_ADD_BIND" \
+         -e '/-L/a \
+        ("-lgnat", "-lgcc", "-lgnat", \
+         "--specs=${RUNTIME_DIR(ada)}/link.spec") &amp;' \
+            < powerpc/8641d/runtime.xml > $objdir/runtime.xml
+	# Need to define CALL_init so that constructors (in particular
+	#  ZCX tables registering) are called
+        sed -e 's/ASMFLAGS := (/ASMFLAGS := ("-DCALL__init") \& (/' \
+            < src/runtime_build.gpr > $objdir/runtime_build.gpr
+        arch_files="$mpc8641d_arch_files"
+        discarded_sources="s-sssita.ads s-sssita.adb"
+        gnarl_arch_files="$ppc6xx_raven_files"
+        extra_gnat_files="$extra_gnat_files
+                          $extra_gnat_raven $libc_files $libm_files
+                          s-bbbopa.ads
+                          $zcx_files"
+        extra_gnarl_files="$extra_gnarl_raven"
+        extra_target_pairs="$extra_target_pairs
+                            s-textio.adb:s-textio-p2020.adb
+                            $raven_ppc_pairs
+                            $libc_pairs
+                            $libm_ada_pairs
+                            $zcx_gcc_pairs
+                            s-multip.adb:s-multip-8641d.adb
+                            s-bbcpsp.ads:s-bbcpsp-6xx.ads
+                            s-bbcpsp.adb:s-bbcpsp-6xx.adb
+                            s-bbbopa.ads:s-bbbopa-8641d.ads
+                            s-bbbosu.adb:s-bbbosu-8641d.adb
+                            s-bbpara.ads:s-bbpara-8641d.ads
+                            s-bcprmu.adb:s-bcprmu-8641d.adb
+                            a-intnam.ads:a-intnam-xi-p2020.ads
+                            system.ads:system-xi-e500v2-full.ads
+                            s-macres.adb:s-macres-p2020.adb"
+        copy $PWD/powerpc/prep/link-zcx.spec $objdir/link.spec
+	zcx_dw2_copy
+        ;;
     "ravenscar-minimal/8349e" \
      | "ravenscar-minimal/8321e")
         arch_files="$w8349e_raven_files $ppc_gpr_savres_files"
