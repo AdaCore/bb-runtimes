@@ -113,8 +113,6 @@ _start:
 
 	bl	main
 
-	.globl abort
-abort:
 	.globl _after_main
 _after_main:
 	trap
