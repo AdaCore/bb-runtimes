@@ -273,7 +273,7 @@ mkdir $objdir/adalib
 ada_src_dirs="arch common"
 
 case $config in
-  ravenscar-sfp/* | ravenscar-minimal/*)
+  ravenscar-sfp/* | ravenscar-minimal/* | ravenscar-xtratum/*)
 	ada_src_dirs="$ada_src_dirs gnarl-common gnarl-arch"
 	;;
   *)
@@ -973,7 +973,6 @@ case $config in
 	zcx_copy
 	;;
     "ravenscar-xtratum/tms570" | "ravenscar-full-xtratum/tms570")
-        discarded_sources="s-sssita.ads s-sssita.adb"
         arch_files="arm/xtratum/cswitch.S
                     arm/xtratum/init.S
                     arm/xtratum/xtratum.ld"
@@ -992,10 +991,14 @@ case $config in
                             s-bbexti.adb:s-bbexti-xtratum.adb
                             $textio_pairs"
         if [ "$config" = "ravenscar-xtratum/tms570" ]; then
+	    # ravencar-sfp
             extra_target_pairs="$extra_target_pairs
                                 system.ads:system-xi-arm-sfp.ads"
             copy $PWD/arm/xtratum/runtime.xml $objdir/runtime.xml
+            copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
 	else
+	    # ravenscar-full
+            discarded_sources="s-sssita.ads s-sssita.adb"
 	    extra_gnat_files="$extra_gnat_files $libc_files"
             extra_target_pairs="$extra_target_pairs
                                 $libc_pairs
@@ -1263,7 +1266,7 @@ done
 
 # Only ravenscar-sfp and ravenscar-minimal has separate libgnat and libgnarl.
 case $config in
-    ravenscar-sfp/* | ravenscar-minimal/* )
+    ravenscar-sfp/* | ravenscar-minimal/* | ravenscar-xtratum/* )
 	;;
     */*)
 	libgnat_sources="$libgnat_sources $libgnarl_sources"
