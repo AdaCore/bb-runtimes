@@ -12,8 +12,8 @@
   XAL_Lib     := XtratuM_Install &amp; "/../xal/lib";
 
    package Compiler is
-     Common_Required_Switches := ("-mbig-endian", "-mhard-float",
-        "-mcpu=cortex-r4", "-mfpu=vfpv3-d16", "-marm");
+     Common_Required_Switches := ("-mlittle-endian", "-mhard-float",
+        "-mcpu=cortex-r4f", "-mfpu=vfpv3-d16", "-marm", "-mfloat-abi=softfp");
 
      for Leading_Required_Switches ("Ada") use
         Compiler'Leading_Required_Switches ("Ada") &amp;
@@ -42,16 +42,12 @@
         ("${RUNTIME_DIR(ada)}/adalib/libgnat.a") &amp;
          Compiler.Common_Required_Switches &amp;
         ("-nostartfiles", "-nostdlib", "-u", "start", "-u", "xmImageHdr",
-         "-T${RUNTIME_DIR(ada)}/adalib/xtratum.ld",
+         "-T${RUNTIME_DIR(ada)}/arch/xtratum.ld",
          "-L", XM_Lib, "-L", XAL_Lib,
-         "-Wl,--start-group,-lgcc,-lxm,-lxal,--end-group");
---	 "-Wl,-Ttext=0x40000,-Tdata=0x8020000");
+         "-Wl,--start-group,${RUNTIME_DIR(ada)}/libgcc.a,-lxm,-lxal,--end-group");
+--       "-Wl,--start-group,-lgcc,-lxm,-lxal,--end-group");
+--	 "-Wl,-Ttext=0x40000,-Tdata=0x8020000"); --  Standalone build
    end Linker;
-
-   package Binder is
-      for Required_Switches ("Ada") use Binder'Required_Switches ("Ada")
-        &amp; ("-nostdlib");
-   end Binder;
    </config>
   </configuration>
 </gprconfig>

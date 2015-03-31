@@ -101,7 +101,7 @@ SECTIONS
 
   __data_load = ALIGN (., ALIGNOF (.data));
 
-  .data ALIGN(8) : AT (ADDR(.xmImageHdr) + SIZEOF(.xmImageHdr))
+  .data ALIGN(8) : AT (ALIGN (ADDR(.xmImageHdr) + SIZEOF(.xmImageHdr), 8))
   {
     __data_load = LOADADDR(.data);
     __data_start = .;

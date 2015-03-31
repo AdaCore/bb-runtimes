@@ -38,6 +38,18 @@
 
 #define PSR_I (1<<7)
 
+	/* The following provide default definitions for trap vectors that
+	loop back to the trap address, so the system will stop in a safe
+	state. The Ravenscar runtimes now can install their handlers by simply
+	exporting the relevant symbols. */
+
+	.weak	__gnat_undef_trap	/* Undefined instruction trap */
+	.weak	__gnat_svc_trap		/* Supervisor call trap */
+	.weak	__gnat_pabt_trap	/* prefetch abort trap	*/
+	.weak	__gnat_dabt_trap	/* data abort trap */
+	.weak	__irq			/* prefetch abort trap	*/
+	.weak	__gnat_fiq_trap		/* data abort trap */
+
 	.section .traps, "ax"
 	.align 3
 
@@ -131,75 +143,6 @@ reset:
         __XM_HC(halt_partition_nr)
 
 	.size	reset, . - reset
-
-	.global __gnat_get_irq_nr
-	.type __gnat_get_irq_nr, #function
-__gnat_get_irq_nr:
-	movw	r0, #:lower16:libXmParams
-	movt	r0, #:upper16:libXmParams
-	ldr	r0, [r0]
-	ldr	r0, [r0, #_IRQINDEX_OFFSET]
-	bx	lr
-	.size	__gnat_get_irq_nr, . - __gnat_get_irq_nr
-
-
-	.type __irq, #function
-__irq:
-	sub	r14,r14,#4
-        push	{r0-r3,ip,lr}
-	vpush	{s0-s15}
-	vmrs	r1,fpscr
-	push	{r0-r1}	/* Keep stack aligned */
-
-	movw	r1, #:lower16:(__gnat_trap_handlers + 5*4)
-        movt	r1, #:upper16:(__gnat_trap_handlers + 5*4)
-	ldr	r1,[r1]
-	mov	r0,#5
-	blx	r1
-
-	bl	context_switch_needed
-	cmp	r0,#0
-	beq	1f
-
-	/* Save SPSR */
-	push	{r0-r1,r6-r7}
-        mov	r0, sp /* Override pushed r0 */
-        __XM_HC(#arm_get_spsr_nr)
-
-	/* Switch to sys mode */
-	add	r0, sp,#4 /* Override pushed r1 */
-        __XM_HC(#arm_get_cpsr_nr)
-
-	mov	r6, sp
-        ldr	r0, [r6,#4]
-        orr	r0, r0, #0x1f
-        __XM_HC(#arm_set_cpsr_nr)
-
-	/* Save lr */
-	mov	r7,lr
-
-	/* call cswitch */
-	bl	__gnat_context_switch
-
-	/* Switch to irq mode */
-	mov	lr,r7
-	ldr	r0,[r6,#4]
-        __XM_HC(#arm_set_cpsr_nr)
-
-	/* Restore SPSR */
-	pop	{r0-r1,r6-r7}
-        __XM_HC(#arm_set_spsr_nr)
-1:
-	pop	{r0-r1}
-	vmsr	fpscr,r1
-	vpop	{s0-s15}
-	pop	{r0-r3,ip,lr}
-	__XM_HC(#arm_iret_nr)
-	.size	__irq, . - __irq
-
-	.section ".bss"
-_tmp_cpsr:
-        .fill 4, 1, 0
 
         /* Provide dummy personnality routines.  */
 	.global __aeabi_unwind_cpp_pr0
