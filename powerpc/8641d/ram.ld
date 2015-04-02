@@ -2,6 +2,10 @@ OUTPUT_FORMAT("elf32-powerpc", "elf32-powerpc",
               "elf32-powerpc")
 OUTPUT_ARCH(powerpc:common)
 ENTRY(_start_ram)
+
+__stack_size = 64 * 1024;
+__heap_size = 1024 * 1024;
+
 SECTIONS
 {
   /* Leave room for exception vectors and stub memory  */
@@ -10,6 +14,7 @@ SECTIONS
   /* Code sections, merged into text segment: */
   .text :
   {
+    __text = .;
     *(.text .text.* .gnu.linkonce.t.*)
     *(.gnu.warning)
   } = 0
@@ -21,6 +26,23 @@ SECTIONS
     *(.rodata1)
     . = ALIGN(4);
   } =0
+
+  /* init, ctors and dtors sections.  Assume we really need them
+     when they happen to be generated, so KEEP to prevent garbage
+     collection of per-object pieces.  */
+
+  .init  : { KEEP(*(.init)) }
+  .ctors : { KEEP(SORT_BY_NAME(*)(.ctors)) }
+  .dtors : { KEEP(SORT_BY_NAME(*)(.dtors)) }
+
+  .eh_frame_hdr :
+  {
+     __eh_frame_hdr = .;
+    *(.eh_frame_hdr)
+  }
+
+  .eh_frame  : { KEEP (*(.eh_frame)) }
+  .gcc_except_table : { *(.gcc_except_table .gcc_except_table.*) }
 
   .sdata2 :
   {
@@ -39,6 +61,7 @@ SECTIONS
   }
   .data :
   {
+    __data = .;
     __data_start = .;
     *(.data .data.* .gnu.linkonce.d.*)
     KEEP (*(.gnu.linkonce.d.*personality*))
@@ -56,6 +79,26 @@ SECTIONS
     *(.sbss .sbss.* .gnu.linkonce.sb.*)
     *(.scommon)
     __sbss_end = .;
+  }
+  .stacks :
+  {
+   . = ALIGN(8);
+   __interrupt_stack_start = .;
+   *(.interrupt_stacks)
+   __interrupt_stack_end = .;
+
+   /* Separate stack per CPU */
+   __stack_start = .;
+
+   __cpu0_stack_start = .;
+   . = . + __stack_size;
+   __cpu0_stack_end = .;
+
+   __cpu1_stack_start = .;
+   . = . + __stack_size;
+   __cpu1_stack_end = .;
+
+   __stack_end = .;
   }
   .bss  :
   {
