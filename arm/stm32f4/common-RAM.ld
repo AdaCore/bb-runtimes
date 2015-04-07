@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
  *             Copyright (C) 2003-2006 The European Space Agency            *
- *                   Copyright (C) 2003-2013 AdaCore                        *
+ *                   Copyright (C) 2003-2015 AdaCore                        *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -44,13 +44,7 @@ __DYNAMIC  =  0;
 
 _DEFAULT_STACK_SIZE = 4*1024;
 
-ENTRY(_start_rom);
-
-MEMORY
-{
-  flash (rx)  : ORIGIN = 0x08000000, LENGTH = 1024K
-  sram (rwx)  : ORIGIN = 0x20000000, LENGTH = 112K
-}
+ENTRY(_start_ram);
 
 SECTIONS
 {
@@ -59,18 +53,15 @@ SECTIONS
     KEEP (*(.vectors))
     *(.text .text.* .gnu.linkonce.t*)
     *(.gnu.warning)
-  } > flash
-
+  } > sram
   .rodata :
   {
     *(.lit)
     *(.rodata .rodata.* .gnu.linkonce.r*)
     . = ALIGN(0x4);
-    __rom_end = .;
-  } > flash
+  } > sram
 
-  __data_load = __rom_end;
-  .data : AT (__rom_end)
+  .data :
   {
     __data_start = .;
     *(.data .data.* .gnu.linkonce.d*)
@@ -83,7 +74,6 @@ SECTIONS
     . = ALIGN(0x4);
     __data_end = .;
   } > sram
-  __data_words = (__data_end - __data_start) >> 2;
 
   .bss (NOLOAD): {
    . = ALIGN(0x8);
@@ -136,5 +126,5 @@ SECTIONS
   .gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
   /DISCARD/ : { *(.note.GNU-stack) *(.gnu_debuglink) *(.gnu.lto_*) }
 
-  /DISCARD/ : { *(.ARM.extab .ARM.exidx) }
+  /DISCARD/ : { *(.ARM.extab) *(.ARM.exidx) }
 }

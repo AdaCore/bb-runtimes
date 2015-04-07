@@ -249,12 +249,12 @@ lm3s_arch_files="arm/lm3s/lm3s-rom.ld
                  arm/lm3s/start-ram.S
                  arm/lm3s/setup_pll.adb"
 
-stm32f4_arch_files="arm/stm32f4/stm32f4-rom.ld
-                arm/stm32f4/stm32f4-ram.ld
-                arm/stm32f4/start-rom.S
-                arm/stm32f4/start-ram.S
-                arm/stm32f4/setup_pll.adb"
-#               arm/stm32f4/setup_pll.ads
+stm32f4_arch_files="arm/stm32f4/common-RAM.ld
+		    arm/stm32f4/common-ROM.ld
+		    arm/stm32f4/STM32F429-DISCO-memory-map.ld
+		    arm/stm32f4/STM32F4-DISCO-memory-map.ld
+		    arm/stm32f4/STM32F7-EVAL-memory-map.ld
+		    arm/stm32f4/setup_pll.adb"
 
 sam4s_arch_files="arm/sam4s/sam4s-rom.ld
                   arm/sam4s/sam4s-samba.ld

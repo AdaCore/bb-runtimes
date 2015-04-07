@@ -8,6 +8,10 @@
 
    Loader : Loaders := external ("LOADER", "ROM");
 
+   type Boards is ("STM32F4-DISCO", "STM32F429-DISCO", "STM32F7-EVAL");
+
+   Board : Boards := external ("BOARD", "STM32F4-DISCO");
+
    package Compiler is
       Common_Required_Switches := ("-mlittle-endian", "-mhard-float",
         "-mcpu=cortex-m4", "-mfpu=fpv4-sp-d16", "-mthumb");
@@ -27,15 +31,9 @@
         Compiler.Common_Required_Switches &amp;
         ("-nostdlib", "-lgcc");
 
-      case Loader is
-         when "ROM" =>
-	    for Required_Switches use Linker'Required_Switches &amp;
-	    ("-T", "${RUNTIME_DIR(ada)}/arch/stm32f4-rom.ld");
-         when "RAM" =>
-	    for Required_Switches use Linker'Required_Switches &amp;
-	    ("-T", "${RUNTIME_DIR(ada)}/arch/stm32f4-ram.ld");
-	 when "USER" =>
-      end case;
+      for Required_Switches use Linker'Required_Switches &amp;
+      ("-L", "${RUNTIME_DIR(ada)}/arch/", "-T", Board &amp; "-memory-map.ld",
+       "-T", "common-" &amp; Loader &amp; ".ld");
    end Linker;
 
    package Binder is
