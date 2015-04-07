@@ -250,11 +250,11 @@ lm3s_arch_files="arm/lm3s/lm3s-rom.ld
                  arm/lm3s/setup_pll.adb"
 
 stm32f4_arch_files="arm/stm32f4/common-RAM.ld
-		    arm/stm32f4/common-ROM.ld
-		    arm/stm32f4/STM32F429-DISCO-memory-map.ld
-		    arm/stm32f4/STM32F4-DISCO-memory-map.ld
-		    arm/stm32f4/STM32F7-EVAL-memory-map.ld
-		    arm/stm32f4/setup_pll.adb"
+                    arm/stm32f4/common-ROM.ld
+                    arm/stm32f4/STM32F429-DISCO-memory-map.ld
+                    arm/stm32f4/STM32F4-DISCO-memory-map.ld
+                    arm/stm32f4/STM32F7-EVAL-memory-map.ld
+                    arm/stm32f4/setup_pll.adb"
 
 sam4s_arch_files="arm/sam4s/sam4s-rom.ld
                   arm/sam4s/sam4s-samba.ld
@@ -1013,6 +1013,7 @@ case $config in
         extra_gnat_files="$extra_gnat_files
                           $textio_src s-textio.ads s-textio.adb
                           s-macres.ads s-macres.adb s-stm32f.ads
+                          s-stmrcc.ads s-stmrcc.adb
                           s-bb.ads s-bbpara.ads"
         extra_target_pairs="$extra_target_pairs
                             s-textio.adb:s-textio-stm32f4.adb
@@ -1028,7 +1029,8 @@ case $config in
         arch_files="$stm32f4_arch_files $cortexm4_raven_files"
         extra_gnat_files="$extra_gnat_files
                           $textio_src
-                          s-macres.adb s-macres.ads s-stm32f.ads"
+                          s-macres.adb s-macres.ads s-stm32f.ads
+                          s-stmrcc.ads s-stmrcc.adb"
         extra_target_pairs="$extra_target_pairs
                             a-intnam.ads:a-intnam-xi-stm32f4.ads
                             system.ads:system-xi-cortexm4-sfp.ads
@@ -1289,7 +1291,7 @@ fi
 for f in $libgnat_sources $img_src $extra_gnat_files; do
     case $f in
 	system.ads | s-textio.adb | s-macres.adb | s-bbbopa.ads | *.ld \
-	 | s-bbpara.ads | s-stm32f.ads)
+	 | s-bbpara.ads | s-stm32f.ads | s-stmrcc.ads | s-stmrcc.adb)
             dest=$objdir/arch/$f
 	    ;;
 	*)
