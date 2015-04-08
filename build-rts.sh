@@ -254,6 +254,8 @@ stm32f4_arch_files="arm/stm32f4/common-RAM.ld
                     arm/stm32f4/STM32F429-DISCO-memory-map.ld
                     arm/stm32f4/STM32F4-DISCO-memory-map.ld
                     arm/stm32f4/STM32F7-EVAL-memory-map.ld
+                    arm/stm32f4/start-rom.S
+                    arm/stm32f4/start-ram.S
                     arm/stm32f4/setup_pll.adb"
 
 sam4s_arch_files="arm/sam4s/sam4s-rom.ld
