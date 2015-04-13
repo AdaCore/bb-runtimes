@@ -73,17 +73,6 @@ _start_ram:
 
 	bl	exit
 
-	.global __aeabi_ldiv0
-	.global __aeabi_idiv0
-	.global __aeabi_unwind_cpp_pr0
-	.global __aeabi_unwind_cpp_pr1
-	.global __aeabi_unwind_cpp_pr2
-	.thumb_func
-__aeabi_unwind_cpp_pr0:
-__aeabi_unwind_cpp_pr1:
-__aeabi_unwind_cpp_pr2:
-__aeabi_ldiv0:
-__aeabi_idiv0:
 hang:   b .
 
 .LinitSp:

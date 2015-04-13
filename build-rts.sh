@@ -1067,11 +1067,13 @@ case $config in
         discarded_sources="s-sssita.ads s-sssita.adb"
         arch_files="$stm32f4_arch_files $cortexm4_raven_files"
         extra_gnat_files="$extra_gnat_files
-                          $textio_src $libc_files
-                          s-stm32f.ads s-macres.ads s-macres.adb"
+                          $textio_src $libc_files $libm_files $zcx_files
+                          s-stm32f.ads s-macres.ads s-macres.adb
+                          s-stmrcc.ads s-stmrcc.adb"
+
         extra_target_pairs="$extra_target_pairs
                             a-intnam.ads:a-intnam-xi-stm32f4.ads
-                            system.ads:system-xi-arm-full.ads
+                            system.ads:system-xi-cortexm4-full.ads
                             s-macres.adb:s-macres-cortexm3.adb
                             s-textio.adb:s-textio-stm32f4.adb
                             s-textio.ads:s-textio-zfp.ads
@@ -1081,9 +1083,12 @@ case $config in
                             s-parame.ads:s-parame-xi-small.ads
                             s-traceb.adb:s-traceb-xi-arm.adb
                             $libc_pairs
+                            $zcx_arm_pairs
+                            $libm_fpu_pairs
                             $textio_pairs"
         copy $PWD/arm/$config_arch/runtime.xml $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
+	zcx_copy
         ;;
     "zfp/lm3s")
         arch_files="$lm3s_arch_files"

@@ -55,6 +55,11 @@ SECTIONS
     *(.gnu.warning)
   } > flash
 
+  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > flash
+  PROVIDE_HIDDEN (__exidx_start = .);
+  .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > flash
+  PROVIDE_HIDDEN (__exidx_end = .);
+
   .rodata :
   {
     *(.lit)
@@ -100,6 +105,8 @@ SECTIONS
    __stack_end = .;
 
    _end = .;
+   __heap_start = .;
+   __heap_end = ORIGIN(sram) + LENGTH(sram);
   } > sram
 
   __bss_words = (__bss_end - __bss_start) >> 2;
