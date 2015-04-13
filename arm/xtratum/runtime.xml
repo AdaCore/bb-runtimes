@@ -43,9 +43,8 @@
          Compiler.Common_Required_Switches &amp;
         ("-nostartfiles", "-nostdlib", "-u", "start", "-u", "xmImageHdr",
          "-T${RUNTIME_DIR(ada)}/arch/xtratum.ld",
-         "-L", XM_Lib, "-L", XAL_Lib,
-         "-Wl,--start-group,${RUNTIME_DIR(ada)}/libgcc.a,-lxm,-lxal,--end-group");
---       "-Wl,--start-group,-lgcc,-lxm,-lxal,--end-group");
+         "-L" &amp; XM_Lib, "-L" &amp; XAL_Lib, "-L" &amp; "${RUNTIME_DIR(ada)}/",
+         "-Wl,--start-group,-lgcc,-lxm,-lxal,--end-group");
 --	 "-Wl,-Ttext=0x40000,-Tdata=0x8020000"); --  Standalone build
    end Linker;
    </config>

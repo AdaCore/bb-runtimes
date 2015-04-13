@@ -75,7 +75,7 @@ __DYNAMIC  =  0;
  */
 
 _STACK_SIZE = (4 * 1024);
-
+__heap_size = 16 * 1024;
 _SVC_STACK_SIZE   =  256;
 _UNDEF_STACK_SIZE =  256;
 _ABORT_STACK_SIZE =  256;
@@ -90,9 +90,13 @@ SECTIONS
   {
     KEEP (*(.traps))
     *(.text .text.* .gnu.linkonce.t*)
-    *(.lit)
     *(.rodata .rodata.* .gnu.linkonce.r*)
   }
+
+  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) }
+  PROVIDE_HIDDEN (__exidx_start = .);
+  .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) }
+  PROVIDE_HIDDEN (__exidx_end = .);
 
   .xmImageHdr ALIGN (8) :
   {
@@ -163,6 +167,10 @@ SECTIONS
 
    . = ALIGN(0x8);
    __stack_end = .;
+
+   __heap_start = .;
+   . = . + __heap_size;
+   __heap_end = .;
 
    _end = .;
   }
