@@ -99,6 +99,12 @@ libc_pairs="s-c.ads:s-c-zfp.ads
 # Files and pairs for cert libm (ravenscar-full only ?)
 # Most of the libm files are already part of ravenscar-full sources
 # We need the a-numaux version without -lm
+# List of ada math files:
+#  a-ncelfu.ads a-ngcefu.adb a-ngcefu.ads a-ngcoty.adb a-ngcoty.ads
+#  a-ngelfu.adb a-ngelfu.ads a-nlcefu.ads a-nlcoty.ads a-nlelfu.ads
+#  a-nllcef.ads a-nllcty.ads a-nllefu.ads a-nscefu.ads a-nscoty.ads
+#  a-nselfu.ads a-nucoty.ads a-nuelfu.ads a-nuflra.adb a-nuflra.ads
+#  a-numaux.ads a-numeri.ads
 libm_files="s-gcmain.ads s-gcmain.adb
             s-libm.ads s-libm.adb
             s-libsin.adb s-libsin.ads
@@ -994,6 +1000,7 @@ case $config in
                             $textio_pairs"
         if [ "$config" = "ravenscar-xtratum/tms570" ]; then
 	    # ravencar-sfp
+	    arch_files="$arch_files arm/tms570/nozcx.S"
             extra_target_pairs="$extra_target_pairs
                                 system.ads:system-xi-arm-sfp.ads"
             copy $PWD/arm/xtratum/runtime.xml $objdir/runtime.xml
@@ -1001,12 +1008,19 @@ case $config in
 	else
 	    # ravenscar-full
             discarded_sources="s-sssita.ads s-sssita.adb"
-	    extra_gnat_files="$extra_gnat_files $libc_files"
+	    extra_gnat_files="$extra_gnat_files $libc_files $libm_files
+                              $zcx_files"
             extra_target_pairs="$extra_target_pairs
-                                $libc_pairs
                                 s-traceb.adb:s-traceb-xi-arm.adb
-                                system.ads:system-xi-arm-full.ads"
-            copy $PWD/arm/xtratum/runtime.xml > $objdir/runtime.xml
+                                system.ads:system-xi-arm-full.ads
+                                $libc_pairs
+                                $zcx_arm_pairs
+                                $libm_fpu_pairs"
+            zcx_copy
+            sed -e "$SED_ADD_BIND" \
+            -e '/-L/a \
+         "-nostdlib", "-lgnat",' \
+            < $PWD/arm/xtratum/runtime.xml > $objdir/runtime.xml
 	fi
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         ;;
