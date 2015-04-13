@@ -89,7 +89,8 @@ reset:
 	/* Clear .bss */
 	movw	r3,#:lower16:__bss_start
 	movt	r3,#:upper16:__bss_start
-	movw	r1,#:lower16:__bss_words /* Must be less than 64K words */
+	movw	r1,#:lower16:__bss_words
+	movt	r1,#:upper16:__bss_words
 	mov	r2,#0
 	cmp	r1,#0
 	beq	1f
@@ -131,8 +132,8 @@ reset:
         /* System mode */
         mov	r0, #(0x1f | PSR_I)
         __XM_HC(#arm_set_cpsr_nr)
-        movw	sp, #:lower16:__svc_stack_end
-        movt	sp, #:upper16:__svc_stack_end
+        movw	sp, #:lower16:__stack_end
+        movt	sp, #:upper16:__stack_end
 
         bl	main
 
@@ -141,15 +142,3 @@ reset:
         ldr	r0, [r0]
         ldr	r0, [r0, #_IDPART_OFFSET]
         __XM_HC(halt_partition_nr)
-
-	.size	reset, . - reset
-
-        /* Provide dummy personnality routines.  */
-	.global __aeabi_unwind_cpp_pr0
-	.global __aeabi_unwind_cpp_pr1
-	.global __aeabi_unwind_cpp_pr2
-	.thumb_func
-__aeabi_unwind_cpp_pr0:
-__aeabi_unwind_cpp_pr1:
-__aeabi_unwind_cpp_pr2:
-hang:   b .
