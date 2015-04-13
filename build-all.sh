@@ -63,10 +63,10 @@ build_rts()
 	 return 1
       fi
 
-      runcmd gprbuild ${flag_verbose:+-v} --target=$prefix \
+      runcmd gprbuild -j0 ${flag_verbose:+-v} --target=$prefix \
         $objdir/runtime_build.gpr $build_opts
       if [ -f $objdir/ravenscar_build.gpr ]; then
-	  runcmd gprbuild ${flag_verbose:+-v} --target=$prefix \
+	  runcmd gprbuild -j0 ${flag_verbose:+-v} --target=$prefix \
               $objdir/ravenscar_build.gpr $build_opts
       fi
 
