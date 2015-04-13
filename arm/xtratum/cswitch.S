@@ -69,6 +69,7 @@ __gnat_get_irq_nr:
 	bx	lr
 	.size	__gnat_get_irq_nr, . - __gnat_get_irq_nr
 
+	.globl __irq
 	.type __irq, #function
 __irq:
 	sub	r14,r14,#4
