@@ -25,7 +25,7 @@ SRC_DIR:=$(shell pwd)
 # that will perform the right call to build-rts.sh script.
 
 ifeq ($(TARGET), powerpc-elf)
-    RTS_LIST=ravenscar-sfp-prep ravenscar-full-prep zfp-prep zfp-psim ravenscar-sfp-mpc8641 ravenscar-full-mpc8641
+    RTS_LIST=ravenscar-sfp-prep ravenscar-full-prep zfp-prep zfp-psim ravenscar-sfp-mpc8641 ravenscar-full-mpc8641 zfp-mpc8641
     NEED_GDBSTUB=yes
 endif
 
@@ -159,20 +159,23 @@ install-gdbstub:
 	done
 
 # powerpc-elf runtimes
+zfp-prep.src:
+	@$(BUILD_RTS) zfp/prep
+
 ravenscar-sfp-prep.src:
 	@$(BUILD_RTS) ravenscar-sfp/prep
 
 ravenscar-full-prep.src:
 	@$(BUILD_RTS) ravenscar-full/prep --gcc-dir=$(GCC_SOURCES)
 
+zfp-mpc8641.src:
+	@$(BUILD_RTS) zfp/8641d
+
 ravenscar-sfp-mpc8641.src:
-	@$(BUILD_RTS) ravenscar-sfp/8641d --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS) ravenscar-sfp/8641d
 
 ravenscar-full-mpc8641.src:
 	@$(BUILD_RTS) ravenscar-full/8641d --gcc-dir=$(GCC_SOURCES)
-
-zfp-prep.src:
-	@$(BUILD_RTS) zfp/prep
 
 zfp-psim.src:
 	@$(BUILD_RTS) zfp/psim
