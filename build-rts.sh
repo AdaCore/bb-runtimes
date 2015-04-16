@@ -103,7 +103,7 @@ libc_pairs="s-c.ads:s-c-zfp.ads
 #  a-ncelfu.ads a-ngcefu.adb a-ngcefu.ads a-ngcoty.adb a-ngcoty.ads
 #  a-ngelfu.adb a-ngelfu.ads a-nlcefu.ads a-nlcoty.ads a-nlelfu.ads
 #  a-nllcef.ads a-nllcty.ads a-nllefu.ads a-nscefu.ads a-nscoty.ads
-#  a-nselfu.ads a-nucoty.ads a-nuelfu.ads a-nuflra.adb a-nuflra.ads
+#  a-nselfu.ads a-nucoty.ads a-nuelfu.ads
 #  a-numaux.ads a-numeri.ads
 libm_files="s-gcmain.ads s-gcmain.adb
             s-libm.ads s-libm.adb
@@ -278,7 +278,7 @@ mkdir $objdir
 mkdir $objdir/obj
 mkdir $objdir/adalib
 
-ada_src_dirs="arch common"
+ada_src_dirs="arch common math"
 
 case $config in
   ravenscar-sfp/* | ravenscar-minimal/* | ravenscar-xtratum/*)
@@ -1314,6 +1314,18 @@ for f in $libgnat_sources $img_src $extra_gnat_files; do
 	system.ads | s-textio.adb | s-macres.adb | s-bbbopa.ads | *.ld \
 	 | s-bbpara.ads | s-stm32f.ads | s-stmrcc.ads | s-stmrcc.adb)
             dest=$objdir/arch/$f
+	    ;;
+	a-ncelfu.ads | a-ngcefu.adb | a-ngcefu.ads \
+	| a-ngcoty.adb | a-ngcoty.ads | a-ngelfu.adb | a-ngelfu.ads \
+	| a-nlcefu.ads | a-nlcoty.ads | a-nlelfu.ads | a-nllcef.ads \
+	| a-nllcty.ads | a-nllefu.ads | a-nscefu.ads | a-nscoty.ads \
+	| a-nselfu.ads | a-nucoty.ads | a-nuelfu.ads \
+	| a-numaux.ads | a-numeri.ads \
+	| s-gcmain.ads | s-gcmain.adb | s-libm.ads | s-libm.adb \
+	| s-libsin.adb | s-libsin.ads | s-libdou.adb | s-libdou.ads \
+	| s-lisisq.ads | s-lisisq.adb | s-lidosq.ads | s-lidosq.adb \
+	| s-exnllf.ads | s-exnllf.adb )
+	    dest=$objdir/math/$f
 	    ;;
 	*)
 	    dest=$objdir/common/$f
