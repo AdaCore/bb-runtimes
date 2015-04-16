@@ -109,13 +109,13 @@ SECTIONS
    /* Separate stack per CPU */
    __stack_start = .;
 
-   __cpu0_stack_start = .;
-   . = . + __stack_size;
-   __cpu0_stack_end = .;
-
    __cpu1_stack_start = .;
    . = . + __stack_size;
    __cpu1_stack_end = .;
+
+   __cpu0_stack_start = .;
+   . = . + __stack_size;
+   __cpu0_stack_end = .;
 
    __stack_end = .;
   }
