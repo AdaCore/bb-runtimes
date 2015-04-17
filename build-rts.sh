@@ -1081,7 +1081,7 @@ case $config in
                             s-bbpara.ads:s-bbpara-stm32f4.ads
                             s-bbbosu.adb:s-bbbosu-armv7m.adb
                             s-parame.ads:s-parame-xi-small.ads
-                            s-traceb.adb:s-traceb-xi-arm.adb
+                            s-traceb.adb:s-traceb-xi-armeabi.adb
                             $libc_pairs
                             $zcx_arm_pairs
                             $libm_fpu_pairs
