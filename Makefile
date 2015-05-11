@@ -48,7 +48,7 @@ ifeq ($(TARGET), leon3-elf)
 endif
 
 ifeq ($(TARGET), visium-elf)
-    RTS_LIST=zfp-mcm zfp-support-mcm
+    RTS_LIST=zfp-mcm
 endif
 
 ifeq ($(TARGET), i686-pc-linux-gnu)
@@ -248,9 +248,6 @@ ravenscar-full-stm32f4.src:
 	@$(BUILD_RTS) ravenscar-full/stm32f4 --gcc-dir=$(GCC_SOURCES)
 
 # visium-elf
-zfp-support-mcm.src:
-	@$(BUILD_RTS) zfp-support/mcm
-
 zfp-mcm.src:
 	@$(BUILD_RTS) zfp/mcm
 
