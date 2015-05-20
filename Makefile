@@ -25,7 +25,7 @@ SRC_DIR:=$(shell pwd)
 # that will perform the right call to build-rts.sh script.
 
 ifeq ($(TARGET), powerpc-elf)
-    RTS_LIST=ravenscar-sfp-prep ravenscar-full-prep zfp-prep zfp-psim ravenscar-sfp-mpc8641 ravenscar-full-mpc8641 zfp-mpc8641
+    RTS_LIST=ravenscar-sfp-mpc8641 ravenscar-full-mpc8641 zfp-mpc8641
     NEED_GDBSTUB=yes
 endif
 
