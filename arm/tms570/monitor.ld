@@ -39,7 +39,7 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
-_STACK_SIZE = (3 * 1024);
+_DEFAULT_STACK_SIZE = (3 * 1024);
 
 _SVC_STACK_SIZE   =  0;
 _UNDEF_STACK_SIZE =  256;
@@ -52,7 +52,7 @@ ENTRY(start_flash);
 MEMORY
 {
   FLASH (rx)  : ORIGIN = 0x00000000, LENGTH = 3M
-  SRAM (rwx) : ORIGIN = 0x0803f000, LENGTH = 4K
+  SRAM (rwx)  : ORIGIN = 0x0803f000, LENGTH = 4K
   SDRAM (rwx) : ORIGIN = 0x6000000, LENGTH = 8M
 }
 

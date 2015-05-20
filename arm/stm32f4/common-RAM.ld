@@ -97,7 +97,7 @@ SECTIONS
    __interrupt_stack_end = .;
 
    __stack_start = .;
-   . += DEFINED (_STACK_SIZE) ? _STACK_SIZE : _DEFAULT_STACK_SIZE;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
    . = ALIGN(0x8);
    __stack_end = .;
 

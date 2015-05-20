@@ -74,7 +74,7 @@ __DYNAMIC  =  0;
  * +--------------------------------+ <- high memory
  */
 
-_STACK_SIZE = (4 * 1024);
+_DEFAULT_STACK_SIZE = (4 * 1024);
 __heap_size = 16 * 1024;
 _SVC_STACK_SIZE   =  256;
 _UNDEF_STACK_SIZE =  256;
@@ -160,7 +160,7 @@ SECTIONS
 
    /* Reserve the space for the stack to be used by the environment task */
 
-   . += _STACK_SIZE;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
 
    /* Pointer to the top of the stack to be used by the main procedure (the
       environment task). */

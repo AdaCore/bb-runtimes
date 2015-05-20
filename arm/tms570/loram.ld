@@ -39,7 +39,7 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
-_STACK_SIZE = (20 * 1024);
+_DEFAULT_STACK_SIZE = (20 * 1024);
 
 _SVC_STACK_SIZE   =  256;
 _UNDEF_STACK_SIZE =  256;
@@ -156,7 +156,7 @@ SECTIONS
 
    /* Reserve the space for the stack to be used by the environment task */
 
-   . += _STACK_SIZE;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
 
    /* Pointer to the top of the stack to be used by the main procedure (the
       environment task. */

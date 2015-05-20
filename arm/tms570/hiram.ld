@@ -39,7 +39,7 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
-_STACK_SIZE = (20 * 1024);
+_DEFAULT_STACK_SIZE = (20 * 1024);
 
 _SVC_STACK_SIZE   =  256;
 _UNDEF_STACK_SIZE =  256;

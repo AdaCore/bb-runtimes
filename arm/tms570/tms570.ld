@@ -83,7 +83,7 @@ __DYNAMIC  =  0;
  *
  * _SDRAM_SIZE                size of SDRAM
  *
- * _STACK_SIZE                size of the stack to be used by the main
+ * __stack_size               size of the stack to be used by the main
  *                            procedure (environment task)
  *
  */
@@ -91,7 +91,7 @@ __DYNAMIC  =  0;
 _FLASH_SIZE = 3M;
 _SRAM_SIZE = 256K;
 _SDRAM_SIZE = 8M;
-_STACK_SIZE = (20 * 1024);
+_DEFAULT_STACK_SIZE = (20 * 1024);
 
 _SRAM_START = 0x00000000;
 _SRAM_END = _SRAM_START + _SRAM_SIZE;
@@ -183,7 +183,7 @@ SECTIONS
 
    /* Reserve the space for the stack to be used by the environment task */
 
-   . += _STACK_SIZE;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
 
    /* Pointer to the top of the stack to be used by the main procedure (the
       environment task. */

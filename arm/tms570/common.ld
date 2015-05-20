@@ -144,7 +144,7 @@ SECTIONS
 
     /* Reserve the space for the stack to be used by the environment task */
 
-    . += _STACK_SIZE;
+    . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
 
     /* Pointer to the top of the stack to be used by the main procedure (the
        environment task. */
