@@ -31,9 +31,14 @@
         Compiler.Common_Required_Switches &amp;
         ("-nostdlib", "-lgcc");
 
-      for Required_Switches use Linker'Required_Switches &amp;
-      ("-L", "${RUNTIME_DIR(ada)}/arch/", "-T", Board &amp; "-memory-map.ld",
-       "-T", "common-" &amp; Loader &amp; ".ld");
+      case Loader is
+         when "USER" =>
+         when others =>
+            for Required_Switches use Linker'Required_Switches &amp;
+            ("-L", "${RUNTIME_DIR(ada)}/arch/",
+             "-T", Board &amp; "-memory-map.ld",
+             "-T", "common-" &amp; Loader &amp; ".ld");
+     end case;
    end Linker;
 
    package Binder is
