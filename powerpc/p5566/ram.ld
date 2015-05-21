@@ -3,6 +3,8 @@ OUTPUT_FORMAT("elf32-powerpc", "elf32-powerpc",
 OUTPUT_ARCH(powerpc:common)
 ENTRY(_start_ram)
 
+_DEFAULT_STACK_SIZE = 0x8000; /* Some ACATS need a large amount of stack.  */
+
 MEMORY
 {
   extsram (RWXA) : ORIGIN = 0x20000000, LENGTH = 512K
@@ -83,7 +85,7 @@ SECTIONS
    __interrupt_stack_end = .;
 
    __stack_start = .;
-   . = . + 0x8000;  /* Some ACATS need a large amount of stack.  */
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
    . = ALIGN(16);
    __stack_end = .;
   }

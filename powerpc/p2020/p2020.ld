@@ -3,7 +3,7 @@ OUTPUT_FORMAT("elf32-powerpc", "elf32-powerpc",
 OUTPUT_ARCH(powerpc:common)
 
 ENTRY(_start_ram)
-PROVIDE (__stack = 0);
+_DEFAULT_STACK_SIZE = 64 * 1024;
 
 SECTIONS
 {
@@ -103,7 +103,7 @@ SECTIONS
    __interrupt_stack_end = .;
 
    __stack_start = .;
-   . = . + 0x10000;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
    . = ALIGN(16);
    __stack_end = .;
   }

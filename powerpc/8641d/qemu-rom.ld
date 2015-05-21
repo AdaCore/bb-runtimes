@@ -3,7 +3,7 @@ OUTPUT_FORMAT("elf32-powerpc", "elf32-powerpc",
 OUTPUT_ARCH(powerpc:common)
 ENTRY(_start_rom)
 
-__stack_size = 64 * 1024;
+_DEFAULT_STACK_SIZE = 64 * 1024;
 __heap_size = 1024 * 1024;
 
 SECTIONS
@@ -110,11 +110,11 @@ SECTIONS
    __stack_start = .;
 
    __cpu1_stack_start = .;
-   . = . + __stack_size;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
    __cpu1_stack_end = .;
 
    __cpu0_stack_start = .;
-   . = . + __stack_size;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
    __cpu0_stack_end = .;
 
    __stack_end = .;
