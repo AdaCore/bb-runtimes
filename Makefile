@@ -120,10 +120,10 @@ install: $(INSTALL_PREREQUISITES)
 	mkdir -p obj
 	rm -rf obj/$@
 	cp -pr obj/$*.src obj/$@
-	cd obj/$@ && gprbuild --target=$(TARGET) -j$(JOBS) runtime_build.gpr
+	cd obj/$@ && gprbuild --target=$(TARGET) -j$(JOBS) runtime_build.gpr $(EXTRA_GPRBUILD_OPTIONS)
 	if [ -f obj/$@/ravenscar_build.gpr ]; then \
 	 cd obj/$@ && \
-	 gprbuild --target=$(TARGET) -j$(JOBS) ravenscar_build.gpr; \
+	 gprbuild --target=$(TARGET) -j$(JOBS) ravenscar_build.gpr $(EXTRA_GPRBUILD_OPTIONS); \
 	fi
 	cd obj/$@ && chmod a-w adalib/*.ali
 

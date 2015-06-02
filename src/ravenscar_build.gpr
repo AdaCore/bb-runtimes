@@ -12,10 +12,6 @@ project Ravenscar_Build is
 
   for Source_Dirs use ("gnarl-arch", "gnarl-common");
 
-  type Build_Type is ("Production", "Debug");
-
-  Build : Build_Type := external ("BUILD", "Production");
-
   package Builder renames Runtime_Build.Builder;
 
   package Compiler renames Runtime_Build.Compiler;
