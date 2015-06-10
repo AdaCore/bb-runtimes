@@ -10,7 +10,7 @@ project Runtime_Build is
 
   for Source_Dirs use ("arch", "common", "math");
 
-  type Build_Type is ("Production", "Debug", "Coverage");
+  type Build_Type is ("Production", "Debug", "Gnatcov");
 
   Build : Build_Type := external ("BUILD", "Production");
 
@@ -28,7 +28,7 @@ project Runtime_Build is
         when "Debug" =>
            CFLAGS := CFLAGS & ("-O0", "-g");
            ASMFLAGS := ASMFLAGS & ("-g");
-        when "Coverage" =>
+        when "Gnatcov" =>
            CFLAGS := CFLAGS & ("-O0", "-g", "-fdump-scos",
                                "-fpreserve-control-flow");
      end case;
