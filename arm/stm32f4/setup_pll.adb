@@ -29,15 +29,13 @@ pragma Ada_2012; -- To work around pre-commit check?
 pragma Restrictions (No_Elaboration_Code);
 
 --  This initialization procedure mainly initializes the PLLs and
---  all derived clocks. For now it also initializes the first USART.
---  To be moved to s-textio, but needs clock info ???
+--  all derived clocks.
 
 with System.STM32F4; use System.STM32F4;
 with System.STM32F4.RCC;
 with System.BB.Parameters; use System.BB.Parameters;
 
 procedure Setup_Pll is
-   --  Local Subprograms
 
    package RCC renames System.STM32F4.RCC;
 
@@ -54,16 +52,17 @@ procedure Setup_Pll is
    -- Clock Tree Configuration --
    ------------------------------
 
-   HSE_Enabled     : constant := 1;  -- use high-speed ext. clock
-   HSE_Bypass      : constant := 0;  -- don't bypass ext. resonator
-   LSI_Enabled     : constant := 1;  -- use low-speed internal clock
+   HSE_Enabled     : constant Boolean := True;  -- use high-speed ext. clock
+   HSE_Bypass      : constant Boolean := False; -- don't bypass ext. resonator
+   LSI_Enabled     : constant Boolean := True;  -- use low-speed internal clock
 
-   Activate_PLL    : constant := 1;
-   Activate_PLLI2S : constant := 0;
+   Activate_PLL    : constant Boolean := True;
+   Activate_PLLI2S : constant Boolean := False;
 
-   pragma Assert ((if Activate_PLL /= 0 then HSE_Enabled /= 0),
+   pragma Assert ((if Activate_PLL then HSE_Enabled),
                   "PLL only supported with external clock");
-   pragma Assert (Activate_PLLI2S = 0, "not yet implemented");
+
+   pragma Assert (Activate_PLLI2S, "not yet implemented");
 
    -----------
    -- Reset --
@@ -118,10 +117,10 @@ procedure Setup_Pll is
       PLLP     : constant Word := Word ((PLLP_Value / 2 - 1) * 2**16);
       PLLQ     : constant Word := Word (PLLQ_Value * 2**24);
 
-      SW       : constant := (if Activate_PLL /= 0 then RCC.CFGR.SW_PLL
+      SW       : constant := (if Activate_PLL then RCC.CFGR.SW_PLL
                               else RCC.CFGR.SW_HSI);
 
-      SYSCLK   : constant Integer := (if Activate_PLL /= 0 then PLLCLKOUT
+      SYSCLK   : constant Integer := (if Activate_PLL then PLLCLKOUT
                                       else RCC.HSICLK);
 
       HCLK     : constant Integer :=
@@ -212,9 +211,9 @@ procedure Setup_Pll is
 
       --  Configure high-speed external clock, if enabled
 
-      if Boolean'Val (HSE_Enabled) then
+      if HSE_Enabled then
          RCC.Registers.CR := RCC.Registers.CR or RCC.CR.HSEON
-           or (if Boolean'Val (HSE_Bypass) then RCC.CR.HSEBYP else 0);
+           or (if HSE_Bypass then RCC.CR.HSEBYP else 0);
 
          loop
             exit when RCC.Registers.CR and RCC.CR.HSERDY;
@@ -223,7 +222,7 @@ procedure Setup_Pll is
 
       --  Configure low-speed internal clock if enabled
 
-      if Boolean'Val (LSI_Enabled) then
+      if LSI_Enabled then
          RCC.Registers.CSR := RCC.Registers.CSR or RCC.CSR.LSION;
 
          loop
@@ -233,7 +232,7 @@ procedure Setup_Pll is
 
       --  Activate PLL if enabled
 
-      if Boolean'Val (Activate_PLL) then
+      if Activate_PLL then
          RCC.Registers.PLLCFGR := RCC.PLLSRC_HSE or
            PLLQ or PLLP or PLLN or PLLM;
 
@@ -262,7 +261,7 @@ procedure Setup_Pll is
         --  Select system clock source
         SW;
 
-      if Boolean'Val (Activate_PLL) then
+      if Activate_PLL then
          loop
             exit when (RCC.Registers.CFGR and
                          (RCC.CFGR.SWS_HSE or RCC.CFGR.SWS_PLL))
