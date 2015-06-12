@@ -104,7 +104,7 @@ procedure Setup_Pll is
 
       PLLN_Value  : constant Integer :=
         (PLLP_Value * Clock_Frequency) / PLLCLKIN;
-      --  Compute M to to generate the required frequency
+      --  Compute N to to generate the required frequency
 
       PLLVC0      : constant Integer := PLLCLKIN * PLLN_Value;
       PLLCLKOUT   : constant Integer := PLLVC0 / PLLP_Value;
