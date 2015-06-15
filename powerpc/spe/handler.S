@@ -1,6 +1,6 @@
 ### -*- asm -*- ##############################################################
 #                                                                            #
-#                      Copyright (C) 2005-2011, AdaCore                      #
+#                      Copyright (C) 2005-2015, AdaCore                      #
 #                                                                            #
 #                               Assembly File                                #
 #                                                                            #
@@ -244,7 +244,7 @@ interrupt_handler_common:
 	beq-    %cr7,.Lno_con_sw
 
 	# Yes, we need a context switch
-	bl      context_switch
+	bl      __gnat_context_switch
 
 .Lno_con_sw:
         # Restore interrupt stack pointer

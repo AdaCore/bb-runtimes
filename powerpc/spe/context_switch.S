@@ -14,9 +14,9 @@ SPEFSCR = 512
 # Switch from running_thread to first_thread.
 # r3 and r4 are preserved.
 
-	.globl context_switch
-	.type  context_switch, @function
-context_switch:
+	.globl __gnat_context_switch
+	.type  __gnat_context_switch, @function
+__gnat_context_switch:
         # Load the context address of the current thread.
   	lis     %r7,__gnat_running_thread_table@h
         ori     %r7,%r7,__gnat_running_thread_table@l
@@ -96,7 +96,7 @@ context_switch:
 
 	blr
 
-        .size context_switch, . - context_switch
+        .size __gnat_context_switch, . - __gnat_context_switch
 
         .globl start_thread_asm
 	.type  start_thread_asm, @function
