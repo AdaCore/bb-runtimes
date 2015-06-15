@@ -195,6 +195,7 @@ handler_cont:
         lis     %r5,interrupt_stack_table@ha
         stw     %r1,interrupt_stack_table@l(%r5)
 
+	bl      __gnat_pre_context_switch
 	bl      __gnat_context_switch
 
         /* Restore interrupt stack pointer.  */

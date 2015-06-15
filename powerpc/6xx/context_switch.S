@@ -1,6 +1,6 @@
 ##############################################################################
 #                                                                            #
-#                      Copyright (C) 2005-2010, AdaCore                      #
+#                      Copyright (C) 2005-2015, AdaCore                      #
 #                                                                            #
 #                               Assembly File                                #
 #                                                                            #
@@ -10,12 +10,13 @@
 	#  context of a task for the PowerPC
 	#  without floating-point unit.
 
-        # Switch from running_thread to first_thread.
+        # Switch from running_thread (address in r3) to
+	# first_thread (address in r4).
         # r3 and r4 are preserved.
 
-	.globl context_switch
-	.type  context_switch, @function
-context_switch:
+	.globl __gnat_context_switch
+	.type  __gnat_context_switch, @function
+__gnat_context_switch:
 	# The context address of the current thread is in r3
         # Read current thread,
         lwz     %r5,0(%r3)
@@ -130,7 +131,7 @@ context_switch:
 
 	blr
 
-        .size context_switch, . - context_switch
+        .size __gnat_context_switch, . - __gnat_context_switch
 
         .globl start_thread_asm
 	.type  start_thread_asm, @function
