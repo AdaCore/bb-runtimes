@@ -21,18 +21,21 @@ project Runtime_Build is
   package Compiler is
      CFLAGS := ("-fcallgraph-info=su,da",
                 "-ffunction-sections", "-fdata-sections");
+     ADAFLAGS := ("-gnatg", "-nostdinc");
      ASMFLAGS := ();
      case Build is
         when "Production" =>
            CFLAGS := CFLAGS & ("-O2");
+           ADAFLAGS := ADAFLAGS & ("-gnatp", "-gnatn2");
         when "Debug" =>
            CFLAGS := CFLAGS & ("-O0", "-g");
            ASMFLAGS := ASMFLAGS & ("-g");
+           ADAFLAGS := ADAFLAGS & ("-gnata");
         when "Gnatcov" =>
            CFLAGS := CFLAGS & ("-O0", "-g", "-fdump-scos",
                                "-fpreserve-control-flow");
      end case;
-     ALL_ADAFLAGS := ("-gnatpg", "-gnatn2", "-nostdinc") & CFLAGS;
+     ALL_ADAFLAGS := ADAFLAGS & CFLAGS;
      ALL_CFLAGS := ("-DIN_RTS", "-Dinhibit_libc") & CFLAGS;
 
      NO_SIBLING_ADAFLAGS := ("-fno-optimize-sibling-calls");
