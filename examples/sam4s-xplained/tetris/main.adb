@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GNAT EXAMPLE                                 --
 --                                                                          --
---                    Copyright (C) 2013-2014, AdaCore                      --
+--                    Copyright (C) 2013-2015, AdaCore                      --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -86,7 +86,7 @@ procedure Main is
       Num : Natural;
       Digit : Natural;
    begin
-      --  Vertical boarders
+      --  Vertical borders
       for Y in Y_Coord loop
          Set_Screen_Pixel (X_Start - 1, Y);
          Set_Screen_Pixel (X_Start + X_Size * Zoom, Y);
@@ -143,7 +143,7 @@ procedure Main is
             end loop;
          end loop;
 
-         --  Boarder
+         --  Border
          Oled_Draw (16#ff#);
 
          --  Score

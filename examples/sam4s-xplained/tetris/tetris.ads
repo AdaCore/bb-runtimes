@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GNAT EXAMPLE                                 --
 --                                                                          --
---                      Copyright (C) 2014, AdaCore                         --
+--                  Copyright (C) 2014-2015, AdaCore                        --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -34,7 +34,7 @@ is
    --  subset of cells that correspond to a shape
    subtype Shape is Cell range I .. Z;
 
-   --  subset of shapes that fits in a 3 x 3 box, that is, all expect I and O
+   --  subset of shapes that fits in a 3 x 3 box, that is, all except I and O
    subtype Three_Shape is Cell range J .. Z;
 
    --  the board is a matrix of X_Size x Y_Size cells, where the origin (1,1)
