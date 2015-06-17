@@ -62,7 +62,7 @@ procedure Setup_Pll is
    pragma Assert ((if Activate_PLL then HSE_Enabled),
                   "PLL only supported with external clock");
 
-   pragma Assert (Activate_PLLI2S, "not yet implemented");
+   pragma Assert (not Activate_PLLI2S, "not yet implemented");
 
    -----------
    -- Reset --
