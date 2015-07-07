@@ -39,9 +39,9 @@ _setup:
 	mtmsr	%r3
         isync
 
-        # Disable overflow and underflow exceptions.
-        li	%r0,0
-        mtspr	SPEFSCR,%r0
+	# Enable overflow, division by zero, invalid exceptions.
+	li	%r0,0x34
+	mtspr	SPEFSCR,%r0
 
         # load r13 with _SDA_BASE_ address
         lis	%r13,_SDA_BASE_@ha
