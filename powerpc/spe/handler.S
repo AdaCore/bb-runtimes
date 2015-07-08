@@ -229,6 +229,7 @@ interrupt_handler_common:
         stw     %r5,12(%r1)
 
         # Call handler
+	srwi	%r3,%r3,2
         bctrl
 
 	# Interrupts must be disabled when user handler returns
