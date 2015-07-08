@@ -369,6 +369,10 @@ unset MAKEFLAGS MAKEOVERRIDES MAKELEVEL
 def_cmd="make -f $gnatsrc/Makefile.hie RTS=$gnat_rts \
       TARGET=$gnat_target GNAT_SRC_DIR=$gnatsrc show-sources"
 
+if [ "$verbose" = "y" ]; then
+  echo $def_cmd
+fi
+
 # Get list of sources
 defs=`$def_cmd`
 # create the variables
@@ -816,7 +820,7 @@ case $config in
                             s-bbpara.ads:s-bbpara-8641d.ads
                             s-bcprmu.adb:s-bcprmu-8641d.adb
                             a-intnam.ads:a-intnam-xi-p2020.ads
-                            system.ads:system-xi-e500v2-sfp.ads
+                            system.ads:system-xi-ppc-sfp.ads
                             s-macres.adb:s-macres-p2020.adb"
 	copy $PWD/powerpc/8641d/runtime.xml $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
@@ -857,7 +861,7 @@ case $config in
                             s-bbpara.ads:s-bbpara-8641d.ads
                             s-bcprmu.adb:s-bcprmu-8641d.adb
                             a-intnam.ads:a-intnam-xi-p2020.ads
-                            system.ads:system-xi-e500v2-full.ads
+                            system.ads:system-xi-ppc-full.ads
                             s-macres.adb:s-macres-p2020.adb"
         copy $PWD/powerpc/prep/link-zcx.spec $objdir/link.spec
 	zcx_dw2_copy
