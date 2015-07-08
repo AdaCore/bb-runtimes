@@ -478,8 +478,8 @@ case $config in
                             s-bbbopa.ads:s-bbbopa-p2020.ads
                             s-bbpara.ads:s-bbpara-ppc.ads
                             s-macres.adb:s-macres-p2020.adb
-                            s-bbbosu.adb:s-bbbosu-p2020.adb
-                            a-intnam.ads:a-intnam-xi-p2020.ads
+                            s-bbbosu.adb:s-bbbosu-ppc-openpic.adb
+                            a-intnam.ads:a-intnam-xi-ppc-openpic.ads
                             system.ads:system-xi-e500v2-sfp.ads"
 	copy $PWD/powerpc/p2020/runtime.xml $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
@@ -518,8 +518,8 @@ case $config in
                             s-bbbopa.ads:s-bbbopa-p2020.ads
                             s-bbpara.ads:s-bbpara-ppc.ads
                             s-macres.adb:s-macres-p2020.adb
-                            s-bbbosu.adb:s-bbbosu-p2020.adb
-                            a-intnam.ads:a-intnam-xi-p2020.ads
+                            s-bbbosu.adb:s-bbbosu-ppc-openpic.adb
+                            a-intnam.ads:a-intnam-xi-ppc-openpic.ads
                             system.ads:system-xi-e500v2-full.ads"
         ;;
     "zfp/mpc5554")
@@ -816,10 +816,10 @@ case $config in
                             s-bbcpsp.ads:s-bbcpsp-6xx.ads
                             s-bbcpsp.adb:s-bbcpsp-6xx.adb
                             s-bbbopa.ads:s-bbbopa-8641d.ads
-                            s-bbbosu.adb:s-bbbosu-8641d.adb
+                            s-bbbosu.adb:s-bbbosu-ppc-openpic.adb
                             s-bbpara.ads:s-bbpara-8641d.ads
                             s-bcprmu.adb:s-bcprmu-8641d.adb
-                            a-intnam.ads:a-intnam-xi-p2020.ads
+                            a-intnam.ads:a-intnam-xi-ppc-openpic.ads
                             system.ads:system-xi-ppc-sfp.ads
                             s-macres.adb:s-macres-p2020.adb"
 	copy $PWD/powerpc/8641d/runtime.xml $objdir/runtime.xml
@@ -857,10 +857,10 @@ case $config in
                             s-bbcpsp.ads:s-bbcpsp-6xx.ads
                             s-bbcpsp.adb:s-bbcpsp-6xx.adb
                             s-bbbopa.ads:s-bbbopa-8641d.ads
-                            s-bbbosu.adb:s-bbbosu-8641d.adb
+                            s-bbbosu.adb:s-bbbosu-ppc-openpic.adb
                             s-bbpara.ads:s-bbpara-8641d.ads
                             s-bcprmu.adb:s-bcprmu-8641d.adb
-                            a-intnam.ads:a-intnam-xi-p2020.ads
+                            a-intnam.ads:a-intnam-xi-ppc-openpic.ads
                             system.ads:system-xi-ppc-full.ads
                             s-macres.adb:s-macres-p2020.adb"
         copy $PWD/powerpc/prep/link-zcx.spec $objdir/link.spec
