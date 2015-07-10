@@ -134,6 +134,8 @@ handler_\num :
 
         .type interrupt_handler_common,@function
 interrupt_handler_common:
+	.cfi_startproc
+	.cfi_signal_frame
         # Save r3
         mtsprg3 %r3
         # Save CR
@@ -162,13 +164,17 @@ interrupt_handler_common:
         mr      %r1,%r3
 
 .Lstack_established:
+	.cfi_def_cfa	1,0	# Use %r1 as CFA
         # Save register r4
         stw     %r4,32(%r1)
+	.cfi_offset	4,32	# Reg 4
 
         # Save srr0 (ip) and srr1 (msr)
         mfsrr0  %r3
         mfsrr1  %r4
         stw     %r3,FRAME_SIZE+4(%r1)
+	.cfi_offset	67,FRAME_SIZE+4	# PC
+	.cfi_return_column 67
         stw     %r4,8(%r1)
 
         # Copy SPE, AP, FP, IR and DR bits.
@@ -205,9 +211,13 @@ interrupt_handler_common:
         mfctr   %r7
         mfsprg2 %r8
         stw     %r5,104(%r1)
+	.cfi_offset	65,104	# XER
         stw     %r6,108(%r1)
+	.cfi_offset	76,108	# LR
         stw     %r7,112(%r1)
+	.cfi_offset	66,112	# CTR
         stw     %r8,116(%r1)
+	.cfi_offset	70,116	# CR
 
         # Save interrupt stack pointer (in case of nested interrupts)
         lis     %r5,interrupt_stack_table@ha
@@ -294,4 +304,5 @@ interrupt_handler_common:
         lwz     %r1,0(%r1)
 	rfi
 
+	.cfi_endproc
         .size interrupt_handler_common, . - interrupt_handler_common
