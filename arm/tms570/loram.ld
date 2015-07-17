@@ -96,7 +96,7 @@ SECTIONS
 {
   .text :
   {
-    *(.traps)
+    KEEP (*(.traps))
     *(.text .text.* .gnu.linkonce.t*)
     *(.rodata .rodata.* .gnu.linkonce.r*)
   }  > REGION_CODE
