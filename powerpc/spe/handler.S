@@ -165,6 +165,7 @@ interrupt_handler_common:
 
 .Lstack_established:
 	.cfi_def_cfa	1,0	# Use %r1 as CFA
+	.cfi_offset	1,0	# Previous %r1 at %r1
         # Save register r4
         stw     %r4,32(%r1)
 	.cfi_offset	4,32	# Reg 4
