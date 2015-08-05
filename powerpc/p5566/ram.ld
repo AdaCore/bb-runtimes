@@ -16,8 +16,9 @@ SECTIONS
   .text :
   {
     __text = .;
-    *(.interrupt) /* Interrupt vector table, must be within a 64KB window */
-    *(.init)
+    KEEP (*(.interrupt)) /* Interrupt vector table, must be within
+                            a 64KB window */
+    KEEP (*(.init))
     *(.text .text.* .gnu.linkonce.t.*)
     *(.gnu.warning)
   } = 0
