@@ -133,9 +133,9 @@ __gnat_context_switch:
 
         .size __gnat_context_switch, . - __gnat_context_switch
 
-        .globl start_thread_asm
-	.type  start_thread_asm, @function
-start_thread_asm:
+        .globl __gnat_start_thread
+	.type  __gnat_start_thread, @function
+__gnat_start_thread:
 	# Clear lr to mark end of stack
 	li	%r0,0
 	mtlr	%r0
@@ -146,4 +146,4 @@ start_thread_asm:
 
 	# Ravenscar tasks should never return!
 	trap
-        .size start_thread_asm, . - start_thread_asm
+        .size __gnat_start_thread, . - __gnat_start_thread
