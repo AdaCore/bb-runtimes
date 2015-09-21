@@ -435,6 +435,7 @@ case $gnat_rts in
 esac
 
 # Complete/modify the list of sources
+copy $PWD/src/target_options.gpr $objdir/target_options.gpr
 case $config in
     "zfp/x86-linux" | "zfp/x86-windows" | "zfp/sparc-solaris")
         extra_gnat_files="$extra_gnat_files
@@ -630,6 +631,7 @@ case $config in
                             s-macres.adb:s-macres-native.adb
                             $textio_pairs"
         copy $PWD/visium/mcm/runtime.xml $objdir/runtime.xml
+        copy $PWD/visium/mcm/target_options.gpr $objdir/target_options.gpr
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         ;;
     "zfp-support/mcm")

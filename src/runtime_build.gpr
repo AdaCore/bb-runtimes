@@ -1,3 +1,5 @@
+with "target_options.gpr"; 
+
 project Runtime_Build is
   for Languages use ("Ada", "C", "Asm_Cpp");
 
@@ -20,7 +22,8 @@ project Runtime_Build is
 
   package Compiler is
      CFLAGS := ("-fcallgraph-info=su,da",
-                "-ffunction-sections", "-fdata-sections");
+                "-ffunction-sections", "-fdata-sections")
+                & Target_Options.CFLAGS;
      ADAFLAGS := ("-gnatg", "-nostdinc");
      ASMFLAGS := ();
      case Build is

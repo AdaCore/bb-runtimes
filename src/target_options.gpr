@@ -1,0 +1,8 @@
+--  This is the default version of the target_options.gpr file,
+--  imported by runtime_build.gpr. Variables defined here are appended
+--  to the corresponding variables there. Target configurations may
+--  their own version of this file.
+
+abstract project Target_Options is
+   CFLAGS := ();
+end Target_Options;
