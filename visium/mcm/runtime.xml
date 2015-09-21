@@ -4,7 +4,7 @@
   <configuration>
    <config>
   package Compiler is
-     Common_Required_Switches := ();
+     Common_Required_Switches := ("-muser-mode");
 
      for Leading_Required_Switches ("Ada") use
         Compiler'Leading_Required_Switches ("Ada") &amp;
