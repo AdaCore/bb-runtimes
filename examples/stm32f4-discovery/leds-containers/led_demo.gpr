@@ -4,7 +4,6 @@ project led_demo is
 
    for Main use ("main.adb");
    for Source_Dirs use ("src");
-   for Object_Dir use "obj";
 
    package Compiler is
       for Default_Switches ("ada") use ("-g", "-gnatwa", "-gnatQ", "-gnat12");
@@ -14,7 +13,7 @@ project led_demo is
       for Default_Switches ("ada") use ("-g", "-O0");
    end Builder;
 
-   for Runtime ("Ada") use "ravenscar-full-stm32f4";
+   --  for Runtime ("Ada") use "ravenscar-full-stm32f4";
    for Target use "arm-eabi";
 
    package Ide is
