@@ -281,6 +281,11 @@ build_full_xtratum_tms570()
     do_ravenscar arm-eabi ravenscar-full-xtratum/tms570
 }
 
+build_zfp_zynq()
+{
+    do_zfp arm-eabi zfp/zynq
+}
+
 build_zfp_stm32f4()
 {
     do_zfp arm-eabi zfp/stm32f4
@@ -596,6 +601,12 @@ else
                   raven-full) raven_testsuite ravenscar-full/tms570 ;;
                   raven-xtratum-sfp) raven_testsuite ravenscar-sfp/xtratum-tms570 ;;
                   raven-xtratum-full) raven_testsuite ravenscar-full/xtratum-tms570 ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
+          zynq)
+               case $opt in
+                  zfp)  build_zfp_zynq ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
