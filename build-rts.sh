@@ -260,6 +260,7 @@ stm32f4_arch_files="arm/stm32f4/common-RAM.ld
                     arm/stm32f4/STM32F429-DISCO-memory-map.ld
                     arm/stm32f4/STM32F4-DISCO-memory-map.ld
                     arm/stm32f4/STM32F7-EVAL-memory-map.ld
+                    arm/stm32f4/STM32F7-DISCO-memory-map.ld
                     arm/stm32f4/start-rom.S
                     arm/stm32f4/start-ram.S
                     arm/stm32f4/setup_pll.adb"
@@ -440,7 +441,7 @@ case $config in
     "zfp/x86-linux" | "zfp/x86-windows" | "zfp/sparc-solaris")
         extra_gnat_files="$extra_gnat_files
                           $textio_src s-textio.ads s-textio.adb
-                         s-macres.ads s-macres.adb"
+                          s-macres.ads s-macres.adb"
         extra_target_pairs="$extra_target_pairs
                             s-textio.adb:s-textio-stdio.adb
                             s-textio.ads:s-textio-zfp.ads
