@@ -145,6 +145,16 @@ __vectors:
 	.word   __gnat_irq_trap      /* 95 IRQ79.  */
 	.word   __gnat_irq_trap      /* 96 IRQ80.  */
 	.word   __gnat_irq_trap      /* 97 IRQ81.  */
+	.word   __gnat_irq_trap      /* 98 IRQ82.  */
+	.word   __gnat_irq_trap      /* 99 IRQ83.  */
+	.word   __gnat_irq_trap      /* 100 IRQ84.  */
+	.word   __gnat_irq_trap      /* 101 IRQ85.  */
+	.word   __gnat_irq_trap      /* 102 IRQ86.  */
+	.word   __gnat_irq_trap      /* 103 IRQ87.  */
+	.word   __gnat_irq_trap      /* 104 IRQ88.  */
+	.word   __gnat_irq_trap      /* 105 IRQ89.  */
+	.word   __gnat_irq_trap      /* 106 IRQ90.  */
+	.word   __gnat_irq_trap      /* 107 IRQ91.  */
 
 	.text
 
