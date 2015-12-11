@@ -81,7 +81,7 @@ SECTIONS
 
     . = ALIGN(0x4);
     __data_end = .;
-  } > sram
+  } > sram_da
   __data_words = (__data_end - __data_start) >> 2;
 
   .bss (NOLOAD): {
@@ -106,8 +106,8 @@ SECTIONS
 
    _end = .;
    __heap_start = .;
-   __heap_end = ORIGIN(sram) + LENGTH(sram);
-  } > sram
+   __heap_end = ORIGIN(sram_bs) + LENGTH(sram_bs);
+  } > sram_bs
 
   __bss_words = (__bss_end - __bss_start) >> 2;
 

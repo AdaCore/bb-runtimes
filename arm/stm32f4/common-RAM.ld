@@ -53,11 +53,11 @@ SECTIONS
     KEEP (*(.vectors))
     *(.text .text.* .gnu.linkonce.t*)
     *(.gnu.warning)
-  } > sram
+  } > sram_tx
 
-  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > sram
+  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > sram_ro
   PROVIDE_HIDDEN (__exidx_start = .);
-  .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > sram
+  .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > sram_ro
   PROVIDE_HIDDEN (__exidx_end = .);
 
   .rodata :
@@ -65,7 +65,7 @@ SECTIONS
     *(.lit)
     *(.rodata .rodata.* .gnu.linkonce.r*)
     . = ALIGN(0x4);
-  } > sram
+  } > sram_ro
 
   .data :
   {
@@ -79,7 +79,7 @@ SECTIONS
 
     . = ALIGN(0x4);
     __data_end = .;
-  } > sram
+  } > sram_da
 
   .bss (NOLOAD): {
    . = ALIGN(0x8);
@@ -103,8 +103,8 @@ SECTIONS
 
    _end = .;
    __heap_start = .;
-   __heap_end = ORIGIN(sram) + LENGTH(sram);
-  } > sram
+   __heap_end = ORIGIN(sram_bs) + LENGTH(sram_bs);
+  } > sram_bs
 
   __bss_words = (__bss_end - __bss_start) >> 2;
 
