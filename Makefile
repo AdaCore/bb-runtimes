@@ -36,7 +36,8 @@ endif
 ifeq ($(TARGET), arm-eabi)
     RTS_LIST=zfp-tms570 ravenscar-sfp-tms570 ravenscar-full-tms570 \
 	     zfp-lm3s \
-             zfp-stm32f4 ravenscar-sfp-stm32f4 ravenscar-full-stm32f4
+             zfp-stm32f4 ravenscar-sfp-stm32f4 ravenscar-full-stm32f4 \
+             zfp-stm32f7 ravenscar-sfp-stm32f7 ravenscar-full-stm32f7
 endif
 
 ifeq ($(TARGET), leon-elf)
@@ -245,6 +246,15 @@ ravenscar-sfp-stm32f4.src:
 	@$(BUILD_RTS) ravenscar-sfp/stm32f4
 
 ravenscar-full-stm32f4.src:
+	@$(BUILD_RTS) ravenscar-full/stm32f4 --gcc-dir=$(GCC_SOURCES)
+
+zfp-stm32f7.src:
+	@$(BUILD_RTS) zfp/stm32f7
+
+ravenscar-sfp-stm32f7.src:
+	@$(BUILD_RTS) ravenscar-sfp/stm32f4
+
+ravenscar-full-stm32f7.src:
 	@$(BUILD_RTS) ravenscar-full/stm32f4 --gcc-dir=$(GCC_SOURCES)
 
 # visium-elf

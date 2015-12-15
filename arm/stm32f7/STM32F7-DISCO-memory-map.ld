@@ -39,9 +39,10 @@ MEMORY
   itcm     (x) : ORIGIN = 0x00000000, LENGTH = 16K
   flash   (rx) : ORIGIN = 0x08000000, LENGTH = 1024K
   dtcm   ( rx) : ORIGIN = 0x20000000, LENGTH = 64K
-  sram12 (rwx) : ORIGIN = 0x20010000, LENGTH = 256K
+  sram12 (rwx) : ORIGIN = 0x20010000, LENGTH = 240K
 }
 
+/* Do not place anything into the dtcm as it is used as Data cache by the CPU*/
 REGION_ALIAS("sram_tx", sram12)
 REGION_ALIAS("sram_ro", sram12)
 REGION_ALIAS("sram_bs", sram12)
