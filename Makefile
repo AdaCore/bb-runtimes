@@ -36,8 +36,7 @@ endif
 ifeq ($(TARGET), arm-eabi)
     RTS_LIST=zfp-tms570 ravenscar-sfp-tms570 ravenscar-full-tms570 \
 	     zfp-lm3s \
-             zfp-stm32f4 ravenscar-sfp-stm32f4 ravenscar-full-stm32f4 \
-             zfp-stm32f7 ravenscar-sfp-stm32f7 ravenscar-full-stm32f7
+             zfp-stm32f4 ravenscar-sfp-stm32f4 ravenscar-full-stm32f4
 endif
 
 ifeq ($(TARGET), leon-elf)
