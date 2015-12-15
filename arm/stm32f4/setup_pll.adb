@@ -68,7 +68,7 @@ procedure Setup_Pll is
 
    procedure Initialize_Clocks
    is
-      HSECLK      : constant Integer := Integer (HSE_Clock (MCU_ID.DEV_ID));
+      HSECLK      : constant Integer := Integer (HSE_Clock);
       MCU_ID_Cp   : constant MCU_ID_Register := MCU_ID;
 
       -------------------------------
