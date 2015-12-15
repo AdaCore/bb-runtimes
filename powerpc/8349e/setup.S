@@ -7,7 +7,7 @@ _setup:
 
 #ifndef _SOFT_FLOAT
         # Enable FPU (bit FP)
-	ori	%r3,0x2000
+	ori	%r3,%r3,0x2000
 #endif
 
 	# Clear prefix (bit IP)
