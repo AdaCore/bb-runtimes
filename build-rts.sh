@@ -112,11 +112,12 @@ libm_files="s-gcmain.ads s-gcmain.adb
             s-lisisq.ads s-lisisq.adb
             s-lidosq.ads s-lidosq.adb"
 
-libm_common_pairs="a-ngelfu.adb:a-ngelfu-ada.adb
+libm_common_pairs="a-ngcoty.adb:a-ngcoty-ada.adb
+		   a-ngelfu.adb:a-ngelfu-ada.adb
             	   a-ngelfu.ads:a-ngelfu-ada.ads
             	   a-nlelfu.ads:a-nlelfu-ada.ads
             	   a-nuelfu.ads:a-nuelfu-ada.ads
-            	   a-numaux.ads:a-numaux-vxworks.ads
+            	   a-numaux.ads:a-numaux-ada.ads
             	   s-gcmain.ads:s-gcmain-ada.ads
             	   s-gcmain.adb:s-gcmain-ada.adb
                    s-libm.ads:s-libm-ada.ads
