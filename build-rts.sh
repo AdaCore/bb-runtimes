@@ -109,6 +109,7 @@ libm_files="s-gcmain.ads s-gcmain.adb
             s-libm.ads s-libm.adb
             s-libsin.adb s-libsin.ads
             s-libdou.adb s-libdou.ads
+            s-libpre.ads
             s-lisisq.ads s-lisisq.adb
             s-lidosq.ads s-lidosq.adb"
 
@@ -126,6 +127,7 @@ libm_common_pairs="a-ngcoty.adb:a-ngcoty-ada.adb
             	   s-libsin.ads:s-libsin-ada.ads
             	   s-libdou.adb:s-libdou-ada.adb
             	   s-libdou.ads:s-libdou-ada.ads
+                   s-libpre.ads:s-libpre-ada.ads
                    s-lisisq.ads:s-lisisq-ada.ads
                    s-lidosq.ads:s-lidosq-ada.ads"
 
