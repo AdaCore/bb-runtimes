@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
  *             Copyright (C) 2003-2006 The European Space Agency            *
- *                   Copyright (C) 2003-2015 AdaCore                        *
+ *                   Copyright (C) 2003-2016 AdaCore                        *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -39,10 +39,9 @@ MEMORY
   itcm     (x) : ORIGIN = 0x00000000, LENGTH = 16K
   flash   (rx) : ORIGIN = 0x08000000, LENGTH = 1024K
   dtcm   ( rx) : ORIGIN = 0x20000000, LENGTH = 64K
-  sram12 (rwx) : ORIGIN = 0x20010000, LENGTH = 240K
+  sram12 (rwx) : ORIGIN = 0x20010000, LENGTH = 256K
 }
 
-/* Do not place anything into the dtcm as it is used as Data cache by the CPU*/
 REGION_ALIAS("sram_tx", sram12)
 REGION_ALIAS("sram_ro", sram12)
 REGION_ALIAS("sram_bs", sram12)

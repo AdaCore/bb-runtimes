@@ -8,7 +8,11 @@
 
    Loader : Loaders := external ("LOADER", "ROM");
 
-   type Boards is ("STM32F4-DISCO", "STM32F429-DISCO");
+   type Boards is ("STM32F4-DISCO",
+                   "STM32F429-DISCO",
+                   "STM32F469-DISCO",
+                   "STM32F7-EVAL",
+                   "STM32F7-DISCO");
 
    Board : Boards := external ("BOARD", "STM32F4-DISCO");
 

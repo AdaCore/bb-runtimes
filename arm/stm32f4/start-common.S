@@ -6,7 +6,7 @@
 #                                                                           #
 #                               Assembly File                               #
 #                                                                           #
-#                      Copyright (C) 2012-2013 AdaCore                      #
+#                      Copyright (C) 2012-2016 AdaCore                      #
 #                                                                           #
 #  GNAT is free software;  you can  redistribute it  and/or modify it under #
 #  terms of the  GNU General Public License as published  by the Free Soft- #
@@ -32,9 +32,9 @@
 
 	.text
 	.thumb_func
-	.globl	_stm32f7_start_common
-        .type _stm32f7_start_common, #function
-_stm32f7_start_common:
+	.globl	_stm32_start_common
+        .type _stm32_start_common, #function
+_stm32_start_common:
         /**************/
         /* Enable FPU */
         /**************/
@@ -44,6 +44,19 @@ _stm32f7_start_common:
         ldr      r1,[r0]
         orr      r1,r1,#(0xF << 20)
         str      r1,[r0]
+
+        /*************************
+         * Check MCU = Cortex-M7 *
+        *************************/
+
+        .set    MCU_ID_REG, 0xE0042000
+        ldr     r0, =MCU_ID_REG
+        ldr     r1, [r0]
+        ldr     r2, =#0xFFF
+        and     r1, r1, r2  /* Retrieve the DEV_ID field of the MCU_ID reg */
+        ldr     r2, =#0x449
+        cmp     r1, r2      /* Compare to STM32F74xxx/75xxx Dev ID */
+        bne     end         /* Do not initialize cache on STM32F4 */
 
         /********************
          * Enable I/D cache *
@@ -134,5 +147,6 @@ icache_invalidate:
         dsb
         isb
 
+end:
         bx lr
-        .size _stm32f7_start_common, . - _stm32f7_start_common
+        .size _stm32_start_common, . - _stm32_start_common

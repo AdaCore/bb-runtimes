@@ -6,7 +6,7 @@
 #                                                                           #
 #                               Assembly File                               #
 #                                                                           #
-#                      Copyright (C) 2012-2013 AdaCore                      #
+#                      Copyright (C) 2012-2016 AdaCore                      #
 #                                                                           #
 #  GNAT is free software;  you can  redistribute it  and/or modify it under #
 #  terms of the  GNU General Public License as published  by the Free Soft- #
@@ -46,16 +46,8 @@ _start_ram:
 	/* Init stack */
 	ldr	sp,.LinitSp
 
-        /* Enable FPU */
-        movw     r0,#0xED88
-        movt     r0,#0xE000
-        ldr      r1,[r0]
-        orr      r1,r1,#(0xF << 20)
-        str      r1,[r0]
-
-        /* Wait for store to complete and reset pipeline with FPU enabled  */
-        dsb
-        isb
+        /* Enable FPU and cache when appropriate */
+        bl _stm32_start_common
 
 	/* Clear .bss */
 	movw	r0,#:lower16:__bss_start

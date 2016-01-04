@@ -2,7 +2,7 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---          Copyright (C) 2012-2015, Free Software Foundation, Inc.         --
+--          Copyright (C) 2012-2016, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -68,8 +68,8 @@ procedure Setup_Pll is
 
    procedure Initialize_Clocks
    is
-      HSECLK      : constant Integer := Integer (HSE_Clock);
       MCU_ID_Cp   : constant MCU_ID_Register := MCU_ID;
+      HSECLK      : constant Integer := Integer (HSE_Clock (MCU_ID_Cp.DEV_ID));
 
       -------------------------------
       -- Compute Clock Frequencies --
@@ -177,7 +177,8 @@ procedure Setup_Pll is
       if MCU_ID_Cp.DEV_ID = DEV_ID_STM32F40xxx then
          PWR.CR := PWR_CR_VOS_HIGH_407;
       elsif MCU_ID_Cp.DEV_ID = DEV_ID_STM32F42xxx
-        or else MCU_ID_Cp.DEV_ID = DEV_ID_STM32F7xxxx
+        or else MCU_ID_Cp.DEV_ID = DEV_ID_STM32F46xxx
+        or else MCU_ID_Cp.DEV_ID = DEV_ID_STM32F74xxx
       then
          PWR.CR := PWR_CR_VOS_HIGH_429;
       end if;
