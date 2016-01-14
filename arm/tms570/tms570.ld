@@ -123,8 +123,12 @@ SECTIONS
   {
     KEEP (*(.traps))
     *(.text .text.* .gnu.linkonce.t*)
+  } > SRAM
+
+  .rodata :
+  {
     *(.rodata .rodata.* .gnu.linkonce.r*)
-  }  > SRAM
+  } > SRAM
 
   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > SRAM
   PROVIDE_HIDDEN (__exidx_start = .);
