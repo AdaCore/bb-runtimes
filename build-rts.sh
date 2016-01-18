@@ -1170,6 +1170,7 @@ case $config in
 	case $config in
 	   zfp/*)
 		extra_gnat_files="$extra_gnat_files
+                                  s-bb.ads s-bbbopa.ads
                                   s-textio.ads s-textio.adb"
 		;;
 	   ravenscar-sfp/*)
@@ -1187,25 +1188,15 @@ case $config in
 
 	case $config in
 	   */leon)
-		if [ "$config" = "zfp/leon" ]; then
-		  extra_gnat_files="$extra_gnat_files
-                                    s-bb.ads s-bbbopa.ads"
-		  extra_target_pairs="$extra_target_pairs
-                                      s-bbbopa.ads:s-bbbopa-leon.ads"
-		fi
 		extra_target_pairs="$extra_target_pairs
+                                    s-bbbopa.ads:s-bbbopa-leon.ads
                                     s-textio.adb:s-textio-leon.adb"
 		arch_files="$crossdir/leon-elf/leon.ld
                             $crossdir/leon-elf/crt0.S"
 		;;
 	   */leon3)
-		if [ "$config" = "zfp/leon3" ]; then
-		  extra_gnat_files="$extra_gnat_files
-                                    s-bb.ads s-bbbopa.ads"
-		  extra_target_pairs="$extra_target_pairs
-                                      s-bbbopa.ads:s-bbbopa-leon3.ads"
-		fi
 		extra_target_pairs="$extra_target_pairs
+                                    s-bbbopa.ads:s-bbbopa-leon3.ads
                                     s-textio.adb:s-textio-leon3.adb"
 		arch_files="$crossdir/leon3-elf/leon.ld
                             $crossdir/leon-elf/crt0.S"
