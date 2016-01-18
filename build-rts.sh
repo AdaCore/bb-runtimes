@@ -359,7 +359,7 @@ case $config in
     *xtratum/leon3)
 	gnat_target=erc32-elf
 	;;
-    */leon3)
+    */leon3 | */leon4)
 	gnat_target=leon3-elf
 	;;
     */mcm)
@@ -1154,12 +1154,15 @@ case $config in
     "zfp/erc32" \
   | "zfp/leon"  \
   | "zfp/leon3" \
+  | "zfp/leon4" \
   | "ravenscar-sfp/erc32"  \
   | "ravenscar-sfp/leon"   \
   | "ravenscar-sfp/leon3"  \
+  | "ravenscar-sfp/leon4"  \
   | "ravenscar-full/erc32" \
   | "ravenscar-full/leon"  \
-  | "ravenscar-full/leon3")
+  | "ravenscar-full/leon3" \
+  | "ravenscar-full/leon4")
 	extra_gnat_files="$extra_gnat_files
                           $textio_src s-macres.ads s-macres.adb";
         extra_target_pairs="$extra_target_pairs
@@ -1197,6 +1200,14 @@ case $config in
 	   */leon3)
 		extra_target_pairs="$extra_target_pairs
                                     s-bbbopa.ads:s-bbbopa-leon3.ads
+                                    s-textio.adb:s-textio-leon3.adb"
+		arch_files="$crossdir/leon3-elf/leon.ld
+                            $crossdir/leon-elf/crt0.S"
+		;;
+	   */leon4)
+		# Like leon3 except for bbbopa.
+		extra_target_pairs="$extra_target_pairs
+                                    s-bbbopa.ads:s-bbbopa-leon4.ads
                                     s-textio.adb:s-textio-leon3.adb"
 		arch_files="$crossdir/leon3-elf/leon.ld
                             $crossdir/leon-elf/crt0.S"

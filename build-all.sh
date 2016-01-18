@@ -366,6 +366,21 @@ build_full_leon3()
     do_ravenscar leon3-elf ravenscar-full/leon3 --cross-dir=$CROSS_DIR
 }
 
+build_zfp_leon4()
+{
+    do_zfp leon3-elf zfp/leon4 --cross-dir=$CROSS_DIR
+}
+
+build_sfp_leon4()
+{
+    do_ravenscar leon3-elf ravenscar-sfp/leon4 --cross-dir=$CROSS_DIR
+}
+
+build_full_leon4()
+{
+    do_ravenscar leon3-elf ravenscar-full/leon4 --cross-dir=$CROSS_DIR
+}
+
 build_zfp_x86_linux()
 {
     do_zfp x86-linux zfp/x86-linux
@@ -633,6 +648,14 @@ else
                   zfp) build_zfp_leon3 ;;
                   sfp) build_sfp_leon3 ;;
                   full) build_full_leon3 ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
+          leon4)
+              case $opt in
+                  zfp) build_zfp_leon4 ;;
+                  sfp) build_sfp_leon4 ;;
+                  full) build_full_leon4 ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
