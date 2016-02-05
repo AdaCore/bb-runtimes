@@ -70,7 +70,7 @@ _start_rom:
 	bl	_ada_setup_pll
 	bl	main
 
-	bl	exit
+	bl	_exit
 
 	.global __aeabi_ldiv0
 	.global __aeabi_idiv0

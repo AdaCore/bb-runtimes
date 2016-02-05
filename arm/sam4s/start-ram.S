@@ -111,7 +111,7 @@ _start_ram:
 	bl	_ada_setup_pll
 	bl	main
 
-	bl	exit
+	bl	_exit
 
 	.global __aeabi_unwind_cpp_pr0
 	.global __aeabi_unwind_cpp_pr1

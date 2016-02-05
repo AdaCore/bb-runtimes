@@ -63,7 +63,7 @@ _start_ram:
 	bl	_ada_setup_pll
 	bl	main
 
-	bl	exit
+	bl	_exit
 
 hang:   b .
 

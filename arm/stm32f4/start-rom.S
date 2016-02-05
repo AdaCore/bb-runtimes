@@ -76,6 +76,6 @@ _start_rom:
 	bl	_ada_setup_pll
 	bl	main
 
-	bl	exit
+	bl	_exit
 
 hang:   b .
