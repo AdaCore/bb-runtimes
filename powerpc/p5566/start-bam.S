@@ -74,6 +74,6 @@ TCR = 340
         bl	main
 
         # Reset the board.
-        bl      exit
+        bl      _exit
 
 	.size _start_bam, . - _start_bam

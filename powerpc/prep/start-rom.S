@@ -53,7 +53,7 @@ _start_rom:
 	bl    main
 
         # Try to stop the machine
-        bl    exit
+        bl    _exit
 
 	.size _start_rom, . - _start_rom
 

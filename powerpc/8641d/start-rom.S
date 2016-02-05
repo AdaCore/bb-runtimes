@@ -88,7 +88,7 @@ _cpu1_zfp_mode:
         stw	%r0,12(1)
 
 	bl	main
-1:	bl	exit
+1:	bl	_exit
 	b	1b
 
 _cpu0_start:
@@ -137,7 +137,7 @@ _cpu0_start:
 	bl	main
 
         # Try to stop the machine
-        bl	exit
+        bl	_exit
 
 	.size _start_rom, . - _start_rom
 

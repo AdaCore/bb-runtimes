@@ -115,7 +115,7 @@ _start:
 
 	.globl _after_main
 _after_main:
-	bl exit
+	bl	_exit
 	trap
 
 	# The compiler presumes that the eabi small data areas

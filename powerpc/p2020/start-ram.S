@@ -67,7 +67,7 @@ _start_ram:
         # Reset the board.
         # Comment out the following line if you want to return to the monitor
         # (assuming that this is possible).
-        bl      exit
+        bl      _exit
 
 	# Return to the monitor
 

@@ -140,7 +140,7 @@ _start_flash:
         bl	main
 
         # Reset the board.
-        bl      exit
+        bl      _exit
 
 	.size _start_flash, . - _start_flash
 
