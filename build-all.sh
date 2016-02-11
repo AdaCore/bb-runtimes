@@ -386,6 +386,21 @@ build_zfp_x86_linux()
     do_zfp x86-linux zfp/x86-linux
 }
 
+build_zfp_arm_pikeos()
+{
+    do_zfp arm-sysgo-pikeos zfp/arm-pikeos
+}
+
+build_sfp_arm_pikeos()
+{
+    do_ravenscar arm-sysgo-pikeos ravenscar-sfp/arm-pikeos
+}
+
+build_full_arm_pikeos()
+{
+    do_ravenscar arm-sysgo-pikeos ravenscar-full/arm-pikeos
+}
+
 build_stub()
 {
   prefix=$1
@@ -656,6 +671,16 @@ else
                   zfp) build_zfp_leon4 ;;
                   sfp) build_sfp_leon4 ;;
                   full) build_full_leon4 ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
+
+	  # pikeos
+          arm-pikeos)
+              case $opt in
+                  zfp) build_zfp_arm_pikeos ;;
+                  sfp) build_sfp_arm_pikeos ;;
+                  full) build_full_arm_pikeos ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;

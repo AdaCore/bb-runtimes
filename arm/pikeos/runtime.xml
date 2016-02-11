@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+
+<gprconfig>
+  <configuration>
+   <config>
+  Pikeos_Files := external ("PIKEOS_TARGET_FILES",
+                            "/opt/pikeos-4.0/target/arm/v7hf");
+
+   package Compiler is
+     for Leading_Required_Switches ("C") use
+        Compiler'Leading_Required_Switches ("C") &amp;
+        ("-I" &amp; Pikeos_Files &amp; "/include");
+   end Compiler;
+   </config>
+  </configuration>
+</gprconfig>

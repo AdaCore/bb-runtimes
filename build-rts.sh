@@ -140,14 +140,7 @@ libm_fpu_pairs="$libm_common_pairs
                 s-lidosq.adb:s-lidosq-fpu.adb"
 
 # Files and pairs for ZCX (ravenscar-full only)
-zcx_files="s-except.ads s-except.adb
-           s-exctab.ads s-exctab.adb
-           s-excmac.ads
-           a-exexda.adb
-           a-exexpr.adb
-           a-exextr.adb
-           a-exstat.adb
-           a-excpol.adb
+zcx_files="s-excmac.ads
            raise-gcc.c raise.h
            adaint-xi.c"
 
@@ -289,6 +282,19 @@ ada_src_dirs="arch common math"
 case $config in
   ravenscar-sfp/* | ravenscar-minimal/* | ravenscar-xtratum/*)
 	ada_src_dirs="$ada_src_dirs gnarl-common gnarl-arch"
+	merge_libgnarl=n
+	;;
+  ravenscar-full/*pikeos)
+	# For pikeos, create libgnarl for ravenscar full
+	ada_src_dirs="$ada_src_dirs gnarl-common gnarl-arch"
+	merge_libgnarl=n
+	textio_src=""; textio_pairs=""
+	;;
+  ravenscar-full*/*)
+	# Don't create libgnarl: the executive kernel is needed even if
+	# no tasking (to handle exceptions).
+	textio_src=""; textio_pairs=""
+	merge_libgnarl=y
 	;;
   *)
 	;;
@@ -364,6 +370,9 @@ case $config in
 	;;
     */mcm)
 	gnat_target=visium-elf
+	;;
+    */arm-pikeos)
+	gnat_target=arm-pikeos
 	;;
     *)
 	echo "unhandled target in config $config"; exit 1
@@ -1282,6 +1291,12 @@ case $config in
             img_src=""
         fi
         ;;
+    ravenscar-full/arm-pikeos)
+        copy $PWD/arm/pikeos/runtime.xml $objdir/runtime.xml
+        copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
+        copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
+        zcx_copy
+	;;
     *)
         echo "error: unknown config \"$config\""
         exit 1
@@ -1314,10 +1329,8 @@ for f in $discarded_sources; do
 done
 
 # Only ravenscar-sfp and ravenscar-minimal has separate libgnat and libgnarl.
-case $config in
-    ravenscar-sfp/* | ravenscar-minimal/* | ravenscar-xtratum/* )
-	;;
-    */*)
+case "$merge_libgnarl" in
+    y)
 	libgnat_sources="$libgnat_sources $libgnarl_sources"
 	libgnarl_sources=""
 	extra_gnat_files="$extra_gnat_files $extra_gnarl_files"
