@@ -3,6 +3,7 @@ JOBS=1
 TARGET=
 GNAT_SOURCES=$(SRC_DIR)/gnat
 GCC_SOURCES=$(SRC_DIR)/gcc
+GCC_VERSION=unknown
 CROSS_SOURCES=$(SRC_DIR)/libbareboard
 
 ###################
@@ -63,6 +64,10 @@ ifeq ($(TARGET), sparc-sun-solaris2.8)
     RTS_LIST=zfp-sparc-solaris
 endif
 
+ifeq ($(TARGET), arm-sysgo-pikeos)
+    RTS_LIST=ravenscar-full-arm-pikeos
+endif
+
 # Helper for creating <config>.src targets.
 # you can use it the following way $(BUILD_RTS) config [build-rts opts...]
 # you don't have to specify --objdir and gnat sources location.
@@ -91,6 +96,7 @@ default:
 	@echo "  CROSS_SOURCES    location of cross sources"
 	@echo "                   default is $(CROSS_SOURCES)"
 	@echo "  PREFIX           required for install targets"
+	@echo "  GCC_VERSION      required for install targets on pikeos"
 	@echo
 	@echo "The makefile accepts the following targets:"
 	@echo
@@ -126,6 +132,20 @@ install: $(INSTALL_PREREQUISITES)
 	 gprbuild --target=$(TARGET) -j$(JOBS) ravenscar_build.gpr $(EXTRA_GPRBUILD_OPTIONS); \
 	fi
 	cd obj/$@ && chmod a-w adalib/*.ali
+
+# Runtimes to be installed in the standard location (lib/gcc/target/version)
+ravenscar-full-arm-pikeos.install:
+	@if [ "$(PREFIX)" = "" ]; then \
+	   echo "PREFIX variable should be specified"; \
+	   exit 1; \
+	fi
+	mkdir -p $(PREFIX)/lib/gcc/$(TARGET)/$(GCC_VERSION)
+	set -x; \
+	rts_name=rts-`echo $@ | sed -e 's/-[a-z]*-[a-z]*.install//'`; \
+	rts_dir=$(PREFIX)/lib/gcc/$(TARGET)/$(GCC_VERSION)/$$rts_name; \
+	rm -rf $$rts_dir; \
+	mkdir $$rts_dir; \
+	cp -rp obj/`echo $@ | sed -e 's/\.install/.build/'`/* $$rts_dir
 
 %.install:
 	@if [ "$(PREFIX)" = "" ]; then \
@@ -269,3 +289,7 @@ zfp-x86-windows.src:
 
 zfp-sparc-solaris.src:
 	@$(BUILD_RTS) zfp/sparc-solaris
+
+# pikeos
+ravenscar-full-arm-pikeos.src:
+	@$(BUILD_RTS) ravenscar-full/arm-pikeos --gcc-dir=$(GCC_SOURCES)
