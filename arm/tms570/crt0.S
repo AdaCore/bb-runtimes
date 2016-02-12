@@ -136,12 +136,12 @@ start_probe:
 
         /* Fall through in order to halt if main would return ... */
 
-	.global	_exit
-_exit:
+	.global	__exit
+__exit:
         bkpt 0
-	b    _exit
+	b    __exit
 
-	.size _exit, . - _exit
+	.size __exit, . - __exit
 
 _coreEnableVfp_:
         mrc   p15,     #0x00,      r0,       c1, c0, #0x02

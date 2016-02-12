@@ -101,15 +101,15 @@ start_ram:
 
         /* Fall through in order to halt if main would return ... */
 
-	.global	_exit
-_exit:
+	.global	__exit
+__exit:
 	/* Write 0x8000 to SYSECR (16#FFFF_FFE0#) */
         mov	r2, #0x8000
 	mvn	r3, #0
         str	r2, [r3, #-31]
-	b	_exit
+	b	__exit
 
-	.size _exit, . - _exit
+	.size	__exit, . - __exit
 
 L_coreEnableVfp:
 	mrc   p15,     #0x00,	   r0,	     c1, c0, #0x02
