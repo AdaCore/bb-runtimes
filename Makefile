@@ -72,6 +72,10 @@ ifeq ($(TARGET), powerpc-sysgo-pikeos)
     RTS_LIST=ravenscar-full-ppc-pikeos
 endif
 
+ifeq ($(TARGET), i586-sysgo-pikeos)
+    RTS_LIST=ravenscar-full-x86-pikeos
+endif
+
 # Helper for creating <config>.src targets.
 # you can use it the following way $(BUILD_RTS) config [build-rts opts...]
 # you don't have to specify --objdir and gnat sources location.
@@ -140,7 +144,7 @@ install: $(INSTALL_PREREQUISITES)
 	cd obj/$@ && chmod a-w adalib/*.ali
 
 # Runtimes to be installed in the standard location (lib/gcc/target/version)
-ravenscar-full-arm-pikeos.install ravenscar-full-ppc-pikeos.install:
+ravenscar-full-arm-pikeos.install ravenscar-full-ppc-pikeos.install ravenscar-full-x86-pikeos:
 	@if [ "$(PREFIX)" = "" ]; then \
 	   echo "PREFIX variable should be specified"; \
 	   exit 1; \
@@ -302,3 +306,6 @@ ravenscar-full-arm-pikeos.src:
 
 ravenscar-full-ppc-pikeos.src:
 	@$(BUILD_RTS) ravenscar-full/ppc-pikeos --gcc-dir=$(GCC_SOURCES)
+
+ravenscar-full-x86-pikeos.src:
+	@$(BUILD_RTS) ravenscar-full/x86-pikeos --gcc-dir=$(GCC_SOURCES)

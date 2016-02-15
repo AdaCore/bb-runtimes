@@ -406,6 +406,11 @@ build_full_ppc_pikeos()
     do_ravenscar powerpc-sysgo-pikeos ravenscar-full/ppc-pikeos
 }
 
+build_full_x86_pikeos()
+{
+    do_ravenscar i586-sysgo-pikeos ravenscar-full/x86-pikeos
+}
+
 build_stub()
 {
   prefix=$1
@@ -692,6 +697,12 @@ else
           ppc-pikeos)
               case $opt in
                   full) build_full_ppc_pikeos ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
+          x86-pikeos)
+              case $opt in
+                  full) build_full_x86_pikeos ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
