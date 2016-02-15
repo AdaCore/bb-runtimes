@@ -374,6 +374,9 @@ case $config in
     */arm-pikeos)
 	gnat_target=arm-pikeos
 	;;
+    */ppc-pikeos)
+	gnat_target=powerpc-pikeos
+	;;
     *)
 	echo "unhandled target in config $config"; exit 1
 	;;
@@ -1292,6 +1295,12 @@ case $config in
         fi
         ;;
     ravenscar-full/arm-pikeos)
+        copy $PWD/arm/pikeos/runtime.xml $objdir/runtime.xml
+        copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
+        copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
+        zcx_copy
+	;;
+    ravenscar-full/ppc-pikeos)
         copy $PWD/arm/pikeos/runtime.xml $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr

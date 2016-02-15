@@ -401,6 +401,11 @@ build_full_arm_pikeos()
     do_ravenscar arm-sysgo-pikeos ravenscar-full/arm-pikeos
 }
 
+build_full_ppc_pikeos()
+{
+    do_ravenscar powerpc-sysgo-pikeos ravenscar-full/ppc-pikeos
+}
+
 build_stub()
 {
   prefix=$1
@@ -681,6 +686,12 @@ else
                   zfp) build_zfp_arm_pikeos ;;
                   sfp) build_sfp_arm_pikeos ;;
                   full) build_full_arm_pikeos ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
+          ppc-pikeos)
+              case $opt in
+                  full) build_full_ppc_pikeos ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;

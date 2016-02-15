@@ -68,6 +68,10 @@ ifeq ($(TARGET), arm-sysgo-pikeos)
     RTS_LIST=ravenscar-full-arm-pikeos
 endif
 
+ifeq ($(TARGET), powerpc-sysgo-pikeos)
+    RTS_LIST=ravenscar-full-ppc-pikeos
+endif
+
 # Helper for creating <config>.src targets.
 # you can use it the following way $(BUILD_RTS) config [build-rts opts...]
 # you don't have to specify --objdir and gnat sources location.
@@ -93,6 +97,8 @@ default:
 	@echo "  JOBS             set number of jobs"
 	@echo "  GNAT_SOURCES     location of GNAT sources"
 	@echo "                   default is $(GNAT_SOURCES)"
+	@echo "  GCC_SOURCES      location of GCC sources"
+	@echo "                   default is $(GCC_SOURCES)"
 	@echo "  CROSS_SOURCES    location of cross sources"
 	@echo "                   default is $(CROSS_SOURCES)"
 	@echo "  PREFIX           required for install targets"
@@ -134,7 +140,7 @@ install: $(INSTALL_PREREQUISITES)
 	cd obj/$@ && chmod a-w adalib/*.ali
 
 # Runtimes to be installed in the standard location (lib/gcc/target/version)
-ravenscar-full-arm-pikeos.install:
+ravenscar-full-arm-pikeos.install ravenscar-full-ppc-pikeos.install:
 	@if [ "$(PREFIX)" = "" ]; then \
 	   echo "PREFIX variable should be specified"; \
 	   exit 1; \
@@ -293,3 +299,6 @@ zfp-sparc-solaris.src:
 # pikeos
 ravenscar-full-arm-pikeos.src:
 	@$(BUILD_RTS) ravenscar-full/arm-pikeos --gcc-dir=$(GCC_SOURCES)
+
+ravenscar-full-ppc-pikeos.src:
+	@$(BUILD_RTS) ravenscar-full/ppc-pikeos --gcc-dir=$(GCC_SOURCES)
