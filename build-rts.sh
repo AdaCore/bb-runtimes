@@ -1360,8 +1360,10 @@ for f in $libgnat_sources $img_src $extra_gnat_files; do
 	| a-nllcty.ads | a-nllefu.ads | a-nscefu.ads | a-nscoty.ads \
 	| a-nselfu.ads | a-nucoty.ads | a-nuelfu.ads \
 	| a-numaux.ads | a-numeri.ads \
-   | a-ngcoar.adb | a-ngcoar.ads | a-ngrear.adb | a-ngrear.ads | s-gearop.ads | s-gearop.adb \
+        | a-ngcoar.adb | a-ngcoar.ads | a-ngrear.adb | a-ngrear.ads \
+	| s-gearop.ads | s-gearop.adb \
 	| s-gcmain.ads | s-gcmain.adb | s-libm.ads | s-libm.adb \
+	| s-libpre.ads \
 	| s-libsin.adb | s-libsin.ads | s-libdou.adb | s-libdou.ads \
 	| s-lisisq.ads | s-lisisq.adb | s-lidosq.ads | s-lidosq.adb \
 	| s-exnllf.ads | s-exnllf.adb )
