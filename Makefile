@@ -144,7 +144,7 @@ install: $(INSTALL_PREREQUISITES)
 	cd obj/$@ && chmod a-w adalib/*.ali
 
 # Runtimes to be installed in the standard location (lib/gcc/target/version)
-ravenscar-full-arm-pikeos.install ravenscar-full-ppc-pikeos.install ravenscar-full-x86-pikeos:
+ravenscar-full-arm-pikeos.install ravenscar-full-ppc-pikeos.install ravenscar-full-x86-pikeos.install:
 	@if [ "$(PREFIX)" = "" ]; then \
 	   echo "PREFIX variable should be specified"; \
 	   exit 1; \
