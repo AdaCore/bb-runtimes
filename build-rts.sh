@@ -1304,8 +1304,11 @@ case $config in
         zcx_copy
 	;;
     ravenscar-full/ppc-pikeos)
-        copy $PWD/arm/pikeos/runtime.xml $objdir/runtime.xml
-        copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
+        copy $PWD/powerpc/pikeos3/runtime.xml $objdir/runtime.xml
+	# -ffunction-sections & -fdata-sections not supported by pikeos
+        # linker script.
+	sed -e '/function-sections/s/^  /--/' \
+          < $PWD/src/runtime_build.gpr > $objdir/runtime_build.gpr
         copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
         zcx_copy
 	;;
