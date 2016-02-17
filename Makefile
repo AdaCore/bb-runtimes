@@ -151,7 +151,7 @@ ravenscar-full-arm-pikeos.install ravenscar-full-ppc-pikeos.install ravenscar-fu
 	fi
 	mkdir -p $(PREFIX)/lib/gcc/$(TARGET)/$(GCC_VERSION)
 	set -x; \
-	rts_name=rts-`echo $@ | sed -e 's/-[a-z]*-[a-z]*.install//'`; \
+	rts_name=rts-`echo $@ | sed -e 's/-[a-z0-9]*-pikeos.install//'`; \
 	rts_dir=$(PREFIX)/lib/gcc/$(TARGET)/$(GCC_VERSION)/$$rts_name; \
 	rm -rf $$rts_dir; \
 	mkdir $$rts_dir; \
