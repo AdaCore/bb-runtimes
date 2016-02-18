@@ -26,7 +26,7 @@ project Runtime_Build is
      --  can easily remove a particular option.
      CFLAGS := Target_Options.CFLAGS;
      CFLAGS := CFLAGS & ("-fcallgraph-info=su,da");
-     CFLAGS := CFLAGS & ("-ffunction-sections", "-fdata-sections")
+     CFLAGS := CFLAGS & ("-ffunction-sections", "-fdata-sections");
 
      ADAFLAGS := ("-gnatg", "-nostdinc");
      ASMFLAGS := ();
