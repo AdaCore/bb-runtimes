@@ -1309,8 +1309,10 @@ case $config in
 	# -ffunction-sections & -fdata-sections not supported by pikeos
         # linker script.
 	sed -e '/function-sections/s/^  /--/' \
+            -e '/ALL_CFLAGS :=/s/) /, "-DUSE_ZCX") /' \
           < $PWD/src/runtime_build.gpr > $objdir/runtime_build.gpr
         copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
+        copy $gccdir/libgcc/unwind-dw2-fde.h $objdir/common
         zcx_copy
 	;;
     ravenscar-full/x86-pikeos)
@@ -1318,8 +1320,10 @@ case $config in
 	# -ffunction-sections & -fdata-sections not supported by pikeos
         # linker script.
 	sed -e '/function-sections/s/^  /--/' \
+            -e '/ALL_CFLAGS :=/s/) /, "-DUSE_ZCX") /' \
           < $PWD/src/runtime_build.gpr > $objdir/runtime_build.gpr
         copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
+        copy $gccdir/libgcc/unwind-dw2-fde.h $objdir/common
         zcx_copy
 	;;
     *)
