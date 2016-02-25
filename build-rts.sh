@@ -1197,8 +1197,9 @@ case $config in
 		;;
 	   ravenscar-full/*)
 		extra_gnat_files="$extra_gnat_files
-                                  $zcx_files $libm_files
-                                  newlib-bb.c"
+                                  $zcx_files $libm_files"
+                #                  newlib-bb.c
+		# Need to add path to includes.
 		extra_target_pairs="$extra_target_pairs
                                     $zcx_gcc_pairs $libm_fpu_pairs"
 		zcx_dw2_copy
@@ -1325,6 +1326,14 @@ case $config in
         copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
         copy $gccdir/libgcc/unwind-dw2-fde.h $objdir/common
         zcx_copy
+	;;
+    zfp/x86-pikeos)
+        copy $PWD/arm/pikeos/runtime.xml $objdir/runtime.xml
+	# -ffunction-sections & -fdata-sections not supported by pikeos
+        # linker script.
+	sed -e '/function-sections/s/^  /--/' \
+          < $PWD/src/runtime_build.gpr > $objdir/runtime_build.gpr
+        copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
 	;;
     *)
         echo "error: unknown config \"$config\""
