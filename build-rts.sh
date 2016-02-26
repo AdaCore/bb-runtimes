@@ -1197,8 +1197,8 @@ case $config in
 		;;
 	   ravenscar-full/*)
 		extra_gnat_files="$extra_gnat_files
-                                  $zcx_files $libm_files"
-                #                  newlib-bb.c
+                                  $zcx_files $libm_files
+                                  newlib-bb.c"
 		# Need to add path to includes.
 		extra_target_pairs="$extra_target_pairs
                                     $zcx_gcc_pairs $libm_fpu_pairs"

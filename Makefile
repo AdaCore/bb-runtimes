@@ -5,6 +5,7 @@ GNAT_SOURCES=$(SRC_DIR)/gnat
 GCC_SOURCES=$(SRC_DIR)/gcc
 GCC_VERSION=unknown
 CROSS_SOURCES=$(SRC_DIR)/libbareboard
+NEWLIB_INCLUDE=unknown
 
 ###################
 # Other variables #
@@ -136,7 +137,7 @@ install: $(INSTALL_PREREQUISITES)
 	mkdir -p obj
 	rm -rf obj/$@
 	cp -pr obj/$*.src obj/$@
-	cd obj/$@ && gprbuild --target=$(TARGET) -j$(JOBS) runtime_build.gpr $(EXTRA_GPRBUILD_OPTIONS)
+	cd obj/$@ && gprbuild --target=$(TARGET) -j$(JOBS) runtime_build.gpr $(EXTRA_GPRBUILD_OPTIONS) -cargs:C -I$(NEWLIB_INCLUDE)
 	if [ -f obj/$@/ravenscar_build.gpr ]; then \
 	 cd obj/$@ && \
 	 gprbuild --target=$(TARGET) -j$(JOBS) ravenscar_build.gpr $(EXTRA_GPRBUILD_OPTIONS); \
