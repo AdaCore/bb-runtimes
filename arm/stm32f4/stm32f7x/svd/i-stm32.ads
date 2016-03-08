@@ -4,7 +4,6 @@
 
 --  This spec has been automatically generated from STM32F7x.svd
 
-pragma Restrictions (No_Elaboration_Code);
 pragma Ada_2012;
 
 with System;
@@ -12,6 +11,7 @@ with System;
 --  STM32F7x
 package Interfaces.STM32 is
    pragma Preelaborate;
+   pragma No_Elaboration_Code_All;
 
    --------------------
    -- Base addresses --

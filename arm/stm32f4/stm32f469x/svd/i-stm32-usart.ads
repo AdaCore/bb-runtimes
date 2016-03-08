@@ -4,7 +4,6 @@
 
 --  This spec has been automatically generated from STM32F46_79x.svd
 
-pragma Restrictions (No_Elaboration_Code);
 pragma Ada_2012;
 
 with Interfaces.Bit_Types;  use Interfaces.Bit_Types;
@@ -12,6 +11,7 @@ with System;
 
 package Interfaces.STM32.USART is
    pragma Preelaborate;
+   pragma No_Elaboration_Code_All;
 
    ---------------
    -- Registers --
