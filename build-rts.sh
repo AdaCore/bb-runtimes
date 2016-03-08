@@ -1297,6 +1297,7 @@ case $config in
                             $textio_pairs
                             s-textio.ads:s-textio-zfp.ads
                             s-macres.adb:s-macres-leon.adb"
+	arch_files="sparc/leon/hw_init.S"
 
 	case $config in
 	   zfp/*)
@@ -1324,14 +1325,16 @@ case $config in
 		extra_target_pairs="$extra_target_pairs
                                     s-bbbopa.ads:s-bbbopa-leon.ads
                                     s-textio.adb:s-textio-leon.adb"
-		arch_files="$crossdir/leon-elf/leon.ld
+		arch_files="$arch_files
+                            $crossdir/leon-elf/leon.ld
                             $crossdir/leon-elf/crt0.S"
 		;;
 	   */leon3)
 		extra_target_pairs="$extra_target_pairs
                                     s-bbbopa.ads:s-bbbopa-leon3.ads
                                     s-textio.adb:s-textio-leon3.adb"
-		arch_files="$crossdir/leon3-elf/leon.ld
+		arch_files="$arch_files
+                            $crossdir/leon3-elf/leon.ld
                             $crossdir/leon-elf/crt0.S"
 		;;
 	   */leon4)
@@ -1339,14 +1342,16 @@ case $config in
 		extra_target_pairs="$extra_target_pairs
                                     s-bbbopa.ads:s-bbbopa-leon4.ads
                                     s-textio.adb:s-textio-leon3.adb"
-		arch_files="$crossdir/leon3-elf/leon.ld
+		arch_files="$arch_files
+                            $crossdir/leon3-elf/leon.ld
                             $crossdir/leon-elf/crt0.S"
 		;;
 	   */erc32)
 		extra_target_pairs="$extra_target_pairs
                                     s-textio.adb:s-textio-erc32.adb"
-		arch_files="$crossdir/leon-elf/leon.ld
-                            $crossdir/leon-elf/crt0.S"
+		arch_files="$arch_files
+                            $crossdir/erc32-elf/erc32.ld
+                            $crossdir/erc32-elf/crt0.S"
 		;;
 	   *) exit 2;;
 	esac
