@@ -32,16 +32,18 @@ pragma Suppress (All_Checks);
 --  This initialization procedure mainly initializes the PLLs and
 --  all derived clocks.
 
-with System.STM32F4;       use System.STM32F4;
-with System.STM32F4.RCC;   use System.STM32F4.RCC;
-with System.BB.Parameters; use System.BB.Parameters;
+with Ada.Unchecked_Conversion;
+
+with Interfaces.Bit_Types;     use Interfaces, Interfaces.Bit_Types;
+with Interfaces.STM32.FLASH;   use Interfaces.STM32.FLASH;
+with Interfaces.STM32.PWR;     use Interfaces.STM32.PWR;
+with Interfaces.STM32.RCC;     use Interfaces.STM32.RCC;
+
+with System.BB.Parameters;     use System.BB.Parameters;
+with System.BB.MCU_Parameters;
+with System.STM32;             use System.STM32;
 
 procedure Setup_Pll is
-
-   package RCC renames System.STM32F4.RCC;
-
-   function "and" (Left, Right : Word) return Boolean is
-     ((Left and Right) /= 0);
 
    procedure Initialize_Clocks;
    procedure Reset_Clocks;
@@ -54,8 +56,9 @@ procedure Setup_Pll is
    HSE_Bypass      : constant Boolean := False; -- don't bypass ext. resonator
    LSI_Enabled     : constant Boolean := True;  -- use low-speed internal clock
 
-   Activate_PLL    : constant Boolean := True;
-   Activate_PLLI2S : constant Boolean := False;
+   Activate_PLL       : constant Boolean := True;
+   Activate_Overdrive : constant Boolean := True;
+   Activate_PLLI2S    : constant Boolean := False;
 
    pragma Assert ((if Activate_PLL then HSE_Enabled),
                   "PLL only supported with external clock");
@@ -68,18 +71,15 @@ procedure Setup_Pll is
 
    procedure Initialize_Clocks
    is
-      MCU_ID_Cp   : constant MCU_ID_Register := MCU_ID;
-      HSECLK      : constant Integer := Integer (HSE_Clock (MCU_ID_Cp.DEV_ID));
-
       -------------------------------
       -- Compute Clock Frequencies --
       -------------------------------
 
-      PLLP_Value  : constant RCC.PLLP_Range := 2;
+      PLLP_Value  : constant PLLP_Range := 2;
       --  Arbitrary fixed to a convenient value
 
       PLLCLKIN    : constant Integer := 1_000_000;
-      PLLM_Value  : constant Integer  := HSECLK / PLLCLKIN;
+      PLLM_Value  : constant Integer  := HSE_Clock / PLLCLKIN;
       --  First divider M is set to produce a 1Mhz clock
 
       PLLN_Value  : constant Integer :=
@@ -89,7 +89,7 @@ procedure Setup_Pll is
       PLLVC0      : constant Integer := PLLCLKIN * PLLN_Value;
       PLLCLKOUT   : constant Integer := PLLVC0 / PLLP_Value;
 
-      PLLQ_Value  : constant RCC.PLLQ_Range := 7;
+      PLLQ_Value  : constant PLLQ_Range := 7;
       --  Arbitrary fixed
 
       PLLM        : constant UInt6 := UInt6 (PLLM_Value);
@@ -98,53 +98,60 @@ procedure Setup_Pll is
       PLLQ        : constant UInt4 := UInt4 (PLLQ_Value);
 
       SW          : constant SYSCLK_Source :=
-                      (if Activate_PLL
-                       then SYSCLK_SRC_PLL
-                       else SYSCLK_SRC_HSI);
+                      (if Activate_PLL then SYSCLK_SRC_PLL
+                       else (if HSE_Enabled then SYSCLK_SRC_HSE
+                             else SYSCLK_SRC_HSI));
+      SW_Value    : constant CFGR_SW_Field :=
+                      SYSCLK_Source'Enum_Rep (SW);
 
       SYSCLK      : constant Integer := (if Activate_PLL
                                          then PLLCLKOUT
-                                         else RCC.HSICLK);
+                                         else HSICLK);
 
       HCLK        : constant Integer :=
                       (if not AHB_PRE.Enabled
                        then SYSCLK
                        else
                          (case AHB_PRE.Value is
-                             when RCC.DIV2   => SYSCLK / 2,
-                             when RCC.DIV4   => SYSCLK / 4,
-                             when RCC.DIV8   => SYSCLK / 8,
-                             when RCC.DIV16  => SYSCLK / 16,
-                             when RCC.DIV64  => SYSCLK / 64,
-                             when RCC.DIV128 => SYSCLK / 128,
-                             when RCC.DIV256 => SYSCLK / 256,
-                             when RCC.DIV512 => SYSCLK / 512));
+                             when DIV2   => SYSCLK / 2,
+                             when DIV4   => SYSCLK / 4,
+                             when DIV8   => SYSCLK / 8,
+                             when DIV16  => SYSCLK / 16,
+                             when DIV64  => SYSCLK / 64,
+                             when DIV128 => SYSCLK / 128,
+                             when DIV256 => SYSCLK / 256,
+                             when DIV512 => SYSCLK / 512));
       PCLK1       : constant Integer :=
                       (if not APB1_PRE.Enabled
                        then HCLK
                        else
                          (case APB1_PRE.Value is
-                             when RCC.DIV2  => HCLK / 2,
-                             when RCC.DIV4  => HCLK / 4,
-                             when RCC.DIV8  => HCLK / 8,
-                             when RCC.DIV16 => HCLK / 16));
+                             when DIV2  => HCLK / 2,
+                             when DIV4  => HCLK / 4,
+                             when DIV8  => HCLK / 8,
+                             when DIV16 => HCLK / 16));
       PCLK2       : constant Integer :=
                       (if not APB2_PRE.Enabled
                        then HCLK
                        else
                          (case APB2_PRE.Value is
-                             when RCC.DIV2  => HCLK / 2,
-                             when RCC.DIV4  => HCLK / 4,
-                             when RCC.DIV8  => HCLK / 8,
-                             when RCC.DIV16 => HCLK / 16));
+                             when DIV2  => HCLK / 2,
+                             when DIV4  => HCLK / 4,
+                             when DIV8  => HCLK / 8,
+                             when DIV16 => HCLK / 16));
+
+      function To_AHB is new Ada.Unchecked_Conversion
+        (AHB_Prescaler, UInt4);
+      function To_APB is new Ada.Unchecked_Conversion
+        (APB_Prescaler, UInt3);
 
    begin
 
       --  Check configuration
       pragma Warnings (Off, "condition is always False");
-      if PLLVC0 not in RCC.PLLVC0_Range
+      if PLLVC0 not in PLLVC0_Range
         or else
-          PLLCLKOUT not in RCC.PLLOUT_Range
+          PLLCLKOUT not in PLLOUT_Range
       then
          raise Program_Error with "Invalid clock configuration";
       end if;
@@ -153,118 +160,133 @@ procedure Setup_Pll is
          raise Program_Error with "Cannot generate requested clock";
       end if;
 
-      if HCLK not in RCC.HCLK_Range
+      if HCLK not in HCLK_Range
         or else
-         PCLK1 not in RCC.PCLK1_Range
+         PCLK1 not in PCLK1_Range
         or else
-         PCLK2 not in RCC.PCLK2_Range
+         PCLK2 not in PCLK2_Range
       then
          raise Program_Error with "Invalid AHB/APB prescalers configuration";
       end if;
       pragma Warnings (On, "condition is always False");
 
       --  PWR clock enable
-      --  Reset the power interface
 
-      RCC.Registers.APB1ENR := RCC.RCC_APB1ENR_PWR;
+      RCC_Periph.APB1ENR.PWREN := 1;
+
+      --  Reset the power interface
+      RCC_Periph.APB1RSTR.PWRRST := 1;
+      RCC_Periph.APB1RSTR.PWRRST := 0;
 
       --  PWR initialization
       --  Select higher supply power for stable operation at max. freq.
-      --  (See the Symbol V12 line in table 14 of the STM32F407xx datasheet,
-      --  and table 15 p79). On the stm32f4 discovery board, VDD is 3V.
-      --  Voltage supply scaling only
+      --  See table "General operating conditions" of the STM32 datasheets
+      --  to obtain the maximal operating frequency depending on the power
+      --  scaling mode and the over-drive mode
 
-      if MCU_ID_Cp.DEV_ID = DEV_ID_STM32F40xxx then
-         PWR.CR := PWR_CR_VOS_HIGH_407;
-      elsif MCU_ID_Cp.DEV_ID = DEV_ID_STM32F42xxx
-        or else MCU_ID_Cp.DEV_ID = DEV_ID_STM32F46xxx
-        or else MCU_ID_Cp.DEV_ID = DEV_ID_STM32F74xxx
-      then
-         PWR.CR := PWR_CR_VOS_HIGH_429;
-      end if;
+      System.BB.MCU_Parameters.PWR_Initialize;
 
-      --  Setup internal clock and wait for HSI stabilisation.
-      --  The internal high speed clock is always enabled, because it is the
-      --  fallback clock when the PLL fails.
+      if not HSE_Enabled then
+         --  Setup internal clock and wait for HSI stabilisation.
 
-      RCC.Registers.CR.HSION := True;
-
-      loop
-         exit when RCC.Registers.CR.HSIRDY;
-      end loop;
-
-      --  Configure high-speed external clock, if enabled
-
-      if HSE_Enabled then
-         RCC.Registers.CR.HSEON := True;
-         RCC.Registers.CR.HSEBYP := HSE_Bypass;
+         RCC_Periph.CR.HSION := 1;
 
          loop
-            exit when RCC.Registers.CR.HSERDY;
+            exit when RCC_Periph.CR.HSIRDY = 1;
+         end loop;
+
+      else
+         --  Configure high-speed external clock, if enabled
+
+         RCC_Periph.CR.HSEON := 1;
+         RCC_Periph.CR.HSEBYP := (if HSE_Bypass then 1 else 0);
+
+         loop
+            exit when RCC_Periph.CR.HSERDY = 1;
          end loop;
       end if;
 
       --  Configure low-speed internal clock if enabled
 
       if LSI_Enabled then
-         RCC.Registers.CSR := RCC.Registers.CSR or RCC.CSR.LSION;
+         RCC_Periph.CSR.LSION := 1;
 
          loop
-            exit when RCC.Registers.CSR and RCC.CSR.LSIRDY;
+            exit when RCC_Periph.CSR.LSIRDY = 1;
          end loop;
       end if;
 
       --  Activate PLL if enabled
-
       if Activate_PLL then
-         RCC.Registers.PLLCFGR :=
+         --  Disable the main PLL before configuring it
+         RCC_Periph.CR.PLLON := 0;
+
+         --  Configure the PLL clock source, multiplication and division
+         --  factors
+         RCC_Periph.PLLCFGR :=
            (PLLM   => PLLM,
             PLLN   => PLLN,
             PLLP   => PLLP,
             PLLQ   => PLLQ,
-            PLLSRC => PLL_SRC_HSE,
+            PLLSRC => (if HSE_Enabled
+                       then PLL_Source'Enum_Rep (PLL_SRC_HSE)
+                       else PLL_Source'Enum_Rep (PLL_SRC_HSI)),
             others => <>);
 
-         RCC.Registers.CR.PLLON := True;
+         RCC_Periph.CR.PLLON := 1;
          loop
-            exit when RCC.Registers.CR.PLLRDY;
+            exit when RCC_Periph.CR.PLLRDY = 1;
          end loop;
+      end if;
+
+      --  Configure OverDrive mode
+      if Activate_Overdrive then
+         System.BB.MCU_Parameters.PWR_Overdrive_Enable;
       end if;
 
       --  Configure flash
       --  Must be done before increasing the frequency, otherwise the CPU
       --  won't be able to fetch new instructions.
 
-      FLASH.ACR := FLASH_ACR.LATENCY_5WS or FLASH_ACR.ICEN or FLASH_ACR.DCEN
-        or FLASH_ACR.PRFTEN;
+      FLASH_Periph.ACR.ICEN := 0;
+      FLASH_Periph.ACR.DCEN := 0;
+      FLASH_Periph.ACR.ICRST := 1;
+      FLASH_Periph.ACR.DCRST := 1;
+      FLASH_Periph.ACR :=
+        (LATENCY => 5,
+         ICEN    => 1,
+         DCEN    => 1,
+         PRFTEN  => 1,
+         others  => <>);
 
       --  Configure derived clocks
 
-      RCC.Registers.CFGR :=
-        (SW      => SW,
-         HPRE    => AHB_PRE,
-         PPRE1   => APB1_PRE,
-         PPRE2   => APB2_PRE,
+      RCC_Periph.CFGR :=
+        (SW      => SW_Value,
+         HPRE    => To_AHB (AHB_PRE),
+         PPRE    => (As_Array => True,
+                     Arr      => (0 => To_APB (APB1_PRE),
+                                  1 => To_APB (APB2_PRE))),
          RTCPRE  => 16#0#,
-         I2SSRC  => I2SSEL_PLL,
-         MCO1    => MC01SEL_HSI,
-         MCO1PRE => MC0xPRE_DIV1,
-         MCO2    => MC02SEL_SYSCLK,
-         MCO2PRE => MC0xPRE_DIV5,
+         I2SSRC  => I2S_Clock_Selection'Enum_Rep (I2SSEL_PLL),
+         MCO1    => MC01_Clock_Selection'Enum_Rep (MC01SEL_HSI),
+         MCO1PRE => MC0x_Prescaler'Enum_Rep (MC0xPRE_DIV1),
+         MCO2    => MC02_Clock_Selection'Enum_Rep (MC02SEL_SYSCLK),
+         MCO2PRE => MC0x_Prescaler'Enum_Rep (MC0xPRE_DIV5),
          others  => <>);
 
       if Activate_PLL then
          loop
-            exit when RCC.Registers.CFGR.SWS = SYSCLK_SRC_PLL;
+            exit when RCC_Periph.CFGR.SWS =
+              SYSCLK_Source'Enum_Rep (SYSCLK_SRC_PLL);
          end loop;
 
          --  Wait until voltage supply scaling has completed
 
          loop
-            exit when PWR.CSR and PWR_CSR_VOSRDY;
+            exit when System.BB.MCU_Parameters.Is_PWR_Stabilized;
          end loop;
       end if;
-
    end Initialize_Clocks;
 
    ------------------
@@ -274,24 +296,24 @@ procedure Setup_Pll is
    procedure Reset_Clocks is
    begin
       --  Switch on high speed internal clock
-      RCC.Registers.CR.HSION := True;
+      RCC_Periph.CR.HSION := 1;
 
       --  Reset CFGR regiser
-      RCC.Registers.CFGR := (others => <>);
+      RCC_Periph.CFGR := (others => <>);
 
       --  Reset HSEON, CSSON and PLLON bits
-      RCC.Registers.CR.HSEON := False;
-      RCC.Registers.CR.CSSON := False;
-      RCC.Registers.CR.PLLON := False;
+      RCC_Periph.CR.HSEON := 0;
+      RCC_Periph.CR.CSSON := 0;
+      RCC_Periph.CR.PLLON := 0;
 
       --  Reset PLL configuration register
-      RCC.Registers.PLLCFGR := (others => <>);
+      RCC_Periph.PLLCFGR := (others => <>);
 
       --  Reset HSE bypass bit
-      RCC.Registers.CR.HSEBYP := False;
+      RCC_Periph.CR.HSEBYP := 0;
 
       --  Disable all interrupts
-      RCC.Registers.CIR := 0;
+      RCC_Periph.CIR := (others => <>);
    end Reset_Clocks;
 
 begin

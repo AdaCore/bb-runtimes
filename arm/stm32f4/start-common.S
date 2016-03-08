@@ -45,6 +45,9 @@ _stm32_start_common:
         orr      r1,r1,#(0xF << 20)
         str      r1,[r0]
 
+        dsb
+        isb
+
         /*************************
          * Check MCU = Cortex-M7 *
         *************************/

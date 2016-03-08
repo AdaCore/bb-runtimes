@@ -251,17 +251,52 @@ lm3s_arch_files="arm/lm3s/lm3s-rom.ld
                  arm/lm3s/start-ram.S
                  arm/lm3s/setup_pll.adb"
 
-stm32f4_arch_files="arm/stm32f4/common-RAM.ld
-                    arm/stm32f4/common-ROM.ld
-                    arm/stm32f4/STM32F429-DISCO-memory-map.ld
-                    arm/stm32f4/STM32F469-DISCO-memory-map.ld
-                    arm/stm32f4/STM32F4-DISCO-memory-map.ld
-                    arm/stm32f4/STM32F7-EVAL-memory-map.ld
-                    arm/stm32f4/STM32F7-DISCO-memory-map.ld
-                    arm/stm32f4/start-rom.S
-                    arm/stm32f4/start-ram.S
-                    arm/stm32f4/start-common.S
-                    arm/stm32f4/setup_pll.adb"
+stm32_arch_files="arm/stm32f4/common-RAM.ld
+                  arm/stm32f4/common-ROM.ld
+                  arm/stm32f4/start-rom.S
+                  arm/stm32f4/start-ram.S
+                  arm/stm32f4/start-common.S
+                  arm/stm32f4/setup_pll.adb"
+
+stm32f40_svd_files=(arm/stm32f4/stm32f40x/svd/i-*.ads)
+stm32f40_arch_files="$stm32_arch_files
+                     arm/stm32f4/stm32f40x/memory-map.ld
+                     arm/stm32f4/stm32f40x/s-bbmcpa.ads
+                     arm/stm32f4/stm32f40x/s-bbmcpa.adb
+                     arm/stm32f4/stm32f40x/s-bbbopa.ads
+                     ${stm32f40_svd_files[@]}"
+stm32f40_intnam="arm/stm32f4/stm32f40x/svd/a-intnam.ads"
+stm32f40_raven_files="arm/stm32f4/stm32f40x/svd/handler.S"
+
+stm32f429_svd_files=(arm/stm32f4/stm32f429x/svd/i-*.ads)
+stm32f429_arch_files="$stm32_arch_files
+                      arm/stm32f4/stm32f429x/memory-map.ld
+                      arm/stm32f4/stm32f429x/s-bbmcpa.ads
+                      arm/stm32f4/stm32f429x/s-bbmcpa.adb
+                      arm/stm32f4/stm32f429x/s-bbbopa.ads
+                      ${stm32f429_svd_files[@]}"
+stm32f429_intnam="arm/stm32f4/stm32f429x/svd/a-intnam.ads"
+stm32f429_raven_files="arm/stm32f4/stm32f429x/svd/handler.S"
+
+stm32f469_svd_files=(arm/stm32f4/stm32f469x/svd/i-*.ads)
+stm32f469_arch_files="$stm32_arch_files
+                      arm/stm32f4/stm32f469x/memory-map.ld
+                      arm/stm32f4/stm32f469x/s-bbmcpa.ads
+                      arm/stm32f4/stm32f469x/s-bbmcpa.adb
+                      arm/stm32f4/stm32f469x/s-bbbopa.ads
+                      ${stm32f469_svd_files[@]}"
+stm32f469_intnam="arm/stm32f4/stm32f469x/svd/a-intnam.ads"
+stm32f469_raven_files="arm/stm32f4/stm32f469x/svd/handler.S"
+
+stm32f7_svd_files=(arm/stm32f4/stm32f7x/svd/i-*.ads)
+stm32f7_arch_files="$stm32_arch_files
+                    arm/stm32f4/stm32f7x/memory-map.ld
+                    arm/stm32f4/stm32f7x/s-bbmcpa.ads
+                    arm/stm32f4/stm32f7x/s-bbmcpa.adb
+                    arm/stm32f4/stm32f7x/s-bbbopa.ads
+                    ${stm32f7_svd_files[@]}"
+stm32f7_intnam="arm/stm32f4/stm32f7x/svd/a-intnam.ads"
+stm32f7_raven_files="arm/stm32f4/stm32f7x/svd/handler.S"
 
 sam4s_arch_files="arm/sam4s/sam4s-rom.ld
                   arm/sam4s/sam4s-samba.ld
@@ -270,7 +305,7 @@ sam4s_arch_files="arm/sam4s/sam4s-rom.ld
                   arm/sam4s/setup_pll.ads
                   arm/sam4s/setup_pll.adb"
 
-cortexm4_raven_files="arm/stm32f4/handler.S"
+cortexm4_raven_files="arm/stm32f4/stm32f469x/svd/handler.S"
 
 # Create directories.
 mkdir $objdir
@@ -1051,58 +1086,106 @@ case $config in
 	fi
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         ;;
-    "zfp/stm32f4")
-        arch_files="$stm32f4_arch_files"
+    zfp/stm32f*)
         extra_gnat_files="$extra_gnat_files
                           $textio_src s-textio.ads s-textio.adb
-                          s-macres.ads s-macres.adb s-stm32f.ads
-                          s-stmrcc.ads s-stmrcc.adb
+                          s-macres.ads s-macres.adb
+                          s-stm32.ads s-stm32.adb
                           s-bb.ads s-bbpara.ads"
         extra_target_pairs="$extra_target_pairs
-                            s-textio.adb:s-textio-stm32f4.adb
                             s-textio.ads:s-textio-zfp.ads
                             s-macres.adb:s-macres-cortexm3.adb
                             $textio_pairs
                             system.ads:system-xi-arm.ads
                             s-bbpara.ads:s-bbpara-stm32f4.ads"
-        copy $PWD/arm/$config_arch/runtime.xml $objdir/runtime.xml
+        case $config in
+            */stm32f4)
+                arch_files="$stm32f40_arch_files"
+                extra_target_pairs="$extra_target_pairs
+                                    s-stm32.adb:s-stm32-f40x.adb
+                                    s-textio.adb:s-textio-stm32f4.adb"
+                ;;
+            */stm32f429disco)
+                arch_files="$stm32f429_arch_files"
+                extra_target_pairs="$extra_target_pairs
+                                    s-stm32.adb:s-stm32-f4x9x.adb
+                                    s-textio.adb:s-textio-stm32f4.adb"
+                ;;
+            */stm32f469disco)
+                arch_files="$stm32f469_arch_files"
+                extra_target_pairs="$extra_target_pairs
+                                    s-stm32.adb:s-stm32-f4x9x.adb
+                                    s-textio.adb:s-textio-stm32f469.adb"
+                ;;
+            */stm32f7disco)
+                arch_files="$stm32f7_arch_files"
+                extra_target_pairs="$extra_target_pairs
+                                    s-stm32.adb:s-stm32-f7x.adb
+                                    s-textio.adb:s-textio-stm32f7.adb"
+                ;;
+        esac
+        copy $PWD/arm/stm32f4/runtime.xml $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         ;;
-    "ravenscar-sfp/stm32f4")
-        arch_files="$stm32f4_arch_files $cortexm4_raven_files"
+    ravenscar-sfp/stm32f*)
         extra_gnat_files="$extra_gnat_files
                           $textio_src
-                          s-macres.adb s-macres.ads s-stm32f.ads
-                          s-stmrcc.ads s-stmrcc.adb"
+                          s-stm32.ads s-stm32.adb
+                          s-macres.adb s-macres.ads"
         extra_target_pairs="$extra_target_pairs
-                            a-intnam.ads:a-intnam-xi-stm32f4.ads
                             system.ads:system-xi-cortexm4-sfp.ads
                             s-macres.adb:s-macres-cortexm3.adb
-                            s-textio.adb:s-textio-stm32f4.adb
                             s-textio.ads:s-textio-zfp.ads
                             s-bbcppr.adb:s-bbcppr-armv7m.adb
                             s-bbpara.ads:s-bbpara-stm32f4.ads
                             s-bbbosu.adb:s-bbbosu-armv7m.adb
                             s-parame.ads:s-parame-xi-small.ads
                             $textio_pairs"
+        case $config in
+            */stm32f4)
+                gnarl_arch_files="$stm32f40_intnam"
+                arch_files="$stm32f40_arch_files $stm32f40_raven_files"
+                extra_target_pairs="$extra_target_pairs
+                                    s-stm32.adb:s-stm32-f40x.adb
+                                    s-textio.adb:s-textio-stm32f4.adb"
+                ;;
+            */stm32f429disco)
+                gnarl_arch_files="$stm32f429_intnam"
+                arch_files="$stm32f429_arch_files $stm32f429_raven_files"
+                extra_target_pairs="$extra_target_pairs
+                                    s-stm32.adb:s-stm32-f4x9x.adb
+                                    s-textio.adb:s-textio-stm32f4.adb"
+                ;;
+            */stm32f469disco)
+                gnarl_arch_files="$stm32f469_intnam"
+                arch_files="$stm32f469_arch_files $stm32f469_raven_files"
+                extra_target_pairs="$extra_target_pairs
+                                    s-stm32.adb:s-stm32-f4x9x.adb
+                                    s-textio.adb:s-textio-stm32f469.adb"
+                ;;
+            */stm32f7disco)
+                gnarl_arch_files="$stm32f7_intnam"
+                arch_files="$stm32f7_arch_files $stm32f7_raven_files"
+                extra_target_pairs="$extra_target_pairs
+                                    s-stm32.adb:s-stm32-f7x.adb
+                                    s-textio.adb:s-textio-stm32f7.adb"
+                ;;
+        esac
 	sed -e "$SED_REMOVE_BIND" \
 	    < arm/stm32f4/runtime.xml > $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
         ;;
-    "ravenscar-full/stm32f4")
+    ravenscar-full/stm32f*)
         discarded_sources="s-sssita.ads s-sssita.adb"
-        arch_files="$stm32f4_arch_files $cortexm4_raven_files"
         extra_gnat_files="$extra_gnat_files
                           $textio_src $libc_files $libm_files $zcx_files
-                          s-stm32f.ads s-macres.ads s-macres.adb
-                          s-stmrcc.ads s-stmrcc.adb"
+                          s-stm32.ads s-stm32.adb
+                          s-macres.ads s-macres.adb"
 
         extra_target_pairs="$extra_target_pairs
-                            a-intnam.ads:a-intnam-xi-stm32f4.ads
                             system.ads:system-xi-cortexm4-full.ads
                             s-macres.adb:s-macres-cortexm3.adb
-                            s-textio.adb:s-textio-stm32f4.adb
                             s-textio.ads:s-textio-zfp.ads
                             s-bbcppr.adb:s-bbcppr-armv7m.adb
                             s-bbpara.ads:s-bbpara-stm32f4.ads
@@ -1113,7 +1196,37 @@ case $config in
                             $zcx_arm_pairs
                             $libm_fpu_pairs
                             $textio_pairs"
-        copy $PWD/arm/$config_arch/runtime.xml $objdir/runtime.xml
+        case $config in
+            */stm32f4)
+                gnarl_arch_files="$stm32f40_intnam"
+                arch_files="$stm32f40_arch_files $stm32f40_raven_files"
+                extra_target_pairs="$extra_target_pairs
+                                    s-stm32.adb:s-stm32-f40x.adb
+                                    s-textio.adb:s-textio-stm32f4.adb"
+                ;;
+            */stm32f429disco)
+                gnarl_arch_files="$stm32f429_intnam"
+                arch_files="$stm32f429_arch_files $stm32f429_raven_files"
+                extra_target_pairs="$extra_target_pairs
+                                    s-stm32.adb:s-stm32-f4x9x.adb
+                                    s-textio.adb:s-textio-stm32f4.adb"
+                ;;
+            */stm32f469disco)
+                gnarl_arch_files="$stm32f469_intnam"
+                arch_files="$stm32f469_arch_files $stm32f469_raven_files"
+                extra_target_pairs="$extra_target_pairs
+                                    s-stm32.adb:s-stm32-f4x9x.adb
+                                    s-textio.adb:s-textio-stm32f469.adb"
+                ;;
+            */stm32f7disco)
+                gnarl_arch_files="$stm32f7_intnam"
+                arch_files="$stm32f7_arch_files $stm32f7_raven_files"
+                extra_target_pairs="$extra_target_pairs
+                                    s-stm32.adb:s-stm32-f7x.adb
+                                    s-textio.adb:s-textio-stm32f7.adb"
+                ;;
+        esac
+        copy $PWD/arm/stm32f4/runtime.xml $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
 	zcx_copy
         ;;
@@ -1389,7 +1502,7 @@ fi
 for f in $libgnat_sources $img_src $extra_gnat_files; do
     case $f in
 	system.ads | s-textio.adb | s-macres.adb | s-bbbopa.ads | *.ld \
-	 | s-bbpara.ads | s-stm32f.ads | s-stmrcc.ads | s-stmrcc.adb)
+	 | s-bbpara.ads | s-stm32.ads | s-stm32.adb)
             dest=$objdir/arch/$f
 	    ;;
 	a-ncelfu.ads | a-ngcefu.adb | a-ngcefu.ads \
@@ -1440,6 +1553,10 @@ for f in $libgnarl_sources $extra_gnarl_files; do
 done
 
 for f in $gnarl_arch_files; do
+   dest="$objdir/gnarl-arch/"`basename $f`
+   if [ -f "$dest" ]; then
+      rm "$dest"
+   fi
    copy $PWD/$f $objdir/gnarl-arch/`basename $f`
 done
 

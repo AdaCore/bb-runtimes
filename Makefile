@@ -1,5 +1,5 @@
 # User variables. type make to get some help
-JOBS=1
+JOBS=0
 TARGET=
 GNAT_SOURCES=$(SRC_DIR)/gnat
 GCC_SOURCES=$(SRC_DIR)/gcc
@@ -278,14 +278,32 @@ ravenscar-sfp-stm32f4.src:
 ravenscar-full-stm32f4.src:
 	@$(BUILD_RTS) ravenscar-full/stm32f4 --gcc-dir=$(GCC_SOURCES)
 
-zfp-stm32f7.src:
-	@$(BUILD_RTS) zfp/stm32f7
+zfp-stm32f429disco.src:
+	@$(BUILD_RTS) zfp/stm32f429disco
 
-ravenscar-sfp-stm32f7.src:
-	@$(BUILD_RTS) ravenscar-sfp/stm32f4
+ravenscar-sfp-stm32f429disco.src:
+	@$(BUILD_RTS) ravenscar-sfp/stm32f429disco
 
-ravenscar-full-stm32f7.src:
-	@$(BUILD_RTS) ravenscar-full/stm32f4 --gcc-dir=$(GCC_SOURCES)
+ravenscar-full-stm32f429disco.src:
+	@$(BUILD_RTS) ravenscar-full/stm32f429disco --gcc-dir=$(GCC_SOURCES)
+
+zfp-stm32f469disco.src:
+	@$(BUILD_RTS) zfp/stm32f469disco
+
+ravenscar-sfp-stm32f469disco.src:
+	@$(BUILD_RTS) ravenscar-sfp/stm32f469disco
+
+ravenscar-full-stm32f469disco.src:
+	@$(BUILD_RTS) ravenscar-full/stm32f469disco --gcc-dir=$(GCC_SOURCES)
+
+zfp-stm32f7disco.src:
+	@$(BUILD_RTS) zfp/stm32f7disco
+
+ravenscar-sfp-stm32f7disco.src:
+	@$(BUILD_RTS) ravenscar-sfp/stm32f7disco
+
+ravenscar-full-stm32f7disco.src:
+	@$(BUILD_RTS) ravenscar-full/stm32f7disco --gcc-dir=$(GCC_SOURCES)
 
 # visium-elf
 zfp-mcm.src:

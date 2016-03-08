@@ -60,7 +60,18 @@ _start_rom:
 	str	r4,[r0],#4
 	subs	r1,r1,#1
 	bne	0b
-
+1:
+	/* Copy .ccmdata */
+	movw	r0,#:lower16:__ccmdata_start
+	movt	r0,#:upper16:__ccmdata_start
+	movw	r1,#:lower16:__ccmdata_words
+	movw	r2,#:lower16:__ccmdata_load
+	movt	r2,#:upper16:__ccmdata_load
+	cbz	r1,1f
+0:	ldr	r4,[r2],#4
+	str	r4,[r0],#4
+	subs	r1,r1,#1
+	bne	0b
 1:
 	/* Clear .bss */
 	movw	r0,#:lower16:__bss_start
