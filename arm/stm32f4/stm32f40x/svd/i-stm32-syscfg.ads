@@ -5,13 +5,13 @@
 --  This spec has been automatically generated from STM32F40x.svd
 
 pragma Ada_2012;
+pragma Restrictions (No_Elaboration_Code);
 
 with Interfaces.Bit_Types;  use Interfaces.Bit_Types;
 with System;
 
 package Interfaces.STM32.SYSCFG is
    pragma Preelaborate;
-   pragma No_Elaboration_Code_All;
 
    ---------------
    -- Registers --
