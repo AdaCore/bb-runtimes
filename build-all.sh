@@ -406,6 +406,16 @@ build_full_ppc_pikeos()
     do_ravenscar powerpc-sysgo-pikeos ravenscar-full/ppc-pikeos
 }
 
+build_zfp_x86_pikeos()
+{
+    do_zfp i586-sysgo-pikeos zfp/x86-pikeos
+}
+
+build_sfp_x86_pikeos()
+{
+    do_ravenscar i586-sysgo-pikeos ravenscar-sfp/x86-pikeos
+}
+
 build_full_x86_pikeos()
 {
     do_ravenscar i586-sysgo-pikeos ravenscar-full/x86-pikeos
@@ -703,6 +713,8 @@ else
           x86-pikeos)
               case $opt in
                   full) build_full_x86_pikeos ;;
+                  sfp) build_sfp_x86_pikeos ;;
+                  zfp) build_zfp_x86_pikeos ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
