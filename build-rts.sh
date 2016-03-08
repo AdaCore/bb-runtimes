@@ -1423,6 +1423,20 @@ case $config in
         copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
         zcx_copy
 	;;
+    ravenscar-sfp/arm-pikeos)
+	extra_gnat_files="$extra_gnat_files
+                          $extra_gnat_raven
+                          s-textio.ads s-textio.adb"
+	extra_target_pairs="$extra_target_pairs
+                            s-macres.adb:s-macres-native.adb
+                            $textio_pairs
+                            s-textio.ads:s-textio-zfp.ads
+                            s-textio.adb:s-textio-pikeos.adb
+                            system.ads:system-pikeos-arm-ravenscar-sfp.ads"
+        copy $PWD/arm/pikeos/runtime.xml $objdir/runtime.xml
+        copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
+        copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
+	;;
     ravenscar-full/ppc-pikeos)
         copy $PWD/powerpc/pikeos3/runtime.xml $objdir/runtime.xml
 	# -ffunction-sections & -fdata-sections not supported by pikeos
