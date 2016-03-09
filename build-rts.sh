@@ -258,43 +258,63 @@ stm32_arch_files="arm/stm32f4/common-RAM.ld
                   arm/stm32f4/start-common.S
                   arm/stm32f4/setup_pll.adb"
 
-stm32f40_svd_files=(arm/stm32f4/stm32f40x/svd/i-*.ads)
 stm32f40_arch_files="$stm32_arch_files
                      arm/stm32f4/stm32f40x/memory-map.ld
                      arm/stm32f4/stm32f40x/s-bbmcpa.ads
                      arm/stm32f4/stm32f40x/s-bbmcpa.adb
                      arm/stm32f4/stm32f40x/s-bbbopa.ads
-                     ${stm32f40_svd_files[@]}"
+                     arm/stm32f4/stm32f40x/svd/i-stm32.ads
+                     arm/stm32f4/stm32f40x/svd/i-stm32-flash.ads
+                     arm/stm32f4/stm32f40x/svd/i-stm32-gpio.ads
+                     arm/stm32f4/stm32f40x/svd/i-stm32-pwr.ads
+                     arm/stm32f4/stm32f40x/svd/i-stm32-rcc.ads
+                     arm/stm32f4/stm32f40x/svd/i-stm32-syscfg.ads
+                     arm/stm32f4/stm32f40x/svd/i-stm32-usart.ads"
 stm32f40_intnam="arm/stm32f4/stm32f40x/svd/a-intnam.ads"
 stm32f40_raven_files="arm/stm32f4/stm32f40x/svd/handler.S"
 
-stm32f429_svd_files=(arm/stm32f4/stm32f429x/svd/i-*.ads)
 stm32f429_arch_files="$stm32_arch_files
                       arm/stm32f4/stm32f429x/memory-map.ld
                       arm/stm32f4/stm32f429x/s-bbmcpa.ads
                       arm/stm32f4/stm32f429x/s-bbmcpa.adb
                       arm/stm32f4/stm32f429x/s-bbbopa.ads
-                      ${stm32f429_svd_files[@]}"
+                      arm/stm32f4/stm32f429x/svd/i-stm32.ads
+                      arm/stm32f4/stm32f429x/svd/i-stm32-flash.ads
+                      arm/stm32f4/stm32f429x/svd/i-stm32-gpio.ads
+                      arm/stm32f4/stm32f429x/svd/i-stm32-pwr.ads
+                      arm/stm32f4/stm32f429x/svd/i-stm32-rcc.ads
+                      arm/stm32f4/stm32f429x/svd/i-stm32-syscfg.ads
+                      arm/stm32f4/stm32f429x/svd/i-stm32-usart.ads"
 stm32f429_intnam="arm/stm32f4/stm32f429x/svd/a-intnam.ads"
 stm32f429_raven_files="arm/stm32f4/stm32f429x/svd/handler.S"
 
-stm32f469_svd_files=(arm/stm32f4/stm32f469x/svd/i-*.ads)
 stm32f469_arch_files="$stm32_arch_files
                       arm/stm32f4/stm32f469x/memory-map.ld
                       arm/stm32f4/stm32f469x/s-bbmcpa.ads
                       arm/stm32f4/stm32f469x/s-bbmcpa.adb
                       arm/stm32f4/stm32f469x/s-bbbopa.ads
-                      ${stm32f469_svd_files[@]}"
+                      arm/stm32f4/stm32f469x/svd/i-stm32.ads
+                      arm/stm32f4/stm32f469x/svd/i-stm32-flash.ads
+                      arm/stm32f4/stm32f469x/svd/i-stm32-gpio.ads
+                      arm/stm32f4/stm32f469x/svd/i-stm32-pwr.ads
+                      arm/stm32f4/stm32f469x/svd/i-stm32-rcc.ads
+                      arm/stm32f4/stm32f469x/svd/i-stm32-syscfg.ads
+                      arm/stm32f4/stm32f469x/svd/i-stm32-usart.ads"
 stm32f469_intnam="arm/stm32f4/stm32f469x/svd/a-intnam.ads"
 stm32f469_raven_files="arm/stm32f4/stm32f469x/svd/handler.S"
 
-stm32f7_svd_files=(arm/stm32f4/stm32f7x/svd/i-*.ads)
 stm32f7_arch_files="$stm32_arch_files
                     arm/stm32f4/stm32f7x/memory-map.ld
                     arm/stm32f4/stm32f7x/s-bbmcpa.ads
                     arm/stm32f4/stm32f7x/s-bbmcpa.adb
                     arm/stm32f4/stm32f7x/s-bbbopa.ads
-                    ${stm32f7_svd_files[@]}"
+                    arm/stm32f4/stm32f7x/svd/i-stm32.ads
+                    arm/stm32f4/stm32f7x/svd/i-stm32-flash.ads
+                    arm/stm32f4/stm32f7x/svd/i-stm32-gpio.ads
+                    arm/stm32f4/stm32f7x/svd/i-stm32-pwr.ads
+                    arm/stm32f4/stm32f7x/svd/i-stm32-rcc.ads
+                    arm/stm32f4/stm32f7x/svd/i-stm32-syscfg.ads
+                    arm/stm32f4/stm32f7x/svd/i-stm32-usart.ads"
 stm32f7_intnam="arm/stm32f4/stm32f7x/svd/a-intnam.ads"
 stm32f7_raven_files="arm/stm32f4/stm32f7x/svd/handler.S"
 
