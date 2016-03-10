@@ -135,6 +135,10 @@ libm_ada_pairs="$libm_common_pairs
                 s-lisisq.adb:s-lisisq-ada.adb
                 s-lidosq.adb:s-lidosq-ada.adb"
 
+libm_sfpu_pairs="$libm_common_pairs
+                 s-lisisq.adb:s-lisisq-fpu.adb
+                 s-lidosq.adb:s-lidosq-ada.adb"
+
 libm_fpu_pairs="$libm_common_pairs
                 s-lisisq.adb:s-lisisq-fpu.adb
                 s-lidosq.adb:s-lidosq-fpu.adb"
@@ -1214,7 +1218,7 @@ case $config in
                             s-traceb.adb:s-traceb-xi-armeabi.adb
                             $libc_pairs
                             $zcx_arm_pairs
-                            $libm_fpu_pairs
+                            $libm_sfpu_pairs
                             $textio_pairs"
         case $config in
             */stm32f4)
