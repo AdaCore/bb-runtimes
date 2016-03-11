@@ -42,6 +42,7 @@ MEMORY
 }
 
 REGION_ALIAS("sram_tx", sram12)
-REGION_ALIAS("sram_ro", ccm)
+REGION_ALIAS("sram_ro", sram12)
 REGION_ALIAS("sram_bs", sram12)
-REGION_ALIAS("sram_da", ccm)
+REGION_ALIAS("sram_da", sram12)
+REGION_ALIAS("ccm_da", ccm)
