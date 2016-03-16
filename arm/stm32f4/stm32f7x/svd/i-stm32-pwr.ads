@@ -6,7 +6,7 @@
 
 pragma Ada_2012;
 
-with Interfaces.Bit_Types;  use Interfaces.Bit_Types;
+with Interfaces.Bit_Types;
 with System;
 
 package Interfaces.STM32.PWR is
@@ -21,20 +21,20 @@ package Interfaces.STM32.PWR is
    -- CR1_Register --
    ------------------
 
-   subtype CR1_LPDS_Field is Bit;
-   subtype CR1_PDDS_Field is Bit;
-   subtype CR1_CSBF_Field is Bit;
-   subtype CR1_PVDE_Field is Bit;
-   subtype CR1_PLS_Field is UInt3;
-   subtype CR1_DBP_Field is Bit;
-   subtype CR1_FPDS_Field is Bit;
-   subtype CR1_LPUDS_Field is Bit;
-   subtype CR1_MRUDS_Field is Bit;
-   subtype CR1_ADCDC1_Field is Bit;
-   subtype CR1_VOS_Field is UInt2;
-   subtype CR1_ODEN_Field is Bit;
-   subtype CR1_ODSWEN_Field is Bit;
-   subtype CR1_UDEN_Field is UInt2;
+   subtype CR1_LPDS_Field is Interfaces.Bit_Types.Bit;
+   subtype CR1_PDDS_Field is Interfaces.Bit_Types.Bit;
+   subtype CR1_CSBF_Field is Interfaces.Bit_Types.Bit;
+   subtype CR1_PVDE_Field is Interfaces.Bit_Types.Bit;
+   subtype CR1_PLS_Field is Interfaces.Bit_Types.UInt3;
+   subtype CR1_DBP_Field is Interfaces.Bit_Types.Bit;
+   subtype CR1_FPDS_Field is Interfaces.Bit_Types.Bit;
+   subtype CR1_LPUDS_Field is Interfaces.Bit_Types.Bit;
+   subtype CR1_MRUDS_Field is Interfaces.Bit_Types.Bit;
+   subtype CR1_ADCDC1_Field is Interfaces.Bit_Types.Bit;
+   subtype CR1_VOS_Field is Interfaces.Bit_Types.UInt2;
+   subtype CR1_ODEN_Field is Interfaces.Bit_Types.Bit;
+   subtype CR1_ODSWEN_Field is Interfaces.Bit_Types.Bit;
+   subtype CR1_UDEN_Field is Interfaces.Bit_Types.UInt2;
 
    --  power control register
    type CR1_Register is record
@@ -43,7 +43,7 @@ package Interfaces.STM32.PWR is
       --  Power down deepsleep
       PDDS           : CR1_PDDS_Field := 16#0#;
       --  unspecified
-      Reserved_2_2   : Bit := 16#0#;
+      Reserved_2_2   : Interfaces.Bit_Types.Bit := 16#0#;
       --  Clear standby flag
       CSBF           : CR1_CSBF_Field := 16#0#;
       --  Power voltage detector enable
@@ -59,7 +59,7 @@ package Interfaces.STM32.PWR is
       --  Main regulator in deepsleep under-drive mode
       MRUDS          : CR1_MRUDS_Field := 16#0#;
       --  unspecified
-      Reserved_12_12 : Bit := 16#0#;
+      Reserved_12_12 : Interfaces.Bit_Types.Bit := 16#0#;
       --  ADCDC1
       ADCDC1         : CR1_ADCDC1_Field := 16#0#;
       --  Regulator voltage scaling output selection
@@ -71,7 +71,7 @@ package Interfaces.STM32.PWR is
       --  Under-drive enable in stop mode
       UDEN           : CR1_UDEN_Field := 16#0#;
       --  unspecified
-      Reserved_20_31 : UInt12 := 16#0#;
+      Reserved_20_31 : Interfaces.Bit_Types.UInt12 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -100,36 +100,36 @@ package Interfaces.STM32.PWR is
    -- CSR1_Register --
    -------------------
 
-   subtype CSR1_WUIF_Field is Bit;
-   subtype CSR1_SBF_Field is Bit;
-   subtype CSR1_PVDO_Field is Bit;
-   subtype CSR1_BRR_Field is Bit;
-   subtype CSR1_BRE_Field is Bit;
-   subtype CSR1_VOSRDY_Field is Bit;
-   subtype CSR1_ODRDY_Field is Bit;
-   subtype CSR1_ODSWRDY_Field is Bit;
-   subtype CSR1_UDRDY_Field is UInt2;
+   subtype CSR1_WUIF_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR1_SBF_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR1_PVDO_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR1_BRR_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR1_BRE_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR1_VOSRDY_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR1_ODRDY_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR1_ODSWRDY_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR1_UDRDY_Field is Interfaces.Bit_Types.UInt2;
 
    --  power control/status register
    type CSR1_Register is record
-      --  Wakeup internal flag
+      --  Read-only. Wakeup internal flag
       WUIF           : CSR1_WUIF_Field := 16#0#;
-      --  Standby flag
+      --  Read-only. Standby flag
       SBF            : CSR1_SBF_Field := 16#0#;
-      --  PVD output
+      --  Read-only. PVD output
       PVDO           : CSR1_PVDO_Field := 16#0#;
-      --  Backup regulator ready
+      --  Read-only. Backup regulator ready
       BRR            : CSR1_BRR_Field := 16#0#;
       --  unspecified
-      Reserved_4_8   : UInt5 := 16#0#;
+      Reserved_4_8   : Interfaces.Bit_Types.UInt5 := 16#0#;
       --  Backup regulator enable
       BRE            : CSR1_BRE_Field := 16#0#;
       --  unspecified
-      Reserved_10_13 : UInt4 := 16#0#;
+      Reserved_10_13 : Interfaces.Bit_Types.UInt4 := 16#0#;
       --  Regulator voltage scaling output selection ready bit
       VOSRDY         : CSR1_VOSRDY_Field := 16#0#;
       --  unspecified
-      Reserved_15_15 : Bit := 16#0#;
+      Reserved_15_15 : Interfaces.Bit_Types.Bit := 16#0#;
       --  Over-drive mode ready
       ODRDY          : CSR1_ODRDY_Field := 16#0#;
       --  Over-drive mode switching ready
@@ -137,7 +137,7 @@ package Interfaces.STM32.PWR is
       --  Under-drive ready flag
       UDRDY          : CSR1_UDRDY_Field := 16#0#;
       --  unspecified
-      Reserved_20_31 : UInt12 := 16#0#;
+      Reserved_20_31 : Interfaces.Bit_Types.UInt12 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -167,7 +167,7 @@ package Interfaces.STM32.PWR is
    ---------------
 
    --  CR2_CWUPF array element
-   subtype CR2_CWUPF_Element is Bit;
+   subtype CR2_CWUPF_Element is Interfaces.Bit_Types.Bit;
 
    --  CR2_CWUPF array
    type CR2_CWUPF_Field_Array is array (0 .. 5) of CR2_CWUPF_Element
@@ -180,7 +180,7 @@ package Interfaces.STM32.PWR is
       case As_Array is
          when False =>
             --  CWUPF as a value
-            Val : UInt6;
+            Val : Interfaces.Bit_Types.UInt6;
          when True =>
             --  CWUPF as an array
             Arr : CR2_CWUPF_Field_Array;
@@ -198,7 +198,7 @@ package Interfaces.STM32.PWR is
    --------------
 
    --  CR2_WUPP array element
-   subtype CR2_WUPP_Element is Bit;
+   subtype CR2_WUPP_Element is Interfaces.Bit_Types.Bit;
 
    --  CR2_WUPP array
    type CR2_WUPP_Field_Array is array (0 .. 5) of CR2_WUPP_Element
@@ -211,7 +211,7 @@ package Interfaces.STM32.PWR is
       case As_Array is
          when False =>
             --  WUPP as a value
-            Val : UInt6;
+            Val : Interfaces.Bit_Types.UInt6;
          when True =>
             --  WUPP as an array
             Arr : CR2_WUPP_Field_Array;
@@ -226,14 +226,14 @@ package Interfaces.STM32.PWR is
 
    --  power control register
    type CR2_Register is record
-      --  Clear Wakeup Pin flag for PA0
+      --  Read-only. Clear Wakeup Pin flag for PA0
       CWUPF          : CR2_CWUPF_Field := (As_Array => False, Val => 16#0#);
       --  unspecified
-      Reserved_6_7   : UInt2 := 16#0#;
+      Reserved_6_7   : Interfaces.Bit_Types.UInt2 := 16#0#;
       --  Wakeup pin polarity bit for PA0
       WUPP           : CR2_WUPP_Field := (As_Array => False, Val => 16#0#);
       --  unspecified
-      Reserved_14_31 : UInt18 := 16#0#;
+      Reserved_14_31 : Interfaces.Bit_Types.UInt18 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -254,7 +254,7 @@ package Interfaces.STM32.PWR is
    ---------------
 
    --  CSR2_WUPF array element
-   subtype CSR2_WUPF_Element is Bit;
+   subtype CSR2_WUPF_Element is Interfaces.Bit_Types.Bit;
 
    --  CSR2_WUPF array
    type CSR2_WUPF_Field_Array is array (0 .. 5) of CSR2_WUPF_Element
@@ -267,7 +267,7 @@ package Interfaces.STM32.PWR is
       case As_Array is
          when False =>
             --  WUPF as a value
-            Val : UInt6;
+            Val : Interfaces.Bit_Types.UInt6;
          when True =>
             --  WUPF as an array
             Arr : CSR2_WUPF_Field_Array;
@@ -285,7 +285,7 @@ package Interfaces.STM32.PWR is
    ---------------
 
    --  CSR2_EWUP array element
-   subtype CSR2_EWUP_Element is Bit;
+   subtype CSR2_EWUP_Element is Interfaces.Bit_Types.Bit;
 
    --  CSR2_EWUP array
    type CSR2_EWUP_Field_Array is array (0 .. 5) of CSR2_EWUP_Element
@@ -298,7 +298,7 @@ package Interfaces.STM32.PWR is
       case As_Array is
          when False =>
             --  EWUP as a value
-            Val : UInt6;
+            Val : Interfaces.Bit_Types.UInt6;
          when True =>
             --  EWUP as an array
             Arr : CSR2_EWUP_Field_Array;
@@ -313,14 +313,14 @@ package Interfaces.STM32.PWR is
 
    --  power control/status register
    type CSR2_Register is record
-      --  Wakeup Pin flag for PA0
+      --  Read-only. Wakeup Pin flag for PA0
       WUPF           : CSR2_WUPF_Field := (As_Array => False, Val => 16#0#);
       --  unspecified
-      Reserved_6_7   : UInt2 := 16#0#;
+      Reserved_6_7   : Interfaces.Bit_Types.UInt2 := 16#0#;
       --  Enable Wakeup pin for PA0
       EWUP           : CSR2_EWUP_Field := (As_Array => False, Val => 16#0#);
       --  unspecified
-      Reserved_14_31 : UInt18 := 16#0#;
+      Reserved_14_31 : Interfaces.Bit_Types.UInt18 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;

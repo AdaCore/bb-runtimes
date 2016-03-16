@@ -6,7 +6,7 @@
 
 pragma Ada_2012;
 
-with Interfaces.Bit_Types;  use Interfaces.Bit_Types;
+with Interfaces.Bit_Types;
 with System;
 
 package Interfaces.STM32.PWR is
@@ -21,21 +21,21 @@ package Interfaces.STM32.PWR is
    -- CR_Register --
    -----------------
 
-   subtype CR_LPDS_Field is Bit;
-   subtype CR_PDDS_Field is Bit;
-   subtype CR_CWUF_Field is Bit;
-   subtype CR_CSBF_Field is Bit;
-   subtype CR_PVDE_Field is Bit;
-   subtype CR_PLS_Field is UInt3;
-   subtype CR_DBP_Field is Bit;
-   subtype CR_FPDS_Field is Bit;
-   subtype CR_LPLVDS_Field is Bit;
-   subtype CR_MRLVDS_Field is Bit;
-   subtype CR_ADCDC1_Field is Bit;
-   subtype CR_VOS_Field is UInt2;
-   subtype CR_ODEN_Field is Bit;
-   subtype CR_ODSWEN_Field is Bit;
-   subtype CR_UDEN_Field is UInt2;
+   subtype CR_LPDS_Field is Interfaces.Bit_Types.Bit;
+   subtype CR_PDDS_Field is Interfaces.Bit_Types.Bit;
+   subtype CR_CWUF_Field is Interfaces.Bit_Types.Bit;
+   subtype CR_CSBF_Field is Interfaces.Bit_Types.Bit;
+   subtype CR_PVDE_Field is Interfaces.Bit_Types.Bit;
+   subtype CR_PLS_Field is Interfaces.Bit_Types.UInt3;
+   subtype CR_DBP_Field is Interfaces.Bit_Types.Bit;
+   subtype CR_FPDS_Field is Interfaces.Bit_Types.Bit;
+   subtype CR_LPLVDS_Field is Interfaces.Bit_Types.Bit;
+   subtype CR_MRLVDS_Field is Interfaces.Bit_Types.Bit;
+   subtype CR_ADCDC1_Field is Interfaces.Bit_Types.Bit;
+   subtype CR_VOS_Field is Interfaces.Bit_Types.UInt2;
+   subtype CR_ODEN_Field is Interfaces.Bit_Types.Bit;
+   subtype CR_ODSWEN_Field is Interfaces.Bit_Types.Bit;
+   subtype CR_UDEN_Field is Interfaces.Bit_Types.UInt2;
 
    --  power control register
    type CR_Register is record
@@ -60,7 +60,7 @@ package Interfaces.STM32.PWR is
       --  Main regulator low voltage in deepsleep mode
       MRLVDS         : CR_MRLVDS_Field := 16#0#;
       --  unspecified
-      Reserved_12_12 : Bit := 16#0#;
+      Reserved_12_12 : Interfaces.Bit_Types.Bit := 16#0#;
       --  ADCDC1
       ADCDC1         : CR_ADCDC1_Field := 16#0#;
       --  Regulator voltage scaling output selection
@@ -72,7 +72,7 @@ package Interfaces.STM32.PWR is
       --  Under-drive enable in stop mode
       UDEN           : CR_UDEN_Field := 16#0#;
       --  unspecified
-      Reserved_20_31 : UInt12 := 16#0#;
+      Reserved_20_31 : Interfaces.Bit_Types.UInt12 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -101,47 +101,47 @@ package Interfaces.STM32.PWR is
    -- CSR_Register --
    ------------------
 
-   subtype CSR_WUF_Field is Bit;
-   subtype CSR_SBF_Field is Bit;
-   subtype CSR_PVDO_Field is Bit;
-   subtype CSR_BRR_Field is Bit;
-   subtype CSR_EWUP_Field is Bit;
-   subtype CSR_BRE_Field is Bit;
-   subtype CSR_VOSRDY_Field is Bit;
-   subtype CSR_ODRDY_Field is Bit;
-   subtype CSR_ODSWRDY_Field is Bit;
-   subtype CSR_UDRDY_Field is UInt2;
+   subtype CSR_WUF_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR_SBF_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR_PVDO_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR_BRR_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR_EWUP_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR_BRE_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR_VOSRDY_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR_ODRDY_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR_ODSWRDY_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR_UDRDY_Field is Interfaces.Bit_Types.UInt2;
 
    --  power control/status register
    type CSR_Register is record
-      --  Wakeup flag
+      --  Read-only. Wakeup flag
       WUF            : CSR_WUF_Field := 16#0#;
-      --  Standby flag
+      --  Read-only. Standby flag
       SBF            : CSR_SBF_Field := 16#0#;
-      --  PVD output
+      --  Read-only. PVD output
       PVDO           : CSR_PVDO_Field := 16#0#;
-      --  Backup regulator ready
+      --  Read-only. Backup regulator ready
       BRR            : CSR_BRR_Field := 16#0#;
       --  unspecified
-      Reserved_4_7   : UInt4 := 16#0#;
+      Reserved_4_7   : Interfaces.Bit_Types.UInt4 := 16#0#;
       --  Enable WKUP pin
       EWUP           : CSR_EWUP_Field := 16#0#;
       --  Backup regulator enable
       BRE            : CSR_BRE_Field := 16#0#;
       --  unspecified
-      Reserved_10_13 : UInt4 := 16#0#;
+      Reserved_10_13 : Interfaces.Bit_Types.UInt4 := 16#0#;
       --  Regulator voltage scaling output selection ready bit
       VOSRDY         : CSR_VOSRDY_Field := 16#0#;
       --  unspecified
-      Reserved_15_15 : Bit := 16#0#;
-      --  Over-drive mode ready
+      Reserved_15_15 : Interfaces.Bit_Types.Bit := 16#0#;
+      --  Read-only. Over-drive mode ready
       ODRDY          : CSR_ODRDY_Field := 16#0#;
-      --  Over-drive mode switching ready
+      --  Read-only. Over-drive mode switching ready
       ODSWRDY        : CSR_ODSWRDY_Field := 16#0#;
       --  Under-drive ready flag
       UDRDY          : CSR_UDRDY_Field := 16#0#;
       --  unspecified
-      Reserved_20_31 : UInt12 := 16#0#;
+      Reserved_20_31 : Interfaces.Bit_Types.UInt12 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
