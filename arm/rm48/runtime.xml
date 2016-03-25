@@ -1,0 +1,68 @@
+<?xml version="1.0" ?>
+
+<gprconfig>
+  <configuration>
+   <config>
+
+   type Loaders is ("FLASH", "MONITOR", "HIRAM", "LORAM");
+
+   Loader : Loaders := external ("LOADER", "LORAM");
+
+   package Compiler is
+     Common_Required_Switches := ("-mlittle-endian", "-mhard-float",
+        "-mcpu=cortex-r4", "-mfpu=vfpv3-d16", "-marm");
+
+     Asm_Required_Switches := ();
+
+     for Leading_Required_Switches ("Ada") use
+        Compiler'Leading_Required_Switches ("Ada") &amp;
+        Common_Required_Switches;
+
+     for Leading_Required_Switches ("C") use
+        Compiler'Leading_Required_Switches ("C") &amp;
+        Common_Required_Switches;
+
+     for Leading_Required_Switches ("Asm") use
+        Compiler'Leading_Required_Switches ("Asm") &amp;
+        Common_Required_Switches;
+
+     for Leading_Required_Switches ("Asm2") use
+        Compiler'Leading_Required_Switches ("Asm2") &amp;
+        Common_Required_Switches;
+
+     for Leading_Required_Switches ("Asm_Cpp") use
+        Compiler'Leading_Required_Switches ("Asm_Cpp") &amp;
+        Common_Required_Switches &amp;
+        Asm_Required_Switches;
+   end Compiler;
+
+   package Linker is
+      --  Add -L for linker scripts, as some of them use INCLUDE.
+      for Required_Switches use Linker'Required_Switches &amp;
+        ("-L${RUNTIME_DIR(ada)}/adalib", "-lgnat") &amp;
+        Compiler.Common_Required_Switches &amp;
+        ("-nostdlib", "-lgcc", "-L${RUNTIME_DIR(ada)}/arch");
+
+      case Loader is
+         when "FLASH" =>
+	    for Required_Switches use Linker'Required_Switches &amp;
+	       ("-T", "flash.ld", "-Wl,-z,max-page-size=0x1000");
+         when "MONITOR" =>
+	    for Required_Switches use Linker'Required_Switches &amp;
+	       ("-T", "monitor.ld", "-Wl,-z,max-page-size=0x1000");
+         when "HIRAM" =>
+	    for Required_Switches use Linker'Required_Switches &amp;
+	       ("-T", "hiram.ld", "-Wl,-z,max-page-size=0x1000");
+         when "LORAM" =>
+	    for Required_Switches use Linker'Required_Switches &amp;
+	       ("-T", "loram.ld", "-Wl,-z,max-page-size=0x1000");
+       end case;
+   end Linker;
+
+   package Binder is
+      for Required_Switches ("Ada") use Binder'Required_Switches ("Ada")
+        &amp; ("-nostdlib");
+   end Binder;
+   </config>
+  </configuration>
+</gprconfig>

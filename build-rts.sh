@@ -412,7 +412,7 @@ case $config in
     */p2020 | */mpc5554 | */mpc5634 | */p5566)
         gnat_target=powerpc-eabispe
 	;;
-    */tms570* | */stm32f* | */lm3s | */sam4s)
+    */tms570* | */stm32f* | */lm3s | */sam4s | */zynq | */rm48)
         gnat_target=arm-eabi
 	;;
     */erc32)
@@ -1110,6 +1110,28 @@ case $config in
 	fi
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         ;;
+    "ravenscar-sfp/rm48")
+        arch_files="$tms570_arch_files arm/tms570/nozcx.S"
+        extra_gnat_files="$extra_gnat_files
+                          $textio_src
+                          s-macres.ads s-macres.adb"
+        extra_target_pairs="$extra_target_pairs
+                            a-intnam.ads:a-intnam-xi-tms570.ads
+                            system.ads:system-xi-arm-sfp.ads
+                            s-macres.adb:s-macres-tms570.adb
+                            s-textio.adb:s-textio-tms570-sci.adb
+                            s-textio.ads:s-textio-zfp.ads
+                            s-bbcppr.adb:s-bbcppr-arm.adb
+                            s-bbpara.ads:s-bbpara-tms570.ads
+                            s-bbbosu.adb:s-bbbosu-tms570.adb
+                            s-parame.ads:s-parame-xi-small.ads
+                            $textio_pairs"
+	sed -e 's/, "-lgnat"/, "-Wl,-u,__gnat_nozcx", "-lgnat"/' \
+	    -e "$SED_REMOVE_BIND" \
+	    < arm/rm48/runtime.xml > $objdir/runtime.xml
+        copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
+        copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
+        ;;
     zfp/stm32f*)
         extra_gnat_files="$extra_gnat_files
                           $textio_src s-textio.ads s-textio.adb
@@ -1302,6 +1324,20 @@ case $config in
            < $PWD/arm/$config_arch/runtime.xml > $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
+        ;;
+    "zfp/zynq")
+        arch_files="arm/zynq/ram.ld"
+        extra_gnat_files="$extra_gnat_files
+                          $textio_src s-textio.ads s-textio.adb
+                          s-macres.ads s-macres.adb"
+        extra_target_pairs="$extra_target_pairs
+                            s-textio.adb:s-textio-zynq.adb
+                            s-textio.ads:s-textio-zfp.ads
+                            s-macres.adb:s-macres-native.adb
+                            $textio_pairs
+                            system.ads:system-xi-arm.ads"
+        copy $PWD/arm/$config_arch/runtime.xml $objdir/runtime.xml
+        copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         ;;
     "zfp/erc32" \
   | "zfp/leon"  \
