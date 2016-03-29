@@ -125,6 +125,9 @@ L_coreInitRegisters:
 	   between the cores running in lockstep, and is a good idea on any
 	   system. */
 
+        /* Save lr because changing mode will change lr value */
+        mov	r0, lr
+
 	/* Supervisor mode */
 	cps	#19 /* 10011 */
 	ldr	sp, svcSp
@@ -149,5 +152,6 @@ L_coreInitRegisters:
 	cps	#31  /* 11111 */
 	ldr	sp, userSp	/* SYS mode shared stack with User mode */
 
-	bx	lr
+        /* Return on saved lr */
+	bx	r0
 	.size	L_coreInitRegisters, . - L_coreInitRegisters
