@@ -1478,6 +1478,8 @@ case $config in
         fi
         ;;
     ravenscar-full/arm-pikeos)
+	extra_target_pairs="$extra_target_pairs
+                            a-textio.adb:a-textio-raven.adb"
         copy $PWD/arm/pikeos/runtime.xml $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
@@ -1489,7 +1491,9 @@ case $config in
                           s-textio.ads s-textio.adb"
 	extra_target_pairs="$extra_target_pairs
                             s-macres.adb:s-macres-native.adb
-                            $textio_pairs
+                            a-textio.ads:a-textio-zfp.ads
+                            a-textio.adb:a-textio-raven.adb
+                            g-io-put.adb:g-io-put-stextio.adb
                             s-textio.ads:s-textio-zfp.ads
                             s-textio.adb:s-textio-pikeos.adb
                             system.ads:system-pikeos-arm-ravenscar-sfp.ads"
