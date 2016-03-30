@@ -617,7 +617,7 @@ def main():
                                     "output=",
                                     "gccdir=", "gnatdir=", "crossdir=",
                                     "link"])
-    except getopt.GetoptError as e:
+    except getopt.GetoptError, e:
         print "error: " + str(e)
         print "Try --help"
         sys.exit(2)
