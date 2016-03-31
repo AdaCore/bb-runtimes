@@ -644,6 +644,8 @@ class Target(object):
     def _copy_pair(self, srcfile, destdir):
         "Copy after substitution with pairs"
 
+        dst = os.path.join(destdir, os.path.basename(srcfile))
+
         # Find the pair filename
         if srcfile in self.pairs:
             pair = self.pairs[srcfile]
@@ -651,8 +653,6 @@ class Target(object):
                 print "Error: undefined pair for %s" % srcfile
                 sys.exit(2)
             srcfile = pair
-
-        dst = os.path.join(destdir, os.path.basename(srcfile))
 
         # Find the sourcedir
         if '/' not in srcfile:
@@ -691,10 +691,13 @@ class Target(object):
             os.mkdir(os.path.join(destination, d))
 
         # Generate ada_source_path
-        fp = open(os.path.join(destination, "ada_source_path"), 'w')
-        for d in src_dirs:
-            fp.write(d + "\n")
-        fp.close()
+        with open(os.path.join(destination, "ada_source_path"), 'w') as fp:
+            for d in src_dirs:
+                fp.write(d + "\n")
+
+        # Generate ada_object_path
+        with open(os.path.join(destination, "ada_object_path"), 'w') as fp:
+            fp.write("adalib\n")
 
         # Write config files
         for name, content in self.config_files.iteritems():
@@ -726,6 +729,8 @@ class ArmPikeOS(Target):
             {"system.ads": "system-pikeos-arm-ravenscar-sfp.ads",
              "s-flocon.adb": "s-flocon-none.adb"})
         self.arch += ["pikeos-cert-app.c"]
+        self.config_files.update(
+            {"runtime.xml": readfile("arm/pikeos/runtime.xml")})
 
     def amend_ravenscar_full(self):
         self.amend_ravenscar_sfp()
@@ -733,8 +738,6 @@ class ArmPikeOS(Target):
             {"system.ads": "system-pikeos-arm-ravenscar-full.ads"})
         self.pairs.update({"a-exexpr.adb": "a-exexpr-gcc.adb",
                            "s-excmac.ads": "s-excmac-arm.ads"})
-        self.config_files.update(
-            {"runtime.xml": readfile("arm/pikeos/runtime.xml")})
 
 
 class Zynq(Target):
