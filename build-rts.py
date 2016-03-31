@@ -722,7 +722,9 @@ class ArmPikeOS(Target):
              "s-interr.adb": "s-interr-pikeos4.adb",
              "s-osinte.ads": "s-osinte-pikeos4.ads",
              "s-osinte.adb": "s-osinte-pikeos4.adb"})
-        self.pairs.update({"s-flocon.adb": "s-flocon-none.adb"})
+        self.pairs.update(
+            {"system.ads": "system-pikeos-arm-ravenscar-sfp.ads",
+             "s-flocon.adb": "s-flocon-none.adb"})
         self.arch += ["pikeos-cert-app.c"]
 
     def amend_ravenscar_full(self):
