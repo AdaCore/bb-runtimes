@@ -44,8 +44,9 @@ def fullpath(filename):
 
 def readfile(filename):
     """Reads the content of filename, relative to the bb-runtimes directory"""
-    with open(fullpath(filename), 'r') as fp:
-        res = fp.read()
+    fp = open(fullpath(filename), 'r')
+    res = fp.read()
+    fp.close()
     return res
 
 
@@ -570,6 +571,9 @@ class BaseRavenscarFull(BaseRavenscarSFP):
              "a-coinho.adb": "a-coinho-shared.adb"})
 
 
+cwd = os.getcwd()
+
+
 class Target(object):
     """Handles the creation of runtimes for a particular target"""
 
@@ -686,14 +690,16 @@ class Target(object):
             os.mkdir(os.path.join(destination, d))
 
         # Generate ada_source_path
-        with open(os.path.join(destination, "ada_source_path"), 'w') as fp:
-            for d in src_dirs:
-                fp.write(d + "\n")
+        fp = open(os.path.join(destination, "ada_source_path"), 'w')
+        for d in src_dirs:
+            fp.write(d + "\n")
+        fp.close()
 
         # Write config files
         for name, content in self.config_files.iteritems():
-            with open(os.path.join(destination, name), 'w') as fp:
-                fp.write(content)
+            fp = open(os.path.join(destination, name), 'w')
+            fp.write(content)
+            fp.close()
 
 
 class ArmPikeOS(Target):
@@ -815,6 +821,7 @@ def main():
         sys.exit(2)
 
     config = args[0]
+    (rts, arch) = config.split('/')
 
     target = build_configs(arch, rts)
     target.install(install)
