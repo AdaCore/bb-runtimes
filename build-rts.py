@@ -636,12 +636,24 @@ def build_ravenscar_full_arm_pikeos(f):
     f.config_files.update(
       {"runtime.xml": readfile("arm/pikeos/runtime.xml")})
 
+
+def build_zfp_zynq(f):
+    files_zfp(f)
+    f.pairs.update(
+        {"system.ads": "system-xi-arm.ads",
+         "s-textio.adb": "s-textio-zynq.adb"})
+    f.arch += \
+        ["arm/zynq/ram.ld"]
+    f.config_files.update(
+        {"runtime.xml": readfile("arm/zynq/runtime.xml")})
+
 build_configs = \
-  {"ravenscar-full/arm-pikeos": build_ravenscar_full_arm_pikeos}
+  {"ravenscar-full/arm-pikeos": build_ravenscar_full_arm_pikeos,
+   "zfp/zynq": build_zfp_zynq}
 
 
 def usage():
-    print "usage: build-rts.py OPTIONS"
+    print "usage: build-rts.py [OPTIONS] CONFIG"
     print "Options are:"
     print " -v --verbose     be verbose"
     print " --output=DIR     output directory"
@@ -682,14 +694,12 @@ def main():
             sys.abort()
 
     if len(args) != 1:
-        print "error: missing configuration"
+        print "error: missing configuration."
+        print "Known configs are:"
+        for k in build_configs.keys():
+            print "  " + k
         sys.exit(2)
     config = args[0]
-    (rts, arch) = config.split('/')
-
-    if verbose:
-        print "runtime: " + rts
-        print "architecture: " + arch
 
     if config not in build_configs:
         print "error: unknown config " + config
@@ -707,7 +717,8 @@ def main():
     src_dirs = []
     for d in all_src_dirs:
         l = getattr(files, d)
-        if l:
+        # Always create a 'math' directory (even if empty).
+        if l or d == "math":
             dirname = string.replace(d, '_', '-')
             src_dirs += [dirname]
             os.mkdir(objdir + "/" + dirname)
