@@ -614,7 +614,7 @@ class Target(object):
 
     def init_as_sfp(self):
         self.__init_from_base(
-            BaseRavenscarSfp(self._has_fp, self._mem_routines))
+            BaseRavenscarSFP(self._has_fp, self._mem_routines))
         self.amend_ravenscar_sfp()
 
     def init_as_full(self):
@@ -646,10 +646,11 @@ class Target(object):
 
         # Find the pair filename
         if srcfile in self.pairs:
-            srcfile = self.pairs[srcfile]
-            if not srcfile:
-                print "Error: undefined pair for " + srcfile
+            pair = self.pairs[srcfile]
+            if not pair:
+                print "Error: undefined pair for %s" % srcfile
                 sys.exit(2)
+            srcfile = pair
 
         dst = os.path.join(destdir, os.path.basename(srcfile))
 
@@ -820,8 +821,7 @@ def main():
         print "Try --help"
         sys.exit(2)
 
-    config = args[0]
-    (rts, arch) = config.split('/')
+    (rts, arch) = args[0].split('/')
 
     target = build_configs(arch, rts)
     target.install(install)
