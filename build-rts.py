@@ -50,6 +50,27 @@ def readfile(filename):
     return res
 
 
+class TargetConfiguration(object):
+    """Gives information on the target to allow proper configuration of the
+    runtime"""
+
+    @property
+    def is_bareboard(self):
+        raise Exception("not implemented")
+
+    @property
+    def has_fpu(self):
+        return self.has_single_precision_fpu or self.has_double_precision_fpu
+
+    @property
+    def has_single_precision_fpu(self):
+        return self.has_double_precision_fpu
+
+    @property
+    def has_double_precision_fpu(self):
+        raise Exception("not implemented")
+
+
 class BaseRuntime(object):
     """List of files for a runtime.
     Each list attribute represent a subdirectory.
@@ -71,10 +92,20 @@ class BaseRuntime(object):
 # Keep spec and body on one line.
 
 class BaseZFP(BaseRuntime):
-    def __init__(self, has_fp, mem_routines):
-        "Files for a zfp runtime (with or without floating point support)"
+    def __init__(self, config, mem_routines, math_lib):
+        """Files for a zfp runtime
+
+        :param config: a TargetConfiguration object
+        :param mem_routines: whether we include memory management routines
+        :param math_lib: whether we include the math library
+        """
         super(BaseZFP, self).__init__()
-        self.arch += ['system.ads']
+        self.arch += [
+            'system.ads',
+            # Implementation of s-textio is arch-specific
+            's-textio.adb',
+            's-macres.adb']
+
         self.common += [
             'ada.ads',
             'a-elchha.ads', 'a-elchha.adb',
@@ -101,58 +132,50 @@ class BaseZFP(BaseRuntime):
 
             's-atacco.adb', 's-atacco.ads',
             's-assert.adb', 's-assert.ads',
-            's-maccod.ads',
-            's-macres.ads',
-            's-secsta.adb', 's-secsta.ads',
-            's-textio.ads',
-            's-stoele.adb', 's-stoele.ads',
-            's-unstyp.ads']
-        # Implementation of s-textio is arch-specific
-        self.arch += ['s-textio.adb',
-                      's-macres.adb']
-        self.pairs.update(
-            {'system.ads': None,  # Must be overriden
-             'a-tags.adb': 'a-tags-hie.adb', 'a-tags.ads': 'a-tags-hie.ads',
-             'a-except.adb': 'a-except-zfp.adb',
-             'a-except.ads': 'a-except-zfp.ads',
-             'a-textio.adb': 'a-textio-zfp.adb',
-             'a-textio.ads': 'a-textio-zfp.ads',
-             'g-io.adb': 'g-io-zfp.adb',
-             'g-io.ads': 'g-io-zfp.ads',
-             'g-io-put.adb': 'g-io-put-stextio.adb',
-             'i-c.ads': 'i-c-hie.ads',
-             's-assert.adb': 's-assert-xi.adb',
-             's-macres.adb': None,  # Must be overriden
-             's-secsta.adb': 's-secsta-zfp.adb',
-             's-secsta.ads': 's-secsta-zfp.ads',
-             's-textio.adb': None,  # Must be overriden
-             's-textio.ads': 's-textio-zfp.ads'})
-
-        # ZFP-specific common files
-        self._zfp_src = [
             # 'Image support
             's-imgint.ads', 's-imgint.adb',
             's-imglli.ads', 's-imglli.adb',
             's-imgboo.ads', 's-imgboo.adb',
             's-imguns.ads', 's-imguns.adb',
             's-imgllu.ads', 's-imgllu.adb',
-            # other zfp-specific sources
+            's-maccod.ads',
+            's-macres.ads',
             's-memory.ads', 's-memory.adb',
-            's-sssita.ads', 's-sssita.adb']
-        self.common += self._zfp_src
+            's-secsta.adb', 's-secsta.ads',
+            's-sssita.ads', 's-sssita.adb',
+            's-textio.ads',
+            's-stoele.adb', 's-stoele.ads',
+            's-unstyp.ads']
+
         self.pairs.update({
+            'system.ads': None,  # Must be overriden
+            'a-tags.adb': 'a-tags-hie.adb', 'a-tags.ads': 'a-tags-hie.ads',
+            'a-elchha.ads': 'a-elchha-zfp.ads',
+            'a-elchha.adb': 'a-elchha-zfp.adb',
+            'a-except.adb': 'a-except-zfp.adb',
+            'a-except.ads': 'a-except-zfp.ads',
+            'a-textio.adb': 'a-textio-zfp.adb',
+            'a-textio.ads': 'a-textio-zfp.ads',
+            'g-io.adb': 'g-io-zfp.adb',
+            'g-io.ads': 'g-io-zfp.ads',
+            'g-io-put.adb': 'g-io-put-stextio.adb',
+            'i-c.ads': 'i-c-hie.ads',
+            's-assert.adb': 's-assert-xi.adb',
+            's-macres.adb': None,  # Must be overriden
             's-memory.ads': 's-memory-zfp.ads',
             's-memory.adb': 's-memory-zfp.adb',
+            's-secsta.adb': 's-secsta-zfp.adb',
+            's-secsta.ads': 's-secsta-zfp.ads',
             's-sssita.ads': 's-sssita-xi.ads',
             's-sssita.adb': 's-sssita-xi.adb',
-            'a-elchha.ads': 'a-elchha-zfp.ads',
-            'a-elchha.adb': 'a-elchha-zfp.adb'})
+            's-textio.adb': None,  # Must be overriden
+            's-textio.ads': 's-textio-zfp.ads'})
 
         self.config_files.update(
             {'runtime_build.gpr': readfile('src/runtime_build.gpr'),
              'target_options.gpr': readfile('src/target_options.gpr')})
 
-        if has_fp:
+        if config.has_fpu:
             self.common += [
                 's-fatflt.ads',
                 's-fatlfl.ads',
@@ -170,6 +193,68 @@ class BaseZFP(BaseRuntime):
                 {'s-memcop.ads': 's-memcop-zfp.ads',
                  's-memcop.adb': 's-memcop-zfp.adb'})
 
+        if math_lib:
+            self.math += [
+                'a-ncelfu.ads',
+                'a-ngcefu.adb', 'a-ngcefu.ads',
+                'a-ngcoar.adb', 'a-ngcoar.ads',
+                'a-ngcoty.adb', 'a-ngcoty.ads',
+                'a-ngelfu.adb', 'a-ngelfu.ads',
+                'a-ngrear.ads', 'a-ngrear.adb',
+                'a-nlcefu.ads',
+                'a-nlcoty.ads',
+                'a-nlelfu.ads',
+                'a-nllcef.ads',
+                'a-nllcty.ads',
+                'a-nllefu.ads',
+                'a-nscefu.ads',
+                'a-nscoty.ads',
+                'a-nselfu.ads',
+                'a-nucoty.ads',
+                'a-nuelfu.ads',
+                'a-numaux.ads',
+                'a-numeri.ads',
+                's-exnllf.adb', 's-exnllf.ads',
+                's-gearop.adb', 's-gearop.ads',
+                # libm files:
+                's-gcmain.ads', 's-gcmain.adb',
+                's-libm.ads', 's-libm.adb',
+                's-libsin.adb', 's-libsin.ads',
+                's-libdou.adb', 's-libdou.ads',
+                's-libpre.ads',
+                's-lisisq.ads', 's-lisisq.adb',
+                's-lidosq.ads', 's-lidosq.adb']
+            self.pairs.update({
+                'a-ngcoty.adb': 'a-ngcoty-ada.adb',
+                'a-ngelfu.adb': 'a-ngelfu-ada.adb',
+                'a-ngelfu.ads': 'a-ngelfu-ada.ads',
+                'a-nlelfu.ads': 'a-nlelfu-ada.ads',
+                'a-nuelfu.ads': 'a-nuelfu-ada.ads',
+                'a-numaux.ads': 'a-numaux-ada.ads',
+                's-gcmain.ads': 's-gcmain-ada.ads',
+                's-gcmain.adb': 's-gcmain-ada.adb',
+                's-libm.ads': 's-libm-ada.ads',
+                's-libm.adb': 's-libm-ada.adb',
+                's-libsin.adb': 's-libsin-ada.adb',
+                's-libsin.ads': 's-libsin-ada.ads',
+                's-libdou.adb': 's-libdou-ada.adb',
+                's-libdou.ads': 's-libdou-ada.ads',
+                's-libpre.ads': 's-libpre-ada.ads',
+                's-lisisq.ads': 's-lisisq-ada.ads',
+                's-lidosq.ads': 's-lidosq-ada.ads'})
+            if config.has_fpu:
+                self.pairs.update({
+                    's-lisisq.adb': 's-lisisq-fpu.adb'})
+            else:
+                self.pairs.update({
+                    's-lisisq.adb': 's-lisisq-ada.adb'})
+            if config.has_double_precision_fpu:
+                self.pairs.update({
+                    's-lidosq.adb': 's-lidosq-fpu.adb'})
+            else:
+                self.pairs.update({
+                    's-lidosq.adb': 's-lidosq-ada.adb'})
+
     @property
     def merge_libgnarl(self):
         return True
@@ -178,13 +263,17 @@ class BaseZFP(BaseRuntime):
 class BaseRavenscarSFP(BaseZFP):
     "Ravenscar SFP runtimes"
 
-    def __init__(self, is_bb, has_fp, mem_routines):
-        "Files for a zfp runtime (with or without floating point support)"
-        super(BaseRavenscarSFP, self).__init__(has_fp, mem_routines)
+    def __init__(self, config, mem_routines, math_lib):
+        """Files for a Ravenscar SFP runtime
+
+        :param config: a TargetConfiguration object
+        :param mem_routines: whether we include memory management routines
+        :param math_lib: whether we include the math library
+        """
+        super(BaseRavenscarSFP, self).__init__(config, mem_routines, math_lib)
 
         self.common += [
-            's-parame.adb', 's-parame.ads',
-            's-sssita.adb', 's-sssita.ads']
+            's-parame.adb', 's-parame.ads']
         self.gnarl_arch += [
             'a-intnam.ads']
         self.gnarl_common += [
@@ -222,6 +311,7 @@ class BaseRavenscarSFP(BaseZFP):
             'a-taster.adb': 'a-taster-raven.adb',
             'a-taster.ads': 'a-taster-raven.ads',
             's-interr.ads': 's-interr-raven.ads',
+            's-interr.adb': 's-interr-xi.adb',
             's-osinte.ads': 's-osinte-bb.ads',
             's-parame.adb': 's-parame-xi.adb',
             's-parame.ads': 's-parame-xi.ads',
@@ -243,7 +333,7 @@ class BaseRavenscarSFP(BaseZFP):
         self.config_files.update(
             {'ravenscar_build.gpr': readfile('src/ravenscar_build.gpr')})
 
-        if is_bb:
+        if config.is_bareboard:
             self.gnarl_common += [
                 'a-exetim.ads', 'a-exetim.adb',
                 'a-extiin.ads', 'a-extiin.adb',
@@ -264,7 +354,10 @@ class BaseRavenscarSFP(BaseZFP):
                 'a-extiin.ads': 'a-extiin-bb.ads',
                 'a-extiin.adb': 'a-extiin-bb.adb',
                 'a-rttiev.ads': 'a-rttiev-bb.ads',
-                'a-rttiev.adb': 'a-rttiev-bb.adb'})
+                'a-rttiev.adb': 'a-rttiev-bb.adb',
+                's-multip.ads': 's-multip-bb.ads',
+                's-multip.adb': 's-multip-raven-default.adb',
+                's-tpobmu.adb': 's-tpobmu-bb.adb'})
 
     @property
     def merge_libgnarl(self):
@@ -272,40 +365,24 @@ class BaseRavenscarSFP(BaseZFP):
 
 
 class BaseRavenscarFull(BaseRavenscarSFP):
-    def __init__(self, is_bb, has_fp, mem_routines, libc_files, libm_files):
-        super(BaseRavenscarFull, self).__init__(is_bb, has_fp, mem_routines)
+    def __init__(self, config, mem_routines, libc_files):
+        super(BaseRavenscarFull, self).__init__(
+            config, mem_routines, math_lib=True)
 
-        del self.config_files['ravenscar_build.gpr']
+        del self.pairs['a-tags.ads']
+        del self.pairs['a-tags.adb']
+        del self.pairs['a-elchha.ads']
+        del self.pairs['s-assert.adb']
+
+        # Disable single task secondary stack for ravenscar-full
         self.common.remove('s-sssita.ads')
         self.common.remove('s-sssita.adb')
 
-        # Remove the zfp support for 'Image, as it's present also in the
-        # ravenscar runtime
-        for src in self._zfp_src:
-            self.common.remove(src)
-
-        self.math += [
-            'a-ncelfu.ads',
-            'a-ngcefu.adb', 'a-ngcefu.ads',
-            'a-ngcoar.adb', 'a-ngcoar.ads',
-            'a-ngcoty.adb', 'a-ngcoty.ads',
-            'a-ngelfu.adb', 'a-ngelfu.ads',
-            'a-ngrear.ads', 'a-ngrear.adb',
-            'a-nlcefu.ads',
-            'a-nlcoty.ads',
-            'a-nlelfu.ads',
-            'a-nllcef.ads',
-            'a-nllcty.ads',
-            'a-nllefu.ads',
-            'a-nscefu.ads',
-            'a-nscoty.ads',
-            'a-nselfu.ads',
-            'a-nucoty.ads',
-            'a-nuelfu.ads',
-            'a-numaux.ads',
-            'a-numeri.ads',
-            's-exnllf.adb', 's-exnllf.ads',
-            's-gearop.adb', 's-gearop.ads']
+        if config.is_bareboard:
+            self.gnarl_common += [
+                's-btstch.ads', 's-btstch.adb']
+            self.common += [
+                'adaint-xi.c']
 
         if libc_files:
             self.common += [
@@ -321,47 +398,6 @@ class BaseRavenscarFull(BaseRavenscarSFP):
                 's-cmallo.adb': 's-cmallo-zfp.adb',
                 's-cstrle.ads': 's-cstrle-zfp.ads',
                 's-cstrle.adb': 's-cstrle-zfp.adb'})
-
-        if libm_files:
-            self.math += [
-                's-gcmain.ads', 's-gcmain.adb',
-                's-libm.ads', 's-libm.adb',
-                's-libsin.adb', 's-libsin.ads',
-                's-libdou.adb', 's-libdou.ads',
-                's-libpre.ads',
-                's-lisisq.ads', 's-lisisq.adb',
-                's-lidosq.ads', 's-lidosq.adb']
-            self.pairs.update({
-                'a-ngcoty.adb': 'a-ngcoty-ada.adb',
-                'a-ngelfu.adb': 'a-ngelfu-ada.adb',
-                'a-ngelfu.ads': 'a-ngelfu-ada.ads',
-                'a-nlelfu.ads': 'a-nlelfu-ada.ads',
-                'a-nuelfu.ads': 'a-nuelfu-ada.ads',
-                'a-numaux.ads': 'a-numaux-ada.ads',
-                's-gcmain.ads': 's-gcmain-ada.ads',
-                's-gcmain.adb': 's-gcmain-ada.adb',
-                's-libm.ads': 's-libm-ada.ads',
-                's-libm.adb': 's-libm-ada.adb',
-                's-libsin.adb': 's-libsin-ada.adb',
-                's-libsin.ads': 's-libsin-ada.ads',
-                's-libdou.adb': 's-libdou-ada.adb',
-                's-libdou.ads': 's-libdou-ada.ads',
-                's-libpre.ads': 's-libpre-ada.ads',
-                's-lisisq.ads': 's-lisisq-ada.ads',
-                's-lidosq.ads': 's-lidosq-ada.ads'})
-            if has_fp:
-                self.pairs.update({
-                    's-lisisq.adb': 's-lisisq-fpu.adb',
-                    's-lidosq.adb': 's-lidosq-fpu.adb'})
-            else:
-                self.pairs.update({
-                    's-lisisq.adb': 's-lisisq-ada.adb',
-                    's-lidosq.adb': 's-lidosq-ada.adb'})
-            if is_bb:
-                self.gnarl_common += [
-                    's-btstch.ads', 's-btstch.adb']
-                self.common += [
-                    'adaint-xi.c']
 
         # Add containers
         self.common += [
@@ -431,7 +467,6 @@ class BaseRavenscarFull(BaseRavenscarSFP):
             'a-cwila9.ads',
             'a-decima.adb', 'a-decima.ads',
             'a-einuoc.adb', 'a-einuoc.ads',
-            'a-elchha.adb', 'a-elchha.ads',
             'a-exctra.adb', 'a-exctra.ads',
             'a-finali.adb', 'a-finali.ads',
             'a-ioexce.ads',
@@ -532,25 +567,19 @@ class BaseRavenscarFull(BaseRavenscarSFP):
             's-htable.adb', 's-htable.ads',
             's-imenne.adb', 's-imenne.ads',
             's-imgbiu.adb', 's-imgbiu.ads',
-            's-imgboo.adb', 's-imgboo.ads',
             's-imgcha.adb', 's-imgcha.ads',
             's-imgdec.adb', 's-imgdec.ads',
             's-imgenu.adb', 's-imgenu.ads',
-            's-imgint.adb', 's-imgint.ads',
             's-imgllb.adb', 's-imgllb.ads',
             's-imglld.adb', 's-imglld.ads',
-            's-imglli.adb', 's-imglli.ads',
-            's-imgllu.adb', 's-imgllu.ads',
             's-imgllw.adb', 's-imgllw.ads',
             's-imgrea.adb', 's-imgrea.ads',
-            's-imguns.adb', 's-imguns.ads',
             's-imgwch.adb', 's-imgwch.ads',
             's-imgwiu.adb', 's-imgwiu.ads',
             's-init.adb',   's-init.ads',
             's-io.adb',     's-io.ads',
             's-mantis.adb', 's-mantis.ads',
             's-mastop.adb', 's-mastop.ads',
-            's-memory.adb', 's-memory.ads',
             's-pack03.adb', 's-pack03.ads',
             's-pack05.adb', 's-pack05.ads',
             's-pack06.adb', 's-pack06.ads',
@@ -685,7 +714,7 @@ class BaseRavenscarFull(BaseRavenscarSFP):
              's-soflin.adb': 's-soflin-xi.adb',  # Line too long, spec below
              's-soflin.ads': 's-soflin-xi.ads',
              's-sssita.adb': 's-sssita-xi.adb',  # Line too long, spec below
-             's-sssita.ads': 's-sssita-xi.ads',
+             's-sssita.ads': 's-sssita-xi.ads',  # ??? Not used in full
              's-taskin.ads': 's-taskin-xi-full.ads',
              's-tposen.adb': 's-tposen-xi-full.adb',
              's-tposen.ads': 's-tposen-xi-full.ads',
@@ -695,17 +724,14 @@ class BaseRavenscarFull(BaseRavenscarSFP):
 
     @property
     def merge_libgnarl(self):
-        return True
+        return False
 
 
-class Target(object):
+class Target(TargetConfiguration):
     """Handles the creation of runtimes for a particular target"""
 
-    def __init__(self, is_bb, has_fp, mem_routines, libc_files, libm_files):
-        self._is_bb = is_bb
-        self._has_fp = has_fp
+    def __init__(self, mem_routines, libc_files):
         self._mem_routines = mem_routines
-        self._libm_files = libm_files
         self._libc_files = libc_files
         self.arch = None
         self.common = None
@@ -715,6 +741,7 @@ class Target(object):
         self.svd = None
         self.pairs = None
         self.config_files = None
+        self.installed_files = []
 
     def amend_zfp(self):
         pass
@@ -737,33 +764,40 @@ class Target(object):
         self._merge_libgnarl = base_runtime.merge_libgnarl
 
     def init_as_zfp(self):
-        self.__init_from_base(BaseZFP(self._has_fp, self._mem_routines))
+        self.__init_from_base(BaseZFP(self, self._mem_routines, False))
         self.amend_zfp()
 
     def init_as_sfp(self):
         self.__init_from_base(
-            BaseRavenscarSFP(self._is_bb, self._has_fp, self._mem_routines))
+            BaseRavenscarSFP(self, self._mem_routines, False))
         self.amend_ravenscar_sfp()
 
     def init_as_full(self):
         self.__init_from_base(
             BaseRavenscarFull(
-                self._is_bb, self._has_fp, self._mem_routines,
-                self._libc_files, self._libm_files))
+                self, self._mem_routines, self._libc_files))
         self.amend_ravenscar_full()
 
-    @staticmethod
-    def _copy(src, dst):
+    def _copy(self, src, dst):
         "Copy (or symlink) src to dst"
 
         if not os.path.isfile(src):
             print "runtime file " + src + " does not exists"
             sys.exit(4)
+        if os.path.isfile(dst):
+            print "runtime file " + dst + " already exists"
+            sys.exit(5)
+        if os.path.basename(dst) in self.installed_files:
+            print "runtime file " + dst + " installed multiple times"
+            sys.exit(6)
+
+        self.installed_files.append(os.path.basename(dst))
+
         if verbose:
             print "copy " + src + " to " + dst
         if link:
             try:
-                os.symlink(os.path.join(cwd, src), dst)
+                os.symlink(os.path.abspath(src), dst)
             except os.error, e:
                 print "symlink error for " + src
                 print "msg: " + str(e)
@@ -787,12 +821,12 @@ class Target(object):
         # Find the sourcedir
         if '/' not in srcfile:
             # Files without path elements are in gnat
-            Target._copy(os.path.join(gnatdir, srcfile), dst)
+            self._copy(os.path.join(gnatdir, srcfile), dst)
         else:
             for d in [os.path.dirname(__file__), gccdir, crossdir]:
                 src = os.path.join(d, srcfile)
                 if os.path.exists(src):
-                    Target._copy(src, dst)
+                    self._copy(src, dst)
                     return
             print "Cannot find source dir for %s" % n
             sys.exit(2)
@@ -805,6 +839,7 @@ class Target(object):
         os.mkdir(destination)
         all_src_dirs = ['arch', 'common', 'svd', 'math',
                         'gnarl_common', 'gnarl_arch']
+        self.installed_files = []
         src_dirs = []
         for d in all_src_dirs:
             l = getattr(self, d)
@@ -844,13 +879,22 @@ class Target(object):
 
 
 class ArmPikeOS(Target):
+    @property
+    def is_bareboard(self):
+        return False
+
+    @property
+    def has_single_precision_fpu(self):
+        return True
+
+    @property
+    def has_double_precision_fpu(self):
+        return True
+
     def __init__(self):
         super(ArmPikeOS, self).__init__(
-            is_bb=False,
-            has_fp=True,
             mem_routines=True,
-            libc_files=False,
-            libm_files=False)
+            libc_files=False)
 
     def init_as_full(self):
         super(ArmPikeOS, self).init_as_full()
@@ -866,8 +910,8 @@ class ArmPikeOS(Target):
             's-taprop.adb': 's-taprop-pikeos.adb',
             's-textio.adb': 's-textio-pikeos.adb',
             's-init.adb': 's-init-pikeos-ravenscar.adb',
-            's-memory.ads': 's-memory-pikeos.ads',
-            's-memory.adb': 's-memory-pikeos.adb',
+            's-memory.ads': 's-memory-zfp.ads',
+            's-memory.adb': 's-memory-zfp.adb',
             'a-textio.adb': 'a-textio-raven.adb',
             's-traceb.adb': 's-traceb-xi-armeabi.adb',
             's-traceb.ads': 's-traceb-cert.ads',
@@ -882,20 +926,33 @@ class ArmPikeOS(Target):
 
     def amend_ravenscar_full(self):
         self.amend_ravenscar_sfp()
-        self.pairs.update(
-            {'system.ads': 'system-pikeos-arm-ravenscar-full.ads'})
-        self.pairs.update({'a-exexpr.adb': 'a-exexpr-gcc.adb',
-                           's-excmac.ads': 's-excmac-arm.ads'})
+        self.pairs.update({
+            'system.ads': 'system-pikeos-arm-ravenscar-full.ads'})
+        self.pairs.update({
+            'a-exexpr.adb': 'a-exexpr-gcc.adb',
+            's-excmac.ads': 's-excmac-arm.ads',
+            's-memory.ads': 's-memory-pikeos.ads',
+            's-memory.adb': 's-memory-pikeos.adb',
+            'g-io-put.adb': 'g-io-put-pikeos.adb'})
 
 
 class Stm32(Target):
+    @property
+    def is_bareboard(self):
+        return True
+
+    @property
+    def has_single_precision_fpu(self):
+        return True
+
+    @property
+    def has_double_precision_fpu(self):
+        return False
+
     def __init__(self, board):
         super(Stm32, self).__init__(
-            is_bb=True,
-            has_fp=True,
             mem_routines=True,
-            libc_files=True,
-            libm_files=True)
+            libc_files=True)
 
         assert board in (
             'stm32f4', 'stm32f429disco', 'stm32f469disco', 'stm32f7disco'), \
@@ -975,30 +1032,44 @@ class Stm32(Target):
             'arm/stm32f4/%s/svd/handler.S' % self.mcu]
 
         self.pairs.update({
+            'a-intnam.ads': 'arm/stm32f4/%s/svd/a-intnam.ads' % self.mcu,
             'system.ads': 'system-xi-cortexm4-sfp.ads',
             's-bbcppr.adb': 's-bbcppr-armv7m.adb',
             's-bbbosu.adb': 's-bbbosu-armv7m.adb',
             's-parame.ads': 's-parame-xi-small.ads',
             's-taprop.ads': 's-taprop-xi.ads',
             's-taprop.adb': 's-taprop-xi.adb',
-            'a-intnam.ads': 'arm/stm32f4/%s/svd/a-intnam.ads' % self.mcu})
+            's-flocon.adb': 's-flocon-none.adb'})
 
     def amend_ravenscar_full(self):
         self.amend_ravenscar_sfp()
         self.pairs.update({
+            'a-exexpr.adb': 'a-exexpr-gcc.adb',
             'system.ads': 'system-xi-cortexm4-full.ads',
             's-excmac.ads': 's-excmac-arm.ads',
-            's-traceb.adb': 's-traceb-xi-armeabi.adb'})
+            's-memory.ads': 's-memory.ads',
+            's-memory.adb': 's-memory-xi.adb',
+            's-traceb.adb': 's-traceb-xi-armeabi.adb',
+            's-traceb.ads': 's-traceb-cert.ads'})
 
 
 class Zynq(Target):
+    @property
+    def is_bareboard(self):
+        return True
+
+    @property
+    def has_single_precision_fpu(self):
+        return True
+
+    @property
+    def has_double_precision_fpu(self):
+        return True
+
     def __init__(self):
         super(Zynq, self).__init__(
-            is_bb=True,
-            has_fp=True,
             mem_routines=True,
-            libc_files=True,
-            libm_files=True)
+            libc_files=True)
 
     def amend_zfp(self):
         self.pairs.update(
