@@ -301,10 +301,10 @@ class BaseRavenscarSFP(BaseZFP):
         self.pairs.update({
             'a-intnam.ads': None,
             'a-interr.adb': 'a-interr-raven.adb',
-            'a-reatim.ads': 'a-reatim-xi.ads',  # body below: line too long
+            'a-reatim.ads': 'a-reatim-xi.ads',
             'a-reatim.adb': 'a-reatim-xi.adb',
             'a-retide.adb': 'a-retide-raven.adb',
-            'a-sytaco.ads': 'a-sytaco-xi.ads',  # body below: line too long
+            'a-sytaco.ads': 'a-sytaco-xi.ads',
             'a-sytaco.adb': 'a-sytaco-xi.adb',
             'a-taside.adb': 'a-taside-raven.adb',
             's-taspri.ads': 's-taspri-xi.ads',
@@ -318,11 +318,10 @@ class BaseRavenscarSFP(BaseZFP):
             's-macres.adb': 's-macres-native.adb',
             's-multip.ads': 's-multip-raven-default.ads',
             's-multip.adb': 's-multip-raven-default.adb',
-            's-sssita.adb': 's-sssita-xi.adb',
-            's-sssita.ads': 's-sssita-xi.ads',
             's-taprob.adb': 's-taprob-raven.adb',
             's-taprob.ads': 's-taprob-raven.ads',
             's-taprop.ads': 's-taprop-xi.ads',
+            's-taprop.adb': 's-taprop-xi.adb',
             's-tarest.adb': 's-tarest-raven.adb',
             's-tasdeb.ads': 's-tasdeb-xi.ads',
             's-tasdeb.adb': 's-tasdeb-raven.adb',
@@ -334,10 +333,13 @@ class BaseRavenscarSFP(BaseZFP):
             {'ravenscar_build.gpr': readfile('src/ravenscar_build.gpr')})
 
         if config.is_bareboard:
+            self.gnarl_arch += [
+                's-bbpara.ads']
             self.gnarl_common += [
                 'a-exetim.ads', 'a-exetim.adb',
                 'a-extiin.ads', 'a-extiin.adb',
                 'a-rttiev.ads', 'a-rttiev.adb',
+                's-bb.ads',
                 's-bbbosu.ads', 's-bbbosu.adb',
                 's-bbcppr.ads', 's-bbcppr.adb',
                 's-bbexti.ads', 's-bbexti.adb',
@@ -357,7 +359,8 @@ class BaseRavenscarSFP(BaseZFP):
                 'a-rttiev.adb': 'a-rttiev-bb.adb',
                 's-multip.ads': 's-multip-bb.ads',
                 's-multip.adb': 's-multip-raven-default.adb',
-                's-tpobmu.adb': 's-tpobmu-bb.adb'})
+                's-tpobmu.adb': 's-tpobmu-bb.adb',
+                's-bbpara.ads': None})
 
     @property
     def merge_libgnarl(self):
@@ -713,8 +716,6 @@ class BaseRavenscarFull(BaseRavenscarSFP):
              's-ransee.adb': 's-ransee-xi.adb',
              's-soflin.adb': 's-soflin-xi.adb',  # Line too long, spec below
              's-soflin.ads': 's-soflin-xi.ads',
-             's-sssita.adb': 's-sssita-xi.adb',  # Line too long, spec below
-             's-sssita.ads': 's-sssita-xi.ads',  # ??? Not used in full
              's-taskin.ads': 's-taskin-xi-full.ads',
              's-tposen.adb': 's-tposen-xi-full.adb',
              's-tposen.ads': 's-tposen-xi-full.ads',
@@ -968,7 +969,7 @@ class Stm32(Target):
             self.mcu = 'stm32f7x'
 
     def amend_zfp(self):
-        self.gnarl_common += [
+        self.common += [
             's-bb.ads']
 
         self.arch += [
@@ -1022,11 +1023,7 @@ class Stm32(Target):
 
     def amend_ravenscar_sfp(self):
         self.amend_zfp()
-
-        # Move s-bbpara.ads from arch to gnarl-arch
-        self.arch.remove('s-bbpara.ads')
-        self.gnarl_arch += [
-            's-bbpara.ads']
+        self.gnarl_common.remove('s-bb.ads')
 
         self.arch += [
             'arm/stm32f4/%s/svd/handler.S' % self.mcu]
@@ -1038,7 +1035,6 @@ class Stm32(Target):
             's-bbbosu.adb': 's-bbbosu-armv7m.adb',
             's-parame.ads': 's-parame-xi-small.ads',
             's-taprop.ads': 's-taprop-xi.ads',
-            's-taprop.adb': 's-taprop-xi.adb',
             's-flocon.adb': 's-flocon-none.adb'})
 
     def amend_ravenscar_full(self):
@@ -1079,6 +1075,16 @@ class Zynq(Target):
             'arm/zynq/ram.ld']
         self.config_files.update(
             {'runtime.xml': readfile('arm/zynq/runtime.xml')})
+
+    def amend_ravenscar_sfp(self):
+        self.amend_zfp()
+
+        self.pairs.update({
+            'system.ads': 'system-xi-cortexa-sfp.ads',
+            's-bbcppr.adb': 's-bbcppr-arm.adb',
+            'a-intnam.ads': 'a-intnam-dummy.ads',
+            's-bbbosu.adb': 's-bbbosu-cortexa9.adb',
+            's-bbpara.ads': 's-bbpara-cortexa9.ads'})
 
 
 def build_configs(target, runtime):
