@@ -55,6 +55,10 @@ class TargetConfiguration(object):
     runtime"""
 
     @property
+    def target_arch(self):
+        raise Exception("not implemented")
+
+    @property
     def is_bareboard(self):
         raise Exception("not implemented")
 
@@ -172,8 +176,7 @@ class BaseZFP(BaseRuntime):
             's-textio.ads': 's-textio-zfp.ads'})
 
         self.config_files.update(
-            {'runtime_build.gpr': readfile('src/runtime_build.gpr'),
-             'target_options.gpr': readfile('src/target_options.gpr')})
+            {'target_options.gpr': readfile('src/target_options.gpr')})
 
         if config.has_fpu:
             self.common += [
@@ -329,8 +332,6 @@ class BaseRavenscarSFP(BaseZFP):
             's-taskin.ads': 's-taskin-raven.ads',
             's-tposen.adb': 's-tposen-raven.adb',
             's-tposen.ads': 's-tposen-raven.ads'})
-        self.config_files.update(
-            {'ravenscar_build.gpr': readfile('src/ravenscar_build.gpr')})
 
         if config.is_bareboard:
             self.gnarl_arch += [
@@ -842,6 +843,8 @@ class Target(TargetConfiguration):
                         'gnarl_common', 'gnarl_arch']
         self.installed_files = []
         src_dirs = []
+        gnarl_dirs = []
+        gnat_dirs = []
         for d in all_src_dirs:
             l = getattr(self, d)
             dirname = None
@@ -850,8 +853,13 @@ class Target(TargetConfiguration):
                     dirname = d.replace('gnarl_', '')
                 else:
                     dirname = string.replace(d, '_', '-')
+
                 if dirname not in src_dirs:
                     src_dirs.append(dirname)
+                    if dirname.startswith('gnarl'):
+                        gnarl_dirs.append(dirname)
+                    else:
+                        gnat_dirs.append(dirname)
                 subdir = os.path.join(destination, dirname)
 
                 if not os.path.exists(subdir):
@@ -878,8 +886,42 @@ class Target(TargetConfiguration):
             fp.write(content)
             fp.close()
 
+        # Add the project files
+        fp = open(fullpath('src/runtime_build.gpr'), 'r')
+        cnt = ''
+        for line in fp:
+            if line.strip().startswith('for Source_Dirs'):
+                cnt += '  for Source_Dirs use ("%s");\n' % (
+                    '", "'.join(gnat_dirs))
+                cnt += '  for Target use "%s";\n' % self.target_arch
+            else:
+                cnt += line
+        fp.close()
+        fp = open(os.path.join(destination, 'runtime_build.gpr'), 'w')
+        fp.write(cnt)
+        fp.close()
+
+        if len(gnarl_dirs) > 0:
+            fp = open(fullpath('src/ravenscar_build.gpr'), 'r')
+            cnt = ''
+            for line in fp:
+                if line.strip().startswith('for Source_Dirs'):
+                    cnt += '  for Source_Dirs use ("%s");\n' % (
+                        '", "'.join(gnarl_dirs))
+                    cnt += '  for Target use "%s";\n' % self.target_arch
+                else:
+                    cnt += line
+            fp.close()
+            fp = open(os.path.join(destination, 'ravenscar_build.gpr'), 'w')
+            fp.write(cnt)
+            fp.close()
+
 
 class ArmPikeOS(Target):
+    @property
+    def target_arch(self):
+        return 'arm-pikeos'
+
     @property
     def is_bareboard(self):
         return False
@@ -939,6 +981,10 @@ class ArmPikeOS(Target):
 
 class Stm32(Target):
     @property
+    def target_arch(self):
+        return 'arm-eabi'
+
+    @property
     def is_bareboard(self):
         return True
 
@@ -972,8 +1018,10 @@ class Stm32(Target):
         self.common += [
             's-bb.ads']
 
+        if 's-bbpara.ads' not in self.gnarl_arch:
+            self.gnarl_arch.append('s-bbpara.ads')
+
         self.arch += [
-            's-bbpara.ads',
             's-stm32.ads',
             's-stm32.adb',
             'arm/stm32f4/common-RAM.ld',
@@ -1050,6 +1098,10 @@ class Stm32(Target):
 
 
 class Zynq(Target):
+    @property
+    def target_arch(self):
+        return 'arm-eabi'
+
     @property
     def is_bareboard(self):
         return True
@@ -1131,7 +1183,7 @@ def main():
             sys.argv[1:], "hvl",
             ["help", "verbose",
              "output=",
-             "gccdir=", "gnatdir=", "crossdir=",
+             "gcc-dir=", "gnat-dir=", "cross-dir=",
              "link"])
     except getopt.GetoptError, e:
         print "error: " + str(e)
@@ -1147,11 +1199,11 @@ def main():
             link = True
         elif opt == "--output":
             install = arg
-        elif opt == "--gccdir":
+        elif opt == "--gcc-dir":
             gccdir = arg
-        elif opt == "--gnatdir":
+        elif opt == "--gnat-dir":
             gnatdir = arg
-        elif opt == "--crossdir":
+        elif opt == "--cross-dir":
             crossdir = arg
         else:
             sys.abort()
