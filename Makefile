@@ -85,9 +85,14 @@ endif
 # Helper for creating <config>.src targets.
 # you can use it the following way $(BUILD_RTS) config [build-rts opts...]
 # you don't have to specify --objdir and gnat sources location.
-BUILD_RTS=fun () (if [ \"$(TARGET)\" = \"\" ]; then echo "TARGET not defined"; return 1; fi; \
+BUILD_RTS_OLD=fun () (if [ \"$(TARGET)\" = \"\" ]; then echo "TARGET not defined"; return 1; fi; \
 	          mkdir -p obj; rm -rf obj/$@; config=$$1; shift; \
 	          set -x; ./build-rts.sh $$@ --objdir=obj/$@ --cross-dir=$(CROSS_SOURCES) $${config} $(GNAT_SOURCES)); \
+          fun
+
+BUILD_RTS=fun () (if [ \"$(TARGET)\" = \"\" ]; then echo "TARGET not defined"; return 1; fi; \
+	          mkdir -p obj; rm -rf obj/$@; config=$$1; shift; \
+	          set -x; ./build-rts.py $$@ --output=obj/$@ --cross-dir=$(CROSS_SOURCES) --gnat-dir=$(GNAT_SOURCES) --gcc-dir=$(GCC_SOURCES) $${config}); \
           fun
 
 # Compute prerequisites for target all
@@ -196,83 +201,83 @@ install-gdbstub:
 
 # powerpc-elf runtimes
 zfp-prep.src:
-	@$(BUILD_RTS) zfp/prep
+	@$(BUILD_RTS_OLD) zfp/prep
 
 ravenscar-sfp-prep.src:
-	@$(BUILD_RTS) ravenscar-sfp/prep
+	@$(BUILD_RTS_OLD) ravenscar-sfp/prep
 
 ravenscar-full-prep.src:
-	@$(BUILD_RTS) ravenscar-full/prep --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS_OLD) ravenscar-full/prep --gcc-dir=$(GCC_SOURCES)
 
 zfp-mpc8641.src:
-	@$(BUILD_RTS) zfp/8641d
+	@$(BUILD_RTS_OLD) zfp/8641d
 
 ravenscar-sfp-mpc8641.src:
-	@$(BUILD_RTS) ravenscar-sfp/8641d
+	@$(BUILD_RTS_OLD) ravenscar-sfp/8641d
 
 ravenscar-full-mpc8641.src:
-	@$(BUILD_RTS) ravenscar-full/8641d --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS_OLD) ravenscar-full/8641d --gcc-dir=$(GCC_SOURCES)
 
 zfp-psim.src:
-	@$(BUILD_RTS) zfp/psim
+	@$(BUILD_RTS_OLD) zfp/psim
 
 # powerpc-eabispe runtimes
 zfp-p2020.src:
-	@$(BUILD_RTS) zfp/p2020
+	@$(BUILD_RTS_OLD) zfp/p2020
 
 ravenscar-sfp-p2020.src:
-	@$(BUILD_RTS) ravenscar-sfp/p2020
+	@$(BUILD_RTS_OLD) ravenscar-sfp/p2020
 
 ravenscar-full-p2020.src:
-	@$(BUILD_RTS) ravenscar-full/p2020 --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS_OLD) ravenscar-full/p2020 --gcc-dir=$(GCC_SOURCES)
 
 ravenscar-sfp-p5566.src:
-	@$(BUILD_RTS) ravenscar-sfp/p5566
+	@$(BUILD_RTS_OLD) ravenscar-sfp/p5566
 
 ravenscar-full-p5566.src:
-	@$(BUILD_RTS) ravenscar-full/p5566 --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS_OLD) ravenscar-full/p5566 --gcc-dir=$(GCC_SOURCES)
 
 zfp-p5566.src:
-	@$(BUILD_RTS) zfp/p5566
+	@$(BUILD_RTS_OLD) zfp/p5566
 
 zfp-mpc5634.src:
-	@$(BUILD_RTS) zfp/mpc5634
+	@$(BUILD_RTS_OLD) zfp/mpc5634
 
 # leon-elf runtimes
 zfp-leon.src:
-	$(BUILD_RTS) zfp/leon
+	$(BUILD_RTS_OLD) zfp/leon
 
 ravenscar-sfp-leon.src:
-	$(BUILD_RTS) ravenscar-sfp/leon
+	$(BUILD_RTS_OLD) ravenscar-sfp/leon
 
 ravenscar-full-leon.src:
-	$(BUILD_RTS) ravenscar-full/leon --gcc-dir=$(GCC_SOURCES)
+	$(BUILD_RTS_OLD) ravenscar-full/leon --gcc-dir=$(GCC_SOURCES)
 
 # leon3-elf runtimes
 zfp-leon3.src:
-	$(BUILD_RTS) zfp/leon3
+	$(BUILD_RTS_OLD) zfp/leon3
 
 ravenscar-sfp-leon3.src:
-	$(BUILD_RTS) ravenscar-sfp/leon3
+	$(BUILD_RTS_OLD) ravenscar-sfp/leon3
 
 ravenscar-full-leon3.src:
-	$(BUILD_RTS) ravenscar-full/leon3 --gcc-dir=$(GCC_SOURCES)
+	$(BUILD_RTS_OLD) ravenscar-full/leon3 --gcc-dir=$(GCC_SOURCES)
 
 # arm-eabi runtimes
 zfp-tms570.src:
-	@$(BUILD_RTS) zfp/tms570
+	@$(BUILD_RTS_OLD) zfp/tms570
 
 ravenscar-sfp-tms570.src:
-	@$(BUILD_RTS) ravenscar-sfp/tms570
+	@$(BUILD_RTS_OLD) ravenscar-sfp/tms570
 
 ravenscar-full-tms570.src:
-	@$(BUILD_RTS) ravenscar-full/tms570 --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS_OLD) ravenscar-full/tms570 --gcc-dir=$(GCC_SOURCES)
 
 ravenscar-full-tms570-sci.src:
-	@$(BUILD_RTS) ravenscar-full/tms570-sci --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS_OLD) ravenscar-full/tms570-sci --gcc-dir=$(GCC_SOURCES)
 
 zfp-lm3s.src:
-	@$(BUILD_RTS) zfp/lm3s
+	@$(BUILD_RTS_OLD) zfp/lm3s
 
 zfp-stm32f4.src:
 	@$(BUILD_RTS) zfp/stm32f4
@@ -281,7 +286,7 @@ ravenscar-sfp-stm32f4.src:
 	@$(BUILD_RTS) ravenscar-sfp/stm32f4
 
 ravenscar-full-stm32f4.src:
-	@$(BUILD_RTS) ravenscar-full/stm32f4 --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS) ravenscar-full/stm32f4
 
 zfp-stm32f429disco.src:
 	@$(BUILD_RTS) zfp/stm32f429disco
@@ -290,7 +295,7 @@ ravenscar-sfp-stm32f429disco.src:
 	@$(BUILD_RTS) ravenscar-sfp/stm32f429disco
 
 ravenscar-full-stm32f429disco.src:
-	@$(BUILD_RTS) ravenscar-full/stm32f429disco --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS) ravenscar-full/stm32f429disco
 
 zfp-stm32f469disco.src:
 	@$(BUILD_RTS) zfp/stm32f469disco
@@ -299,7 +304,7 @@ ravenscar-sfp-stm32f469disco.src:
 	@$(BUILD_RTS) ravenscar-sfp/stm32f469disco
 
 ravenscar-full-stm32f469disco.src:
-	@$(BUILD_RTS) ravenscar-full/stm32f469disco --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS) ravenscar-full/stm32f469disco
 
 zfp-stm32f7disco.src:
 	@$(BUILD_RTS) zfp/stm32f7disco
@@ -308,31 +313,37 @@ ravenscar-sfp-stm32f7disco.src:
 	@$(BUILD_RTS) ravenscar-sfp/stm32f7disco
 
 ravenscar-full-stm32f7disco.src:
-	@$(BUILD_RTS) ravenscar-full/stm32f7disco --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS) ravenscar-full/stm32f7disco
+
+ravenscar-sfp-sam4s.src:
+	@$(BUILD_RTS) ravenscar-sfp/sam4s
+
+ravenscar-sfp-samg55.src:
+	@$(BUILD_RTS) ravenscar-sfp/samg55
 
 # visium-elf
 zfp-mcm.src:
-	@$(BUILD_RTS) zfp/mcm
+	@$(BUILD_RTS_OLD) zfp/mcm
 
 # Native
 zfp-x86-linux.src:
-	@$(BUILD_RTS) zfp/x86-linux
+	@$(BUILD_RTS_OLD) zfp/x86-linux
 
 zfp-x86-windows.src:
-	@$(BUILD_RTS) zfp/x86-windows
+	@$(BUILD_RTS_OLD) zfp/x86-windows
 
 zfp-sparc-solaris.src:
-	@$(BUILD_RTS) zfp/sparc-solaris
+	@$(BUILD_RTS_OLD) zfp/sparc-solaris
 
 # pikeos
 ravenscar-sfp-arm-pikeos.src:
-	@$(BUILD_RTS) ravenscar-sfp/arm-pikeos
+	@$(BUILD_RTS_OLD) ravenscar-sfp/arm-pikeos
 
 ravenscar-full-arm-pikeos.src:
-	@$(BUILD_RTS) ravenscar-full/arm-pikeos --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS_OLD) ravenscar-full/arm-pikeos --gcc-dir=$(GCC_SOURCES)
 
 ravenscar-full-ppc-pikeos.src:
-	@$(BUILD_RTS) ravenscar-full/ppc-pikeos --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS_OLD) ravenscar-full/ppc-pikeos --gcc-dir=$(GCC_SOURCES)
 
 ravenscar-full-x86-pikeos.src:
-	@$(BUILD_RTS) ravenscar-full/x86-pikeos --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS_OLD) ravenscar-full/x86-pikeos --gcc-dir=$(GCC_SOURCES)
