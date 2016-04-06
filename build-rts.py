@@ -377,6 +377,7 @@ class BaseRavenscarFull(BaseRavenscarSFP):
         del self.pairs['a-tags.adb']
         del self.pairs['a-elchha.ads']
         del self.pairs['s-assert.adb']
+        del self.pairs['s-memory.ads']
 
         # Disable single task secondary stack for ravenscar-full
         self.common.remove('s-sssita.ads')
@@ -720,6 +721,7 @@ class BaseRavenscarFull(BaseRavenscarSFP):
              's-taskin.ads': 's-taskin-xi-full.ads',
              's-tposen.adb': 's-tposen-xi-full.adb',
              's-tposen.ads': 's-tposen-xi-full.ads',
+             's-traceb.ads': 's-traceb-cert.ads',
              's-atocou.adb': 's-atocou-builtin.adb',
              'a-coinho.ads': 'a-coinho-shared.ads',
              'a-coinho.adb': 'a-coinho-shared.adb'})
@@ -830,7 +832,7 @@ class Target(TargetConfiguration):
                 if os.path.exists(src):
                     self._copy(src, dst)
                     return
-            print "Cannot find source dir for %s" % n
+            print "Cannot find source dir for %s" % srcfile
             sys.exit(2)
 
     def install(self, destination):
@@ -944,6 +946,7 @@ class ArmPikeOS(Target):
         self._merge_libgnarl = False
 
     def amend_ravenscar_sfp(self):
+        super(ArmPikeOS, self).amend_ravenscar_sfp()
         self.arch += [
             'adaint-pikeos.c']
         self.gnarl_common += [
@@ -956,8 +959,6 @@ class ArmPikeOS(Target):
             's-memory.ads': 's-memory-zfp.ads',
             's-memory.adb': 's-memory-zfp.adb',
             'a-textio.adb': 'a-textio-raven.adb',
-            's-traceb.adb': 's-traceb-xi-armeabi.adb',
-            's-traceb.ads': 's-traceb-cert.ads',
             's-interr.adb': 's-interr-pikeos4.adb',
             's-osinte.ads': 's-osinte-pikeos4.ads',
             's-osinte.adb': 's-osinte-pikeos4.adb',
@@ -968,7 +969,7 @@ class ArmPikeOS(Target):
             {'runtime.xml': readfile('arm/pikeos/runtime.xml')})
 
     def amend_ravenscar_full(self):
-        self.amend_ravenscar_sfp()
+        super(ArmPikeOS, self).amend_ravenscar_full()
         self.pairs.update({
             'system.ads': 'system-pikeos-arm-ravenscar-full.ads'})
         self.pairs.update({
@@ -976,10 +977,11 @@ class ArmPikeOS(Target):
             's-excmac.ads': 's-excmac-arm.ads',
             's-memory.ads': 's-memory-pikeos.ads',
             's-memory.adb': 's-memory-pikeos.adb',
+            's-traceb.adb': 's-traceb-xi-armeabi.adb',
             'g-io-put.adb': 'g-io-put-pikeos.adb'})
 
 
-class Stm32(Target):
+class ArmBBTarget(Target):
     @property
     def target_arch(self):
         return 'arm-eabi'
@@ -996,25 +998,52 @@ class Stm32(Target):
     def has_double_precision_fpu(self):
         return False
 
-    def __init__(self, board):
-        super(Stm32, self).__init__(
+    def __init__(self):
+        super(ArmBBTarget, self).__init__(
             mem_routines=True,
             libc_files=True)
 
-        assert board in (
-            'stm32f4', 'stm32f429disco', 'stm32f469disco', 'stm32f7disco'), \
-            'Unexpected board %s' % board
+    def amend_zfp(self):
+        super(ArmBBTarget, self).amend_zfp()
+        self.pairs.update({
+            'system.ads': 'system-xi-arm.ads',
+            's-macres.adb': 's-macres-cortexm3.adb'})
 
-        if board == 'stm32f4':
-            self.mcu = 'stm32f40x'
-        elif board == 'stm32f429disco':
-            self.mcu = 'stm32f429x'
-        elif board == 'stm32f469disco':
-            self.mcu = 'stm32f469x'
-        elif board == 'stm32f7disco':
-            self.mcu = 'stm32f7x'
+    def amend_ravenscar_sfp(self):
+        super(ArmBBTarget, self).amend_ravenscar_sfp()
+        self.pairs.update({
+            'system.ads': 'system-xi-cortexm4-sfp.ads',
+            's-bbcppr.adb': 's-bbcppr-armv7m.adb',
+            's-bbbosu.adb': 's-bbbosu-armv7m.adb',
+            's-parame.ads': 's-parame-xi-small.ads',
+            's-taprop.ads': 's-taprop-xi.ads',
+            's-flocon.adb': 's-flocon-none.adb'})
+
+    def amend_ravenscar_full(self):
+        super(ArmBBTarget, self).amend_ravenscar_full()
+        self.pairs.update({
+            'a-exexpr.adb': 'a-exexpr-gcc.adb',
+            'system.ads': 'system-xi-cortexm4-full.ads',
+            's-excmac.ads': 's-excmac-arm.ads',
+            's-memory.adb': 's-memory-xi.adb',
+            's-traceb.adb': 's-traceb-xi-armeabi.adb'})
+
+
+class Stm32(ArmBBTarget):
+    _to_mcu = {
+        'stm32f4': 'stm32f40x',
+        'stm32f429disco': 'stm32f429x',
+        'stm32f469disco': 'stm32f469x',
+        'stm32f7disco': 'stm32f7x'}
+
+    def __init__(self, board):
+        super(Stm32, self).__init__()
+
+        assert board in Stm32._to_mcu, 'Unknown STM32 board: %s' % board
+        self.mcu = Stm32._to_mcu[board]
 
     def amend_zfp(self):
+        super(Stm32, self).amend_zfp()
         self.common += [
             's-bb.ads']
 
@@ -1024,30 +1053,27 @@ class Stm32(Target):
         self.arch += [
             's-stm32.ads',
             's-stm32.adb',
-            'arm/stm32f4/common-RAM.ld',
-            'arm/stm32f4/common-ROM.ld',
-            'arm/stm32f4/start-rom.S',
-            'arm/stm32f4/start-ram.S',
-            'arm/stm32f4/start-common.S',
-            'arm/stm32f4/setup_pll.adb',
-            'arm/stm32f4/%s/memory-map.ld' % self.mcu,
-            'arm/stm32f4/%s/s-bbmcpa.ads' % self.mcu,
-            'arm/stm32f4/%s/s-bbmcpa.adb' % self.mcu,
-            'arm/stm32f4/%s/s-bbbopa.ads' % self.mcu]
+            'arm/stm32/common-RAM.ld',
+            'arm/stm32/common-ROM.ld',
+            'arm/stm32/start-rom.S',
+            'arm/stm32/start-ram.S',
+            'arm/stm32/start-common.S',
+            'arm/stm32/setup_pll.adb',
+            'arm/stm32/%s/memory-map.ld' % self.mcu,
+            'arm/stm32/%s/s-bbmcpa.ads' % self.mcu,
+            'arm/stm32/%s/s-bbmcpa.adb' % self.mcu,
+            'arm/stm32/%s/s-bbbopa.ads' % self.mcu]
         self.svd += [
-            'arm/stm32f4/%s/svd/i-stm32.ads' % self.mcu,
-            'arm/stm32f4/%s/svd/i-stm32-flash.ads' % self.mcu,
-            'arm/stm32f4/%s/svd/i-stm32-gpio.ads' % self.mcu,
-            'arm/stm32f4/%s/svd/i-stm32-pwr.ads' % self.mcu,
-            'arm/stm32f4/%s/svd/i-stm32-rcc.ads' % self.mcu,
-            'arm/stm32f4/%s/svd/i-stm32-syscfg.ads' % self.mcu,
-            'arm/stm32f4/%s/svd/i-stm32-usart.ads' % self.mcu]
+            'arm/stm32/%s/svd/i-stm32.ads' % self.mcu,
+            'arm/stm32/%s/svd/i-stm32-flash.ads' % self.mcu,
+            'arm/stm32/%s/svd/i-stm32-gpio.ads' % self.mcu,
+            'arm/stm32/%s/svd/i-stm32-pwr.ads' % self.mcu,
+            'arm/stm32/%s/svd/i-stm32-rcc.ads' % self.mcu,
+            'arm/stm32/%s/svd/i-stm32-syscfg.ads' % self.mcu,
+            'arm/stm32/%s/svd/i-stm32-usart.ads' % self.mcu]
 
         self.pairs.update({
-            'system.ads': 'system-xi-arm.ads',
-            's-bbpara.ads': 's-bbpara-stm32f4.ads',
-            's-textio.ads': 's-textio-zfp.ads',
-            's-macres.adb': 's-macres-cortexm3.adb'})
+            's-bbpara.ads': 's-bbpara-stm32f4.ads'})
 
         if self.mcu == 'stm32f40x':
             self.pairs.update({
@@ -1067,34 +1093,16 @@ class Stm32(Target):
                 's-textio.adb': 's-textio-stm32f7.adb'})
 
         self.config_files.update(
-            {'runtime.xml': readfile('arm/stm32f4/runtime.xml')})
+            {'runtime.xml': readfile('arm/stm32/runtime.xml')})
 
     def amend_ravenscar_sfp(self):
-        self.amend_zfp()
+        super(Stm32, self).amend_ravenscar_sfp()
         self.gnarl_common.remove('s-bb.ads')
 
         self.arch += [
-            'arm/stm32f4/%s/svd/handler.S' % self.mcu]
-
+            'arm/stm32/%s/svd/handler.S' % self.mcu]
         self.pairs.update({
-            'a-intnam.ads': 'arm/stm32f4/%s/svd/a-intnam.ads' % self.mcu,
-            'system.ads': 'system-xi-cortexm4-sfp.ads',
-            's-bbcppr.adb': 's-bbcppr-armv7m.adb',
-            's-bbbosu.adb': 's-bbbosu-armv7m.adb',
-            's-parame.ads': 's-parame-xi-small.ads',
-            's-taprop.ads': 's-taprop-xi.ads',
-            's-flocon.adb': 's-flocon-none.adb'})
-
-    def amend_ravenscar_full(self):
-        self.amend_ravenscar_sfp()
-        self.pairs.update({
-            'a-exexpr.adb': 'a-exexpr-gcc.adb',
-            'system.ads': 'system-xi-cortexm4-full.ads',
-            's-excmac.ads': 's-excmac-arm.ads',
-            's-memory.ads': 's-memory.ads',
-            's-memory.adb': 's-memory-xi.adb',
-            's-traceb.adb': 's-traceb-xi-armeabi.adb',
-            's-traceb.ads': 's-traceb-cert.ads'})
+            'a-intnam.ads': 'arm/stm32/%s/svd/a-intnam.ads' % self.mcu})
 
 
 class Zynq(Target):
@@ -1120,6 +1128,7 @@ class Zynq(Target):
             libc_files=True)
 
     def amend_zfp(self):
+        super(Zynq, self).amend_zfp()
         self.pairs.update(
             {'system.ads': 'system-xi-arm.ads',
              's-textio.adb': 's-textio-zynq.adb'})
@@ -1129,7 +1138,7 @@ class Zynq(Target):
             {'runtime.xml': readfile('arm/zynq/runtime.xml')})
 
     def amend_ravenscar_sfp(self):
-        self.amend_zfp()
+        super(Zynq, self).amend_ravenscar_sfp()
 
         self.pairs.update({
             'system.ads': 'system-xi-cortexa-sfp.ads',

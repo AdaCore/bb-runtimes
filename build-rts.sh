@@ -255,81 +255,89 @@ lm3s_arch_files="arm/lm3s/lm3s-rom.ld
                  arm/lm3s/start-ram.S
                  arm/lm3s/setup_pll.adb"
 
-stm32_arch_files="arm/stm32f4/common-RAM.ld
-                  arm/stm32f4/common-ROM.ld
-                  arm/stm32f4/start-rom.S
-                  arm/stm32f4/start-ram.S
-                  arm/stm32f4/start-common.S
-                  arm/stm32f4/setup_pll.adb"
+stm32_arch_files="arm/stm32/common-RAM.ld
+                  arm/stm32/common-ROM.ld
+                  arm/stm32/start-rom.S
+                  arm/stm32/start-ram.S
+                  arm/stm32/start-common.S
+                  arm/stm32/setup_pll.adb"
 
 stm32f40_arch_files="$stm32_arch_files
-                     arm/stm32f4/stm32f40x/memory-map.ld
-                     arm/stm32f4/stm32f40x/s-bbmcpa.ads
-                     arm/stm32f4/stm32f40x/s-bbmcpa.adb
-                     arm/stm32f4/stm32f40x/s-bbbopa.ads
-                     arm/stm32f4/stm32f40x/svd/i-stm32.ads
-                     arm/stm32f4/stm32f40x/svd/i-stm32-flash.ads
-                     arm/stm32f4/stm32f40x/svd/i-stm32-gpio.ads
-                     arm/stm32f4/stm32f40x/svd/i-stm32-pwr.ads
-                     arm/stm32f4/stm32f40x/svd/i-stm32-rcc.ads
-                     arm/stm32f4/stm32f40x/svd/i-stm32-syscfg.ads
-                     arm/stm32f4/stm32f40x/svd/i-stm32-usart.ads"
-stm32f40_intnam="arm/stm32f4/stm32f40x/svd/a-intnam.ads"
-stm32f40_raven_files="arm/stm32f4/stm32f40x/svd/handler.S"
+                     arm/stm32/stm32f40x/memory-map.ld
+                     arm/stm32/stm32f40x/s-bbmcpa.ads
+                     arm/stm32/stm32f40x/s-bbmcpa.adb
+                     arm/stm32/stm32f40x/s-bbbopa.ads
+                     arm/stm32/stm32f40x/svd/i-stm32.ads
+                     arm/stm32/stm32f40x/svd/i-stm32-flash.ads
+                     arm/stm32/stm32f40x/svd/i-stm32-gpio.ads
+                     arm/stm32/stm32f40x/svd/i-stm32-pwr.ads
+                     arm/stm32/stm32f40x/svd/i-stm32-rcc.ads
+                     arm/stm32/stm32f40x/svd/i-stm32-syscfg.ads
+                     arm/stm32/stm32f40x/svd/i-stm32-usart.ads"
+stm32f40_intnam="arm/stm32/stm32f40x/svd/a-intnam.ads"
+stm32f40_raven_files="arm/stm32/stm32f40x/svd/handler.S"
 
 stm32f429_arch_files="$stm32_arch_files
-                      arm/stm32f4/stm32f429x/memory-map.ld
-                      arm/stm32f4/stm32f429x/s-bbmcpa.ads
-                      arm/stm32f4/stm32f429x/s-bbmcpa.adb
-                      arm/stm32f4/stm32f429x/s-bbbopa.ads
-                      arm/stm32f4/stm32f429x/svd/i-stm32.ads
-                      arm/stm32f4/stm32f429x/svd/i-stm32-flash.ads
-                      arm/stm32f4/stm32f429x/svd/i-stm32-gpio.ads
-                      arm/stm32f4/stm32f429x/svd/i-stm32-pwr.ads
-                      arm/stm32f4/stm32f429x/svd/i-stm32-rcc.ads
-                      arm/stm32f4/stm32f429x/svd/i-stm32-syscfg.ads
-                      arm/stm32f4/stm32f429x/svd/i-stm32-usart.ads"
-stm32f429_intnam="arm/stm32f4/stm32f429x/svd/a-intnam.ads"
-stm32f429_raven_files="arm/stm32f4/stm32f429x/svd/handler.S"
+                      arm/stm32/stm32f429x/memory-map.ld
+                      arm/stm32/stm32f429x/s-bbmcpa.ads
+                      arm/stm32/stm32f429x/s-bbmcpa.adb
+                      arm/stm32/stm32f429x/s-bbbopa.ads
+                      arm/stm32/stm32f429x/svd/i-stm32.ads
+                      arm/stm32/stm32f429x/svd/i-stm32-flash.ads
+                      arm/stm32/stm32f429x/svd/i-stm32-gpio.ads
+                      arm/stm32/stm32f429x/svd/i-stm32-pwr.ads
+                      arm/stm32/stm32f429x/svd/i-stm32-rcc.ads
+                      arm/stm32/stm32f429x/svd/i-stm32-syscfg.ads
+                      arm/stm32/stm32f429x/svd/i-stm32-usart.ads"
+stm32f429_intnam="arm/stm32/stm32f429x/svd/a-intnam.ads"
+stm32f429_raven_files="arm/stm32/stm32f429x/svd/handler.S"
 
 stm32f469_arch_files="$stm32_arch_files
-                      arm/stm32f4/stm32f469x/memory-map.ld
-                      arm/stm32f4/stm32f469x/s-bbmcpa.ads
-                      arm/stm32f4/stm32f469x/s-bbmcpa.adb
-                      arm/stm32f4/stm32f469x/s-bbbopa.ads
-                      arm/stm32f4/stm32f469x/svd/i-stm32.ads
-                      arm/stm32f4/stm32f469x/svd/i-stm32-flash.ads
-                      arm/stm32f4/stm32f469x/svd/i-stm32-gpio.ads
-                      arm/stm32f4/stm32f469x/svd/i-stm32-pwr.ads
-                      arm/stm32f4/stm32f469x/svd/i-stm32-rcc.ads
-                      arm/stm32f4/stm32f469x/svd/i-stm32-syscfg.ads
-                      arm/stm32f4/stm32f469x/svd/i-stm32-usart.ads"
-stm32f469_intnam="arm/stm32f4/stm32f469x/svd/a-intnam.ads"
-stm32f469_raven_files="arm/stm32f4/stm32f469x/svd/handler.S"
+                      arm/stm32/stm32f469x/memory-map.ld
+                      arm/stm32/stm32f469x/s-bbmcpa.ads
+                      arm/stm32/stm32f469x/s-bbmcpa.adb
+                      arm/stm32/stm32f469x/s-bbbopa.ads
+                      arm/stm32/stm32f469x/svd/i-stm32.ads
+                      arm/stm32/stm32f469x/svd/i-stm32-flash.ads
+                      arm/stm32/stm32f469x/svd/i-stm32-gpio.ads
+                      arm/stm32/stm32f469x/svd/i-stm32-pwr.ads
+                      arm/stm32/stm32f469x/svd/i-stm32-rcc.ads
+                      arm/stm32/stm32f469x/svd/i-stm32-syscfg.ads
+                      arm/stm32/stm32f469x/svd/i-stm32-usart.ads"
+stm32f469_intnam="arm/stm32/stm32f469x/svd/a-intnam.ads"
+stm32f469_raven_files="arm/stm32/stm32f469x/svd/handler.S"
 
 stm32f7_arch_files="$stm32_arch_files
-                    arm/stm32f4/stm32f7x/memory-map.ld
-                    arm/stm32f4/stm32f7x/s-bbmcpa.ads
-                    arm/stm32f4/stm32f7x/s-bbmcpa.adb
-                    arm/stm32f4/stm32f7x/s-bbbopa.ads
-                    arm/stm32f4/stm32f7x/svd/i-stm32.ads
-                    arm/stm32f4/stm32f7x/svd/i-stm32-flash.ads
-                    arm/stm32f4/stm32f7x/svd/i-stm32-gpio.ads
-                    arm/stm32f4/stm32f7x/svd/i-stm32-pwr.ads
-                    arm/stm32f4/stm32f7x/svd/i-stm32-rcc.ads
-                    arm/stm32f4/stm32f7x/svd/i-stm32-syscfg.ads
-                    arm/stm32f4/stm32f7x/svd/i-stm32-usart.ads"
-stm32f7_intnam="arm/stm32f4/stm32f7x/svd/a-intnam.ads"
-stm32f7_raven_files="arm/stm32f4/stm32f7x/svd/handler.S"
+                    arm/stm32/stm32f7x/memory-map.ld
+                    arm/stm32/stm32f7x/s-bbmcpa.ads
+                    arm/stm32/stm32f7x/s-bbmcpa.adb
+                    arm/stm32/stm32f7x/s-bbbopa.ads
+                    arm/stm32/stm32f7x/svd/i-stm32.ads
+                    arm/stm32/stm32f7x/svd/i-stm32-flash.ads
+                    arm/stm32/stm32f7x/svd/i-stm32-gpio.ads
+                    arm/stm32/stm32f7x/svd/i-stm32-pwr.ads
+                    arm/stm32/stm32f7x/svd/i-stm32-rcc.ads
+                    arm/stm32/stm32f7x/svd/i-stm32-syscfg.ads
+                    arm/stm32/stm32f7x/svd/i-stm32-usart.ads"
+stm32f7_intnam="arm/stm32/stm32f7x/svd/a-intnam.ads"
+stm32f7_raven_files="arm/stm32/stm32f7x/svd/handler.S"
 
-sam4s_arch_files="arm/sam4s/sam4s-rom.ld
-                  arm/sam4s/sam4s-samba.ld
-                  arm/sam4s/start-rom.S
-                  arm/sam4s/start-ram.S
-                  arm/sam4s/setup_pll.ads
-                  arm/sam4s/setup_pll.adb"
+sam4s_arch_files="arm/sam/common-ROM.ld
+                  arm/sam/common-SAMBA.ld
+                  arm/sam/start-rom.S
+                  arm/sam/start-ram.S
+                  arm/sam/setup_pll.ads
+                  arm/sam/setup_pll.adb
+                  arm/sam/sam4s/memory-map.ld
+                  arm/sam/sam4s/sam_board.ads
+                  arm/sam/sam4s/svd/i-sam.ads
+                  arm/sam/sam4s/svd/i-sam-efc.ads
+                  arm/sam/sam4s/svd/i-sam-pmc.ads
+                  arm/sam/sam4s/svd/i-sam-sysc.ads"
+sam4s_intnam="arm/sam/sam4s/svd/a-intnam.ads"
+sam4s_raven_files="arm/sam/sam4s/svd/handler.S"
 
-cortexm4_raven_files="arm/stm32f4/stm32f469x/svd/handler.S"
+cortexm4_raven_files="arm/stm32/stm32f469x/svd/handler.S"
 
 # Create directories.
 mkdir $objdir
@@ -1170,7 +1178,7 @@ case $config in
                                     s-textio.adb:s-textio-stm32f7.adb"
                 ;;
         esac
-        copy $PWD/arm/stm32f4/runtime.xml $objdir/runtime.xml
+        copy $PWD/arm/stm32/runtime.xml $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         ;;
     ravenscar-sfp/stm32f*)
@@ -1218,7 +1226,7 @@ case $config in
                 ;;
         esac
 	sed -e "$SED_REMOVE_BIND" \
-	    < arm/stm32f4/runtime.xml > $objdir/runtime.xml
+	    < arm/stm32/runtime.xml > $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
         ;;
@@ -1272,7 +1280,7 @@ case $config in
                                     s-textio.adb:s-textio-stm32f7.adb"
                 ;;
         esac
-        copy $PWD/arm/stm32f4/runtime.xml $objdir/runtime.xml
+        copy $PWD/arm/stm32/runtime.xml $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
 	zcx_copy
         ;;
