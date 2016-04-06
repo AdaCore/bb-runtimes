@@ -82,12 +82,13 @@ class BaseRuntime(object):
     The config_files dictionnary represent configuration (.gpr and .xml)
     files"""
     def __init__(self):
+        self.bsp = []
         self.arch = []
         self.common = []
-        self.gnarl_common = []
+        self.gnarl_bsp = []
         self.gnarl_arch = []
+        self.gnarl_common = []
         self.math = []
-        self.svd = []
         self.pairs = {}
         self.config_files = {}
 
@@ -106,9 +107,10 @@ class BaseZFP(BaseRuntime):
         super(BaseZFP, self).__init__()
         self.arch += [
             'system.ads',
-            # Implementation of s-textio is arch-specific
-            's-textio.adb',
             's-macres.adb']
+        self.bsp += [
+            # Implementation of s-textio is board-specific
+            's-textio.adb']
 
         self.common += [
             'ada.ads',
@@ -277,7 +279,7 @@ class BaseRavenscarSFP(BaseZFP):
 
         self.common += [
             's-parame.adb', 's-parame.ads']
-        self.gnarl_arch += [
+        self.gnarl_bsp += [
             'a-intnam.ads']
         self.gnarl_common += [
             'a-interr.adb', 'a-interr.ads',
@@ -737,12 +739,13 @@ class Target(TargetConfiguration):
     def __init__(self, mem_routines, libc_files):
         self._mem_routines = mem_routines
         self._libc_files = libc_files
+        self.bsp = None
         self.arch = None
         self.common = None
-        self.gnarl_common = None
+        self.gnarl_bsp = None
         self.gnarl_arch = None
+        self.gnarl_common = None
         self.math = None
-        self.svd = None
         self.pairs = None
         self.config_files = None
         self.installed_files = []
@@ -757,12 +760,13 @@ class Target(TargetConfiguration):
         self.amend_ravenscar_sfp()
 
     def __init_from_base(self, base_runtime):
+        self.bsp = copy.deepcopy(base_runtime.bsp)
         self.arch = copy.deepcopy(base_runtime.arch)
         self.common = copy.deepcopy(base_runtime.common)
-        self.gnarl_common = copy.deepcopy(base_runtime.gnarl_common)
+        self.gnarl_bsp = copy.deepcopy(base_runtime.gnarl_bsp)
         self.gnarl_arch = copy.deepcopy(base_runtime.gnarl_arch)
+        self.gnarl_common = copy.deepcopy(base_runtime.gnarl_common)
         self.math = copy.deepcopy(base_runtime.math)
-        self.svd = copy.deepcopy(base_runtime.svd)
         self.pairs = copy.deepcopy(base_runtime.pairs)
         self.config_files = copy.deepcopy(base_runtime.config_files)
         self._merge_libgnarl = base_runtime.merge_libgnarl
@@ -841,8 +845,8 @@ class Target(TargetConfiguration):
         # Build target directories
         destination = fullpath(destination)
         os.mkdir(destination)
-        all_src_dirs = ['arch', 'common', 'svd', 'math',
-                        'gnarl_common', 'gnarl_arch']
+        all_src_dirs = ['bsp', 'arch', 'common', 'math',
+                        'gnarl_bsp', 'gnarl_common', 'gnarl_arch']
         self.installed_files = []
         src_dirs = []
         gnarl_dirs = []
@@ -1050,7 +1054,7 @@ class Stm32(ArmBBTarget):
         if 's-bbpara.ads' not in self.gnarl_arch:
             self.gnarl_arch.append('s-bbpara.ads')
 
-        self.arch += [
+        self.bsp += [
             's-stm32.ads',
             's-stm32.adb',
             'arm/stm32/common-RAM.ld',
@@ -1062,8 +1066,7 @@ class Stm32(ArmBBTarget):
             'arm/stm32/%s/memory-map.ld' % self.mcu,
             'arm/stm32/%s/s-bbmcpa.ads' % self.mcu,
             'arm/stm32/%s/s-bbmcpa.adb' % self.mcu,
-            'arm/stm32/%s/s-bbbopa.ads' % self.mcu]
-        self.svd += [
+            'arm/stm32/%s/s-bbbopa.ads' % self.mcu,
             'arm/stm32/%s/svd/i-stm32.ads' % self.mcu,
             'arm/stm32/%s/svd/i-stm32-flash.ads' % self.mcu,
             'arm/stm32/%s/svd/i-stm32-gpio.ads' % self.mcu,
@@ -1099,7 +1102,7 @@ class Stm32(ArmBBTarget):
         super(Stm32, self).amend_ravenscar_sfp()
         self.gnarl_common.remove('s-bb.ads')
 
-        self.arch += [
+        self.bsp += [
             'arm/stm32/%s/svd/handler.S' % self.mcu]
         self.pairs.update({
             'a-intnam.ads': 'arm/stm32/%s/svd/a-intnam.ads' % self.mcu})
@@ -1118,7 +1121,7 @@ class Sam(ArmBBTarget):
 
     def amend_zfp(self):
         super(Sam, self).amend_zfp()
-        self.arch += [
+        self.bsp += [
             's-sam4s.ads',
             'arm/sam/common-SAMBA.ld',
             'arm/sam/common-ROM.ld',
@@ -1127,8 +1130,7 @@ class Sam(ArmBBTarget):
             'arm/sam/setup_pll.ads',
             'arm/sam/%s/board_config.ads' % self.board,
             'arm/sam/%s/setup_pll.adb' % self.board,
-            'arm/sam/%s/memory-map.ld' % self.board]
-        self.svd += [
+            'arm/sam/%s/memory-map.ld' % self.board,
             'arm/sam/%s/svd/i-sam.ads' % self.board,
             'arm/sam/%s/svd/i-sam-efc.ads' % self.board,
             'arm/sam/%s/svd/i-sam-pmc.ads' % self.board,
@@ -1146,7 +1148,7 @@ class Sam(ArmBBTarget):
 
     def amend_ravenscar_sfp(self):
         super(Sam, self).amend_ravenscar_sfp()
-        self.arch += [
+        self.bsp += [
             'arm/sam/%s/svd/handler.S' % self.board,
             'arm/sam/%s/s-bbbopa.ads' % self.board,
             'arm/sam/%s/s-bbmcpa.ads' % self.board]
@@ -1180,11 +1182,11 @@ class Zynq(Target):
 
     def amend_zfp(self):
         super(Zynq, self).amend_zfp()
+        self.bsp += [
+            'arm/zynq/ram.ld']
         self.pairs.update(
             {'system.ads': 'system-xi-arm.ads',
              's-textio.adb': 's-textio-zynq.adb'})
-        self.arch += [
-            'arm/zynq/ram.ld']
         self.config_files.update(
             {'runtime.xml': readfile('arm/zynq/runtime.xml')})
 
