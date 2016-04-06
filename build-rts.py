@@ -1105,6 +1105,57 @@ class Stm32(ArmBBTarget):
             'a-intnam.ads': 'arm/stm32/%s/svd/a-intnam.ads' % self.mcu})
 
 
+class Sam(ArmBBTarget):
+    def __init__(self, board):
+        super(Sam, self).__init__()
+
+        assert board in ('sam4s', 'samg55'), 'Unknown SAM board: %s' % board
+        self.board = board
+
+    @property
+    def has_single_precision_fpu(self):
+        return self.board != 'sam4s'
+
+    def amend_zfp(self):
+        super(Sam, self).amend_zfp()
+        self.arch += [
+            's-sam4s.ads',
+            'arm/sam/common-SAMBA.ld',
+            'arm/sam/common-ROM.ld',
+            'arm/sam/start-rom.S',
+            'arm/sam/start-ram.S',
+            'arm/sam/setup_pll.ads',
+            'arm/sam/%s/board_config.ads' % self.board,
+            'arm/sam/%s/setup_pll.adb' % self.board,
+            'arm/sam/%s/memory-map.ld' % self.board]
+        self.svd += [
+            'arm/sam/%s/svd/i-sam.ads' % self.board,
+            'arm/sam/%s/svd/i-sam-efc.ads' % self.board,
+            'arm/sam/%s/svd/i-sam-pmc.ads' % self.board,
+            'arm/sam/%s/svd/i-sam-sysc.ads' % self.board]
+
+        self.pairs.update({
+            's-textio.adb': 's-textio-sam4s.adb'})
+
+        if self.has_fpu:
+            fp = 'hardfloat'
+        else:
+            fp = 'softfloat'
+        self.config_files.update(
+            {'runtime.xml': readfile('arm/sam/%s/runtime.xml' % fp)})
+
+    def amend_ravenscar_sfp(self):
+        super(Sam, self).amend_ravenscar_sfp()
+        self.arch += [
+            'arm/sam/%s/svd/handler.S' % self.board,
+            'arm/sam/%s/s-bbbopa.ads' % self.board,
+            'arm/sam/%s/s-bbmcpa.ads' % self.board]
+
+        self.pairs.update({
+            'a-intnam.ads': 'arm/sam/%s/svd/a-intnam.ads' % self.board,
+            's-bbpara.ads': 's-bbpara-sam4s.ads'})
+
+
 class Zynq(Target):
     @property
     def target_arch(self):
@@ -1153,8 +1204,10 @@ def build_configs(target, runtime):
         t = ArmPikeOS()
     elif target == 'zynq':
         t = Zynq()
-    elif 'stm32f' in target:
+    elif target.startswith('stm32'):
         t = Stm32(target)
+    elif target.startswith('sam'):
+        t = Sam(target)
     else:
         print 'Error: undefined target %s' % target
         sys.exit(2)

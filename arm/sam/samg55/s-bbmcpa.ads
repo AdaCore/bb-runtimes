@@ -1,8 +1,12 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                             GNAT EXAMPLE                                 --
+--                  GNAT RUN-TIME LIBRARY (GNARL) COMPONENTS                --
 --                                                                          --
---                    Copyright (C) 2013-2014, AdaCore                      --
+--              S Y S T E M . B B . M C U _ P A R A M E T E R S             --
+--                                                                          --
+--                                  S p e c                                 --
+--                                                                          --
+--                      Copyright (C) 2016, AdaCore                         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -23,11 +27,17 @@
 -- GNAT was originally developed  by the GNAT team at  New York University. --
 -- Extensive contributions were provided by Ada Core Technologies Inc.      --
 --                                                                          --
+-- The port of GNARL to bare board targets was initially developed by the   --
+-- Real-Time Systems Group at the Technical University of Madrid.           --
+--                                                                          --
 ------------------------------------------------------------------------------
 
-procedure Setup_Pll;
---  Initialize the PLL
+--  This package defines MCU parameters for the SAMG55 family
 
-pragma No_Elaboration_Code_All (Setup_Pll);
---  This code is executed before elaboration, so better not need elaboration
---  code.
+package System.BB.MCU_Parameters is
+   pragma Preelaborate;
+
+   Number_Of_Interrupts : constant := 92;
+   Has_FPU : constant Boolean := True;
+
+end System.BB.MCU_Parameters;

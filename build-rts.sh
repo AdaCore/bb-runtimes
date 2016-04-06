@@ -1313,7 +1313,8 @@ case $config in
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         ;;
     "ravenscar-sfp/sam4s")
-        arch_files="$sam4s_arch_files $cortexm4_raven_files"
+        gnarl_arch_files="$sam4s_intnam"
+        arch_files="$sam4s_arch_files $sam4s_raven_files"
         extra_gnat_files="$extra_gnat_files
                           $textio_src
                           s-macres.adb s-macres.ads s-sam4s.ads"
@@ -1329,7 +1330,7 @@ case $config in
                             s-parame.ads:s-parame-xi-small.ads
                             $textio_pairs"
 	sed -e "$SED_REMOVE_BIND" \
-           < $PWD/arm/$config_arch/runtime.xml > $objdir/runtime.xml
+           < $PWD/arm/sam/runtime.xml > $objdir/runtime.xml
         copy $PWD/src/runtime_build.gpr $objdir/runtime_build.gpr
         copy $PWD/src/ravenscar_build.gpr $objdir/ravenscar_build.gpr
         ;;

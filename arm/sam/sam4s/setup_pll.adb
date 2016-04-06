@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GNAT EXAMPLE                                 --
 --                                                                          --
---                    Copyright (C) 2013-2014, AdaCore                      --
+--                    Copyright (C) 2013-2016, AdaCore                      --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -31,12 +31,18 @@ pragma Warnings (Off);
 with System.SAM4S; use System.SAM4S;
 pragma Warnings (On);
 
+with Interfaces.Bit_Types;  use Interfaces.Bit_Types;
+with Interfaces.SAM.EFC;    use Interfaces.SAM.EFC;
+with Interfaces.SAM.PMC;    use Interfaces.SAM.PMC;
+with Interfaces.SAM.SYSC;   use Interfaces.SAM.SYSC;
+
 procedure Setup_Pll is
+   CKGR_MOR : CKGR_MOR_Register;
 begin
    --  Main crystal is 12 Mhz and PLLA is set to x10. So main clock is 120 Mhz.
 
    --  5 wait states for the flash
-   EFC0.EEFC_FMR := 5 * EEFC_FMR.FWS;
+   EFC0_Periph.FMR.FWS := 5;
 
    --  28.2.13 Programming Sequence
 
@@ -52,16 +58,26 @@ begin
    --  to be raised if the associated inter- rupt to MOSCXTS has been
    --  enabled in the PMC_IER register.
 
-   PMC.CKGR_MOR := (PMC.CKGR_MOR and not CKGR_MOR.MOSCXTBY)
-     or CKGR_MOR.KEY or CKGR_MOR.MOSCXTEN or 62 * CKGR_MOR.MOSCXTST;
+   CKGR_MOR := PMC_Periph.CKGR_MOR;
+   --  The Key field needs to be set to 0x37 to enable write to the
+   --  CKGR_MOR register
+   CKGR_MOR.KEY := Passwd;
+   CKGR_MOR.MOSCXTEN := True;
+   CKGR_MOR.MOSCXTST := 62;
+   PMC_Periph.CKGR_MOR := CKGR_MOR;
 
    --  Wait until the xtal stabilize
-   while (PMC.PMC_SR and PMC_SR.MOSCXTS) = 0 loop
+   while not PMC_Periph.PMC_SR.MOSCXTS loop
       null;
    end loop;
 
    --  Select the xtal (must already be true, but doesn't harm)
-   PMC.CKGR_MOR := PMC.CKGR_MOR or CKGR_MOR.KEY or CKGR_MOR.MOSCSEL;
+   CKGR_MOR := PMC_Periph.CKGR_MOR;
+   --  The Key field needs to be set to 0x37 to enable write to the
+   --  CKGR_MOR register
+   CKGR_MOR.KEY := Passwd;
+   CKGR_MOR.MOSCSEL := True;
+   PMC_Periph.CKGR_MOR := CKGR_MOR;
 
    --  2. Checking the Main Oscillator Frequency (Optional):
 
@@ -93,13 +109,18 @@ begin
    --  before the LOCK bit is set in PMC_SR, after CKGR_PLLA(B)R has
    --  been written.
 
-   --  First disable
-   PMC.CKGR_PLLAR := CKGR_PLLxR.ONE;
+   --  First disable: MULA set to 0, DIVA set to 0
+   PMC_Periph.CKGR_PLLAR :=
+     (ONE    => True,
+      MULA   => 0,
+      DIVA   => 0,
+      others => <>);
 
-   PMC.CKGR_PLLAR := CKGR_PLLxR.ONE
-     or 1 * CKGR_PLLxR.DIV
-     + (10 - 1) * CKGR_PLLxR.MUL
-     + 16#3f# * CKGR_PLLxR.PLLCOUNT;
+   PMC_Periph.CKGR_PLLAR :=
+     (ONE  => True,
+      DIVA => 1,
+      MULA => 10 - 1,
+      others => <>);
 
    --  Once the CKGR_PLL register has been written, the user must wait
    --  for the LOCK bit to be set in the PMC_SR. This can be done
@@ -113,7 +134,7 @@ begin
    --  constrained to wait for LOCK bit to be set before using the PLL
    --  output clock.
 
-   while (PMC.PMC_SR and PMC_SR.LOCKA) = 0 loop
+   while not PMC_Periph.PMC_SR.LOCKA loop
       null;
    end loop;
 
@@ -153,17 +174,15 @@ begin
    --    * Program the PRES field in PMC_MCKR.
    --    * Wait for the MCKRDY bit to be set in PMC_SR.
 
-   PMC.PMC_MCKR := (PMC.PMC_MCKR and not PMC_MCKR.PRES_Mask)
-     or PMC_MCKR.CLK_1;
+   PMC_Periph.PMC_MCKR.PRES := Clk_1;
 
-   while (PMC.PMC_SR and PMC_SR.MCKRDY) = 0 loop
+   while not PMC_Periph.PMC_SR.MCKRDY loop
       null;
    end loop;
 
-   PMC.PMC_MCKR := (PMC.PMC_MCKR and not PMC_MCKR.CSS_Mask)
-     or PMC_MCKR.PLLA_CLK;
+   PMC_Periph.PMC_MCKR.CSS := Plla_Clk;
 
-   while (PMC.PMC_SR and PMC_SR.MCKRDY) = 0 loop
+   while not PMC_Periph.PMC_SR.MCKRDY loop
       null;
    end loop;
 
@@ -243,5 +262,6 @@ begin
 
    --  Disable watchdog.  The register can be written once, so this file has
    --  to be modified to enable watchdog.
-   WDT.WDT_MR := WDT_MR.WDDIS;
+   WDT_Periph.MR.WDDIS := True;
+
 end Setup_Pll;

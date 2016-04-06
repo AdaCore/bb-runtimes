@@ -42,15 +42,11 @@
 SEARCH_DIR(.)
 __DYNAMIC  =  0;
 
+ENTRY(_start_ram);
+
 _DEFAULT_STACK_SIZE = 4*1024;
 
-ENTRY(_start_rom);
-
-MEMORY
-{
-  flash (rx)  : ORIGIN = 0x00400000, LENGTH = 1024K
-  sram (rwx)  : ORIGIN = 0x20000000, LENGTH = 112K
-}
+REGION_ALIAS("sram_samba", sram + 0x800)
 
 SECTIONS
 {
@@ -59,18 +55,15 @@ SECTIONS
     KEEP (*(.vectors))
     *(.text .text.* .gnu.linkonce.t*)
     *(.gnu.warning)
-  } > flash
+  } > sram_samba
 
   .rodata :
   {
-    *(.lit)
     *(.rodata .rodata.* .gnu.linkonce.r*)
     . = ALIGN(0x4);
-    __rom_end = .;
-  } > flash
+  } > sram_samba
 
-  __data_load = __rom_end;
-  .data : AT (__rom_end)
+  .data :
   {
     __data_start = .;
     *(.data .data.* .gnu.linkonce.d*)
@@ -82,8 +75,7 @@ SECTIONS
 
     . = ALIGN(0x4);
     __data_end = .;
-  } > sram
-  __data_words = (__data_end - __data_start) >> 2;
+  } > sram_samba
 
   .bss (NOLOAD): {
    . = ALIGN(0x8);
@@ -106,7 +98,7 @@ SECTIONS
    __stack_end = .;
 
    _end = .;
-  } > sram
+  } > sram_samba
 
   __bss_words = (__bss_end - __bss_start) >> 2;
 
