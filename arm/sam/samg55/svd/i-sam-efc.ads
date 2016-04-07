@@ -111,7 +111,9 @@ package Interfaces.SAM.EFC is
       --  Start read user signature
       Stus,
       --  Stop read user signature
-      Spus)
+      Spus,
+      --  Reset value for the field
+      Fcmd_Field_Reset)
      with Size => 8;
    for FCMD_Field use
      (Getd => 0,
@@ -134,7 +136,8 @@ package Interfaces.SAM.EFC is
       Wus => 18,
       Eus => 19,
       Stus => 20,
-      Spus => 21);
+      Spus => 21,
+      Fcmd_Field_Reset => 224);
 
    subtype FCR_FARG_Field is Interfaces.Bit_Types.Short;
 
@@ -149,15 +152,15 @@ package Interfaces.SAM.EFC is
       Passwd)
      with Size => 8;
    for FKEY_Field use
-     (Fkey_Field_Reset => 0,
+     (Fkey_Field_Reset => 5,
       Passwd => 90);
 
    --  EEFC Flash Command Register
    type EFC_FCR_Register is record
       --  Write-only. Flash Command
-      FCMD : FCMD_Field := Getd;
+      FCMD : FCMD_Field := Fcmd_Field_Reset;
       --  Write-only. Flash Command Argument
-      FARG : FCR_FARG_Field := 16#0#;
+      FARG : FCR_FARG_Field := 16#FFB3#;
       --  Write-only. Flash Writing Protection Key
       FKEY : FKEY_Field := Fkey_Field_Reset;
    end record

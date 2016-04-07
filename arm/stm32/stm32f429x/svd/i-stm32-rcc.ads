@@ -152,7 +152,7 @@ package Interfaces.STM32.RCC is
    subtype CFGR_PPRE_Element is Interfaces.Bit_Types.UInt3;
 
    --  CFGR_PPRE array
-   type CFGR_PPRE_Field_Array is array (0 .. 1) of CFGR_PPRE_Element
+   type CFGR_PPRE_Field_Array is array (1 .. 2) of CFGR_PPRE_Element
      with Component_Size => 3, Size => 6;
 
    --  Type definition for CFGR_PPRE

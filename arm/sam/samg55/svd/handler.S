@@ -36,22 +36,22 @@ __vectors:
 	.word __gnat_irq_trap        /* 20 WDT */
 	.word __gnat_irq_trap        /* 21 PMC */
 	.word __gnat_irq_trap        /* 22 EFC */
-	.word __gnat_irq_trap        /* 23 USART7 */
-	.word __gnat_irq_trap        /* 24 USART0 */
-	.word __gnat_irq_trap        /* 25 USART1 */
+	.word __gnat_irq_trap        /* 23 SPI7 */
+	.word __gnat_irq_trap        /* 24 SPI0 */
+	.word __gnat_irq_trap        /* 25 SPI1 */
 	.word __gnat_irq_trap        /* 26 IRQ 10. */
 	.word __gnat_irq_trap        /* 27 PIOA */
 	.word __gnat_irq_trap        /* 28 PIOB */
 	.word __gnat_irq_trap        /* 29 PDMIC0 */
-	.word __gnat_irq_trap        /* 30 USART2 */
+	.word __gnat_irq_trap        /* 30 SPI2 */
 	.word __gnat_irq_trap        /* 31 MEM2MEM */
 	.word __gnat_irq_trap        /* 32 I2SC0 */
 	.word __gnat_irq_trap        /* 33 I2SC1 */
 	.word __gnat_irq_trap        /* 34 PDMIC1 */
-	.word __gnat_irq_trap        /* 35 USART3 */
-	.word __gnat_irq_trap        /* 36 USART4 */
-	.word __gnat_irq_trap        /* 37 USART5 */
-	.word __gnat_irq_trap        /* 38 USART6 */
+	.word __gnat_irq_trap        /* 35 SPI3 */
+	.word __gnat_irq_trap        /* 36 SPI4 */
+	.word __gnat_irq_trap        /* 37 SPI5 */
+	.word __gnat_irq_trap        /* 38 SPI6 */
 	.word __gnat_irq_trap        /* 39 TC0 */
 	.word __gnat_irq_trap        /* 40 TC1 */
 	.word __gnat_irq_trap        /* 41 TC2 */

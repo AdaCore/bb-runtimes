@@ -30,7 +30,7 @@ package Interfaces.SAM.SYSC is
       Passwd)
      with Size => 8;
    for KEY_Field use
-     (Key_Field_Reset => 0,
+     (Key_Field_Reset => 5,
       Passwd => 165);
 
    --  Control Register
@@ -44,7 +44,7 @@ package Interfaces.SAM.SYSC is
       --  Write-only. External Reset
       EXTRST        : Boolean := False;
       --  unspecified
-      Reserved_4_23 : Interfaces.Bit_Types.UInt20 := 16#0#;
+      Reserved_4_23 : Interfaces.Bit_Types.UInt20 := 16#FFB3E#;
       --  Write-only. System Reset Key
       KEY           : KEY_Field := Key_Field_Reset;
    end record
@@ -124,6 +124,19 @@ package Interfaces.SAM.SYSC is
 
    subtype MR_ERSTL_Field is Interfaces.Bit_Types.UInt4;
 
+   --  Write Access Password
+   type KEY_Field_1 is
+     (
+      --  Reset value for the field
+      Key_Field_Reset,
+      --  Writing any other value in this field aborts the write
+      --  operation.Always reads as 0.
+      Passwd)
+     with Size => 8;
+   for KEY_Field_1 use
+     (Key_Field_Reset => 0,
+      Passwd => 165);
+
    --  Mode Register
    type RSTC_MR_Register is record
       --  User Reset Enable
@@ -141,7 +154,7 @@ package Interfaces.SAM.SYSC is
       --  unspecified
       Reserved_12_23 : Interfaces.Bit_Types.UInt12 := 16#0#;
       --  Write Access Password
-      KEY            : KEY_Field := Key_Field_Reset;
+      KEY            : KEY_Field_1 := Key_Field_Reset;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -196,7 +209,7 @@ package Interfaces.SAM.SYSC is
       --  Write-only. Crystal Oscillator Select
       XTALSEL       : XTALSEL_Field := No_Effect;
       --  unspecified
-      Reserved_4_23 : Interfaces.Bit_Types.UInt20 := 16#0#;
+      Reserved_4_23 : Interfaces.Bit_Types.UInt20 := 16#FFB3E#;
       --  Write-only. Password
       KEY           : KEY_Field := Key_Field_Reset;
    end record
@@ -381,7 +394,7 @@ package Interfaces.SAM.SYSC is
       --  This bit must always be set to 1.
       ONE            : Boolean := True;
       --  Password Key
-      KEY            : KEY_Field := Key_Field_Reset;
+      KEY            : KEY_Field_1 := Key_Field_Reset;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -959,7 +972,7 @@ package Interfaces.SAM.SYSC is
       On => 1);
 
    --  Password Key
-   type KEY_Field_1 is
+   type KEY_Field_2 is
      (
       --  Reset value for the field
       Key_Field_Reset,
@@ -967,7 +980,7 @@ package Interfaces.SAM.SYSC is
       --  operation.Always reads as 0.
       Passwd)
      with Size => 8;
-   for KEY_Field_1 use
+   for KEY_Field_2 use
      (Key_Field_Reset => 0,
       Passwd => 90);
 
@@ -1004,7 +1017,7 @@ package Interfaces.SAM.SYSC is
       --  Dual-port RAM Power Control
       DPRAMON        : DPRAMON_Field := Off;
       --  Password Key
-      KEY            : KEY_Field_1 := Key_Field_Reset;
+      KEY            : KEY_Field_2 := Key_Field_Reset;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1085,7 +1098,7 @@ package Interfaces.SAM.SYSC is
    ---------------
 
    --  SR_RTTINC array
-   type SR_RTTINC_Field_Array is array (0 .. 1) of Boolean
+   type SR_RTTINC_Field_Array is array (1 .. 2) of Boolean
      with Component_Size => 1, Size => 2;
 
    --  Type definition for SR_RTTINC
@@ -1222,7 +1235,7 @@ package Interfaces.SAM.SYSC is
       --  Write-only. Watchdog Restart
       WDRSTT        : Boolean := False;
       --  unspecified
-      Reserved_1_23 : Interfaces.Bit_Types.UInt23 := 16#0#;
+      Reserved_1_23 : Interfaces.Bit_Types.UInt23 := 16#7FD9F0#;
       --  Write-only. Password.
       KEY           : KEY_Field := Key_Field_Reset;
    end record
@@ -1745,9 +1758,9 @@ package Interfaces.SAM.SYSC is
       --  Write-only. Calendar Clear
       CALCLR        : Boolean := False;
       --  Write-only. Time and/or Date Free Running Error Clear
-      TDERRCLR      : Boolean := False;
+      TDERRCLR      : Boolean := True;
       --  unspecified
-      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#0#;
+      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#17FECF#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1779,9 +1792,9 @@ package Interfaces.SAM.SYSC is
       --  Write-only. Calendar Event Interrupt Enable
       CALEN         : Boolean := False;
       --  Write-only. Time and/or Date Error Interrupt Enable
-      TDERREN       : Boolean := False;
+      TDERREN       : Boolean := True;
       --  unspecified
-      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#0#;
+      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#17FECF#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1813,9 +1826,9 @@ package Interfaces.SAM.SYSC is
       --  Write-only. Calendar Event Interrupt Disable
       CALDIS        : Boolean := False;
       --  Write-only. Time and/or Date Error Interrupt Disable
-      TDERRDIS      : Boolean := False;
+      TDERRDIS      : Boolean := True;
       --  unspecified
-      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#0#;
+      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#17FECF#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1948,7 +1961,7 @@ package Interfaces.SAM.SYSC is
    --  General Purpose Backup Register
 
    --  General Purpose Backup Register
-   type GPBR_GPBRs_Registers is array (0 .. 7) of Interfaces.Bit_Types.Word;
+   type GPBR_GPBR_Registers is array (0 .. 7) of Interfaces.Bit_Types.Word;
 
    -----------------
    -- Peripherals --
@@ -2113,12 +2126,12 @@ package Interfaces.SAM.SYSC is
    --  General Purpose Backup Registers
    type GPBR_Peripheral is record
       --  General Purpose Backup Register
-      GPBRs : GPBR_GPBRs_Registers;
+      GPBR : GPBR_GPBR_Registers;
    end record
      with Volatile;
 
    for GPBR_Peripheral use record
-      GPBRs at 0 range 0 .. 255;
+      GPBR at 0 range 0 .. 255;
    end record;
 
    --  General Purpose Backup Registers

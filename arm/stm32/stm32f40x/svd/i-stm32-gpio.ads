@@ -439,7 +439,7 @@ package Interfaces.STM32.GPIO is
    subtype AFRH_Element is Interfaces.Bit_Types.UInt4;
 
    --  AFRH array
-   type AFRH_Field_Array is array (0 .. 7) of AFRH_Element
+   type AFRH_Field_Array is array (8 .. 15) of AFRH_Element
      with Component_Size => 4, Size => 32;
 
    --  GPIO alternate function high register

@@ -170,7 +170,7 @@ package Interfaces.STM32.PWR is
    subtype CR2_CWUPF_Element is Interfaces.Bit_Types.Bit;
 
    --  CR2_CWUPF array
-   type CR2_CWUPF_Field_Array is array (0 .. 5) of CR2_CWUPF_Element
+   type CR2_CWUPF_Field_Array is array (1 .. 6) of CR2_CWUPF_Element
      with Component_Size => 1, Size => 6;
 
    --  Type definition for CR2_CWUPF
@@ -201,7 +201,7 @@ package Interfaces.STM32.PWR is
    subtype CR2_WUPP_Element is Interfaces.Bit_Types.Bit;
 
    --  CR2_WUPP array
-   type CR2_WUPP_Field_Array is array (0 .. 5) of CR2_WUPP_Element
+   type CR2_WUPP_Field_Array is array (1 .. 6) of CR2_WUPP_Element
      with Component_Size => 1, Size => 6;
 
    --  Type definition for CR2_WUPP
@@ -257,7 +257,7 @@ package Interfaces.STM32.PWR is
    subtype CSR2_WUPF_Element is Interfaces.Bit_Types.Bit;
 
    --  CSR2_WUPF array
-   type CSR2_WUPF_Field_Array is array (0 .. 5) of CSR2_WUPF_Element
+   type CSR2_WUPF_Field_Array is array (1 .. 6) of CSR2_WUPF_Element
      with Component_Size => 1, Size => 6;
 
    --  Type definition for CSR2_WUPF
@@ -288,7 +288,7 @@ package Interfaces.STM32.PWR is
    subtype CSR2_EWUP_Element is Interfaces.Bit_Types.Bit;
 
    --  CSR2_EWUP array
-   type CSR2_EWUP_Field_Array is array (0 .. 5) of CSR2_EWUP_Element
+   type CSR2_EWUP_Field_Array is array (1 .. 6) of CSR2_EWUP_Element
      with Component_Size => 1, Size => 6;
 
    --  Type definition for CSR2_EWUP

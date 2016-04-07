@@ -1646,7 +1646,7 @@ package Interfaces.SAM.SYSC is
    --  General Purpose Backup Register
 
    --  General Purpose Backup Register
-   type GPBR_GPBRs_Registers is array (0 .. 7) of Interfaces.Bit_Types.Word;
+   type GPBR_GPBR_Registers is array (0 .. 7) of Interfaces.Bit_Types.Word;
 
    -----------------
    -- Peripherals --
@@ -1799,12 +1799,12 @@ package Interfaces.SAM.SYSC is
    --  General Purpose Backup Register
    type GPBR_Peripheral is record
       --  General Purpose Backup Register
-      GPBRs : GPBR_GPBRs_Registers;
+      GPBR : GPBR_GPBR_Registers;
    end record
      with Volatile;
 
    for GPBR_Peripheral use record
-      GPBRs at 0 range 0 .. 255;
+      GPBR at 0 range 0 .. 255;
    end record;
 
    --  General Purpose Backup Register

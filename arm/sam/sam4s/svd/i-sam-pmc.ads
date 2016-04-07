@@ -189,7 +189,7 @@ package Interfaces.SAM.PMC is
    -------------------
 
    --  PMC_PCER0_PID array
-   type PMC_PCER0_PID_Field_Array is array (0 .. 29) of Boolean
+   type PMC_PCER0_PID_Field_Array is array (2 .. 31) of Boolean
      with Component_Size => 1, Size => 30;
 
    --  Type definition for PMC_PCER0_PID
@@ -236,7 +236,7 @@ package Interfaces.SAM.PMC is
    -------------------
 
    --  PMC_PCDR0_PID array
-   type PMC_PCDR0_PID_Field_Array is array (0 .. 29) of Boolean
+   type PMC_PCDR0_PID_Field_Array is array (2 .. 31) of Boolean
      with Component_Size => 1, Size => 30;
 
    --  Type definition for PMC_PCDR0_PID
@@ -283,7 +283,7 @@ package Interfaces.SAM.PMC is
    -------------------
 
    --  PMC_PCSR0_PID array
-   type PMC_PCSR0_PID_Field_Array is array (0 .. 29) of Boolean
+   type PMC_PCSR0_PID_Field_Array is array (2 .. 31) of Boolean
      with Component_Size => 1, Size => 30;
 
    --  Type definition for PMC_PCSR0_PID
@@ -606,9 +606,9 @@ package Interfaces.SAM.PMC is
       Reserved_12_31 at 0 range 12 .. 31;
    end record;
 
-   -----------------------
-   -- PMC_PCKs_Register --
-   -----------------------
+   ----------------------
+   -- PMC_PCK_Register --
+   ----------------------
 
    --  Master Clock Source Selection
    type CSS_Field_1 is
@@ -631,23 +631,23 @@ package Interfaces.SAM.PMC is
       Pllb_Clk => 3,
       Mck => 4);
 
-   subtype PMC_PCKs_PRES_Field is Interfaces.Bit_Types.UInt3;
+   subtype PMC_PCK_PRES_Field is Interfaces.Bit_Types.UInt3;
 
    --  Programmable Clock 0 Register
-   type PMC_PCKs_Register is record
+   type PMC_PCK_Register is record
       --  Master Clock Source Selection
       CSS           : CSS_Field_1 := Slow_Clk;
       --  unspecified
       Reserved_3_3  : Interfaces.Bit_Types.Bit := 16#0#;
       --  Programmable Clock Prescaler
-      PRES          : PMC_PCKs_PRES_Field := 16#0#;
+      PRES          : PMC_PCK_PRES_Field := 16#0#;
       --  unspecified
       Reserved_7_31 : Interfaces.Bit_Types.UInt25 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
 
-   for PMC_PCKs_Register use record
+   for PMC_PCK_Register use record
       CSS           at 0 range 0 .. 2;
       Reserved_3_3  at 0 range 3 .. 3;
       PRES          at 0 range 4 .. 6;
@@ -655,7 +655,7 @@ package Interfaces.SAM.PMC is
    end record;
 
    --  Programmable Clock 0 Register
-   type PMC_PCKs_Registers is array (0 .. 2) of PMC_PCKs_Register;
+   type PMC_PCK_Registers is array (0 .. 2) of PMC_PCK_Register;
 
    ----------------------
    -- PMC_IER_Register --
@@ -1158,7 +1158,7 @@ package Interfaces.SAM.PMC is
    -------------------
 
    --  PMC_PCER1_PID array
-   type PMC_PCER1_PID_Field_Array is array (0 .. 2) of Boolean
+   type PMC_PCER1_PID_Field_Array is array (32 .. 34) of Boolean
      with Component_Size => 1, Size => 3;
 
    --  Type definition for PMC_PCER1_PID
@@ -1206,7 +1206,7 @@ package Interfaces.SAM.PMC is
    -------------------
 
    --  PMC_PCDR1_PID array
-   type PMC_PCDR1_PID_Field_Array is array (0 .. 2) of Boolean
+   type PMC_PCDR1_PID_Field_Array is array (32 .. 34) of Boolean
      with Component_Size => 1, Size => 3;
 
    --  Type definition for PMC_PCDR1_PID
@@ -1254,7 +1254,7 @@ package Interfaces.SAM.PMC is
    -------------------
 
    --  PMC_PCSR1_PID array
-   type PMC_PCSR1_PID_Field_Array is array (0 .. 2) of Boolean
+   type PMC_PCSR1_PID_Field_Array is array (32 .. 34) of Boolean
      with Component_Size => 1, Size => 3;
 
    --  Type definition for PMC_PCSR1_PID
@@ -1362,7 +1362,7 @@ package Interfaces.SAM.PMC is
       --  USB Clock Register
       PMC_USB    : PMC_USB_Register;
       --  Programmable Clock 0 Register
-      PMC_PCKs   : PMC_PCKs_Registers;
+      PMC_PCK    : PMC_PCK_Registers;
       --  Interrupt Enable Register
       PMC_IER    : PMC_IER_Register;
       --  Interrupt Disable Register
@@ -1405,7 +1405,7 @@ package Interfaces.SAM.PMC is
       CKGR_PLLBR at 44 range 0 .. 31;
       PMC_MCKR   at 48 range 0 .. 31;
       PMC_USB    at 56 range 0 .. 31;
-      PMC_PCKs   at 64 range 0 .. 95;
+      PMC_PCK    at 64 range 0 .. 95;
       PMC_IER    at 96 range 0 .. 31;
       PMC_IDR    at 100 range 0 .. 31;
       PMC_SR     at 104 range 0 .. 31;
