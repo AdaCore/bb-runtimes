@@ -1183,10 +1183,12 @@ class Zynq(Target):
     def amend_zfp(self):
         super(Zynq, self).amend_zfp()
         self.bsp += [
-            'arm/zynq/ram.ld']
+            'arm/zynq/ram.ld',
+            'arm/zynq/start-ram.S']
         self.pairs.update(
             {'system.ads': 'system-xi-arm.ads',
-             's-textio.adb': 's-textio-zynq.adb'})
+             's-textio.adb': 's-textio-zynq.adb',
+             's-macres.adb': 's-macres-none.adb'})
         self.config_files.update(
             {'runtime.xml': readfile('arm/zynq/runtime.xml')})
 
