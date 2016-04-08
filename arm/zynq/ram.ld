@@ -47,7 +47,7 @@ _ABORT_STACK_SIZE =  256;
 _IRQ_STACK_SIZE   = 1024;
 _FIQ_STACK_SIZE   =  256;
 
-ENTRY(main);
+ENTRY(__start_ram);
 
 MEMORY
 {
