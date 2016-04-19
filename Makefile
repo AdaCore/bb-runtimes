@@ -337,10 +337,10 @@ zfp-sparc-solaris.src:
 
 # pikeos
 ravenscar-sfp-arm-pikeos.src:
-	@$(BUILD_RTS_OLD) ravenscar-sfp/arm-pikeos
+	@$(BUILD_RTS) ravenscar-sfp/arm-pikeos
 
 ravenscar-full-arm-pikeos.src:
-	@$(BUILD_RTS_OLD) ravenscar-full/arm-pikeos --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS) ravenscar-full/arm-pikeos
 
 ravenscar-full-ppc-pikeos.src:
 	@$(BUILD_RTS_OLD) ravenscar-full/ppc-pikeos --gcc-dir=$(GCC_SOURCES)
