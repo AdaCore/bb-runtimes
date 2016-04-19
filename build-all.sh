@@ -69,7 +69,7 @@ build_rts()
 		    $opts $config  || \
 	     return 1
 	 else
-             runcmd ./$build_script --objdir=$objdir --gcc-dir=$GCC_SRC_DIR \
+             runcmd ./build-rts.sh --objdir=$objdir --gcc-dir=$GCC_SRC_DIR \
 		 $src_opts ${flag_verbose:+-v} $opts $config $GNAT_SRC_DIR || \
 	     return 1
 	 fi
