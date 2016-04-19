@@ -13,6 +13,7 @@ import sys
 import os
 import shutil
 import string
+import re
 
 # Sources directories
 gnatdir = "../gnat"
@@ -45,7 +46,7 @@ def fullpath(filename):
 def readfile(filename):
     """Reads the content of filename, relative to the bb-runtimes directory"""
     fp = open(fullpath(filename), 'r')
-    res = fp.read()
+    res = fp.read().splitlines(False)
     fp.close()
     return res
 
@@ -178,7 +179,8 @@ class BaseZFP(BaseRuntime):
             's-textio.ads': 's-textio-zfp.ads'})
 
         self.config_files.update(
-            {'target_options.gpr': readfile('src/target_options.gpr')})
+            {'target_options.gpr': readfile('src/target_options.gpr'),
+             'runtime_build.gpr': readfile('src/runtime_build.gpr')})
 
         if config.has_fpu:
             self.common += [
@@ -334,6 +336,9 @@ class BaseRavenscarSFP(BaseZFP):
             's-taskin.ads': 's-taskin-raven.ads',
             's-tposen.adb': 's-tposen-raven.adb',
             's-tposen.ads': 's-tposen-raven.ads'})
+
+        self.config_files.update(
+            {'ravenscar_build.gpr': readfile('src/ravenscar_build.gpr')})
 
         if config.is_bareboard:
             self.gnarl_arch += [
@@ -786,6 +791,12 @@ class Target(TargetConfiguration):
                 self, self._mem_routines, self._libc_files))
         self.amend_ravenscar_full()
 
+    def search_line_and_sub(self, config_file, line_pattern, pattern, repl):
+        res = ''
+        pat = re.compile(line_pattern)
+        for l in self.config_files[config_file]:
+            print l,
+
     def _copy(self, src, dst):
         "Copy (or symlink) src to dst"
 
@@ -889,7 +900,7 @@ class Target(TargetConfiguration):
         # Write config files
         for name, content in self.config_files.iteritems():
             fp = open(os.path.join(destination, name), 'w')
-            fp.write(content)
+            fp.write("\n".join(content))
             fp.close()
 
         # Add the project files
@@ -923,11 +934,7 @@ class Target(TargetConfiguration):
             fp.close()
 
 
-class ArmPikeOS(Target):
-    @property
-    def target_arch(self):
-        return 'arm-pikeos'
-
+class PikeOS(Target):
     @property
     def is_bareboard(self):
         return False
@@ -941,29 +948,26 @@ class ArmPikeOS(Target):
         return True
 
     def __init__(self):
-        super(ArmPikeOS, self).__init__(
+        super(PikeOS, self).__init__(
             mem_routines=True,
             libc_files=False)
 
     def init_as_full(self):
-        super(ArmPikeOS, self).init_as_full()
+        super(PikeOS, self).init_as_full()
         self._merge_libgnarl = False
 
     def amend_zfp(self):
-        super(ArmPikeOS, self).amend_zfp()
-        self.pairs.update({
-            'system.ads': 'system-pikeos-arm.ads'})
+        super(PikeOS, self).amend_zfp()
         self.pairs.update({
             's-textio.adb': 's-textio-pikeos.adb',
             's-macres.adb': 's-macres-native.adb',
             's-memory.ads': 's-memory-zfp.ads',
             's-memory.adb': 's-memory-zfp.adb'})
         self.arch += ['pikeos-cert-app.c']
-        self.config_files.update(
-            {'runtime.xml': readfile('arm/pikeos/runtime.xml')})
+        # Children should add a pair for system.ads and read runtime.xml
 
     def amend_ravenscar_sfp(self):
-        super(ArmPikeOS, self).amend_ravenscar_sfp()
+        super(PikeOS, self).amend_ravenscar_sfp()
         self.arch += [
             'adaint-pikeos.c']
         self.gnarl_common += [
@@ -973,22 +977,94 @@ class ArmPikeOS(Target):
             's-taprop.adb': 's-taprop-pikeos.adb',
             's-init.adb': 's-init-pikeos-ravenscar.adb',
             'a-textio.adb': 'a-textio-raven.adb',  # Replaced
+            's-flocon.adb': 's-flocon-none.adb'})
+
+    def amend_ravenscar_full(self):
+        super(PikeOS, self).amend_ravenscar_full()
+        self.pairs.update({
+            'a-exexpr.adb': 'a-exexpr-gcc.adb',
+            's-excmac.ads': 's-excmac-gcc.ads',
+            's-memory.ads': 's-memory-pikeos.ads',
+            's-memory.adb': 's-memory-pikeos.adb'})
+
+
+class PikeOS3(PikeOS):
+    def amend_ravenscar_sfp(self):
+        super(PikeOS3, self).amend_ravenscar_sfp()
+        self.pairs.update({
+            's-interr.adb': 's-interr-pikeos.adb',
+            's-osinte.ads': 's-osinte-pikeos.ads',
+            's-osinte.adb': 's-osinte-pikeos.adb'})
+
+
+class PikeOS4(PikeOS):
+    def amend_ravenscar_sfp(self):
+        super(PikeOS4, self).amend_ravenscar_sfp()
+        self.pairs.update({
             's-interr.adb': 's-interr-pikeos4.adb',
             's-osinte.ads': 's-osinte-pikeos4.ads',
-            's-osinte.adb': 's-osinte-pikeos4.adb',
-            'system.ads': 'system-pikeos-arm-ravenscar-sfp.ads',
-            's-flocon.adb': 's-flocon-none.adb'})
+            's-osinte.adb': 's-osinte-pikeos4.adb'})
+
+
+class ArmPikeOS(PikeOS4):
+    @property
+    def target_arch(self):
+        return 'arm-pikeos'
+
+    def __init__(self):
+        super(ArmPikeOS, self).__init__()
+
+    def amend_zfp(self):
+        super(ArmPikeOS, self).amend_zfp()
+        self.pairs.update({
+            'system.ads': 'system-pikeos-arm.ads'})
+        self.config_files.update(
+            {'runtime.xml': readfile('arm/pikeos/runtime.xml')})
+
+    def amend_ravenscar_sfp(self):
+        super(ArmPikeOS, self).amend_ravenscar_sfp()
+        self.pairs.update({
+            'system.ads': 'system-pikeos-arm-ravenscar-sfp.ads'})
 
     def amend_ravenscar_full(self):
         super(ArmPikeOS, self).amend_ravenscar_full()
         self.pairs.update({
             'system.ads': 'system-pikeos-arm-ravenscar-full.ads'})
         self.pairs.update({
-            'a-exexpr.adb': 'a-exexpr-gcc.adb',
             's-excmac.ads': 's-excmac-arm.ads',
-            's-memory.ads': 's-memory-pikeos.ads',
-            's-memory.adb': 's-memory-pikeos.adb',
             's-traceb.adb': 's-traceb-xi-armeabi.adb'})
+
+
+class PpcPikeOS(PikeOS3):
+    @property
+    def target_arch(self):
+        return 'ppc-pikeos'
+
+    def __init__(self):
+        super(PpcPikeOS, self).__init__()
+
+    def amend_zfp(self):
+        super(PpcPikeOS, self).amend_zfp()
+        self.pairs.update({
+            'system.ads': 'system-pikeos-ppc.ads'})
+        self.config_files.update(
+            {'runtime.xml': readfile('powerpc/pikeos3/runtime.xml')})
+        # Don't use function/data sections, not supported by linker script
+        # self.search_line_and_sub('runtime_build.gpr', 'function-sections',
+        #                         '^  ', '--')
+
+    def amend_ravenscar_sfp(self):
+        super(PpcPikeOS, self).amend_ravenscar_sfp()
+        self.pairs.update({
+            'system.ads': 'system-pikeos-ppc-ravenscar-sfp.ads'})
+
+    def amend_ravenscar_full(self):
+        super(PpcPikeOS, self).amend_ravenscar_full()
+        self.pairs.update({
+            'system.ads': 'system-pikeos-ppc-ravenscar-full.ads'})
+        self.pairs.update({
+            's-excmac.ads': 's-excmac-gcc.ads',
+            's-traceb.adb': 's-traceb-xi-ppc.adb'})
 
 
 class ArmBBTarget(Target):
@@ -1212,6 +1288,8 @@ class Zynq(Target):
 def build_configs(target, runtime):
     if target == 'arm-pikeos':
         t = ArmPikeOS()
+    elif target == 'ppc-pikeos':
+        t = PpcPikeOS()
     elif target == 'zynq':
         t = Zynq()
     elif target.startswith('stm32'):
