@@ -718,7 +718,7 @@ class BaseRavenscarFull(BaseRavenscarSFP):
              'a-except.ads': 'a-except-2005.ads',
              's-io.adb': 's-io-xi.adb',
              's-ransee.adb': 's-ransee-xi.adb',
-             's-soflin.adb': 's-soflin-xi.adb',  # Line too long, spec below
+             's-soflin.adb': 's-soflin-xi.adb',
              's-soflin.ads': 's-soflin-xi.ads',
              's-taskin.ads': 's-taskin-xi-full.ads',
              's-tposen.adb': 's-tposen-xi-full.adb',
@@ -949,6 +949,19 @@ class ArmPikeOS(Target):
         super(ArmPikeOS, self).init_as_full()
         self._merge_libgnarl = False
 
+    def amend_zfp(self):
+        super(ArmPikeOS, self).amend_zfp()
+        self.pairs.update({
+            'system.ads': 'system-pikeos-arm.ads'})
+        self.pairs.update({
+            's-textio.adb': 's-textio-pikeos.adb',
+            's-macres.adb': 's-macres-native.adb',
+            's-memory.ads': 's-memory-zfp.ads',
+            's-memory.adb': 's-memory-zfp.adb'})
+        self.arch += ['pikeos-cert-app.c']
+        self.config_files.update(
+            {'runtime.xml': readfile('arm/pikeos/runtime.xml')})
+
     def amend_ravenscar_sfp(self):
         super(ArmPikeOS, self).amend_ravenscar_sfp()
         self.arch += [
@@ -958,19 +971,13 @@ class ArmPikeOS(Target):
         self.pairs.update({
             'a-intnam.ads': 'a-intnam-dummy.ads',
             's-taprop.adb': 's-taprop-pikeos.adb',
-            's-textio.adb': 's-textio-pikeos.adb',
             's-init.adb': 's-init-pikeos-ravenscar.adb',
-            's-memory.ads': 's-memory-zfp.ads',
-            's-memory.adb': 's-memory-zfp.adb',
-            'a-textio.adb': 'a-textio-raven.adb',
+            'a-textio.adb': 'a-textio-raven.adb',  # Replaced
             's-interr.adb': 's-interr-pikeos4.adb',
             's-osinte.ads': 's-osinte-pikeos4.ads',
             's-osinte.adb': 's-osinte-pikeos4.adb',
             'system.ads': 'system-pikeos-arm-ravenscar-sfp.ads',
             's-flocon.adb': 's-flocon-none.adb'})
-        self.arch += ['pikeos-cert-app.c']
-        self.config_files.update(
-            {'runtime.xml': readfile('arm/pikeos/runtime.xml')})
 
     def amend_ravenscar_full(self):
         super(ArmPikeOS, self).amend_ravenscar_full()
@@ -981,8 +988,7 @@ class ArmPikeOS(Target):
             's-excmac.ads': 's-excmac-arm.ads',
             's-memory.ads': 's-memory-pikeos.ads',
             's-memory.adb': 's-memory-pikeos.adb',
-            's-traceb.adb': 's-traceb-xi-armeabi.adb',
-            'g-io-put.adb': 'g-io-put-pikeos.adb'})
+            's-traceb.adb': 's-traceb-xi-armeabi.adb'})
 
 
 class ArmBBTarget(Target):
