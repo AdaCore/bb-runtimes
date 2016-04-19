@@ -32,6 +32,9 @@ flag_clean=y
 flag_verbose=
 flag_dryrun=
 flag_keepall=
+flag_force=
+
+flag_build_rts_py=
 
 build_rts()
 {
@@ -43,7 +46,9 @@ build_rts()
 
     rtsdir=$(echo $config|sed s,/,-,g)
 
-    if [ "$prefix" = "x86-linux" ] || $prefix-gcc -v 2> /dev/null ; then
+    if [ "$prefix" = "x86-linux" ] || $prefix-gcc -v 2> /dev/null ||
+       [ "$flag_force" = "y" ];
+    then
       objdir=install
       if [ "$flag_keepall" = "y" ] ; then
         # Need per-runtime directory if we want to keep all
@@ -58,22 +63,23 @@ build_rts()
          else
             runcmd rm -rf "install"
          fi
-         runcmd ./build-rts.sh --objdir=$objdir --gcc-dir=$GCC_SRC_DIR \
-          $src_opts ${flag_verbose:+-v} $opts $config $GNAT_SRC_DIR || \
-	 return 1
+	 if [ "$flag_build_rts_py" != "" ]; then
+             runcmd ./build-rts.py --output=$objdir --gcc-dir=$GCC_SRC_DIR \
+		    --gnat-dir=$GNAT_SRC_DIR $src_opts ${flag_verbose:+-v} \
+		    $opts $config  || \
+	     return 1
+	 else
+             runcmd ./$build_script --objdir=$objdir --gcc-dir=$GCC_SRC_DIR \
+		 $src_opts ${flag_verbose:+-v} $opts $config $GNAT_SRC_DIR || \
+	     return 1
+	 fi
       fi
 
-      runcmd gprbuild -j0 ${flag_verbose:+-v} --target=$prefix \
-        $objdir/runtime_build.gpr $build_opts
+      prj=$objdir/runtime_build.gpr
       if [ -f $objdir/ravenscar_build.gpr ]; then
-	  runcmd gprbuild -j0 ${flag_verbose:+-v} --target=$prefix \
-              $objdir/ravenscar_build.gpr $build_opts
+	  prj=$objdir/ravenscar_build.gpr
       fi
-
-      if [ -f $objdir/ravenscar_build.gpr ]; then
-	  runcmd gprbuild ${flag_verbose:+-v} --target=$prefix \
-	      $objdir/ravenscar_build.gpr $build_opts
-      fi
+      runcmd gprbuild -j0 ${flag_verbose:+-v} --target=$prefix $prj $build_opts
     else
       echo "$prefix-gcc not found, skipping configuration $config"
       return 1
@@ -289,6 +295,11 @@ build_sfp_rm48()
 build_zfp_zynq()
 {
     do_zfp arm-eabi zfp/zynq
+}
+
+build_sfp_zynq()
+{
+    do_ravenscar arm-eabi ravenscar-sfp/zynq
 }
 
 build_zfp_stm32f4()
@@ -522,6 +533,7 @@ while [ $# -gt 0 ]; do
         -t) flag_tests=y;;
         -v) flag_verbose="-v";;
         -n) flag_dryrun=y;;
+	-f) flag_force=y;;
         --help|-h) usage;;
         --no-clean) flag_clean=n;;
         --keep-all) flag_keepall=y;;
@@ -690,6 +702,7 @@ else
               esac
               ;;
           stm32f429)
+	      flag_build_rts_py=y
               case $opt in
                   zfp)  build_zfp_stm32f429 ;;
                   sfp)  build_sfp_stm32f429 ;;
@@ -743,8 +756,10 @@ else
               esac
               ;;
           zynq)
+	      flag_build_rts_py=y
                case $opt in
-                  zfp)  build_zfp_zynq ;;
+                   zfp)  build_zfp_zynq ;;
+		   sfp)  build_sfp_zynq ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
