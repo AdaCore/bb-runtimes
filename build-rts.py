@@ -46,7 +46,7 @@ def fullpath(filename):
 def readfile(filename):
     """Reads the content of filename, relative to the bb-runtimes directory"""
     fp = open(fullpath(filename), 'r')
-    res = fp.read().splitlines(False)
+    res = fp.read()
     fp.close()
     return res
 
@@ -54,10 +54,6 @@ def readfile(filename):
 class TargetConfiguration(object):
     """Gives information on the target to allow proper configuration of the
     runtime"""
-
-    @property
-    def target_arch(self):
-        raise Exception("not implemented")
 
     @property
     def is_bareboard(self):
@@ -179,8 +175,7 @@ class BaseZFP(BaseRuntime):
             's-textio.ads': 's-textio-zfp.ads'})
 
         self.config_files.update(
-            {'target_options.gpr': readfile('src/target_options.gpr'),
-             'runtime_build.gpr': readfile('src/runtime_build.gpr')})
+            {'target_options.gpr': readfile('src/target_options.gpr')})
 
         if config.has_fpu:
             self.common += [
@@ -742,6 +737,8 @@ class Target(TargetConfiguration):
     """Handles the creation of runtimes for a particular target"""
 
     def __init__(self, mem_routines, libc_files):
+        """The build_flags dictionnary is used to set attributes of
+        runtime_build.gpr"""
         self._mem_routines = mem_routines
         self._libc_files = libc_files
         self.bsp = None
@@ -754,6 +751,8 @@ class Target(TargetConfiguration):
         self.pairs = None
         self.config_files = None
         self.installed_files = []
+        self.build_flags = {'target': 'unknown',
+                            'source_dirs': None}
 
     def amend_zfp(self):
         pass
@@ -900,20 +899,13 @@ class Target(TargetConfiguration):
         # Write config files
         for name, content in self.config_files.iteritems():
             fp = open(os.path.join(destination, name), 'w')
-            fp.write("\n".join(content))
+            fp.write(content)
             fp.close()
 
         # Add the project files
-        fp = open(fullpath('src/runtime_build.gpr'), 'r')
-        cnt = ''
-        for line in fp:
-            if line.strip().startswith('for Source_Dirs'):
-                cnt += '  for Source_Dirs use ("%s");\n' % (
-                    '", "'.join(gnat_dirs))
-                cnt += '  for Target use "%s";\n' % self.target_arch
-            else:
-                cnt += line
-        fp.close()
+        cnt = readfile(fullpath('src/new_runtime_build.gpr'))
+        self.build_flags['source_dirs'] = '", "'.join(gnat_dirs)
+        cnt = cnt.format(**self.build_flags)
         fp = open(os.path.join(destination, 'runtime_build.gpr'), 'w')
         fp.write(cnt)
         fp.close()
@@ -925,7 +917,6 @@ class Target(TargetConfiguration):
                 if line.strip().startswith('for Source_Dirs'):
                     cnt += '  for Source_Dirs use ("%s");\n' % (
                         '", "'.join(gnarl_dirs))
-                    cnt += '  for Target use "%s";\n' % self.target_arch
                 else:
                     cnt += line
             fp.close()
@@ -1007,12 +998,9 @@ class PikeOS4(PikeOS):
 
 
 class ArmPikeOS(PikeOS4):
-    @property
-    def target_arch(self):
-        return 'arm-pikeos'
-
     def __init__(self):
         super(ArmPikeOS, self).__init__()
+        self.build_flags['target'] = 'arm-pikeos'
 
     def amend_zfp(self):
         super(ArmPikeOS, self).amend_zfp()
@@ -1036,12 +1024,9 @@ class ArmPikeOS(PikeOS4):
 
 
 class PpcPikeOS(PikeOS3):
-    @property
-    def target_arch(self):
-        return 'ppc-pikeos'
-
     def __init__(self):
         super(PpcPikeOS, self).__init__()
+        self.build_flags['target'] = 'ppc-pikeos'
 
     def amend_zfp(self):
         super(PpcPikeOS, self).amend_zfp()
@@ -1069,10 +1054,6 @@ class PpcPikeOS(PikeOS3):
 
 class ArmBBTarget(Target):
     @property
-    def target_arch(self):
-        return 'arm-eabi'
-
-    @property
     def is_bareboard(self):
         return True
 
@@ -1088,6 +1069,7 @@ class ArmBBTarget(Target):
         super(ArmBBTarget, self).__init__(
             mem_routines=True,
             libc_files=True)
+        self.build_flags['target'] = 'arm-eabi'
 
     def amend_zfp(self):
         super(ArmBBTarget, self).amend_zfp()
@@ -1242,10 +1224,6 @@ class Sam(ArmBBTarget):
 
 class Zynq(Target):
     @property
-    def target_arch(self):
-        return 'arm-eabi'
-
-    @property
     def is_bareboard(self):
         return True
 
@@ -1261,6 +1239,7 @@ class Zynq(Target):
         super(Zynq, self).__init__(
             mem_routines=True,
             libc_files=True)
+        self.build_flags['target'] = 'arm-eabi'
 
     def amend_zfp(self):
         super(Zynq, self).amend_zfp()
