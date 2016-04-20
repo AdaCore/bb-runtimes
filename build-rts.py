@@ -1073,8 +1073,33 @@ class PpcPikeOS(PikeOS3):
         self.pairs.update({
             'system.ads': 'system-pikeos-ppc-ravenscar-full.ads'})
         self.pairs.update({
-            's-excmac.ads': 's-excmac-gcc.ads',
             's-traceb.adb': 's-traceb-xi-ppc.adb'})
+
+
+class X86PikeOS(PikeOS3):
+    def __init__(self):
+        super(X86PikeOS, self).__init__(arm_zcx=False)
+        self.build_flags['target'] = 'x86-pikeos'
+
+    def amend_zfp(self):
+        super(X86PikeOS, self).amend_zfp()
+        self.pairs.update({
+            'system.ads': 'system-pikeos-x86.ads'})
+        # FIXME: use an i586 specific runtime.xml ?
+        self.config_files.update(
+            {'runtime.xml': readfile('arm/pikeos/runtime.xml')})
+
+    def amend_ravenscar_sfp(self):
+        super(X86PikeOS, self).amend_ravenscar_sfp()
+        self.pairs.update({
+            'system.ads': 'system-pikeos-x86-ravenscar-sfp.ads'})
+
+    def amend_ravenscar_full(self):
+        super(X86PikeOS, self).amend_ravenscar_full()
+        self.pairs.update({
+            'system.ads': 'system-pikeos-x86-ravenscar-full.ads'})
+        self.pairs.update({
+            's-traceb.adb': 's-traceb-vx653-sim.adb'})
 
 
 class ArmBBTarget(Target):
@@ -1296,6 +1321,8 @@ def build_configs(target, runtime):
         t = ArmPikeOS()
     elif target == 'ppc-pikeos':
         t = PpcPikeOS()
+    elif target == 'x86-pikeos':
+        t = X86PikeOS()
     elif target == 'zynq':
         t = Zynq()
     elif target.startswith('stm32'):
