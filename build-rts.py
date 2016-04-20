@@ -4,7 +4,7 @@
 #
 # Python script to gather files for the bareboard runtime.
 # Don't use any fancy features.  Ideally, this script should work with any
-# Python version starting from 2.4 (yes, it's very old but that's the system
+# Python version starting from 2.6 (yes, it's very old but that's the system
 # python on oldest host).
 
 import copy
@@ -371,7 +371,7 @@ class BaseRavenscarSFP(BaseZFP):
 
 
 class BaseRavenscarFull(BaseRavenscarSFP):
-    def __init__(self, config, mem_routines, libc_files):
+    def __init__(self, config, mem_routines, libc_files, arm_zcx):
         super(BaseRavenscarFull, self).__init__(
             config, mem_routines, math_lib=True)
 
@@ -710,6 +710,12 @@ class BaseRavenscarFull(BaseRavenscarSFP):
             'src/tconfig.h',
             'src/tsystem.h',
             'libgcc/unwind-pe.h']
+        if not arm_zcx:
+            self.common += [
+                'libgcc/unwind-dw2-fde.h']
+            if config.is_bareboard:
+                self.common += [
+                    'src/unwind-dw2-fde-bb.c']
 
         self.pairs.update(
             {'a-elchha.adb': 'a-elchha-xi.adb',
@@ -736,11 +742,17 @@ class BaseRavenscarFull(BaseRavenscarSFP):
 class Target(TargetConfiguration):
     """Handles the creation of runtimes for a particular target"""
 
-    def __init__(self, mem_routines, libc_files):
-        """The build_flags dictionnary is used to set attributes of
+    def __init__(self, mem_routines, libc_files, arm_zcx):
+        """Initialize the target
+        mem_routines: True for adding memory functions (memcpy, memset..)
+        libc_files: True for adding libc functions (malloc...)
+        arm_zcx: True to use arm unwind mechanism
+
+        The build_flags dictionnary is used to set attributes of
         runtime_build.gpr"""
         self._mem_routines = mem_routines
         self._libc_files = libc_files
+        self._arm_zcx = arm_zcx
         self.bsp = None
         self.arch = None
         self.common = None
@@ -752,7 +764,12 @@ class Target(TargetConfiguration):
         self.config_files = None
         self.installed_files = []
         self.build_flags = {'target': 'unknown',
-                            'source_dirs': None}
+                            'source_dirs': None,
+                            'common_flags': ['-fcallgraph-info=su,da',
+                                             '-ffunction-sections',
+                                             '-fdata-sections'],
+                            'asm_flags': [],
+                            'c_flags': ['-DIN_RTS', '-Dinhibit_libc']}
 
     def amend_zfp(self):
         pass
@@ -787,14 +804,8 @@ class Target(TargetConfiguration):
     def init_as_full(self):
         self.__init_from_base(
             BaseRavenscarFull(
-                self, self._mem_routines, self._libc_files))
+                self, self._mem_routines, self._libc_files, self._arm_zcx))
         self.amend_ravenscar_full()
-
-    def search_line_and_sub(self, config_file, line_pattern, pattern, repl):
-        res = ''
-        pat = re.compile(line_pattern)
-        for l in self.config_files[config_file]:
-            print l,
 
     def _copy(self, src, dst):
         "Copy (or symlink) src to dst"
@@ -904,8 +915,14 @@ class Target(TargetConfiguration):
 
         # Add the project files
         cnt = readfile(fullpath('src/new_runtime_build.gpr'))
+        # Set source_dirs
         self.build_flags['source_dirs'] = '", "'.join(gnat_dirs)
+        # Flags array are converted to a string
+        for f in ['common_flags', 'asm_flags', 'c_flags']:
+            self.build_flags[f] = '",\n        "'.join(self.build_flags[f])
+        # Format
         cnt = cnt.format(**self.build_flags)
+        # Write
         fp = open(os.path.join(destination, 'runtime_build.gpr'), 'w')
         fp.write(cnt)
         fp.close()
@@ -938,10 +955,11 @@ class PikeOS(Target):
     def has_double_precision_fpu(self):
         return True
 
-    def __init__(self):
+    def __init__(self, arm_zcx):
         super(PikeOS, self).__init__(
             mem_routines=True,
-            libc_files=False)
+            libc_files=False,
+            arm_zcx=arm_zcx)
 
     def init_as_full(self):
         super(PikeOS, self).init_as_full()
@@ -977,9 +995,19 @@ class PikeOS(Target):
             's-excmac.ads': 's-excmac-gcc.ads',
             's-memory.ads': 's-memory-pikeos.ads',
             's-memory.adb': 's-memory-pikeos.adb'})
+        # Register ZCX frames (for pikeos-cert-app.c)
+        self.build_flags['c_flags'] += ['-DUSE_ZCX']
 
 
 class PikeOS3(PikeOS):
+    def amend_zfp(self):
+        super(PikeOS3, self).amend_zfp()
+        # Don't use function/data sections, not supported by linker script
+        self.build_flags['common_flags'] = \
+            filter(lambda x: x not in ['-ffunction-sections',
+                                       '-fdata-sections'],
+                   self.build_flags['common_flags'])
+
     def amend_ravenscar_sfp(self):
         super(PikeOS3, self).amend_ravenscar_sfp()
         self.pairs.update({
@@ -999,7 +1027,7 @@ class PikeOS4(PikeOS):
 
 class ArmPikeOS(PikeOS4):
     def __init__(self):
-        super(ArmPikeOS, self).__init__()
+        super(ArmPikeOS, self).__init__(arm_zcx=True)
         self.build_flags['target'] = 'arm-pikeos'
 
     def amend_zfp(self):
@@ -1025,7 +1053,7 @@ class ArmPikeOS(PikeOS4):
 
 class PpcPikeOS(PikeOS3):
     def __init__(self):
-        super(PpcPikeOS, self).__init__()
+        super(PpcPikeOS, self).__init__(arm_zcx=False)
         self.build_flags['target'] = 'ppc-pikeos'
 
     def amend_zfp(self):
@@ -1034,9 +1062,6 @@ class PpcPikeOS(PikeOS3):
             'system.ads': 'system-pikeos-ppc.ads'})
         self.config_files.update(
             {'runtime.xml': readfile('powerpc/pikeos3/runtime.xml')})
-        # Don't use function/data sections, not supported by linker script
-        # self.search_line_and_sub('runtime_build.gpr', 'function-sections',
-        #                         '^  ', '--')
 
     def amend_ravenscar_sfp(self):
         super(PpcPikeOS, self).amend_ravenscar_sfp()
@@ -1068,7 +1093,8 @@ class ArmBBTarget(Target):
     def __init__(self):
         super(ArmBBTarget, self).__init__(
             mem_routines=True,
-            libc_files=True)
+            libc_files=True,
+            arm_zcx=True)
         self.build_flags['target'] = 'arm-eabi'
 
     def amend_zfp(self):
@@ -1238,7 +1264,8 @@ class Zynq(Target):
     def __init__(self):
         super(Zynq, self).__init__(
             mem_routines=True,
-            libc_files=True)
+            libc_files=True,
+            arm_zcx=True)
         self.build_flags['target'] = 'arm-eabi'
 
     def amend_zfp(self):

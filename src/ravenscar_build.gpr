@@ -11,6 +11,7 @@ project Ravenscar_Build is
   for Object_Dir use "obj";
 
   for Source_Dirs use ("gnarl-arch", "gnarl-common");
+  for Target use Runtime_Build'Target;
 
   package Builder renames Runtime_Build.Builder;
 
