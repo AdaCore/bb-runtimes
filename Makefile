@@ -343,7 +343,7 @@ ravenscar-full-arm-pikeos.src:
 	@$(BUILD_RTS) ravenscar-full/arm-pikeos
 
 ravenscar-full-ppc-pikeos.src:
-	@$(BUILD_RTS_OLD) ravenscar-full/ppc-pikeos --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS) ravenscar-full/ppc-pikeos
 
 ravenscar-full-x86-pikeos.src:
 	@$(BUILD_RTS_OLD) ravenscar-full/x86-pikeos --gcc-dir=$(GCC_SOURCES)
