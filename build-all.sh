@@ -377,6 +377,16 @@ build_sfp_sam4s()
     do_ravenscar arm-eabi ravenscar-sfp/sam4s
 }
 
+build_zfp_samg55()
+{
+    do_zfp arm-eabi zfp/samg55
+}
+
+build_sfp_samg55()
+{
+    do_ravenscar arm-eabi ravenscar-sfp/samg55
+}
+
 build_zfp_visium()
 {
     do_zfp visium-elf zfp/mcm
@@ -684,6 +694,7 @@ else
               esac
               ;;
           stm32f4)
+	      flag_build_rts_py=y
               case $opt in
                   zfp)  build_zfp_stm32f4 ;;
                   sfp)  build_sfp_stm32f4 ;;
@@ -694,6 +705,7 @@ else
               esac
               ;;
           stm32f40)
+	      flag_build_rts_py=y
               case $opt in
                   zfp)  build_zfp_stm32f40 ;;
                   sfp)  build_sfp_stm32f40 ;;
@@ -711,6 +723,7 @@ else
               esac
               ;;
           stm32f469)
+	      flag_build_rts_py=y
               case $opt in
                   zfp)  build_zfp_stm32f469 ;;
                   sfp)  build_sfp_stm32f469 ;;
@@ -719,6 +732,7 @@ else
               esac
               ;;
           stm32f7)
+	      flag_build_rts_py=y
               case $opt in
                   zfp)  build_zfp_stm32f7 ;;
                   sfp)  build_sfp_stm32f7 ;;
@@ -727,9 +741,18 @@ else
               esac
               ;;
           sam4s)
+	      flag_build_rts_py=y
               case $opt in
                   zfp)  build_zfp_sam4s ;;
                   sfp)  build_sfp_sam4s ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
+          samg55)
+	      flag_build_rts_py=y
+              case $opt in
+                  zfp)  build_zfp_samg55 ;;
+                  sfp)  build_sfp_samg55 ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
