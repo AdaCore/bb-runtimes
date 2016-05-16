@@ -976,11 +976,12 @@ class PikeOS(Target):
 
     def amend_zfp(self):
         super(PikeOS, self).amend_zfp()
+        self.arch += ['arm/pikeos/memory.ld']
         self.pairs.update({
             's-textio.adb': 's-textio-pikeos.adb',
             's-macres.adb': 's-macres-native.adb',
             's-memory.ads': 's-memory-zfp.ads',
-            's-memory.adb': 's-memory-zfp.adb'})
+            's-memory.adb': 's-memory-raven-min.adb'})
         self.arch += ['pikeos-cert-app.c']
         # Children should add a pair for system.ads and read runtime.xml
 
