@@ -375,6 +375,7 @@ class BaseRavenscarFull(BaseRavenscarSFP):
         super(BaseRavenscarFull, self).__init__(
             config, mem_routines, math_lib=True)
 
+        # Use standard version of the following files:
         del self.pairs['a-tags.ads']
         del self.pairs['a-tags.adb']
         del self.pairs['a-elchha.ads']
@@ -722,7 +723,9 @@ class BaseRavenscarFull(BaseRavenscarSFP):
              'a-excach.adb': 'a-excach-cert.adb',
              'a-except.adb': 'a-except-2005.adb',
              'a-except.ads': 'a-except-2005.ads',
+             'a-exexpr.adb': 'a-exexpr-gcc.adb',
              's-io.adb': 's-io-xi.adb',
+             's-memory.adb': 's-memory-xi.adb',
              's-ransee.adb': 's-ransee-xi.adb',
              's-soflin.adb': 's-soflin-xi.adb',
              's-soflin.ads': 's-soflin-xi.ads',
@@ -734,6 +737,11 @@ class BaseRavenscarFull(BaseRavenscarSFP):
              'a-coinho.ads': 'a-coinho-shared.ads',
              'a-coinho.adb': 'a-coinho-shared.adb'})
 
+        if arm_zcx:
+            self.pairs.update({'s-excmac.ads': 's-excmac-arm.ads'})
+        else:
+            self.pairs.update({'s-excmac.ads': 's-excmac-gcc.ads'})
+
     @property
     def merge_libgnarl(self):
         return False
@@ -744,9 +752,9 @@ class Target(TargetConfiguration):
 
     def __init__(self, mem_routines, libc_files, arm_zcx):
         """Initialize the target
-        mem_routines: True for adding memory functions (memcpy, memset..)
-        libc_files: True for adding libc functions (malloc...)
-        arm_zcx: True to use arm unwind mechanism
+        :param mem_routines: True for adding memory functions (memcpy..)
+        :param libc_files: True for adding libc functions (malloc...)
+        :param arm_zcx: True to use arm unwind mechanism
 
         The build_flags dictionnary is used to set attributes of
         runtime_build.gpr"""
@@ -793,12 +801,13 @@ class Target(TargetConfiguration):
         self._merge_libgnarl = base_runtime.merge_libgnarl
 
     def init_as_zfp(self):
-        self.__init_from_base(BaseZFP(self, self._mem_routines, False))
+        self.__init_from_base(
+            BaseZFP(self, self._mem_routines, math_lib=False))
         self.amend_zfp()
 
     def init_as_sfp(self):
         self.__init_from_base(
-            BaseRavenscarSFP(self, self._mem_routines, False))
+            BaseRavenscarSFP(self, self._mem_routines, math_lib=False))
         self.amend_ravenscar_sfp()
 
     def init_as_full(self):
@@ -991,8 +1000,6 @@ class PikeOS(Target):
     def amend_ravenscar_full(self):
         super(PikeOS, self).amend_ravenscar_full()
         self.pairs.update({
-            'a-exexpr.adb': 'a-exexpr-gcc.adb',
-            's-excmac.ads': 's-excmac-gcc.ads',
             's-memory.ads': 's-memory-pikeos.ads',
             's-memory.adb': 's-memory-pikeos.adb'})
         # Register ZCX frames (for pikeos-cert-app.c)
@@ -1047,7 +1054,6 @@ class ArmPikeOS(PikeOS4):
         self.pairs.update({
             'system.ads': 'system-pikeos-arm-ravenscar-full.ads'})
         self.pairs.update({
-            's-excmac.ads': 's-excmac-arm.ads',
             's-traceb.adb': 's-traceb-xi-armeabi.adb'})
 
 
@@ -1135,16 +1141,12 @@ class ArmBBTarget(Target):
             's-bbcppr.adb': 's-bbcppr-armv7m.adb',
             's-bbbosu.adb': 's-bbbosu-armv7m.adb',
             's-parame.ads': 's-parame-xi-small.ads',
-            's-taprop.ads': 's-taprop-xi.ads',
             's-flocon.adb': 's-flocon-none.adb'})
 
     def amend_ravenscar_full(self):
         super(ArmBBTarget, self).amend_ravenscar_full()
         self.pairs.update({
-            'a-exexpr.adb': 'a-exexpr-gcc.adb',
             'system.ads': 'system-xi-cortexm4-full.ads',
-            's-excmac.ads': 's-excmac-arm.ads',
-            's-memory.adb': 's-memory-xi.adb',
             's-traceb.adb': 's-traceb-xi-armeabi.adb'})
 
 
@@ -1316,6 +1318,127 @@ class Zynq(Target):
             's-bbpara.ads': 's-bbpara-cortexa9.ads'})
 
 
+class SparcBBTarget(Target):
+    @property
+    def is_bareboard(self):
+        return True
+
+    @property
+    def has_single_precision_fpu(self):
+        return True
+
+    @property
+    def has_double_precision_fpu(self):
+        return True
+
+    def __init__(self):
+        super(SparcBBTarget, self).__init__(
+            mem_routines=True,
+            libc_files=False,
+            arm_zcx=False)
+
+    def amend_zfp(self):
+        super(SparcBBTarget, self).amend_zfp()
+        self.common += [
+            'sparc.h']
+        self.pairs.update({
+            'system.ads': 'system-xi-sparc.ads',
+            's-macres.adb': 's-macres-leon.adb',
+            'sparc.h': 'sparc-bb.h'})
+        # Add s-bb and s-bbbopa (needed by zfp for uart address)
+        self.common.append('s-bb.ads')
+        self.bsp.append('s-bbbopa.ads')
+
+        # Was not present on erc32:
+        self.build_flags['c_flags'] += ['-DLEON']
+
+    def amend_ravenscar_sfp(self):
+        super(SparcBBTarget, self).amend_ravenscar_sfp()
+        self.gnarl_common.remove('s-bb.ads')
+        self.gnarl_common += [
+            'context_switch.S',
+            'trap_handler.S',
+            'interrupt_masking.S',
+            'floating_point.S',
+            's-bcpith.adb',
+            # Were not present in erc32:
+            's-bbcaco.ads', 's-bbcaco.adb']
+        self.pairs.update({
+            'system.ads': 'system-xi-sparc-ravenscar.ads',
+            's-bbcppr.adb': 's-bbcppr-sparc.adb',
+            's-bcpith.adb': 's-bcpith-bb-sparc.adb',
+            'context_switch.S': 'context_switch-bb-sparc.S',
+            'trap_handler.S': 'trap_handler-bb-sparc.S',
+            'interrupt_masking.S': 'interrupt_masking-bb-sparc.S',
+            'floating_point.S': 'floating_point-bb-sparc.S',
+            's-bbcaco.adb': 's-bbcaco-leon.adb',
+            's-musplo.adb': 's-musplo-leon.adb'})
+
+    def amend_ravenscar_full(self):
+        super(SparcBBTarget, self).amend_ravenscar_full()
+        self.pairs.update({
+            'system.ads': 'system-xi-sparc-full.ads',
+            's-traceb.adb': 's-traceb-xi-sparc.adb'})
+
+
+class Leon2(SparcBBTarget):
+    def __init__(self):
+        super(Leon2, self).__init__()
+        self.build_flags['target'] = 'leon-elf'
+
+    def amend_zfp(self):
+        super(Leon2, self).amend_zfp()
+        self.arch += [
+            'leon-elf/leon.ld',
+            'leon-elf/crt0.S']
+        self.pairs.update({
+            's-textio.adb': 's-textio-leon.adb',
+            's-bbbopa.ads': 's-bbbopa-leon.ads'})
+        self.config_files.update(
+            {'runtime.xml': readfile('sparc/leon/runtime.xml')})
+        self.build_flags['c_flags'] += ['-DLEON2']
+
+    def amend_ravenscar_sfp(self):
+        super(Leon2, self).amend_ravenscar_sfp()
+        self.gnarl_common += [
+            's-bbsule.ads']
+        self.pairs.update({
+            's-bbbosu.adb': 's-bbbosu-leon.adb',
+            's-multip.adb': 's-multip-raven-default.adb',
+            's-bbpara.ads': 's-bbpara-leon.ads',
+            'a-intnam.ads': 'a-intnam-xi-leon.ads'})
+
+
+class Leon3(SparcBBTarget):
+    def __init__(self):
+        super(Leon3, self).__init__()
+        self.build_flags['target'] = 'leon3-elf'
+
+    def amend_zfp(self):
+        super(Leon3, self).amend_zfp()
+        self.arch += [
+            'leon3-elf/leon.ld',
+            'leon-elf/crt0.S',
+            'sparc/leon/hw_init.S']
+        self.pairs.update({
+            's-textio.adb': 's-textio-leon3.adb',
+            's-bbbopa.ads': 's-bbbopa-leon3.ads'})
+        self.config_files.update(
+            {'runtime.xml': readfile('sparc/leon3/runtime.xml')})
+        self.build_flags['c_flags'] += ['-DLEON3']
+
+    def amend_ravenscar_sfp(self):
+        super(Leon3, self).amend_ravenscar_sfp()
+        self.gnarl_common += [
+            's-bbsle3.ads']
+        self.pairs.update({
+            's-bbbosu.adb': 's-bbbosu-leon3.adb',
+            's-multip.adb': 's-multip-leon3.adb',
+            's-bbpara.ads': 's-bbpara-leon.ads',
+            's-bcprmu.adb': 's-bcprmu-leon3.adb',
+            'a-intnam.ads': 'a-intnam-xi-leon3.ads'})
+
+
 def build_configs(target, runtime):
     if target == 'arm-pikeos':
         t = ArmPikeOS()
@@ -1329,6 +1452,10 @@ def build_configs(target, runtime):
         t = Stm32(target)
     elif target.startswith('sam'):
         t = Sam(target)
+    elif target == 'leon2':
+        t = Leon2()
+    elif target == 'leon3':
+        t = Leon3()
     else:
         print 'Error: undefined target %s' % target
         sys.exit(2)
