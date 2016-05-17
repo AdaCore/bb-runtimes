@@ -75,11 +75,11 @@ ifeq ($(TARGET), arm-sysgo-pikeos)
 endif
 
 ifeq ($(TARGET), powerpc-sysgo-pikeos)
-    RTS_LIST=ravenscar-full-ppc-pikeos
+    RTS_LIST=ravenscar-full-ppc-pikeos ravenscar-sfp-ppc-pikeos zfp-ppc-pikeos
 endif
 
 ifeq ($(TARGET), i586-sysgo-pikeos)
-    RTS_LIST=ravenscar-full-x86-pikeos
+    RTS_LIST=ravenscar-full-x86-pikeos ravenscar-sfp-x86-pikeos zfp-x86-pikeos
 endif
 
 # Helper for creating <config>.src targets.
@@ -156,10 +156,14 @@ install: $(INSTALL_PREREQUISITES)
 
 # Runtimes to be installed in the standard location (lib/gcc/target/version)
 ravenscar-full-arm-pikeos.install \
-ravenscar-full-ppc-pikeos.install \
-ravenscar-full-x86-pikeos.install \
 ravenscar-sfp-arm-pikeos.install \
-zfp-arm-pikeos.install:
+zfp-arm-pikeos.install \
+ravenscar-full-ppc-pikeos.install \
+ravenscar-sfp-ppc-pikeos.install \
+zfp-ppc-pikeos.install \
+ravenscar-full-x86-pikeos.install \
+ravenscar-sfp-x86-pikeos.install \
+zfp-x86-pikeos.install:
 	@if [ "$(PREFIX)" = "" ]; then \
 	   echo "PREFIX variable should be specified"; \
 	   exit 1; \
@@ -349,8 +353,20 @@ ravenscar-sfp-arm-pikeos.src:
 ravenscar-full-arm-pikeos.src:
 	@$(BUILD_RTS) ravenscar-full/arm-pikeos
 
+zfp-ppc-pikeos.src:
+	@$(BUILD_RTS) zfp/ppc-pikeos
+
+ravenscar-sfp-ppc-pikeos.src:
+	@$(BUILD_RTS) ravenscar-sfp/ppc-pikeos
+
 ravenscar-full-ppc-pikeos.src:
 	@$(BUILD_RTS) ravenscar-full/ppc-pikeos
 
 ravenscar-full-x86-pikeos.src:
 	@$(BUILD_RTS) ravenscar-full/x86-pikeos
+
+ravenscar-sfp-x86-pikeos.src:
+	@$(BUILD_RTS) ravenscar-sfp/x86-pikeos
+
+zfp-x86-pikeos.src:
+	@$(BUILD_RTS) zfp/x86-pikeos
