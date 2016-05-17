@@ -71,7 +71,7 @@ ifeq ($(TARGET), sparc-sun-solaris2.8)
 endif
 
 ifeq ($(TARGET), arm-sysgo-pikeos)
-    RTS_LIST=ravenscar-full-arm-pikeos ravenscar-sfp-arm-pikeos
+    RTS_LIST=ravenscar-full-arm-pikeos ravenscar-sfp-arm-pikeos zfp-arm-pikeos
 endif
 
 ifeq ($(TARGET), powerpc-sysgo-pikeos)
@@ -155,7 +155,11 @@ install: $(INSTALL_PREREQUISITES)
 	cd obj/$@ && chmod a-w adalib/*.ali
 
 # Runtimes to be installed in the standard location (lib/gcc/target/version)
-ravenscar-full-arm-pikeos.install ravenscar-full-ppc-pikeos.install ravenscar-full-x86-pikeos.install ravenscar-sfp-arm-pikeos.install :
+ravenscar-full-arm-pikeos.install \
+ravenscar-full-ppc-pikeos.install \
+ravenscar-full-x86-pikeos.install \
+ravenscar-sfp-arm-pikeos.install \
+zfp-arm-pikeos.install:
 	@if [ "$(PREFIX)" = "" ]; then \
 	   echo "PREFIX variable should be specified"; \
 	   exit 1; \
@@ -336,6 +340,9 @@ zfp-sparc-solaris.src:
 	@$(BUILD_RTS_OLD) zfp/sparc-solaris
 
 # pikeos
+zfp-arm-pikeos.src:
+	@$(BUILD_RTS) zfp/arm-pikeos
+
 ravenscar-sfp-arm-pikeos.src:
 	@$(BUILD_RTS) ravenscar-sfp/arm-pikeos
 
