@@ -1380,6 +1380,15 @@ class SparcBBTarget(Target):
         self.pairs.update({
             'system.ads': 'system-xi-sparc-full.ads',
             's-traceb.adb': 's-traceb-xi-sparc.adb'})
+        self.common += ['newlib-bb.c']
+        # Use leon-zcx.specs to link with -lc.
+        self.config_files.update(
+            {'link-zcx.spec':
+             readfile(os.path.join(crossdir, 'leon-elf/leon-zcx.specs'))})
+        self.config_files['runtime.xml'] = \
+            self.config_files['runtime.xml'].replace(
+                '"-nostartfiles",',
+                '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec",')
 
 
 class Leon2(SparcBBTarget):
