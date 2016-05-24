@@ -1462,7 +1462,7 @@ def build_configs(target, runtime):
         t = Stm32(target)
     elif target.startswith('sam'):
         t = Sam(target)
-    elif target == 'leon2':
+    elif target == 'leon2' or target == 'leon':
         t = Leon2()
     elif target == 'leon3':
         t = Leon3()

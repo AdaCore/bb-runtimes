@@ -253,23 +253,23 @@ zfp-mpc5634.src:
 
 # leon-elf runtimes
 zfp-leon.src:
-	$(BUILD_RTS_OLD) zfp/leon
+	$(BUILD_RTS) zfp/leon
 
 ravenscar-sfp-leon.src:
-	$(BUILD_RTS_OLD) ravenscar-sfp/leon
+	$(BUILD_RTS) ravenscar-sfp/leon
 
 ravenscar-full-leon.src:
-	$(BUILD_RTS_OLD) ravenscar-full/leon --gcc-dir=$(GCC_SOURCES)
+	$(BUILD_RTS) ravenscar-full/leon --gcc-dir=$(GCC_SOURCES)
 
 # leon3-elf runtimes
 zfp-leon3.src:
-	$(BUILD_RTS_OLD) zfp/leon3
+	$(BUILD_RTS) zfp/leon3
 
 ravenscar-sfp-leon3.src:
-	$(BUILD_RTS_OLD) ravenscar-sfp/leon3
+	$(BUILD_RTS) ravenscar-sfp/leon3
 
 ravenscar-full-leon3.src:
-	$(BUILD_RTS_OLD) ravenscar-full/leon3 --gcc-dir=$(GCC_SOURCES)
+	$(BUILD_RTS) ravenscar-full/leon3 --gcc-dir=$(GCC_SOURCES)
 
 # arm-eabi runtimes
 zfp-tms570.src:
