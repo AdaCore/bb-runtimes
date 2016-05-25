@@ -1446,6 +1446,7 @@ class PPC6XXBBTarget(DFBBTarget):
             mem_routines=True,
             libc_files=True,
             arm_zcx=False)
+        self.build_flags['target'] = 'powerpc-elf'
 
     def amend_zfp(self):
         super(PPC6XXBBTarget, self).amend_zfp()
@@ -1520,6 +1521,35 @@ class MPC8641(PPC6XXBBTarget):
                 '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
 
 
+class X86Native(DFBBTarget):
+    def __init__(self):
+        super(X86Native, self).__init__(
+            mem_routines=False,
+            libc_files=False,
+            arm_zcx=False)
+
+    def amend_zfp(self):
+        super(X86Native, self).amend_zfp()
+        self.pairs.update(
+            {'system.ads': 'system-xi-x86.ads',
+             's-textio.adb': 's-textio-stdio.adb',
+             's-macres.adb': 's-macres-native.adb'})
+        self.config_files.update(
+            {'runtime.xml': readfile('native/runtime.xml')})
+
+
+class X86Linux(X86Native):
+    def __init__(self):
+        super(X86Linux, self).__init__()
+        self.build_flags['target'] = 'x86-linux'
+
+
+class X86Windows(X86Native):
+    def __init__(self):
+        super(X86Linux, self).__init__()
+        self.build_flags['target'] = 'x86-windows'
+
+
 def build_configs(target, runtime):
     if target == 'arm-pikeos':
         t = ArmPikeOS()
@@ -1539,6 +1569,10 @@ def build_configs(target, runtime):
         t = Leon3()
     elif target == '8641d':
         t = MPC8641()
+    elif target == 'x86-linux':
+        t = X86Linux()
+    elif target == 'x86-windows':
+        t = X86Windows()
     else:
         print 'Error: undefined target %s' % target
         sys.exit(2)
