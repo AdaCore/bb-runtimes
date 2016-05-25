@@ -1276,7 +1276,8 @@ class Sam(ArmBBTarget):
             's-bbpara.ads': 's-bbpara-sam4s.ads'})
 
 
-class Zynq(Target):
+class DFBBTarget(Target):
+    "BB target with single and double FPU"
     @property
     def is_bareboard(self):
         return True
@@ -1289,6 +1290,8 @@ class Zynq(Target):
     def has_double_precision_fpu(self):
         return True
 
+
+class Zynq(DFBBTarget):
     def __init__(self):
         super(Zynq, self).__init__(
             mem_routines=True,
@@ -1319,19 +1322,7 @@ class Zynq(Target):
             's-bbpara.ads': 's-bbpara-cortexa9.ads'})
 
 
-class SparcBBTarget(Target):
-    @property
-    def is_bareboard(self):
-        return True
-
-    @property
-    def has_single_precision_fpu(self):
-        return True
-
-    @property
-    def has_double_precision_fpu(self):
-        return True
-
+class SparcBBTarget(DFBBTarget):
     def __init__(self):
         super(SparcBBTarget, self).__init__(
             mem_routines=True,
@@ -1449,6 +1440,86 @@ class Leon3(SparcBBTarget):
             'a-intnam.ads': 'a-intnam-xi-leon3.ads'})
 
 
+class PPC6XXBBTarget(DFBBTarget):
+    def __init__(self):
+        super(PPC6XXBBTarget, self).__init__(
+            mem_routines=True,
+            libc_files=True,
+            arm_zcx=False)
+
+    def amend_zfp(self):
+        super(PPC6XXBBTarget, self).amend_zfp()
+        self.pairs.update({
+            'system.ads': 'system-xi-ppc.ads',
+            's-lidosq.adb': 's-lidosq-ada.adb',
+            's-lisisq.adb': 's-lisisq-ada.adb'})
+
+    def amend_ravenscar_sfp(self):
+        super(PPC6XXBBTarget, self).amend_ravenscar_sfp()
+        self.gnarl_common += [
+            'powerpc/6xx/context_switch.S',
+            'powerpc/6xx/handler.S',
+            's-bbcpsp.ads', 's-bbcpsp.adb']
+        self.pairs.update({
+            'system.ads': 'system-xi-ppc-sfp.ads',
+            's-bbcppr.adb': 's-bbcppr-ppc.adb',
+            's-bbcppr.ads': 's-bbcppr-ppc.ads',
+            's-bbbosu.ads': 's-bbbosu-ppc.ads',
+            's-bbinte.adb': 's-bbinte-ppc.adb',
+            's-bbtime.adb': 's-bbtime-ppc.adb',
+            's-bbcpsp.ads': 's-bbcpsp-6xx.ads',
+            's-bbcpsp.adb': 's-bbcpsp-6xx.adb',
+            's-flocon.adb': 's-flocon-none.adb'})
+
+    def amend_ravenscar_full(self):
+        super(PPC6XXBBTarget, self).amend_ravenscar_full()
+        self.pairs.update({
+            'system.ads': 'system-xi-ppc-full.ads',
+            's-traceb.adb': 's-traceb-xi-ppc.adb'})
+
+
+class MPC8641(PPC6XXBBTarget):
+    def amend_zfp(self):
+        super(MPC8641, self).amend_zfp()
+        self.arch += [
+            'powerpc/8641d/qemu-rom.ld',
+            'powerpc/8641d/ram.ld']
+        self.bsp += [
+            'powerpc/8641d/start-rom.S',
+            'powerpc/8641d/setup.S']
+        # Add s-bb and s-bbbopa (needed by zfp for uart address)
+        self.common.append('s-bb.ads')
+        self.bsp.append('s-bbbopa.ads')
+        self.pairs.update({
+            's-macres.adb': 's-macres-p2020.adb',
+            's-bbbopa.ads': 's-bbbopa-8641d.ads',
+            's-textio.adb': 's-textio-p2020.adb'})
+        self.config_files.update(
+            {'runtime.xml': readfile('powerpc/8641d/runtime.xml')})
+
+    def amend_ravenscar_sfp(self):
+        super(MPC8641, self).amend_ravenscar_sfp()
+        self.gnarl_common.remove('s-bb.ads')
+        self.pairs.update({
+            's-multip.adb': 's-multip-8641d.adb',
+            's-bbbosu.adb': 's-bbbosu-ppc-openpic.adb',
+            's-bbpara.ads': 's-bbpara-8641d.ads',
+            'a-intnam.ads': 'a-intnam-xi-ppc-openpic.ads',
+            's-bcprmu.adb': 's-bcprmu-8641d.adb'})
+
+    def amend_ravenscar_full(self):
+        super(MPC8641, self).amend_ravenscar_full()
+        self.config_files.update(
+            {'link-zcx.spec':
+             readfile('powerpc/prep/link-zcx.spec')})
+        self.config_files['runtime.xml'] = \
+            self.config_files['runtime.xml'].replace(
+                '"-nolibc"',
+                '"-nolibc",\n' +
+                '         "-lgnat", "-lgcc", "-lgnat",\n' +
+                '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
+
+
 def build_configs(target, runtime):
     if target == 'arm-pikeos':
         t = ArmPikeOS()
@@ -1466,6 +1537,8 @@ def build_configs(target, runtime):
         t = Leon2()
     elif target == 'leon3':
         t = Leon3()
+    elif target == '8641d':
+        t = MPC8641()
     else:
         print 'Error: undefined target %s' % target
         sys.exit(2)
