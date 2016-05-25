@@ -1392,6 +1392,8 @@ class Leon2(SparcBBTarget):
         self.arch += [
             'leon-elf/leon.ld',
             'leon-elf/crt0.S']
+        self.bsp += [
+            'sparc/leon/hw_init.S']
         self.pairs.update({
             's-textio.adb': 's-textio-leon.adb',
             's-bbbopa.ads': 's-bbbopa-leon.ads'})
@@ -1419,7 +1421,8 @@ class Leon3(SparcBBTarget):
         super(Leon3, self).amend_zfp()
         self.arch += [
             'leon3-elf/leon.ld',
-            'leon-elf/crt0.S',
+            'leon-elf/crt0.S']
+        self.bsp += [
             'sparc/leon/hw_init.S']
         self.pairs.update({
             's-textio.adb': 's-textio-leon3.adb',
@@ -1521,6 +1524,25 @@ class MPC8641(PPC6XXBBTarget):
                 '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
 
 
+class Visium(DFBBTarget):
+    def __init__(self):
+        super(Visium, self).__init__(
+            mem_routines=False,
+            libc_files=False,
+            arm_zcx=False)
+        self.build_flags['target'] = 'visium-elf'
+
+    def amend_zfp(self):
+        super(Visium, self).amend_zfp()
+        self.pairs.update(
+            {'system.ads': 'system-xi-visium.ads',
+             's-textio.adb': 's-textio-stdio.adb',
+             's-macres.adb': 's-macres-native.adb'})
+        self.config_files.update(
+            {'runtime.xml': readfile('visium/mcm/runtime.xml'),
+             'target_options.gpr': readfile('visium/mcm/target_options.gpr')})
+
+
 class X86Native(DFBBTarget):
     def __init__(self):
         super(X86Native, self).__init__(
@@ -1569,6 +1591,8 @@ def build_configs(target, runtime):
         t = Leon3()
     elif target == '8641d':
         t = MPC8641()
+    elif target == 'mcm':
+        t = Visium()
     elif target == 'x86-linux':
         t = X86Linux()
     elif target == 'x86-windows':
