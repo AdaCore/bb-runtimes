@@ -724,6 +724,7 @@ class BaseRavenscarFull(BaseRavenscarSFP):
              'a-except.adb': 'a-except-2005.adb',
              'a-except.ads': 'a-except-2005.ads',
              'a-exexpr.adb': 'a-exexpr-gcc.adb',
+             's-flocon.adb': 's-flocon-none.adb',
              's-io.adb': 's-io-xi.adb',
              's-memory.adb': 's-memory-xi.adb',
              's-ransee.adb': 's-ransee-xi.adb',
@@ -995,8 +996,7 @@ class PikeOS(Target):
             'a-intnam.ads': 'a-intnam-dummy.ads',
             's-taprop.adb': 's-taprop-pikeos.adb',
             's-init.adb': 's-init-pikeos-ravenscar.adb',
-            'a-textio.adb': 'a-textio-raven.adb',  # Replaced
-            's-flocon.adb': 's-flocon-none.adb'})
+            'a-textio.adb': 'a-textio-raven.adb'})  # Replaced
 
     def amend_ravenscar_full(self):
         super(PikeOS, self).amend_ravenscar_full()
@@ -1141,8 +1141,7 @@ class ArmBBTarget(Target):
             'system.ads': 'system-xi-cortexm4-sfp.ads',
             's-bbcppr.adb': 's-bbcppr-armv7m.adb',
             's-bbbosu.adb': 's-bbbosu-armv7m.adb',
-            's-parame.ads': 's-parame-xi-small.ads',
-            's-flocon.adb': 's-flocon-none.adb'})
+            's-parame.ads': 's-parame-xi-small.ads'})
 
     def amend_ravenscar_full(self):
         super(ArmBBTarget, self).amend_ravenscar_full()
@@ -1472,8 +1471,7 @@ class PPC6XXBBTarget(DFBBTarget):
             's-bbinte.adb': 's-bbinte-ppc.adb',
             's-bbtime.adb': 's-bbtime-ppc.adb',
             's-bbcpsp.ads': 's-bbcpsp-6xx.ads',
-            's-bbcpsp.adb': 's-bbcpsp-6xx.adb',
-            's-flocon.adb': 's-flocon-none.adb'})
+            's-bbcpsp.adb': 's-bbcpsp-6xx.adb'})
 
     def amend_ravenscar_full(self):
         super(PPC6XXBBTarget, self).amend_ravenscar_full()
