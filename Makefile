@@ -129,10 +129,6 @@ default:
 	@echo "                    Build the runtime in ./obj/<config>.build"
 	@echo "  make <config>.install"
 	@echo "                    Install a given runtime in PREFIX"
-	@echo
-	@echo "Available configs by target:"
-	@echo
-	@echo "  powerpc-elf: ravenscar-sfp-prep, ravenscar-full-prep, zfp-prep"
 
 
 all: $(PREREQUISITES)
@@ -208,23 +204,14 @@ install-gdbstub:
 	done
 
 # powerpc-elf runtimes
-zfp-prep.src:
-	@$(BUILD_RTS_OLD) zfp/prep
-
-ravenscar-sfp-prep.src:
-	@$(BUILD_RTS_OLD) ravenscar-sfp/prep
-
-ravenscar-full-prep.src:
-	@$(BUILD_RTS_OLD) ravenscar-full/prep --gcc-dir=$(GCC_SOURCES)
-
 zfp-mpc8641.src:
-	@$(BUILD_RTS_OLD) zfp/8641d
+	@$(BUILD_RTS) zfp/8641d
 
 ravenscar-sfp-mpc8641.src:
-	@$(BUILD_RTS_OLD) ravenscar-sfp/8641d
+	@$(BUILD_RTS) ravenscar-sfp/8641d
 
 ravenscar-full-mpc8641.src:
-	@$(BUILD_RTS_OLD) ravenscar-full/8641d --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS) ravenscar-full/8641d --gcc-dir=$(GCC_SOURCES)
 
 zfp-psim.src:
 	@$(BUILD_RTS_OLD) zfp/psim
