@@ -1526,6 +1526,83 @@ class MPC8641(PPC6XXBBTarget):
                 '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
 
 
+class PPCSPEBBTarget(DFBBTarget):
+    def __init__(self):
+        super(PPCSPEBBTarget, self).__init__(
+            mem_routines=True,
+            libc_files=True,
+            arm_zcx=False)
+        self.build_flags['target'] = 'powerpc-eabispe'
+
+    def amend_zfp(self):
+        super(PPCSPEBBTarget, self).amend_zfp()
+        self.pairs.update({
+            'system.ads': 'system-xi-e500v2.ads',
+            's-lidosq.adb': 's-lidosq-ada.adb',
+            's-lisisq.adb': 's-lisisq-ada.adb'})
+
+    def amend_ravenscar_sfp(self):
+        super(PPCSPEBBTarget, self).amend_ravenscar_sfp()
+        self.gnarl_common += [
+            'powerpc/spe/handler.S',
+            'powerpc/spe/context_switch.S',
+            's-bbcpsp.ads', 's-bbcpsp.adb']
+        self.pairs.update({
+            'system.ads': 'system-xi-e500v2-sfp.ads',
+            's-bbcppr.adb': 's-bbcppr-ppc.adb',
+            's-bbcppr.ads': 's-bbcppr-ppc.ads',
+            's-bbbosu.ads': 's-bbbosu-ppc.ads',
+            's-bbinte.adb': 's-bbinte-ppc.adb',
+            's-bbtime.adb': 's-bbtime-ppc.adb',
+            's-bbcpsp.ads': 's-bbcpsp-spe.ads',
+            's-bbcpsp.adb': 's-bbcpsp-spe.adb'})
+
+    def amend_ravenscar_full(self):
+        super(PPCSPEBBTarget, self).amend_ravenscar_full()
+        self.pairs.update({
+            'system.ads': 'system-xi-e500v2-full.ads',
+            's-traceb.adb': 's-traceb-xi-ppc.adb'})
+
+
+class P2020(PPCSPEBBTarget):
+    def amend_zfp(self):
+        super(P2020, self).amend_zfp()
+        self.arch += [
+            'powerpc/p2020/p2020.ld']
+        self.bsp += [
+            'powerpc/p2020/start-ram.S',
+            'powerpc/p2020/setup.S']
+        # Add s-bb and s-bbbopa (needed by zfp for uart address)
+        self.common.append('s-bb.ads')
+        self.bsp.append('s-bbbopa.ads')
+        self.pairs.update({
+            's-macres.adb': 's-macres-p2020.adb',
+            's-bbbopa.ads': 's-bbbopa-p2020.ads',
+            's-textio.adb': 's-textio-p2020.adb'})
+        self.config_files.update(
+            {'runtime.xml': readfile('powerpc/p2020/runtime.xml')})
+
+    def amend_ravenscar_sfp(self):
+        super(P2020, self).amend_ravenscar_sfp()
+        self.gnarl_common.remove('s-bb.ads')
+        self.pairs.update({
+            's-bbbosu.adb': 's-bbbosu-ppc-openpic.adb',
+            's-bbpara.ads': 's-bbpara-ppc.ads',
+            'a-intnam.ads': 'a-intnam-xi-ppc-openpic.ads'})
+
+    def amend_ravenscar_full(self):
+        super(P2020, self).amend_ravenscar_full()
+        self.config_files.update(
+            {'link-zcx.spec':
+             readfile('powerpc/prep/link-zcx.spec')})
+        self.config_files['runtime.xml'] = \
+            self.config_files['runtime.xml'].replace(
+                '"-nolibc"',
+                '"-nolibc",\n' +
+                '         "-lgnat", "-lgcc", "-lgnat",\n' +
+                '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
+
+
 class Visium(DFBBTarget):
     def __init__(self):
         super(Visium, self).__init__(
@@ -1593,6 +1670,8 @@ def build_configs(target, runtime):
         t = Leon3()
     elif target == '8641d':
         t = MPC8641()
+    elif target == 'p2020':
+        t = P2020()
     elif target == 'mcm':
         t = Visium()
     elif target == 'x86-linux':
