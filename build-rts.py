@@ -534,6 +534,9 @@ class BaseRavenscarFull(BaseRavenscarSFP):
             'g-tasloc.ads',
             'g-wistsp.ads',
 
+            'i-c.adb',
+            'i-cstrin.adb', 'i-cstrin.ads',
+            'i-cpoint.adb', 'i-cpoint.ads',
             'i-cobol.adb',  'i-cobol.ads',
             'i-fortra.adb', 'i-fortra.ads',
             'i-pacdec.adb', 'i-pacdec.ads',
@@ -724,6 +727,7 @@ class BaseRavenscarFull(BaseRavenscarSFP):
              'a-except.adb': 'a-except-2005.adb',
              'a-except.ads': 'a-except-2005.ads',
              'a-exexpr.adb': 'a-exexpr-gcc.adb',
+             'i-c.ads':      'i-c.ads',
              's-flocon.adb': 's-flocon-none.adb',
              's-io.adb': 's-io-xi.adb',
              's-memory.adb': 's-memory-xi.adb',
