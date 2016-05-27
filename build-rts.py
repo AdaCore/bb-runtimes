@@ -1603,6 +1603,61 @@ class P2020(PPCSPEBBTarget):
                 '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
 
 
+class P5566(PPCSPEBBTarget):
+    def amend_zfp(self):
+        super(P5566, self).amend_zfp()
+        self.arch += [
+            'powerpc/p5566/bam.ld',
+            'powerpc/p5566/flash.ld',
+            'powerpc/p5566/ram.ld']
+        self.bsp += [
+            'powerpc/p5566/start-bam.S',
+            'powerpc/p5566/start-ram.S',
+            'powerpc/p5566/start-flash.S',
+            'powerpc/p5566/setup.S',
+            'powerpc/p5566/setup-pll.S']
+        self.pairs.update({
+            's-macres.adb': 's-macres-p55.adb',
+            's-textio.adb': 's-textio-p55.adb'})
+        self.config_files.update(
+            {'runtime.xml': readfile('powerpc/p5566/runtime.xml')})
+
+    def amend_ravenscar_sfp(self):
+        super(P5566, self).amend_ravenscar_sfp()
+        self.gnarl_bsp.append('s-bbbopa.ads')
+        self.pairs.update({
+            's-bbbopa.ads': 's-bbbopa-p55.ads',
+            's-bbbosu.adb': 's-bbbosu-p55.adb',
+            's-bbpara.ads': 's-bbpara-p55.ads',
+            'a-intnam.ads': 'a-intnam-xi-p55.ads'})
+
+    def amend_ravenscar_full(self):
+        super(P5566, self).amend_ravenscar_full()
+        self.config_files.update(
+            {'link-zcx.spec':
+             readfile('powerpc/prep/link-zcx.spec')})
+        self.config_files['runtime.xml'] = \
+            self.config_files['runtime.xml'].replace(
+                '"-nolibc"',
+                '"-nolibc",\n' +
+                '         "-lgnat", "-lgcc", "-lgnat",\n' +
+                '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
+
+
+class P5634(PPCSPEBBTarget):
+    def amend_zfp(self):
+        super(P5634, self).amend_zfp()
+        self.arch += [
+            'powerpc/mpc5634/5634.ld']
+        self.bsp += [
+            'powerpc/mpc5634/start.S']
+        self.pairs.update({
+            's-macres.adb': 's-macres-p55.adb',
+            's-textio.adb': 's-textio-p55.adb'})
+        self.config_files.update(
+            {'runtime.xml': readfile('powerpc/mpc5634/runtime.xml')})
+
+
 class Visium(DFBBTarget):
     def __init__(self):
         super(Visium, self).__init__(
@@ -1672,6 +1727,10 @@ def build_configs(target, runtime):
         t = MPC8641()
     elif target == 'p2020':
         t = P2020()
+    elif target == 'p5566':
+        t = P5566()
+    elif target == 'mpc5634':
+        t = P5634()
     elif target == 'mcm':
         t = Visium()
     elif target == 'x86-linux':
