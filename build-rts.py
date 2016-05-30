@@ -1294,6 +1294,53 @@ class DFBBTarget(Target):
         return True
 
 
+class TMS570(DFBBTarget):
+    def __init__(self):
+        super(TMS570, self).__init__(
+            mem_routines=True,
+            libc_files=True,
+            arm_zcx=True)
+        self.build_flags['target'] = 'arm-eabi'
+
+    def amend_zfp(self):
+        super(TMS570, self).amend_zfp()
+        self.bsp += [
+            'arm/tms570/sys_startup.S',
+            'arm/tms570/crt0.S',
+            'arm/tms570/start-ram.S',
+            'arm/tms570/start-rom.S']
+        self.arch += [
+            'arm/tms570/tms570.ld',
+            'arm/tms570/flash.ld',
+            'arm/tms570/monitor.ld',
+            'arm/tms570/hiram.ld',
+            'arm/tms570/loram.ld',
+            'arm/tms570/common.ld']
+        self.pairs.update(
+            {'system.ads': 'system-xi-arm.ads',
+             's-textio.adb': 's-textio-tms570.adb',
+             's-macres.adb': 's-macres-tms570.adb'})
+        self.config_files.update(
+            {'runtime.xml': readfile('arm/tms570/runtime.xml')})
+
+    def amend_ravenscar_sfp(self):
+        super(TMS570, self).amend_ravenscar_sfp()
+
+        self.pairs.update({
+            'system.ads': 'system-xi-arm-sfp.ads',
+            's-bbcppr.adb': 's-bbcppr-arm.adb',
+            'a-intnam.ads': 'a-intnam-xi-tms570.ads',
+            's-bbbosu.adb': 's-bbbosu-tms570.adb',
+            's-bbpara.ads': 's-bbpara-tms570.ads',
+            's-parame.ads': 's-parame-xi-small.ads'})
+
+    def amend_ravenscar_full(self):
+        super(TMS570, self).amend_ravenscar_full()
+        self.pairs.update({
+            'system.ads': 'system-xi-arm-full.ads',
+            's-traceb.adb': 's-traceb-xi-armeabi.adb'})
+
+
 class Zynq(DFBBTarget):
     def __init__(self):
         super(Zynq, self).__init__(
@@ -1719,6 +1766,8 @@ def build_configs(target, runtime):
         t = Stm32(target)
     elif target.startswith('sam'):
         t = Sam(target)
+    elif target == 'tms570':
+        t = TMS570()
     elif target == 'leon2' or target == 'leon':
         t = Leon2()
     elif target == 'leon3':
