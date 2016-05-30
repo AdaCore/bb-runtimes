@@ -218,25 +218,25 @@ zfp-psim.src:
 
 # powerpc-eabispe runtimes
 zfp-p2020.src:
-	@$(BUILD_RTS_OLD) zfp/p2020
+	@$(BUILD_RTS) zfp/p2020
 
 ravenscar-sfp-p2020.src:
-	@$(BUILD_RTS_OLD) ravenscar-sfp/p2020
+	@$(BUILD_RTS) ravenscar-sfp/p2020
 
 ravenscar-full-p2020.src:
-	@$(BUILD_RTS_OLD) ravenscar-full/p2020 --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS) ravenscar-full/p2020 --gcc-dir=$(GCC_SOURCES)
 
 ravenscar-sfp-p5566.src:
-	@$(BUILD_RTS_OLD) ravenscar-sfp/p5566
+	@$(BUILD_RTS) ravenscar-sfp/p5566
 
 ravenscar-full-p5566.src:
-	@$(BUILD_RTS_OLD) ravenscar-full/p5566 --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS) ravenscar-full/p5566 --gcc-dir=$(GCC_SOURCES)
 
 zfp-p5566.src:
-	@$(BUILD_RTS_OLD) zfp/p5566
+	@$(BUILD_RTS) zfp/p5566
 
 zfp-mpc5634.src:
-	@$(BUILD_RTS_OLD) zfp/mpc5634
+	@$(BUILD_RTS) zfp/mpc5634
 
 # leon-elf runtimes
 zfp-leon.src:
