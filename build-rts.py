@@ -1154,6 +1154,25 @@ class ArmBBTarget(Target):
             's-traceb.adb': 's-traceb-xi-armeabi.adb'})
 
 
+class LM3S(ArmBBTarget):
+    @property
+    def has_single_precision_fpu(self):
+        return False
+
+    def amend_zfp(self):
+        super(LM3S, self).amend_zfp()
+        self.arch += [
+            'arm/lm3s/lm3s-rom.ld',
+            'arm/lm3s/lm3s-ram.ld',
+            'arm/lm3s/start-rom.S',
+            'arm/lm3s/start-ram.S',
+            'arm/lm3s/setup_pll.adb']
+        self.pairs.update({
+            's-textio.adb': 's-textio-lm3s.adb'})
+        self.config_files.update(
+            {'runtime.xml': readfile('arm/lm3s/runtime.xml')})
+
+
 class Stm32(ArmBBTarget):
     _to_mcu = {
         'stm32f4': 'stm32f40x',
@@ -1768,6 +1787,8 @@ def build_configs(target, runtime):
         t = Sam(target)
     elif target == 'tms570':
         t = TMS570()
+    elif target == 'lm3s':
+        t = LM3S()
     elif target == 'leon2' or target == 'leon':
         t = Leon2()
     elif target == 'leon3':
