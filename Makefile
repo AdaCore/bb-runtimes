@@ -260,19 +260,19 @@ ravenscar-full-leon3.src:
 
 # arm-eabi runtimes
 zfp-tms570.src:
-	@$(BUILD_RTS_OLD) zfp/tms570
+	@$(BUILD_RTS) zfp/tms570
 
 ravenscar-sfp-tms570.src:
-	@$(BUILD_RTS_OLD) ravenscar-sfp/tms570
+	@$(BUILD_RTS) ravenscar-sfp/tms570
 
 ravenscar-full-tms570.src:
-	@$(BUILD_RTS_OLD) ravenscar-full/tms570 --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS) ravenscar-full/tms570 --gcc-dir=$(GCC_SOURCES)
 
 ravenscar-full-tms570-sci.src:
-	@$(BUILD_RTS_OLD) ravenscar-full/tms570-sci --gcc-dir=$(GCC_SOURCES)
+	@$(BUILD_RTS) ravenscar-full/tms570-sci --gcc-dir=$(GCC_SOURCES)
 
 zfp-lm3s.src:
-	@$(BUILD_RTS_OLD) zfp/lm3s
+	@$(BUILD_RTS) zfp/lm3s
 
 zfp-stm32f4.src:
 	@$(BUILD_RTS) zfp/stm32f4
@@ -318,7 +318,7 @@ ravenscar-sfp-samg55.src:
 
 # visium-elf
 zfp-mcm.src:
-	@$(BUILD_RTS_OLD) zfp/mcm
+	@$(BUILD_RTS) zfp/mcm
 
 # Native
 zfp-x86-linux.src:
