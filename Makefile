@@ -85,11 +85,6 @@ endif
 # Helper for creating <config>.src targets.
 # you can use it the following way $(BUILD_RTS) config [build-rts opts...]
 # you don't have to specify --objdir and gnat sources location.
-BUILD_RTS_OLD=fun () (if [ \"$(TARGET)\" = \"\" ]; then echo "TARGET not defined"; return 1; fi; \
-	          mkdir -p obj; rm -rf obj/$@; config=$$1; shift; \
-	          set -x; ./build-rts.sh $$@ --objdir=obj/$@ --cross-dir=$(CROSS_SOURCES) $${config} $(GNAT_SOURCES)); \
-          fun
-
 BUILD_RTS=fun () (if [ \"$(TARGET)\" = \"\" ]; then echo "TARGET not defined"; return 1; fi; \
 	          mkdir -p obj; rm -rf obj/$@; config=$$1; shift; \
 	          set -x; ./build-rts.py $$@ --output=obj/$@ --cross-dir=$(CROSS_SOURCES) --gnat-dir=$(GNAT_SOURCES) --gcc-dir=$(GCC_SOURCES) $${config}); \
@@ -213,9 +208,6 @@ ravenscar-sfp-mpc8641.src:
 ravenscar-full-mpc8641.src:
 	@$(BUILD_RTS) ravenscar-full/8641d --gcc-dir=$(GCC_SOURCES)
 
-zfp-psim.src:
-	@$(BUILD_RTS_OLD) zfp/psim
-
 # powerpc-eabispe runtimes
 zfp-p2020.src:
 	@$(BUILD_RTS) zfp/p2020
@@ -322,13 +314,10 @@ zfp-mcm.src:
 
 # Native
 zfp-x86-linux.src:
-	@$(BUILD_RTS_OLD) zfp/x86-linux
+	@$(BUILD_RTS) zfp/x86-linux
 
 zfp-x86-windows.src:
-	@$(BUILD_RTS_OLD) zfp/x86-windows
-
-zfp-sparc-solaris.src:
-	@$(BUILD_RTS_OLD) zfp/sparc-solaris
+	@$(BUILD_RTS) zfp/x86-windows
 
 # pikeos
 zfp-arm-pikeos.src:
