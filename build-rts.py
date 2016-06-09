@@ -747,6 +747,26 @@ class BaseRavenscarFull(BaseRavenscarSFP):
         else:
             self.pairs.update({'s-excmac.ads': 's-excmac-gcc.ads'})
 
+        # Tasking extensions: relative delays
+        self.gnarl_common += [
+            's-reldel.ads', 's-reldel.adb']
+        self.pairs.update(
+            {'s-reldel.ads': 's-reldel-xi.ads',
+             's-reldel.adb': 's-reldel-xi.adb'})
+
+        # Tasking extensions: multiple entries
+        self.gnarl_common += [
+            's-tpoben.ads', 's-tpoben.adb',
+            's-tasque.ads', 's-tasque.adb',
+            's-tpobop.ads', 's-tpobop.adb']
+        self.pairs.update(
+            {'s-tpoben.ads': 's-tpoben-raven-full.ads',
+             's-tpoben.adb': 's-tpoben-raven-full.adb',
+             's-tasque.ads': 's-tasque-raven-full.ads',
+             's-tasque.adb': 's-tasque-raven-full.adb',
+             's-tpobop.ads': 's-tpobop-raven-full.ads',
+             's-tpobop.adb': 's-tpobop-raven-full.adb'})
+
     @property
     def merge_libgnarl(self):
         return False
