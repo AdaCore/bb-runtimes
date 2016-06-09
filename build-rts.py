@@ -507,20 +507,20 @@ class BaseRavenscarFull(BaseRavenscarSFP):
             'g-bytswa.adb', 'g-bytswa.ads',
             'g-casuti.adb', 'g-casuti.ads',
             'g-comver.adb', 'g-comver.ads',
-            'g-crc32.adb',  'g-crc32.ads',
+            'g-crc32.adb', 'g-crc32.ads',
             'g-debuti.adb', 'g-debuti.ads',
             'g-except.ads',
             'g-heasor.adb', 'g-heasor.ads',
             'g-hesora.adb', 'g-hesora.ads',
             'g-hesorg.adb', 'g-hesorg.ads',
             'g-htable.adb', 'g-htable.ads',
-            'g-md5.adb',    'g-md5.ads',
+            'g-md5.adb', 'g-md5.ads',
             'g-moreex.adb', 'g-moreex.ads',
             'g-regexp.ads',
             'g-sechas.adb', 'g-sechas.ads',
             'g-sehamd.adb', 'g-sehamd.ads',
             'g-sehash.adb', 'g-sehash.ads',
-            'g-sha1.adb',   'g-sha1.ads',
+            'g-sha1.adb', 'g-sha1.ads',
             'g-sha224.ads',
             'g-sha256.ads',
             'g-sha384.ads',
@@ -530,14 +530,14 @@ class BaseRavenscarFull(BaseRavenscarSFP):
             'g-shshco.adb', 'g-shshco.ads',
             'g-string.ads',
             'g-strspl.ads',
-            'g-table.adb',  'g-table.ads',
+            'g-table.adb', 'g-table.ads',
             'g-tasloc.ads',
             'g-wistsp.ads',
 
             'i-c.adb',
             'i-cstrin.adb', 'i-cstrin.ads',
             'i-cpoint.adb', 'i-cpoint.ads',
-            'i-cobol.adb',  'i-cobol.ads',
+            'i-cobol.adb', 'i-cobol.ads',
             'i-fortra.adb', 'i-fortra.ads',
             'i-pacdec.adb', 'i-pacdec.ads',
 
@@ -559,7 +559,7 @@ class BaseRavenscarFull(BaseRavenscarSFP):
             's-caun32.adb', 's-caun32.ads',
             's-caun64.adb', 's-caun64.ads',
             's-chepoo.ads',
-            's-crc32.adb',  's-crc32.ads',
+            's-crc32.adb', 's-crc32.ads',
             's-except.adb', 's-except.ads',
             's-excdeb.adb', 's-excdeb.ads',
             's-exctab.adb', 's-exctab.ads',
@@ -573,7 +573,7 @@ class BaseRavenscarFull(BaseRavenscarSFP):
             's-finmas.adb', 's-finmas.ads',
             's-finroo.ads', 's-finroo.adb',
             's-flocon.adb', 's-flocon.ads',
-            's-fore.adb',   's-fore.ads',
+            's-fore.adb', 's-fore.ads',
             's-geveop.adb', 's-geveop.ads',
             's-htable.adb', 's-htable.ads',
             's-imenne.adb', 's-imenne.ads',
@@ -587,8 +587,8 @@ class BaseRavenscarFull(BaseRavenscarSFP):
             's-imgrea.adb', 's-imgrea.ads',
             's-imgwch.adb', 's-imgwch.ads',
             's-imgwiu.adb', 's-imgwiu.ads',
-            's-init.adb',   's-init.ads',
-            's-io.adb',     's-io.ads',
+            's-init.adb', 's-init.ads',
+            's-io.adb', 's-io.ads',
             's-mantis.adb', 's-mantis.ads',
             's-mastop.adb', 's-mastop.ads',
             's-pack03.adb', 's-pack03.ads',
@@ -727,7 +727,7 @@ class BaseRavenscarFull(BaseRavenscarSFP):
              'a-except.adb': 'a-except-2005.adb',
              'a-except.ads': 'a-except-2005.ads',
              'a-exexpr.adb': 'a-exexpr-gcc.adb',
-             'i-c.ads':      'i-c.ads',
+             'i-c.ads': 'i-c.ads',
              's-flocon.adb': 's-flocon-none.adb',
              's-io.adb': 's-io-xi.adb',
              's-memory.adb': 's-memory-xi.adb',
@@ -1158,6 +1158,11 @@ class LM3S(ArmBBTarget):
     @property
     def has_single_precision_fpu(self):
         return False
+
+    @property
+    def has_fpu(self):
+        # Still add floating point attributes
+        return True
 
     def amend_zfp(self):
         super(LM3S, self).amend_zfp()
