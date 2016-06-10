@@ -34,8 +34,6 @@ flag_dryrun=
 flag_keepall=
 flag_force=
 
-flag_build_rts_py=
-
 build_rts()
 {
     prefix=$1
@@ -63,16 +61,10 @@ build_rts()
          else
             runcmd rm -rf "install"
          fi
-	 if [ "$flag_build_rts_py" != "" ]; then
-             runcmd ./build-rts.py --output=$objdir --gcc-dir=$GCC_SRC_DIR \
-		    --gnat-dir=$GNAT_SRC_DIR $src_opts ${flag_verbose:+-v} \
-		    $opts $config  || \
-	     return 1
-	 else
-             runcmd ./build-rts.sh --objdir=$objdir --gcc-dir=$GCC_SRC_DIR \
-		 $src_opts ${flag_verbose:+-v} $opts $config $GNAT_SRC_DIR || \
-	     return 1
-	 fi
+         runcmd ./build-rts.py --output=$objdir --gcc-dir=$GCC_SRC_DIR \
+	 	    --gnat-dir=$GNAT_SRC_DIR $src_opts ${flag_verbose:+-v} \
+	 	    $opts $config  || \
+	 return 1
       fi
 
       prj=$objdir/runtime_build.gpr
@@ -694,7 +686,6 @@ else
               esac
               ;;
           stm32f4)
-	      flag_build_rts_py=y
               case $opt in
                   zfp)  build_zfp_stm32f4 ;;
                   sfp)  build_sfp_stm32f4 ;;
@@ -705,7 +696,6 @@ else
               esac
               ;;
           stm32f40)
-	      flag_build_rts_py=y
               case $opt in
                   zfp)  build_zfp_stm32f40 ;;
                   sfp)  build_sfp_stm32f40 ;;
@@ -714,7 +704,6 @@ else
               esac
               ;;
           stm32f429)
-	      flag_build_rts_py=y
               case $opt in
                   zfp)  build_zfp_stm32f429 ;;
                   sfp)  build_sfp_stm32f429 ;;
@@ -723,7 +712,6 @@ else
               esac
               ;;
           stm32f469)
-	      flag_build_rts_py=y
               case $opt in
                   zfp)  build_zfp_stm32f469 ;;
                   sfp)  build_sfp_stm32f469 ;;
@@ -732,7 +720,6 @@ else
               esac
               ;;
           stm32f7)
-	      flag_build_rts_py=y
               case $opt in
                   zfp)  build_zfp_stm32f7 ;;
                   sfp)  build_sfp_stm32f7 ;;
@@ -741,7 +728,6 @@ else
               esac
               ;;
           sam4s)
-	      flag_build_rts_py=y
               case $opt in
                   zfp)  build_zfp_sam4s ;;
                   sfp)  build_sfp_sam4s ;;
@@ -749,7 +735,6 @@ else
               esac
               ;;
           samg55)
-	      flag_build_rts_py=y
               case $opt in
                   zfp)  build_zfp_samg55 ;;
                   sfp)  build_sfp_samg55 ;;
@@ -779,7 +764,6 @@ else
               esac
               ;;
           zynq)
-	      flag_build_rts_py=y
                case $opt in
                    zfp)  build_zfp_zynq ;;
 		   sfp)  build_sfp_zynq ;;
