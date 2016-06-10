@@ -1617,6 +1617,33 @@ class MPC8641(PPC6XXBBTarget):
                 '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
 
 
+class MPC8349(PPC6XXBBTarget):
+    def amend_zfp(self):
+        super(MPC8349, self).amend_zfp()
+        self.arch += [
+            'powerpc/8349e/ram.ld']
+        self.bsp += [
+            'powerpc/8349e/start-ram.S',
+            'powerpc/8349e/setup.S']
+        # Add s-bb and s-bbbopa (needed by zfp for uart address)
+        self.common.append('s-bb.ads')
+        self.bsp.append('s-bbbopa.ads')
+        self.pairs.update({
+            's-macres.adb': 's-macres-8349e.adb',
+            's-bbbopa.ads': 's-bbbopa-8349e.ads',
+            's-textio.adb': 's-textio-p2020.adb'})
+        self.config_files.update(
+            {'runtime.xml': readfile('powerpc/8349e/runtime.xml')})
+
+    def amend_ravenscar_sfp(self):
+        super(MPC8641, self).amend_ravenscar_sfp()
+        self.gnarl_common.remove('s-bb.ads')
+        self.pairs.update({
+            's-bbbosu.adb': 's-bbbosu-8349e.adb',
+            's-bbpara.ads': 's-bbpara-ppc.ads',
+            'a-intnam.ads': 'a-intnam-xi-8349e.ads'})
+
+
 class PPCSPEBBTarget(DFBBTarget):
     def __init__(self):
         super(PPCSPEBBTarget, self).__init__(
@@ -1793,7 +1820,7 @@ class X86Linux(X86Native):
 
 class X86Windows(X86Native):
     def __init__(self):
-        super(X86Linux, self).__init__()
+        super(X86Windows, self).__init__()
         self.build_flags['target'] = 'x86-windows'
 
 
