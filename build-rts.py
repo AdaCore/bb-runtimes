@@ -1617,9 +1617,9 @@ class MPC8641(PPC6XXBBTarget):
                 '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
 
 
-class MPC8349(PPC6XXBBTarget):
+class MPC8349e(PPC6XXBBTarget):
     def amend_zfp(self):
-        super(MPC8349, self).amend_zfp()
+        super(MPC8349e, self).amend_zfp()
         self.arch += [
             'powerpc/8349e/ram.ld']
         self.bsp += [
@@ -1636,7 +1636,7 @@ class MPC8349(PPC6XXBBTarget):
             {'runtime.xml': readfile('powerpc/8349e/runtime.xml')})
 
     def amend_ravenscar_sfp(self):
-        super(MPC8641, self).amend_ravenscar_sfp()
+        super(MPC8349e, self).amend_ravenscar_sfp()
         self.gnarl_common.remove('s-bb.ads')
         self.pairs.update({
             's-bbbosu.adb': 's-bbbosu-8349e.adb',
@@ -1847,6 +1847,8 @@ def build_configs(target, runtime):
         t = Leon3()
     elif target == '8641d':
         t = MPC8641()
+    elif target == '8349e':
+        t = MPC8349e()
     elif target == 'p2020':
         t = P2020()
     elif target == 'p5566':

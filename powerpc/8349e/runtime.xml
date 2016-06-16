@@ -25,7 +25,7 @@
 
   package Linker is
       for Required_Switches use Linker'Required_Switches &amp;
-        ("-nostdlib", "-L${RUNTIME_DIR(ada)}/adalib") &amp;
+        ("-L${RUNTIME_DIR(ada)}/adalib") &amp;
         Compiler.Common_Required_Switches &amp;
         ("-Wl,-z,max-page-size=0x1000", "-Wl,-T" &amp; LDSCRIPT);
       --  Specify the runtime library, the compiler switches and the
