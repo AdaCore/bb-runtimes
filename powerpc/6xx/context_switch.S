@@ -130,7 +130,6 @@ __gnat_context_switch:
 #endif
 
 	blr
-
         .size __gnat_context_switch, . - __gnat_context_switch
 
         .globl __gnat_start_thread
@@ -140,10 +139,10 @@ __gnat_start_thread:
 	li	%r0,0
 	mtlr	%r0
 
+	# Copy argument and pc
 	mtctr	%r14
 	mr	%r3,%r15
-	bctr
 
-	# Ravenscar tasks should never return!
-	trap
+	# Jump
+	bctr
         .size __gnat_start_thread, . - __gnat_start_thread

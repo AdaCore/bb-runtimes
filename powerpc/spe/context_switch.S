@@ -95,16 +95,19 @@ __gnat_context_switch:
         mtcr    %r6
 
 	blr
-
         .size __gnat_context_switch, . - __gnat_context_switch
 
         .globl __gnat_start_thread
 	.type  __gnat_start_thread, @function
 __gnat_start_thread:
-        mtlr    %r14
-        mr      %r3,%r15
-        blr
-        # Ravenscar tasks should never return!
-        trap
-        .size __gnat_start_thread, . - __gnat_start_thread
+	# Clear lr to mark end of stack
+	li	%r0,0
+	mtlr	%r0
 
+	# Copy argument and pc
+	mtctr	%r14
+	mr	%r3,%r15
+
+	# Jump
+	bctr
+        .size __gnat_start_thread, . - __gnat_start_thread
