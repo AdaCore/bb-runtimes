@@ -26,7 +26,6 @@
 ------------------------------------------------------------------------------
 
 pragma Ada_2012; -- To work around pre-commit check?
-pragma Restrictions (No_Elaboration_Code);
 pragma Suppress (All_Checks);
 
 --  This initialization procedure mainly initializes the PLLs and
@@ -44,7 +43,6 @@ with System.BB.MCU_Parameters;
 with System.STM32;             use System.STM32;
 
 procedure Setup_Pll is
-
    procedure Initialize_Clocks;
    procedure Reset_Clocks;
 
@@ -60,10 +58,10 @@ procedure Setup_Pll is
    Activate_Overdrive : constant Boolean := True;
    Activate_PLLI2S    : constant Boolean := False;
 
-   pragma Assert ((if Activate_PLL then HSE_Enabled),
-                  "PLL only supported with external clock");
+   pragma Compile_Time_Error (not (if Activate_PLL then HSE_Enabled),
+                              "PLL only supported with external clock");
 
-   pragma Assert (not Activate_PLLI2S, "not yet implemented");
+   pragma Compile_Time_Error (Activate_PLLI2S, "not yet implemented");
 
    -----------------------
    -- Initialize_Clocks --
@@ -148,27 +146,19 @@ procedure Setup_Pll is
    begin
 
       --  Check configuration
-      pragma Warnings (Off, "condition is always False");
-      if PLLVC0 not in PLLVC0_Range
-        or else
-          PLLCLKOUT not in PLLOUT_Range
-      then
-         raise Program_Error with "Invalid clock configuration";
-      end if;
+      pragma Compile_Time_Error
+        (PLLVC0 not in PLLVC0_Range or else PLLCLKOUT not in PLLOUT_Range,
+           "Invalid clock configuration");
 
-      if SYSCLK /= Clock_Frequency then
-         raise Program_Error with "Cannot generate requested clock";
-      end if;
+      pragma Compile_Time_Error
+        (SYSCLK /= Clock_Frequency,
+           "Cannot generate requested clock");
 
-      if HCLK not in HCLK_Range
-        or else
-         PCLK1 not in PCLK1_Range
-        or else
-         PCLK2 not in PCLK2_Range
-      then
-         raise Program_Error with "Invalid AHB/APB prescalers configuration";
-      end if;
-      pragma Warnings (On, "condition is always False");
+      pragma Compile_Time_Error
+        (HCLK not in HCLK_Range
+           or else PCLK1 not in PCLK1_Range
+           or else PCLK2 not in PCLK2_Range,
+           "Invalid AHB/APB prescalers configuration");
 
       --  PWR clock enable
 

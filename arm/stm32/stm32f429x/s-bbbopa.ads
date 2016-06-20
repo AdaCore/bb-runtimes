@@ -35,6 +35,7 @@
 --  This package defines board parameters for the STM32F429-Discovery board
 
 package System.BB.Board_Parameters is
+   pragma No_Elaboration_Code_All;
    pragma Pure;
 
    --------------------
