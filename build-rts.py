@@ -1191,7 +1191,8 @@ class LM3S(ArmBBTarget):
             'arm/lm3s/lm3s-ram.ld',
             'arm/lm3s/start-rom.S',
             'arm/lm3s/start-ram.S',
-            'arm/lm3s/setup_pll.adb']
+            'arm/lm3s/setup_pll.adb',
+            'arm/lm3s/setup_pll.ads']
         self.pairs.update({
             's-textio.adb': 's-textio-lm3s.adb'})
         self.config_files.update(
@@ -1228,6 +1229,7 @@ class Stm32(ArmBBTarget):
             'arm/stm32/start-ram.S',
             'arm/stm32/start-common.S',
             'arm/stm32/setup_pll.adb',
+            'arm/stm32/setup_pll.ads',
             'arm/stm32/%s/memory-map.ld' % self.mcu,
             'arm/stm32/%s/s-bbmcpa.ads' % self.mcu,
             'arm/stm32/%s/s-bbmcpa.adb' % self.mcu,
