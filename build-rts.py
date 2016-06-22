@@ -1758,8 +1758,8 @@ class P5566(PPCSPEBBTarget):
              readfile('powerpc/prep/link-zcx.spec')})
         self.config_files['runtime.xml'] = \
             self.config_files['runtime.xml'].replace(
-                '"-nolibc"',
-                '"-nolibc",\n' +
+                ' "-nostartfiles"',
+                '\n' +
                 '         "-lgnat", "-lgcc", "-lgnat",\n' +
                 '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
 
