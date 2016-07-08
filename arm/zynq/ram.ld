@@ -98,8 +98,12 @@ SECTIONS
   {
     KEEP (*(.traps))
     *(.text .text.* .gnu.linkonce.t*)
+  } > REGION_CODE
+
+  .rodata :
+  {
     *(.rodata .rodata.* .gnu.linkonce.r*)
-  }  > REGION_CODE
+  } > REGION_CODE
 
   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > REGION_CODE
   PROVIDE_HIDDEN (__exidx_start = .);
