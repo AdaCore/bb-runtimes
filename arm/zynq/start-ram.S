@@ -86,16 +86,8 @@ __start_ram:
 
 	/* Call the main routine */
 	bl	main
-
+	bl	_exit
 	.size	__start_ram, . - __start_ram
-
-        /* Fall through in order to halt if main would return ... */
-
-	.global	__exit
-__exit:
-	b	__exit
-
-	.size	__exit, . - __exit
 
 L_coreEnableVfp:
 	mrc	p15, #0x00, r0, c1, c0, #0x02
