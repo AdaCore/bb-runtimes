@@ -1403,7 +1403,7 @@ class Zynq(DFBBTarget):
         self.pairs.update(
             {'system.ads': 'system-xi-arm.ads',
              's-textio.adb': 's-textio-zynq.adb',
-             's-macres.adb': 's-macres-none.adb'})
+             's-macres.adb': 's-macres-zynq.adb'})
         self.config_files.update(
             {'runtime.xml': readfile('arm/zynq/runtime.xml')})
 
