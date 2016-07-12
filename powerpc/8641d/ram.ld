@@ -108,9 +108,6 @@ SECTIONS
    *(COMMON)
    . = ALIGN(4);
    __bss_end = .;
-   __stack_start = .;
-   . = . + 0x1000;
-   __stack_end = .;
    . = ALIGN(8);
    __heap_start = .;
    . = . + 0x100000;
