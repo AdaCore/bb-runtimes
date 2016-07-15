@@ -884,6 +884,9 @@ class Target(TargetConfiguration):
         # Find the sourcedir
         if '/' not in srcfile:
             # Files without path elements are in gnat
+            if self.manifest and srcfile not in self.manifest:
+                print "Error: source file %s not in MANIFEST" % srcfile
+                sys.exit(2)
             self._copy(os.path.join(gnatdir, srcfile), dst)
         else:
             for d in [os.path.dirname(__file__), gccdir, crossdir]:
@@ -896,6 +899,16 @@ class Target(TargetConfiguration):
 
     def install(self, destination):
         assert self.common is not None, "Uninitialized Target object"
+
+        # Read manifest file (if exists)
+        manifest_file = os.path.join(gnatdir, "MANIFEST.GNAT")
+        self.manifest = []
+        if os.path.isfile(manifest_file):
+            f = open(manifest_file, 'r')
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('--'):
+                    self.manifest.append(line)
 
         # Build target directories
         destination = fullpath(destination)
