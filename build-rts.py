@@ -1400,16 +1400,16 @@ class TMS570(DFBBTarget):
             's-traceb.adb': 's-traceb-xi-armeabi.adb'})
 
 
-class Zynq(DFBBTarget):
+class Zynq7000(DFBBTarget):
     def __init__(self):
-        super(Zynq, self).__init__(
+        super(Zynq7000, self).__init__(
             mem_routines=True,
             libc_files=True,
             arm_zcx=True)
         self.build_flags['target'] = 'arm-eabi'
 
     def amend_zfp(self):
-        super(Zynq, self).amend_zfp()
+        super(Zynq7000, self).amend_zfp()
         self.bsp += [
             'arm/zynq/ram.ld',
             'arm/zynq/start-ram.S']
@@ -1421,7 +1421,7 @@ class Zynq(DFBBTarget):
             {'runtime.xml': readfile('arm/zynq/runtime.xml')})
 
     def amend_ravenscar_sfp(self):
-        super(Zynq, self).amend_ravenscar_sfp()
+        super(Zynq7000, self).amend_ravenscar_sfp()
 
         self.pairs.update({
             'system.ads': 'system-xi-cortexa-sfp.ads',
@@ -1846,8 +1846,8 @@ def build_configs(target, runtime):
         t = PpcPikeOS()
     elif target == 'x86-pikeos':
         t = X86PikeOS()
-    elif target == 'zynq':
-        t = Zynq()
+    elif target == 'zynq7000':
+        t = Zynq7000()
     elif target.startswith('stm32'):
         t = Stm32(target)
     elif target.startswith('sam'):

@@ -284,14 +284,14 @@ build_sfp_rm48()
     do_ravenscar arm-eabi ravenscar-sfp/rm48
 }
 
-build_zfp_zynq()
+build_zfp_zynq7000()
 {
-    do_zfp arm-eabi zfp/zynq
+    do_zfp arm-eabi zfp/zynq7000
 }
 
-build_sfp_zynq()
+build_sfp_zynq7000()
 {
-    do_ravenscar arm-eabi ravenscar-sfp/zynq
+    do_ravenscar arm-eabi ravenscar-sfp/zynq7000
 }
 
 build_zfp_stm32f4()
@@ -308,6 +308,7 @@ build_full_stm32f4()
 {
     do_ravenscar arm-eabi ravenscar-full/stm32f4
 }
+
 
 build_zfp_stm32f429()
 {
@@ -469,6 +470,16 @@ build_full_ppc_pikeos()
     do_ravenscar powerpc-sysgo-pikeos ravenscar-full/ppc-pikeos
 }
 
+build_zfp_ppc_pikeos()
+{
+    do_zfp powerpc-sysgo-pikeos zfp/ppc-pikeos
+}
+
+build_sfp_ppc_pikeos()
+{
+    do_ravenscar powerpc-sysgo-pikeos ravenscar-sfp/ppc-pikeos
+}
+
 build_zfp_x86_pikeos()
 {
     do_zfp i586-sysgo-pikeos zfp/x86-pikeos
@@ -511,6 +522,7 @@ usage()
    echo "$0 [options] rts ...  - compiles specified runtimes on given target"
    echo
    echo "  -g           build with debug info"
+   echo "  -a           build with assertion"
    echo "  -t           run ravenscar test suite"
    echo "  -v           verbose"
    echo "  -n           dry run, echo commands but don't execute"
@@ -530,6 +542,7 @@ usage()
 while [ $# -gt 0 ]; do
     case $1 in
         -g) build_opts="$build_opts -g -XBUILD=Debug";;
+        -a) build_opts="$build_opts -XBUILD=Assert";;
         -O*) build_opts="$build_opts $1";;
         -j*) build_opts="$build_opts $1";;
         -t) flag_tests=y;;
@@ -670,7 +683,7 @@ else
               ;;
 
 	  # GR
-          mcm)
+          mcm|visium)
               case $opt in
                   zfp)  build_zfp_visium ;;
                   zfp-support)  build_zfp_support_visium ;;
@@ -692,14 +705,6 @@ else
                   full) build_full_stm32f4 ;;
                   raven-sfp) raven_testsuite ravenscar-sfp/stm32f4 ;;
                   raven-full) raven_testsuite ravenscar-full/stm32f4 ;;
-                  *) echo "Unknown command $opt for target $target"; exit 2;;
-              esac
-              ;;
-          stm32f40)
-              case $opt in
-                  zfp)  build_zfp_stm32f40 ;;
-                  sfp)  build_sfp_stm32f40 ;;
-                  full) build_full_stm32f40 ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
@@ -742,7 +747,7 @@ else
               esac
               ;;
           tms570)
-               case $opt in
+	      case $opt in
                   zfp)  build_zfp_tms570 ;;
                   zfp-sci)  build_zfp_tms570-sci ;;
                   sfp)  build_sfp_tms570 ;;
@@ -763,10 +768,10 @@ else
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
-          zynq)
+          zynq7000)
                case $opt in
-                   zfp)  build_zfp_zynq ;;
-		   sfp)  build_sfp_zynq ;;
+                   zfp)  build_zfp_zynq7000 ;;
+		   sfp)  build_sfp_zynq7000 ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
@@ -816,6 +821,8 @@ else
               ;;
           ppc-pikeos)
               case $opt in
+                  zfp) build_zfp_ppc_pikeos ;;
+                  sfp) build_sfp_ppc_pikeos ;;
                   full) build_full_ppc_pikeos ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
