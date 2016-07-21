@@ -1430,6 +1430,12 @@ class Zynq7000(DFBBTarget):
             's-bbbosu.adb': 's-bbbosu-cortexa9.adb',
             's-bbpara.ads': 's-bbpara-cortexa9.ads'})
 
+    def amend_ravenscar_full(self):
+        super(Zynq7000, self).amend_ravenscar_full()
+        self.pairs.update({
+            'system.ads': 'system-xi-cortexa-full.ads',
+            's-traceb.adb': 's-traceb-xi-armeabi.adb'})
+
 
 class SparcBBTarget(DFBBTarget):
     def __init__(self):

@@ -294,6 +294,11 @@ build_sfp_zynq7000()
     do_ravenscar arm-eabi ravenscar-sfp/zynq7000
 }
 
+build_full_zynq7000()
+{
+    do_ravenscar arm-eabi ravenscar-full/zynq7000
+}
+
 build_zfp_stm32f4()
 {
     do_zfp arm-eabi zfp/stm32f4
@@ -772,6 +777,7 @@ else
                case $opt in
                    zfp)  build_zfp_zynq7000 ;;
 		   sfp)  build_sfp_zynq7000 ;;
+		   full)  build_full_zynq7000 ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
