@@ -2,7 +2,7 @@
 --  Copyright (C) 2016, AdaCore
 --
 
---  This spec has been automatically generated from STM32F429x.svd
+--  This spec has been automatically generated from STM32F7x9.svd
 
 pragma Ada_2012;
 

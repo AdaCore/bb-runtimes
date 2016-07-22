@@ -2,9 +2,9 @@
 --  Copyright (C) 2016, AdaCore
 --
 
---  This spec has been automatically generated from STM32F7x.svd
+--  This spec has been automatically generated from STM32F7x9.svd
 
---  This is a version for the STM32F7x MCU
+--  This is a version for the STM32F7x9 MCU
 package Ada.Interrupts.Names is
 
    --  All identifiers in this unit are implementation defined
@@ -187,12 +187,6 @@ package Ada.Interrupts.Names is
    --  DMA2 Stream4 global interrupt
    DMA2_Stream4_Interrupt        : constant Interrupt_ID := 62;
 
-   --  Ethernet global interrupt
-   ETH_Interrupt                 : constant Interrupt_ID := 63;
-
-   --  Ethernet Wakeup through EXTI line interrupt
-   ETH_WKUP_Interrupt            : constant Interrupt_ID := 64;
-
    --  CAN2 TX interrupts
    CAN2_TX_Interrupt             : constant Interrupt_ID := 65;
 
@@ -256,10 +250,31 @@ package Ada.Interrupts.Names is
    --  LTDC global interrupt
    LCD_TFT_Interrupt             : constant Interrupt_ID := 90;
 
-   --  LTDC Error global interrupt
-   LTDC_ER_Interrupt             : constant Interrupt_ID := 91;
-
    --  DMA2D global interrupt
    DMA2D_Interrupt               : constant Interrupt_ID := 92;
+
+   --  DSI host global interrupt
+   DSIHOST_Interrupt             : constant Interrupt_ID := 100;
+
+   --  SDMMC2 global interrupt
+   SDMMC2_Interrupt              : constant Interrupt_ID := 105;
+
+   --  CAN3 TX interrupt
+   CAN3_TX_Interrupt             : constant Interrupt_ID := 106;
+
+   --  CAN3 RX0 interrupt
+   CAN3_RX0_Interrupt            : constant Interrupt_ID := 107;
+
+   --  CAN3 RX1 interrupt
+   CAN3_RX1_Interrupt            : constant Interrupt_ID := 108;
+
+   --  CAN3 SCE interrupt
+   CAN3_SCE_Interrupt            : constant Interrupt_ID := 109;
+
+   --  JPEG global interrupt
+   JPEG_Interrupt                : constant Interrupt_ID := 110;
+
+   --  MDIO slave global interrupt
+   MDIOS_Interrupt               : constant Interrupt_ID := 111;
 
 end Ada.Interrupts.Names;

@@ -2,9 +2,9 @@
 --                                                                          --
 --                  GNAT RUN-TIME LIBRARY (GNARL) COMPONENTS                --
 --                                                                          --
---            S Y S T E M . B B . B O A R D _ P A R A M E T E R S           --
+--              S Y S T E M . B B . M C U _ P A R A M E T E R S             --
 --                                                                          --
---                                  S p e c                                 --
+--                                  B o d y                                 --
 --                                                                          --
 --                      Copyright (C) 2016, AdaCore                         --
 --                                                                          --
@@ -32,24 +32,41 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package defines board parameters for the STM32F429-Discovery board
+with Interfaces.STM32.PWR; use Interfaces.STM32.PWR;
 
-package System.BB.Board_Parameters is
-   pragma No_Elaboration_Code_All;
-   pragma Pure;
+package body System.BB.MCU_Parameters is
 
    --------------------
-   -- Hardware clock --
+   -- PWR_Initialize --
    --------------------
 
-   Main_Clock_Frequency : constant := 200_000_000;
-   --  Maximal frequency in over-drive mode is 216MHz. However this can lead
-   --  to instabilities, so we lower the frequency to 200MHz.
-   --  In non over-drive mode, the frequency should be adjusted to 180 MHz.
+   procedure PWR_Initialize
+   is
+   begin
+      --  Set the PWR to Scale 1 mode to stabilize the MCU when in high
+      --  performance mode.
+      PWR_Periph.CR1.VOS := 3;
+   end PWR_Initialize;
 
-   HSE_Clock_Frequency : constant := 25_000_000;
-   --  Frequency of High Speed External clock.
+   --------------------------
+   -- PWR_Overdrive_Enable --
+   --------------------------
 
-   FLASH_Latency : constant := 5;
+   procedure PWR_Overdrive_Enable
+   is
+   begin
+      --  Enable the overdrive mode
+      PWR_Periph.CR1.ODEN := 1;
+      --  Wait for stabilisation
+      loop
+         exit when PWR_Periph.CSR1.ODRDY = 1;
+      end loop;
 
-end System.BB.Board_Parameters;
+      --  Enable the overdrive switch
+      PWR_Periph.CR1.ODSWEN := 1;
+      loop
+         exit when PWR_Periph.CSR1.ODSWRDY = 1;
+      end loop;
+   end PWR_Overdrive_Enable;
+
+end System.BB.MCU_Parameters;

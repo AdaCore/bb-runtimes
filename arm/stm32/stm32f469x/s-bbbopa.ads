@@ -42,11 +42,13 @@ package System.BB.Board_Parameters is
    -- Hardware clock --
    --------------------
 
-   Clock_Frequency : constant := 180_000_000;
+   Main_Clock_Frequency : constant := 180_000_000;
    --  Maximal frequency in over-drive mode. In non over-drive mode, the
    --  frequency should be adjusted to 168 MHz.
 
    HSE_Clock_Frequency : constant := 8_000_000;
    --  Frequency of High Speed External clock.
+
+   FLASH_Latency : constant := 5;
 
 end System.BB.Board_Parameters;

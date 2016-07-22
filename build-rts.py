@@ -1217,13 +1217,18 @@ class Stm32(ArmBBTarget):
         'stm32f4': 'stm32f40x',
         'stm32f429disco': 'stm32f429x',
         'stm32f469disco': 'stm32f469x',
-        'stm32f7disco': 'stm32f7x'}
+        'stm32f7disco': 'stm32f7x',
+        'stm32f769disco': 'stm32f7x9'}
 
     def __init__(self, board):
         super(Stm32, self).__init__()
 
         assert board in Stm32._to_mcu, 'Unknown STM32 board: %s' % board
         self.mcu = Stm32._to_mcu[board]
+
+    @property
+    def has_double_precision_fpu(self):
+        return self.mcu == 'stm32f7x9'
 
     def amend_zfp(self):
         super(Stm32, self).amend_zfp()
@@ -1270,13 +1275,23 @@ class Stm32(ArmBBTarget):
             self.pairs.update({
                 's-stm32.adb': 's-stm32-f4x9x.adb',
                 's-textio.adb': 's-textio-stm32f469.adb'})
-        elif self.mcu == 'stm32f7x':
+        elif self.mcu in ('stm32f7x', 'stm32f7x9'):
             self.pairs.update({
                 's-stm32.adb': 's-stm32-f7x.adb',
                 's-textio.adb': 's-textio-stm32f7.adb'})
 
-        self.config_files.update(
-            {'runtime.xml': readfile('arm/stm32/runtime.xml')})
+        runtime_xml = readfile('arm/stm32/runtime.xml')
+        if self.mcu in ('stm32f7x', 'stm32f7x9'):
+            runtime_xml = runtime_xml.replace('cortex-m4', 'cortex-m7')
+
+        if self.mcu == 'stm32f7x9':
+            # double precision cortex-m7 fpu
+            runtime_xml = runtime_xml.replace('fpv4-sp-d16', 'fpv5-d16')
+        elif self.mcu == 'stm32f7x':
+            # single precision cortex-m7 fpu
+            runtime_xml = runtime_xml.replace('fpv4-sp-d16', 'fpv5-sp-d16')
+
+        self.config_files.update({'runtime.xml': runtime_xml})
 
     def amend_ravenscar_sfp(self):
         super(Stm32, self).amend_ravenscar_sfp()

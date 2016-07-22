@@ -43,13 +43,11 @@ package System.BB.Board_Parameters is
    --------------------
 
    Main_Clock_Frequency : constant := 200_000_000;
-   --  Maximal frequency in over-drive mode is 216MHz. However this can lead
-   --  to instabilities, so we lower the frequency to 200MHz.
-   --  In non over-drive mode, the frequency should be adjusted to 180 MHz.
+   --  Maximal frequency in over-drive mode is 216MHz.
 
    HSE_Clock_Frequency : constant := 25_000_000;
    --  Frequency of High Speed External clock.
 
-   FLASH_Latency : constant := 5;
+   FLASH_Latency : constant := 6;
 
 end System.BB.Board_Parameters;

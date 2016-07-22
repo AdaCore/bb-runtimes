@@ -33,14 +33,15 @@ pragma Suppress (All_Checks);
 
 with Ada.Unchecked_Conversion;
 
-with Interfaces.Bit_Types;     use Interfaces, Interfaces.Bit_Types;
-with Interfaces.STM32.FLASH;   use Interfaces.STM32.FLASH;
-with Interfaces.STM32.PWR;     use Interfaces.STM32.PWR;
-with Interfaces.STM32.RCC;     use Interfaces.STM32.RCC;
+with Interfaces.Bit_Types;       use Interfaces, Interfaces.Bit_Types;
+with Interfaces.STM32.FLASH;     use Interfaces.STM32.FLASH;
+with Interfaces.STM32.PWR;       use Interfaces.STM32.PWR;
+with Interfaces.STM32.RCC;       use Interfaces.STM32.RCC;
 
-with System.BB.Parameters;     use System.BB.Parameters;
+with System.BB.Parameters;       use System.BB.Parameters;
 with System.BB.MCU_Parameters;
-with System.STM32;             use System.STM32;
+with System.BB.Board_Parameters; use System.BB.Board_Parameters;
+with System.STM32;               use System.STM32;
 
 procedure Setup_Pll is
    procedure Initialize_Clocks;
@@ -243,7 +244,7 @@ procedure Setup_Pll is
       FLASH_Periph.ACR.ICRST := 1;
       FLASH_Periph.ACR.DCRST := 1;
       FLASH_Periph.ACR :=
-        (LATENCY => 5,
+        (LATENCY => FLASH_Latency,
          ICEN    => 1,
          DCEN    => 1,
          PRFTEN  => 1,

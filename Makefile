@@ -43,7 +43,8 @@ ifeq ($(TARGET), arm-eabi)
 ifneq ($(GPL),)
     RTS_LIST+=ravenscar-sfp-stm32f429disco ravenscar-full-stm32f429disco \
               ravenscar-sfp-stm32f469disco ravenscar-full-stm32f469disco \
-              ravenscar-sfp-stm32f7disco ravenscar-full-stm32f7disco
+              ravenscar-sfp-stm32f7disco ravenscar-full-stm32f7disco \
+              ravenscar-sfp-stm32f769disco ravenscar-full-stm32f769disco
 endif
 endif
 
@@ -311,6 +312,15 @@ ravenscar-sfp-stm32f7disco.src:
 
 ravenscar-full-stm32f7disco.src:
 	@$(BUILD_RTS) ravenscar-full/stm32f7disco
+
+zfp-stm32f769disco.src:
+	@$(BUILD_RTS) zfp/stm32f769disco
+
+ravenscar-sfp-stm32f769disco.src:
+	@$(BUILD_RTS) ravenscar-sfp/stm32f769disco
+
+ravenscar-full-stm32f769disco.src:
+	@$(BUILD_RTS) ravenscar-full/stm32f769disco
 
 ravenscar-sfp-sam4s.src:
 	@$(BUILD_RTS) ravenscar-sfp/sam4s

@@ -2,7 +2,7 @@
 --  Copyright (C) 2016, AdaCore
 --
 
---  This spec has been automatically generated from STM32F429x.svd
+--  This spec has been automatically generated from STM32F7x9.svd
 
 pragma Ada_2012;
 
@@ -410,7 +410,7 @@ package Interfaces.STM32.GPIO is
    type AFRL_Field_Array is array (0 .. 7) of AFRL_Element
      with Component_Size => 4, Size => 32;
 
-   --  GPIO alternate function low register
+   --  GPIO alternate function lowregister
    type AFRL_Register
      (As_Array : Boolean := False)
    is record
@@ -463,6 +463,56 @@ package Interfaces.STM32.GPIO is
       Arr at 0 range 0 .. 31;
    end record;
 
+   ------------------
+   -- BRR_Register --
+   ------------------
+
+   ------------
+   -- BRR.BR --
+   ------------
+
+   --  BRR_BR array element
+   subtype BRR_BR_Element is Interfaces.Bit_Types.Bit;
+
+   --  BRR_BR array
+   type BRR_BR_Field_Array is array (0 .. 15) of BRR_BR_Element
+     with Component_Size => 1, Size => 16;
+
+   --  Type definition for BRR_BR
+   type BRR_BR_Field
+     (As_Array : Boolean := False)
+   is record
+      case As_Array is
+         when False =>
+            --  BR as a value
+            Val : Interfaces.Bit_Types.Short;
+         when True =>
+            --  BR as an array
+            Arr : BRR_BR_Field_Array;
+      end case;
+   end record
+     with Unchecked_Union, Size => 16;
+
+   for BRR_BR_Field use record
+      Val at 0 range 0 .. 15;
+      Arr at 0 range 0 .. 15;
+   end record;
+
+   --  GPIO port bit reset register
+   type BRR_Register is record
+      --  Port D Reset bit 0
+      BR             : BRR_BR_Field := (As_Array => False, Val => 16#0#);
+      --  unspecified
+      Reserved_16_31 : Interfaces.Bit_Types.Short := 16#0#;
+   end record
+     with Volatile_Full_Access, Size => 32,
+          Bit_Order => System.Low_Order_First;
+
+   for BRR_Register use record
+      BR             at 0 range 0 .. 15;
+      Reserved_16_31 at 0 range 16 .. 31;
+   end record;
+
    -----------------
    -- Peripherals --
    -----------------
@@ -489,6 +539,8 @@ package Interfaces.STM32.GPIO is
       AFRL    : AFRL_Register;
       --  GPIO alternate function high register
       AFRH    : AFRH_Register;
+      --  GPIO port bit reset register
+      BRR     : BRR_Register;
    end record
      with Volatile;
 
@@ -503,6 +555,7 @@ package Interfaces.STM32.GPIO is
       LCKR    at 28 range 0 .. 31;
       AFRL    at 32 range 0 .. 31;
       AFRH    at 36 range 0 .. 31;
+      BRR     at 40 range 0 .. 31;
    end record;
 
    --  General-purpose I/Os

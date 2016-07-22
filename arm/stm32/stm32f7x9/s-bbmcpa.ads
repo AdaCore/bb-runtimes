@@ -2,7 +2,7 @@
 --                                                                          --
 --                  GNAT RUN-TIME LIBRARY (GNARL) COMPONENTS                --
 --                                                                          --
---            S Y S T E M . B B . B O A R D _ P A R A M E T E R S           --
+--              S Y S T E M . B B . M C U _ P A R A M E T E R S             --
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
@@ -32,24 +32,23 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package defines board parameters for the STM32F429-Discovery board
+--  This package defines MCU parameters for the STM32F7x family
 
-package System.BB.Board_Parameters is
+with Interfaces.STM32.PWR;
+with Interfaces.Bit_Types;
+
+package System.BB.MCU_Parameters is
    pragma No_Elaboration_Code_All;
-   pragma Pure;
+   pragma Preelaborate;
+   use type Interfaces.Bit_Types.Bit;
 
-   --------------------
-   -- Hardware clock --
-   --------------------
+   Number_Of_Interrupts : constant := 111;
 
-   Main_Clock_Frequency : constant := 200_000_000;
-   --  Maximal frequency in over-drive mode is 216MHz. However this can lead
-   --  to instabilities, so we lower the frequency to 200MHz.
-   --  In non over-drive mode, the frequency should be adjusted to 180 MHz.
+   procedure PWR_Initialize;
 
-   HSE_Clock_Frequency : constant := 25_000_000;
-   --  Frequency of High Speed External clock.
+   procedure PWR_Overdrive_Enable;
 
-   FLASH_Latency : constant := 5;
+   function Is_PWR_Stabilized return Boolean
+     is (Interfaces.STM32.PWR.PWR_Periph.CSR1.VOSRDY = 1);
 
-end System.BB.Board_Parameters;
+end System.BB.MCU_Parameters;
