@@ -1419,7 +1419,7 @@ class Zynq7000(DFBBTarget):
     def __init__(self):
         super(Zynq7000, self).__init__(
             mem_routines=True,
-            libc_files=True,
+            libc_files=False,
             arm_zcx=True)
         self.build_flags['target'] = 'arm-eabi'
 
@@ -1450,6 +1450,10 @@ class Zynq7000(DFBBTarget):
         self.pairs.update({
             'system.ads': 'system-xi-cortexa-full.ads',
             's-traceb.adb': 's-traceb-xi-armeabi.adb'})
+        self.common += ['newlib-bb.c']
+        self.config_files['runtime.xml'] = \
+            self.config_files['runtime.xml'].replace(
+                '"-nolibc", ', '"-lc", "-lgnat", ')
 
 
 class SparcBBTarget(DFBBTarget):
