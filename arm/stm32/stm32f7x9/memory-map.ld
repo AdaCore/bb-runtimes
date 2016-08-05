@@ -39,7 +39,7 @@ MEMORY
   itcm     (x) : ORIGIN = 0x00000000, LENGTH = 16K
   flash   (rx) : ORIGIN = 0x08000000, LENGTH = 2048K
   dtcm   ( rx) : ORIGIN = 0x20000000, LENGTH = 128K
-  sram12 (rwx) : ORIGIN = 0x20010000, LENGTH = 368K
+  sram12 (rwx) : ORIGIN = 0x20020000, LENGTH = 368K
 }
 
 /* Do not place anything into the dtcm as it is used as Data cache by the CPU*/
