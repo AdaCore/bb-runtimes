@@ -203,6 +203,7 @@ class BaseZFP(BaseRuntime):
                 'a-ngcoty.adb', 'a-ngcoty.ads',
                 'a-ngelfu.adb', 'a-ngelfu.ads',
                 'a-ngrear.ads', 'a-ngrear.adb',
+                'a-nurear.ads',
                 'a-nlcefu.ads',
                 'a-nlcoty.ads',
                 'a-nlelfu.ads',
