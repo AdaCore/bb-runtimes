@@ -94,11 +94,11 @@ procedure Setup_Pll is
             CKGR_MOR.KEY := Passwd;
 
             if Osc = Internal_8M_RC then
-               CKGR_MOR.MOSCRCF := MOSCRCF_Field_8_Mhz;
+               CKGR_MOR.MOSCRCF := CKGR_MOR_MOSCRCF_Field_8_Mhz;
             elsif Osc = Internal_16M_RC then
-               CKGR_MOR.MOSCRCF := MOSCRCF_Field_16_Mhz;
+               CKGR_MOR.MOSCRCF := CKGR_MOR_MOSCRCF_Field_16_Mhz;
             else
-               CKGR_MOR.MOSCRCF := MOSCRCF_Field_24_Mhz;
+               CKGR_MOR.MOSCRCF := CKGR_MOR_MOSCRCF_Field_24_Mhz;
             end if;
 
             PMC_Periph.CKGR_MOR := CKGR_MOR;

@@ -94,8 +94,14 @@ package Ada.Interrupts.Names is
    --  TIM1 Break interrupt and TIM9 global interrupt
    TIM1_BRK_TIM9_Interrupt       : constant Interrupt_ID := 26;
 
+   --  TIM1 Update interrupt and TIM10 global interrupt
+   TIM1_UP_TIM10_Interrupt       : constant Interrupt_ID := 27;
+
    --  TIM1 Trigger and Commutation interrupts and TIM11 global interrupt
    TIM1_TRG_COM_TIM11_Interrupt  : constant Interrupt_ID := 28;
+
+   --  TIM1 Capture Compare interrupt
+   TIM1_CC_Interrupt             : constant Interrupt_ID := 29;
 
    --  TIM2 global interrupt
    TIM2_Interrupt                : constant Interrupt_ID := 30;
@@ -111,6 +117,12 @@ package Ada.Interrupts.Names is
 
    --  I2C1 error interrupt
    I2C1_ER_Interrupt             : constant Interrupt_ID := 34;
+
+   --  I2C2 event interrupt
+   I2C2_EV_Interrupt             : constant Interrupt_ID := 35;
+
+   --  I2C2 error interrupt
+   I2C2_ER_Interrupt             : constant Interrupt_ID := 36;
 
    --  SPI1 global interrupt
    SPI1_Interrupt                : constant Interrupt_ID := 37;
@@ -154,14 +166,17 @@ package Ada.Interrupts.Names is
    --  FMC global interrupt
    FMC_Interrupt                 : constant Interrupt_ID := 50;
 
-   --  SDIO global interrupt
-   SDIO_Interrupt                : constant Interrupt_ID := 51;
+   --  SDMMC1 global interrupt
+   SDMMC1_Interrupt              : constant Interrupt_ID := 51;
 
    --  TIM5 global interrupt
    TIM5_Interrupt                : constant Interrupt_ID := 52;
 
    --  SPI3 global interrupt
    SPI3_Interrupt                : constant Interrupt_ID := 53;
+
+   --  UART4 global interrupt
+   UART4_Interrupt               : constant Interrupt_ID := 54;
 
    --  UART5 global interrupt
    UART5_Interrupt               : constant Interrupt_ID := 55;
@@ -187,6 +202,12 @@ package Ada.Interrupts.Names is
    --  DMA2 Stream4 global interrupt
    DMA2_Stream4_Interrupt        : constant Interrupt_ID := 62;
 
+   --  Ethernet global interrupt
+   ETH_Interrupt                 : constant Interrupt_ID := 63;
+
+   --  Ethernet global interrupt
+   ETH_WKUP_Interrupt            : constant Interrupt_ID := 64;
+
    --  CAN2 TX interrupts
    CAN2_TX_Interrupt             : constant Interrupt_ID := 65;
 
@@ -211,6 +232,15 @@ package Ada.Interrupts.Names is
    --  DMA2 Stream7 global interrupt
    DMA2_Stream7_Interrupt        : constant Interrupt_ID := 72;
 
+   --  USART6 global interrupt
+   USART6_Interrupt              : constant Interrupt_ID := 73;
+
+   --  I2C3 event interrupt
+   I2C3_EV_Interrupt             : constant Interrupt_ID := 74;
+
+   --  I2C3 error interrupt
+   I2C3_ER_Interrupt             : constant Interrupt_ID := 75;
+
    --  USB On The Go HS End Point 1 Out global interrupt
    OTG_HS_EP1_OUT_Interrupt      : constant Interrupt_ID := 76;
 
@@ -232,6 +262,9 @@ package Ada.Interrupts.Names is
    --  FPU global interrupt
    FPU_Interrupt                 : constant Interrupt_ID := 83;
 
+   --  UART7 global interrupt
+   UART7_Interrupt               : constant Interrupt_ID := 84;
+
    --  UART 8 global interrupt
    UART8_Interrupt               : constant Interrupt_ID := 85;
 
@@ -248,13 +281,49 @@ package Ada.Interrupts.Names is
    SAI1_Interrupt                : constant Interrupt_ID := 89;
 
    --  LTDC global interrupt
-   LCD_TFT_Interrupt             : constant Interrupt_ID := 90;
+   LTDC_Interrupt                : constant Interrupt_ID := 90;
+
+   --  LTDC Error global interrupt
+   LTDC_ER_Interrupt             : constant Interrupt_ID := 91;
 
    --  DMA2D global interrupt
    DMA2D_Interrupt               : constant Interrupt_ID := 92;
 
-   --  DSI host global interrupt
-   DSIHOST_Interrupt             : constant Interrupt_ID := 100;
+   --  SAI2 global interrupt
+   SAI2_Interrupt                : constant Interrupt_ID := 93;
+
+   --  QUADSPI global interrupt
+   QUADSPI_Interrupt             : constant Interrupt_ID := 94;
+
+   --  LPTIM1 global interrupt
+   LPTIM1_Interrupt              : constant Interrupt_ID := 95;
+
+   --  CEC global interrupt
+   CEC_Interrupt                 : constant Interrupt_ID := 96;
+
+   --  I2C4 event interrupt
+   I2C4_EV_Interrupt             : constant Interrupt_ID := 97;
+
+   --  I2C4 error interrupt
+   I2C4_ER_Interrupt             : constant Interrupt_ID := 98;
+
+   --  SPDIF_RX global interrupt
+   SPDIF_RX_Interrupt            : constant Interrupt_ID := 99;
+
+   --  DSI global interrupt
+   DSI_Interrupt                 : constant Interrupt_ID := 100;
+
+   --  DFSDM1 Filter 0 global interrupt
+   DFSDM1_FLT0_Interrupt         : constant Interrupt_ID := 101;
+
+   --  DFSDM1 Filter 1 global interrupt
+   DFSDM1_FLT1_Interrupt         : constant Interrupt_ID := 102;
+
+   --  DFSDM1 Filter 2 global interrupt
+   DFSDM1_FLT2_Interrupt         : constant Interrupt_ID := 103;
+
+   --  DFSDM1 Filter 3 global interrupt
+   DFSDM1_FLT3_Interrupt         : constant Interrupt_ID := 104;
 
    --  SDMMC2 global interrupt
    SDMMC2_Interrupt              : constant Interrupt_ID := 105;

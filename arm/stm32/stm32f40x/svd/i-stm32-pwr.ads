@@ -17,10 +17,6 @@ package Interfaces.STM32.PWR is
    -- Registers --
    ---------------
 
-   -----------------
-   -- CR_Register --
-   -----------------
-
    subtype CR_LPDS_Field is Interfaces.Bit_Types.Bit;
    subtype CR_PDDS_Field is Interfaces.Bit_Types.Bit;
    subtype CR_CWUF_Field is Interfaces.Bit_Types.Bit;
@@ -72,10 +68,6 @@ package Interfaces.STM32.PWR is
       VOS            at 0 range 14 .. 14;
       Reserved_15_31 at 0 range 15 .. 31;
    end record;
-
-   ------------------
-   -- CSR_Register --
-   ------------------
 
    subtype CSR_WUF_Field is Interfaces.Bit_Types.Bit;
    subtype CSR_SBF_Field is Interfaces.Bit_Types.Bit;
@@ -138,8 +130,8 @@ package Interfaces.STM32.PWR is
      with Volatile;
 
    for PWR_Peripheral use record
-      CR  at 0 range 0 .. 31;
-      CSR at 4 range 0 .. 31;
+      CR  at 16#0# range 0 .. 31;
+      CSR at 16#4# range 0 .. 31;
    end record;
 
    --  Power control

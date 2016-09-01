@@ -17,10 +17,6 @@ package Interfaces.STM32.PWR is
    -- Registers --
    ---------------
 
-   ------------------
-   -- CR1_Register --
-   ------------------
-
    subtype CR1_LPDS_Field is Interfaces.Bit_Types.Bit;
    subtype CR1_PDDS_Field is Interfaces.Bit_Types.Bit;
    subtype CR1_CSBF_Field is Interfaces.Bit_Types.Bit;
@@ -96,10 +92,6 @@ package Interfaces.STM32.PWR is
       Reserved_20_31 at 0 range 20 .. 31;
    end record;
 
-   -------------------
-   -- CSR1_Register --
-   -------------------
-
    subtype CSR1_WUIF_Field is Interfaces.Bit_Types.Bit;
    subtype CSR1_SBF_Field is Interfaces.Bit_Types.Bit;
    subtype CSR1_PVDO_Field is Interfaces.Bit_Types.Bit;
@@ -158,14 +150,6 @@ package Interfaces.STM32.PWR is
       Reserved_20_31 at 0 range 20 .. 31;
    end record;
 
-   ------------------
-   -- CR2_Register --
-   ------------------
-
-   ---------------
-   -- CR2.CWUPF --
-   ---------------
-
    --  CR2_CWUPF array element
    subtype CR2_CWUPF_Element is Interfaces.Bit_Types.Bit;
 
@@ -192,10 +176,6 @@ package Interfaces.STM32.PWR is
       Val at 0 range 0 .. 5;
       Arr at 0 range 0 .. 5;
    end record;
-
-   --------------
-   -- CR2.WUPP --
-   --------------
 
    --  CR2_WUPP array element
    subtype CR2_WUPP_Element is Interfaces.Bit_Types.Bit;
@@ -245,14 +225,6 @@ package Interfaces.STM32.PWR is
       Reserved_14_31 at 0 range 14 .. 31;
    end record;
 
-   -------------------
-   -- CSR2_Register --
-   -------------------
-
-   ---------------
-   -- CSR2.WUPF --
-   ---------------
-
    --  CSR2_WUPF array element
    subtype CSR2_WUPF_Element is Interfaces.Bit_Types.Bit;
 
@@ -279,10 +251,6 @@ package Interfaces.STM32.PWR is
       Val at 0 range 0 .. 5;
       Arr at 0 range 0 .. 5;
    end record;
-
-   ---------------
-   -- CSR2.EWUP --
-   ---------------
 
    --  CSR2_EWUP array element
    subtype CSR2_EWUP_Element is Interfaces.Bit_Types.Bit;
@@ -350,10 +318,10 @@ package Interfaces.STM32.PWR is
      with Volatile;
 
    for PWR_Peripheral use record
-      CR1  at 0 range 0 .. 31;
-      CSR1 at 4 range 0 .. 31;
-      CR2  at 8 range 0 .. 31;
-      CSR2 at 12 range 0 .. 31;
+      CR1  at 16#0# range 0 .. 31;
+      CSR1 at 16#4# range 0 .. 31;
+      CR2  at 16#8# range 0 .. 31;
+      CSR2 at 16#C# range 0 .. 31;
    end record;
 
    --  Power control

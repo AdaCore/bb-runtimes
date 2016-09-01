@@ -17,10 +17,6 @@ package Interfaces.STM32.FLASH is
    -- Registers --
    ---------------
 
-   ------------------
-   -- ACR_Register --
-   ------------------
-
    subtype ACR_LATENCY_Field is Interfaces.Bit_Types.UInt3;
    subtype ACR_PRFTEN_Field is Interfaces.Bit_Types.Bit;
    subtype ACR_ICEN_Field is Interfaces.Bit_Types.Bit;
@@ -60,10 +56,6 @@ package Interfaces.STM32.FLASH is
       DCRST          at 0 range 12 .. 12;
       Reserved_13_31 at 0 range 13 .. 31;
    end record;
-
-   -----------------
-   -- SR_Register --
-   -----------------
 
    subtype SR_EOP_Field is Interfaces.Bit_Types.Bit;
    subtype SR_OPERR_Field is Interfaces.Bit_Types.Bit;
@@ -111,10 +103,6 @@ package Interfaces.STM32.FLASH is
       BSY            at 0 range 16 .. 16;
       Reserved_17_31 at 0 range 17 .. 31;
    end record;
-
-   -----------------
-   -- CR_Register --
-   -----------------
 
    subtype CR_PG_Field is Interfaces.Bit_Types.Bit;
    subtype CR_SER_Field is Interfaces.Bit_Types.Bit;
@@ -173,10 +161,6 @@ package Interfaces.STM32.FLASH is
       Reserved_26_30 at 0 range 26 .. 30;
       LOCK           at 0 range 31 .. 31;
    end record;
-
-   --------------------
-   -- OPTCR_Register --
-   --------------------
 
    subtype OPTCR_OPTLOCK_Field is Interfaces.Bit_Types.Bit;
    subtype OPTCR_OPTSTRT_Field is Interfaces.Bit_Types.Bit;
@@ -248,12 +232,12 @@ package Interfaces.STM32.FLASH is
      with Volatile;
 
    for FLASH_Peripheral use record
-      ACR     at 0 range 0 .. 31;
-      KEYR    at 4 range 0 .. 31;
-      OPTKEYR at 8 range 0 .. 31;
-      SR      at 12 range 0 .. 31;
-      CR      at 16 range 0 .. 31;
-      OPTCR   at 20 range 0 .. 31;
+      ACR     at 16#0# range 0 .. 31;
+      KEYR    at 16#4# range 0 .. 31;
+      OPTKEYR at 16#8# range 0 .. 31;
+      SR      at 16#C# range 0 .. 31;
+      CR      at 16#10# range 0 .. 31;
+      OPTCR   at 16#14# range 0 .. 31;
    end record;
 
    --  FLASH

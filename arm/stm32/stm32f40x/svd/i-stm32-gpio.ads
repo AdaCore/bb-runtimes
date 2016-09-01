@@ -17,10 +17,6 @@ package Interfaces.STM32.GPIO is
    -- Registers --
    ---------------
 
-   --------------------
-   -- MODER_Register --
-   --------------------
-
    --  MODER array element
    subtype MODER_Element is Interfaces.Bit_Types.UInt2;
 
@@ -48,14 +44,6 @@ package Interfaces.STM32.GPIO is
       Val at 0 range 0 .. 31;
       Arr at 0 range 0 .. 31;
    end record;
-
-   ---------------------
-   -- OTYPER_Register --
-   ---------------------
-
-   ---------------
-   -- OTYPER.OT --
-   ---------------
 
    --  OTYPER_OT array element
    subtype OTYPER_OT_Element is Interfaces.Bit_Types.Bit;
@@ -99,10 +87,6 @@ package Interfaces.STM32.GPIO is
       Reserved_16_31 at 0 range 16 .. 31;
    end record;
 
-   ----------------------
-   -- OSPEEDR_Register --
-   ----------------------
-
    --  OSPEEDR array element
    subtype OSPEEDR_Element is Interfaces.Bit_Types.UInt2;
 
@@ -131,10 +115,6 @@ package Interfaces.STM32.GPIO is
       Arr at 0 range 0 .. 31;
    end record;
 
-   --------------------
-   -- PUPDR_Register --
-   --------------------
-
    --  PUPDR array element
    subtype PUPDR_Element is Interfaces.Bit_Types.UInt2;
 
@@ -162,14 +142,6 @@ package Interfaces.STM32.GPIO is
       Val at 0 range 0 .. 31;
       Arr at 0 range 0 .. 31;
    end record;
-
-   ------------------
-   -- IDR_Register --
-   ------------------
-
-   -------------
-   -- IDR.IDR --
-   -------------
 
    --  IDR array element
    subtype IDR_Element is Interfaces.Bit_Types.Bit;
@@ -213,14 +185,6 @@ package Interfaces.STM32.GPIO is
       Reserved_16_31 at 0 range 16 .. 31;
    end record;
 
-   ------------------
-   -- ODR_Register --
-   ------------------
-
-   -------------
-   -- ODR.ODR --
-   -------------
-
    --  ODR array element
    subtype ODR_Element is Interfaces.Bit_Types.Bit;
 
@@ -263,14 +227,6 @@ package Interfaces.STM32.GPIO is
       Reserved_16_31 at 0 range 16 .. 31;
    end record;
 
-   -------------------
-   -- BSRR_Register --
-   -------------------
-
-   -------------
-   -- BSRR.BS --
-   -------------
-
    --  BSRR_BS array element
    subtype BSRR_BS_Element is Interfaces.Bit_Types.Bit;
 
@@ -297,10 +253,6 @@ package Interfaces.STM32.GPIO is
       Val at 0 range 0 .. 15;
       Arr at 0 range 0 .. 15;
    end record;
-
-   -------------
-   -- BSRR.BR --
-   -------------
 
    --  BSRR_BR array element
    subtype BSRR_BR_Element is Interfaces.Bit_Types.Bit;
@@ -343,14 +295,6 @@ package Interfaces.STM32.GPIO is
       BS at 0 range 0 .. 15;
       BR at 0 range 16 .. 31;
    end record;
-
-   -------------------
-   -- LCKR_Register --
-   -------------------
-
-   --------------
-   -- LCKR.LCK --
-   --------------
 
    --  LCKR_LCK array element
    subtype LCKR_LCK_Element is Interfaces.Bit_Types.Bit;
@@ -399,10 +343,6 @@ package Interfaces.STM32.GPIO is
       Reserved_17_31 at 0 range 17 .. 31;
    end record;
 
-   -------------------
-   -- AFRL_Register --
-   -------------------
-
    --  AFRL array element
    subtype AFRL_Element is Interfaces.Bit_Types.UInt4;
 
@@ -430,10 +370,6 @@ package Interfaces.STM32.GPIO is
       Val at 0 range 0 .. 31;
       Arr at 0 range 0 .. 31;
    end record;
-
-   -------------------
-   -- AFRH_Register --
-   -------------------
 
    --  AFRH array element
    subtype AFRH_Element is Interfaces.Bit_Types.UInt4;
@@ -493,16 +429,16 @@ package Interfaces.STM32.GPIO is
      with Volatile;
 
    for GPIO_Peripheral use record
-      MODER   at 0 range 0 .. 31;
-      OTYPER  at 4 range 0 .. 31;
-      OSPEEDR at 8 range 0 .. 31;
-      PUPDR   at 12 range 0 .. 31;
-      IDR     at 16 range 0 .. 31;
-      ODR     at 20 range 0 .. 31;
-      BSRR    at 24 range 0 .. 31;
-      LCKR    at 28 range 0 .. 31;
-      AFRL    at 32 range 0 .. 31;
-      AFRH    at 36 range 0 .. 31;
+      MODER   at 16#0# range 0 .. 31;
+      OTYPER  at 16#4# range 0 .. 31;
+      OSPEEDR at 16#8# range 0 .. 31;
+      PUPDR   at 16#C# range 0 .. 31;
+      IDR     at 16#10# range 0 .. 31;
+      ODR     at 16#14# range 0 .. 31;
+      BSRR    at 16#18# range 0 .. 31;
+      LCKR    at 16#1C# range 0 .. 31;
+      AFRL    at 16#20# range 0 .. 31;
+      AFRH    at 16#24# range 0 .. 31;
    end record;
 
    --  General-purpose I/Os

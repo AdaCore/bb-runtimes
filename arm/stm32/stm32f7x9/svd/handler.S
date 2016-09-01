@@ -54,16 +54,16 @@ __vectors:
 	.word __gnat_irq_trap        /* 38 CAN1_SCE */
 	.word __gnat_irq_trap        /* 39 EXTI9_5 */
 	.word __gnat_irq_trap        /* 40 TIM1_BRK_TIM9 */
-	.word __gnat_irq_trap        /* 41 IRQ 25. */
+	.word __gnat_irq_trap        /* 41 TIM1_UP_TIM10 */
 	.word __gnat_irq_trap        /* 42 TIM1_TRG_COM_TIM11 */
-	.word __gnat_irq_trap        /* 43 IRQ 27. */
+	.word __gnat_irq_trap        /* 43 TIM1_CC */
 	.word __gnat_irq_trap        /* 44 TIM2 */
 	.word __gnat_irq_trap        /* 45 TIM3 */
 	.word __gnat_irq_trap        /* 46 TIM4 */
 	.word __gnat_irq_trap        /* 47 I2C1_EV */
 	.word __gnat_irq_trap        /* 48 I2C1_ER */
-	.word __gnat_irq_trap        /* 49 IRQ 33. */
-	.word __gnat_irq_trap        /* 50 IRQ 34. */
+	.word __gnat_irq_trap        /* 49 I2C2_EV */
+	.word __gnat_irq_trap        /* 50 I2C2_ER */
 	.word __gnat_irq_trap        /* 51 SPI1 */
 	.word __gnat_irq_trap        /* 52 SPI2 */
 	.word __gnat_irq_trap        /* 53 USART1 */
@@ -78,10 +78,10 @@ __vectors:
 	.word __gnat_irq_trap        /* 62 TIM8_CC */
 	.word __gnat_irq_trap        /* 63 DMA1_Stream7 */
 	.word __gnat_irq_trap        /* 64 FMC */
-	.word __gnat_irq_trap        /* 65 SDIO */
+	.word __gnat_irq_trap        /* 65 SDMMC1 */
 	.word __gnat_irq_trap        /* 66 TIM5 */
 	.word __gnat_irq_trap        /* 67 SPI3 */
-	.word __gnat_irq_trap        /* 68 IRQ 52. */
+	.word __gnat_irq_trap        /* 68 UART4 */
 	.word __gnat_irq_trap        /* 69 UART5 */
 	.word __gnat_irq_trap        /* 70 TIM6_DAC */
 	.word __gnat_irq_trap        /* 71 TIM7 */
@@ -90,8 +90,8 @@ __vectors:
 	.word __gnat_irq_trap        /* 74 DMA2_Stream2 */
 	.word __gnat_irq_trap        /* 75 DMA2_Stream3 */
 	.word __gnat_irq_trap        /* 76 DMA2_Stream4 */
-	.word __gnat_irq_trap        /* 77 IRQ 61. */
-	.word __gnat_irq_trap        /* 78 IRQ 62. */
+	.word __gnat_irq_trap        /* 77 ETH */
+	.word __gnat_irq_trap        /* 78 ETH_WKUP */
 	.word __gnat_irq_trap        /* 79 CAN2_TX */
 	.word __gnat_irq_trap        /* 80 CAN2_RX0 */
 	.word __gnat_irq_trap        /* 81 CAN2_RX1 */
@@ -100,9 +100,9 @@ __vectors:
 	.word __gnat_irq_trap        /* 84 DMA2_Stream5 */
 	.word __gnat_irq_trap        /* 85 DMA2_Stream6 */
 	.word __gnat_irq_trap        /* 86 DMA2_Stream7 */
-	.word __gnat_irq_trap        /* 87 IRQ 71. */
-	.word __gnat_irq_trap        /* 88 IRQ 72. */
-	.word __gnat_irq_trap        /* 89 IRQ 73. */
+	.word __gnat_irq_trap        /* 87 USART6 */
+	.word __gnat_irq_trap        /* 88 I2C3_EV */
+	.word __gnat_irq_trap        /* 89 I2C3_ER */
 	.word __gnat_irq_trap        /* 90 OTG_HS_EP1_OUT */
 	.word __gnat_irq_trap        /* 91 OTG_HS_EP1_IN */
 	.word __gnat_irq_trap        /* 92 OTG_HS_WKUP */
@@ -111,27 +111,27 @@ __vectors:
 	.word __gnat_irq_trap        /* 95 IRQ 79. */
 	.word __gnat_irq_trap        /* 96 HASH_RNG */
 	.word __gnat_irq_trap        /* 97 FPU */
-	.word __gnat_irq_trap        /* 98 IRQ 82. */
+	.word __gnat_irq_trap        /* 98 UART7 */
 	.word __gnat_irq_trap        /* 99 UART8 */
 	.word __gnat_irq_trap        /* 100 SPI4 */
 	.word __gnat_irq_trap        /* 101 SPI5 */
 	.word __gnat_irq_trap        /* 102 SPI6 */
 	.word __gnat_irq_trap        /* 103 SAI1 */
-	.word __gnat_irq_trap        /* 104 LCD_TFT */
-	.word __gnat_irq_trap        /* 105 IRQ 89. */
+	.word __gnat_irq_trap        /* 104 LTDC */
+	.word __gnat_irq_trap        /* 105 LTDC_ER */
 	.word __gnat_irq_trap        /* 106 DMA2D */
-	.word __gnat_irq_trap        /* 107 IRQ 91. */
-	.word __gnat_irq_trap        /* 108 IRQ 92. */
-	.word __gnat_irq_trap        /* 109 IRQ 93. */
-	.word __gnat_irq_trap        /* 110 IRQ 94. */
-	.word __gnat_irq_trap        /* 111 IRQ 95. */
-	.word __gnat_irq_trap        /* 112 IRQ 96. */
-	.word __gnat_irq_trap        /* 113 IRQ 97. */
-	.word __gnat_irq_trap        /* 114 DSIHOST */
-	.word __gnat_irq_trap        /* 115 IRQ 99. */
-	.word __gnat_irq_trap        /* 116 IRQ 100. */
-	.word __gnat_irq_trap        /* 117 IRQ 101. */
-	.word __gnat_irq_trap        /* 118 IRQ 102. */
+	.word __gnat_irq_trap        /* 107 SAI2 */
+	.word __gnat_irq_trap        /* 108 QUADSPI */
+	.word __gnat_irq_trap        /* 109 LPTIM1 */
+	.word __gnat_irq_trap        /* 110 CEC */
+	.word __gnat_irq_trap        /* 111 I2C4_EV */
+	.word __gnat_irq_trap        /* 112 I2C4_ER */
+	.word __gnat_irq_trap        /* 113 SPDIF_RX */
+	.word __gnat_irq_trap        /* 114 DSI */
+	.word __gnat_irq_trap        /* 115 DFSDM1_FLT0 */
+	.word __gnat_irq_trap        /* 116 DFSDM1_FLT1 */
+	.word __gnat_irq_trap        /* 117 DFSDM1_FLT2 */
+	.word __gnat_irq_trap        /* 118 DFSDM1_FLT3 */
 	.word __gnat_irq_trap        /* 119 SDMMC2 */
 	.word __gnat_irq_trap        /* 120 CAN3_TX */
 	.word __gnat_irq_trap        /* 121 CAN3_RX0 */

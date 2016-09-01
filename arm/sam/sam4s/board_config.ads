@@ -51,7 +51,7 @@ package Board_Config is
    External_Oscillator_Startup_Time : constant Byte := 0;
 
    Master_Source    : constant Master_Clock_Sources := PLLA;
-   Master_Prescaler : constant Interfaces.SAM.PMC.PRES_Field :=
+   Master_Prescaler : constant Interfaces.SAM.PMC.PMC_MCKR_PRES_Field :=
      Interfaces.SAM.PMC.Clk_1;
 
    PLLA_Enable      : constant Boolean := True;

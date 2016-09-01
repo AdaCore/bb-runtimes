@@ -284,10 +284,10 @@ package Ada.Interrupts.Names is
    SAI1_Interrupt                    : constant Interrupt_ID := 89;
 
    --  LTDC global interrupt
-   LCD_TFT_Interrupt                 : constant Interrupt_ID := 90;
+   LTDC_Interrupt                    : constant Interrupt_ID := 90;
 
    --  LTDC global error interrupt
-   LCD_TFT_1_Interrupt               : constant Interrupt_ID := 91;
+   LTDC_ER_Interrupt                 : constant Interrupt_ID := 91;
 
    --  DMA2D global interrupt
    DMA2D_Interrupt                   : constant Interrupt_ID := 92;

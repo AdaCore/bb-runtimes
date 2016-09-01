@@ -17,10 +17,6 @@ package Interfaces.STM32.RCC is
    -- Registers --
    ---------------
 
-   -----------------
-   -- CR_Register --
-   -----------------
-
    subtype CR_HSION_Field is Interfaces.Bit_Types.Bit;
    subtype CR_HSIRDY_Field is Interfaces.Bit_Types.Bit;
    subtype CR_HSITRIM_Field is Interfaces.Bit_Types.UInt5;
@@ -96,10 +92,6 @@ package Interfaces.STM32.RCC is
       Reserved_30_31 at 0 range 30 .. 31;
    end record;
 
-   ----------------------
-   -- PLLCFGR_Register --
-   ----------------------
-
    subtype PLLCFGR_PLLM_Field is Interfaces.Bit_Types.UInt6;
    subtype PLLCFGR_PLLN_Field is Interfaces.Bit_Types.UInt9;
    subtype PLLCFGR_PLLP_Field is Interfaces.Bit_Types.UInt2;
@@ -144,18 +136,9 @@ package Interfaces.STM32.RCC is
       Reserved_28_31 at 0 range 28 .. 31;
    end record;
 
-   -------------------
-   -- CFGR_Register --
-   -------------------
-
    subtype CFGR_SW_Field is Interfaces.Bit_Types.UInt2;
    subtype CFGR_SWS_Field is Interfaces.Bit_Types.UInt2;
    subtype CFGR_HPRE_Field is Interfaces.Bit_Types.UInt4;
-
-   ---------------
-   -- CFGR.PPRE --
-   ---------------
-
    --  CFGR_PPRE array element
    subtype CFGR_PPRE_Element is Interfaces.Bit_Types.UInt3;
 
@@ -231,10 +214,6 @@ package Interfaces.STM32.RCC is
       MCO2PRE      at 0 range 27 .. 29;
       MCO2         at 0 range 30 .. 31;
    end record;
-
-   ------------------
-   -- CIR_Register --
-   ------------------
 
    subtype CIR_LSIRDYF_Field is Interfaces.Bit_Types.Bit;
    subtype CIR_LSERDYF_Field is Interfaces.Bit_Types.Bit;
@@ -344,10 +323,6 @@ package Interfaces.STM32.RCC is
       Reserved_24_31 at 0 range 24 .. 31;
    end record;
 
-   -----------------------
-   -- AHB1RSTR_Register --
-   -----------------------
-
    subtype AHB1RSTR_GPIOARST_Field is Interfaces.Bit_Types.Bit;
    subtype AHB1RSTR_GPIOBRST_Field is Interfaces.Bit_Types.Bit;
    subtype AHB1RSTR_GPIOCRST_Field is Interfaces.Bit_Types.Bit;
@@ -441,10 +416,6 @@ package Interfaces.STM32.RCC is
       Reserved_30_31 at 0 range 30 .. 31;
    end record;
 
-   -----------------------
-   -- AHB2RSTR_Register --
-   -----------------------
-
    subtype AHB2RSTR_DCMIRST_Field is Interfaces.Bit_Types.Bit;
    subtype AHB2RSTR_CRYPRST_Field is Interfaces.Bit_Types.Bit;
    subtype AHB2RSTR_HSAHRST_Field is Interfaces.Bit_Types.Bit;
@@ -481,10 +452,6 @@ package Interfaces.STM32.RCC is
       Reserved_8_31 at 0 range 8 .. 31;
    end record;
 
-   -----------------------
-   -- AHB3RSTR_Register --
-   -----------------------
-
    subtype AHB3RSTR_FMCRST_Field is Interfaces.Bit_Types.Bit;
    subtype AHB3RSTR_QSPIRST_Field is Interfaces.Bit_Types.Bit;
 
@@ -505,10 +472,6 @@ package Interfaces.STM32.RCC is
       QSPIRST       at 0 range 1 .. 1;
       Reserved_2_31 at 0 range 2 .. 31;
    end record;
-
-   -----------------------
-   -- APB1RSTR_Register --
-   -----------------------
 
    subtype APB1RSTR_TIM2RST_Field is Interfaces.Bit_Types.Bit;
    subtype APB1RSTR_TIM3RST_Field is Interfaces.Bit_Types.Bit;
@@ -642,10 +605,6 @@ package Interfaces.STM32.RCC is
       UART8RST       at 0 range 31 .. 31;
    end record;
 
-   -----------------------
-   -- APB2RSTR_Register --
-   -----------------------
-
    subtype APB2RSTR_TIM1RST_Field is Interfaces.Bit_Types.Bit;
    subtype APB2RSTR_TIM8RST_Field is Interfaces.Bit_Types.Bit;
    subtype APB2RSTR_USART1RST_Field is Interfaces.Bit_Types.Bit;
@@ -764,10 +723,6 @@ package Interfaces.STM32.RCC is
       Reserved_31_31 at 0 range 31 .. 31;
    end record;
 
-   ----------------------
-   -- AHB1ENR_Register --
-   ----------------------
-
    subtype AHB1ENR_GPIOAEN_Field is Interfaces.Bit_Types.Bit;
    subtype AHB1ENR_GPIOBEN_Field is Interfaces.Bit_Types.Bit;
    subtype AHB1ENR_GPIOCEN_Field is Interfaces.Bit_Types.Bit;
@@ -885,10 +840,6 @@ package Interfaces.STM32.RCC is
       Reserved_31_31 at 0 range 31 .. 31;
    end record;
 
-   ----------------------
-   -- AHB2ENR_Register --
-   ----------------------
-
    subtype AHB2ENR_DCMIEN_Field is Interfaces.Bit_Types.Bit;
    subtype AHB2ENR_CRYPEN_Field is Interfaces.Bit_Types.Bit;
    subtype AHB2ENR_HASHEN_Field is Interfaces.Bit_Types.Bit;
@@ -925,10 +876,6 @@ package Interfaces.STM32.RCC is
       Reserved_8_31 at 0 range 8 .. 31;
    end record;
 
-   ----------------------
-   -- AHB3ENR_Register --
-   ----------------------
-
    subtype AHB3ENR_FMCEN_Field is Interfaces.Bit_Types.Bit;
    subtype AHB3ENR_QSPIEN_Field is Interfaces.Bit_Types.Bit;
 
@@ -949,10 +896,6 @@ package Interfaces.STM32.RCC is
       QSPIEN        at 0 range 1 .. 1;
       Reserved_2_31 at 0 range 2 .. 31;
    end record;
-
-   ----------------------
-   -- APB1ENR_Register --
-   ----------------------
 
    subtype APB1ENR_TIM2EN_Field is Interfaces.Bit_Types.Bit;
    subtype APB1ENR_TIM3EN_Field is Interfaces.Bit_Types.Bit;
@@ -1086,10 +1029,6 @@ package Interfaces.STM32.RCC is
       UART8ENR       at 0 range 31 .. 31;
    end record;
 
-   ----------------------
-   -- APB2ENR_Register --
-   ----------------------
-
    subtype APB2ENR_TIM1EN_Field is Interfaces.Bit_Types.Bit;
    subtype APB2ENR_TIM8EN_Field is Interfaces.Bit_Types.Bit;
    subtype APB2ENR_USART1EN_Field is Interfaces.Bit_Types.Bit;
@@ -1212,10 +1151,6 @@ package Interfaces.STM32.RCC is
       MDIOEN         at 0 range 30 .. 30;
       Reserved_31_31 at 0 range 31 .. 31;
    end record;
-
-   ------------------------
-   -- AHB1LPENR_Register --
-   ------------------------
 
    subtype AHB1LPENR_GPIOALPEN_Field is Interfaces.Bit_Types.Bit;
    subtype AHB1LPENR_GPIOBLPEN_Field is Interfaces.Bit_Types.Bit;
@@ -1346,10 +1281,6 @@ package Interfaces.STM32.RCC is
       Reserved_31_31 at 0 range 31 .. 31;
    end record;
 
-   ------------------------
-   -- AHB2LPENR_Register --
-   ------------------------
-
    subtype AHB2LPENR_DCMILPEN_Field is Interfaces.Bit_Types.Bit;
    subtype AHB2LPENR_CRYPLPEN_Field is Interfaces.Bit_Types.Bit;
    subtype AHB2LPENR_HASHLPEN_Field is Interfaces.Bit_Types.Bit;
@@ -1386,10 +1317,6 @@ package Interfaces.STM32.RCC is
       Reserved_8_31 at 0 range 8 .. 31;
    end record;
 
-   ------------------------
-   -- AHB3LPENR_Register --
-   ------------------------
-
    subtype AHB3LPENR_FMCLPEN_Field is Interfaces.Bit_Types.Bit;
    subtype AHB3LPENR_QSPILPEN_Field is Interfaces.Bit_Types.Bit;
 
@@ -1410,10 +1337,6 @@ package Interfaces.STM32.RCC is
       QSPILPEN      at 0 range 1 .. 1;
       Reserved_2_31 at 0 range 2 .. 31;
    end record;
-
-   ------------------------
-   -- APB1LPENR_Register --
-   ------------------------
 
    subtype APB1LPENR_TIM2LPEN_Field is Interfaces.Bit_Types.Bit;
    subtype APB1LPENR_TIM3LPEN_Field is Interfaces.Bit_Types.Bit;
@@ -1547,10 +1470,6 @@ package Interfaces.STM32.RCC is
       UART8LPEN      at 0 range 31 .. 31;
    end record;
 
-   ------------------------
-   -- APB2LPENR_Register --
-   ------------------------
-
    subtype APB2LPENR_TIM1LPEN_Field is Interfaces.Bit_Types.Bit;
    subtype APB2LPENR_TIM8LPEN_Field is Interfaces.Bit_Types.Bit;
    subtype APB2LPENR_USART1LPEN_Field is Interfaces.Bit_Types.Bit;
@@ -1655,18 +1574,9 @@ package Interfaces.STM32.RCC is
       Reserved_27_31 at 0 range 27 .. 31;
    end record;
 
-   -------------------
-   -- BDCR_Register --
-   -------------------
-
    subtype BDCR_LSEON_Field is Interfaces.Bit_Types.Bit;
    subtype BDCR_LSERDY_Field is Interfaces.Bit_Types.Bit;
    subtype BDCR_LSEBYP_Field is Interfaces.Bit_Types.Bit;
-
-   -----------------
-   -- BDCR.RTCSEL --
-   -----------------
-
    --  BDCR_RTCSEL array element
    subtype BDCR_RTCSEL_Element is Interfaces.Bit_Types.Bit;
 
@@ -1733,10 +1643,6 @@ package Interfaces.STM32.RCC is
       Reserved_17_31 at 0 range 17 .. 31;
    end record;
 
-   ------------------
-   -- CSR_Register --
-   ------------------
-
    subtype CSR_LSION_Field is Interfaces.Bit_Types.Bit;
    subtype CSR_LSIRDY_Field is Interfaces.Bit_Types.Bit;
    subtype CSR_RMVF_Field is Interfaces.Bit_Types.Bit;
@@ -1790,10 +1696,6 @@ package Interfaces.STM32.RCC is
       LPWRRSTF      at 0 range 31 .. 31;
    end record;
 
-   --------------------
-   -- SSCGR_Register --
-   --------------------
-
    subtype SSCGR_MODPER_Field is Interfaces.Bit_Types.UInt13;
    subtype SSCGR_INCSTEP_Field is Interfaces.Bit_Types.UInt15;
    subtype SSCGR_SPREADSEL_Field is Interfaces.Bit_Types.Bit;
@@ -1822,10 +1724,6 @@ package Interfaces.STM32.RCC is
       SPREADSEL      at 0 range 30 .. 30;
       SSCGEN         at 0 range 31 .. 31;
    end record;
-
-   -------------------------
-   -- PLLI2SCFGR_Register --
-   -------------------------
 
    subtype PLLI2SCFGR_PLLI2SN_Field is Interfaces.Bit_Types.UInt9;
    subtype PLLI2SCFGR_PLLI2SQ_Field is Interfaces.Bit_Types.UInt4;
@@ -1857,10 +1755,6 @@ package Interfaces.STM32.RCC is
       PLLI2SR        at 0 range 28 .. 30;
       Reserved_31_31 at 0 range 31 .. 31;
    end record;
-
-   -------------------------
-   -- PLLSAICFGR_Register --
-   -------------------------
 
    subtype PLLSAICFGR_PLLSAIN_Field is Interfaces.Bit_Types.UInt9;
    subtype PLLSAICFGR_PLLSAIP_Field is Interfaces.Bit_Types.UInt2;
@@ -1899,10 +1793,6 @@ package Interfaces.STM32.RCC is
       PLLSAIR        at 0 range 28 .. 30;
       Reserved_31_31 at 0 range 31 .. 31;
    end record;
-
-   ----------------------
-   -- DKCFGR1_Register --
-   ----------------------
 
    subtype DKCFGR1_PLLI2SDIV_Field is Interfaces.Bit_Types.UInt5;
    subtype DKCFGR1_PLLSAIDIVQ_Field is Interfaces.Bit_Types.UInt5;
@@ -1949,10 +1839,6 @@ package Interfaces.STM32.RCC is
       TIMPRE         at 0 range 24 .. 24;
       Reserved_25_31 at 0 range 25 .. 31;
    end record;
-
-   ----------------------
-   -- DKCFGR2_Register --
-   ----------------------
 
    subtype DKCFGR2_USART1SEL_Field is Interfaces.Bit_Types.UInt2;
    subtype DKCFGR2_USART2SEL_Field is Interfaces.Bit_Types.UInt2;
@@ -2093,32 +1979,32 @@ package Interfaces.STM32.RCC is
      with Volatile;
 
    for RCC_Peripheral use record
-      CR         at 0 range 0 .. 31;
-      PLLCFGR    at 4 range 0 .. 31;
-      CFGR       at 8 range 0 .. 31;
-      CIR        at 12 range 0 .. 31;
-      AHB1RSTR   at 16 range 0 .. 31;
-      AHB2RSTR   at 20 range 0 .. 31;
-      AHB3RSTR   at 24 range 0 .. 31;
-      APB1RSTR   at 32 range 0 .. 31;
-      APB2RSTR   at 36 range 0 .. 31;
-      AHB1ENR    at 48 range 0 .. 31;
-      AHB2ENR    at 52 range 0 .. 31;
-      AHB3ENR    at 56 range 0 .. 31;
-      APB1ENR    at 64 range 0 .. 31;
-      APB2ENR    at 68 range 0 .. 31;
-      AHB1LPENR  at 80 range 0 .. 31;
-      AHB2LPENR  at 84 range 0 .. 31;
-      AHB3LPENR  at 88 range 0 .. 31;
-      APB1LPENR  at 96 range 0 .. 31;
-      APB2LPENR  at 100 range 0 .. 31;
-      BDCR       at 112 range 0 .. 31;
-      CSR        at 116 range 0 .. 31;
-      SSCGR      at 128 range 0 .. 31;
-      PLLI2SCFGR at 132 range 0 .. 31;
-      PLLSAICFGR at 136 range 0 .. 31;
-      DKCFGR1    at 140 range 0 .. 31;
-      DKCFGR2    at 144 range 0 .. 31;
+      CR         at 16#0# range 0 .. 31;
+      PLLCFGR    at 16#4# range 0 .. 31;
+      CFGR       at 16#8# range 0 .. 31;
+      CIR        at 16#C# range 0 .. 31;
+      AHB1RSTR   at 16#10# range 0 .. 31;
+      AHB2RSTR   at 16#14# range 0 .. 31;
+      AHB3RSTR   at 16#18# range 0 .. 31;
+      APB1RSTR   at 16#20# range 0 .. 31;
+      APB2RSTR   at 16#24# range 0 .. 31;
+      AHB1ENR    at 16#30# range 0 .. 31;
+      AHB2ENR    at 16#34# range 0 .. 31;
+      AHB3ENR    at 16#38# range 0 .. 31;
+      APB1ENR    at 16#40# range 0 .. 31;
+      APB2ENR    at 16#44# range 0 .. 31;
+      AHB1LPENR  at 16#50# range 0 .. 31;
+      AHB2LPENR  at 16#54# range 0 .. 31;
+      AHB3LPENR  at 16#58# range 0 .. 31;
+      APB1LPENR  at 16#60# range 0 .. 31;
+      APB2LPENR  at 16#64# range 0 .. 31;
+      BDCR       at 16#70# range 0 .. 31;
+      CSR        at 16#74# range 0 .. 31;
+      SSCGR      at 16#80# range 0 .. 31;
+      PLLI2SCFGR at 16#84# range 0 .. 31;
+      PLLSAICFGR at 16#88# range 0 .. 31;
+      DKCFGR1    at 16#8C# range 0 .. 31;
+      DKCFGR2    at 16#90# range 0 .. 31;
    end record;
 
    --  Reset and clock control

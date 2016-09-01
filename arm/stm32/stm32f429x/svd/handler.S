@@ -117,8 +117,8 @@ __vectors:
 	.word __gnat_irq_trap        /* 101 SPI5_IRQ */
 	.word __gnat_irq_trap        /* 102 SPI6_IRQ */
 	.word __gnat_irq_trap        /* 103 SAI1 */
-	.word __gnat_irq_trap        /* 104 LCD_TFT */
-	.word __gnat_irq_trap        /* 105 LCD_TFT_1 */
+	.word __gnat_irq_trap        /* 104 LTDC */
+	.word __gnat_irq_trap        /* 105 LTDC_ER */
 	.word __gnat_irq_trap        /* 106 DMA2D */
 
 	.text

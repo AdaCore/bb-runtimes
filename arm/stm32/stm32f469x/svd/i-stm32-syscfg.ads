@@ -17,10 +17,6 @@ package Interfaces.STM32.SYSCFG is
    -- Registers --
    ---------------
 
-   --------------------
-   -- MEMRM_Register --
-   --------------------
-
    subtype MEMRM_MEM_MODE_Field is Interfaces.Bit_Types.UInt3;
    subtype MEMRM_FB_MODE_Field is Interfaces.Bit_Types.Bit;
    subtype MEMRM_SWP_FMC_Field is Interfaces.Bit_Types.UInt2;
@@ -51,10 +47,6 @@ package Interfaces.STM32.SYSCFG is
       SWP_FMC        at 0 range 10 .. 11;
       Reserved_12_31 at 0 range 12 .. 31;
    end record;
-
-   ------------------
-   -- PMC_Register --
-   ------------------
 
    subtype PMC_ADC1DC2_Field is Interfaces.Bit_Types.Bit;
    subtype PMC_ADC2DC2_Field is Interfaces.Bit_Types.Bit;
@@ -90,14 +82,6 @@ package Interfaces.STM32.SYSCFG is
       MII_RMII_SEL   at 0 range 23 .. 23;
       Reserved_24_31 at 0 range 24 .. 31;
    end record;
-
-   ----------------------
-   -- EXTICR1_Register --
-   ----------------------
-
-   ------------------
-   -- EXTICR1.EXTI --
-   ------------------
 
    --  EXTICR1_EXTI array element
    subtype EXTICR1_EXTI_Element is Interfaces.Bit_Types.UInt4;
@@ -142,14 +126,6 @@ package Interfaces.STM32.SYSCFG is
       Reserved_16_31 at 0 range 16 .. 31;
    end record;
 
-   ----------------------
-   -- EXTICR2_Register --
-   ----------------------
-
-   ------------------
-   -- EXTICR2.EXTI --
-   ------------------
-
    --  EXTICR2_EXTI array element
    subtype EXTICR2_EXTI_Element is Interfaces.Bit_Types.UInt4;
 
@@ -192,14 +168,6 @@ package Interfaces.STM32.SYSCFG is
       EXTI           at 0 range 0 .. 15;
       Reserved_16_31 at 0 range 16 .. 31;
    end record;
-
-   ----------------------
-   -- EXTICR3_Register --
-   ----------------------
-
-   ------------------
-   -- EXTICR3.EXTI --
-   ------------------
 
    --  EXTICR3_EXTI array element
    subtype EXTICR3_EXTI_Element is Interfaces.Bit_Types.UInt4;
@@ -244,14 +212,6 @@ package Interfaces.STM32.SYSCFG is
       Reserved_16_31 at 0 range 16 .. 31;
    end record;
 
-   ----------------------
-   -- EXTICR4_Register --
-   ----------------------
-
-   ------------------
-   -- EXTICR4.EXTI --
-   ------------------
-
    --  EXTICR4_EXTI array element
    subtype EXTICR4_EXTI_Element is Interfaces.Bit_Types.UInt4;
 
@@ -294,10 +254,6 @@ package Interfaces.STM32.SYSCFG is
       EXTI           at 0 range 0 .. 15;
       Reserved_16_31 at 0 range 16 .. 31;
    end record;
-
-   --------------------
-   -- CMPCR_Register --
-   --------------------
 
    subtype CMPCR_CMP_PD_Field is Interfaces.Bit_Types.Bit;
    subtype CMPCR_READY_Field is Interfaces.Bit_Types.Bit;
@@ -347,13 +303,13 @@ package Interfaces.STM32.SYSCFG is
      with Volatile;
 
    for SYSCFG_Peripheral use record
-      MEMRM   at 0 range 0 .. 31;
-      PMC     at 4 range 0 .. 31;
-      EXTICR1 at 8 range 0 .. 31;
-      EXTICR2 at 12 range 0 .. 31;
-      EXTICR3 at 16 range 0 .. 31;
-      EXTICR4 at 20 range 0 .. 31;
-      CMPCR   at 32 range 0 .. 31;
+      MEMRM   at 16#0# range 0 .. 31;
+      PMC     at 16#4# range 0 .. 31;
+      EXTICR1 at 16#8# range 0 .. 31;
+      EXTICR2 at 16#C# range 0 .. 31;
+      EXTICR3 at 16#10# range 0 .. 31;
+      EXTICR4 at 16#14# range 0 .. 31;
+      CMPCR   at 16#20# range 0 .. 31;
    end record;
 
    --  System configuration controller

@@ -17,10 +17,6 @@ package Interfaces.STM32.USART is
    -- Registers --
    ---------------
 
-   ------------------
-   -- CR1_Register --
-   ------------------
-
    subtype CR1_UE_Field is Interfaces.Bit_Types.Bit;
    subtype CR1_UESM_Field is Interfaces.Bit_Types.Bit;
    subtype CR1_RE_Field is Interfaces.Bit_Types.Bit;
@@ -37,11 +33,6 @@ package Interfaces.STM32.USART is
    subtype CR1_MME_Field is Interfaces.Bit_Types.Bit;
    subtype CR1_CMIE_Field is Interfaces.Bit_Types.Bit;
    subtype CR1_OVER8_Field is Interfaces.Bit_Types.Bit;
-
-   --------------
-   -- CR1.DEDT --
-   --------------
-
    --  CR1_DEDT array element
    subtype CR1_DEDT_Element is Interfaces.Bit_Types.Bit;
 
@@ -68,10 +59,6 @@ package Interfaces.STM32.USART is
       Val at 0 range 0 .. 4;
       Arr at 0 range 0 .. 4;
    end record;
-
-   --------------
-   -- CR1.DEAT --
-   --------------
 
    --  CR1_DEAT array element
    subtype CR1_DEAT_Element is Interfaces.Bit_Types.Bit;
@@ -179,10 +166,6 @@ package Interfaces.STM32.USART is
       Reserved_29_31 at 0 range 29 .. 31;
    end record;
 
-   ------------------
-   -- CR2_Register --
-   ------------------
-
    subtype CR2_ADDM7_Field is Interfaces.Bit_Types.Bit;
    subtype CR2_LBDL_Field is Interfaces.Bit_Types.Bit;
    subtype CR2_LBDIE_Field is Interfaces.Bit_Types.Bit;
@@ -198,11 +181,6 @@ package Interfaces.STM32.USART is
    subtype CR2_TAINV_Field is Interfaces.Bit_Types.Bit;
    subtype CR2_MSBFIRST_Field is Interfaces.Bit_Types.Bit;
    subtype CR2_ABREN_Field is Interfaces.Bit_Types.Bit;
-
-   ----------------
-   -- CR2.ABRMOD --
-   ----------------
-
    --  CR2_ABRMOD array element
    subtype CR2_ABRMOD_Element is Interfaces.Bit_Types.Bit;
 
@@ -306,10 +284,6 @@ package Interfaces.STM32.USART is
       ADD4_7       at 0 range 28 .. 31;
    end record;
 
-   ------------------
-   -- CR3_Register --
-   ------------------
-
    subtype CR3_EIE_Field is Interfaces.Bit_Types.Bit;
    subtype CR3_IREN_Field is Interfaces.Bit_Types.Bit;
    subtype CR3_IRLP_Field is Interfaces.Bit_Types.Bit;
@@ -402,10 +376,6 @@ package Interfaces.STM32.USART is
       Reserved_23_31 at 0 range 23 .. 31;
    end record;
 
-   ------------------
-   -- BRR_Register --
-   ------------------
-
    subtype BRR_DIV_Fraction_Field is Interfaces.Bit_Types.UInt4;
    subtype BRR_DIV_Mantissa_Field is Interfaces.Bit_Types.UInt12;
 
@@ -426,10 +396,6 @@ package Interfaces.STM32.USART is
       DIV_Mantissa   at 0 range 4 .. 15;
       Reserved_16_31 at 0 range 16 .. 31;
    end record;
-
-   -------------------
-   -- GTPR_Register --
-   -------------------
 
    subtype GTPR_PSC_Field is Interfaces.Bit_Types.Byte;
    subtype GTPR_GT_Field is Interfaces.Bit_Types.Byte;
@@ -452,10 +418,6 @@ package Interfaces.STM32.USART is
       Reserved_16_31 at 0 range 16 .. 31;
    end record;
 
-   -------------------
-   -- RTOR_Register --
-   -------------------
-
    subtype RTOR_RTO_Field is Interfaces.Bit_Types.UInt24;
    subtype RTOR_BLEN_Field is Interfaces.Bit_Types.Byte;
 
@@ -473,10 +435,6 @@ package Interfaces.STM32.USART is
       RTO  at 0 range 0 .. 23;
       BLEN at 0 range 24 .. 31;
    end record;
-
-   ------------------
-   -- RQR_Register --
-   ------------------
 
    subtype RQR_ABRRQ_Field is Interfaces.Bit_Types.Bit;
    subtype RQR_SBKRQ_Field is Interfaces.Bit_Types.Bit;
@@ -510,10 +468,6 @@ package Interfaces.STM32.USART is
       TXFRQ         at 0 range 4 .. 4;
       Reserved_5_31 at 0 range 5 .. 31;
    end record;
-
-   ------------------
-   -- ISR_Register --
-   ------------------
 
    subtype ISR_PE_Field is Interfaces.Bit_Types.Bit;
    subtype ISR_FE_Field is Interfaces.Bit_Types.Bit;
@@ -619,10 +573,6 @@ package Interfaces.STM32.USART is
       Reserved_23_31 at 0 range 23 .. 31;
    end record;
 
-   ------------------
-   -- ICR_Register --
-   ------------------
-
    subtype ICR_PECF_Field is Interfaces.Bit_Types.Bit;
    subtype ICR_FECF_Field is Interfaces.Bit_Types.Bit;
    subtype ICR_NCF_Field is Interfaces.Bit_Types.Bit;
@@ -699,10 +649,6 @@ package Interfaces.STM32.USART is
       Reserved_21_31 at 0 range 21 .. 31;
    end record;
 
-   ------------------
-   -- RDR_Register --
-   ------------------
-
    subtype RDR_RDR_Field is Interfaces.Bit_Types.UInt9;
 
    --  Receive data register
@@ -719,10 +665,6 @@ package Interfaces.STM32.USART is
       RDR           at 0 range 0 .. 8;
       Reserved_9_31 at 0 range 9 .. 31;
    end record;
-
-   ------------------
-   -- TDR_Register --
-   ------------------
 
    subtype TDR_TDR_Field is Interfaces.Bit_Types.UInt9;
 
@@ -773,26 +715,18 @@ package Interfaces.STM32.USART is
      with Volatile;
 
    for USART_Peripheral use record
-      CR1  at 0 range 0 .. 31;
-      CR2  at 4 range 0 .. 31;
-      CR3  at 8 range 0 .. 31;
-      BRR  at 12 range 0 .. 31;
-      GTPR at 16 range 0 .. 31;
-      RTOR at 20 range 0 .. 31;
-      RQR  at 24 range 0 .. 31;
-      ISR  at 28 range 0 .. 31;
-      ICR  at 32 range 0 .. 31;
-      RDR  at 36 range 0 .. 31;
-      TDR  at 40 range 0 .. 31;
+      CR1  at 16#0# range 0 .. 31;
+      CR2  at 16#4# range 0 .. 31;
+      CR3  at 16#8# range 0 .. 31;
+      BRR  at 16#C# range 0 .. 31;
+      GTPR at 16#10# range 0 .. 31;
+      RTOR at 16#14# range 0 .. 31;
+      RQR  at 16#18# range 0 .. 31;
+      ISR  at 16#1C# range 0 .. 31;
+      ICR  at 16#20# range 0 .. 31;
+      RDR  at 16#24# range 0 .. 31;
+      TDR  at 16#28# range 0 .. 31;
    end record;
-
-   --  Universal synchronous asynchronous receiver transmitter
-   USART2_Periph : aliased USART_Peripheral
-     with Import, Address => USART2_Base;
-
-   --  Universal synchronous asynchronous receiver transmitter
-   USART3_Periph : aliased USART_Peripheral
-     with Import, Address => USART3_Base;
 
    --  Universal synchronous asynchronous receiver transmitter
    UART4_Periph : aliased USART_Peripheral
@@ -813,6 +747,14 @@ package Interfaces.STM32.USART is
    --  Universal synchronous asynchronous receiver transmitter
    USART1_Periph : aliased USART_Peripheral
      with Import, Address => USART1_Base;
+
+   --  Universal synchronous asynchronous receiver transmitter
+   USART2_Periph : aliased USART_Peripheral
+     with Import, Address => USART2_Base;
+
+   --  Universal synchronous asynchronous receiver transmitter
+   USART3_Periph : aliased USART_Peripheral
+     with Import, Address => USART3_Base;
 
    --  Universal synchronous asynchronous receiver transmitter
    USART6_Periph : aliased USART_Peripheral
