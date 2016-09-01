@@ -1163,7 +1163,7 @@ class ArmBBTarget(Target):
     def __init__(self):
         super(ArmBBTarget, self).__init__(
             mem_routines=True,
-            libc_files=True,
+            libc_files=False,
             arm_zcx=True)
         self.build_flags['target'] = 'arm-eabi'
 
@@ -1186,6 +1186,10 @@ class ArmBBTarget(Target):
         self.pairs.update({
             'system.ads': 'system-xi-cortexm4-full.ads',
             's-traceb.adb': 's-traceb-xi-armeabi.adb'})
+        self.common += ['newlib-bb.c']
+        self.config_files['runtime.xml'] = \
+            self.config_files['runtime.xml'].replace(
+                '"-nolibc", ', '"-lc", "-lgnat", ')
 
 
 class LM3S(ArmBBTarget):
@@ -1368,12 +1372,19 @@ class DFBBTarget(Target):
     def has_double_precision_fpu(self):
         return True
 
+    def amend_ravenscar_full(self):
+        super(DFBBTarget, self).amend_ravenscar_full()
+        self.common += ['newlib-bb.c']
+        self.config_files['runtime.xml'] = \
+            self.config_files['runtime.xml'].replace(
+                '"-nolibc", ', '"-lc", "-lgnat", ')
+
 
 class TMS570(DFBBTarget):
     def __init__(self):
         super(TMS570, self).__init__(
             mem_routines=True,
-            libc_files=True,
+            libc_files=False,
             arm_zcx=True)
         self.build_flags['target'] = 'arm-eabi'
 
@@ -1451,10 +1462,6 @@ class Zynq7000(DFBBTarget):
         self.pairs.update({
             'system.ads': 'system-xi-cortexa-full.ads',
             's-traceb.adb': 's-traceb-xi-armeabi.adb'})
-        self.common += ['newlib-bb.c']
-        self.config_files['runtime.xml'] = \
-            self.config_files['runtime.xml'].replace(
-                '"-nolibc", ', '"-lc", "-lgnat", ')
 
 
 class SparcBBTarget(DFBBTarget):
