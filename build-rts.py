@@ -1372,14 +1372,6 @@ class DFBBTarget(Target):
     def has_double_precision_fpu(self):
         return True
 
-    def amend_ravenscar_full(self):
-        super(DFBBTarget, self).amend_ravenscar_full()
-        if not self._libc_files:
-            self.common += ['newlib-bb.c']
-            self.config_files['runtime.xml'] = \
-                self.config_files['runtime.xml'].replace(
-                    '"-nolibc", ', '"-lc", "-lgnat", ')
-
 
 class TMS570(DFBBTarget):
     def __init__(self):
@@ -1426,6 +1418,10 @@ class TMS570(DFBBTarget):
         self.pairs.update({
             'system.ads': 'system-xi-arm-full.ads',
             's-traceb.adb': 's-traceb-xi-armeabi.adb'})
+        self.common += ['newlib-bb.c']
+        self.config_files['runtime.xml'] = \
+            self.config_files['runtime.xml'].replace(
+                '"-nolibc", ', '"-lc", "-lgnat", ')
 
 
 class Zynq7000(DFBBTarget):
@@ -1463,6 +1459,10 @@ class Zynq7000(DFBBTarget):
         self.pairs.update({
             'system.ads': 'system-xi-cortexa-full.ads',
             's-traceb.adb': 's-traceb-xi-armeabi.adb'})
+        self.common += ['newlib-bb.c']
+        self.config_files['runtime.xml'] = \
+            self.config_files['runtime.xml'].replace(
+                '"-nolibc", ', '"-lc", "-lgnat", ')
 
 
 class SparcBBTarget(DFBBTarget):
