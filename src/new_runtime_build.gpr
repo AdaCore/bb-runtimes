@@ -13,13 +13,12 @@ project Runtime_Build is
   for Source_Dirs use ("{source_dirs}");
   for Target use "{target}";
 
-  type Build_Type is ("Production", "Debug", "Gnatcov");
+  type Build_Type is ("Production", "Debug", "Assert", "Gnatcov");
 
   Build : Build_Type := external ("BUILD", "Production");
 
-  package Builder is
-     for Switches ("Ada") use ("--RTS=" & Project'project_dir);
-  end Builder;
+  --  Use the runtime being built as the runtime
+  for Runtime ("Ada") use Project'project_dir;
 
   package Compiler is
      --  COMFLAGS here is common flags (used for C and Ada).
@@ -38,9 +37,11 @@ project Runtime_Build is
 	   --  Disable optimization and add debug symbols
            COMFLAGS := COMFLAGS & ("-O0", "-g");
            ASMFLAGS := ASMFLAGS & ("-g");
+	when "Assert" =>
 	   --  Possibly enable assertions. This might use too much memory on
 	   --  some systems or could be too slow.
-	   --  ADAFLAGS := ADAFLAGS & ("-gnata");
+           COMFLAGS := COMFLAGS & ("-O");
+	   ADAFLAGS := ADAFLAGS & ("-gnata");
         when "Gnatcov" =>
 	   --  For coverage
            COMFLAGS := COMFLAGS & ("-O0", "-g", "-fdump-scos",
