@@ -12,8 +12,7 @@ project Ravenscar_Build is
 
   for Source_Dirs use ("gnarl-arch", "gnarl-common");
   for Target use Runtime_Build'Target;
-
-  package Builder renames Runtime_Build.Builder;
+  for Runtime ("Ada") use Runtime_Build'Runtime ("Ada");
 
   package Compiler renames Runtime_Build.Compiler;
 end Ravenscar_Build;
