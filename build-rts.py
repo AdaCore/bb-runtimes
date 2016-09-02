@@ -1374,10 +1374,11 @@ class DFBBTarget(Target):
 
     def amend_ravenscar_full(self):
         super(DFBBTarget, self).amend_ravenscar_full()
-        self.common += ['newlib-bb.c']
-        self.config_files['runtime.xml'] = \
-            self.config_files['runtime.xml'].replace(
-                '"-nolibc", ', '"-lc", "-lgnat", ')
+        if not self._libc_files:
+            self.common += ['newlib-bb.c']
+            self.config_files['runtime.xml'] = \
+                self.config_files['runtime.xml'].replace(
+                    '"-nolibc", ', '"-lc", "-lgnat", ')
 
 
 class TMS570(DFBBTarget):
