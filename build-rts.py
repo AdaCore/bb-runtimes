@@ -1646,9 +1646,11 @@ class MPC8641(PPC6XXBBTarget):
     def amend_ravenscar_sfp(self):
         super(MPC8641, self).amend_ravenscar_sfp()
         self.gnarl_common.remove('s-bb.ads')
+        self.gnarl_common.append('s-bbsuti.adb')
         self.pairs.update({
             's-multip.adb': 's-multip-8641d.adb',
             's-bbbosu.adb': 's-bbbosu-ppc-openpic.adb',
+            's-bbsuti.adb': 's-bbsuti-ppc.adb',
             's-bbpara.ads': 's-bbpara-8641d.ads',
             'a-intnam.ads': 'a-intnam-xi-ppc-openpic.ads',
             's-bcprmu.adb': 's-bcprmu-8641d.adb'})
@@ -1752,8 +1754,10 @@ class P2020(PPCSPEBBTarget):
     def amend_ravenscar_sfp(self):
         super(P2020, self).amend_ravenscar_sfp()
         self.gnarl_common.remove('s-bb.ads')
+        self.gnarl_common.append('s-bbsuti.adb')
         self.pairs.update({
             's-bbbosu.adb': 's-bbbosu-ppc-openpic.adb',
+            's-bbsuti.adb': 's-bbsuti-ppc.adb',
             's-bbpara.ads': 's-bbpara-ppc.ads',
             'a-intnam.ads': 'a-intnam-xi-ppc-openpic.ads'})
 
@@ -1792,9 +1796,11 @@ class P5566(PPCSPEBBTarget):
     def amend_ravenscar_sfp(self):
         super(P5566, self).amend_ravenscar_sfp()
         self.gnarl_bsp.append('s-bbbopa.ads')
+        self.gnarl_common.append('s-bbsuti.adb')
         self.pairs.update({
             's-bbbopa.ads': 's-bbbopa-p55.ads',
             's-bbbosu.adb': 's-bbbosu-p55.adb',
+            's-bbsuti.adb': 's-bbsuti-ppc.adb',
             's-bbpara.ads': 's-bbpara-p55.ads',
             'a-intnam.ads': 'a-intnam-xi-p55.ads'})
 
