@@ -1405,9 +1405,11 @@ class TMS570(DFBBTarget):
     def amend_ravenscar_sfp(self):
         super(TMS570, self).amend_ravenscar_sfp()
 
+        self.gnarl_common += ['s-bbcpsp.ads']
         self.pairs.update({
             'system.ads': 'system-xi-arm-sfp.ads',
             's-bbcppr.adb': 's-bbcppr-arm.adb',
+            's-bbcpsp.ads': 's-bbcpsp-arm.ads',
             'a-intnam.ads': 'a-intnam-xi-tms570.ads',
             's-bbbosu.adb': 's-bbbosu-tms570.adb',
             's-bbpara.ads': 's-bbpara-tms570.ads',
@@ -1447,11 +1449,15 @@ class Zynq7000(DFBBTarget):
     def amend_ravenscar_sfp(self):
         super(Zynq7000, self).amend_ravenscar_sfp()
 
+        self.gnarl_common += ['s-bbcpsp.ads']
         self.pairs.update({
             'system.ads': 'system-xi-cortexa-sfp.ads',
             's-bbcppr.adb': 's-bbcppr-arm.adb',
+            's-bbcpsp.ads': 's-bbcpsp-arm.ads',
             'a-intnam.ads': 'a-intnam-dummy.ads',
             's-bbbosu.adb': 's-bbbosu-cortexa9.adb',
+            's-bbbosu.ads': 's-bbbosu-ppc.ads',
+            's-bbtime.adb': 's-bbtime-ppc.adb',
             's-bbpara.ads': 's-bbpara-cortexa9.ads'})
 
     def amend_ravenscar_full(self):
