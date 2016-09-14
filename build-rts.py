@@ -1301,7 +1301,7 @@ class Stm32(ArmBBTarget):
     def amend_ravenscar_sfp(self):
         super(Stm32, self).amend_ravenscar_sfp()
         self.gnarl_common.remove('s-bb.ads')
-
+        self.gnarl_common += ['s-bbsumu.adb']
         self.bsp += [
             'arm/stm32/%s/svd/handler.S' % self.mcu]
         self.pairs.update({
@@ -1405,7 +1405,7 @@ class TMS570(DFBBTarget):
     def amend_ravenscar_sfp(self):
         super(TMS570, self).amend_ravenscar_sfp()
 
-        self.gnarl_common += ['s-bbcpsp.ads']
+        self.gnarl_common += ['s-bbcpsp.ads', 's-bbsumu.adb']
         self.pairs.update({
             'system.ads': 'system-xi-arm-sfp.ads',
             's-bbcppr.adb': 's-bbcppr-arm.adb',
@@ -1456,7 +1456,6 @@ class Zynq7000(DFBBTarget):
             's-bbcpsp.ads': 's-bbcpsp-arm.ads',
             'a-intnam.ads': 'a-intnam-dummy.ads',
             's-bbbosu.adb': 's-bbbosu-cortexa9.adb',
-            's-bbbosu.ads': 's-bbbosu-ppc.ads',
             's-bbtime.adb': 's-bbtime-ppc.adb',
             's-bbpara.ads': 's-bbpara-cortexa9.ads'})
 
@@ -1553,7 +1552,7 @@ class Leon2(SparcBBTarget):
     def amend_ravenscar_sfp(self):
         super(Leon2, self).amend_ravenscar_sfp()
         self.gnarl_common += [
-            's-bbsule.ads']
+            's-bbsule.ads', 's-bbsumu.adb']
         self.pairs.update({
             's-bbbosu.adb': 's-bbbosu-leon.adb',
             's-multip.adb': 's-multip-raven-default.adb',
@@ -1617,7 +1616,6 @@ class PPC6XXBBTarget(DFBBTarget):
             'system.ads': 'system-xi-ppc-sfp.ads',
             's-bbcppr.adb': 's-bbcppr-ppc.adb',
             's-bbcppr.ads': 's-bbcppr-ppc.ads',
-            's-bbbosu.ads': 's-bbbosu-ppc.ads',
             's-bbinte.adb': 's-bbinte-ppc.adb',
             's-bbtime.adb': 's-bbtime-ppc.adb',
             's-bbcpsp.ads': 's-bbcpsp-6xx.ads',
@@ -1726,7 +1724,6 @@ class PPCSPEBBTarget(DFBBTarget):
             'system.ads': 'system-xi-e500v2-sfp.ads',
             's-bbcppr.adb': 's-bbcppr-ppc.adb',
             's-bbcppr.ads': 's-bbcppr-ppc.ads',
-            's-bbbosu.ads': 's-bbbosu-ppc.ads',
             's-bbinte.adb': 's-bbinte-ppc.adb',
             's-bbtime.adb': 's-bbtime-ppc.adb',
             's-bbcpsp.ads': 's-bbcpsp-spe.ads',
@@ -1802,7 +1799,7 @@ class P5566(PPCSPEBBTarget):
     def amend_ravenscar_sfp(self):
         super(P5566, self).amend_ravenscar_sfp()
         self.gnarl_bsp.append('s-bbbopa.ads')
-        self.gnarl_common.append('s-bbsuti.adb')
+        self.gnarl_common += ['s-bbsuti.adb', 's-bbsumu.adb']
         self.pairs.update({
             's-bbbopa.ads': 's-bbbopa-p55.ads',
             's-bbbosu.adb': 's-bbbosu-p55.adb',
