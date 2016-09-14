@@ -389,7 +389,11 @@ class BaseRavenscarFull(BaseRavenscarSFP):
 
         if config.is_bareboard:
             self.gnarl_common += [
-                's-btstch.ads', 's-btstch.adb']
+                's-btstch.ads', 's-btstch.adb',
+                'a-synbar.adb', 'a-synbar.ads',
+                'g-boubuf.adb', 'g-boubuf.ads',
+                'g-boumai.ads',
+                'g-semaph.adb', 'g-semaph.ads']
             self.common += [
                 'adaint-xi.c']
 
