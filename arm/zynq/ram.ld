@@ -44,7 +44,7 @@ _DEFAULT_STACK_SIZE = (20 * 1024);
 _SVC_STACK_SIZE   =  256;
 _UNDEF_STACK_SIZE =  256;
 _ABORT_STACK_SIZE =  256;
-_IRQ_STACK_SIZE   = 1024;
+_IRQ_STACK_SIZE   = 2048;
 _FIQ_STACK_SIZE   =  256;
 
 ENTRY(__start_ram);
@@ -133,39 +133,71 @@ SECTIONS
 
    __interrupt_stack_start = .;
 
-   __abort_stack_start = .;
-   __abort_stack_end = ALIGN(__abort_stack_start + _ABORT_STACK_SIZE, 0x8);
+   /* CPU 0 */
+   __cpu0_abort_stack_start = .;
+   . = ALIGN(. + _ABORT_STACK_SIZE, 0x8);
+   __cpu0_abort_stack_end = .;
 
-   __undef_stack_start = __abort_stack_end;
-   __undef_stack_end = ALIGN(__undef_stack_start + _UNDEF_STACK_SIZE, 0x8);
+   __cpu0_undef_stack_start = .;
+   . = ALIGN(. + _UNDEF_STACK_SIZE, 0x8);
+   __cpu0_undef_stack_end = .;
 
-   __svc_stack_start = __undef_stack_end;
-   __svc_stack_end = ALIGN(__svc_stack_start + _SVC_STACK_SIZE, 0x8);
+   __cpu0_svc_stack_start = .;
+   . = ALIGN(. + _SVC_STACK_SIZE, 0x8);
+   __cpu0_svc_stack_end = .;
 
-   __fiq_stack_start = __svc_stack_end;
-   __fiq_stack_end = ALIGN(__fiq_stack_start + _FIQ_STACK_SIZE, 0x8);
+   __cpu0_fiq_stack_start = .;
+   . = ALIGN(. + _FIQ_STACK_SIZE, 0x8);
+   __cpu0_fiq_stack_end = .;
 
    /* Use the largest of .interrupt_stacks or the default trap stack sizes.
       This allows use with either ZFP or Ravenscar run times. */
 
-   __irq_stack_start = __fiq_stack_end;
+   __cpu0_irq_stack_start = .;
    *(.interrupt_stacks)
-   . = MAX(., __irq_stack_start + _IRQ_STACK_SIZE);
+   . = MAX(., __cpu0_irq_stack_start + _IRQ_STACK_SIZE);
    . = ALIGN(0x8);
-   __irq_stack_end = .;
- 
+   __cpu0_irq_stack_end = .;
+
+   /* CPU 1 */
+   __cpu1_abort_stack_start = .;
+   . = ALIGN(. + _ABORT_STACK_SIZE, 0x8);
+   __cpu1_abort_stack_end = .;
+
+   __cpu1_undef_stack_start = .;
+   . = ALIGN(. + _UNDEF_STACK_SIZE, 0x8);
+   __cpu1_undef_stack_end = .;
+
+   __cpu1_svc_stack_start = .;
+   . = ALIGN(. + _SVC_STACK_SIZE, 0x8);
+   __cpu1_svc_stack_end = .;
+
+   __cpu1_fiq_stack_start = .;
+   . = ALIGN(. + _FIQ_STACK_SIZE, 0x8);
+   __cpu1_fiq_stack_end = .;
+
+   /* Use the largest of .interrupt_stacks or the default trap stack sizes.
+      This allows use with either ZFP or Ravenscar run times. */
+
+   __cpu1_irq_stack_start = .;
+   . = ALIGN (. + _IRQ_STACK_SIZE, 0x8);
+   __cpu1_irq_stack_end = .;
+
    __interrupt_stack_end = .;
 
+   /* Separate stack per CPU */
    __stack_start = .;
 
-   /* Reserve the space for the stack to be used by the environment task */
-
+   __cpu1_stack_start = .;
    . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
-
-   /* Pointer to the top of the stack to be used by the main procedure (the
-      environment task. */
-
    . = ALIGN(0x8);
+   __cpu1_stack_end = .;
+
+   __cpu0_stack_start = .;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
+   . = ALIGN(0x8);
+   __cpu0_stack_end = .;
+
    __stack_end = .;
 
    _end = .;

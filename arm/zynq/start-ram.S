@@ -108,35 +108,109 @@ L_coreInitRegisters:
 
 	/* Supervisor mode */
 	cps	#19 /* 10011 */
-	ldr	sp, svcSp
+	ldr	sp, svcSp0
 
 	/* Abort mode */
 	cps	#23  /* 10111 */
-	ldr	sp, abortSp
+	ldr	sp, abortSp0
 
 	/* Undefined instruction mode */
 	cps	#27  /* 11011 */
-	ldr	sp, undefSp
+	ldr	sp, undefSp0
 
 	/* FIQ mode */
 	cps	#17  /* 10001 */
-	ldr	sp, fiqSp
+	ldr	sp, fiqSp0
 
 	/* IRQ mode */
 	cps	#18  /* 10010 */
-	ldr	sp, irqSp
+	ldr	sp, irqSp0
 
 	/* System mode */
 	cps	#31  /* 11111 */
-	ldr	sp, userSp	/* SYS mode shared stack with User mode */
+	ldr	sp, userSp0	/* SYS mode shared stack with User mode */
 
         /* Return on saved lr */
 	bx	r0
 	.size	L_coreInitRegisters, . - L_coreInitRegisters
 
-svcSp:		.word __svc_stack_end
-abortSp:	.word __abort_stack_end
-undefSp:	.word __undef_stack_end
-fiqSp:		.word __fiq_stack_end
-irqSp:		.word __irq_stack_end
-userSp:		.word __stack_end
+svcSp0:		.word __cpu0_svc_stack_end
+abortSp0:	.word __cpu0_abort_stack_end
+undefSp0:	.word __cpu0_undef_stack_end
+fiqSp0:		.word __cpu0_fiq_stack_end
+irqSp0:		.word __cpu0_irq_stack_end
+userSp0:	.word __cpu0_stack_end
+
+	.type	__start_cpu1 %function
+__start_cpu1:
+	/* Enable Floating-Point Coprocessor.  */
+	bl	L_coreEnableVfp
+
+	/* Initialize Registers. */
+	bl	L_coreInitRegisters_cpu1
+
+	/* Set VBAR (Vector Base Address Register).  */
+	adr	r0, __traps
+	mcr	p15, #0, r0, c12, c0, #0
+
+	/* Call the main routine */
+	mov	r0, #2
+	bl	__gnat_initialize_slave
+	.size	__start_cpu1, . - __start_cpu1
+
+L_coreInitRegisters_cpu1:
+	/* Start initializing CPU registers, including backed registers for
+	   all modes. This is necessary on Cortex R4F to avoid miscompares
+	   between the cores running in lockstep, and is a good idea on any
+	   system. */
+
+        /* Save lr because changing mode will change lr value */
+        mov	r0, lr
+
+	/* Supervisor mode */
+	cps	#19 /* 10011 */
+	ldr	sp, svcSp1
+
+	/* Abort mode */
+	cps	#23  /* 10111 */
+	ldr	sp, abortSp1
+
+	/* Undefined instruction mode */
+	cps	#27  /* 11011 */
+	ldr	sp, undefSp1
+
+	/* FIQ mode */
+	cps	#17  /* 10001 */
+	ldr	sp, fiqSp1
+
+	/* IRQ mode */
+	cps	#18  /* 10010 */
+	ldr	sp, irqSp1
+
+	/* System mode */
+	cps	#31  /* 11111 */
+	ldr	sp, userSp1	/* SYS mode shared stack with User mode */
+
+        /* Return on saved lr */
+	bx	r0
+	.size	L_coreInitRegisters, . - L_coreInitRegisters
+
+svcSp1:		.word __cpu1_svc_stack_end
+abortSp1:	.word __cpu1_abort_stack_end
+undefSp1:	.word __cpu1_undef_stack_end
+fiqSp1:		.word __cpu1_fiq_stack_end
+irqSp1:		.word __cpu1_irq_stack_end
+userSp1:	.word __cpu1_stack_end
+
+	.weak	__gnat_initialize_slave
+
+
+	.globl	__kick_cpu1
+	.type	__kick_cpu1 %function
+__kick_cpu1:
+	mov	r1,#0xfffffff0
+	adr	r0,__start_cpu1
+	str	r0,[r1]
+	sev
+	bx	lr
+	.size	__kick_cpu1, . - __kick_cpu1
