@@ -389,11 +389,7 @@ class BaseRavenscarFull(BaseRavenscarSFP):
 
         if config.is_bareboard:
             self.gnarl_common += [
-                's-btstch.ads', 's-btstch.adb',
-                'a-synbar.adb', 'a-synbar.ads',
-                'g-boubuf.adb', 'g-boubuf.ads',
-                'g-boumai.ads',
-                'g-semaph.adb', 'g-semaph.ads']
+                's-btstch.ads', 's-btstch.adb']
             self.common += [
                 'adaint-xi.c']
 
@@ -763,7 +759,11 @@ class BaseRavenscarFull(BaseRavenscarSFP):
         self.gnarl_common += [
             's-tpoben.ads', 's-tpoben.adb',
             's-tasque.ads', 's-tasque.adb',
-            's-tpobop.ads', 's-tpobop.adb']
+            's-tpobop.ads', 's-tpobop.adb',
+            'a-synbar.adb', 'a-synbar.ads',
+            'g-boubuf.adb', 'g-boubuf.ads',
+            'g-boumai.ads',
+            'g-semaph.adb', 'g-semaph.ads']
         self.pairs.update(
             {'s-tpoben.ads': 's-tpoben-raven-full.ads',
              's-tpoben.adb': 's-tpoben-raven-full.adb',
