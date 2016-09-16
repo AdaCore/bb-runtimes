@@ -362,7 +362,7 @@ class BaseRavenscarSFP(BaseZFP):
                 'a-rttiev.ads': 'a-rttiev-bb.ads',
                 'a-rttiev.adb': 'a-rttiev-bb.adb',
                 's-multip.ads': 's-multip-bb.ads',
-                's-multip.adb': 's-multip-raven-default.adb',
+                's-multip.adb': 's-multip-bb.adb',
                 's-tpobmu.adb': 's-tpobmu-bb.adb',
                 's-bbpara.ads': None})
 
@@ -1559,7 +1559,6 @@ class Leon2(SparcBBTarget):
             's-bbsule.ads', 's-bbsumu.adb']
         self.pairs.update({
             's-bbbosu.adb': 's-bbbosu-leon.adb',
-            's-multip.adb': 's-multip-raven-default.adb',
             's-bbpara.ads': 's-bbpara-leon.ads',
             'a-intnam.ads': 'a-intnam-xi-leon.ads'})
 
@@ -1589,9 +1588,7 @@ class Leon3(SparcBBTarget):
             's-bbsle3.ads']
         self.pairs.update({
             's-bbbosu.adb': 's-bbbosu-leon3.adb',
-            's-multip.adb': 's-multip-leon3.adb',
             's-bbpara.ads': 's-bbpara-leon.ads',
-            's-bcprmu.adb': 's-bcprmu-leon3.adb',
             'a-intnam.ads': 'a-intnam-xi-leon3.ads'})
 
 
@@ -1656,13 +1653,11 @@ class MPC8641(PPC6XXBBTarget):
         self.gnarl_common.remove('s-bb.ads')
         self.gnarl_common += ['s-bbsuti.adb', 's-bbsumu.adb']
         self.pairs.update({
-            's-multip.adb': 's-multip-8641d.adb',
             's-bbbosu.adb': 's-bbbosu-ppc-openpic.adb',
             's-bbsuti.adb': 's-bbsuti-ppc.adb',
             's-bbsumu.adb': 's-bbsumu-8641d.adb',
             's-bbpara.ads': 's-bbpara-8641d.ads',
-            'a-intnam.ads': 'a-intnam-xi-ppc-openpic.ads',
-            's-bcprmu.adb': 's-bcprmu-8641d.adb'})
+            'a-intnam.ads': 'a-intnam-xi-ppc-openpic.ads'})
 
     def amend_ravenscar_full(self):
         super(MPC8641, self).amend_ravenscar_full()
