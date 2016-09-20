@@ -266,9 +266,13 @@ __start_cpu1:
 	/* Enable VFP, L1-cache, MMU.  */
 	bl	L_coreInit
 
+	/* Per-CPU device initialization.  */
+	bl	__gnat_initialize_cpu_devices
+
 	/* Call the main routine */
 	mov	r0, #2
 	bl	__gnat_initialize_slave
+
 	.size	__start_cpu1, . - __start_cpu1
 
 svcSp1:		.word __cpu1_svc_stack_end
