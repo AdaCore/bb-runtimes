@@ -1442,7 +1442,8 @@ class Zynq7000(DFBBTarget):
         super(Zynq7000, self).amend_zfp()
         self.bsp += [
             'arm/zynq/ram.ld',
-            'arm/zynq/start-ram.S']
+            'arm/zynq/start-ram.S',
+            'arm/zynq/memmap.s']
         self.pairs.update(
             {'system.ads': 'system-xi-arm.ads',
              's-textio.adb': 's-textio-zynq.adb',

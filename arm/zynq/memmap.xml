@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<memmap>
+  <region access="rwxrwx" cache="cb" base="0x00000000" size="1GB"  name="sdram"/>
+  <region access="rw-rw-" cache="nc" base="0xe0000000" size="512MB" name="io"/>
+</memmap>
