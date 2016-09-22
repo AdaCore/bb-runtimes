@@ -1475,6 +1475,28 @@ class Zynq7000(DFBBTarget):
                 '"-nolibc", ', '"-lc", "-lgnat", ')
 
 
+class RPI2(DFBBTarget):
+    def __init__(self):
+        super(RPI2, self).__init__(
+            mem_routines=True,
+            libc_files=False,
+            arm_zcx=True)
+        self.build_flags['target'] = 'arm-eabi'
+
+    def amend_zfp(self):
+        super(RPI2, self).amend_zfp()
+        self.bsp += [
+            'arm/rpi2/ram.ld',
+            'arm/rpi2/start-ram.S',
+            'arm/rpi2/memmap.s']
+        self.pairs.update(
+            {'system.ads': 'system-xi-arm.ads',
+             's-textio.adb': 's-textio-rpi2.adb',
+             's-macres.adb': 's-macres-rpi2.adb'})
+        self.config_files.update(
+            {'runtime.xml': readfile('arm/rpi2/runtime.xml')})
+
+
 class SparcBBTarget(DFBBTarget):
     def __init__(self):
         super(SparcBBTarget, self).__init__(
@@ -1892,6 +1914,8 @@ def build_configs(target, runtime):
         t = X86PikeOS()
     elif target == 'zynq7000':
         t = Zynq7000()
+    elif target == 'rpi2':
+        t = RPI2()
     elif target.startswith('stm32'):
         t = Stm32(target)
     elif target.startswith('sam'):
