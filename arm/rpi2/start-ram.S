@@ -63,6 +63,17 @@ __gnat_fiq_trap:	b	__gnat_fiq_trap
 
 	.type	__start_ram, %function
 __start_ram:
+#if 1
+	/* Switch from HYP to SVC mode.  */
+	mrs	r0,cpsr
+	and	r1,r0,#0x1F
+	cmp	r1,#0x1a
+	bne	1f
+	msr 	spsr_c,#0xd3
+	add	r0,pc,#4
+	msr	ELR_hyp,r0
+	eret
+1:
 	/* Set stacks.  */
 
 	/* Supervisor mode */
@@ -87,6 +98,7 @@ __start_ram:
 
 	/* System mode */
 	cps	#31  /* 11111 */
+#endif
 	ldr	sp, userSp0	/* SYS mode shared stack with User mode */
 
 	/* Enable VFP, L1-cache, MMU.  */
@@ -113,7 +125,6 @@ __start_ram:
 
 	.type L_coreInit, %function
 L_coreInit:
-#if 0
 	/* Enable VFP */
 	mrc	p15,#0,r0,c1,c0,#2	@ CPACR
 	orr	r0,r0,#0xF00000		@ Enable CP10, CP11 user & system
@@ -125,6 +136,7 @@ L_coreInit:
 	adr	r0, __traps
 	mcr	p15, #0, r0, c12, c0, #0
 
+#if 0
 	/* Invalidate TLBs  */
 	mov	r2,#0
 	mcr	p15,0,r2,c8,c7,0
