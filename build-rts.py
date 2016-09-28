@@ -1487,14 +1487,26 @@ class RPI2(DFBBTarget):
         super(RPI2, self).amend_zfp()
         self.bsp += [
             'arm/rpi2/ram.ld',
-            'arm/rpi2/start-ram.S',
-            'arm/rpi2/memmap.s']
+            'arm/rpi2/start-ram.S']
         self.pairs.update(
             {'system.ads': 'system-xi-arm.ads',
              's-textio.adb': 's-textio-rpi2.adb',
              's-macres.adb': 's-macres-rpi2.adb'})
         self.config_files.update(
             {'runtime.xml': readfile('arm/rpi2/runtime.xml')})
+
+    def amend_ravenscar_sfp(self):
+        super(RPI2, self).amend_ravenscar_sfp()
+
+        self.gnarl_common += ['s-bbcpsp.ads']
+        self.pairs.update({
+            'system.ads': 'system-xi-arm-sfp.ads',
+            's-bbcppr.adb': 's-bbcppr-arm.adb',
+            's-bbcpsp.ads': 's-bbcpsp-arm.ads',
+            'a-intnam.ads': 'a-intnam-dummy.ads',
+            's-bbbosu.adb': 's-bbbosu-rpi2.adb',
+            's-bbtime.adb': 's-bbtime-ppc.adb',
+            's-bbpara.ads': 's-bbpara-rpi2.ads'})
 
 
 class SparcBBTarget(DFBBTarget):

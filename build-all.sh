@@ -299,6 +299,16 @@ build_full_zynq7000()
     do_ravenscar arm-eabi ravenscar-full/zynq7000
 }
 
+build_zfp_rpi2()
+{
+    do_zfp arm-eabi zfp/rpi2
+}
+
+build_sfp_rpi2()
+{
+    do_ravenscar arm-eabi ravenscar-sfp/rpi2
+}
+
 build_zfp_stm32f4()
 {
     do_zfp arm-eabi zfp/stm32f4
@@ -801,6 +811,13 @@ else
                    zfp)  build_zfp_zynq7000 ;;
 		   sfp)  build_sfp_zynq7000 ;;
 		   full)  build_full_zynq7000 ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
+          rpi2)
+               case $opt in
+                   zfp)  build_zfp_rpi2 ;;
+                   sfp)  build_sfp_rpi2 ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
