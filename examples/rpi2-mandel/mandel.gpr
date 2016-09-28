@@ -1,0 +1,6 @@
+project Mandel is
+   for Main use ("mandel.adb");
+   package Compiler is
+      for Switches ("Ada") use ("-g", "-O2");
+   end Compiler;
+end Mandel;
