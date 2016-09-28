@@ -1487,7 +1487,8 @@ class RPI2(DFBBTarget):
         super(RPI2, self).amend_zfp()
         self.bsp += [
             'arm/rpi2/ram.ld',
-            'arm/rpi2/start-ram.S']
+            'arm/rpi2/start-ram.S',
+            'i-raspberry_pi.ads']
         self.pairs.update(
             {'system.ads': 'system-xi-arm.ads',
              's-textio.adb': 's-textio-rpi2.adb',
