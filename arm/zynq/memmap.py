@@ -26,12 +26,20 @@ def parse_addr(str):
 
 for child in root:
     name = child.attrib['name']
-    addr = parse_addr(child.attrib['base'])
+    virt = parse_addr(child.attrib['virt'])
+    if 'phys' in child.attrib:
+        phys = parse_addr(child.attrib['phys'])
+    else:
+        phys = virt
     size = parse_addr(child.attrib['size'])
-    if (addr % pagealign) != 0:
-        print "base of %s is not aligned" % name
+    if (virt % pagealign) != 0:
+        print "%s.virt is not aligned" % name
         exit(1)
-    addr = addr / pagealign
+    if (phys % pagealign) != 0:
+        print "%s.phys is not aligned" % name
+        exit(1)
+    virt = virt / pagealign
+    phys = phys / pagealign
     if (size % pagealign) != 0:
         print "size of %s is not aligned" % name
         exit(1)
@@ -65,17 +73,19 @@ for child in root:
     S = 1
     domain = 0
 
-    for i in range(addr, addr + size):
-        if tt[i]:
-            print "overlap at %s in region %s" % (hex(i * pagealign), name)
+    p = phys
+    for v in range(virt, virt + size):
+        if tt[v]:
+            print "overlap at %s in region %s" % (hex(v * pagealign), name)
             exit(1)
-        val = ((i << 20) + (ns << 19) + (nG << 17) + (S << 16) +
+        val = ((p << 20) + (ns << 19) + (nG << 17) + (S << 16) +
                (((ap >> 2) & 1) << 15) + (tex << 12) + ((ap & 3) << 10) +
                (domain << 5) + (nx << 4) + (c << 3) + (b << 2) + 2)
-        tt[i] = {'name': name,
-                 'format': 'section', 'base': i, 'ns': ns,
+        tt[v] = {'name': name,
+                 'format': 'section', 'virt': v, 'phys': p, 'ns': ns,
                  'nG': nG, 'S': S, 'AP': ap, 'TEX': tex, 'domain': domain,
                  'XN': nx, 'C': c, 'B': b, 'val': val}
+        p += 1
 #    print name, addr, size
 #    print child.tag, child.attrib
 
