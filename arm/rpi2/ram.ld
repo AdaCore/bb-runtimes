@@ -134,54 +134,56 @@ SECTIONS
    __interrupt_stack_start = .;
 
    /* CPU 0 */
+   __cpu0_interrupt_stack_start = .;
    __cpu0_abort_stack_start = .;
    . = ALIGN(. + _ABORT_STACK_SIZE, 0x8);
-   __cpu0_abort_stack_end = .;
-
    __cpu0_undef_stack_start = .;
    . = ALIGN(. + _UNDEF_STACK_SIZE, 0x8);
-   __cpu0_undef_stack_end = .;
-
    __cpu0_svc_stack_start = .;
    . = ALIGN(. + _SVC_STACK_SIZE, 0x8);
-   __cpu0_svc_stack_end = .;
-
    __cpu0_fiq_stack_start = .;
    . = ALIGN(. + _FIQ_STACK_SIZE, 0x8);
-   __cpu0_fiq_stack_end = .;
-
-   /* Use the largest of .interrupt_stacks or the default trap stack sizes.
-      This allows use with either ZFP or Ravenscar run times. */
-
    __cpu0_irq_stack_start = .;
-   *(.interrupt_stacks)
-   . = MAX(., __cpu0_irq_stack_start + _IRQ_STACK_SIZE);
-   . = ALIGN(0x8);
-   __cpu0_irq_stack_end = .;
+   . = ALIGN(. + _IRQ_STACK_SIZE, 0x8);
 
    /* CPU 1 */
+   __cpu1_interrupt_stack_start = .;
    __cpu1_abort_stack_start = .;
    . = ALIGN(. + _ABORT_STACK_SIZE, 0x8);
-   __cpu1_abort_stack_end = .;
-
    __cpu1_undef_stack_start = .;
    . = ALIGN(. + _UNDEF_STACK_SIZE, 0x8);
-   __cpu1_undef_stack_end = .;
-
    __cpu1_svc_stack_start = .;
    . = ALIGN(. + _SVC_STACK_SIZE, 0x8);
-   __cpu1_svc_stack_end = .;
-
    __cpu1_fiq_stack_start = .;
    . = ALIGN(. + _FIQ_STACK_SIZE, 0x8);
-   __cpu1_fiq_stack_end = .;
-
-   /* Use the largest of .interrupt_stacks or the default trap stack sizes.
-      This allows use with either ZFP or Ravenscar run times. */
-
    __cpu1_irq_stack_start = .;
-   . = ALIGN (. + _IRQ_STACK_SIZE, 0x8);
-   __cpu1_irq_stack_end = .;
+   . = ALIGN(. + _IRQ_STACK_SIZE, 0x8);
+
+   /* CPU 2 */
+   __cpu2_interrupt_stack_start = .;
+   __cpu2_abort_stack_start = .;
+   . = ALIGN(. + _ABORT_STACK_SIZE, 0x8);
+   __cpu2_undef_stack_start = .;
+   . = ALIGN(. + _UNDEF_STACK_SIZE, 0x8);
+   __cpu2_svc_stack_start = .;
+   . = ALIGN(. + _SVC_STACK_SIZE, 0x8);
+   __cpu2_fiq_stack_start = .;
+   . = ALIGN(. + _FIQ_STACK_SIZE, 0x8);
+   __cpu2_irq_stack_start = .;
+   . = ALIGN(. + _IRQ_STACK_SIZE, 0x8);
+
+   /* CPU 3 */
+   __cpu3_interrupt_stack_start = .;
+   __cpu3_abort_stack_start = .;
+   . = ALIGN(. + _ABORT_STACK_SIZE, 0x8);
+   __cpu3_undef_stack_start = .;
+   . = ALIGN(. + _UNDEF_STACK_SIZE, 0x8);
+   __cpu3_svc_stack_start = .;
+   . = ALIGN(. + _SVC_STACK_SIZE, 0x8);
+   __cpu3_fiq_stack_start = .;
+   . = ALIGN(. + _FIQ_STACK_SIZE, 0x8);
+   __cpu3_irq_stack_start = .;
+   . = ALIGN(. + _IRQ_STACK_SIZE, 0x8);
 
    __interrupt_stack_end = .;
 
@@ -192,6 +194,16 @@ SECTIONS
    . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
    . = ALIGN(0x8);
    __cpu1_stack_end = .;
+
+   __cpu2_stack_start = .;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
+   . = ALIGN(0x8);
+   __cpu2_stack_end = .;
+
+   __cpu3_stack_start = .;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
+   . = ALIGN(0x8);
+   __cpu3_stack_end = .;
 
    __cpu0_stack_start = .;
    . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;

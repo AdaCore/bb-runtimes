@@ -34,8 +34,9 @@
 
 /* Startup code */
 	.global __start_ram
+	.global	__start_slave_cpu
 
-	.section .traps
+	.section .traps,"ax"
 	/* The following provide default definitions for trap vectors that
 	loop back to the trap address, so the system will stop in a safe
 	state. The Ravenscar runtimes now can install their handlers by simply
@@ -60,9 +61,9 @@ __gnat_dabt_trap:	b	__gnat_dabt_trap
 __gnat_irq_trap:	b	__gnat_irq_trap
 __gnat_fiq_trap:	b	__gnat_fiq_trap
 
-
 	.type	__start_ram, %function
 __start_ram:
+__start_slave_cpu:
 	/* Switch from HYP to SVC mode.  */
 	mrs	r0,cpsr
 	and	r1,r0,#0x1F
@@ -74,56 +75,52 @@ __start_ram:
 	msr	ELR_hyp,r0
 	eret
 1:
-	/* Set stacks.  */
+	ldr	sp,system_stack_base
 
-	/* Supervisor mode */
-	cps	#19 /* 10011 */
-	ldr	sp, svcSp0
+	@ Read processor id MPIDR[0:1]
+	mrc	p15,#0,r9,c0,c0,#5
+	ubfx	r9,r9,#0,#2
+
+	/* Set stacks.  */
+	@ Read corresponding stack address
+	adr	r0,interrupt_stack_base
+	ldr	r0,[r0,r9, lsl #2]
 
 	/* Abort mode */
 	cps	#23  /* 10111 */
-	ldr	sp, abortSp0
+	ldr	r1,abt_stack_size
+	add	r0,r0,r1
+	mov	sp, r0
 
 	/* Undefined instruction mode */
 	cps	#27  /* 11011 */
-	ldr	sp, undefSp0
+	ldr	r1,undef_stack_size
+	add	r0,r0,r1
+	mov	sp, r0
+
+	/* Supervisor mode */
+	cps	#19 /* 10011 */
+	ldr	r1,svc_stack_size
+	add	r0,r0,r1
+	mov	sp, r0
 
 	/* FIQ mode */
 	cps	#17  /* 10001 */
-	ldr	sp, fiqSp0
+	ldr	r1,fiq_stack_size
+	add	r0,r0,r1
+	mov	sp, r0
 
 	/* IRQ mode */
 	cps	#18  /* 10010 */
-	ldr	sp, irqSp0
+	ldr	r1,irq_stack_size
+	add	r0,r0,r1
+	mov	sp, r0
 
-	/* System mode */
+	/* System mode (SYS mode shared stack with User mode) */
 	cps	#31  /* 11111 */
-	ldr	sp, userSp0	/* SYS mode shared stack with User mode */
+	adr	r0,system_stack_base
+	ldr	sp,[r0,r9, lsl #2]
 
-	/* Enable VFP, L1-cache, MMU.  */
-	bl	L_coreInit
-
-	/* Clear .bss */
-	movw	r0,#:lower16:__bss_start
-	movt	r0,#:upper16:__bss_start
-	movw	r1,#:lower16:__bss_words
-	movt	r1,#:upper16:__bss_words
-	mov	r2,#0
-	cmp	r1,#0
-	beq	1f
-0:	/* FIXME: write multiple words?  */
-	str	r2,[r0],#4
-	subs	r1,r1,#1
-	bne	0b
-1:
-
-	/* Call the main routine */
-	bl	main
-	bl	_exit
-	.size	__start_ram, . - __start_ram
-
-	.type L_coreInit, %function
-L_coreInit:
 	/* Enable VFP */
 	mrc	p15,#0,r0,c1,c0,#2	@ CPACR
 	orr	r0,r0,#0xF00000		@ Enable CP10, CP11 user & system
@@ -135,7 +132,6 @@ L_coreInit:
 	adr	r0, __traps
 	mcr	p15, #0, r0, c12, c0, #0
 
-#if 0
 	/* Invalidate TLBs  */
 	mov	r2,#0
 	mcr	p15,0,r2,c8,c7,0
@@ -160,7 +156,7 @@ L_coreInit:
 	blt	5f			@ no dcache at this level
 	mcr	p15,#2,r10,c0,c0,#0 	@ write cache size selection reg
 	isb				@ ISB between sel and read
-	mrc	p15,#1,r1,c0,c0,#0	@ reads current cache size ID reg
+	mrc	p15,#1,r1,c0,c0,#0	@ reads CCSIDR
 	and 	r2,r1,#0x7		@ extract line length
 	add	r2,r2,#4		@ log2 16
 	movw	r4, #0x3ff		@ r4 is the max number on the way size
@@ -168,11 +164,11 @@ L_coreInit:
 	clz	r5,r4
 	movw	r7, #0x00007fff		@ r7 is the max nbr of the index size
 	ands	r7,r7,r1,lsr #13
-2:	mov	r9,r4	 		@ r9 working copy of the max way size
-3:	orr	r11,r10,r9,lsl r5 	@ factor in the way num and cache num
+2:	mov	r6,r4	 		@ r6 working copy of the max way size
+3:	orr	r11,r10,r6,lsl r5 	@ factor in the way num and cache num
 	orr	r11,r11,r7,lsl r2 	@ factor in the index number
 	mcr	p15,#0,r11,c7,c6,#2	@ invalid by set/way
-	subs	r9,r9, #1		@ decrement the way number
+	subs	r6,r6, #1		@ decrement the way number
 	bge	3b
 	subs	r7,r7,#1		@ decrement the index
 	bge	2b
@@ -186,6 +182,7 @@ L_coreInit:
 	mrc	p15,#0,r1,c1,c0,#1	@ ACTLR
 	orr	r1,#0x47		@ SMP, L1 & L2 prefetch, FW
 	mcr	p15,#0,r1,c1,c0,#1
+#endif
 
 	/* Initialize MMU.  */
 	adrl	r0, __tt0
@@ -203,11 +200,10 @@ L_coreInit:
 	orr	r1,r1,r2
 	bic	r1,r1,#0x30000000	@ clear TRE, AFE
 	mcr	p15,0,r1,c1,c0,0	@ write sctlr
-#endif
 
 	/*  Enable I-Cache.  */
 	mrc	p15,#0,r1,c1,c0,#0	@ read sctlr
-	movw	r2,#0x1000		@ D-cache, I-cache
+	movw	r2,#0x1804		@ D-cache, I-cache, branch pred
 	orr	r1,r1,r2
 	bic	r1,r1,#0x30000000	@ clear TRE, AFE
 	mcr	p15,0,r1,c1,c0,0	@ write sctlr
@@ -216,95 +212,65 @@ L_coreInit:
 	dsb				@ Allows MMU to start
 	isb				@ Flushes pre-fetch buffer
 
-#if 0
-	/* Write 0x020202 to the register at 0xf8000a1c.  */
-	mov	r0,#0x20202
-	movw	r1,#:lower16:0xf8000a1c
-	movt	r1,#:upper16:0xf8000a1c
-	str	r0,[r1]
+	cmp	r9,#0
+	bne	slave_cpu
 
-	/* Invalidate L2.  */
-	mov	r0,#0xffff
-	movw	r1,#:lower16:0xf8f0277c
-	movt	r1,#:upper16:0xf8f0277c
-	str	r0,[r1]
-#endif
-#endif
-	bx	lr
-	.size	L_coreInit, . - L_coreInit
+	/* Clear .bss */
+	movw	r0,#:lower16:__bss_start
+	movt	r0,#:upper16:__bss_start
+	movw	r1,#:lower16:__bss_words
+	movt	r1,#:upper16:__bss_words
+	mov	r2,#0
+	cmp	r1,#0
+	beq	1f
+0:	/* FIXME: write multiple words?  */
+	str	r2,[r0],#4
+	subs	r1,r1,#1
+	bne	0b
+1:
 
-svcSp0:		.word __cpu0_svc_stack_end
-abortSp0:	.word __cpu0_abort_stack_end
-undefSp0:	.word __cpu0_undef_stack_end
-fiqSp0:		.word __cpu0_fiq_stack_end
-irqSp0:		.word __cpu0_irq_stack_end
-userSp0:	.word __cpu0_stack_end
+	/* Call the main routine */
+	bl	main
+	bl	_exit
 
-#if 0
-	.type	__start_cpu1 %function
-__start_cpu1:
-	/* Set stacks.  */
-
-	/* Supervisor mode */
-	cps	#19 /* 10011 */
-	ldr	sp, svcSp1
-
-	/* Abort mode */
-	cps	#23  /* 10111 */
-	ldr	sp, abortSp1
-
-	/* Undefined instruction mode */
-	cps	#27  /* 11011 */
-	ldr	sp, undefSp1
-
-	/* FIQ mode */
-	cps	#17  /* 10001 */
-	ldr	sp, fiqSp1
-
-	/* IRQ mode */
-	cps	#18  /* 10010 */
-	ldr	sp, irqSp1
-
-	/* System mode */
-	cps	#31  /* 11111 */
-	ldr	sp, userSp1	/* SYS mode shared stack with User mode */
-
-	/* Enable VFP, L1-cache, MMU.  */
-	bl	L_coreInit
-
+slave_cpu:
 	/* Per-CPU device initialization.  */
 	bl	__gnat_initialize_cpu_devices
 
-	/* Call the main routine.  */
-	mov	r0, #2
+	/* Call the main routine (with CPU_Id as argument).  */
+	add	r0,r9,#1
 	bl	__gnat_initialize_slave
+1:	b	1b
+	.size	__start_ram, . - __start_ram
 
-	.size	__start_cpu1, . - __start_cpu1
+interrupt_stack_base:
+	.word	__cpu0_interrupt_stack_start
+	.word	__cpu1_interrupt_stack_start
+	.word	__cpu2_interrupt_stack_start
+	.word	__cpu3_interrupt_stack_start
 
-svcSp1:		.word __cpu1_svc_stack_end
-abortSp1:	.word __cpu1_abort_stack_end
-undefSp1:	.word __cpu1_undef_stack_end
-fiqSp1:		.word __cpu1_fiq_stack_end
-irqSp1:		.word __cpu1_irq_stack_end
-userSp1:	.word __cpu1_stack_end
+system_stack_base:
+	.word	__cpu0_stack_end
+	.word	__cpu1_stack_end
+	.word	__cpu2_stack_end
+	.word	__cpu3_stack_end
+
+abt_stack_size:
+	.word	_ABORT_STACK_SIZE
+undef_stack_size:
+	.word	_UNDEF_STACK_SIZE
+svc_stack_size:
+	.word	_SVC_STACK_SIZE
+fiq_stack_size:
+	.word	_FIQ_STACK_SIZE
+irq_stack_size:
+	.word	_IRQ_STACK_SIZE
 
 	/* These routines are not available in zfp.  */
 	.weak	__gnat_initialize_slave
 	.weak	__gnat_initialize_cpu_devices
 
-
-	.globl	__kick_cpu1
-	.type	__kick_cpu1 %function
-__kick_cpu1:
-	mov	r1,#0xfffffff0
-	adr	r0,__start_cpu1
-	str	r0,[r1]
-	sev
-	bx	lr
-	.size	__kick_cpu1, . - __kick_cpu1
-
 	.p2align 14
-
 __tt0:
 	#include	"memmap.s"
-#endif
+
