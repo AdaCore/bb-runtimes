@@ -1513,6 +1513,28 @@ class RPI2(DFBBTarget):
             's-bbpara.ads': 's-bbpara-rpi2.ads'})
 
 
+class RPI3(DFBBTarget):
+    def __init__(self):
+        super(RPI3, self).__init__(
+            mem_routines=True,
+            libc_files=False,
+            arm_zcx=True)
+        self.build_flags['target'] = 'arm-eabi'
+
+    def amend_zfp(self):
+        super(RPI3, self).amend_zfp()
+        self.bsp += [
+            'aarch64/rpi3/ram.ld',
+            'aarch64/rpi3/start-ram.S',
+            'i-raspberry_pi.ads']
+        self.pairs.update(
+            {'system.ads': 'system-xi-aarch64.ads',
+             's-textio.adb': 's-textio-rpi2.adb',
+             's-macres.adb': 's-macres-rpi2.adb'})
+        self.config_files.update(
+            {'runtime.xml': readfile('aarch64/rpi3/runtime.xml')})
+
+
 class SparcBBTarget(DFBBTarget):
     def __init__(self):
         super(SparcBBTarget, self).__init__(
@@ -1932,6 +1954,8 @@ def build_configs(target, runtime):
         t = Zynq7000()
     elif target == 'rpi2':
         t = RPI2()
+    elif target == 'rpi3':
+        t = RPI3()
     elif target.startswith('stm32'):
         t = Stm32(target)
     elif target.startswith('sam'):

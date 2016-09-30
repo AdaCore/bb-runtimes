@@ -309,6 +309,11 @@ build_sfp_rpi2()
     do_ravenscar arm-eabi ravenscar-sfp/rpi2
 }
 
+build_zfp_rpi3()
+{
+    do_zfp aarch64-elf zfp/rpi3
+}
+
 build_zfp_stm32f4()
 {
     do_zfp arm-eabi zfp/stm32f4
@@ -818,6 +823,14 @@ else
                case $opt in
                    zfp)  build_zfp_rpi2 ;;
                    sfp)  build_sfp_rpi2 ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
+
+	  rpi3)
+               case $opt in
+                   zfp)  build_zfp_rpi3 ;;
+                   sfp)  build_sfp_rpi3 ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
