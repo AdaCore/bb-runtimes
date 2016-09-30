@@ -2,7 +2,7 @@
 --                                                                          --
 --                               GNAT EXAMPLE                               --
 --                                                                          --
---                        Copyright (C) 2013, AdaCore                       --
+--                     Copyright (C) 2013-2016, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -26,6 +26,8 @@
 -- Extensive contributions were provided by Ada Core Technologies Inc.      --
 --                                                                          --
 ------------------------------------------------------------------------------
+
+pragma Ada_2012;
 
 pragma Warnings (Off);
 with System.Machine_Reset;
@@ -231,6 +233,73 @@ package body Commands is
       end loop;
    end Proc_Dump;
 
+   procedure Proc_Dump_Srec
+   is
+      use System;
+
+      Chksum : Unsigned_8;
+      procedure Dump_Byte (B : Unsigned_8) is
+      begin
+         Chksum := Chksum + B;
+         Put (Image2 (Unsigned_32 (B)));
+      end Dump_Byte;
+
+      Addr : Unsigned_32;
+      L : Unsigned_32;
+      Ll : Unsigned_32;
+      Ok : Boolean;
+   begin
+      Next_Word;
+      Parse_Unsigned32 (Addr, Ok);
+      if not Ok then
+         return;
+      end if;
+      Next_Word;
+      if Pos > Line_Len then
+         L := 32;
+      else
+         Parse_Unsigned32 (L, Ok);
+         if not Ok then
+            return;
+         end if;
+      end if;
+
+      while L > 0 loop
+         Ll := Unsigned_32'Min (L, 32);
+
+         Put ("S3");
+         Chksum := 0;
+
+         --  Len
+         Dump_Byte (Unsigned_8 (Ll + 5));
+
+         --  Address
+         Dump_Byte (Unsigned_8 (Shift_Right (Addr, 24) and 16#ff#));
+         Dump_Byte (Unsigned_8 (Shift_Right (Addr, 16) and 16#ff#));
+         Dump_Byte (Unsigned_8 (Shift_Right (Addr,  8) and 16#ff#));
+         Dump_Byte (Unsigned_8 (Shift_Right (Addr,  0) and 16#ff#));
+
+         --  Data
+         for I in 1 .. Ll loop
+            declare
+               B : Unsigned_8
+                 with Address => System'To_Address (Addr), Import;
+            begin
+               Dump_Byte (B);
+               Addr := Addr + 1;
+            end;
+         end loop;
+
+         --  Chksum
+         Dump_Byte (not Chksum);
+         New_Line;
+
+         L := L - Ll;
+      end loop;
+
+      null;
+   end Proc_Dump_Srec;
+
    procedure Proc_Write is
       Addr : Unsigned_32;
       Val : Unsigned_32;
@@ -257,11 +326,13 @@ package body Commands is
    end Proc_Write;
 
    Commands : aliased Command_List :=
-     (5,
+     (6,
       ((new String'("help - Print this help"), Proc_Help'Access),
        (new String'("reset - Reboot the board"), Proc_Reset'Access),
        (new String'("conv NUM - Print NUM in hexa"), Proc_Conv'Access),
        (new String'("dump ADDR [LEN] - Hexadecimal dump"), Proc_Dump'Access),
+       (new String'("dump_srec ADDR [LEN] - SREC dump"),
+        Proc_Dump_Srec'Access),
        (new String'("w ADDR VAL - Write a word to memory"),
         Proc_Write'Access)),
       null);
