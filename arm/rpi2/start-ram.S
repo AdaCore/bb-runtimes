@@ -145,7 +145,7 @@ __start_slave_cpu:
 	/* Invalidate D-Cache.  */
 	mrc	p15,#1,r0,c0,c0,#1	@ Read CLIDR
 	ands	r3,r0,#0x7000000
-	mov	r3,r3,lsr #23		@ Cache level value
+	mov	r3,r3,lsr #23		@ Extract LoC (level of coherence) *2
 	beq	4f			@ No cache
 	mov	r10, #0
 1:
@@ -154,14 +154,14 @@ __start_slave_cpu:
 	and	r1, r1, #7		@ get those 3 bits alone
 	cmp	r1, #2
 	blt	5f			@ no dcache at this level
-	mcr	p15,#2,r10,c0,c0,#0 	@ write cache size selection reg
+	mcr	p15,#2,r10,c0,c0,#0 	@ write CCSSELR
 	isb				@ ISB between sel and read
 	mrc	p15,#1,r1,c0,c0,#0	@ reads CCSIDR
 	and 	r2,r1,#0x7		@ extract line length
 	add	r2,r2,#4		@ log2 16
 	movw	r4, #0x3ff		@ r4 is the max number on the way size
 	ands	r4,r4,r1, lsr #3	@ r5 is the bit position of the way sz
-	clz	r5,r4
+	clz	r5,r4			@ Count leading zero
 	movw	r7, #0x00007fff		@ r7 is the max nbr of the index size
 	ands	r7,r7,r1,lsr #13
 2:	mov	r6,r4	 		@ r6 working copy of the max way size
