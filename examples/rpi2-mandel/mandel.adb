@@ -28,10 +28,13 @@
 ------------------------------------------------------------------------------
 
 with Ada.Text_IO; use Ada.Text_IO;
-with Video; use Video;
+with System;
 with Interfaces; use Interfaces;
+with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
+with System.Multiprocessors; use System.Multiprocessors;
+with Interfaces.ARM_V7AR;
 
-procedure Mandel is
+package body Mandel is
    --  Initial picture
    X0_Min : constant Float := -2.0;
    X0_Max : constant Float := 0.7;
@@ -39,63 +42,155 @@ procedure Mandel is
    Y0_Min : constant Float := -1.0;
    Y0_Max : constant Float := 1.0;
 
-   --  Current picture
-   X_Min, X_Max : Float;
-   Y_Min, Y_Max : Float;
-
-   --  Per pixel.
-   Xstep, Ystep : Float;
-
    Max_Iter : constant Natural := 256;
-   procedure Draw_Mandelbrot
+
+   function Compute_Color (X0, Y0 : Float) return Unsigned_32
    is
-      X0, Y0 : Float;
       X, Y : Float;
       Xn, Yn : Float;
-
       Nbr_Iter : Natural;
       Col : Unsigned_32;
    begin
+      Nbr_Iter := 0;
+      X := X0;
+      Y := Y0;
+      while X * X + Y * Y < 4.0 and then Nbr_Iter < Max_Iter loop
+         Xn := X * X - Y * Y;
+         Yn := 2.0 * X * Y;
+         X := Xn + X0;
+         Y := Yn + Y0;
+         Nbr_Iter := Nbr_Iter + 1;
+      end loop;
+
+      if Nbr_Iter < 32 then
+         Col := 16#ff_000000#
+           + 16#00_01_00_00# * Unsigned_32 (16#ff# * Nbr_Iter / 32);
+      elsif Nbr_Iter < Max_Iter then
+         Col := 16#ff_ff0000#
+           + 16#00_00_01_00#
+           * Unsigned_32 (16#ff# * (Nbr_Iter - 32) / (Max_Iter - 32));
+      else
+         Col := 16#ff_000000#;
+      end if;
+
+      return Col;
+   end Compute_Color;
+
+   procedure Draw_Mandelbrot (X0, Y0 : Natural; Width, Height : Natural)
+   is
+      X, Y : Float;
+      Col : Unsigned_32;
+
+      X_Min, X_Max : Float;
+      Y_Min, Y_Max : Float;
+
+      --  Per pixel.
+      Xstep, Ystep : Float;
+   begin
+      X_Min := X0_Min;
+      X_Max := X0_Max;
+      Y_Min := Y0_Min;
+      Y_Max := Y0_Max;
+
+      --  Adjust size
+      declare
+         S_Width : constant Float := Float (Width);
+         S_Height : constant Float := Float (Height);
+         M_Width : constant Float := X_Max - X_Min;
+         M_Height : constant Float := Y_Max - Y_Min;
+         Extra : Float;
+      begin
+         if S_Width * M_Height >= S_Height * M_Width then
+            --  Screen is wider
+            Extra := (S_Width * M_Height / S_Height) - M_Width;
+            X_Min := X_Min - Extra / 2.0;
+            X_Max := X_Max + Extra / 2.0;
+         else
+            --  Screen is taller
+            Extra := (S_Height * M_Width / S_Width) - M_Height;
+            Y_Min := Y_Min - Extra / 2.0;
+            Y_Max := Y_Max + Extra / 2.0;
+         end if;
+      end;
+
       Xstep := (X_Max - X_Min) / Float (Width);
       Ystep := (Y_Max - Y_Min) / Float (Height);
 
-      for Pix_X in 0 .. Width - 1 loop
-         X0 := X_Min + Float (Pix_X) * Xstep;
-         for Pix_Y in 0 .. Height - 1 loop
-            Y0 := Y_Min + Float (Pix_Y) * Ystep;
+      for S in reverse 1 .. 3 loop
+         declare
+            Size : constant Natural := 2 ** S;
+         begin
+            for Pix_X in 0 .. Width / Size - 1 loop
+               X := X_Min + Float (Pix_X * Size) * Xstep;
+               for Pix_Y in 0 .. Height / Size - 1 loop
+                  Y := Y_Min + Float (Pix_Y * Size) * Ystep;
 
-            Nbr_Iter := 0;
-            X := X0;
-            Y := Y0;
-            while X * X + Y * Y < 4.0 and then Nbr_Iter < Max_Iter loop
-               Xn := X * X - Y * Y;
-               Yn := 2.0 * X * Y;
-               X := Xn + X0;
-               Y := Yn + Y0;
-               Nbr_Iter := Nbr_Iter + 1;
+                  Col := Compute_Color (X, Y);
+
+                  for Yo in 0 .. Size - 1 loop
+                     for Xo in 0 .. Size - 1 loop
+                        Fb (Y0 + Pix_Y * Size + Yo,
+                            X0 + Pix_X * Size + Xo) := Col;
+                     end loop;
+                  end loop;
+               end loop;
             end loop;
+         end;
+      end loop;
 
-            Col := 16#ff_000000#
-              + Unsigned_32 (16#00_7fffff# * Nbr_Iter / Max_Iter);
-            Fb (Pix_Y, Pix_X) := Col;
+      for Pix_X in 0 .. Width - 1 loop
+         X := X_Min + Float (Pix_X) * Xstep;
+         for Pix_Y in 0 .. Height - 1 loop
+            Y := Y_Min + Float (Pix_Y) * Ystep;
+
+            Col := Compute_Color (X, Y);
+            Fb (Y0 + Pix_Y, X0 + Pix_X) := Col;
          end loop;
       end loop;
    end Draw_Mandelbrot;
-begin
-   Init_Video;
 
-   X_Min := X0_Min;
-   X_Max := X0_Max;
-   Y_Min := Y0_Min;
-   Y_Max := Y0_Max;
+   task type T (Id : Natural) is
+      pragma Cpu (CPU (Id));
+      pragma Priority (System.Default_Priority - 1);
+   end T;
 
-   Draw_Mandelbrot;
+   task body T is
+      use Interfaces.ARM_V7AR;
+      use Interfaces.ARM_V7AR.CP15;
+      use Interfaces.ARM_V7AR.Barriers;
+      SCTLR : Unsigned_32;
+      T0 : Time;
+   begin
+      SCTLR := Get_SCTLR;
+      if Id = 2 or Id = 4 then
+         SCTLR := SCTLR and not SCTLR_C;
+      end if;
+      if Id = 3 or Id = 4 then
+         SCTLR := SCTLR and not SCTLR_I;
+      end if;
+      Set_SCTLR (SCTLR);
+      ISB;
 
-   Put_Line ("It's done");
-   for I in 1 .. 64 loop
-      Put ('.');
-   end loop;
-   loop
-      null;
-   end loop;
+      if Id = 2 then
+         Put_Line ("CPU 2!!!");
+         delay until Clock + Milliseconds (200);
+         Put_Line ("CPU 2 again");
+      end if;
+
+      loop
+         Suspend_Until_True (Starts (Id));
+         T0 := Clock;
+         for I in 1 .. 5 loop
+            Draw_Mandelbrot (Regions (Id).X, Regions (Id).Y,
+                             Regions (Id).Width, Regions (Id).Height);
+         end loop;
+         Times (Id) := Clock - T0;
+         Set_True (Wait (Id));
+      end loop;
+   end T;
+
+   T1 : T (1);
+   T2 : T (2);
+   T3 : T (3);
+   T4 : T (4);
 end Mandel;

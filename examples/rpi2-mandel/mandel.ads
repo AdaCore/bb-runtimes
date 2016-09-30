@@ -27,20 +27,30 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Interfaces; use Interfaces;
+with Ada.Real_Time; use Ada.Real_Time;
+with Ada.Synchronous_Task_Control;
+with Video; use Video;
 
-package Video is
-   procedure Init_Video;
+package Mandel is
+   pragma Elaborate_Body;
+   Nbr_Tasks : constant Natural := 4;
 
-   subtype Pixel is Unsigned_32;
+   type Mandel_Screen is record
+      X, Y : Natural;
+      Width, Height : Natural;
+   end record;
 
-   Width : constant := 1680;
-   Height : constant := 1050;
+   Regions : array (1 .. Nbr_Tasks) of Mandel_Screen :=
+     (1 => (0, 0, Width / 2, Height / 2),
+      2 =>  (Width / 2, 0, Width / 2, Height / 2),
+      3 =>  (0, Height / 2, Width / 2, Height / 2),
+      4 =>  (Width / 2, Height / 2, Width / 2, Height / 2));
 
-   type Frame_Buffer is array (Natural range 0 .. Height - 1,
-                               Natural range 0 .. Width - 1) of Pixel;
-   type Frame_Buffer_Acc is access Frame_Buffer;
-   pragma No_Strict_Aliasing (Frame_Buffer_Acc);
+   type Suspension_Array is array (1 .. Nbr_Tasks) of
+     Ada.Synchronous_Task_Control.Suspension_Object;
 
-   Fb : Frame_Buffer_Acc;
-end Video;
+   Starts : Suspension_Array;
+   Wait : Suspension_Array;
+
+   Times : array (1 .. Nbr_Tasks) of Time_Span;
+end Mandel;

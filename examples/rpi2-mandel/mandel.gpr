@@ -1,6 +1,6 @@
 project Mandel is
-   for Main use ("mandel.adb");
+   for Main use ("main.adb");
    package Compiler is
-      for Switches ("Ada") use ("-g", "-O2");
+      for Switches ("Ada") use ("-g", "-O2", "-gnatyg-s", "-gnatwa.X");
    end Compiler;
 end Mandel;

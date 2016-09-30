@@ -27,20 +27,40 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Interfaces; use Interfaces;
+with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Real_Time; use Ada.Real_Time;
+with Video; use Video;
+with Mandel; use Mandel;
+with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
 
-package Video is
-   procedure Init_Video;
+procedure Main is
+   T : Time;
+begin
+   Init_Video;
 
-   subtype Pixel is Unsigned_32;
+   --  Wait for screen on.
+   T := Clock + Seconds (2);
+   delay until T;
 
-   Width : constant := 1680;
-   Height : constant := 1050;
+   loop
+      --  Start tasks.
+      for I in 1 .. Nbr_Tasks loop
+         Set_True (Starts (I));
+      end loop;
 
-   type Frame_Buffer is array (Natural range 0 .. Height - 1,
-                               Natural range 0 .. Width - 1) of Pixel;
-   type Frame_Buffer_Acc is access Frame_Buffer;
-   pragma No_Strict_Aliasing (Frame_Buffer_Acc);
+      --  Wait until tasks are completed.
+      for I in 1 .. Nbr_Tasks loop
+         Suspend_Until_True (Wait (I));
+      end loop;
 
-   Fb : Frame_Buffer_Acc;
-end Video;
+      --  Display time.
+      for I in Times'Range loop
+         Put ("CPU#");
+         Put (Natural'Image (I));
+         Put (":");
+         Put (Natural'Image (Times (I) / Milliseconds (1)));
+         Put_Line (" ms");
+      end loop;
+      New_Line;
+   end loop;
+end Main;

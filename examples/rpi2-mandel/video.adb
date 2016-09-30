@@ -29,15 +29,14 @@
 
 pragma Ada_2012;
 
-with System.Machine_Code; use System.Machine_Code;
-with System.Storage_Elements;
+with System.Storage_Elements; use System.Storage_Elements;
 with Ada.Unchecked_Conversion;
 with Ada.Text_IO; use Ada.Text_IO;
 with Interfaces.Raspberry_Pi; use Interfaces.Raspberry_Pi;
+with Interfaces.ARM_V7AR; use Interfaces.ARM_V7AR;
 
 package body Video is
    subtype String8 is String (1 .. 8);
-   subtype String2 is String (1 .. 2);
 
    Hex_Digits : constant array (0 .. 15) of Character := "0123456789abcdef";
 
@@ -50,74 +49,8 @@ package body Video is
       return Res;
    end Image8;
 
-   function Image2 (V : Unsigned_8) return String2 is
-      Res : String2;
-   begin
-      for I in Res'Range loop
-         Res (I) := Hex_Digits (Natural (Shift_Right (V, 4 * (2 - I)) and 15));
-      end loop;
-      return Res;
-   end Image2;
-
    function To_Unsigned_32 is new Ada.Unchecked_Conversion
      (System.Address, Unsigned_32);
-
-   procedure Dump_Srec (Base : System.Address; Len : Natural)
-   is
-      use System;
-      use System.Storage_Elements;
-
-      Chksum : Unsigned_8;
-      procedure Dump_Byte (B : Unsigned_8) is
-      begin
-         Chksum := Chksum + B;
-         Put (Image2 (B));
-      end Dump_Byte;
-
-      Addr : Address;
-      L : Natural;
-      Ll : Natural;
-   begin
-      Addr := Base;
-      L := Len;
-      while L > 0 loop
-         Ll := Natural'Min (L, 32);
-
-         Put ("S3");
-         Chksum := 0;
-
-         --  Len
-         Dump_Byte (Unsigned_8 (Ll + 5));
-
-         --  Address
-         declare
-            A32 : constant Unsigned_32 := To_Unsigned_32 (Addr);
-         begin
-            Dump_Byte (Unsigned_8 (Shift_Right (A32, 24) and 16#ff#));
-            Dump_Byte (Unsigned_8 (Shift_Right (A32, 16) and 16#ff#));
-            Dump_Byte (Unsigned_8 (Shift_Right (A32,  8) and 16#ff#));
-            Dump_Byte (Unsigned_8 (Shift_Right (A32,  0) and 16#ff#));
-         end;
-
-         --  Data
-         for I in 1 .. Ll loop
-            declare
-               B : Unsigned_8 with Address => Addr, Import;
-            begin
-               Dump_Byte (B);
-               Addr := Addr + 1;
-            end;
-         end loop;
-
-         --  Chksum
-         Dump_Byte (not Chksum);
-         New_Line;
-
-         L := L - Ll;
-      end loop;
-
-      null;
-   end Dump_Srec;
 
    procedure Mailbox_Write (Val : Unsigned_32; Channel : Unsigned_32) is
    begin
@@ -144,44 +77,11 @@ package body Video is
    function To_Frame_Buffer_Acc is new Ada.Unchecked_Conversion
      (Unsigned_32, Frame_Buffer_Acc);
 
-   procedure Set_CNTP_CTL (Val : Unsigned_32) is
-   begin
-      Asm ("mcr p15, #0, %0, c14, c2, #1",
-           Inputs => Unsigned_32'Asm_Input ("r", Val),
-           Volatile => True);
-   end Set_CNTP_CTL;
-
-   function Get_CNTP_CTL return Unsigned_32
-   is
-      Res : Unsigned_32;
-   begin
-      Asm ("mrc p15, #0, %0, c14, c2, #1",
-           Outputs => Unsigned_32'Asm_Output ("=r", Res),
-           Volatile => True);
-      return Res;
-   end Get_CNTP_CTL;
-
-   procedure Set_CNTP_TVAL (Val : Unsigned_32) is
-   begin
-      Asm ("mcr p15, #0, %0, c14, c2, #0",
-           Inputs => Unsigned_32'Asm_Input ("r", Val),
-           Volatile => True);
-   end Set_CNTP_TVAL;
-
-   function Get_CNTP_TVAL return Unsigned_32
-   is
-      Res : Unsigned_32;
-   begin
-      Asm ("mrc p15, #0, %0, c14, c2, #0",
-           Outputs => Unsigned_32'Asm_Output ("=r", Res),
-           Volatile => True);
-      return Res;
-   end Get_CNTP_TVAL;
-
    procedure Init_Video
    is
       use Mailbox_Interfaces;
       Res : Unsigned_32;
+      pragma Unreferenced (Res);
 
       type Unsigned_32_Arr is array (Natural range <>) of Unsigned_32;
       Msg : Unsigned_32_Arr := (0,
@@ -214,6 +114,10 @@ package body Video is
       for Msg'Alignment use 16;
    begin
       Msg (0) := Msg'Length * 4;
+
+      --  Clean and invalidate so that GPU can read it
+      ARM_V7AR.Cache.Dcache_Flush_By_Range (Msg'Address, Msg'Length * 4);
+
       Mailbox_Write (To_Unsigned_32 (Msg'Address), Channel_Tags_ARM_To_VC);
       Res := Mailbox_Read (Channel_Tags_ARM_To_VC);
 
@@ -227,6 +131,7 @@ package body Video is
       Put ("FB size: ");
       Put_Line (Image8 (Msg (6)));
 
-      Fb := To_Frame_Buffer_Acc (Msg (5) and 16#3fff_ffff#);
+      --  Map to uncached address
+      Fb := To_Frame_Buffer_Acc ((Msg (5) and 16#3fff_ffff#) or 16#8000_0000#);
    end Init_Video;
 end Video;
