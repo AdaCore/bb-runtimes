@@ -30,8 +30,10 @@
 pragma Ada_2012;
 
 with System.Machine_Code;
+with System.Storage_Elements; use System.Storage_Elements;
 with Ada.Unchecked_Conversion;
 with Ada.Text_IO; use Ada.Text_IO;
+with Interfaces.Arm_V7ar; use Interfaces.Arm_V7ar;
 
 package body Video is
    Buf : Video_Struct := (Phys_Width => 640,
@@ -80,9 +82,11 @@ package body Video is
 
    procedure Mailbox_Write (Val : Unsigned_32; Channel : Unsigned_32) is
    begin
-      Put ("MB: write ");
-      Put (Image8 (Val));
-      New_Line;
+      if False then
+         Put ("MB: write ");
+         Put (Image8 (Val));
+         New_Line;
+      end if;
 
       while (Mail_Status_Reg and Mail_Full) /= 0 loop
          null;
@@ -119,6 +123,9 @@ package body Video is
 
       Put_Line ("Init video");
       loop
+         --  Clean and invalidate so that GPU can read it
+         ARM_V7AR.Cache.Dcache_Flush_By_Range (Buf'Address, Buf'Size / 8);
+
          Mailbox_Write (To_Unsigned_32 (Buf'Address) or 16#4000_0000#,
                         Channel_Frame_Buffer);
          Res := Mailbox_Read (Channel_Frame_Buffer);
@@ -130,6 +137,7 @@ package body Video is
       Put ("FB size: ");
       Put_Line (Image8 (Buf.Fb_Size));
 
-      Fb := To_Frame_Buffer_Acc (Buf.Fb_Addr and 16#3fff_ffff#);
+      Fb := To_Frame_Buffer_Acc
+        ((Buf.Fb_Addr and 16#3fff_ffff#) or 16#8000_0000#);
    end Init_Video;
 end Video;
