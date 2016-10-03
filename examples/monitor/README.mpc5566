@@ -1,0 +1,37 @@
+Readme for mpc5566 gnat monitor
+-------------------------------
+
+This example contains a small monitor, with these features:
+* command line interface on the serial line (56700 8n1)
+* display value of registers (command tlb, cr, timer, pll)
+* load of S-record file (command load)
+* flash programming (commands flash and load)
+* execution of a program (command go)
+* Data inspection (command dump)
+
+The Makefile provided build a flash and a RAM version of the monitor.
+Execute 'make' to build all versions. It creates the three versions:
+* monitor.bin: this file is the BAM version, to be sent through the serial
+  line and execute in the internal SRAM
+* monitor-flash.srec: S-record file for the monitor in FLASH. The corresponding
+  ELF file is monitor.rom
+* monitor-ram.srec: S-record file for the monitor in external SRAM. Used to
+  update the monitor without using an external probe. Corresponding ELF file
+  is monitor.ram
+Note that the monitor should be built using the ZFP runtime.
+
+You cannot update the flash while running the monitor in flash.
+So to update the monitor, use the following sequence:
+> load         (and send monitor-ram.srec)
+> go           (to execute it)
+> flash unlock (to allow flash programming)
+> flash erase  (erase the flash)
+> load         (and send monitor-flash.srec)
+> reset
+
+First flash / Recovering
+If you need to flash the monitor for the first time, or if you need to recover
+from a corrupted flash, load monitor.bin using the BAM. Then follow the above
+commands, starting from 'flash unlock'.
+On the MPC5566EVB, you can force booting from BAM by setting config switch 1
+to on (and put it off to booting from valid flash).
