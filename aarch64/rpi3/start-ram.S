@@ -45,6 +45,16 @@ __start_ram:
 
 	.type	__start_ram1, %function
 __start_ram1:
+	# Boot conditions:
+	# CurrentEL: 3
+#if 0
+	# Enable SMPEN
+	mrs	x0, S3_1_C15_C2_1
+	orr	x0, x0, #0x40
+	msr	S3_1_C15_C2_1, x0
+#endif
+
+	# Move slave processors to an infinite loop
 	mrs	x0,mpidr_el1
 	ubfx	x0,x0,#0,#28
 	cmp	x0,#0
@@ -53,18 +63,28 @@ __start_ram1:
 	b	0b
 
 __start_master:
-	ldr	x0,system_stack_base
+	# Load stack pointer
+	adrp	x2,system_stack_base
+	ldr	x0,[x2, #:lo12:system_stack_base]
 	mov	sp,x0
 
+	# Set NS, IRQ, FIQ, EA of SCR
+	mrs	x0, scr_el3
+	orr	x0, x0, #0xf
+	msr	scr_el3, x0
+
+	# Enable FPU (don't trap accesses)
+	msr	cptr_el3, xzr
+
 	/* Clear .bss */
-	ldr	x0,=__bss_start
-	ldr	x1,=__bss_dwords
-	cmp	x1,#0
-	beq	1f
-0:	/* FIXME: write multiple words?  */
+	adrp	x2,bss_segment
+	ldr	x0,[x2, #:lo12:bss_segment]
+	ldr	x1,[x2, #:lo12:bss_segment + 8]
+0:	cbz	x1,1f
+	/* FIXME: write multiple words?  */
 	str	xzr,[x0],#8
 	sub	x1,x1,#1
-	bne	0b
+	cbnz	x1,0b
 1:
 
 	/* Call the main routine */
@@ -73,5 +93,11 @@ __start_master:
 0:	b	0b
 	.size	__start_ram1, . - __start_ram1
 
+	.p2align	3
+
+bss_segment:
+	.dword	__bss_start
+	.dword	__bss_dwords
+
 system_stack_base:
-	.word	__cpu0_stack_end
+	.dword	__cpu0_stack_end
