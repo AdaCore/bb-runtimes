@@ -2,7 +2,7 @@
 --                                                                          --
 --                               GNAT EXAMPLE                               --
 --                                                                          --
---                        Copyright (C) 2013, AdaCore                       --
+--                     Copyright (C) 2013-2016, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -27,7 +27,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO; use Ada.Text_IO;
+with Console; use Console;
 
 package body Term is
    function Read_Hex_Digit (Pos : Line_Range) return Hex_Digit_Type is

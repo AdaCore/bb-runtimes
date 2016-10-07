@@ -35,15 +35,67 @@ with Commands; use Commands;
 with Dumps; use Dumps;
 
 package body Armv7a is
-   procedure Proc_Cr is
-      Vbar : Unsigned_32;
+   function Get_VBAR return Unsigned_32
+   is
+      Res : Unsigned_32;
    begin
       Asm ("mrc p15, #0, %0, c12, c0, #0",
-           Outputs => Unsigned_32'Asm_Output ("=r", Vbar),
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
            Volatile => True);
-      Put ("VBAR: " & Image8 (Vbar));
+      return Res;
+   end Get_VBAR;
+
+   function Get_CPSR return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0,cpsr",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_CPSR;
+
+   function Get_SPSR return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0,spsr",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SPSR;
+
+   pragma Unreferenced (Get_SPSR);
+
+   function Get_CPUECTLR return Unsigned_32
+   is
+      Lo, Hi : Unsigned_32;
+   begin
+      Asm ("mrrc p15, 1, %0, %1, c15",
+           Outputs => (Unsigned_32'Asm_Output ("=r", Lo),
+                       Unsigned_32'Asm_Output ("=r", Hi)),
+           Volatile => True);
+      return Lo;
+   end Get_CPUECTLR;
+
+   procedure Proc_Cr is
+   begin
+      Put ("VBAR: " & Image8 (Get_VBAR));
+      Put (", CPSR: " & Image8 (Get_CPSR));
       New_Line;
+      Put ("CPUECTLR: ");
+      Put_Line (Image8 (Get_CPUECTLR));
    end Proc_Cr;
+
+   procedure Proc_Cpsid is
+   begin
+      Asm ("cpsid if", Volatile => True);
+   end Proc_Cpsid;
+
+   procedure Proc_Cpsie is
+   begin
+      Asm ("cpsie if", Volatile => True);
+   end Proc_Cpsie;
 
    procedure Disp_Cache_Size (L : Natural)
    is
@@ -124,11 +176,15 @@ package body Armv7a is
    end Proc_Cache;
 
    Commands : aliased Command_List :=
-     (2,
+     (4,
       (1 => (new String'("cache - disp cache"),
              Proc_Cache'Access),
        2 => (new String'("cr - Display some config registers"),
-             Proc_Cr'Access)),
+             Proc_Cr'Access),
+       3 => (new String'("cpsid - Disable interrupts"),
+             Proc_Cpsid'Access),
+       4 => (new String'("cpsie - Enable interrupts"),
+             Proc_Cpsie'Access)),
       null);
 begin
    Register_Commands (Commands'Access);
