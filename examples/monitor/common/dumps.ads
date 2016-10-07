@@ -2,7 +2,7 @@
 --                                                                          --
 --                               GNAT EXAMPLE                               --
 --                                                                          --
---                        Copyright (C) 2013, AdaCore                       --
+--                     Copyright (C) 2013-2016, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -30,13 +30,19 @@
 with Interfaces; use Interfaces;
 
 package Dumps is
+   subtype String16 is String (1 .. 16);
    subtype String8 is String (1 .. 8);
    subtype String4 is String (1 .. 4);
    subtype String2 is String (1 .. 2);
 
-   function Image8 (V : Unsigned_32) return String8;
-   function Image4 (V : Unsigned_32) return String4;
-   function Image2 (V : Unsigned_32) return String2;
+   function Hex8 (V : Unsigned_64) return String16;
+   function Hex4 (V : Unsigned_32) return String8;
+   function Hex2 (V : Unsigned_32) return String4;
+   function Hex1 (V : Unsigned_32) return String2;
+
+   function Image8 (V : Unsigned_32) return String8 renames Hex4;
+   function Image4 (V : Unsigned_32) return String4 renames Hex2;
+   function Image2 (V : Unsigned_32) return String2 renames Hex1;
    function Image1 (V : Unsigned_32) return Character;
    --  Hexadecimal conversion
 

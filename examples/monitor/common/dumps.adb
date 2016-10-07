@@ -2,7 +2,7 @@
 --                                                                          --
 --                               GNAT EXAMPLE                               --
 --                                                                          --
---                        Copyright (C) 2013, AdaCore                       --
+--                     Copyright (C) 2013-2016, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -27,37 +27,47 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO; use Ada.Text_IO;
+with Console; use Console;
 
 package body Dumps is
    Hex_Digits : constant array (0 .. 15) of Character := "0123456789abcdef";
 
-   function Image8 (V : Unsigned_32) return String8 is
+   function Hex8 (V : Unsigned_64) return String16 is
+      Res : String16;
+   begin
+      for I in Res'Range loop
+         Res (I) :=
+           Hex_Digits (Natural (Shift_Right (V, 4 * (16 - I)) and 15));
+      end loop;
+      return Res;
+   end Hex8;
+
+   function Hex4 (V : Unsigned_32) return String8 is
       Res : String8;
    begin
       for I in Res'Range loop
          Res (I) := Hex_Digits (Natural (Shift_Right (V, 4 * (8 - I)) and 15));
       end loop;
       return Res;
-   end Image8;
+   end Hex4;
 
-   function Image4 (V : Unsigned_32) return String4 is
+   function Hex2 (V : Unsigned_32) return String4 is
       Res : String4;
    begin
       for I in Res'Range loop
          Res (I) := Hex_Digits (Natural (Shift_Right (V, 4 * (4 - I)) and 15));
       end loop;
       return Res;
-   end Image4;
+   end Hex2;
 
-   function Image2 (V : Unsigned_32) return String2 is
+   function Hex1 (V : Unsigned_32) return String2 is
       Res : String2;
    begin
       for I in Res'Range loop
          Res (I) := Hex_Digits (Natural (Shift_Right (V, 4 * (2 - I)) and 15));
       end loop;
       return Res;
-   end Image2;
+   end Hex1;
 
    function Image1 (V : Unsigned_32) return Character is
    begin
