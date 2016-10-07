@@ -41,6 +41,7 @@
 
 _DEFAULT_STACK_SIZE = (20 * 1024);
 _DEFAULT_STACK_EL3_SIZE = (4 * 1024);
+_DEFAULT_STACK_EL2_SIZE = (4 * 1024);
 
 ENTRY(__start_ram);
 
@@ -144,9 +145,14 @@ SECTIONS
    __cpu0_stack_end = .;
 
    __cpu0_stack_el3_start = .;
-   . += DEFINED (__stack_el_3size) ? __stack_el3_size : _DEFAULT_STACK_EL3_SIZE;
+   . += DEFINED (__stack_el3_size) ? __stack_el3_size : _DEFAULT_STACK_EL3_SIZE;
    . = ALIGN(0x10);
    __cpu0_stack_el3_end = .;
+
+   __cpu0_stack_el2_start = .;
+   . += DEFINED (__stack_el2_size) ? __stack_el2_size : _DEFAULT_STACK_EL2_SIZE;
+   . = ALIGN(0x10);
+   __cpu0_stack_el2_end = .;
 
    __stack_end = .;
 

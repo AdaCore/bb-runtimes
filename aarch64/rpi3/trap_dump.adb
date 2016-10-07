@@ -34,6 +34,7 @@ package body Trap_Dump is
    procedure New_Line;
 
    procedure Put_Hex8 (V : Unsigned_64);
+   procedure Put_Hex4 (V : Unsigned_32);
    procedure Put_Hex1 (V : Unsigned_8);
    procedure Put_02 (N : Natural);
 
@@ -74,6 +75,16 @@ package body Trap_Dump is
       Put (Res);
    end Put_Hex8;
 
+   procedure Put_Hex4 (V : Unsigned_32) is
+      Res : String (1 .. 8);
+   begin
+      for I in Res'Range loop
+         Res (I) :=
+           Hex_Digits (Natural (Shift_Right (V, 4 * (8 - I)) and 15));
+      end loop;
+      Put (Res);
+   end Put_Hex4;
+
    procedure Put_Hex1 (V : Unsigned_8) is
       Res : String (1 .. 2);
    begin
@@ -95,13 +106,20 @@ package body Trap_Dump is
    function Get_Current_EL return Unsigned_32;
    function Get_ELR_EL3 return Unsigned_64;
    function Get_SPSR_EL3 return Unsigned_64;
-   function Get_ESR_EL3 return Unsigned_64;
+   function Get_ESR_EL3 return Unsigned_32;
    function Get_FAR_EL3 return Unsigned_64;
+
+   function Get_ELR_EL2 return Unsigned_64;
+   function Get_SPSR_EL2 return Unsigned_64;
+   function Get_ESR_EL2 return Unsigned_32;
+   function Get_FAR_EL2 return Unsigned_64;
 
    function Get_ELR_EL1 return Unsigned_64;
    function Get_SPSR_EL1 return Unsigned_64;
-   function Get_ESR_EL1 return Unsigned_64;
+   function Get_ESR_EL1 return Unsigned_32;
    function Get_FAR_EL1 return Unsigned_64;
+
+   procedure Print_ESR (ESR : Unsigned_32);
 
    function Get_Current_EL return Unsigned_32
    is
@@ -133,12 +151,12 @@ package body Trap_Dump is
       return Res;
    end Get_SPSR_EL3;
 
-   function Get_ESR_EL3 return Unsigned_64
+   function Get_ESR_EL3 return Unsigned_32
    is
-      Res : Unsigned_64;
+      Res : Unsigned_32;
    begin
       Asm ("mrs %0, esr_el3",
-           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
            Volatile => True);
       return Res;
    end Get_ESR_EL3;
@@ -152,6 +170,46 @@ package body Trap_Dump is
            Volatile => True);
       return Res;
    end Get_FAR_EL3;
+
+   function Get_ELR_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, elr_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_ELR_EL2;
+
+   function Get_SPSR_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, spsr_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SPSR_EL2;
+
+   function Get_ESR_EL2 return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, esr_el2",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_ESR_EL2;
+
+   function Get_FAR_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, far_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_FAR_EL2;
 
    function Get_ELR_EL1 return Unsigned_64
    is
@@ -173,12 +231,12 @@ package body Trap_Dump is
       return Res;
    end Get_SPSR_EL1;
 
-   function Get_ESR_EL1 return Unsigned_64
+   function Get_ESR_EL1 return Unsigned_32
    is
-      Res : Unsigned_64;
+      Res : Unsigned_32;
    begin
       Asm ("mrs %0, esr_el1",
-           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
            Volatile => True);
       return Res;
    end Get_ESR_EL1;
@@ -192,6 +250,15 @@ package body Trap_Dump is
            Volatile => True);
       return Res;
    end Get_FAR_EL1;
+
+   procedure Print_ESR (ESR : Unsigned_32) is
+   begin
+      Put ("ESR:");
+      Put_Hex4 (ESR);
+      Put (" (EC:");
+      Put_Hex1 (Unsigned_8 (Shift_Right (ESR, 26)));
+      Put (')');
+   end Print_ESR;
 
    procedure Dump (Regs : Registers_List_Acc; Id : Natural)
    is
@@ -224,7 +291,7 @@ package body Trap_Dump is
 
       EL := Get_Current_EL;
       Put ("  Current_EL: ");
-      Put_Hex1 (Unsigned_8 (EL));
+      Put_Hex1 (Unsigned_8 (EL / 4));
       New_Line;
 
       if EL = 3 * 4 then
@@ -233,10 +300,23 @@ package body Trap_Dump is
          Put (", SPSR:");
          Put_Hex8 (Get_SPSR_EL3);
          New_Line;
-         Put ("EL3 ESR:");
-         Put_Hex8 (Get_ESR_EL3);
+         Put ("EL3 ");
+         Print_ESR (Get_ESR_EL3);
          Put (", FAR:");
          Put_Hex8 (Get_FAR_EL3);
+         New_Line;
+      end if;
+
+      if EL >= 2 * 4 then
+         Put ("EL2 ELR:");
+         Put_Hex8 (Get_ELR_EL2);
+         Put (", SPSR:");
+         Put_Hex8 (Get_SPSR_EL2);
+         New_Line;
+         Put ("EL2 ");
+         Print_ESR (Get_ESR_EL2);
+         Put (", FAR:");
+         Put_Hex8 (Get_FAR_EL2);
          New_Line;
       end if;
 
@@ -246,8 +326,8 @@ package body Trap_Dump is
          Put (", SPSR:");
          Put_Hex8 (Get_SPSR_EL1);
          New_Line;
-         Put ("EL1 ESR:");
-         Put_Hex8 (Get_ESR_EL1);
+         Put ("EL1 ");
+         Print_ESR (Get_ESR_EL1);
          Put (", FAR:");
          Put_Hex8 (Get_FAR_EL1);
          New_Line;

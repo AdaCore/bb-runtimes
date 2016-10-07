@@ -60,6 +60,11 @@ __start_ram1:
 	ldr	w0,[x2, #:lo12:system_stack_el3_base]
 	mov	sp,x0
 
+	# Load stack pointer (on 32bit)
+	adrp	x2,system_stack_el2_base
+	ldr	w0,[x2, #:lo12:system_stack_el2_base]
+	msr	sp_el2,x0
+
 	# Load vbars
 	adrp	x0,__vectors
 	add	x0,x0,#:lo12:__vectors
@@ -92,6 +97,16 @@ __start_ram1:
 	# Enable FPU (don't trap accesses)
 	msr	cptr_el3, xzr
 
+	# Move slave processors to an infinite loop
+	mrs	x0,mpidr_el1
+	ubfx	x0,x0,#0,#28
+	cmp	x0,#0
+	beq	__start_master
+0:	wfe
+	b	0b
+
+__start_master:
+
 	# HCR_EL2: RW(1)
 	mov	x0,#(1<<31)
 	msr	hcr_el2,x0
@@ -102,26 +117,26 @@ __start_ram1:
 	adr	x0, __start_el2
 	msr	elr_el3, x0
 
-#if 0
 	isb
 	eret
-#endif
 
 __start_el2:
 
-	# Move slave processors to an infinite loop
-	mrs	x0,mpidr_el1
-	ubfx	x0,x0,#0,#28
-	cmp	x0,#0
-	beq	__start_master
-0:	wfe
-	b	0b
-
-__start_master:
 	# Load stack pointer (on 32bit)
 	adrp	x2,system_stack_base
 	ldr	w0,[x2, #:lo12:system_stack_base]
 	msr	sp_el1,x0
+
+	# Switch to el1h, set AIF
+	mov	x0, #(0x1c0 + 5)
+	msr	spsr_el2, x0
+	adr	x0, __start_el1
+	msr	elr_el2, x0
+
+	isb
+	eret
+
+__start_el1:
 
 	/* Clear .bss, assuming in the first 4GB */
 	ldr	w0,bss_segment + 0
@@ -151,6 +166,9 @@ system_stack_base:
 
 system_stack_el3_base:
 	.word	__cpu0_stack_el3_end
+
+system_stack_el2_base:
+	.word	__cpu0_stack_el2_end
 
 	.macro  ehandler label, id
 	.p2align 7
