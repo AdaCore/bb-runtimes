@@ -121,6 +121,8 @@ __start_master:
 	eret
 
 __start_el2:
+	# Enable FPU (don't trap accesses)
+	msr	cptr_el2, xzr
 
 	# Load stack pointer (on 32bit)
 	adrp	x2,system_stack_base
@@ -137,6 +139,9 @@ __start_el2:
 	eret
 
 __start_el1:
+	/* Enable SIMD.  */
+	mov	x0, #(1 << 20)
+	msr	cpacr_el1, x0
 
 	/* Clear .bss, assuming in the first 4GB */
 	ldr	w0,bss_segment + 0
