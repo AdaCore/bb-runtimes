@@ -45,14 +45,69 @@ __start_ram:
 
 	.type	__start_ram1, %function
 __start_ram1:
-	# Boot conditions:
+	# Boot conditions on RPi3
 	# CurrentEL: 3
-#if 0
+
+	mrs	x1, currentel
+	cmp	x1, #(3<<2)
+	b.ne	__start_el2
+
+	# Started in EL3
+	# Configure EL3
+
+	# Load stack pointer (on 32bit)
+	adrp	x2,system_stack_el3_base
+	ldr	w0,[x2, #:lo12:system_stack_el3_base]
+	mov	sp,x0
+
+	# Load vbars
+	adrp	x0,__vectors
+	add	x0,x0,#:lo12:__vectors
+	msr	vbar_el3, x0
+	msr	vbar_el2, x0
+	msr	vbar_el1, x0
+
 	# Enable SMPEN
 	mrs	x0, S3_1_C15_C2_1
 	orr	x0, x0, #0x40
 	msr	S3_1_C15_C2_1, x0
+
+	# Don't care about stack pointer
+
+	# SCR_EL3: TWE=0, TWI=0, ST=0, RW(10)=1, SIF=0, HCE(8)=0, SMD=0,
+	#          EA=0, FIQ=0, IRQ=0, NS=1
+	mov	x0,#0x401
+	msr	scr_el3, x0
+
+	# SCTLR_EL3: EE=0, WXN=0, I=0, SA(3)=1, C=0, A(1)=1, M=0
+	mov	x0,#0x6
+	msr	sctlr_el3, x0
+
+	# MDCR_EL3: EPMAD=0, EDAD=0, SPME=0, SDD=0, SPD32=0, TDOSA=0, TDA=0,
+	#           TPM=0
+	msr	mdcr_el3, xzr
+
+	# ACTLR_EL3: let it to 0
+
+	# Enable FPU (don't trap accesses)
+	msr	cptr_el3, xzr
+
+	# HCR_EL2: RW(1)
+	mov	x0,#(1<<31)
+	msr	hcr_el2,x0
+
+	# Switch to el2h, set AIF
+	mov	x0, #(0x1c0 + 9)
+	msr	spsr_el3, x0
+	adr	x0, __start_el2
+	msr	elr_el3, x0
+
+#if 0
+	isb
+	eret
 #endif
+
+__start_el2:
 
 	# Move slave processors to an infinite loop
 	mrs	x0,mpidr_el1
@@ -63,23 +118,14 @@ __start_ram1:
 	b	0b
 
 __start_master:
-	# Load stack pointer
+	# Load stack pointer (on 32bit)
 	adrp	x2,system_stack_base
-	ldr	x0,[x2, #:lo12:system_stack_base]
-	mov	sp,x0
+	ldr	w0,[x2, #:lo12:system_stack_base]
+	msr	sp_el1,x0
 
-	# Set NS, IRQ, FIQ, EA of SCR
-	mrs	x0, scr_el3
-	orr	x0, x0, #0xf
-	msr	scr_el3, x0
-
-	# Enable FPU (don't trap accesses)
-	msr	cptr_el3, xzr
-
-	/* Clear .bss */
-	adrp	x2,bss_segment
-	ldr	x0,[x2, #:lo12:bss_segment]
-	ldr	x1,[x2, #:lo12:bss_segment + 8]
+	/* Clear .bss, assuming in the first 4GB */
+	ldr	w0,bss_segment + 0
+	ldr	w1,bss_segment + 4
 0:	cbz	x1,1f
 	/* FIXME: write multiple words?  */
 	str	xzr,[x0],#8
@@ -95,9 +141,60 @@ __start_master:
 
 	.p2align	3
 
+	# BSS base and size
 bss_segment:
-	.dword	__bss_start
-	.dword	__bss_dwords
+	.word	__bss_start
+	.word	__bss_dwords
 
 system_stack_base:
-	.dword	__cpu0_stack_end
+	.word	__cpu0_stack_end
+
+system_stack_el3_base:
+	.word	__cpu0_stack_el3_end
+
+	.macro  ehandler label, id
+	.p2align 7
+\label:
+	# Save all registers (32 * 8 = 256)
+	stp	x0, x1, [sp, #-256]!
+	stp	x2, x3, [sp, #16]
+	stp	x4, x5, [sp, #32]
+	stp	x6, x7, [sp, #48]
+	stp	x8, x9, [sp, #64]
+	stp	x10, x11, [sp, #80]
+	stp	x12, x13, [sp, #96]
+	stp	x14, x15, [sp, #112]
+	stp	x16, x17, [sp, #128]
+	stp	x18, x19, [sp, #144]
+	stp	x20, x21, [sp, #160]
+	stp	x22, x23, [sp, #176]
+	stp	x24, x25, [sp, #192]
+	stp	x26, x27, [sp, #208]
+	stp	x28, x29, [sp, #224]
+	str	x30, [sp, #240]
+	mov	x0, sp
+	mov	x1, #\id
+	bl	__trap_dump
+	add	sp,sp,256
+	eret
+	.endm
+
+	# Vectot table
+	.p2align 11
+__vectors:
+	ehandler __trap_syn_el0, 1
+	ehandler __trap_irq_el0, 2
+	ehandler __trap_fiq_el0, 3
+	ehandler __trap_ser_el0, 4
+	ehandler __trap_syn_elx, 5
+	ehandler __trap_irq_elx, 6
+	ehandler __trap_fiq_elx, 7
+	ehandler __trap_ser_elx, 8
+	ehandler __trap_syn_a64, 9
+	ehandler __trap_irq_a64, 10
+	ehandler __trap_fiq_a64, 11
+	ehandler __trap_ser_a64, 12
+	ehandler __trap_syn_a32, 13
+	ehandler __trap_irq_a32, 14
+	ehandler __trap_fiq_a32, 15
+	ehandler __trap_ser_a32, 16

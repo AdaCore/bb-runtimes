@@ -40,6 +40,7 @@
    appropriate memory map and output format. */
 
 _DEFAULT_STACK_SIZE = (20 * 1024);
+_DEFAULT_STACK_EL3_SIZE = (4 * 1024);
 
 ENTRY(__start_ram);
 
@@ -141,6 +142,11 @@ SECTIONS
    . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
    . = ALIGN(0x10);
    __cpu0_stack_end = .;
+
+   __cpu0_stack_el3_start = .;
+   . += DEFINED (__stack_el_3size) ? __stack_el3_size : _DEFAULT_STACK_EL3_SIZE;
+   . = ALIGN(0x10);
+   __cpu0_stack_el3_end = .;
 
    __stack_end = .;
 

@@ -1526,6 +1526,8 @@ class RPI3(DFBBTarget):
         self.bsp += [
             'aarch64/rpi3/ram.ld',
             'aarch64/rpi3/start-ram.S',
+            'aarch64/rpi3/trap_dump.ads',
+            'aarch64/rpi3/trap_dump.adb',
             'i-raspberry_pi.ads']
         self.pairs.update(
             {'system.ads': 'system-xi-aarch64.ads',
