@@ -163,11 +163,8 @@ package body Commands is
       end loop;
    end Proc_Conv;
 
-   procedure Proc_Dump is
-      Addr : Unsigned_32;
-      Len : Unsigned_32;
-      Eaddr : Unsigned_32;
-      Ok : Boolean;
+   procedure Parse_Dump_Args
+     (Addr : out Unsigned_32; Len : out Unsigned_32; Ok : out Boolean) is
    begin
       Next_Word;
       Parse_Unsigned32 (Addr, Ok);
@@ -182,6 +179,19 @@ package body Commands is
          if not Ok then
             return;
          end if;
+      end if;
+   end Parse_Dump_Args;
+
+   --  Hexa + char byte dump
+   procedure Proc_Dump is
+      Addr : Unsigned_32;
+      Len : Unsigned_32;
+      Eaddr : Unsigned_32;
+      Ok : Boolean;
+   begin
+      Parse_Dump_Args (Addr, Len, Ok);
+      if not Ok then
+         return;
       end if;
 
       Eaddr := Addr + Len - 1;
@@ -232,6 +242,46 @@ package body Commands is
          exit when Addr - 1 >= Eaddr; --  Handle wrap around 0
       end loop;
    end Proc_Dump;
+
+   --  Word dump
+   procedure Proc_Dump32 is
+      Addr : Unsigned_32;
+      Len : Unsigned_32;
+      Eaddr : Unsigned_32;
+      Ok : Boolean;
+   begin
+      Parse_Dump_Args (Addr, Len, Ok);
+      if not Ok then
+         return;
+      end if;
+
+      --  Align address
+      Addr := Addr and not 3;
+
+      Eaddr := Addr + Len - 1;
+      loop
+         Put (Image8 (Addr));
+         Put (": ");
+         for I in Unsigned_32 range 0 .. 3 loop
+            if Addr > Eaddr then
+               Put ("        ");
+            else
+               declare
+                  W : Unsigned_32;
+                  for W'Address use System'To_Address (Addr);
+                  pragma Import (Ada, W);
+               begin
+                  Put (Image8 (W));
+               end;
+            end if;
+            Put (' ');
+            Addr := Addr + 4;
+         end loop;
+
+         New_Line;
+         exit when Addr - 1 >= Eaddr; --  Handle wrap around 0
+      end loop;
+   end Proc_Dump32;
 
    procedure Proc_Dump_Srec
    is
@@ -326,11 +376,12 @@ package body Commands is
    end Proc_Write;
 
    Commands : aliased Command_List :=
-     (6,
+     (7,
       ((new String'("help - Print this help"), Proc_Help'Access),
        (new String'("reset - Reboot the board"), Proc_Reset'Access),
        (new String'("conv NUM - Print NUM in hexa"), Proc_Conv'Access),
-       (new String'("dump ADDR [LEN] - Hexadecimal dump"), Proc_Dump'Access),
+       (new String'("dump ADDR [LEN] - Hexa byte dump"), Proc_Dump'Access),
+       (new String'("dump32 ADDR [LEN] - Hexa word dump"), Proc_Dump32'Access),
        (new String'("dump_srec ADDR [LEN] - SREC dump"),
         Proc_Dump_Srec'Access),
        (new String'("w ADDR VAL - Write a word to memory"),
