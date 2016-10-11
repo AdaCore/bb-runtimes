@@ -32,6 +32,7 @@ with Interfaces; use Interfaces;
 with Console; use Console;
 with Commands; use Commands;
 with Dumps; use Dumps;
+with Term; use Term;
 
 package body Aarch64 is
    function Get_Current_EL return Unsigned_32
@@ -124,6 +125,16 @@ package body Aarch64 is
       return Res;
    end Get_HCR_EL2;
 
+   function Get_TCR_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, tcr_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_TCR_EL2;
+
    function Get_SP_EL1 return Unsigned_64
    is
       Res : Unsigned_64;
@@ -134,24 +145,95 @@ package body Aarch64 is
       return Res;
    end Get_SP_EL1;
 
+   function Get_SCTLR_EL1 return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, sctlr_el1",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SCTLR_EL1;
+
+   function Get_TCR_EL1 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, tcr_el1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_TCR_EL1;
+
+   function Get_VBAR_EL1 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, vbar_el1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_VBAR_EL1;
+
+   function Get_TTBR0_EL1 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, ttbr0_el1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_TTBR0_EL1;
+
+   function Get_TTBR1_EL1 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, ttbr1_el1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_TTBR1_EL1;
+
+   function Get_ID_AA64MMFR0_EL1 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, id_aa64mmfr0_el1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_ID_AA64MMFR0_EL1;
+
    procedure Proc_El1 is
    begin
-      if Get_Current_EL /= 3 * 4 then
-         Put_Line ("Not in EL3!");
-         return;
+      if Get_Current_EL = 3 * 4 then
+         Asm ("adr x0, 1f" & ASCII.LF & ASCII.HT &
+              "msr elr_el3, x0" & ASCII.LF & ASCII.HT &
+              "mov x0, #0x1c5"  & ASCII.LF & ASCII.HT &
+              "msr spsr_el3, x0"  & ASCII.LF & ASCII.HT &
+              "mov x0, sp"  & ASCII.LF & ASCII.HT &
+              "msr sp_el1, x0"   & ASCII.LF & ASCII.HT &
+              "isb"  & ASCII.LF & ASCII.HT &
+              "eret"  & ASCII.LF & ASCII.HT &
+              "1:",
+              Volatile => True,
+              Clobber => "x0");
+      elsif Get_Current_EL = 2 * 4 then
+         Asm ("adr x0, 1f" & ASCII.LF & ASCII.HT &
+              "msr elr_el2, x0" & ASCII.LF & ASCII.HT &
+              "mov x0, #0x1c5"  & ASCII.LF & ASCII.HT &
+              "msr spsr_el2, x0"  & ASCII.LF & ASCII.HT &
+              "mov x0, sp"  & ASCII.LF & ASCII.HT &
+              "msr sp_el1, x0"   & ASCII.LF & ASCII.HT &
+              "isb"  & ASCII.LF & ASCII.HT &
+              "eret"  & ASCII.LF & ASCII.HT &
+              "1:",
+              Volatile => True,
+              Clobber => "x0");
+      else
+         Put_Line ("Not in EL3/EL2!");
       end if;
-
-      Asm ("adr x0, 1f" & ASCII.LF & ASCII.HT &
-           "msr elr_el3, x0" & ASCII.LF & ASCII.HT &
-           "mov x0, #0x1c5"  & ASCII.LF & ASCII.HT &
-           "msr spsr_el3, x0"  & ASCII.LF & ASCII.HT &
-           "mov x0, sp"  & ASCII.LF & ASCII.HT &
-           "msr sp_el1, x0"   & ASCII.LF & ASCII.HT &
-           "isb"  & ASCII.LF & ASCII.HT &
-           "eret"  & ASCII.LF & ASCII.HT &
-           "1:",
-           Volatile => True,
-           Clobber => "x0");
    end Proc_El1;
 
    procedure Proc_El2 is
@@ -233,15 +315,104 @@ package body Aarch64 is
       if L >= 2 then
          Put ("EL2 HCR: ");
          Put (Hex8 (Get_HCR_EL2));
+         Put (" TCR: ");
+         Put (Hex8 (Get_TCR_EL2));
          New_Line;
          Put ("EL1 SP: ");
          Put (Hex8 (Get_SP_EL1));
          New_Line;
       end if;
+
+      if L >= 1 then
+         Put ("EL1 SCTLR: ");
+         Put (Hex4 (Get_SCTLR_EL1));
+         Put (" VBAR: ");
+         Put (Hex8 (Get_VBAR_EL1));
+         Put (" TCR: ");
+         Put (Hex8 (Get_TCR_EL1));
+         New_Line;
+         Put ("EL1 TTBR0: ");
+         Put (Hex8 (Get_TTBR0_EL1));
+         Put (" TTBR1: ");
+         Put (Hex8 (Get_TTBR1_EL1));
+         New_Line;
+      end if;
    end Proc_Cr;
 
+   procedure Proc_At
+   is
+      type At_Kind is (S1e1r, S1e1w, S1e0r, S1e0w);
+      Kind : At_Kind;
+      Addr : Unsigned_32;
+      Addr64 : Unsigned_64;
+      Ok : Boolean;
+      Res : Unsigned_64;
+   begin
+      Next_Word;
+      Parse_Unsigned32 (Addr, Ok);
+      if not Ok then
+         return;
+      end if;
+
+      Next_Word;
+      if Pos > Line_Len then
+         Kind := S1e1r;
+      else
+         if Line (Pos .. End_Pos) = "s1e1r" then
+            Kind := S1e1r;
+         elsif Line (Pos .. End_Pos) = "s1e1w" then
+            Kind := S1e1w;
+         elsif Line (Pos .. End_Pos) = "s1e0r" then
+            Kind := S1e0r;
+         elsif Line (Pos .. End_Pos) = "s1e0w" then
+            Kind := S1e0w;
+         else
+            Put_Line ("at command: unknown kind");
+            return;
+         end if;
+      end if;
+
+      Addr64 := Unsigned_64 (Addr);
+      Put ("addr: ");
+      Put (Hex8 (Addr64));
+
+      case Kind is
+         when S1e1r =>
+            Asm ("at s1e1r,%0",
+                 Inputs => Unsigned_64'Asm_Input ("r", Addr64),
+                 Volatile => True);
+         when S1e1w =>
+            Asm ("at s1e1w,%0",
+                 Inputs => Unsigned_64'Asm_Input ("r", Addr64),
+                 Volatile => True);
+         when S1e0r =>
+            Asm ("at s1e0r,%0",
+                 Inputs => Unsigned_64'Asm_Input ("r", Addr64),
+                 Volatile => True);
+         when S1e0w =>
+            Asm ("at s1e0w,%0",
+                 Inputs => Unsigned_64'Asm_Input ("r", Addr64),
+                 Volatile => True);
+      end case;
+
+      Asm ("isb", Volatile => True);
+      Asm ("mrs %0,par_el1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      Put ("  PAR_EL1: ");
+      Put (Hex8 (Res));
+      New_Line;
+   end Proc_At;
+
+   procedure Proc_Features is
+   begin
+      Put ("ID_AA64MMFR0: ");
+      Put (Hex8 (Get_ID_AA64MMFR0_EL1));
+      New_Line;
+   end Proc_Features;
+
    Commands : aliased Command_List :=
-     (6,
+     (8,
       (1 => (new String'("cr - Display some config registers"),
              Proc_Cr'Access),
        2 => (new String'("el1 - Switch to el1"),
@@ -253,7 +424,11 @@ package body Aarch64 is
        5 => (new String'("hvc - hyper call"),
              Proc_Hvc'Access),
        6 => (new String'("smc - monitor call"),
-             Proc_Smc'Access)),
+             Proc_Smc'Access),
+       7 => (new String'("at - address translate"),
+             Proc_At'Access),
+       8 => (new String'("features - disp processor features"),
+             Proc_Features'Access)),
       null);
 begin
    Register_Commands (Commands'Access);
