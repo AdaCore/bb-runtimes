@@ -143,7 +143,7 @@ __start_el1:
 	mov	x0, #(1 << 20)
 	msr	cpacr_el1, x0
 
-	/* Enable MMU.  */
+	/* Enable MMU and cache.  */
 	mov	x0, xzr
 	tlbi	aside1is, x0
 	adrp	x0,__mmu_l2_000000000
@@ -160,7 +160,8 @@ __start_el1:
 	msr	mair_el1,x0
 	isb
 	mrs	x0, sctlr_el1
-	orr	x0, x0, #1		//  Bit M
+	movz	x1, #((1 << 12) + (1 << 2) + (1 << 0))  //  Bit I, C, M
+	orr	x0, x0, x1
 	bic	x0, x0, #(1 << 19)	//  Clear WXN
 	msr	sctlr_el1, x0
 	isb
