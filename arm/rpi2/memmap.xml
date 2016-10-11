@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <memmap>
-  <region access="rwxrwx" cache="cb"
+  <region access="rwx---" cache="wb"
 	  virt="0x00000000" size="0x3f000000" name="ram"/>
   <region access="rw-rw-" cache="nc"
 	  virt="0x3f000000" size="0x02000000" name="io"/>

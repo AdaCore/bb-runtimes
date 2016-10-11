@@ -129,7 +129,6 @@ __start_el2:
 	ldr	w0,[x2, #:lo12:system_stack_base]
 	msr	sp_el1,x0
 
-#if 0
 	# Switch to el1h, set AIF
 	mov	x0, #(0x1c0 + 5)
 	msr	spsr_el2, x0
@@ -138,8 +137,7 @@ __start_el2:
 
 	isb
 	eret
-#endif
-	
+
 __start_el1:
 	/* Enable SIMD.  */
 	mov	x0, #(1 << 20)
@@ -162,12 +160,10 @@ __start_el1:
 	msr	mair_el1,x0
 	isb
 	mrs	x0, sctlr_el1
-#if 1
 	orr	x0, x0, #1		//  Bit M
 	bic	x0, x0, #(1 << 19)	//  Clear WXN
 	msr	sctlr_el1, x0
 	isb
-#endif
 
 	/* Clear .bss, assuming in the first 4GB */
 	ldr	w0,bss_segment + 0
