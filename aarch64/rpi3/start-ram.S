@@ -129,6 +129,7 @@ __start_el2:
 	ldr	w0,[x2, #:lo12:system_stack_base]
 	msr	sp_el1,x0
 
+#if 0
 	# Switch to el1h, set AIF
 	mov	x0, #(0x1c0 + 5)
 	msr	spsr_el2, x0
@@ -137,11 +138,36 @@ __start_el2:
 
 	isb
 	eret
-
+#endif
+	
 __start_el1:
 	/* Enable SIMD.  */
 	mov	x0, #(1 << 20)
 	msr	cpacr_el1, x0
+
+	/* Enable MMU.  */
+	mov	x0, xzr
+	tlbi	aside1is, x0
+	adrp	x0,__mmu_l2_000000000
+	msr	ttbr0_el1, x0
+	// TCR_EL1: TBI0=0, AS=0, IPS=000 (4GB),
+	//          TG1=10, SH1=10, ORGN1=11, IRGN1=11, EPD1=1, A1=0, T1SZ=32
+	//          TG0=00, SH0=10, ORGN0=11, IRGN0=11, EPD0=0,       T0SZ=32
+	movz	x0, #((32 << 0) | (1 << 7) | (3 << 8) | (3 << 10) | (2 << 12) \
+	              | (2 << 14)), LSL #16
+	movk	x0, #((32 << 0) | (0 << 7) | (3 << 8) | (3 << 10) | (2 << 12) \
+	              | (0 << 14))
+	msr	tcr_el1, x0
+	movz	x0,#0x00ee
+	msr	mair_el1,x0
+	isb
+	mrs	x0, sctlr_el1
+#if 1
+	orr	x0, x0, #1		//  Bit M
+	bic	x0, x0, #(1 << 19)	//  Clear WXN
+	msr	sctlr_el1, x0
+	isb
+#endif
 
 	/* Clear .bss, assuming in the first 4GB */
 	ldr	w0,bss_segment + 0
@@ -221,3 +247,5 @@ __vectors:
 	ehandler __trap_irq_a32, 14
 	ehandler __trap_fiq_a32, 15
 	ehandler __trap_ser_a32, 16
+
+#include "memmap.s"
