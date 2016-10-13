@@ -42,6 +42,7 @@
 _DEFAULT_STACK_SIZE = (20 * 1024);
 _DEFAULT_STACK_EL3_SIZE = (4 * 1024);
 _DEFAULT_STACK_EL2_SIZE = (4 * 1024);
+_IRQ_STACK_SIZE = (8 * 1024);
 
 ENTRY(__start_ram);
 
@@ -155,6 +156,15 @@ SECTIONS
    __cpu0_stack_el2_end = .;
 
    __stack_end = .;
+
+   /* Interrupt stacks.  */
+   __interrupt_stack_start = .;
+
+   __cpu0_interrupt_stack_start = .;
+   . = ALIGN(. + _IRQ_STACK_SIZE, 0x10);
+   __cpu0_interrupt_stack_end = .;
+
+   __interrupt_stack_end = .;
 
    _end = .;
    __heap_start = .;
