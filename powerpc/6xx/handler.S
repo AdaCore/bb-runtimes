@@ -183,7 +183,7 @@ handler_cont:
 	/* Interrupts must be disabled when user handler returns.  */
 
 	/* Check if context switch is needed.  */
-	bl       context_switch_needed
+	bl       __gnat_context_switch_needed
 
 	/* context switch needed?  */
 	cmpwi   %cr7,%r3,0

@@ -249,7 +249,7 @@ interrupt_handler_common:
         #  procedure as the interrupt stack pointer must be correct.
 
 	# Check if context switch is needed
-	bl       context_switch_needed
+	bl       __gnat_context_switch_needed
 
 	# context switch needed?
 	cmpwi   %cr7,%r3,0
