@@ -314,6 +314,11 @@ build_zfp_rpi3()
     do_zfp aarch64-elf zfp/rpi3
 }
 
+build_sfp_rpi3()
+{
+    do_ravenscar aarch64-elf ravenscar-sfp/rpi3
+}
+
 build_zfp_stm32f4()
 {
     do_zfp arm-eabi zfp/stm32f4

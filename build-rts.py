@@ -1526,6 +1526,8 @@ class RPI3(DFBBTarget):
         self.bsp += [
             'aarch64/rpi3/ram.ld',
             'aarch64/rpi3/start-ram.S',
+            'aarch64/rpi3/memmap.s',
+            'aarch64/context_switch.s',
             'aarch64/rpi3/trap_dump.ads',
             'aarch64/rpi3/trap_dump.adb',
             'i-raspberry_pi.ads']
@@ -1535,6 +1537,20 @@ class RPI3(DFBBTarget):
              's-macres.adb': 's-macres-rpi2.adb'})
         self.config_files.update(
             {'runtime.xml': readfile('aarch64/rpi3/runtime.xml')})
+
+    def amend_ravenscar_sfp(self):
+        super(RPI3, self).amend_ravenscar_sfp()
+
+        self.gnarl_common += ['s-bbcpsp.ads']
+        self.pairs.update({
+            'system.ads': 'system-xi-arm-sfp.ads',
+            's-bbcppr.ads': 's-bbcppr-ppc.ads',
+            's-bbcppr.adb': 's-bbcppr-aarch64.adb',
+            's-bbcpsp.ads': 's-bbcpsp-aarch64.ads',
+            'a-intnam.ads': 'a-intnam-dummy.ads',
+            's-bbbosu.adb': 's-bbbosu-rpi3.adb',
+            's-bbtime.adb': 's-bbtime-ppc.adb',
+            's-bbpara.ads': 's-bbpara-rpi2.ads'})
 
 
 class SparcBBTarget(DFBBTarget):
