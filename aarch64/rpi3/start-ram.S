@@ -77,11 +77,9 @@ __start_ram1:
 	orr	x0, x0, #0x40
 	msr	S3_1_C15_C2_1, x0
 
-	# Don't care about stack pointer
-
-	# SCR_EL3: TWE=0, TWI=0, ST=0, RW(10)=1, SIF=0, HCE(8)=0, SMD=0,
+	# SCR_EL3: TWE=0, TWI=0, ST=0, RW(10)=1, SIF=0, HCE(8)=1, SMD=0,
 	#          EA=0, FIQ=0, IRQ=0, NS=1
-	mov	x0,#0x401
+	mov	x0,#0x501
 	msr	scr_el3, x0
 
 	# SCTLR_EL3: EE=0, WXN=0, I=0, SA(3)=1, C=0, A(1)=1, M=0
@@ -198,10 +196,22 @@ system_stack_el3_base:
 system_stack_el2_base:
 	.word	__cpu0_stack_el2_end
 
+interrupt_stack_start_lit:
+	.dword	__interrupt_stack_start
+interrupt_stack_end_lit:
+	.dword	__interrupt_stack_end
+
+	.data
+interrupt_stack_el1_base:
+	.dword	__cpu0_interrupt_stack_end
+
+
+	.text
+
 	.macro  ehandler label, id
 	.p2align 7
 \label:
-	# Save all registers (32 * 8 = 256)
+	// Save all registers (32 * 8 = 256)
 	stp	x0, x1, [sp, #-256]!
 	stp	x2, x3, [sp, #16]
 	stp	x4, x5, [sp, #32]
@@ -218,14 +228,114 @@ system_stack_el2_base:
 	stp	x26, x27, [sp, #208]
 	stp	x28, x29, [sp, #224]
 	str	x30, [sp, #240]
+	//  Call handler with context and number
 	mov	x0, sp
 	mov	x1, #\id
 	bl	__trap_dump
-	add	sp,sp,256
+	//  Restore
+	ldp	x2, x3, [sp, #16]
+	ldp	x4, x5, [sp, #32]
+	ldp	x6, x7, [sp, #48]
+	ldp	x8, x9, [sp, #64]
+	ldp	x10, x11, [sp, #80]
+	ldp	x12, x13, [sp, #96]
+	ldp	x14, x15, [sp, #112]
+	ldp	x16, x17, [sp, #128]
+	ldp	x18, x19, [sp, #144]
+	ldr	x30, [sp, #240]
+	//  No need to restore callee saved registers
+	ldp	x0, x1, [sp], #256
 	eret
 	.endm
 
-	# Vectot table
+	//  Interrupt handle frame size
+	//  x0-x18 		(19*8 = 152)
+	//  x29-x30 		(16   -> 168)
+	//  spsr, elr, cpacr	(24   -> 192)
+	//  sp, PAD             (16   -> 208)
+#define IFRAME_SIZE 208
+
+	//  interrupt handler
+	.macro  ihandler_start label
+	.p2align 7
+\label:
+	//  1) save caller-saved regs
+	stp	x0, x1, [sp, #-IFRAME_SIZE]!
+	stp	x2, x3, [sp, #16]
+	stp	x4, x5, [sp, #32]
+	stp	x6, x7, [sp, #48]
+	stp	x8, x9, [sp, #64]
+	stp	x10, x11, [sp, #80]
+	stp	x12, x13, [sp, #96]
+	stp	x14, x15, [sp, #112]
+	stp	x16, x17, [sp, #128]
+	stp	x18, x29, [sp, #144]
+	mrs	x4, spsr_el1
+	mrs	x5, elr_el1
+	mrs	x6, cpacr_el1
+	stp	x30, x4, [sp, #160]
+	stp	x5, x6, [sp, #176]
+
+	// 2) load stack pointer
+	adrp	x0,interrupt_stack_el1_base
+	add	x0, x0, #:lo12:interrupt_stack_el1_base
+	mrs	x1, mpidr_el1
+	and	x1, x1, #3
+	ldr	x2, [x0, x1, lsl #3]	//  Load new stack pointer
+
+	// 3) Create a frame, switch to irq stack
+	mov	x1, sp
+	stp	x29, x30, [x2, #-32]!
+	str	x1, [x2, #16]
+	mov	sp, x2
+
+	b	\label\()_cont
+	.endm
+
+	.macro  ihandler_cont label, handler
+\label\()_cont:
+	//  4) disable fpu
+	mrs	x4, cpacr_el1
+	bic	x4, x4, #(1 << 20)
+	msr	cpacr_el1, x4
+
+	//  5) call handler
+	bl	\handler
+
+	//  6) Switch back to EL1 stack
+	ldr	x1, [sp, #16]
+	mov	sp, x1
+
+	//  7) switch context if needed
+	bl	__gnat_context_switch_needed
+	cbz	x0, 1f
+
+	bl	__gnat_pre_context_switch
+	bl	__gnat_context_switch
+
+	//  8) restore registers
+1:
+	ldp	x5, x6, [sp, #176]
+	ldp	x30, x4, [sp, #160]
+	msr	spsr_el1, x4
+	msr	elr_el1, x5
+	msr	cpacr_el1, x6
+	ldp	x18, x29, [sp, #144]
+	ldp	x16, x17, [sp, #128]
+	ldp	x14, x15, [sp, #112]
+	ldp	x12, x13, [sp, #96]
+	ldp	x10, x11, [sp, #80]
+	ldp	x8, x9, [sp, #64]
+	ldp	x6, x7, [sp, #48]
+	ldp	x4, x5, [sp, #32]
+	ldp	x2, x3, [sp, #16]
+	ldp	x0, x1, [sp], #IFRAME_SIZE
+
+	//  9) return
+	eret
+	.endm
+
+	# Vector table
 	.p2align 11
 __vectors:
 	ehandler __trap_syn_el0, 1
@@ -233,7 +343,9 @@ __vectors:
 	ehandler __trap_fiq_el0, 3
 	ehandler __trap_ser_el0, 4
 	ehandler __trap_syn_elx, 5
-	ehandler __trap_irq_elx, 6
+
+	ihandler_start __trap_irq_elx
+
 	ehandler __trap_fiq_elx, 7
 	ehandler __trap_ser_elx, 8
 	ehandler __trap_syn_a64, 9
@@ -245,4 +357,5 @@ __vectors:
 	ehandler __trap_fiq_a32, 15
 	ehandler __trap_ser_a32, 16
 
+	ihandler_cont __trap_irq_elx,__gnat_irq_handler
 #include "memmap.s"

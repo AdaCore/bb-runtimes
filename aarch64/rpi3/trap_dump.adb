@@ -27,11 +27,14 @@
 
 with System.Text_IO; use System.Text_IO;
 with System.Machine_Code; use System.Machine_Code;
+with System.Machine_Reset;
+with Ada.Unchecked_Conversion;
 
 package body Trap_Dump is
    procedure Put (Item : Character);
    procedure Put (Item : String);
    procedure New_Line;
+   procedure Get (C : out Character);
 
    procedure Put_Hex8 (V : Unsigned_64);
    procedure Put_Hex4 (V : Unsigned_32);
@@ -102,22 +105,38 @@ package body Trap_Dump is
       Put (Res);
    end Put_02;
 
+   procedure Get (C : out Character) is
+   begin
+      while not Is_Rx_Ready loop
+         null;
+      end loop;
+
+      C := System.Text_IO.Get;
+   end Get;
+
    --  Access to registers
    function Get_Current_EL return Unsigned_32;
    function Get_ELR_EL3 return Unsigned_64;
+   procedure Set_ELR_EL3 (V : Unsigned_64);
    function Get_SPSR_EL3 return Unsigned_64;
    function Get_ESR_EL3 return Unsigned_32;
    function Get_FAR_EL3 return Unsigned_64;
 
    function Get_ELR_EL2 return Unsigned_64;
+   procedure Set_ELR_EL2 (V : Unsigned_64);
    function Get_SPSR_EL2 return Unsigned_64;
    function Get_ESR_EL2 return Unsigned_32;
    function Get_FAR_EL2 return Unsigned_64;
+   function Get_SP_EL2 return Unsigned_64;
 
    function Get_ELR_EL1 return Unsigned_64;
+   procedure Set_ELR_EL1 (V : Unsigned_64);
    function Get_SPSR_EL1 return Unsigned_64;
    function Get_ESR_EL1 return Unsigned_32;
    function Get_FAR_EL1 return Unsigned_64;
+   function Get_SP_EL1 return Unsigned_64;
+
+   function Get_SP_EL0 return Unsigned_64;
 
    procedure Print_ESR (ESR : Unsigned_32);
 
@@ -140,6 +159,13 @@ package body Trap_Dump is
            Volatile => True);
       return Res;
    end Get_ELR_EL3;
+
+   procedure Set_ELR_EL3 (V : Unsigned_64) is
+   begin
+      Asm ("msr elr_el3, %0",
+           Inputs => Unsigned_64'Asm_Input ("r", V),
+           Volatile => True);
+   end Set_ELR_EL3;
 
    function Get_SPSR_EL3 return Unsigned_64
    is
@@ -181,6 +207,13 @@ package body Trap_Dump is
       return Res;
    end Get_ELR_EL2;
 
+   procedure Set_ELR_EL2 (V : Unsigned_64) is
+   begin
+      Asm ("msr elr_el2, %0",
+           Inputs => Unsigned_64'Asm_Input ("r", V),
+           Volatile => True);
+   end Set_ELR_EL2;
+
    function Get_SPSR_EL2 return Unsigned_64
    is
       Res : Unsigned_64;
@@ -211,6 +244,16 @@ package body Trap_Dump is
       return Res;
    end Get_FAR_EL2;
 
+   function Get_SP_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, sp_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SP_EL2;
+
    function Get_ELR_EL1 return Unsigned_64
    is
       Res : Unsigned_64;
@@ -220,6 +263,13 @@ package body Trap_Dump is
            Volatile => True);
       return Res;
    end Get_ELR_EL1;
+
+   procedure Set_ELR_EL1 (V : Unsigned_64) is
+   begin
+      Asm ("msr elr_el1, %0",
+           Inputs => Unsigned_64'Asm_Input ("r", V),
+           Volatile => True);
+   end Set_ELR_EL1;
 
    function Get_SPSR_EL1 return Unsigned_64
    is
@@ -251,6 +301,26 @@ package body Trap_Dump is
       return Res;
    end Get_FAR_EL1;
 
+   function Get_SP_EL1 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, sp_el1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SP_EL1;
+
+   function Get_SP_EL0 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, sp_el0",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SP_EL0;
+
    procedure Print_ESR (ESR : Unsigned_32) is
    begin
       Put ("ESR:");
@@ -262,7 +332,10 @@ package body Trap_Dump is
 
    procedure Dump (Regs : Registers_List_Acc; Id : Natural)
    is
+      function To_Unsigned_64 is new Ada.Unchecked_Conversion
+        (Registers_List_Acc, Unsigned_64);
       EL : Unsigned_32;
+      C : Character;
    begin
       --  Initialize console in case of very early crash
       if not Initialized then
@@ -292,6 +365,8 @@ package body Trap_Dump is
       EL := Get_Current_EL;
       Put ("  Current_EL: ");
       Put_Hex1 (Unsigned_8 (EL / 4));
+      Put ("    SP: ");
+      Put_Hex8 (To_Unsigned_64 (Regs));
       New_Line;
 
       if EL = 3 * 4 then
@@ -304,6 +379,8 @@ package body Trap_Dump is
          Print_ESR (Get_ESR_EL3);
          Put (", FAR:");
          Put_Hex8 (Get_FAR_EL3);
+         Put (", EL2 SP:");
+         Put_Hex8 (Get_SP_EL2);
          New_Line;
       end if;
 
@@ -317,6 +394,8 @@ package body Trap_Dump is
          Print_ESR (Get_ESR_EL2);
          Put (", FAR:");
          Put_Hex8 (Get_FAR_EL2);
+         Put (", EL1 SP:");
+         Put_Hex8 (Get_SP_EL1);
          New_Line;
       end if;
 
@@ -330,11 +409,40 @@ package body Trap_Dump is
          Print_ESR (Get_ESR_EL1);
          Put (", FAR:");
          Put_Hex8 (Get_FAR_EL1);
+         Put (", EL0 SP:");
+         Put_Hex8 (Get_SP_EL0);
          New_Line;
       end if;
 
+      --  Interractive (!!) session.
+      Put ("TMON: (C)ont/(R)eset/(N)ext ?");
+
       loop
-         null;
+         Get (C);
+         Put (C);
+
+         case C is
+            when 'c' | 'C' =>
+               New_Line;
+               return;
+            when 'n' | 'N' =>
+               case EL is
+                  when 1 * 4 =>
+                     Set_ELR_EL1 (Get_ELR_EL1 + 4);
+                  when 2 * 4 =>
+                     Set_ELR_EL2 (Get_ELR_EL2 + 4);
+                  when 3 * 4 =>
+                     Set_ELR_EL3 (Get_ELR_EL3 + 4);
+                  when others =>
+                     null;
+               end case;
+               New_Line;
+               return;
+            when 'r' | 'R' =>
+               System.Machine_Reset.Stop;
+            when others =>
+               Put ('?');
+         end case;
       end loop;
    end Dump;
 end Trap_Dump;
