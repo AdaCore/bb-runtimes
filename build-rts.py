@@ -1527,7 +1527,7 @@ class RPI3(DFBBTarget):
             'aarch64/rpi3/ram.ld',
             'aarch64/rpi3/start-ram.S',
             'aarch64/rpi3/memmap.s',
-            'aarch64/context_switch.s',
+            'aarch64/context_switch.S',
             'aarch64/rpi3/trap_dump.ads',
             'aarch64/rpi3/trap_dump.adb',
             'i-raspberry_pi.ads']
