@@ -358,4 +358,9 @@ __vectors:
 	ehandler __trap_ser_a32, 16
 
 	ihandler_cont __trap_irq_elx,__gnat_irq_handler
+
+	.weak	__gnat_irq_handler
+	.weak	__gnat_context_switch_needed
+	.weak	__gnat_pre_context_switch
+
 #include "memmap.s"
