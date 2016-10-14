@@ -27,7 +27,7 @@
  *                                                                          *
  ****************************************************************************/
 
-/* This file is specific to the Cortex a7 for Raspberry PI 2 board.  */
+/* This file is specific to the Cortex-A53 for Raspberry PI 3 board.  */
 
 /* This file contains the trap table and start up code for the multitasking
    executive implemented for bareboard targets. */
@@ -55,14 +55,20 @@ __start_ram1:
 	# Started in EL3
 	# Configure EL3
 
+	# Read processor number
+	mrs	x7, mpidr_el1
+	and	x7, x7, #3
+
 	# Load stack pointer (on 32bit)
 	adrp	x2,system_stack_el3_base
-	ldr	w0,[x2, #:lo12:system_stack_el3_base]
+	add	x2, x2, #:lo12:system_stack_el3_base
+	ldr	w0,[x2, x7, lsl #2]
 	mov	sp,x0
 
 	# Load stack pointer (on 32bit)
 	adrp	x2,system_stack_el2_base
-	ldr	w0,[x2, #:lo12:system_stack_el2_base]
+	add	x2, x2, #:lo12:system_stack_el2_base
+	ldr	w0,[x2, x7, lsl #2]
 	msr	sp_el2,x0
 
 	# Load vbars
@@ -95,16 +101,6 @@ __start_ram1:
 	# Enable FPU (don't trap accesses)
 	msr	cptr_el3, xzr
 
-	# Move slave processors to an infinite loop
-	mrs	x0,mpidr_el1
-	ubfx	x0,x0,#0,#28
-	cmp	x0,#0
-	beq	__start_master
-0:	wfe
-	b	0b
-
-__start_master:
-
 	# HCR_EL2: RW(1)
 	mov	x0,#(1<<31)
 	msr	hcr_el2,x0
@@ -124,7 +120,8 @@ __start_el2:
 
 	# Load stack pointer (on 32bit)
 	adrp	x2,system_stack_base
-	ldr	w0,[x2, #:lo12:system_stack_base]
+	add	x2, x2, #:lo12:system_stack_base
+	ldr	w0,[x2, x7, lsl #2]
 	msr	sp_el1,x0
 
 	# Switch to el1h, set AIF
@@ -164,7 +161,22 @@ __start_el1:
 	msr	sctlr_el1, x0
 	isb
 
-	/* Clear .bss, assuming in the first 4GB */
+	# Move slave processors to an infinite loop
+	cbz	x7, __start_master
+	movz	x1, #0x4000, LSL #16	//  Core 0 Mailbox 3
+	movk	x1, #0x00cc
+	adds	x1, x1, x7, LSL #4	//  Core N Mailbox 3
+0:	ldr	w0, [x1]		//  Read mailbox
+	cbnz	w0, 1f			//  Break if not 0
+	wfe				//  Busy loop
+	b	0b
+1:	str	w0, [x1]		//  Clear mailbox
+	br	x0			//  Jump
+
+
+__start_master:
+
+	/* CPU0: Clear .bss, assuming in the first 4GB */
 	ldr	w0,bss_segment + 0
 	ldr	w1,bss_segment + 4
 0:	cbz	x1,1f
@@ -180,6 +192,21 @@ __start_el1:
 0:	b	0b
 	.size	__start_ram1, . - __start_ram1
 
+	.globl	__start_slave_cpu
+	.type __start_slave_cpu, %function
+__start_slave_cpu:
+	mov	x29, xzr
+	mov	x19, x7
+	// Initialize devices
+	bl	__gnat_initialize_cpu_devices
+
+	/* Call the main routine (with CPU_Id as argument).  */
+	add	x0,x19,#1
+	bl	__gnat_initialize_slave
+1:	b	1b
+	.size __start_slave_cpu, . - __start_slave_cpu
+
+
 	.p2align	3
 
 	# BSS base and size
@@ -189,12 +216,21 @@ bss_segment:
 
 system_stack_base:
 	.word	__cpu0_stack_end
+	.word	__cpu1_stack_end
+	.word	__cpu2_stack_end
+	.word	__cpu3_stack_end
 
 system_stack_el3_base:
 	.word	__cpu0_stack_el3_end
+	.word	__cpu1_stack_el3_end
+	.word	__cpu2_stack_el3_end
+	.word	__cpu3_stack_el3_end
 
 system_stack_el2_base:
 	.word	__cpu0_stack_el2_end
+	.word	__cpu1_stack_el2_end
+	.word	__cpu2_stack_el2_end
+	.word	__cpu3_stack_el2_end
 
 interrupt_stack_start_lit:
 	.dword	__interrupt_stack_start
@@ -204,7 +240,9 @@ interrupt_stack_end_lit:
 	.data
 interrupt_stack_el1_base:
 	.dword	__cpu0_interrupt_stack_end
-
+	.dword	__cpu1_interrupt_stack_end
+	.dword	__cpu2_interrupt_stack_end
+	.dword	__cpu3_interrupt_stack_end
 
 	.text
 
