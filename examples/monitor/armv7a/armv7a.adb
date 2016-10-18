@@ -79,9 +79,23 @@ package body Armv7a is
    end Get_CPUECTLR;
 
    procedure Proc_Cr is
+      CPSR : constant Unsigned_32 := Get_CPSR;
    begin
       Put ("VBAR: " & Image8 (Get_VBAR));
-      Put (", CPSR: " & Image8 (Get_CPSR));
+      Put (", CPSR: " & Image8 (CPSR));
+      Put (' ');
+      case CPSR and 16#1f# is
+         when 2#10000# => Put ("usr");
+         when 2#10001# => Put ("fiq");
+         when 2#10010# => Put ("irq");
+         when 2#10011# => Put ("svc");
+         when 2#10110# => Put ("mon");
+         when 2#10111# => Put ("abt");
+         when 2#11010# => Put ("hyp");
+         when 2#11011# => Put ("und");
+         when 2#11111# => Put ("sys");
+         when others => Put ("???");
+      end case;
       New_Line;
       Put ("CPUECTLR: ");
       Put_Line (Image8 (Get_CPUECTLR));
