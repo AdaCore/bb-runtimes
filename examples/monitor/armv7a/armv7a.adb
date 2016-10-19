@@ -29,6 +29,7 @@
 
 with Interfaces.ARM_V7AR;
 with System.Machine_Code; use System.Machine_Code;
+with Trap_Handler;
 with Interfaces; use Interfaces;
 with Ada.Text_IO; use Ada.Text_IO;
 with Commands; use Commands;
@@ -67,6 +68,16 @@ package body Armv7a is
 
    pragma Unreferenced (Get_SPSR);
 
+   function Get_SCR return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrc p15,#0,%0,c1,c1,#0",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SCR;
+
    function Get_CPUECTLR return Unsigned_32
    is
       Lo, Hi : Unsigned_32;
@@ -98,7 +109,13 @@ package body Armv7a is
       end case;
       New_Line;
       Put ("CPUECTLR: ");
-      Put_Line (Image8 (Get_CPUECTLR));
+      Put (Image8 (Get_CPUECTLR));
+
+      if (CPSR and 16#1f#) = 2#10110# then
+         Put (", SCR: ");
+         Put (Image8 (Get_SCR));
+      end if;
+      New_Line;
    end Proc_Cr;
 
    procedure Proc_Cpsid is
@@ -110,6 +127,16 @@ package body Armv7a is
    begin
       Asm ("cpsie if", Volatile => True);
    end Proc_Cpsie;
+
+   procedure Proc_Svc is
+   begin
+      Asm ("svc #0", Volatile => True);
+   end Proc_Svc;
+
+   procedure Proc_Smc is
+   begin
+      Asm ("mov r10, #0x27; mov r11, #0x15; smc #0", Volatile => True);
+   end Proc_Smc;
 
    procedure Disp_Cache_Size (L : Natural)
    is
@@ -190,7 +217,7 @@ package body Armv7a is
    end Proc_Cache;
 
    Commands : aliased Command_List :=
-     (4,
+     (6,
       (1 => (new String'("cache - disp cache"),
              Proc_Cache'Access),
        2 => (new String'("cr - Display some config registers"),
@@ -198,8 +225,14 @@ package body Armv7a is
        3 => (new String'("cpsid - Disable interrupts"),
              Proc_Cpsid'Access),
        4 => (new String'("cpsie - Enable interrupts"),
-             Proc_Cpsie'Access)),
+             Proc_Cpsie'Access),
+       5 => (new String'("svc - Supervisor call"),
+             Proc_Svc'Access),
+       6 => (new String'("smc - Monitor call"),
+             Proc_Smc'Access)),
       null);
 begin
    Register_Commands (Commands'Access);
+   Trap_Handler.Install_Handlers;
+   Put_Line ("Handlers installed");
 end Armv7a;
