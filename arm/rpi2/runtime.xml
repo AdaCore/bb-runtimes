@@ -45,7 +45,7 @@
       case Loader is
          when "RAM" =>
 	    for Required_Switches use Linker'Required_Switches &amp;
-	       ("-Wl,-T${RUNTIME_DIR(ada)}/bsp/ram.ld");
+	       ("-Wl,-T${RUNTIME_DIR(ada)}/bsp/ram.ld", "-Wl,-z,max-page-size=0x1000");
        end case;
    end Linker;
    </config>
