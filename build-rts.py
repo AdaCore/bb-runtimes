@@ -1306,7 +1306,6 @@ class Stm32(ArmBBTarget):
     def amend_ravenscar_sfp(self):
         super(Stm32, self).amend_ravenscar_sfp()
         self.gnarl_common.remove('s-bb.ads')
-        self.gnarl_common += ['s-bbsumu.adb']
         self.bsp += [
             'arm/stm32/%s/svd/handler.S' % self.mcu]
         self.pairs.update({
