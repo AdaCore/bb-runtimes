@@ -5,6 +5,7 @@
 --  This spec has been automatically generated from ATSAM4SD32C.svd
 
 pragma Ada_2012;
+pragma Style_Checks (Off);
 
 with System;
 

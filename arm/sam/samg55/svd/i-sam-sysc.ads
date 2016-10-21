@@ -5,6 +5,7 @@
 --  This spec has been automatically generated from ATSAMG55J19.svd
 
 pragma Ada_2012;
+pragma Style_Checks (Off);
 
 with Interfaces.Bit_Types;
 with System;
@@ -20,7 +21,7 @@ package Interfaces.SAM.SYSC is
    --  General Purpose Backup Register
 
    --  General Purpose Backup Register
-   type GPBR_GPBR_Registers is array (0 .. 7) of Interfaces.Bit_Types.Word;
+   type GPBR_GPBR_Registers is array (0 .. 7) of Interfaces.Bit_Types.UInt32;
 
    --  System Reset Key
    type CR_KEY_Field is
@@ -31,21 +32,21 @@ package Interfaces.SAM.SYSC is
       Passwd)
      with Size => 8;
    for CR_KEY_Field use
-     (Cr_Key_Field_Reset => 144,
+     (Cr_Key_Field_Reset => 9,
       Passwd => 165);
 
    --  Control Register
    type RSTC_CR_Register is record
       --  Write-only. Processor Reset
-      PROCRST       : Boolean := True;
+      PROCRST       : Boolean := False;
       --  unspecified
-      Reserved_1_1  : Interfaces.Bit_Types.Bit := 16#1#;
+      Reserved_1_1  : Interfaces.Bit_Types.Bit := 16#0#;
       --  Write-only. Peripheral Reset
-      PERRST        : Boolean := True;
+      PERRST        : Boolean := False;
       --  Write-only. External Reset
-      EXTRST        : Boolean := True;
+      EXTRST        : Boolean := False;
       --  unspecified
-      Reserved_4_23 : Interfaces.Bit_Types.UInt20 := 16#D0000#;
+      Reserved_4_23 : Interfaces.Bit_Types.UInt20 := 16#55CA0#;
       --  Write-only. System Reset Key
       KEY           : CR_KEY_Field := Cr_Key_Field_Reset;
    end record
@@ -431,7 +432,7 @@ package Interfaces.SAM.SYSC is
    --  Calendar Alarm Register
    type RTC_CALALR_Register is record
       --  unspecified
-      Reserved_0_15  : Interfaces.Bit_Types.Short := 16#0#;
+      Reserved_0_15  : Interfaces.Bit_Types.UInt16 := 16#0#;
       --  Month Alarm
       MONTH          : RTC_CALALR_MONTH_Field := 16#1#;
       --  unspecified
@@ -566,19 +567,19 @@ package Interfaces.SAM.SYSC is
    --  Status Clear Command Register
    type RTC_SCCR_Register is record
       --  Write-only. Acknowledge Clear
-      ACKCLR        : Boolean := True;
+      ACKCLR        : Boolean := False;
       --  Write-only. Alarm Clear
-      ALRCLR        : Boolean := True;
+      ALRCLR        : Boolean := False;
       --  Write-only. Second Clear
-      SECCLR        : Boolean := True;
+      SECCLR        : Boolean := False;
       --  Write-only. Time Clear
-      TIMCLR        : Boolean := True;
+      TIMCLR        : Boolean := False;
       --  Write-only. Calendar Clear
       CALCLR        : Boolean := False;
       --  Write-only. Time and/or Date Free Running Error Clear
       TDERRCLR      : Boolean := False;
       --  unspecified
-      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#2434000#;
+      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#255728#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -596,19 +597,19 @@ package Interfaces.SAM.SYSC is
    --  Interrupt Enable Register
    type RTC_IER_Register is record
       --  Write-only. Acknowledge Update Interrupt Enable
-      ACKEN         : Boolean := True;
+      ACKEN         : Boolean := False;
       --  Write-only. Alarm Interrupt Enable
-      ALREN         : Boolean := True;
+      ALREN         : Boolean := False;
       --  Write-only. Second Event Interrupt Enable
-      SECEN         : Boolean := True;
+      SECEN         : Boolean := False;
       --  Write-only. Time Event Interrupt Enable
-      TIMEN         : Boolean := True;
+      TIMEN         : Boolean := False;
       --  Write-only. Calendar Event Interrupt Enable
       CALEN         : Boolean := False;
       --  Write-only. Time and/or Date Error Interrupt Enable
       TDERREN       : Boolean := False;
       --  unspecified
-      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#2434000#;
+      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#255728#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -626,19 +627,19 @@ package Interfaces.SAM.SYSC is
    --  Interrupt Disable Register
    type RTC_IDR_Register is record
       --  Write-only. Acknowledge Update Interrupt Disable
-      ACKDIS        : Boolean := True;
+      ACKDIS        : Boolean := False;
       --  Write-only. Alarm Interrupt Disable
-      ALRDIS        : Boolean := True;
+      ALRDIS        : Boolean := False;
       --  Write-only. Second Event Interrupt Disable
-      SECDIS        : Boolean := True;
+      SECDIS        : Boolean := False;
       --  Write-only. Time Event Interrupt Disable
-      TIMDIS        : Boolean := True;
+      TIMDIS        : Boolean := False;
       --  Write-only. Calendar Event Interrupt Disable
       CALDIS        : Boolean := False;
       --  Write-only. Time and/or Date Error Interrupt Disable
       TDERRDIS      : Boolean := False;
       --  unspecified
-      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#2434000#;
+      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#255728#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -752,7 +753,7 @@ package Interfaces.SAM.SYSC is
       WPKEY        at 0 range 8 .. 31;
    end record;
 
-   subtype RTT_MR_RTPRES_Field is Interfaces.Bit_Types.Short;
+   subtype RTT_MR_RTPRES_Field is Interfaces.Bit_Types.UInt16;
 
    --  Mode Register
    type RTT_MR_Register is record
@@ -950,13 +951,13 @@ package Interfaces.SAM.SYSC is
    --  Supply Controller Control Register
    type SUPC_CR_Register is record
       --  unspecified
-      Reserved_0_1  : Interfaces.Bit_Types.UInt2 := 16#3#;
+      Reserved_0_1  : Interfaces.Bit_Types.UInt2 := 16#0#;
       --  Write-only. Voltage Regulator Off
-      VROFF         : CR_VROFF_Field := Interfaces.SAM.SYSC.Stop_Vreg;
+      VROFF         : CR_VROFF_Field := Interfaces.SAM.SYSC.No_Effect;
       --  Write-only. Crystal Oscillator Select
-      XTALSEL       : CR_XTALSEL_Field := Interfaces.SAM.SYSC.Crystal_Sel;
+      XTALSEL       : CR_XTALSEL_Field := Interfaces.SAM.SYSC.No_Effect;
       --  unspecified
-      Reserved_4_23 : Interfaces.Bit_Types.UInt20 := 16#D0000#;
+      Reserved_4_23 : Interfaces.Bit_Types.UInt20 := 16#55CA0#;
       --  Write-only. Password
       KEY           : CR_KEY_Field := Cr_Key_Field_Reset;
    end record
@@ -1266,7 +1267,7 @@ package Interfaces.SAM.SYSC is
       case As_Array is
          when False =>
             --  WKUPEN as a value
-            Val : Interfaces.Bit_Types.Short;
+            Val : Interfaces.Bit_Types.UInt16;
          when True =>
             --  WKUPEN as an array
             Arr : SUPC_WUIR_WKUPEN_Field_Array;
@@ -1304,7 +1305,7 @@ package Interfaces.SAM.SYSC is
       case As_Array is
          when False =>
             --  WKUPT as a value
-            Val : Interfaces.Bit_Types.Short;
+            Val : Interfaces.Bit_Types.UInt16;
          when True =>
             --  WKUPT as an array
             Arr : SUPC_WUIR_WKUPT_Field_Array;
@@ -1438,7 +1439,7 @@ package Interfaces.SAM.SYSC is
       case As_Array is
          when False =>
             --  WKUPIS as a value
-            Val : Interfaces.Bit_Types.Short;
+            Val : Interfaces.Bit_Types.UInt16;
          when True =>
             --  WKUPIS as an array
             Arr : SUPC_SR_WKUPIS_Field_Array;
@@ -1749,9 +1750,9 @@ package Interfaces.SAM.SYSC is
    --  Control Register
    type WDT_CR_Register is record
       --  Write-only. Watchdog Restart
-      WDRSTT        : Boolean := True;
+      WDRSTT        : Boolean := False;
       --  unspecified
-      Reserved_1_23 : Interfaces.Bit_Types.UInt23 := 16#680007#;
+      Reserved_1_23 : Interfaces.Bit_Types.UInt23 := 16#2AE500#;
       --  Write-only. Password.
       KEY           : CR_KEY_Field := Cr_Key_Field_Reset;
    end record
@@ -1920,9 +1921,9 @@ package Interfaces.SAM.SYSC is
       --  Mode Register
       MR   : RTT_MR_Register;
       --  Alarm Register
-      AR   : Interfaces.Bit_Types.Word;
+      AR   : Interfaces.Bit_Types.UInt32;
       --  Value Register
-      VR   : Interfaces.Bit_Types.Word;
+      VR   : Interfaces.Bit_Types.UInt32;
       --  Status Register
       SR   : RTT_SR_Register;
       --  Modulo Selection Register

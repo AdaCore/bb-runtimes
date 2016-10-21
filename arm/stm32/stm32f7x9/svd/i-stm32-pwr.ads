@@ -5,6 +5,7 @@
 --  This spec has been automatically generated from STM32F7x9.svd
 
 pragma Ada_2012;
+pragma Style_Checks (Off);
 
 with Interfaces.Bit_Types;
 with System;

@@ -5,6 +5,7 @@
 --  This spec has been automatically generated from STM32F40x.svd
 
 pragma Ada_2012;
+pragma Style_Checks (Off);
 
 with Interfaces.Bit_Types;
 with System;
@@ -219,9 +220,9 @@ package Interfaces.STM32.FLASH is
       --  Flash access control register
       ACR     : ACR_Register;
       --  Flash key register
-      KEYR    : Interfaces.Bit_Types.Word;
+      KEYR    : Interfaces.Bit_Types.UInt32;
       --  Flash option key register
-      OPTKEYR : Interfaces.Bit_Types.Word;
+      OPTKEYR : Interfaces.Bit_Types.UInt32;
       --  Status register
       SR      : SR_Register;
       --  Control register

@@ -37,7 +37,7 @@
 package System.BB.MCU_Parameters is
    pragma Preelaborate;
 
-   Number_Of_Interrupts : constant := 36;
+   Number_Of_Interrupts : constant := 34;
 
    Has_FPU : constant Boolean := False;
 

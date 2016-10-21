@@ -9,7 +9,7 @@
 
 	.text
 	.globl __vectors
-	.p2align 9
+	.p2align 8
 __vectors:
 	/* Cortex-M core interrupts */
 	.word   0                    /* stack top address */

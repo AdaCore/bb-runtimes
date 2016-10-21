@@ -4,17 +4,20 @@ all: svd
 
 svd:
 	rm -rf */svd */svdtmp
-	$(SVD2ADA_DIR)/svd2ada $(SVD2ADA_DIR)/CMSIS-SVD/STM32F40x.svd \
+	$(SVD2ADA_DIR)/svd2ada $(SVD2ADA_DIR)/CMSIS-SVD/ST/STM32F40x.svd \
 	  -o stm32f40x/svdtmp -p Interfaces.STM32 \
 	  --base-types-package Interfaces.Bit_Types
-	$(SVD2ADA_DIR)/svd2ada $(SVD2ADA_DIR)/CMSIS-SVD/STM32F429x.svd \
+	$(SVD2ADA_DIR)/svd2ada $(SVD2ADA_DIR)/CMSIS-SVD/ST/STM32F429x.svd \
 	  -o stm32f429x/svdtmp -p Interfaces.STM32 \
 	  --base-types-package Interfaces.Bit_Types
-	$(SVD2ADA_DIR)/svd2ada $(SVD2ADA_DIR)/CMSIS-SVD/STM32F46_79x.svd \
+	$(SVD2ADA_DIR)/svd2ada $(SVD2ADA_DIR)/CMSIS-SVD/ST/STM32F46_79x.svd \
 	  -o stm32f469x/svdtmp -p Interfaces.STM32 \
 	  --base-types-package Interfaces.Bit_Types
-	$(SVD2ADA_DIR)/svd2ada $(SVD2ADA_DIR)/CMSIS-SVD/STM32F7x.svd \
+	$(SVD2ADA_DIR)/svd2ada $(SVD2ADA_DIR)/CMSIS-SVD/ST/STM32F7x.svd \
 	  -o stm32f7x/svdtmp -p Interfaces.STM32 \
+	  --base-types-package Interfaces.Bit_Types
+	$(SVD2ADA_DIR)/svd2ada $(SVD2ADA_DIR)/CMSIS-SVD/ST/STM32F7x9.svd \
+	  -o stm32f7x9/svdtmp -p Interfaces.STM32 \
 	  --base-types-package Interfaces.Bit_Types
 	for d in */svdtmp; do \
 	   cd $$d; \

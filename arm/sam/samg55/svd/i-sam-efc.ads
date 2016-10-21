@@ -5,6 +5,7 @@
 --  This spec has been automatically generated from ATSAMG55J19.svd
 
 pragma Ada_2012;
+pragma Style_Checks (Off);
 
 with Interfaces.Bit_Types;
 with System;
@@ -128,28 +129,28 @@ package Interfaces.SAM.EFC is
       Stus => 20,
       Spus => 21);
 
-   subtype EFC_FCR_FARG_Field is Interfaces.Bit_Types.Short;
+   subtype EFC_FCR_FARG_Field is Interfaces.Bit_Types.UInt16;
 
    --  Flash Writing Protection Key
    type FCR_FKEY_Field is
      (
+      --  Reset value for the field
+      Fcr_Fkey_Field_Reset,
       --  The 0x5A value enables the command defined by the bits of the
       --  register. If the field is written with a different value, the write
       --  is not performed and no action is started.
-      Passwd,
-      --  Reset value for the field
-      Fcr_Fkey_Field_Reset)
+      Passwd)
      with Size => 8;
    for FCR_FKEY_Field use
-     (Passwd => 90,
-      Fcr_Fkey_Field_Reset => 144);
+     (Fcr_Fkey_Field_Reset => 9,
+      Passwd => 90);
 
    --  EEFC Flash Command Register
    type EFC_FCR_Register is record
       --  Write-only. Flash Command
-      FCMD : FCR_FCMD_Field := Interfaces.SAM.EFC.Spui;
+      FCMD : FCR_FCMD_Field := Interfaces.SAM.EFC.Getd;
       --  Write-only. Flash Command Argument
-      FARG : EFC_FCR_FARG_Field := 16#D000#;
+      FARG : EFC_FCR_FARG_Field := 16#55CA#;
       --  Write-only. Flash Writing Protection Key
       FKEY : FCR_FKEY_Field := Fcr_Fkey_Field_Reset;
    end record
@@ -230,7 +231,7 @@ package Interfaces.SAM.EFC is
       --  EEFC Flash Status Register
       FSR  : EFC_FSR_Register;
       --  EEFC Flash Result Register
-      FRR  : Interfaces.Bit_Types.Word;
+      FRR  : Interfaces.Bit_Types.UInt32;
       --  Write Protection Mode Register
       WPMR : EFC_WPMR_Register;
    end record

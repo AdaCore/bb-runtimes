@@ -31,7 +31,7 @@ package Ada.Interrupts.Names is
    RTC_WKUP_Interrupt                : constant Interrupt_ID := 3;
 
    --  RCC global interrupt
-   RCC_Interrupt                     : constant Interrupt_ID := 4;
+   RCC_Interrupt                     : constant Interrupt_ID := 5;
 
    --  EXTI Line0 interrupt
    EXTI0_Interrupt                   : constant Interrupt_ID := 6;
@@ -100,7 +100,7 @@ package Ada.Interrupts.Names is
    TIM1_CC_Interrupt                 : constant Interrupt_ID := 27;
 
    --  TIM2 global interrupt
-   TIM2_Interrupt                    : constant Interrupt_ID := 38;
+   TIM2_Interrupt                    : constant Interrupt_ID := 28;
 
    --  TIM3 global interrupt
    TIM3_Interrupt                    : constant Interrupt_ID := 29;

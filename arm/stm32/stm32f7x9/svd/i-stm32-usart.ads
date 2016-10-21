@@ -5,6 +5,7 @@
 --  This spec has been automatically generated from STM32F7x9.svd
 
 pragma Ada_2012;
+pragma Style_Checks (Off);
 
 with Interfaces.Bit_Types;
 with System;
@@ -386,7 +387,7 @@ package Interfaces.STM32.USART is
       --  DIV_Mantissa
       DIV_Mantissa   : BRR_DIV_Mantissa_Field := 16#0#;
       --  unspecified
-      Reserved_16_31 : Interfaces.Bit_Types.Short := 16#0#;
+      Reserved_16_31 : Interfaces.Bit_Types.UInt16 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -407,7 +408,7 @@ package Interfaces.STM32.USART is
       --  Guard time value
       GT             : GTPR_GT_Field := 16#0#;
       --  unspecified
-      Reserved_16_31 : Interfaces.Bit_Types.Short := 16#0#;
+      Reserved_16_31 : Interfaces.Bit_Types.UInt16 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;

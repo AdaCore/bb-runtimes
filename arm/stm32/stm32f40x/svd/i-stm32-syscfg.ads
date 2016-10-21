@@ -5,6 +5,7 @@
 --  This spec has been automatically generated from STM32F40x.svd
 
 pragma Ada_2012;
+pragma Style_Checks (Off);
 
 with Interfaces.Bit_Types;
 with System;
@@ -68,7 +69,7 @@ package Interfaces.STM32.SYSCFG is
       case As_Array is
          when False =>
             --  EXTI as a value
-            Val : Interfaces.Bit_Types.Short;
+            Val : Interfaces.Bit_Types.UInt16;
          when True =>
             --  EXTI as an array
             Arr : EXTICR1_EXTI_Field_Array;
@@ -87,7 +88,7 @@ package Interfaces.STM32.SYSCFG is
       EXTI           : EXTICR1_EXTI_Field :=
                         (As_Array => False, Val => 16#0#);
       --  unspecified
-      Reserved_16_31 : Interfaces.Bit_Types.Short := 16#0#;
+      Reserved_16_31 : Interfaces.Bit_Types.UInt16 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -111,7 +112,7 @@ package Interfaces.STM32.SYSCFG is
       case As_Array is
          when False =>
             --  EXTI as a value
-            Val : Interfaces.Bit_Types.Short;
+            Val : Interfaces.Bit_Types.UInt16;
          when True =>
             --  EXTI as an array
             Arr : EXTICR2_EXTI_Field_Array;
@@ -130,7 +131,7 @@ package Interfaces.STM32.SYSCFG is
       EXTI           : EXTICR2_EXTI_Field :=
                         (As_Array => False, Val => 16#0#);
       --  unspecified
-      Reserved_16_31 : Interfaces.Bit_Types.Short := 16#0#;
+      Reserved_16_31 : Interfaces.Bit_Types.UInt16 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -154,7 +155,7 @@ package Interfaces.STM32.SYSCFG is
       case As_Array is
          when False =>
             --  EXTI as a value
-            Val : Interfaces.Bit_Types.Short;
+            Val : Interfaces.Bit_Types.UInt16;
          when True =>
             --  EXTI as an array
             Arr : EXTICR3_EXTI_Field_Array;
@@ -173,7 +174,7 @@ package Interfaces.STM32.SYSCFG is
       EXTI           : EXTICR3_EXTI_Field :=
                         (As_Array => False, Val => 16#0#);
       --  unspecified
-      Reserved_16_31 : Interfaces.Bit_Types.Short := 16#0#;
+      Reserved_16_31 : Interfaces.Bit_Types.UInt16 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -197,7 +198,7 @@ package Interfaces.STM32.SYSCFG is
       case As_Array is
          when False =>
             --  EXTI as a value
-            Val : Interfaces.Bit_Types.Short;
+            Val : Interfaces.Bit_Types.UInt16;
          when True =>
             --  EXTI as an array
             Arr : EXTICR4_EXTI_Field_Array;
@@ -216,7 +217,7 @@ package Interfaces.STM32.SYSCFG is
       EXTI           : EXTICR4_EXTI_Field :=
                         (As_Array => False, Val => 16#0#);
       --  unspecified
-      Reserved_16_31 : Interfaces.Bit_Types.Short := 16#0#;
+      Reserved_16_31 : Interfaces.Bit_Types.UInt16 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
