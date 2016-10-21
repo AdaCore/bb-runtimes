@@ -1179,6 +1179,7 @@ class ArmBBTarget(Target):
 
     def amend_ravenscar_sfp(self):
         super(ArmBBTarget, self).amend_ravenscar_sfp()
+        self.gnarl_common += ['s-bbsumu.adb']
         self.pairs.update({
             'system.ads': 'system-xi-cortexm4-sfp.ads',
             's-bbcppr.adb': 's-bbcppr-armv7m.adb',
