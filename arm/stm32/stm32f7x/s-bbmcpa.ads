@@ -42,7 +42,7 @@ package System.BB.MCU_Parameters is
    pragma Preelaborate;
    use type Interfaces.Bit_Types.Bit;
 
-   Number_Of_Interrupts : constant := 92;
+   Number_Of_Interrupts : constant := 99;
 
    procedure PWR_Initialize;
 
