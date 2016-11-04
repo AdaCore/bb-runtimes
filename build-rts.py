@@ -1312,6 +1312,57 @@ class Stm32(ArmBBTarget):
             'a-intnam.ads': 'arm/stm32/%s/svd/a-intnam.ads' % self.mcu})
 
 
+class SmartFusion2(ArmBBTarget):
+    @property
+    def has_single_precision_fpu(self):
+        return False
+
+    @property
+    def has_fpu(self):
+        # Still add floating point attributes
+        return True
+
+    def __init__(self):
+        super(SmartFusion2, self).__init__()
+
+    def amend_zfp(self):
+        super(SmartFusion2, self).amend_zfp()
+        self.common += [
+            's-bb.ads']
+
+        self.bsp += [
+            'arm/smartfusion2/common-ROM.ld',
+            'arm/smartfusion2/start-rom.S',
+            'arm/smartfusion2/setup_pll.adb',
+            'arm/smartfusion2/setup_pll.ads',
+            'arm/smartfusion2/memory-map.ld',
+            'arm/smartfusion2/s-sf2.ads',
+            'arm/smartfusion2/s-sf2.adb',
+            'arm/smartfusion2/s-sf2gpi.ads',
+            'arm/smartfusion2/s-sf2gpi.adb',
+            'arm/smartfusion2/s-sf2uar.ads',
+            'arm/smartfusion2/s-sf2uar.adb',
+            'arm/smartfusion2/svd/i-sf2.ads',
+            'arm/smartfusion2/svd/i-sf2-system_registers.ads',
+            'arm/smartfusion2/svd/i-sf2-mmuart.ads',
+            'arm/smartfusion2/svd/i-sf2-gpio.ads']
+
+        self.pairs.update({
+            's-bbpara.ads': 's-bbpara-smartfusion2.ads',
+            's-textio.adb': 'arm/smartfusion2/s-textio.adb'})
+
+        runtime_xml = readfile('arm/smartfusion2/runtime.xml')
+        self.config_files.update({'runtime.xml': runtime_xml})
+
+    def amend_ravenscar_sfp(self):
+        super(SmartFusion2, self).amend_ravenscar_sfp()
+        self.gnarl_common.remove('s-bb.ads')
+        self.bsp += [
+            'arm/smartfusion2/svd/handler.S']
+        self.pairs.update({
+            'a-intnam.ads': 'arm/smartfusion2/svd/a-intnam.ads'})
+
+
 class Sam(ArmBBTarget):
     def __init__(self, board):
         super(Sam, self).__init__()
@@ -1974,10 +2025,12 @@ def build_configs(target, runtime):
         t = RPI2()
     elif target == 'rpi3':
         t = RPI3()
-    elif target.startswith('stm32'):
-        t = Stm32(target)
     elif target.startswith('sam'):
         t = Sam(target)
+    elif target.startswith('smartfusion2'):
+        t = SmartFusion2()
+    elif target.startswith('stm32'):
+        t = Stm32(target)
     elif target == 'tms570':
         t = TMS570()
     elif target == 'lm3s':
@@ -2020,13 +2073,13 @@ def build_configs(target, runtime):
 
 
 def usage():
-    print "usage: build-rts.py OPTIONS arch/runtime"
+    print "usage: build-rts.py OPTIONS runtime/arch"
     print "Options are:"
     print " -v --verbose     be verbose"
     print " --output=DIR     output directory"
-    print " --gccdir=DIR     gcc source directory"
-    print " --gnatdir=DIR    gnat source directory"
-    print " --crossdir=DIR   cross source directory"
+    print " --gcc-dir=DIR    gcc source directory"
+    print " --gnat-dir=DIR   gnat source directory"
+    print " --cross-dir=DIR  cross source directory"
 
 
 def main():

@@ -1,0 +1,19 @@
+project Blinky is
+   for Languages use ("Ada");
+   for Main use ("blinky.adb");
+   for Target use "arm-eabi";
+   for Runtime ("Ada") use Project'Project_Dir & "../../ravenscar-sfp-smartfusion2";
+
+   for Source_Dirs use ("src");
+   for Object_Dir use "obj";
+   for Exec_Dir use ".";
+
+   package Compiler is
+      for Switches ("Ada") use ("-O0", "-g", "-gnatyg-s", "-gnatwa.X");
+   end Compiler;
+
+   package Linker is
+      for Default_Switches ("Ada") use ("-Wl,-v");
+   end Linker;
+
+end Blinky;
