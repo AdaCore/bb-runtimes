@@ -7,7 +7,6 @@
 pragma Ada_2012;
 pragma Style_Checks (Off);
 
-with Interfaces.Bit_Types;
 with System;
 
 package Interfaces.SAM.SYSC is
@@ -21,7 +20,7 @@ package Interfaces.SAM.SYSC is
    --  General Purpose Backup Register
 
    --  General Purpose Backup Register
-   type GPBR_GPBR_Registers is array (0 .. 7) of Interfaces.Bit_Types.UInt32;
+   type GPBR_GPBR_Registers is array (0 .. 7) of Interfaces.SAM.UInt32;
 
    --  System Reset Key
    type CR_KEY_Field is
@@ -32,7 +31,7 @@ package Interfaces.SAM.SYSC is
       Passwd)
      with Size => 8;
    for CR_KEY_Field use
-     (Cr_Key_Field_Reset => 9,
+     (Cr_Key_Field_Reset => 0,
       Passwd => 165);
 
    --  Control Register
@@ -40,13 +39,13 @@ package Interfaces.SAM.SYSC is
       --  Write-only. Processor Reset
       PROCRST       : Boolean := False;
       --  unspecified
-      Reserved_1_1  : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_1_1  : Interfaces.SAM.Bit := 16#0#;
       --  Write-only. Peripheral Reset
       PERRST        : Boolean := False;
       --  Write-only. External Reset
       EXTRST        : Boolean := False;
       --  unspecified
-      Reserved_4_23 : Interfaces.Bit_Types.UInt20 := 16#55CA0#;
+      Reserved_4_23 : Interfaces.SAM.UInt20 := 16#0#;
       --  Write-only. System Reset Key
       KEY           : CR_KEY_Field := Cr_Key_Field_Reset;
    end record
@@ -91,17 +90,17 @@ package Interfaces.SAM.SYSC is
       --  Read-only. User Reset Status
       URSTS          : Boolean;
       --  unspecified
-      Reserved_1_7   : Interfaces.Bit_Types.UInt7;
+      Reserved_1_7   : Interfaces.SAM.UInt7;
       --  Read-only. Reset Type
       RSTTYP         : SR_RSTTYP_Field;
       --  unspecified
-      Reserved_11_15 : Interfaces.Bit_Types.UInt5;
+      Reserved_11_15 : Interfaces.SAM.UInt5;
       --  Read-only. NRST Pin Level
       NRSTL          : Boolean;
       --  Read-only. Software Reset Command in Progress
       SRCMP          : Boolean;
       --  unspecified
-      Reserved_18_31 : Interfaces.Bit_Types.UInt14;
+      Reserved_18_31 : Interfaces.SAM.UInt14;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -116,7 +115,7 @@ package Interfaces.SAM.SYSC is
       Reserved_18_31 at 0 range 18 .. 31;
    end record;
 
-   subtype RSTC_MR_ERSTL_Field is Interfaces.Bit_Types.UInt4;
+   subtype RSTC_MR_ERSTL_Field is Interfaces.SAM.UInt4;
 
    --  Write Access Password
    type MR_KEY_Field is
@@ -138,15 +137,15 @@ package Interfaces.SAM.SYSC is
       --  Slow Clock Switching
       SCKSW          : Boolean := False;
       --  unspecified
-      Reserved_2_3   : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_2_3   : Interfaces.SAM.UInt2 := 16#0#;
       --  User Reset Interrupt Enable
       URSTIEN        : Boolean := False;
       --  unspecified
-      Reserved_5_7   : Interfaces.Bit_Types.UInt3 := 16#0#;
+      Reserved_5_7   : Interfaces.SAM.UInt3 := 16#0#;
       --  External Reset Length
       ERSTL          : RSTC_MR_ERSTL_Field := 16#0#;
       --  unspecified
-      Reserved_12_23 : Interfaces.Bit_Types.UInt12 := 16#0#;
+      Reserved_12_23 : Interfaces.SAM.UInt12 := 16#0#;
       --  Write Access Password
       KEY            : MR_KEY_Field := Mr_Key_Field_Reset;
    end record
@@ -204,15 +203,15 @@ package Interfaces.SAM.SYSC is
       --  Update Request Calendar Register
       UPDCAL         : Boolean := False;
       --  unspecified
-      Reserved_2_7   : Interfaces.Bit_Types.UInt6 := 16#0#;
+      Reserved_2_7   : Interfaces.SAM.UInt6 := 16#0#;
       --  Time Event Selection
       TIMEVSEL       : CR_TIMEVSEL_Field := Interfaces.SAM.SYSC.Minute;
       --  unspecified
-      Reserved_10_15 : Interfaces.Bit_Types.UInt6 := 16#0#;
+      Reserved_10_15 : Interfaces.SAM.UInt6 := 16#0#;
       --  Calendar Event Selection
       CALEVSEL       : CR_CALEVSEL_Field := Interfaces.SAM.SYSC.Week;
       --  unspecified
-      Reserved_18_31 : Interfaces.Bit_Types.UInt14 := 16#0#;
+      Reserved_18_31 : Interfaces.SAM.UInt14 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -227,7 +226,7 @@ package Interfaces.SAM.SYSC is
       Reserved_18_31 at 0 range 18 .. 31;
    end record;
 
-   subtype RTC_MR_CORRECTION_Field is Interfaces.Bit_Types.UInt7;
+   subtype RTC_MR_CORRECTION_Field is Interfaces.SAM.UInt7;
 
    --  All ADC Channel Trigger Event Source Selection
    type MR_OUT0_Field is
@@ -284,11 +283,11 @@ package Interfaces.SAM.SYSC is
       --  PERSIAN Calendar
       PERSIAN        : Boolean := False;
       --  unspecified
-      Reserved_2_3   : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_2_3   : Interfaces.SAM.UInt2 := 16#0#;
       --  NEGative PPM Correction
       NEGPPM         : Boolean := False;
       --  unspecified
-      Reserved_5_7   : Interfaces.Bit_Types.UInt3 := 16#0#;
+      Reserved_5_7   : Interfaces.SAM.UInt3 := 16#0#;
       --  Slow Clock Correction
       CORRECTION     : RTC_MR_CORRECTION_Field := 16#0#;
       --  HIGH PPM Correction
@@ -296,11 +295,11 @@ package Interfaces.SAM.SYSC is
       --  All ADC Channel Trigger Event Source Selection
       OUT0           : MR_OUT0_Field := Interfaces.SAM.SYSC.No_Wave;
       --  unspecified
-      Reserved_19_19 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_19_19 : Interfaces.SAM.Bit := 16#0#;
       --  ADC Last Channel Trigger Event Source Selection
       OUT1           : MR_OUT1_Field := Interfaces.SAM.SYSC.No_Wave;
       --  unspecified
-      Reserved_23_31 : Interfaces.Bit_Types.UInt9 := 16#0#;
+      Reserved_23_31 : Interfaces.SAM.UInt9 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -319,26 +318,26 @@ package Interfaces.SAM.SYSC is
       Reserved_23_31 at 0 range 23 .. 31;
    end record;
 
-   subtype RTC_TIMR_SEC_Field is Interfaces.Bit_Types.UInt7;
-   subtype RTC_TIMR_MIN_Field is Interfaces.Bit_Types.UInt7;
-   subtype RTC_TIMR_HOUR_Field is Interfaces.Bit_Types.UInt6;
+   subtype RTC_TIMR_SEC_Field is Interfaces.SAM.UInt7;
+   subtype RTC_TIMR_MIN_Field is Interfaces.SAM.UInt7;
+   subtype RTC_TIMR_HOUR_Field is Interfaces.SAM.UInt6;
 
    --  Time Register
    type RTC_TIMR_Register is record
       --  Current Second
       SEC            : RTC_TIMR_SEC_Field := 16#0#;
       --  unspecified
-      Reserved_7_7   : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_7_7   : Interfaces.SAM.Bit := 16#0#;
       --  Current Minute
       MIN            : RTC_TIMR_MIN_Field := 16#0#;
       --  unspecified
-      Reserved_15_15 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_15_15 : Interfaces.SAM.Bit := 16#0#;
       --  Current Hour
       HOUR           : RTC_TIMR_HOUR_Field := 16#0#;
       --  Ante Meridiem Post Meridiem Indicator
       AMPM           : Boolean := False;
       --  unspecified
-      Reserved_23_31 : Interfaces.Bit_Types.UInt9 := 16#0#;
+      Reserved_23_31 : Interfaces.SAM.UInt9 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -353,18 +352,18 @@ package Interfaces.SAM.SYSC is
       Reserved_23_31 at 0 range 23 .. 31;
    end record;
 
-   subtype RTC_CALR_CENT_Field is Interfaces.Bit_Types.UInt7;
-   subtype RTC_CALR_YEAR_Field is Interfaces.Bit_Types.Byte;
-   subtype RTC_CALR_MONTH_Field is Interfaces.Bit_Types.UInt5;
-   subtype RTC_CALR_DAY_Field is Interfaces.Bit_Types.UInt3;
-   subtype RTC_CALR_DATE_Field is Interfaces.Bit_Types.UInt6;
+   subtype RTC_CALR_CENT_Field is Interfaces.SAM.UInt7;
+   subtype RTC_CALR_YEAR_Field is Interfaces.SAM.Byte;
+   subtype RTC_CALR_MONTH_Field is Interfaces.SAM.UInt5;
+   subtype RTC_CALR_DAY_Field is Interfaces.SAM.UInt3;
+   subtype RTC_CALR_DATE_Field is Interfaces.SAM.UInt6;
 
    --  Calendar Register
    type RTC_CALR_Register is record
       --  Current Century
       CENT           : RTC_CALR_CENT_Field := 16#20#;
       --  unspecified
-      Reserved_7_7   : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_7_7   : Interfaces.SAM.Bit := 16#0#;
       --  Current Year
       YEAR           : RTC_CALR_YEAR_Field := 16#10#;
       --  Current Month
@@ -374,7 +373,7 @@ package Interfaces.SAM.SYSC is
       --  Current Day in Current Month
       DATE           : RTC_CALR_DATE_Field := 16#1#;
       --  unspecified
-      Reserved_30_31 : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_30_31 : Interfaces.SAM.UInt2 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -389,9 +388,9 @@ package Interfaces.SAM.SYSC is
       Reserved_30_31 at 0 range 30 .. 31;
    end record;
 
-   subtype RTC_TIMALR_SEC_Field is Interfaces.Bit_Types.UInt7;
-   subtype RTC_TIMALR_MIN_Field is Interfaces.Bit_Types.UInt7;
-   subtype RTC_TIMALR_HOUR_Field is Interfaces.Bit_Types.UInt6;
+   subtype RTC_TIMALR_SEC_Field is Interfaces.SAM.UInt7;
+   subtype RTC_TIMALR_MIN_Field is Interfaces.SAM.UInt7;
+   subtype RTC_TIMALR_HOUR_Field is Interfaces.SAM.UInt6;
 
    --  Time Alarm Register
    type RTC_TIMALR_Register is record
@@ -410,7 +409,7 @@ package Interfaces.SAM.SYSC is
       --  Hour Alarm Enable
       HOUREN         : Boolean := False;
       --  unspecified
-      Reserved_24_31 : Interfaces.Bit_Types.Byte := 16#0#;
+      Reserved_24_31 : Interfaces.SAM.Byte := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -426,23 +425,23 @@ package Interfaces.SAM.SYSC is
       Reserved_24_31 at 0 range 24 .. 31;
    end record;
 
-   subtype RTC_CALALR_MONTH_Field is Interfaces.Bit_Types.UInt5;
-   subtype RTC_CALALR_DATE_Field is Interfaces.Bit_Types.UInt6;
+   subtype RTC_CALALR_MONTH_Field is Interfaces.SAM.UInt5;
+   subtype RTC_CALALR_DATE_Field is Interfaces.SAM.UInt6;
 
    --  Calendar Alarm Register
    type RTC_CALALR_Register is record
       --  unspecified
-      Reserved_0_15  : Interfaces.Bit_Types.UInt16 := 16#0#;
+      Reserved_0_15  : Interfaces.SAM.UInt16 := 16#0#;
       --  Month Alarm
       MONTH          : RTC_CALALR_MONTH_Field := 16#1#;
       --  unspecified
-      Reserved_21_22 : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_21_22 : Interfaces.SAM.UInt2 := 16#0#;
       --  Month Alarm Enable
       MTHEN          : Boolean := False;
       --  Date Alarm
       DATE           : RTC_CALALR_DATE_Field := 16#1#;
       --  unspecified
-      Reserved_30_30 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_30_30 : Interfaces.SAM.Bit := 16#0#;
       --  Date Alarm Enable
       DATEEN         : Boolean := False;
    end record
@@ -549,7 +548,7 @@ package Interfaces.SAM.SYSC is
       --  Read-only. Time and/or Date Free Running Error
       TDERR         : SR_TDERR_Field;
       --  unspecified
-      Reserved_6_31 : Interfaces.Bit_Types.UInt26;
+      Reserved_6_31 : Interfaces.SAM.UInt26;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -579,7 +578,7 @@ package Interfaces.SAM.SYSC is
       --  Write-only. Time and/or Date Free Running Error Clear
       TDERRCLR      : Boolean := False;
       --  unspecified
-      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#255728#;
+      Reserved_6_31 : Interfaces.SAM.UInt26 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -609,7 +608,7 @@ package Interfaces.SAM.SYSC is
       --  Write-only. Time and/or Date Error Interrupt Enable
       TDERREN       : Boolean := False;
       --  unspecified
-      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#255728#;
+      Reserved_6_31 : Interfaces.SAM.UInt26 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -639,7 +638,7 @@ package Interfaces.SAM.SYSC is
       --  Write-only. Time and/or Date Error Interrupt Disable
       TDERRDIS      : Boolean := False;
       --  unspecified
-      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#255728#;
+      Reserved_6_31 : Interfaces.SAM.UInt26 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -667,7 +666,7 @@ package Interfaces.SAM.SYSC is
       --  Read-only. Calendar Event Interrupt Mask
       CAL           : Boolean;
       --  unspecified
-      Reserved_5_31 : Interfaces.Bit_Types.UInt27;
+      Reserved_5_31 : Interfaces.SAM.UInt27;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -692,7 +691,7 @@ package Interfaces.SAM.SYSC is
       --  Read-only. Non-valid Calendar Alarm
       NVCALALR      : Boolean;
       --  unspecified
-      Reserved_4_31 : Interfaces.Bit_Types.UInt28;
+      Reserved_4_31 : Interfaces.SAM.UInt28;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -705,14 +704,14 @@ package Interfaces.SAM.SYSC is
       Reserved_4_31 at 0 range 4 .. 31;
    end record;
 
-   subtype RTC_MSR_MS_Field is Interfaces.Bit_Types.UInt10;
+   subtype RTC_MSR_MS_Field is Interfaces.SAM.UInt10;
 
    --  Milliseconds Register
    type RTC_MSR_Register is record
       --  Read-only. Number of 1/1024 seconds elapsed within 1 second
       MS             : RTC_MSR_MS_Field;
       --  unspecified
-      Reserved_10_31 : Interfaces.Bit_Types.UInt22;
+      Reserved_10_31 : Interfaces.SAM.UInt22;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -740,7 +739,7 @@ package Interfaces.SAM.SYSC is
       --  Write Protection Enable
       WPEN         : Boolean := False;
       --  unspecified
-      Reserved_1_7 : Interfaces.Bit_Types.UInt7 := 16#0#;
+      Reserved_1_7 : Interfaces.SAM.UInt7 := 16#0#;
       --  Write Protection Key
       WPKEY        : WPMR_WPKEY_Field := Wpmr_Wpkey_Field_Reset;
    end record
@@ -753,7 +752,7 @@ package Interfaces.SAM.SYSC is
       WPKEY        at 0 range 8 .. 31;
    end record;
 
-   subtype RTT_MR_RTPRES_Field is Interfaces.Bit_Types.UInt16;
+   subtype RTT_MR_RTPRES_Field is Interfaces.SAM.UInt16;
 
    --  Mode Register
    type RTT_MR_Register is record
@@ -766,7 +765,7 @@ package Interfaces.SAM.SYSC is
       --  Real-time Timer Restart
       RTTRST         : Boolean := False;
       --  unspecified
-      Reserved_19_19 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_19_19 : Interfaces.SAM.Bit := 16#0#;
       --  Real-time Timer Disable
       RTTDIS         : Boolean := False;
       --  RTTINC2 Alarm Enable
@@ -774,11 +773,11 @@ package Interfaces.SAM.SYSC is
       --  Trigger Event Alarm Enable
       EVAEN          : Boolean := False;
       --  unspecified
-      Reserved_23_23 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_23_23 : Interfaces.SAM.Bit := 16#0#;
       --  Real-Time Clock 1Hz Clock Selection
       RTC1HZ         : Boolean := False;
       --  unspecified
-      Reserved_25_31 : Interfaces.Bit_Types.UInt7 := 16#0#;
+      Reserved_25_31 : Interfaces.SAM.UInt7 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -808,7 +807,7 @@ package Interfaces.SAM.SYSC is
       case As_Array is
          when False =>
             --  RTTINC as a value
-            Val : Interfaces.Bit_Types.UInt2;
+            Val : Interfaces.SAM.UInt2;
          when True =>
             --  RTTINC as an array
             Arr : RTT_SR_RTTINC_Field_Array;
@@ -828,7 +827,7 @@ package Interfaces.SAM.SYSC is
       --  Read-only. Prescaler Roll-over Status
       RTTINC        : RTT_SR_RTTINC_Field;
       --  unspecified
-      Reserved_3_31 : Interfaces.Bit_Types.UInt29;
+      Reserved_3_31 : Interfaces.SAM.UInt29;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -906,11 +905,11 @@ package Interfaces.SAM.SYSC is
       --  Selection of the 32-bit Counter Modulo to generate RTTINC2 flag
       SELINC2        : MODR_SELINC2_Field := Interfaces.SAM.SYSC.No_Rttinc2;
       --  unspecified
-      Reserved_3_7   : Interfaces.Bit_Types.UInt5 := 16#0#;
+      Reserved_3_7   : Interfaces.SAM.UInt5 := 16#0#;
       --  Selection of the 32-bit Counter Modulo to generate the trigger event
       SELTRGEV       : MODR_SELTRGEV_Field := Interfaces.SAM.SYSC.No_Event;
       --  unspecified
-      Reserved_11_31 : Interfaces.Bit_Types.UInt21 := 16#0#;
+      Reserved_11_31 : Interfaces.SAM.UInt21 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -951,13 +950,13 @@ package Interfaces.SAM.SYSC is
    --  Supply Controller Control Register
    type SUPC_CR_Register is record
       --  unspecified
-      Reserved_0_1  : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_0_1  : Interfaces.SAM.UInt2 := 16#0#;
       --  Write-only. Voltage Regulator Off
       VROFF         : CR_VROFF_Field := Interfaces.SAM.SYSC.No_Effect;
       --  Write-only. Crystal Oscillator Select
       XTALSEL       : CR_XTALSEL_Field := Interfaces.SAM.SYSC.No_Effect;
       --  unspecified
-      Reserved_4_23 : Interfaces.Bit_Types.UInt20 := 16#55CA0#;
+      Reserved_4_23 : Interfaces.SAM.UInt20 := 16#0#;
       --  Write-only. Password
       KEY           : CR_KEY_Field := Cr_Key_Field_Reset;
    end record
@@ -972,7 +971,7 @@ package Interfaces.SAM.SYSC is
       KEY           at 0 range 24 .. 31;
    end record;
 
-   subtype SUPC_SMMR_SMTH_Field is Interfaces.Bit_Types.UInt4;
+   subtype SUPC_SMMR_SMTH_Field is Interfaces.SAM.UInt4;
 
    --  Supply Monitor Sampling Period
    type SMMR_SMSMPL_Field is
@@ -1028,17 +1027,17 @@ package Interfaces.SAM.SYSC is
       --  Supply Monitor Threshold
       SMTH           : SUPC_SMMR_SMTH_Field := 16#0#;
       --  unspecified
-      Reserved_4_7   : Interfaces.Bit_Types.UInt4 := 16#0#;
+      Reserved_4_7   : Interfaces.SAM.UInt4 := 16#0#;
       --  Supply Monitor Sampling Period
       SMSMPL         : SMMR_SMSMPL_Field := Interfaces.SAM.SYSC.Smd;
       --  unspecified
-      Reserved_11_11 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_11_11 : Interfaces.SAM.Bit := 16#0#;
       --  Supply Monitor Reset Enable
       SMRSTEN        : SMMR_SMRSTEN_Field := Interfaces.SAM.SYSC.Not_Enable;
       --  Supply Monitor Interrupt Enable
       SMIEN          : SMMR_SMIEN_Field := Interfaces.SAM.SYSC.Not_Enable;
       --  unspecified
-      Reserved_14_31 : Interfaces.Bit_Types.UInt18 := 16#0#;
+      Reserved_14_31 : Interfaces.SAM.UInt18 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1118,13 +1117,13 @@ package Interfaces.SAM.SYSC is
    --  Supply Controller Mode Register
    type SUPC_MR_Register is record
       --  unspecified
-      Reserved_0_11  : Interfaces.Bit_Types.UInt12 := 16#A00#;
+      Reserved_0_11  : Interfaces.SAM.UInt12 := 16#A00#;
       --  POR Core Reset Enable
       BODRSTEN       : MR_BODRSTEN_Field := Interfaces.SAM.SYSC.Enable;
       --  POR Core Disable
       BODDIS         : MR_BODDIS_Field := Interfaces.SAM.SYSC.Enable;
       --  unspecified
-      Reserved_14_19 : Interfaces.Bit_Types.UInt6 := 16#1#;
+      Reserved_14_19 : Interfaces.SAM.UInt6 := 16#1#;
       --  Oscillator Bypass
       OSCBYPASS      : MR_OSCBYPASS_Field := Interfaces.SAM.SYSC.No_Effect;
       --  Cache Data SRAM Power Switch
@@ -1216,7 +1215,7 @@ package Interfaces.SAM.SYSC is
    --  Supply Controller Wake-up Mode Register
    type SUPC_WUMR_Register is record
       --  unspecified
-      Reserved_0_0   : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_0_0   : Interfaces.SAM.Bit := 16#0#;
       --  Supply Monitor Wake-up Enable
       SMEN           : WUMR_SMEN_Field := Interfaces.SAM.SYSC.Not_Enable;
       --  Real-time Timer Wake-up Enable
@@ -1224,11 +1223,11 @@ package Interfaces.SAM.SYSC is
       --  Real-time Clock Wake-up Enable
       RTCEN          : WUMR_RTCEN_Field := Wumr_Rtcen_Field_Reset;
       --  unspecified
-      Reserved_4_11  : Interfaces.Bit_Types.Byte := 16#0#;
+      Reserved_4_11  : Interfaces.SAM.Byte := 16#0#;
       --  Wake-up Inputs Debouncer Period
       WKUPDBC        : WUMR_WKUPDBC_Field := Interfaces.SAM.SYSC.Immediate;
       --  unspecified
-      Reserved_15_31 : Interfaces.Bit_Types.UInt17 := 16#0#;
+      Reserved_15_31 : Interfaces.SAM.UInt17 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1267,7 +1266,7 @@ package Interfaces.SAM.SYSC is
       case As_Array is
          when False =>
             --  WKUPEN as a value
-            Val : Interfaces.Bit_Types.UInt16;
+            Val : Interfaces.SAM.UInt16;
          when True =>
             --  WKUPEN as an array
             Arr : SUPC_WUIR_WKUPEN_Field_Array;
@@ -1305,7 +1304,7 @@ package Interfaces.SAM.SYSC is
       case As_Array is
          when False =>
             --  WKUPT as a value
-            Val : Interfaces.Bit_Types.UInt16;
+            Val : Interfaces.SAM.UInt16;
          when True =>
             --  WKUPT as an array
             Arr : SUPC_WUIR_WKUPT_Field_Array;
@@ -1439,7 +1438,7 @@ package Interfaces.SAM.SYSC is
       case As_Array is
          when False =>
             --  WKUPIS as a value
-            Val : Interfaces.Bit_Types.UInt16;
+            Val : Interfaces.SAM.UInt16;
          when True =>
             --  WKUPIS as an array
             Arr : SUPC_SR_WKUPIS_Field_Array;
@@ -1455,11 +1454,11 @@ package Interfaces.SAM.SYSC is
    --  Supply Controller Status Register
    type SUPC_SR_Register is record
       --  unspecified
-      Reserved_0_0  : Interfaces.Bit_Types.Bit;
+      Reserved_0_0  : Interfaces.SAM.Bit;
       --  Read-only. WKUP Wake-up Status
       WKUPS         : SR_WKUPS_Field;
       --  unspecified
-      Reserved_2_2  : Interfaces.Bit_Types.Bit;
+      Reserved_2_2  : Interfaces.SAM.Bit;
       --  Read-only. Brownout Detector Reset Status
       BODRSTS       : SR_BODRSTS_Field;
       --  Read-only. Supply Monitor Reset Status
@@ -1471,7 +1470,7 @@ package Interfaces.SAM.SYSC is
       --  Read-only. 32-kHz Oscillator Selection Status
       OSCSEL        : SR_OSCSEL_Field;
       --  unspecified
-      Reserved_8_15 : Interfaces.Bit_Types.Byte;
+      Reserved_8_15 : Interfaces.SAM.Byte;
       --  Read-only. WKUP Input Status 0
       WKUPIS        : SUPC_SR_WKUPIS_Field;
    end record
@@ -1516,7 +1515,7 @@ package Interfaces.SAM.SYSC is
       case As_Array is
          when False =>
             --  LPOWER as a value
-            Val : Interfaces.Bit_Types.UInt4;
+            Val : Interfaces.SAM.UInt4;
          when True =>
             --  LPOWER as an array
             Arr : SUPC_PWMR_LPOWER_Field_Array;
@@ -1566,7 +1565,7 @@ package Interfaces.SAM.SYSC is
       case As_Array is
          when False =>
             --  ECPWR as a value
-            Val : Interfaces.Bit_Types.UInt4;
+            Val : Interfaces.SAM.UInt4;
          when True =>
             --  ECPWR as an array
             Arr : SUPC_PWMR_ECPWR_Field_Array;
@@ -1696,7 +1695,7 @@ package Interfaces.SAM.SYSC is
       LPOWER         : SUPC_PWMR_LPOWER_Field :=
                         (As_Array => False, Val => 16#0#);
       --  unspecified
-      Reserved_5_6   : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_5_6   : Interfaces.SAM.UInt2 := 16#0#;
       --  Start-up Time when Resuming from Wait Mode
       STUPTIME       : PWMR_STUPTIME_Field := Interfaces.SAM.SYSC.Fast;
       --  Enhanced Custom Power Value Selection
@@ -1705,7 +1704,7 @@ package Interfaces.SAM.SYSC is
       ECPWR          : SUPC_PWMR_ECPWR_Field :=
                         (As_Array => False, Val => 16#0#);
       --  unspecified
-      Reserved_13_15 : Interfaces.Bit_Types.UInt3 := 16#0#;
+      Reserved_13_15 : Interfaces.SAM.UInt3 := 16#0#;
       --  SRAM Power Control
       SRAM0ON        : PWMR_SRAM0ON_Field := Interfaces.SAM.SYSC.Off;
       --  SRAM Power Control
@@ -1752,7 +1751,7 @@ package Interfaces.SAM.SYSC is
       --  Write-only. Watchdog Restart
       WDRSTT        : Boolean := False;
       --  unspecified
-      Reserved_1_23 : Interfaces.Bit_Types.UInt23 := 16#2AE500#;
+      Reserved_1_23 : Interfaces.SAM.UInt23 := 16#0#;
       --  Write-only. Password.
       KEY           : CR_KEY_Field := Cr_Key_Field_Reset;
    end record
@@ -1765,8 +1764,8 @@ package Interfaces.SAM.SYSC is
       KEY           at 0 range 24 .. 31;
    end record;
 
-   subtype WDT_MR_WDV_Field is Interfaces.Bit_Types.UInt12;
-   subtype WDT_MR_WDD_Field is Interfaces.Bit_Types.UInt12;
+   subtype WDT_MR_WDV_Field is Interfaces.SAM.UInt12;
+   subtype WDT_MR_WDD_Field is Interfaces.SAM.UInt12;
 
    --  Mode Register
    type WDT_MR_Register is record
@@ -1787,7 +1786,7 @@ package Interfaces.SAM.SYSC is
       --  Watchdog Idle Halt
       WDIDLEHLT      : Boolean := True;
       --  unspecified
-      Reserved_30_31 : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_30_31 : Interfaces.SAM.UInt2 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1811,7 +1810,7 @@ package Interfaces.SAM.SYSC is
       --  Read-only. Watchdog Error
       WDERR         : Boolean;
       --  unspecified
-      Reserved_2_31 : Interfaces.Bit_Types.UInt30;
+      Reserved_2_31 : Interfaces.SAM.UInt30;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1839,7 +1838,7 @@ package Interfaces.SAM.SYSC is
 
    --  General Purpose Backup Registers
    GPBR_Periph : aliased GPBR_Peripheral
-     with Import, Address => GPBR_Base;
+     with Import, Address => System'To_Address (16#400E1490#);
 
    --  Reset Controller
    type RSTC_Peripheral is record
@@ -1860,7 +1859,7 @@ package Interfaces.SAM.SYSC is
 
    --  Reset Controller
    RSTC_Periph : aliased RSTC_Peripheral
-     with Import, Address => RSTC_Base;
+     with Import, Address => System'To_Address (16#400E1400#);
 
    --  Real-time Clock
    type RTC_Peripheral is record
@@ -1914,16 +1913,16 @@ package Interfaces.SAM.SYSC is
 
    --  Real-time Clock
    RTC_Periph : aliased RTC_Peripheral
-     with Import, Address => RTC_Base;
+     with Import, Address => System'To_Address (16#400E1460#);
 
    --  Real-time Timer
    type RTT_Peripheral is record
       --  Mode Register
       MR   : RTT_MR_Register;
       --  Alarm Register
-      AR   : Interfaces.Bit_Types.UInt32;
+      AR   : Interfaces.SAM.UInt32;
       --  Value Register
-      VR   : Interfaces.Bit_Types.UInt32;
+      VR   : Interfaces.SAM.UInt32;
       --  Status Register
       SR   : RTT_SR_Register;
       --  Modulo Selection Register
@@ -1941,7 +1940,7 @@ package Interfaces.SAM.SYSC is
 
    --  Real-time Timer
    RTT_Periph : aliased RTT_Peripheral
-     with Import, Address => RTT_Base;
+     with Import, Address => System'To_Address (16#400E1430#);
 
    --  Supply Controller
    type SUPC_Peripheral is record
@@ -1974,7 +1973,7 @@ package Interfaces.SAM.SYSC is
 
    --  Supply Controller
    SUPC_Periph : aliased SUPC_Peripheral
-     with Import, Address => SUPC_Base;
+     with Import, Address => System'To_Address (16#400E1410#);
 
    --  Watchdog Timer
    type WDT_Peripheral is record
@@ -1995,6 +1994,6 @@ package Interfaces.SAM.SYSC is
 
    --  Watchdog Timer
    WDT_Periph : aliased WDT_Peripheral
-     with Import, Address => WDT_Base;
+     with Import, Address => System'To_Address (16#400E1450#);
 
 end Interfaces.SAM.SYSC;

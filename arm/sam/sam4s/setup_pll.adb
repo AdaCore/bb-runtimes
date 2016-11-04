@@ -31,7 +31,7 @@ pragma Warnings (Off);
 with System.SAM4S; use System.SAM4S;
 pragma Warnings (On);
 
-with Interfaces.Bit_Types;  use Interfaces.Bit_Types;
+with Interfaces.SAM;        use Interfaces.SAM;
 with Interfaces.SAM.EFC;    use Interfaces.SAM.EFC;
 with Interfaces.SAM.PMC;    use Interfaces.SAM.PMC;
 with Interfaces.SAM.SYSC;   use Interfaces.SAM.SYSC;

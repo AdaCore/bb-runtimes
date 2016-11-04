@@ -131,7 +131,6 @@ class BaseZFP(BaseRuntime):
 
             'interfac.ads',
             'i-c.ads', 'i-cexten.ads',
-            'i-bit_types.ads',
 
             's-atacco.adb', 's-atacco.ads',
             's-assert.adb', 's-assert.ads',

@@ -33,7 +33,7 @@ pragma Suppress (All_Checks);
 
 with Ada.Unchecked_Conversion;
 
-with Interfaces.Bit_Types;       use Interfaces, Interfaces.Bit_Types;
+with Interfaces.STM32;           use Interfaces, Interfaces.STM32;
 with Interfaces.STM32.FLASH;     use Interfaces.STM32.FLASH;
 with Interfaces.STM32.PWR;       use Interfaces.STM32.PWR;
 with Interfaces.STM32.RCC;       use Interfaces.STM32.RCC;

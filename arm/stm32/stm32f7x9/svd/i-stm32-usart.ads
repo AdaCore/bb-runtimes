@@ -7,7 +7,6 @@
 pragma Ada_2012;
 pragma Style_Checks (Off);
 
-with Interfaces.Bit_Types;
 with System;
 
 package Interfaces.STM32.USART is
@@ -18,24 +17,24 @@ package Interfaces.STM32.USART is
    -- Registers --
    ---------------
 
-   subtype CR1_UE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_UESM_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_RE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_TE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_IDLEIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_RXNEIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_TCIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_TXEIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_PEIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_PS_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_PCE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_WAKE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_M0_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_MME_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_CMIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_OVER8_Field is Interfaces.Bit_Types.Bit;
+   subtype CR1_UE_Field is Interfaces.STM32.Bit;
+   subtype CR1_UESM_Field is Interfaces.STM32.Bit;
+   subtype CR1_RE_Field is Interfaces.STM32.Bit;
+   subtype CR1_TE_Field is Interfaces.STM32.Bit;
+   subtype CR1_IDLEIE_Field is Interfaces.STM32.Bit;
+   subtype CR1_RXNEIE_Field is Interfaces.STM32.Bit;
+   subtype CR1_TCIE_Field is Interfaces.STM32.Bit;
+   subtype CR1_TXEIE_Field is Interfaces.STM32.Bit;
+   subtype CR1_PEIE_Field is Interfaces.STM32.Bit;
+   subtype CR1_PS_Field is Interfaces.STM32.Bit;
+   subtype CR1_PCE_Field is Interfaces.STM32.Bit;
+   subtype CR1_WAKE_Field is Interfaces.STM32.Bit;
+   subtype CR1_M0_Field is Interfaces.STM32.Bit;
+   subtype CR1_MME_Field is Interfaces.STM32.Bit;
+   subtype CR1_CMIE_Field is Interfaces.STM32.Bit;
+   subtype CR1_OVER8_Field is Interfaces.STM32.Bit;
    --  CR1_DEDT array element
-   subtype CR1_DEDT_Element is Interfaces.Bit_Types.Bit;
+   subtype CR1_DEDT_Element is Interfaces.STM32.Bit;
 
    --  CR1_DEDT array
    type CR1_DEDT_Field_Array is array (0 .. 4) of CR1_DEDT_Element
@@ -48,7 +47,7 @@ package Interfaces.STM32.USART is
       case As_Array is
          when False =>
             --  DEDT as a value
-            Val : Interfaces.Bit_Types.UInt5;
+            Val : Interfaces.STM32.UInt5;
          when True =>
             --  DEDT as an array
             Arr : CR1_DEDT_Field_Array;
@@ -62,7 +61,7 @@ package Interfaces.STM32.USART is
    end record;
 
    --  CR1_DEAT array element
-   subtype CR1_DEAT_Element is Interfaces.Bit_Types.Bit;
+   subtype CR1_DEAT_Element is Interfaces.STM32.Bit;
 
    --  CR1_DEAT array
    type CR1_DEAT_Field_Array is array (0 .. 4) of CR1_DEAT_Element
@@ -75,7 +74,7 @@ package Interfaces.STM32.USART is
       case As_Array is
          when False =>
             --  DEAT as a value
-            Val : Interfaces.Bit_Types.UInt5;
+            Val : Interfaces.STM32.UInt5;
          when True =>
             --  DEAT as an array
             Arr : CR1_DEAT_Field_Array;
@@ -88,9 +87,9 @@ package Interfaces.STM32.USART is
       Arr at 0 range 0 .. 4;
    end record;
 
-   subtype CR1_RTOIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_EOBIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_M1_Field is Interfaces.Bit_Types.Bit;
+   subtype CR1_RTOIE_Field is Interfaces.STM32.Bit;
+   subtype CR1_EOBIE_Field is Interfaces.STM32.Bit;
+   subtype CR1_M1_Field is Interfaces.STM32.Bit;
 
    --  Control register 1
    type CR1_Register is record
@@ -137,7 +136,7 @@ package Interfaces.STM32.USART is
       --  Word length
       M1             : CR1_M1_Field := 16#0#;
       --  unspecified
-      Reserved_29_31 : Interfaces.Bit_Types.UInt3 := 16#0#;
+      Reserved_29_31 : Interfaces.STM32.UInt3 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -167,23 +166,23 @@ package Interfaces.STM32.USART is
       Reserved_29_31 at 0 range 29 .. 31;
    end record;
 
-   subtype CR2_ADDM7_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_LBDL_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_LBDIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_LBCL_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_CPHA_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_CPOL_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_CLKEN_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_STOP_Field is Interfaces.Bit_Types.UInt2;
-   subtype CR2_LINEN_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_SWAP_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_RXINV_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_TXINV_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_TAINV_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_MSBFIRST_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_ABREN_Field is Interfaces.Bit_Types.Bit;
+   subtype CR2_ADDM7_Field is Interfaces.STM32.Bit;
+   subtype CR2_LBDL_Field is Interfaces.STM32.Bit;
+   subtype CR2_LBDIE_Field is Interfaces.STM32.Bit;
+   subtype CR2_LBCL_Field is Interfaces.STM32.Bit;
+   subtype CR2_CPHA_Field is Interfaces.STM32.Bit;
+   subtype CR2_CPOL_Field is Interfaces.STM32.Bit;
+   subtype CR2_CLKEN_Field is Interfaces.STM32.Bit;
+   subtype CR2_STOP_Field is Interfaces.STM32.UInt2;
+   subtype CR2_LINEN_Field is Interfaces.STM32.Bit;
+   subtype CR2_SWAP_Field is Interfaces.STM32.Bit;
+   subtype CR2_RXINV_Field is Interfaces.STM32.Bit;
+   subtype CR2_TXINV_Field is Interfaces.STM32.Bit;
+   subtype CR2_TAINV_Field is Interfaces.STM32.Bit;
+   subtype CR2_MSBFIRST_Field is Interfaces.STM32.Bit;
+   subtype CR2_ABREN_Field is Interfaces.STM32.Bit;
    --  CR2_ABRMOD array element
-   subtype CR2_ABRMOD_Element is Interfaces.Bit_Types.Bit;
+   subtype CR2_ABRMOD_Element is Interfaces.STM32.Bit;
 
    --  CR2_ABRMOD array
    type CR2_ABRMOD_Field_Array is array (0 .. 1) of CR2_ABRMOD_Element
@@ -196,7 +195,7 @@ package Interfaces.STM32.USART is
       case As_Array is
          when False =>
             --  ABRMOD as a value
-            Val : Interfaces.Bit_Types.UInt2;
+            Val : Interfaces.STM32.UInt2;
          when True =>
             --  ABRMOD as an array
             Arr : CR2_ABRMOD_Field_Array;
@@ -209,14 +208,14 @@ package Interfaces.STM32.USART is
       Arr at 0 range 0 .. 1;
    end record;
 
-   subtype CR2_RTOEN_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_ADD0_3_Field is Interfaces.Bit_Types.UInt4;
-   subtype CR2_ADD4_7_Field is Interfaces.Bit_Types.UInt4;
+   subtype CR2_RTOEN_Field is Interfaces.STM32.Bit;
+   subtype CR2_ADD0_3_Field is Interfaces.STM32.UInt4;
+   subtype CR2_ADD4_7_Field is Interfaces.STM32.UInt4;
 
    --  Control register 2
    type CR2_Register is record
       --  unspecified
-      Reserved_0_3 : Interfaces.Bit_Types.UInt4 := 16#0#;
+      Reserved_0_3 : Interfaces.STM32.UInt4 := 16#0#;
       --  7-bit Address Detection/4-bit Address Detection
       ADDM7        : CR2_ADDM7_Field := 16#0#;
       --  LIN break detection length
@@ -224,7 +223,7 @@ package Interfaces.STM32.USART is
       --  LIN break detection interrupt enable
       LBDIE        : CR2_LBDIE_Field := 16#0#;
       --  unspecified
-      Reserved_7_7 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_7_7 : Interfaces.STM32.Bit := 16#0#;
       --  Last bit clock pulse
       LBCL         : CR2_LBCL_Field := 16#0#;
       --  Clock phase
@@ -285,25 +284,25 @@ package Interfaces.STM32.USART is
       ADD4_7       at 0 range 28 .. 31;
    end record;
 
-   subtype CR3_EIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_IREN_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_IRLP_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_HDSEL_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_NACK_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_SCEN_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_DMAR_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_DMAT_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_RTSE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_CTSE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_CTSIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_ONEBIT_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_OVRDIS_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_DDRE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_DEM_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_DEP_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_SCARCNT_Field is Interfaces.Bit_Types.UInt3;
-   subtype CR3_WUS_Field is Interfaces.Bit_Types.UInt2;
-   subtype CR3_WUFIE_Field is Interfaces.Bit_Types.Bit;
+   subtype CR3_EIE_Field is Interfaces.STM32.Bit;
+   subtype CR3_IREN_Field is Interfaces.STM32.Bit;
+   subtype CR3_IRLP_Field is Interfaces.STM32.Bit;
+   subtype CR3_HDSEL_Field is Interfaces.STM32.Bit;
+   subtype CR3_NACK_Field is Interfaces.STM32.Bit;
+   subtype CR3_SCEN_Field is Interfaces.STM32.Bit;
+   subtype CR3_DMAR_Field is Interfaces.STM32.Bit;
+   subtype CR3_DMAT_Field is Interfaces.STM32.Bit;
+   subtype CR3_RTSE_Field is Interfaces.STM32.Bit;
+   subtype CR3_CTSE_Field is Interfaces.STM32.Bit;
+   subtype CR3_CTSIE_Field is Interfaces.STM32.Bit;
+   subtype CR3_ONEBIT_Field is Interfaces.STM32.Bit;
+   subtype CR3_OVRDIS_Field is Interfaces.STM32.Bit;
+   subtype CR3_DDRE_Field is Interfaces.STM32.Bit;
+   subtype CR3_DEM_Field is Interfaces.STM32.Bit;
+   subtype CR3_DEP_Field is Interfaces.STM32.Bit;
+   subtype CR3_SCARCNT_Field is Interfaces.STM32.UInt3;
+   subtype CR3_WUS_Field is Interfaces.STM32.UInt2;
+   subtype CR3_WUFIE_Field is Interfaces.STM32.Bit;
 
    --  Control register 3
    type CR3_Register is record
@@ -340,7 +339,7 @@ package Interfaces.STM32.USART is
       --  Driver enable polarity selection
       DEP            : CR3_DEP_Field := 16#0#;
       --  unspecified
-      Reserved_16_16 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_16_16 : Interfaces.STM32.Bit := 16#0#;
       --  Smartcard auto-retry count
       SCARCNT        : CR3_SCARCNT_Field := 16#0#;
       --  Wakeup from Stop mode interrupt flag selection
@@ -348,7 +347,7 @@ package Interfaces.STM32.USART is
       --  Wakeup from Stop mode interrupt enable
       WUFIE          : CR3_WUFIE_Field := 16#0#;
       --  unspecified
-      Reserved_23_31 : Interfaces.Bit_Types.UInt9 := 16#0#;
+      Reserved_23_31 : Interfaces.STM32.UInt9 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -377,8 +376,8 @@ package Interfaces.STM32.USART is
       Reserved_23_31 at 0 range 23 .. 31;
    end record;
 
-   subtype BRR_DIV_Fraction_Field is Interfaces.Bit_Types.UInt4;
-   subtype BRR_DIV_Mantissa_Field is Interfaces.Bit_Types.UInt12;
+   subtype BRR_DIV_Fraction_Field is Interfaces.STM32.UInt4;
+   subtype BRR_DIV_Mantissa_Field is Interfaces.STM32.UInt12;
 
    --  Baud rate register
    type BRR_Register is record
@@ -387,7 +386,7 @@ package Interfaces.STM32.USART is
       --  DIV_Mantissa
       DIV_Mantissa   : BRR_DIV_Mantissa_Field := 16#0#;
       --  unspecified
-      Reserved_16_31 : Interfaces.Bit_Types.UInt16 := 16#0#;
+      Reserved_16_31 : Interfaces.STM32.UInt16 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -398,8 +397,8 @@ package Interfaces.STM32.USART is
       Reserved_16_31 at 0 range 16 .. 31;
    end record;
 
-   subtype GTPR_PSC_Field is Interfaces.Bit_Types.Byte;
-   subtype GTPR_GT_Field is Interfaces.Bit_Types.Byte;
+   subtype GTPR_PSC_Field is Interfaces.STM32.Byte;
+   subtype GTPR_GT_Field is Interfaces.STM32.Byte;
 
    --  Guard time and prescaler register
    type GTPR_Register is record
@@ -408,7 +407,7 @@ package Interfaces.STM32.USART is
       --  Guard time value
       GT             : GTPR_GT_Field := 16#0#;
       --  unspecified
-      Reserved_16_31 : Interfaces.Bit_Types.UInt16 := 16#0#;
+      Reserved_16_31 : Interfaces.STM32.UInt16 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -419,8 +418,8 @@ package Interfaces.STM32.USART is
       Reserved_16_31 at 0 range 16 .. 31;
    end record;
 
-   subtype RTOR_RTO_Field is Interfaces.Bit_Types.UInt24;
-   subtype RTOR_BLEN_Field is Interfaces.Bit_Types.Byte;
+   subtype RTOR_RTO_Field is Interfaces.STM32.UInt24;
+   subtype RTOR_BLEN_Field is Interfaces.STM32.Byte;
 
    --  Receiver timeout register
    type RTOR_Register is record
@@ -437,11 +436,11 @@ package Interfaces.STM32.USART is
       BLEN at 0 range 24 .. 31;
    end record;
 
-   subtype RQR_ABRRQ_Field is Interfaces.Bit_Types.Bit;
-   subtype RQR_SBKRQ_Field is Interfaces.Bit_Types.Bit;
-   subtype RQR_MMRQ_Field is Interfaces.Bit_Types.Bit;
-   subtype RQR_RXFRQ_Field is Interfaces.Bit_Types.Bit;
-   subtype RQR_TXFRQ_Field is Interfaces.Bit_Types.Bit;
+   subtype RQR_ABRRQ_Field is Interfaces.STM32.Bit;
+   subtype RQR_SBKRQ_Field is Interfaces.STM32.Bit;
+   subtype RQR_MMRQ_Field is Interfaces.STM32.Bit;
+   subtype RQR_RXFRQ_Field is Interfaces.STM32.Bit;
+   subtype RQR_TXFRQ_Field is Interfaces.STM32.Bit;
 
    --  Request register
    type RQR_Register is record
@@ -456,7 +455,7 @@ package Interfaces.STM32.USART is
       --  Write-only. Transmit data flush request
       TXFRQ         : RQR_TXFRQ_Field := 16#0#;
       --  unspecified
-      Reserved_5_31 : Interfaces.Bit_Types.UInt27 := 16#0#;
+      Reserved_5_31 : Interfaces.STM32.UInt27 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -470,28 +469,28 @@ package Interfaces.STM32.USART is
       Reserved_5_31 at 0 range 5 .. 31;
    end record;
 
-   subtype ISR_PE_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_FE_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_NF_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_ORE_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_IDLE_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_RXNE_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_TC_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_TXE_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_LBDF_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_CTSIF_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_CTS_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_RTOF_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_EOBF_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_ABRE_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_ABRF_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_BUSY_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_CMF_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_SBKF_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_RWU_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_WUF_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_TEACK_Field is Interfaces.Bit_Types.Bit;
-   subtype ISR_REACK_Field is Interfaces.Bit_Types.Bit;
+   subtype ISR_PE_Field is Interfaces.STM32.Bit;
+   subtype ISR_FE_Field is Interfaces.STM32.Bit;
+   subtype ISR_NF_Field is Interfaces.STM32.Bit;
+   subtype ISR_ORE_Field is Interfaces.STM32.Bit;
+   subtype ISR_IDLE_Field is Interfaces.STM32.Bit;
+   subtype ISR_RXNE_Field is Interfaces.STM32.Bit;
+   subtype ISR_TC_Field is Interfaces.STM32.Bit;
+   subtype ISR_TXE_Field is Interfaces.STM32.Bit;
+   subtype ISR_LBDF_Field is Interfaces.STM32.Bit;
+   subtype ISR_CTSIF_Field is Interfaces.STM32.Bit;
+   subtype ISR_CTS_Field is Interfaces.STM32.Bit;
+   subtype ISR_RTOF_Field is Interfaces.STM32.Bit;
+   subtype ISR_EOBF_Field is Interfaces.STM32.Bit;
+   subtype ISR_ABRE_Field is Interfaces.STM32.Bit;
+   subtype ISR_ABRF_Field is Interfaces.STM32.Bit;
+   subtype ISR_BUSY_Field is Interfaces.STM32.Bit;
+   subtype ISR_CMF_Field is Interfaces.STM32.Bit;
+   subtype ISR_SBKF_Field is Interfaces.STM32.Bit;
+   subtype ISR_RWU_Field is Interfaces.STM32.Bit;
+   subtype ISR_WUF_Field is Interfaces.STM32.Bit;
+   subtype ISR_TEACK_Field is Interfaces.STM32.Bit;
+   subtype ISR_REACK_Field is Interfaces.STM32.Bit;
 
    --  Interrupt & status register
    type ISR_Register is record
@@ -522,7 +521,7 @@ package Interfaces.STM32.USART is
       --  Read-only. EOBF
       EOBF           : ISR_EOBF_Field;
       --  unspecified
-      Reserved_13_13 : Interfaces.Bit_Types.Bit;
+      Reserved_13_13 : Interfaces.STM32.Bit;
       --  Read-only. ABRE
       ABRE           : ISR_ABRE_Field;
       --  Read-only. ABRF
@@ -542,7 +541,7 @@ package Interfaces.STM32.USART is
       --  Read-only. REACK
       REACK          : ISR_REACK_Field;
       --  unspecified
-      Reserved_23_31 : Interfaces.Bit_Types.UInt9;
+      Reserved_23_31 : Interfaces.STM32.UInt9;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -574,18 +573,18 @@ package Interfaces.STM32.USART is
       Reserved_23_31 at 0 range 23 .. 31;
    end record;
 
-   subtype ICR_PECF_Field is Interfaces.Bit_Types.Bit;
-   subtype ICR_FECF_Field is Interfaces.Bit_Types.Bit;
-   subtype ICR_NCF_Field is Interfaces.Bit_Types.Bit;
-   subtype ICR_ORECF_Field is Interfaces.Bit_Types.Bit;
-   subtype ICR_IDLECF_Field is Interfaces.Bit_Types.Bit;
-   subtype ICR_TCCF_Field is Interfaces.Bit_Types.Bit;
-   subtype ICR_LBDCF_Field is Interfaces.Bit_Types.Bit;
-   subtype ICR_CTSCF_Field is Interfaces.Bit_Types.Bit;
-   subtype ICR_RTOCF_Field is Interfaces.Bit_Types.Bit;
-   subtype ICR_EOBCF_Field is Interfaces.Bit_Types.Bit;
-   subtype ICR_CMCF_Field is Interfaces.Bit_Types.Bit;
-   subtype ICR_WUCF_Field is Interfaces.Bit_Types.Bit;
+   subtype ICR_PECF_Field is Interfaces.STM32.Bit;
+   subtype ICR_FECF_Field is Interfaces.STM32.Bit;
+   subtype ICR_NCF_Field is Interfaces.STM32.Bit;
+   subtype ICR_ORECF_Field is Interfaces.STM32.Bit;
+   subtype ICR_IDLECF_Field is Interfaces.STM32.Bit;
+   subtype ICR_TCCF_Field is Interfaces.STM32.Bit;
+   subtype ICR_LBDCF_Field is Interfaces.STM32.Bit;
+   subtype ICR_CTSCF_Field is Interfaces.STM32.Bit;
+   subtype ICR_RTOCF_Field is Interfaces.STM32.Bit;
+   subtype ICR_EOBCF_Field is Interfaces.STM32.Bit;
+   subtype ICR_CMCF_Field is Interfaces.STM32.Bit;
+   subtype ICR_WUCF_Field is Interfaces.STM32.Bit;
 
    --  Interrupt flag clear register
    type ICR_Register is record
@@ -600,31 +599,31 @@ package Interfaces.STM32.USART is
       --  Write-only. Idle line detected clear flag
       IDLECF         : ICR_IDLECF_Field := 16#0#;
       --  unspecified
-      Reserved_5_5   : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_5_5   : Interfaces.STM32.Bit := 16#0#;
       --  Write-only. Transmission complete clear flag
       TCCF           : ICR_TCCF_Field := 16#0#;
       --  unspecified
-      Reserved_7_7   : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_7_7   : Interfaces.STM32.Bit := 16#0#;
       --  Write-only. LIN break detection clear flag
       LBDCF          : ICR_LBDCF_Field := 16#0#;
       --  Write-only. CTS clear flag
       CTSCF          : ICR_CTSCF_Field := 16#0#;
       --  unspecified
-      Reserved_10_10 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_10_10 : Interfaces.STM32.Bit := 16#0#;
       --  Write-only. Receiver timeout clear flag
       RTOCF          : ICR_RTOCF_Field := 16#0#;
       --  Write-only. End of block clear flag
       EOBCF          : ICR_EOBCF_Field := 16#0#;
       --  unspecified
-      Reserved_13_16 : Interfaces.Bit_Types.UInt4 := 16#0#;
+      Reserved_13_16 : Interfaces.STM32.UInt4 := 16#0#;
       --  Write-only. Character match clear flag
       CMCF           : ICR_CMCF_Field := 16#0#;
       --  unspecified
-      Reserved_18_19 : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_18_19 : Interfaces.STM32.UInt2 := 16#0#;
       --  Write-only. Wakeup from Stop mode clear flag
       WUCF           : ICR_WUCF_Field := 16#0#;
       --  unspecified
-      Reserved_21_31 : Interfaces.Bit_Types.UInt11 := 16#0#;
+      Reserved_21_31 : Interfaces.STM32.UInt11 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -650,14 +649,14 @@ package Interfaces.STM32.USART is
       Reserved_21_31 at 0 range 21 .. 31;
    end record;
 
-   subtype RDR_RDR_Field is Interfaces.Bit_Types.UInt9;
+   subtype RDR_RDR_Field is Interfaces.STM32.UInt9;
 
    --  Receive data register
    type RDR_Register is record
       --  Read-only. Receive data value
       RDR           : RDR_RDR_Field;
       --  unspecified
-      Reserved_9_31 : Interfaces.Bit_Types.UInt23;
+      Reserved_9_31 : Interfaces.STM32.UInt23;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -667,14 +666,14 @@ package Interfaces.STM32.USART is
       Reserved_9_31 at 0 range 9 .. 31;
    end record;
 
-   subtype TDR_TDR_Field is Interfaces.Bit_Types.UInt9;
+   subtype TDR_TDR_Field is Interfaces.STM32.UInt9;
 
    --  Transmit data register
    type TDR_Register is record
       --  Transmit data value
       TDR           : TDR_TDR_Field := 16#0#;
       --  unspecified
-      Reserved_9_31 : Interfaces.Bit_Types.UInt23 := 16#0#;
+      Reserved_9_31 : Interfaces.STM32.UInt23 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -731,34 +730,34 @@ package Interfaces.STM32.USART is
 
    --  Universal synchronous asynchronous receiver transmitter
    UART4_Periph : aliased USART_Peripheral
-     with Import, Address => UART4_Base;
+     with Import, Address => System'To_Address (16#40004C00#);
 
    --  Universal synchronous asynchronous receiver transmitter
    UART5_Periph : aliased USART_Peripheral
-     with Import, Address => UART5_Base;
+     with Import, Address => System'To_Address (16#40005000#);
 
    --  Universal synchronous asynchronous receiver transmitter
    UART7_Periph : aliased USART_Peripheral
-     with Import, Address => UART7_Base;
+     with Import, Address => System'To_Address (16#40007800#);
 
    --  Universal synchronous asynchronous receiver transmitter
    UART8_Periph : aliased USART_Peripheral
-     with Import, Address => UART8_Base;
+     with Import, Address => System'To_Address (16#40007C00#);
 
    --  Universal synchronous asynchronous receiver transmitter
    USART1_Periph : aliased USART_Peripheral
-     with Import, Address => USART1_Base;
+     with Import, Address => System'To_Address (16#40011000#);
 
    --  Universal synchronous asynchronous receiver transmitter
    USART2_Periph : aliased USART_Peripheral
-     with Import, Address => USART2_Base;
+     with Import, Address => System'To_Address (16#40004400#);
 
    --  Universal synchronous asynchronous receiver transmitter
    USART3_Periph : aliased USART_Peripheral
-     with Import, Address => USART3_Base;
+     with Import, Address => System'To_Address (16#40004800#);
 
    --  Universal synchronous asynchronous receiver transmitter
    USART6_Periph : aliased USART_Peripheral
-     with Import, Address => USART6_Base;
+     with Import, Address => System'To_Address (16#40011400#);
 
 end Interfaces.STM32.USART;

@@ -7,7 +7,6 @@
 pragma Ada_2012;
 pragma Style_Checks (Off);
 
-with Interfaces.Bit_Types;
 with System;
 
 package Interfaces.STM32.RCC is
@@ -18,20 +17,20 @@ package Interfaces.STM32.RCC is
    -- Registers --
    ---------------
 
-   subtype CR_HSION_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_HSIRDY_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_HSITRIM_Field is Interfaces.Bit_Types.UInt5;
-   subtype CR_HSICAL_Field is Interfaces.Bit_Types.Byte;
-   subtype CR_HSEON_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_HSERDY_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_HSEBYP_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_CSSON_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_PLLON_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_PLLRDY_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_PLLI2SON_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_PLLI2SRDY_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_PLLSAION_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_PLLSAIRDY_Field is Interfaces.Bit_Types.Bit;
+   subtype CR_HSION_Field is Interfaces.STM32.Bit;
+   subtype CR_HSIRDY_Field is Interfaces.STM32.Bit;
+   subtype CR_HSITRIM_Field is Interfaces.STM32.UInt5;
+   subtype CR_HSICAL_Field is Interfaces.STM32.Byte;
+   subtype CR_HSEON_Field is Interfaces.STM32.Bit;
+   subtype CR_HSERDY_Field is Interfaces.STM32.Bit;
+   subtype CR_HSEBYP_Field is Interfaces.STM32.Bit;
+   subtype CR_CSSON_Field is Interfaces.STM32.Bit;
+   subtype CR_PLLON_Field is Interfaces.STM32.Bit;
+   subtype CR_PLLRDY_Field is Interfaces.STM32.Bit;
+   subtype CR_PLLI2SON_Field is Interfaces.STM32.Bit;
+   subtype CR_PLLI2SRDY_Field is Interfaces.STM32.Bit;
+   subtype CR_PLLSAION_Field is Interfaces.STM32.Bit;
+   subtype CR_PLLSAIRDY_Field is Interfaces.STM32.Bit;
 
    --  clock control register
    type CR_Register is record
@@ -40,7 +39,7 @@ package Interfaces.STM32.RCC is
       --  Read-only. Internal high-speed clock ready flag
       HSIRDY         : CR_HSIRDY_Field := 16#1#;
       --  unspecified
-      Reserved_2_2   : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_2_2   : Interfaces.STM32.Bit := 16#0#;
       --  Internal high-speed clock trimming
       HSITRIM        : CR_HSITRIM_Field := 16#10#;
       --  Read-only. Internal high-speed clock calibration
@@ -54,7 +53,7 @@ package Interfaces.STM32.RCC is
       --  Clock security system enable
       CSSON          : CR_CSSON_Field := 16#0#;
       --  unspecified
-      Reserved_20_23 : Interfaces.Bit_Types.UInt4 := 16#0#;
+      Reserved_20_23 : Interfaces.STM32.UInt4 := 16#0#;
       --  Main PLL (PLL) enable
       PLLON          : CR_PLLON_Field := 16#0#;
       --  Read-only. Main PLL (PLL) clock ready flag
@@ -68,7 +67,7 @@ package Interfaces.STM32.RCC is
       --  Read-only. PLLSAI clock ready flag
       PLLSAIRDY      : CR_PLLSAIRDY_Field := 16#0#;
       --  unspecified
-      Reserved_30_31 : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_30_31 : Interfaces.STM32.UInt2 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -93,11 +92,11 @@ package Interfaces.STM32.RCC is
       Reserved_30_31 at 0 range 30 .. 31;
    end record;
 
-   subtype PLLCFGR_PLLM_Field is Interfaces.Bit_Types.UInt6;
-   subtype PLLCFGR_PLLN_Field is Interfaces.Bit_Types.UInt9;
-   subtype PLLCFGR_PLLP_Field is Interfaces.Bit_Types.UInt2;
-   subtype PLLCFGR_PLLSRC_Field is Interfaces.Bit_Types.Bit;
-   subtype PLLCFGR_PLLQ_Field is Interfaces.Bit_Types.UInt4;
+   subtype PLLCFGR_PLLM_Field is Interfaces.STM32.UInt6;
+   subtype PLLCFGR_PLLN_Field is Interfaces.STM32.UInt9;
+   subtype PLLCFGR_PLLP_Field is Interfaces.STM32.UInt2;
+   subtype PLLCFGR_PLLSRC_Field is Interfaces.STM32.Bit;
+   subtype PLLCFGR_PLLQ_Field is Interfaces.STM32.UInt4;
 
    --  PLL configuration register
    type PLLCFGR_Register is record
@@ -107,20 +106,20 @@ package Interfaces.STM32.RCC is
       --  Main PLL (PLL) multiplication factor for VCO
       PLLN           : PLLCFGR_PLLN_Field := 16#C0#;
       --  unspecified
-      Reserved_15_15 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_15_15 : Interfaces.STM32.Bit := 16#0#;
       --  Main PLL (PLL) division factor for main system clock
       PLLP           : PLLCFGR_PLLP_Field := 16#0#;
       --  unspecified
-      Reserved_18_21 : Interfaces.Bit_Types.UInt4 := 16#0#;
+      Reserved_18_21 : Interfaces.STM32.UInt4 := 16#0#;
       --  Main PLL(PLL) and audio PLL (PLLI2S) entry clock source
       PLLSRC         : PLLCFGR_PLLSRC_Field := 16#0#;
       --  unspecified
-      Reserved_23_23 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_23_23 : Interfaces.STM32.Bit := 16#0#;
       --  Main PLL (PLL) division factor for USB OTG FS, SDIO and random number
       --  generator clocks
       PLLQ           : PLLCFGR_PLLQ_Field := 16#4#;
       --  unspecified
-      Reserved_28_31 : Interfaces.Bit_Types.UInt4 := 16#2#;
+      Reserved_28_31 : Interfaces.STM32.UInt4 := 16#2#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -137,11 +136,11 @@ package Interfaces.STM32.RCC is
       Reserved_28_31 at 0 range 28 .. 31;
    end record;
 
-   subtype CFGR_SW_Field is Interfaces.Bit_Types.UInt2;
-   subtype CFGR_SWS_Field is Interfaces.Bit_Types.UInt2;
-   subtype CFGR_HPRE_Field is Interfaces.Bit_Types.UInt4;
+   subtype CFGR_SW_Field is Interfaces.STM32.UInt2;
+   subtype CFGR_SWS_Field is Interfaces.STM32.UInt2;
+   subtype CFGR_HPRE_Field is Interfaces.STM32.UInt4;
    --  CFGR_PPRE array element
-   subtype CFGR_PPRE_Element is Interfaces.Bit_Types.UInt3;
+   subtype CFGR_PPRE_Element is Interfaces.STM32.UInt3;
 
    --  CFGR_PPRE array
    type CFGR_PPRE_Field_Array is array (1 .. 2) of CFGR_PPRE_Element
@@ -154,7 +153,7 @@ package Interfaces.STM32.RCC is
       case As_Array is
          when False =>
             --  PPRE as a value
-            Val : Interfaces.Bit_Types.UInt6;
+            Val : Interfaces.STM32.UInt6;
          when True =>
             --  PPRE as an array
             Arr : CFGR_PPRE_Field_Array;
@@ -167,12 +166,12 @@ package Interfaces.STM32.RCC is
       Arr at 0 range 0 .. 5;
    end record;
 
-   subtype CFGR_RTCPRE_Field is Interfaces.Bit_Types.UInt5;
-   subtype CFGR_MCO1_Field is Interfaces.Bit_Types.UInt2;
-   subtype CFGR_I2SSRC_Field is Interfaces.Bit_Types.Bit;
-   subtype CFGR_MCO1PRE_Field is Interfaces.Bit_Types.UInt3;
-   subtype CFGR_MCO2PRE_Field is Interfaces.Bit_Types.UInt3;
-   subtype CFGR_MCO2_Field is Interfaces.Bit_Types.UInt2;
+   subtype CFGR_RTCPRE_Field is Interfaces.STM32.UInt5;
+   subtype CFGR_MCO1_Field is Interfaces.STM32.UInt2;
+   subtype CFGR_I2SSRC_Field is Interfaces.STM32.Bit;
+   subtype CFGR_MCO1PRE_Field is Interfaces.STM32.UInt3;
+   subtype CFGR_MCO2PRE_Field is Interfaces.STM32.UInt3;
+   subtype CFGR_MCO2_Field is Interfaces.STM32.UInt2;
 
    --  clock configuration register
    type CFGR_Register is record
@@ -183,7 +182,7 @@ package Interfaces.STM32.RCC is
       --  AHB prescaler
       HPRE         : CFGR_HPRE_Field := 16#0#;
       --  unspecified
-      Reserved_8_9 : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_8_9 : Interfaces.STM32.UInt2 := 16#0#;
       --  APB Low speed prescaler (APB1)
       PPRE         : CFGR_PPRE_Field := (As_Array => False, Val => 16#0#);
       --  HSE division factor for RTC clock
@@ -216,29 +215,29 @@ package Interfaces.STM32.RCC is
       MCO2         at 0 range 30 .. 31;
    end record;
 
-   subtype CIR_LSIRDYF_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_LSERDYF_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_HSIRDYF_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_HSERDYF_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_PLLRDYF_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_PLLI2SRDYF_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_PLLSAIRDYF_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_CSSF_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_LSIRDYIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_LSERDYIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_HSIRDYIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_HSERDYIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_PLLRDYIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_PLLI2SRDYIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_PLLSAIRDYIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_LSIRDYC_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_LSERDYC_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_HSIRDYC_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_HSERDYC_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_PLLRDYC_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_PLLI2SRDYC_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_PLLSAIRDYC_Field is Interfaces.Bit_Types.Bit;
-   subtype CIR_CSSC_Field is Interfaces.Bit_Types.Bit;
+   subtype CIR_LSIRDYF_Field is Interfaces.STM32.Bit;
+   subtype CIR_LSERDYF_Field is Interfaces.STM32.Bit;
+   subtype CIR_HSIRDYF_Field is Interfaces.STM32.Bit;
+   subtype CIR_HSERDYF_Field is Interfaces.STM32.Bit;
+   subtype CIR_PLLRDYF_Field is Interfaces.STM32.Bit;
+   subtype CIR_PLLI2SRDYF_Field is Interfaces.STM32.Bit;
+   subtype CIR_PLLSAIRDYF_Field is Interfaces.STM32.Bit;
+   subtype CIR_CSSF_Field is Interfaces.STM32.Bit;
+   subtype CIR_LSIRDYIE_Field is Interfaces.STM32.Bit;
+   subtype CIR_LSERDYIE_Field is Interfaces.STM32.Bit;
+   subtype CIR_HSIRDYIE_Field is Interfaces.STM32.Bit;
+   subtype CIR_HSERDYIE_Field is Interfaces.STM32.Bit;
+   subtype CIR_PLLRDYIE_Field is Interfaces.STM32.Bit;
+   subtype CIR_PLLI2SRDYIE_Field is Interfaces.STM32.Bit;
+   subtype CIR_PLLSAIRDYIE_Field is Interfaces.STM32.Bit;
+   subtype CIR_LSIRDYC_Field is Interfaces.STM32.Bit;
+   subtype CIR_LSERDYC_Field is Interfaces.STM32.Bit;
+   subtype CIR_HSIRDYC_Field is Interfaces.STM32.Bit;
+   subtype CIR_HSERDYC_Field is Interfaces.STM32.Bit;
+   subtype CIR_PLLRDYC_Field is Interfaces.STM32.Bit;
+   subtype CIR_PLLI2SRDYC_Field is Interfaces.STM32.Bit;
+   subtype CIR_PLLSAIRDYC_Field is Interfaces.STM32.Bit;
+   subtype CIR_CSSC_Field is Interfaces.STM32.Bit;
 
    --  clock interrupt register
    type CIR_Register is record
@@ -273,7 +272,7 @@ package Interfaces.STM32.RCC is
       --  PLLSAI Ready Interrupt Enable
       PLLSAIRDYIE    : CIR_PLLSAIRDYIE_Field := 16#0#;
       --  unspecified
-      Reserved_15_15 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_15_15 : Interfaces.STM32.Bit := 16#0#;
       --  Write-only. LSI ready interrupt clear
       LSIRDYC        : CIR_LSIRDYC_Field := 16#0#;
       --  Write-only. LSE ready interrupt clear
@@ -291,7 +290,7 @@ package Interfaces.STM32.RCC is
       --  Write-only. Clock security system interrupt clear
       CSSC           : CIR_CSSC_Field := 16#0#;
       --  unspecified
-      Reserved_24_31 : Interfaces.Bit_Types.Byte := 16#0#;
+      Reserved_24_31 : Interfaces.STM32.Byte := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -324,23 +323,23 @@ package Interfaces.STM32.RCC is
       Reserved_24_31 at 0 range 24 .. 31;
    end record;
 
-   subtype AHB1RSTR_GPIOARST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1RSTR_GPIOBRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1RSTR_GPIOCRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1RSTR_GPIODRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1RSTR_GPIOERST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1RSTR_GPIOFRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1RSTR_GPIOGRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1RSTR_GPIOHRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1RSTR_GPIOIRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1RSTR_GPIOJRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1RSTR_GPIOKRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1RSTR_CRCRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1RSTR_DMA1RST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1RSTR_DMA2RST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1RSTR_DMA2DRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1RSTR_ETHMACRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1RSTR_OTGHSRST_Field is Interfaces.Bit_Types.Bit;
+   subtype AHB1RSTR_GPIOARST_Field is Interfaces.STM32.Bit;
+   subtype AHB1RSTR_GPIOBRST_Field is Interfaces.STM32.Bit;
+   subtype AHB1RSTR_GPIOCRST_Field is Interfaces.STM32.Bit;
+   subtype AHB1RSTR_GPIODRST_Field is Interfaces.STM32.Bit;
+   subtype AHB1RSTR_GPIOERST_Field is Interfaces.STM32.Bit;
+   subtype AHB1RSTR_GPIOFRST_Field is Interfaces.STM32.Bit;
+   subtype AHB1RSTR_GPIOGRST_Field is Interfaces.STM32.Bit;
+   subtype AHB1RSTR_GPIOHRST_Field is Interfaces.STM32.Bit;
+   subtype AHB1RSTR_GPIOIRST_Field is Interfaces.STM32.Bit;
+   subtype AHB1RSTR_GPIOJRST_Field is Interfaces.STM32.Bit;
+   subtype AHB1RSTR_GPIOKRST_Field is Interfaces.STM32.Bit;
+   subtype AHB1RSTR_CRCRST_Field is Interfaces.STM32.Bit;
+   subtype AHB1RSTR_DMA1RST_Field is Interfaces.STM32.Bit;
+   subtype AHB1RSTR_DMA2RST_Field is Interfaces.STM32.Bit;
+   subtype AHB1RSTR_DMA2DRST_Field is Interfaces.STM32.Bit;
+   subtype AHB1RSTR_ETHMACRST_Field is Interfaces.STM32.Bit;
+   subtype AHB1RSTR_OTGHSRST_Field is Interfaces.STM32.Bit;
 
    --  AHB1 peripheral reset register
    type AHB1RSTR_Register is record
@@ -367,11 +366,11 @@ package Interfaces.STM32.RCC is
       --  IO port K reset
       GPIOKRST       : AHB1RSTR_GPIOKRST_Field := 16#0#;
       --  unspecified
-      Reserved_11_11 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_11_11 : Interfaces.STM32.Bit := 16#0#;
       --  CRC reset
       CRCRST         : AHB1RSTR_CRCRST_Field := 16#0#;
       --  unspecified
-      Reserved_13_20 : Interfaces.Bit_Types.Byte := 16#0#;
+      Reserved_13_20 : Interfaces.STM32.Byte := 16#0#;
       --  DMA2 reset
       DMA1RST        : AHB1RSTR_DMA1RST_Field := 16#0#;
       --  DMA2 reset
@@ -379,15 +378,15 @@ package Interfaces.STM32.RCC is
       --  DMA2D reset
       DMA2DRST       : AHB1RSTR_DMA2DRST_Field := 16#0#;
       --  unspecified
-      Reserved_24_24 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_24_24 : Interfaces.STM32.Bit := 16#0#;
       --  Ethernet MAC reset
       ETHMACRST      : AHB1RSTR_ETHMACRST_Field := 16#0#;
       --  unspecified
-      Reserved_26_28 : Interfaces.Bit_Types.UInt3 := 16#0#;
+      Reserved_26_28 : Interfaces.STM32.UInt3 := 16#0#;
       --  USB OTG HS module reset
       OTGHSRST       : AHB1RSTR_OTGHSRST_Field := 16#0#;
       --  unspecified
-      Reserved_30_31 : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_30_31 : Interfaces.STM32.UInt2 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -417,18 +416,18 @@ package Interfaces.STM32.RCC is
       Reserved_30_31 at 0 range 30 .. 31;
    end record;
 
-   subtype AHB2RSTR_DCMIRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB2RSTR_CRYPRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB2RSTR_HSAHRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB2RSTR_RNGRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB2RSTR_OTGFSRST_Field is Interfaces.Bit_Types.Bit;
+   subtype AHB2RSTR_DCMIRST_Field is Interfaces.STM32.Bit;
+   subtype AHB2RSTR_CRYPRST_Field is Interfaces.STM32.Bit;
+   subtype AHB2RSTR_HSAHRST_Field is Interfaces.STM32.Bit;
+   subtype AHB2RSTR_RNGRST_Field is Interfaces.STM32.Bit;
+   subtype AHB2RSTR_OTGFSRST_Field is Interfaces.STM32.Bit;
 
    --  AHB2 peripheral reset register
    type AHB2RSTR_Register is record
       --  Camera interface reset
       DCMIRST       : AHB2RSTR_DCMIRST_Field := 16#0#;
       --  unspecified
-      Reserved_1_3  : Interfaces.Bit_Types.UInt3 := 16#0#;
+      Reserved_1_3  : Interfaces.STM32.UInt3 := 16#0#;
       --  Cryptographic module reset
       CRYPRST       : AHB2RSTR_CRYPRST_Field := 16#0#;
       --  Hash module reset
@@ -438,7 +437,7 @@ package Interfaces.STM32.RCC is
       --  USB OTG FS module reset
       OTGFSRST      : AHB2RSTR_OTGFSRST_Field := 16#0#;
       --  unspecified
-      Reserved_8_31 : Interfaces.Bit_Types.UInt24 := 16#0#;
+      Reserved_8_31 : Interfaces.STM32.UInt24 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -453,8 +452,8 @@ package Interfaces.STM32.RCC is
       Reserved_8_31 at 0 range 8 .. 31;
    end record;
 
-   subtype AHB3RSTR_FMCRST_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB3RSTR_QSPIRST_Field is Interfaces.Bit_Types.Bit;
+   subtype AHB3RSTR_FMCRST_Field is Interfaces.STM32.Bit;
+   subtype AHB3RSTR_QSPIRST_Field is Interfaces.STM32.Bit;
 
    --  AHB3 peripheral reset register
    type AHB3RSTR_Register is record
@@ -463,7 +462,7 @@ package Interfaces.STM32.RCC is
       --  Quad SPI memory controller reset
       QSPIRST       : AHB3RSTR_QSPIRST_Field := 16#0#;
       --  unspecified
-      Reserved_2_31 : Interfaces.Bit_Types.UInt30 := 16#0#;
+      Reserved_2_31 : Interfaces.STM32.UInt30 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -474,35 +473,35 @@ package Interfaces.STM32.RCC is
       Reserved_2_31 at 0 range 2 .. 31;
    end record;
 
-   subtype APB1RSTR_TIM2RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_TIM3RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_TIM4RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_TIM5RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_TIM6RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_TIM7RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_TIM12RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_TIM13RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_TIM14RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_LPTIM1RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_WWDGRST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_SPI2RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_SPI3RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_SPDIFRXRST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_UART2RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_UART3RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_UART4RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_UART5RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_I2C1RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_I2C2RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_I2C3RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_I2C4RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_CAN1RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_CAN2RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_CECRST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_PWRRST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_DACRST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_UART7RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1RSTR_UART8RST_Field is Interfaces.Bit_Types.Bit;
+   subtype APB1RSTR_TIM2RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_TIM3RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_TIM4RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_TIM5RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_TIM6RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_TIM7RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_TIM12RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_TIM13RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_TIM14RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_LPTIM1RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_WWDGRST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_SPI2RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_SPI3RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_SPDIFRXRST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_UART2RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_UART3RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_UART4RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_UART5RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_I2C1RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_I2C2RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_I2C3RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_I2C4RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_CAN1RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_CAN2RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_CECRST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_PWRRST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_DACRST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_UART7RST_Field is Interfaces.STM32.Bit;
+   subtype APB1RSTR_UART8RST_Field is Interfaces.STM32.Bit;
 
    --  APB1 peripheral reset register
    type APB1RSTR_Register is record
@@ -527,11 +526,11 @@ package Interfaces.STM32.RCC is
       --  Low power timer 1 reset
       LPTIM1RST      : APB1RSTR_LPTIM1RST_Field := 16#0#;
       --  unspecified
-      Reserved_10_10 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_10_10 : Interfaces.STM32.Bit := 16#0#;
       --  Window watchdog reset
       WWDGRST        : APB1RSTR_WWDGRST_Field := 16#0#;
       --  unspecified
-      Reserved_12_13 : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_12_13 : Interfaces.STM32.UInt2 := 16#0#;
       --  SPI 2 reset
       SPI2RST        : APB1RSTR_SPI2RST_Field := 16#0#;
       --  SPI 3 reset
@@ -606,27 +605,27 @@ package Interfaces.STM32.RCC is
       UART8RST       at 0 range 31 .. 31;
    end record;
 
-   subtype APB2RSTR_TIM1RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_TIM8RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_USART1RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_USART6RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_SDMMC2RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_ADCRST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_SDMMC1RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_SPI1RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_SPI4RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_SYSCFGRST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_TIM9RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_TIM10RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_TIM11RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_SPI5RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_SPI6RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_SAI1RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_SAI2RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_LTDCRST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_DSIRST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_DFSDM1RST_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2RSTR_MDIORST_Field is Interfaces.Bit_Types.Bit;
+   subtype APB2RSTR_TIM1RST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_TIM8RST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_USART1RST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_USART6RST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_SDMMC2RST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_ADCRST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_SDMMC1RST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_SPI1RST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_SPI4RST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_SYSCFGRST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_TIM9RST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_TIM10RST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_TIM11RST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_SPI5RST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_SPI6RST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_SAI1RST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_SAI2RST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_LTDCRST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_DSIRST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_DFSDM1RST_Field is Interfaces.STM32.Bit;
+   subtype APB2RSTR_MDIORST_Field is Interfaces.STM32.Bit;
 
    --  APB2 peripheral reset register
    type APB2RSTR_Register is record
@@ -635,19 +634,19 @@ package Interfaces.STM32.RCC is
       --  TIM8 reset
       TIM8RST        : APB2RSTR_TIM8RST_Field := 16#0#;
       --  unspecified
-      Reserved_2_3   : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_2_3   : Interfaces.STM32.UInt2 := 16#0#;
       --  USART1 reset
       USART1RST      : APB2RSTR_USART1RST_Field := 16#0#;
       --  USART6 reset
       USART6RST      : APB2RSTR_USART6RST_Field := 16#0#;
       --  unspecified
-      Reserved_6_6   : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_6_6   : Interfaces.STM32.Bit := 16#0#;
       --  SDMMC2 reset
       SDMMC2RST      : APB2RSTR_SDMMC2RST_Field := 16#0#;
       --  ADC interface reset (common to all ADCs)
       ADCRST         : APB2RSTR_ADCRST_Field := 16#0#;
       --  unspecified
-      Reserved_9_10  : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_9_10  : Interfaces.STM32.UInt2 := 16#0#;
       --  SDMMC1 reset
       SDMMC1RST      : APB2RSTR_SDMMC1RST_Field := 16#0#;
       --  SPI 1 reset
@@ -657,7 +656,7 @@ package Interfaces.STM32.RCC is
       --  System configuration controller reset
       SYSCFGRST      : APB2RSTR_SYSCFGRST_Field := 16#0#;
       --  unspecified
-      Reserved_15_15 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_15_15 : Interfaces.STM32.Bit := 16#0#;
       --  TIM9 reset
       TIM9RST        : APB2RSTR_TIM9RST_Field := 16#0#;
       --  TIM10 reset
@@ -665,7 +664,7 @@ package Interfaces.STM32.RCC is
       --  TIM11 reset
       TIM11RST       : APB2RSTR_TIM11RST_Field := 16#0#;
       --  unspecified
-      Reserved_19_19 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_19_19 : Interfaces.STM32.Bit := 16#0#;
       --  SPI5 reset
       SPI5RST        : APB2RSTR_SPI5RST_Field := 16#0#;
       --  SPI6 reset
@@ -675,19 +674,19 @@ package Interfaces.STM32.RCC is
       --  SAI2 reset
       SAI2RST        : APB2RSTR_SAI2RST_Field := 16#0#;
       --  unspecified
-      Reserved_24_25 : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_24_25 : Interfaces.STM32.UInt2 := 16#0#;
       --  LTDC reset
       LTDCRST        : APB2RSTR_LTDCRST_Field := 16#0#;
       --  DSI reset
       DSIRST         : APB2RSTR_DSIRST_Field := 16#0#;
       --  unspecified
-      Reserved_28_28 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_28_28 : Interfaces.STM32.Bit := 16#0#;
       --  DFSDM1 reset
       DFSDM1RST      : APB2RSTR_DFSDM1RST_Field := 16#0#;
       --  MDIO reset
       MDIORST        : APB2RSTR_MDIORST_Field := 16#0#;
       --  unspecified
-      Reserved_31_31 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_31_31 : Interfaces.STM32.Bit := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -724,29 +723,29 @@ package Interfaces.STM32.RCC is
       Reserved_31_31 at 0 range 31 .. 31;
    end record;
 
-   subtype AHB1ENR_GPIOAEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_GPIOBEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_GPIOCEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_GPIODEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_GPIOEEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_GPIOFEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_GPIOGEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_GPIOHEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_GPIOIEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_GPIOJEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_GPIOKEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_CRCEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_BKPSRAMEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_CCMDATARAMEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_DMA1EN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_DMA2EN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_DMA2DEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_ETHMACEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_ETHMACTXEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_ETHMACRXEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_ETHMACPTPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_OTGHSEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1ENR_OTGHSULPIEN_Field is Interfaces.Bit_Types.Bit;
+   subtype AHB1ENR_GPIOAEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_GPIOBEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_GPIOCEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_GPIODEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_GPIOEEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_GPIOFEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_GPIOGEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_GPIOHEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_GPIOIEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_GPIOJEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_GPIOKEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_CRCEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_BKPSRAMEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_CCMDATARAMEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_DMA1EN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_DMA2EN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_DMA2DEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_ETHMACEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_ETHMACTXEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_ETHMACRXEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_ETHMACPTPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_OTGHSEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1ENR_OTGHSULPIEN_Field is Interfaces.STM32.Bit;
 
    --  AHB1 peripheral clock register
    type AHB1ENR_Register is record
@@ -773,15 +772,15 @@ package Interfaces.STM32.RCC is
       --  IO port K clock enable
       GPIOKEN        : AHB1ENR_GPIOKEN_Field := 16#0#;
       --  unspecified
-      Reserved_11_11 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_11_11 : Interfaces.STM32.Bit := 16#0#;
       --  CRC clock enable
       CRCEN          : AHB1ENR_CRCEN_Field := 16#0#;
       --  unspecified
-      Reserved_13_17 : Interfaces.Bit_Types.UInt5 := 16#0#;
+      Reserved_13_17 : Interfaces.STM32.UInt5 := 16#0#;
       --  Backup SRAM interface clock enable
       BKPSRAMEN      : AHB1ENR_BKPSRAMEN_Field := 16#0#;
       --  unspecified
-      Reserved_19_19 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_19_19 : Interfaces.STM32.Bit := 16#0#;
       --  CCM data RAM clock enable
       CCMDATARAMEN   : AHB1ENR_CCMDATARAMEN_Field := 16#1#;
       --  DMA1 clock enable
@@ -791,7 +790,7 @@ package Interfaces.STM32.RCC is
       --  DMA2D clock enable
       DMA2DEN        : AHB1ENR_DMA2DEN_Field := 16#0#;
       --  unspecified
-      Reserved_24_24 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_24_24 : Interfaces.STM32.Bit := 16#0#;
       --  Ethernet MAC clock enable
       ETHMACEN       : AHB1ENR_ETHMACEN_Field := 16#0#;
       --  Ethernet Transmission clock enable
@@ -805,7 +804,7 @@ package Interfaces.STM32.RCC is
       --  USB OTG HSULPI clock enable
       OTGHSULPIEN    : AHB1ENR_OTGHSULPIEN_Field := 16#0#;
       --  unspecified
-      Reserved_31_31 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_31_31 : Interfaces.STM32.Bit := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -841,18 +840,18 @@ package Interfaces.STM32.RCC is
       Reserved_31_31 at 0 range 31 .. 31;
    end record;
 
-   subtype AHB2ENR_DCMIEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB2ENR_CRYPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB2ENR_HASHEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB2ENR_RNGEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB2ENR_OTGFSEN_Field is Interfaces.Bit_Types.Bit;
+   subtype AHB2ENR_DCMIEN_Field is Interfaces.STM32.Bit;
+   subtype AHB2ENR_CRYPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB2ENR_HASHEN_Field is Interfaces.STM32.Bit;
+   subtype AHB2ENR_RNGEN_Field is Interfaces.STM32.Bit;
+   subtype AHB2ENR_OTGFSEN_Field is Interfaces.STM32.Bit;
 
    --  AHB2 peripheral clock enable register
    type AHB2ENR_Register is record
       --  Camera interface enable
       DCMIEN        : AHB2ENR_DCMIEN_Field := 16#0#;
       --  unspecified
-      Reserved_1_3  : Interfaces.Bit_Types.UInt3 := 16#0#;
+      Reserved_1_3  : Interfaces.STM32.UInt3 := 16#0#;
       --  Cryptographic modules clock enable
       CRYPEN        : AHB2ENR_CRYPEN_Field := 16#0#;
       --  Hash modules clock enable
@@ -862,7 +861,7 @@ package Interfaces.STM32.RCC is
       --  USB OTG FS clock enable
       OTGFSEN       : AHB2ENR_OTGFSEN_Field := 16#0#;
       --  unspecified
-      Reserved_8_31 : Interfaces.Bit_Types.UInt24 := 16#0#;
+      Reserved_8_31 : Interfaces.STM32.UInt24 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -877,8 +876,8 @@ package Interfaces.STM32.RCC is
       Reserved_8_31 at 0 range 8 .. 31;
    end record;
 
-   subtype AHB3ENR_FMCEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB3ENR_QSPIEN_Field is Interfaces.Bit_Types.Bit;
+   subtype AHB3ENR_FMCEN_Field is Interfaces.STM32.Bit;
+   subtype AHB3ENR_QSPIEN_Field is Interfaces.STM32.Bit;
 
    --  AHB3 peripheral clock enable register
    type AHB3ENR_Register is record
@@ -887,7 +886,7 @@ package Interfaces.STM32.RCC is
       --  Quad SPI memory controller clock enable
       QSPIEN        : AHB3ENR_QSPIEN_Field := 16#0#;
       --  unspecified
-      Reserved_2_31 : Interfaces.Bit_Types.UInt30 := 16#0#;
+      Reserved_2_31 : Interfaces.STM32.UInt30 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -898,35 +897,35 @@ package Interfaces.STM32.RCC is
       Reserved_2_31 at 0 range 2 .. 31;
    end record;
 
-   subtype APB1ENR_TIM2EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_TIM3EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_TIM4EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_TIM5EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_TIM6EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_TIM7EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_TIM12EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_TIM13EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_TIM14EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_LPTMI1EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_WWDGEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_SPI2EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_SPI3EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_SPDIFRXEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_USART2EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_USART3EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_UART4EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_UART5EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_I2C1EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_I2C2EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_I2C3EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_I2C4EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_CAN1EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_CAN2EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_CECEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_PWREN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_DACEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_UART7ENR_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1ENR_UART8ENR_Field is Interfaces.Bit_Types.Bit;
+   subtype APB1ENR_TIM2EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_TIM3EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_TIM4EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_TIM5EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_TIM6EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_TIM7EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_TIM12EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_TIM13EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_TIM14EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_LPTMI1EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_WWDGEN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_SPI2EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_SPI3EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_SPDIFRXEN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_USART2EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_USART3EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_UART4EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_UART5EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_I2C1EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_I2C2EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_I2C3EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_I2C4EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_CAN1EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_CAN2EN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_CECEN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_PWREN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_DACEN_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_UART7ENR_Field is Interfaces.STM32.Bit;
+   subtype APB1ENR_UART8ENR_Field is Interfaces.STM32.Bit;
 
    --  APB1 peripheral clock enable register
    type APB1ENR_Register is record
@@ -951,11 +950,11 @@ package Interfaces.STM32.RCC is
       --  Low power timer 1 clock enable
       LPTMI1EN       : APB1ENR_LPTMI1EN_Field := 16#0#;
       --  unspecified
-      Reserved_10_10 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_10_10 : Interfaces.STM32.Bit := 16#0#;
       --  Window watchdog clock enable
       WWDGEN         : APB1ENR_WWDGEN_Field := 16#0#;
       --  unspecified
-      Reserved_12_13 : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_12_13 : Interfaces.STM32.UInt2 := 16#0#;
       --  SPI2 clock enable
       SPI2EN         : APB1ENR_SPI2EN_Field := 16#0#;
       --  SPI3 clock enable
@@ -1030,29 +1029,29 @@ package Interfaces.STM32.RCC is
       UART8ENR       at 0 range 31 .. 31;
    end record;
 
-   subtype APB2ENR_TIM1EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_TIM8EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_USART1EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_USART6EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_SDMMC2EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_ADC1EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_ADC2EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_ADC3EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_SDMMC1EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_SPI1EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_SPI4ENR_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_SYSCFGEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_TIM9EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_TIM10EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_TIM11EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_SPI5ENR_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_SPI6ENR_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_SAI1EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_SAI2EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_LTDCEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_DSIEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_DFSDM1EN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2ENR_MDIOEN_Field is Interfaces.Bit_Types.Bit;
+   subtype APB2ENR_TIM1EN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_TIM8EN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_USART1EN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_USART6EN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_SDMMC2EN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_ADC1EN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_ADC2EN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_ADC3EN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_SDMMC1EN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_SPI1EN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_SPI4ENR_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_SYSCFGEN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_TIM9EN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_TIM10EN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_TIM11EN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_SPI5ENR_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_SPI6ENR_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_SAI1EN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_SAI2EN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_LTDCEN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_DSIEN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_DFSDM1EN_Field is Interfaces.STM32.Bit;
+   subtype APB2ENR_MDIOEN_Field is Interfaces.STM32.Bit;
 
    --  APB2 peripheral clock enable register
    type APB2ENR_Register is record
@@ -1061,13 +1060,13 @@ package Interfaces.STM32.RCC is
       --  TIM8 clock enable
       TIM8EN         : APB2ENR_TIM8EN_Field := 16#0#;
       --  unspecified
-      Reserved_2_3   : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_2_3   : Interfaces.STM32.UInt2 := 16#0#;
       --  USART1 clock enable
       USART1EN       : APB2ENR_USART1EN_Field := 16#0#;
       --  USART6 clock enable
       USART6EN       : APB2ENR_USART6EN_Field := 16#0#;
       --  unspecified
-      Reserved_6_6   : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_6_6   : Interfaces.STM32.Bit := 16#0#;
       --  SDMMC2 clock enable
       SDMMC2EN       : APB2ENR_SDMMC2EN_Field := 16#0#;
       --  ADC1 clock enable
@@ -1085,7 +1084,7 @@ package Interfaces.STM32.RCC is
       --  System configuration controller clock enable
       SYSCFGEN       : APB2ENR_SYSCFGEN_Field := 16#0#;
       --  unspecified
-      Reserved_15_15 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_15_15 : Interfaces.STM32.Bit := 16#0#;
       --  TIM9 clock enable
       TIM9EN         : APB2ENR_TIM9EN_Field := 16#0#;
       --  TIM10 clock enable
@@ -1093,7 +1092,7 @@ package Interfaces.STM32.RCC is
       --  TIM11 clock enable
       TIM11EN        : APB2ENR_TIM11EN_Field := 16#0#;
       --  unspecified
-      Reserved_19_19 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_19_19 : Interfaces.STM32.Bit := 16#0#;
       --  SPI5 clock enable
       SPI5ENR        : APB2ENR_SPI5ENR_Field := 16#0#;
       --  SPI6 clock enable
@@ -1103,19 +1102,19 @@ package Interfaces.STM32.RCC is
       --  SAI2 clock enable
       SAI2EN         : APB2ENR_SAI2EN_Field := 16#0#;
       --  unspecified
-      Reserved_24_25 : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_24_25 : Interfaces.STM32.UInt2 := 16#0#;
       --  LTDC clock enable
       LTDCEN         : APB2ENR_LTDCEN_Field := 16#0#;
       --  DSI clock enable
       DSIEN          : APB2ENR_DSIEN_Field := 16#0#;
       --  unspecified
-      Reserved_28_28 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_28_28 : Interfaces.STM32.Bit := 16#0#;
       --  DFSDM1 clock enable
       DFSDM1EN       : APB2ENR_DFSDM1EN_Field := 16#0#;
       --  MDIO clock enable
       MDIOEN         : APB2ENR_MDIOEN_Field := 16#0#;
       --  unspecified
-      Reserved_31_31 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_31_31 : Interfaces.STM32.Bit := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1153,32 +1152,32 @@ package Interfaces.STM32.RCC is
       Reserved_31_31 at 0 range 31 .. 31;
    end record;
 
-   subtype AHB1LPENR_GPIOALPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_GPIOBLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_GPIOCLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_GPIODLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_GPIOELPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_GPIOFLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_GPIOGLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_GPIOHLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_GPIOILPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_GPIOJLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_GPIOKLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_CRCLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_FLITFLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_SRAM1LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_SRAM2LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_BKPSRAMLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_SRAM3LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_DMA1LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_DMA2LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_DMA2DLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_ETHMACLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_ETHMACTXLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_ETHMACRXLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_ETHMACPTPLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_OTGHSLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB1LPENR_OTGHSULPILPEN_Field is Interfaces.Bit_Types.Bit;
+   subtype AHB1LPENR_GPIOALPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_GPIOBLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_GPIOCLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_GPIODLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_GPIOELPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_GPIOFLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_GPIOGLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_GPIOHLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_GPIOILPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_GPIOJLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_GPIOKLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_CRCLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_FLITFLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_SRAM1LPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_SRAM2LPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_BKPSRAMLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_SRAM3LPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_DMA1LPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_DMA2LPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_DMA2DLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_ETHMACLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_ETHMACTXLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_ETHMACRXLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_ETHMACPTPLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_OTGHSLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB1LPENR_OTGHSULPILPEN_Field is Interfaces.STM32.Bit;
 
    --  AHB1 peripheral clock enable in low power mode register
    type AHB1LPENR_Register is record
@@ -1205,11 +1204,11 @@ package Interfaces.STM32.RCC is
       --  IO port K clock enable during Sleep mode
       GPIOKLPEN      : AHB1LPENR_GPIOKLPEN_Field := 16#0#;
       --  unspecified
-      Reserved_11_11 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_11_11 : Interfaces.STM32.Bit := 16#0#;
       --  CRC clock enable during Sleep mode
       CRCLPEN        : AHB1LPENR_CRCLPEN_Field := 16#1#;
       --  unspecified
-      Reserved_13_14 : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_13_14 : Interfaces.STM32.UInt2 := 16#0#;
       --  Flash interface clock enable during Sleep mode
       FLITFLPEN      : AHB1LPENR_FLITFLPEN_Field := 16#1#;
       --  SRAM 1interface clock enable during Sleep mode
@@ -1221,7 +1220,7 @@ package Interfaces.STM32.RCC is
       --  SRAM 3 interface clock enable during Sleep mode
       SRAM3LPEN      : AHB1LPENR_SRAM3LPEN_Field := 16#0#;
       --  unspecified
-      Reserved_20_20 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_20_20 : Interfaces.STM32.Bit := 16#0#;
       --  DMA1 clock enable during Sleep mode
       DMA1LPEN       : AHB1LPENR_DMA1LPEN_Field := 16#1#;
       --  DMA2 clock enable during Sleep mode
@@ -1229,7 +1228,7 @@ package Interfaces.STM32.RCC is
       --  DMA2D clock enable during Sleep mode
       DMA2DLPEN      : AHB1LPENR_DMA2DLPEN_Field := 16#0#;
       --  unspecified
-      Reserved_24_24 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_24_24 : Interfaces.STM32.Bit := 16#0#;
       --  Ethernet MAC clock enable during Sleep mode
       ETHMACLPEN     : AHB1LPENR_ETHMACLPEN_Field := 16#1#;
       --  Ethernet transmission clock enable during Sleep mode
@@ -1243,7 +1242,7 @@ package Interfaces.STM32.RCC is
       --  USB OTG HS ULPI clock enable during Sleep mode
       OTGHSULPILPEN  : AHB1LPENR_OTGHSULPILPEN_Field := 16#1#;
       --  unspecified
-      Reserved_31_31 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_31_31 : Interfaces.STM32.Bit := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1282,18 +1281,18 @@ package Interfaces.STM32.RCC is
       Reserved_31_31 at 0 range 31 .. 31;
    end record;
 
-   subtype AHB2LPENR_DCMILPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB2LPENR_CRYPLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB2LPENR_HASHLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB2LPENR_RNGLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB2LPENR_OTGFSLPEN_Field is Interfaces.Bit_Types.Bit;
+   subtype AHB2LPENR_DCMILPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB2LPENR_CRYPLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB2LPENR_HASHLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB2LPENR_RNGLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB2LPENR_OTGFSLPEN_Field is Interfaces.STM32.Bit;
 
    --  AHB2 peripheral clock enable in low power mode register
    type AHB2LPENR_Register is record
       --  Camera interface enable during Sleep mode
       DCMILPEN      : AHB2LPENR_DCMILPEN_Field := 16#1#;
       --  unspecified
-      Reserved_1_3  : Interfaces.Bit_Types.UInt3 := 16#0#;
+      Reserved_1_3  : Interfaces.STM32.UInt3 := 16#0#;
       --  Cryptography modules clock enable during Sleep mode
       CRYPLPEN      : AHB2LPENR_CRYPLPEN_Field := 16#1#;
       --  Hash modules clock enable during Sleep mode
@@ -1303,7 +1302,7 @@ package Interfaces.STM32.RCC is
       --  USB OTG FS clock enable during Sleep mode
       OTGFSLPEN     : AHB2LPENR_OTGFSLPEN_Field := 16#1#;
       --  unspecified
-      Reserved_8_31 : Interfaces.Bit_Types.UInt24 := 16#0#;
+      Reserved_8_31 : Interfaces.STM32.UInt24 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1318,8 +1317,8 @@ package Interfaces.STM32.RCC is
       Reserved_8_31 at 0 range 8 .. 31;
    end record;
 
-   subtype AHB3LPENR_FMCLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype AHB3LPENR_QSPILPEN_Field is Interfaces.Bit_Types.Bit;
+   subtype AHB3LPENR_FMCLPEN_Field is Interfaces.STM32.Bit;
+   subtype AHB3LPENR_QSPILPEN_Field is Interfaces.STM32.Bit;
 
    --  AHB3 peripheral clock enable in low power mode register
    type AHB3LPENR_Register is record
@@ -1328,7 +1327,7 @@ package Interfaces.STM32.RCC is
       --  Quand SPI memory controller clock enable during Sleep mode
       QSPILPEN      : AHB3LPENR_QSPILPEN_Field := 16#0#;
       --  unspecified
-      Reserved_2_31 : Interfaces.Bit_Types.UInt30 := 16#0#;
+      Reserved_2_31 : Interfaces.STM32.UInt30 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1339,35 +1338,35 @@ package Interfaces.STM32.RCC is
       Reserved_2_31 at 0 range 2 .. 31;
    end record;
 
-   subtype APB1LPENR_TIM2LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_TIM3LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_TIM4LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_TIM5LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_TIM6LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_TIM7LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_TIM12LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_TIM13LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_TIM14LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_LPTIM1LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_WWDGLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_SPI2LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_SPI3LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_SPDIFRXLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_USART2LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_USART3LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_UART4LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_UART5LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_I2C1LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_I2C2LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_I2C3LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_I2C4LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_CAN1LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_CAN2LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_CECLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_PWRLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_DACLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_UART7LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB1LPENR_UART8LPEN_Field is Interfaces.Bit_Types.Bit;
+   subtype APB1LPENR_TIM2LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_TIM3LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_TIM4LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_TIM5LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_TIM6LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_TIM7LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_TIM12LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_TIM13LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_TIM14LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_LPTIM1LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_WWDGLPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_SPI2LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_SPI3LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_SPDIFRXLPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_USART2LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_USART3LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_UART4LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_UART5LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_I2C1LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_I2C2LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_I2C3LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_I2C4LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_CAN1LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_CAN2LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_CECLPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_PWRLPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_DACLPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_UART7LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB1LPENR_UART8LPEN_Field is Interfaces.STM32.Bit;
 
    --  APB1 peripheral clock enable in low power mode register
    type APB1LPENR_Register is record
@@ -1392,11 +1391,11 @@ package Interfaces.STM32.RCC is
       --  low power timer 1 clock enable during Sleep mode
       LPTIM1LPEN     : APB1LPENR_LPTIM1LPEN_Field := 16#0#;
       --  unspecified
-      Reserved_10_10 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_10_10 : Interfaces.STM32.Bit := 16#0#;
       --  Window watchdog clock enable during Sleep mode
       WWDGLPEN       : APB1LPENR_WWDGLPEN_Field := 16#1#;
       --  unspecified
-      Reserved_12_13 : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_12_13 : Interfaces.STM32.UInt2 := 16#0#;
       --  SPI2 clock enable during Sleep mode
       SPI2LPEN       : APB1LPENR_SPI2LPEN_Field := 16#1#;
       --  SPI3 clock enable during Sleep mode
@@ -1471,25 +1470,25 @@ package Interfaces.STM32.RCC is
       UART8LPEN      at 0 range 31 .. 31;
    end record;
 
-   subtype APB2LPENR_TIM1LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_TIM8LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_USART1LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_USART6LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_ADC1LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_ADC2LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_ADC3LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_SDMMC1LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_SPI1LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_SPI4LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_SYSCFGLPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_TIM9LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_TIM10LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_TIM11LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_SPI5LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_SPI6LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_SAI1LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_SAI2LPEN_Field is Interfaces.Bit_Types.Bit;
-   subtype APB2LPENR_LTDCLPEN_Field is Interfaces.Bit_Types.Bit;
+   subtype APB2LPENR_TIM1LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_TIM8LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_USART1LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_USART6LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_ADC1LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_ADC2LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_ADC3LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_SDMMC1LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_SPI1LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_SPI4LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_SYSCFGLPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_TIM9LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_TIM10LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_TIM11LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_SPI5LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_SPI6LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_SAI1LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_SAI2LPEN_Field is Interfaces.STM32.Bit;
+   subtype APB2LPENR_LTDCLPEN_Field is Interfaces.STM32.Bit;
 
    --  APB2 peripheral clock enabled in low power mode register
    type APB2LPENR_Register is record
@@ -1498,13 +1497,13 @@ package Interfaces.STM32.RCC is
       --  TIM8 clock enable during Sleep mode
       TIM8LPEN       : APB2LPENR_TIM8LPEN_Field := 16#1#;
       --  unspecified
-      Reserved_2_3   : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_2_3   : Interfaces.STM32.UInt2 := 16#0#;
       --  USART1 clock enable during Sleep mode
       USART1LPEN     : APB2LPENR_USART1LPEN_Field := 16#1#;
       --  USART6 clock enable during Sleep mode
       USART6LPEN     : APB2LPENR_USART6LPEN_Field := 16#1#;
       --  unspecified
-      Reserved_6_7   : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_6_7   : Interfaces.STM32.UInt2 := 16#0#;
       --  ADC1 clock enable during Sleep mode
       ADC1LPEN       : APB2LPENR_ADC1LPEN_Field := 16#1#;
       --  ADC2 clock enable during Sleep mode
@@ -1520,7 +1519,7 @@ package Interfaces.STM32.RCC is
       --  System configuration controller clock enable during Sleep mode
       SYSCFGLPEN     : APB2LPENR_SYSCFGLPEN_Field := 16#1#;
       --  unspecified
-      Reserved_15_15 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_15_15 : Interfaces.STM32.Bit := 16#0#;
       --  TIM9 clock enable during sleep mode
       TIM9LPEN       : APB2LPENR_TIM9LPEN_Field := 16#1#;
       --  TIM10 clock enable during Sleep mode
@@ -1528,7 +1527,7 @@ package Interfaces.STM32.RCC is
       --  TIM11 clock enable during Sleep mode
       TIM11LPEN      : APB2LPENR_TIM11LPEN_Field := 16#1#;
       --  unspecified
-      Reserved_19_19 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_19_19 : Interfaces.STM32.Bit := 16#0#;
       --  SPI 5 clock enable during Sleep mode
       SPI5LPEN       : APB2LPENR_SPI5LPEN_Field := 16#0#;
       --  SPI 6 clock enable during Sleep mode
@@ -1538,11 +1537,11 @@ package Interfaces.STM32.RCC is
       --  SAI2 clock enable during sleep mode
       SAI2LPEN       : APB2LPENR_SAI2LPEN_Field := 16#0#;
       --  unspecified
-      Reserved_24_25 : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_24_25 : Interfaces.STM32.UInt2 := 16#0#;
       --  LTDC clock enable during sleep mode
       LTDCLPEN       : APB2LPENR_LTDCLPEN_Field := 16#0#;
       --  unspecified
-      Reserved_27_31 : Interfaces.Bit_Types.UInt5 := 16#0#;
+      Reserved_27_31 : Interfaces.STM32.UInt5 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1575,11 +1574,11 @@ package Interfaces.STM32.RCC is
       Reserved_27_31 at 0 range 27 .. 31;
    end record;
 
-   subtype BDCR_LSEON_Field is Interfaces.Bit_Types.Bit;
-   subtype BDCR_LSERDY_Field is Interfaces.Bit_Types.Bit;
-   subtype BDCR_LSEBYP_Field is Interfaces.Bit_Types.Bit;
+   subtype BDCR_LSEON_Field is Interfaces.STM32.Bit;
+   subtype BDCR_LSERDY_Field is Interfaces.STM32.Bit;
+   subtype BDCR_LSEBYP_Field is Interfaces.STM32.Bit;
    --  BDCR_RTCSEL array element
-   subtype BDCR_RTCSEL_Element is Interfaces.Bit_Types.Bit;
+   subtype BDCR_RTCSEL_Element is Interfaces.STM32.Bit;
 
    --  BDCR_RTCSEL array
    type BDCR_RTCSEL_Field_Array is array (0 .. 1) of BDCR_RTCSEL_Element
@@ -1592,7 +1591,7 @@ package Interfaces.STM32.RCC is
       case As_Array is
          when False =>
             --  RTCSEL as a value
-            Val : Interfaces.Bit_Types.UInt2;
+            Val : Interfaces.STM32.UInt2;
          when True =>
             --  RTCSEL as an array
             Arr : BDCR_RTCSEL_Field_Array;
@@ -1605,8 +1604,8 @@ package Interfaces.STM32.RCC is
       Arr at 0 range 0 .. 1;
    end record;
 
-   subtype BDCR_RTCEN_Field is Interfaces.Bit_Types.Bit;
-   subtype BDCR_BDRST_Field is Interfaces.Bit_Types.Bit;
+   subtype BDCR_RTCEN_Field is Interfaces.STM32.Bit;
+   subtype BDCR_BDRST_Field is Interfaces.STM32.Bit;
 
    --  Backup domain control register
    type BDCR_Register is record
@@ -1617,17 +1616,17 @@ package Interfaces.STM32.RCC is
       --  External low-speed oscillator bypass
       LSEBYP         : BDCR_LSEBYP_Field := 16#0#;
       --  unspecified
-      Reserved_3_7   : Interfaces.Bit_Types.UInt5 := 16#0#;
+      Reserved_3_7   : Interfaces.STM32.UInt5 := 16#0#;
       --  RTC clock source selection
       RTCSEL         : BDCR_RTCSEL_Field := (As_Array => False, Val => 16#0#);
       --  unspecified
-      Reserved_10_14 : Interfaces.Bit_Types.UInt5 := 16#0#;
+      Reserved_10_14 : Interfaces.STM32.UInt5 := 16#0#;
       --  RTC clock enable
       RTCEN          : BDCR_RTCEN_Field := 16#0#;
       --  Backup domain software reset
       BDRST          : BDCR_BDRST_Field := 16#0#;
       --  unspecified
-      Reserved_17_31 : Interfaces.Bit_Types.UInt15 := 16#0#;
+      Reserved_17_31 : Interfaces.STM32.UInt15 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1644,16 +1643,16 @@ package Interfaces.STM32.RCC is
       Reserved_17_31 at 0 range 17 .. 31;
    end record;
 
-   subtype CSR_LSION_Field is Interfaces.Bit_Types.Bit;
-   subtype CSR_LSIRDY_Field is Interfaces.Bit_Types.Bit;
-   subtype CSR_RMVF_Field is Interfaces.Bit_Types.Bit;
-   subtype CSR_BORRSTF_Field is Interfaces.Bit_Types.Bit;
-   subtype CSR_PADRSTF_Field is Interfaces.Bit_Types.Bit;
-   subtype CSR_PORRSTF_Field is Interfaces.Bit_Types.Bit;
-   subtype CSR_SFTRSTF_Field is Interfaces.Bit_Types.Bit;
-   subtype CSR_WDGRSTF_Field is Interfaces.Bit_Types.Bit;
-   subtype CSR_WWDGRSTF_Field is Interfaces.Bit_Types.Bit;
-   subtype CSR_LPWRRSTF_Field is Interfaces.Bit_Types.Bit;
+   subtype CSR_LSION_Field is Interfaces.STM32.Bit;
+   subtype CSR_LSIRDY_Field is Interfaces.STM32.Bit;
+   subtype CSR_RMVF_Field is Interfaces.STM32.Bit;
+   subtype CSR_BORRSTF_Field is Interfaces.STM32.Bit;
+   subtype CSR_PADRSTF_Field is Interfaces.STM32.Bit;
+   subtype CSR_PORRSTF_Field is Interfaces.STM32.Bit;
+   subtype CSR_SFTRSTF_Field is Interfaces.STM32.Bit;
+   subtype CSR_WDGRSTF_Field is Interfaces.STM32.Bit;
+   subtype CSR_WWDGRSTF_Field is Interfaces.STM32.Bit;
+   subtype CSR_LPWRRSTF_Field is Interfaces.STM32.Bit;
 
    --  clock control & status register
    type CSR_Register is record
@@ -1662,7 +1661,7 @@ package Interfaces.STM32.RCC is
       --  Read-only. Internal low-speed oscillator ready
       LSIRDY        : CSR_LSIRDY_Field := 16#0#;
       --  unspecified
-      Reserved_2_23 : Interfaces.Bit_Types.UInt22 := 16#0#;
+      Reserved_2_23 : Interfaces.STM32.UInt22 := 16#0#;
       --  Remove reset flag
       RMVF          : CSR_RMVF_Field := 16#0#;
       --  BOR reset flag
@@ -1697,10 +1696,10 @@ package Interfaces.STM32.RCC is
       LPWRRSTF      at 0 range 31 .. 31;
    end record;
 
-   subtype SSCGR_MODPER_Field is Interfaces.Bit_Types.UInt13;
-   subtype SSCGR_INCSTEP_Field is Interfaces.Bit_Types.UInt15;
-   subtype SSCGR_SPREADSEL_Field is Interfaces.Bit_Types.Bit;
-   subtype SSCGR_SSCGEN_Field is Interfaces.Bit_Types.Bit;
+   subtype SSCGR_MODPER_Field is Interfaces.STM32.UInt13;
+   subtype SSCGR_INCSTEP_Field is Interfaces.STM32.UInt15;
+   subtype SSCGR_SPREADSEL_Field is Interfaces.STM32.Bit;
+   subtype SSCGR_SSCGEN_Field is Interfaces.STM32.Bit;
 
    --  spread spectrum clock generation register
    type SSCGR_Register is record
@@ -1709,7 +1708,7 @@ package Interfaces.STM32.RCC is
       --  Incrementation step
       INCSTEP        : SSCGR_INCSTEP_Field := 16#0#;
       --  unspecified
-      Reserved_28_29 : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_28_29 : Interfaces.STM32.UInt2 := 16#0#;
       --  Spread Select
       SPREADSEL      : SSCGR_SPREADSEL_Field := 16#0#;
       --  Spread spectrum modulation enable
@@ -1726,24 +1725,24 @@ package Interfaces.STM32.RCC is
       SSCGEN         at 0 range 31 .. 31;
    end record;
 
-   subtype PLLI2SCFGR_PLLI2SN_Field is Interfaces.Bit_Types.UInt9;
-   subtype PLLI2SCFGR_PLLI2SQ_Field is Interfaces.Bit_Types.UInt4;
-   subtype PLLI2SCFGR_PLLI2SR_Field is Interfaces.Bit_Types.UInt3;
+   subtype PLLI2SCFGR_PLLI2SN_Field is Interfaces.STM32.UInt9;
+   subtype PLLI2SCFGR_PLLI2SQ_Field is Interfaces.STM32.UInt4;
+   subtype PLLI2SCFGR_PLLI2SR_Field is Interfaces.STM32.UInt3;
 
    --  PLLI2S configuration register
    type PLLI2SCFGR_Register is record
       --  unspecified
-      Reserved_0_5   : Interfaces.Bit_Types.UInt6 := 16#0#;
+      Reserved_0_5   : Interfaces.STM32.UInt6 := 16#0#;
       --  PLLI2S multiplication factor for VCO
       PLLI2SN        : PLLI2SCFGR_PLLI2SN_Field := 16#C0#;
       --  unspecified
-      Reserved_15_23 : Interfaces.Bit_Types.UInt9 := 16#0#;
+      Reserved_15_23 : Interfaces.STM32.UInt9 := 16#0#;
       --  PLLI2S division factor for SAI1 clock
       PLLI2SQ        : PLLI2SCFGR_PLLI2SQ_Field := 16#0#;
       --  PLLI2S division factor for I2S clocks
       PLLI2SR        : PLLI2SCFGR_PLLI2SR_Field := 16#2#;
       --  unspecified
-      Reserved_31_31 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_31_31 : Interfaces.STM32.Bit := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1757,29 +1756,29 @@ package Interfaces.STM32.RCC is
       Reserved_31_31 at 0 range 31 .. 31;
    end record;
 
-   subtype PLLSAICFGR_PLLSAIN_Field is Interfaces.Bit_Types.UInt9;
-   subtype PLLSAICFGR_PLLSAIP_Field is Interfaces.Bit_Types.UInt2;
-   subtype PLLSAICFGR_PLLSAIQ_Field is Interfaces.Bit_Types.UInt4;
-   subtype PLLSAICFGR_PLLSAIR_Field is Interfaces.Bit_Types.UInt3;
+   subtype PLLSAICFGR_PLLSAIN_Field is Interfaces.STM32.UInt9;
+   subtype PLLSAICFGR_PLLSAIP_Field is Interfaces.STM32.UInt2;
+   subtype PLLSAICFGR_PLLSAIQ_Field is Interfaces.STM32.UInt4;
+   subtype PLLSAICFGR_PLLSAIR_Field is Interfaces.STM32.UInt3;
 
    --  PLL configuration register
    type PLLSAICFGR_Register is record
       --  unspecified
-      Reserved_0_5   : Interfaces.Bit_Types.UInt6 := 16#0#;
+      Reserved_0_5   : Interfaces.STM32.UInt6 := 16#0#;
       --  PLLSAI division factor for VCO
       PLLSAIN        : PLLSAICFGR_PLLSAIN_Field := 16#C0#;
       --  unspecified
-      Reserved_15_15 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_15_15 : Interfaces.STM32.Bit := 16#0#;
       --  PLLSAI division factor for 48MHz clock
       PLLSAIP        : PLLSAICFGR_PLLSAIP_Field := 16#0#;
       --  unspecified
-      Reserved_18_23 : Interfaces.Bit_Types.UInt6 := 16#0#;
+      Reserved_18_23 : Interfaces.STM32.UInt6 := 16#0#;
       --  PLLSAI division factor for SAI clock
       PLLSAIQ        : PLLSAICFGR_PLLSAIQ_Field := 16#0#;
       --  PLLSAI division factor for LCD clock
       PLLSAIR        : PLLSAICFGR_PLLSAIR_Field := 16#2#;
       --  unspecified
-      Reserved_31_31 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_31_31 : Interfaces.STM32.Bit := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1795,27 +1794,27 @@ package Interfaces.STM32.RCC is
       Reserved_31_31 at 0 range 31 .. 31;
    end record;
 
-   subtype DKCFGR1_PLLI2SDIV_Field is Interfaces.Bit_Types.UInt5;
-   subtype DKCFGR1_PLLSAIDIVQ_Field is Interfaces.Bit_Types.UInt5;
-   subtype DKCFGR1_PLLSAIDIVR_Field is Interfaces.Bit_Types.UInt2;
-   subtype DKCFGR1_SAI1SEL_Field is Interfaces.Bit_Types.UInt2;
-   subtype DKCFGR1_SAI2SEL_Field is Interfaces.Bit_Types.UInt2;
-   subtype DKCFGR1_TIMPRE_Field is Interfaces.Bit_Types.Bit;
+   subtype DKCFGR1_PLLI2SDIV_Field is Interfaces.STM32.UInt5;
+   subtype DKCFGR1_PLLSAIDIVQ_Field is Interfaces.STM32.UInt5;
+   subtype DKCFGR1_PLLSAIDIVR_Field is Interfaces.STM32.UInt2;
+   subtype DKCFGR1_SAI1SEL_Field is Interfaces.STM32.UInt2;
+   subtype DKCFGR1_SAI2SEL_Field is Interfaces.STM32.UInt2;
+   subtype DKCFGR1_TIMPRE_Field is Interfaces.STM32.Bit;
 
    --  dedicated clocks configuration register
    type DKCFGR1_Register is record
       --  PLLI2S division factor for SAI1 clock
       PLLI2SDIV      : DKCFGR1_PLLI2SDIV_Field := 16#0#;
       --  unspecified
-      Reserved_5_7   : Interfaces.Bit_Types.UInt3 := 16#0#;
+      Reserved_5_7   : Interfaces.STM32.UInt3 := 16#0#;
       --  PLLSAI division factor for SAI1 clock
       PLLSAIDIVQ     : DKCFGR1_PLLSAIDIVQ_Field := 16#10#;
       --  unspecified
-      Reserved_13_15 : Interfaces.Bit_Types.UInt3 := 16#1#;
+      Reserved_13_15 : Interfaces.STM32.UInt3 := 16#1#;
       --  division factor for LCD_CLK
       PLLSAIDIVR     : DKCFGR1_PLLSAIDIVR_Field := 16#0#;
       --  unspecified
-      Reserved_18_19 : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_18_19 : Interfaces.STM32.UInt2 := 16#0#;
       --  SAI1 clock source selection
       SAI1SEL        : DKCFGR1_SAI1SEL_Field := 16#0#;
       --  SAI2 clock source selection
@@ -1823,7 +1822,7 @@ package Interfaces.STM32.RCC is
       --  Timers clocks prescalers selection
       TIMPRE         : DKCFGR1_TIMPRE_Field := 16#0#;
       --  unspecified
-      Reserved_25_31 : Interfaces.Bit_Types.UInt7 := 16#10#;
+      Reserved_25_31 : Interfaces.STM32.UInt7 := 16#10#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -1841,22 +1840,22 @@ package Interfaces.STM32.RCC is
       Reserved_25_31 at 0 range 25 .. 31;
    end record;
 
-   subtype DKCFGR2_USART1SEL_Field is Interfaces.Bit_Types.UInt2;
-   subtype DKCFGR2_USART2SEL_Field is Interfaces.Bit_Types.UInt2;
-   subtype DKCFGR2_USART3SEL_Field is Interfaces.Bit_Types.UInt2;
-   subtype DKCFGR2_UART4SEL_Field is Interfaces.Bit_Types.UInt2;
-   subtype DKCFGR2_UART5SEL_Field is Interfaces.Bit_Types.UInt2;
-   subtype DKCFGR2_USART6SEL_Field is Interfaces.Bit_Types.UInt2;
-   subtype DKCFGR2_UART7SEL_Field is Interfaces.Bit_Types.UInt2;
-   subtype DKCFGR2_UART8SEL_Field is Interfaces.Bit_Types.UInt2;
-   subtype DKCFGR2_I2C1SEL_Field is Interfaces.Bit_Types.UInt2;
-   subtype DKCFGR2_I2C2SEL_Field is Interfaces.Bit_Types.UInt2;
-   subtype DKCFGR2_I2C3SEL_Field is Interfaces.Bit_Types.UInt2;
-   subtype DKCFGR2_I2C4SEL_Field is Interfaces.Bit_Types.UInt2;
-   subtype DKCFGR2_LPTIM1SEL_Field is Interfaces.Bit_Types.UInt2;
-   subtype DKCFGR2_CECSEL_Field is Interfaces.Bit_Types.Bit;
-   subtype DKCFGR2_CK48MSEL_Field is Interfaces.Bit_Types.Bit;
-   subtype DKCFGR2_SDMMCSEL_Field is Interfaces.Bit_Types.Bit;
+   subtype DKCFGR2_USART1SEL_Field is Interfaces.STM32.UInt2;
+   subtype DKCFGR2_USART2SEL_Field is Interfaces.STM32.UInt2;
+   subtype DKCFGR2_USART3SEL_Field is Interfaces.STM32.UInt2;
+   subtype DKCFGR2_UART4SEL_Field is Interfaces.STM32.UInt2;
+   subtype DKCFGR2_UART5SEL_Field is Interfaces.STM32.UInt2;
+   subtype DKCFGR2_USART6SEL_Field is Interfaces.STM32.UInt2;
+   subtype DKCFGR2_UART7SEL_Field is Interfaces.STM32.UInt2;
+   subtype DKCFGR2_UART8SEL_Field is Interfaces.STM32.UInt2;
+   subtype DKCFGR2_I2C1SEL_Field is Interfaces.STM32.UInt2;
+   subtype DKCFGR2_I2C2SEL_Field is Interfaces.STM32.UInt2;
+   subtype DKCFGR2_I2C3SEL_Field is Interfaces.STM32.UInt2;
+   subtype DKCFGR2_I2C4SEL_Field is Interfaces.STM32.UInt2;
+   subtype DKCFGR2_LPTIM1SEL_Field is Interfaces.STM32.UInt2;
+   subtype DKCFGR2_CECSEL_Field is Interfaces.STM32.Bit;
+   subtype DKCFGR2_CK48MSEL_Field is Interfaces.STM32.Bit;
+   subtype DKCFGR2_SDMMCSEL_Field is Interfaces.STM32.Bit;
 
    --  dedicated clocks configuration register
    type DKCFGR2_Register is record
@@ -1893,7 +1892,7 @@ package Interfaces.STM32.RCC is
       --  SDMMC clock source selection
       SDMMCSEL       : DKCFGR2_SDMMCSEL_Field := 16#0#;
       --  unspecified
-      Reserved_29_31 : Interfaces.Bit_Types.UInt3 := 16#1#;
+      Reserved_29_31 : Interfaces.STM32.UInt3 := 16#1#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -2010,6 +2009,6 @@ package Interfaces.STM32.RCC is
 
    --  Reset and clock control
    RCC_Periph : aliased RCC_Peripheral
-     with Import, Address => RCC_Base;
+     with Import, Address => System'To_Address (16#40023800#);
 
 end Interfaces.STM32.RCC;

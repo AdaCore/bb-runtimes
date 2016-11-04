@@ -25,7 +25,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Interfaces.Bit_Types;  use Interfaces.Bit_Types;
+with Interfaces.SAM;     use Interfaces.SAM;
 with Interfaces.SAM.PMC;
 
 package Board_Config is
