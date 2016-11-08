@@ -17,7 +17,7 @@ SECTIONS
   }
 
   /* Start of ROM.  */
-  . = 0xff000200;
+  . = 0xfe000000;
 
   /* Code sections, merged into text segment: */
   .text :
