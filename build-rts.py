@@ -1541,11 +1541,14 @@ class RPI2(DFBBTarget):
             'arm/rpi2/memmap.s',
             'i-raspberry_pi.ads',
             'i-arm_v7ar.ads',
-            'i-arm_v7ar.adb']
+            'i-arm_v7ar.adb',
+            'i-cache.ads',
+            'i-cache.adb']
         self.pairs.update(
             {'system.ads': 'system-xi-arm.ads',
              's-textio.adb': 's-textio-rpi2.adb',
-             's-macres.adb': 's-macres-rpi2.adb'})
+             's-macres.adb': 's-macres-rpi2.adb',
+             'i-cache.adb': 'i-cache-armv7.adb'})
         self.config_files.update(
             {'runtime.xml': readfile('arm/rpi2/runtime.xml')})
 
@@ -1573,6 +1576,9 @@ class RPI3(DFBBTarget):
 
     def amend_zfp(self):
         super(RPI3, self).amend_zfp()
+        self.common += [
+            'i-cache.ads',
+            'i-cache.adb']
         self.bsp += [
             'aarch64/rpi3/ram.ld',
             'aarch64/rpi3/start-ram.S',
@@ -1584,7 +1590,8 @@ class RPI3(DFBBTarget):
         self.pairs.update(
             {'system.ads': 'system-xi-aarch64.ads',
              's-textio.adb': 's-textio-rpi2.adb',
-             's-macres.adb': 's-macres-rpi2.adb'})
+             's-macres.adb': 's-macres-rpi2.adb',
+             'i-cache.adb': 'i-cache-aarch64.adb'})
         self.config_files.update(
             {'runtime.xml': readfile('aarch64/rpi3/runtime.xml')})
 
