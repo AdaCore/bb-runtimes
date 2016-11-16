@@ -46,6 +46,7 @@ _UNDEF_STACK_SIZE =  256;
 _ABORT_STACK_SIZE =  256;
 _IRQ_STACK_SIZE   = 2048;
 _FIQ_STACK_SIZE   =  256;
+_MON_STACK_SIZE   =  256;
 
 ENTRY(__start_ram);
 
@@ -145,6 +146,9 @@ SECTIONS
    . = ALIGN(. + _FIQ_STACK_SIZE, 0x8);
    __cpu0_irq_stack_start = .;
    . = ALIGN(. + _IRQ_STACK_SIZE, 0x8);
+   __cpu0_mon_stack_start = .;
+   . = ALIGN(. + _MON_STACK_SIZE, 0x8);
+   __cpu0_mon_stack_end = .;
 
    /* CPU 1 */
    __cpu1_interrupt_stack_start = .;

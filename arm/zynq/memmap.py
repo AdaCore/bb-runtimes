@@ -54,8 +54,8 @@ class arm_mmu(Arch):
             exit(1)
 
         # Convert access
-        if access == "rwxrwx":
-            ap = 3
+        if access == "rwx---":
+            ap = 3  # To be checked
             nx = 0
         elif access == "rw-rw-":
             ap = 3

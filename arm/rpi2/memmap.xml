@@ -1,10 +1,18 @@
 <?xml version="1.0"?>
 <memmap>
+  <!--  Main memory for ARM -->
   <region access="rwx---" cache="wb"
-	  virt="0x00000000" size="0x3f000000" name="ram"/>
+	  virt="0x00000000" size="0x3ae00000" name="ram"/>
+
+  <!--  Uncachable area to communicate with devices -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0x3ae00000" size="0x00200000" name="uc"/>
+
+  <!--  Frame buffer (64MB) -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0x3b000000" size="0x04000000" name="vc"/>
+
+  <!-- IO -->
   <region access="rw-rw-" cache="nc"
 	  virt="0x3f000000" size="0x02000000" name="io"/>
-  <!--  Create a second map for the memory for the screen buffer.  -->
-  <region access="rw-rw-" cache="nc"
-	  virt="0x80000000" phys="0x00000000" size="0x3f000000" name="ram-nc"/>
 </memmap>

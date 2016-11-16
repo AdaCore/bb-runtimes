@@ -75,6 +75,7 @@ __start_slave_cpu:
 	msr	ELR_hyp,r0
 	eret
 1:
+	cpsid	if
 	ldr	sp,system_stack_base
 
 	@ Read processor id MPIDR[0:1]
@@ -202,10 +203,8 @@ __start_slave_cpu:
 	mcr	p15,0,r1,c1,c0,0	@ write sctlr
 
 	/*  Enable I-Cache.  */
-	mrc	p15,#0,r1,c1,c0,#0	@ read sctlr
 	movw	r2,#0x1804		@ D-cache, I-cache, branch pred
 	orr	r1,r1,r2
-	bic	r1,r1,#0x30000000	@ clear TRE, AFE
 	mcr	p15,0,r1,c1,c0,0	@ write sctlr
 
 	/* Synchronization barriers.  */
@@ -235,6 +234,7 @@ __start_slave_cpu:
 
 slave_cpu:
 	/* Per-CPU device initialization.  */
+        cpsid	if
 	bl	__gnat_initialize_cpu_devices
 
 	/* Call the main routine (with CPU_Id as argument).  */
