@@ -187,8 +187,9 @@ class aarch64_mmu(Arch):
         elif cache == 'nc':
             attridx = 1
         else:
-            print "unhandled cache attribute '%s' for region %s" % \
-              (cache, name)
+            sys.stderr.write(
+                "unhandled cache attribute '%s' for region %s\n" %
+                (cache, name))
             exit(1)
 
         # Convert access
@@ -317,8 +318,8 @@ def main():
         opts, args = getopt.getopt(
             sys.argv[1:], "h", ["help", "arch="])
     except getopt.GetoptError, e:
-        print "error: " + str(e)
-        print "Try --help"
+        sys.stderr.write("error: " + str(e) + '\n')
+        sys.stderr.write("Try --help\n")
         sys.exit(2)
     for opt, arg in opts:
         if opt == "--arch":
@@ -334,8 +335,8 @@ def main():
     elif len(args) == 1:
         filename = args[0]
     else:
-        print "error: too many arguments"
-        print "Try --help"
+        sys.stderr.write("error: too many arguments\n")
+        sys.stderr.write("Try --help\n")
         sys.exit(2)
 
     tree = ET.parse(filename)
@@ -350,7 +351,7 @@ def main():
             sys.exit(3)
 
     if arch not in arches:
-        print "error: unknown architecture '%s'" % arch
+        sys.stderr.write("error: unknown architecture '%s'\n" % arch)
         sys.exit(1)
 
     mmu = arches[arch]()
@@ -367,13 +368,13 @@ def main():
             phys = virt
         size = parse_addr(child.attrib['size'])
         if (virt % pagesize) != 0:
-            print "%s.virt is not aligned" % name
+            sys.stderr.write("%s.virt is not aligned\n" % name)
             exit(1)
         if (phys % pagesize) != 0:
-            print "%s.phys is not aligned" % name
+            sys.stderr.write("%s.phys is not aligned\n" % name)
             exit(1)
         if (size % pagesize) != 0:
-            print "size of %s is not aligned" % name
+            sys.stderr.write("size of %s is not aligned\n" % name)
             exit(1)
 
         cache = child.attrib['cache']
