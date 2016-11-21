@@ -1,5 +1,16 @@
 <?xml version="1.0"?>
-<memmap arch="arm">
-  <region access="rwxrwx" cache="cb" virt="0x00000000" size="1GB"  name="sdram"/>
-  <region access="rw-rw-" cache="nc" virt="0xe0000000" size="512MB" name="io"/>
+<memmap>
+  <!--  Main memory for Zynq -->
+  <region access="rwx---" cache="wb"
+	  virt="0x00000000" size="0x40000000" name="ram"/>
+
+  <!-- IO Peripheral -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0xe0000000" size="0x00300000" name="io"/>
+
+  <!-- System registers -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0xf8000000" size="0x01000000" name="sys"/>
+
+  <!-- Not described: OCM (when mapped high), Quad-SPI, GP ports to PL -->
 </memmap>

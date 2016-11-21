@@ -1493,11 +1493,16 @@ class Zynq7000(DFBBTarget):
         self.bsp += [
             'arm/zynq/ram.ld',
             'arm/zynq/start-ram.S',
-            'arm/zynq/memmap.s']
+            'arm/zynq/memmap.inc',
+            'i-arm_v7ar.ads',
+            'i-arm_v7ar.adb',
+            'i-cache.ads',
+            'i-cache.adb']
         self.pairs.update(
             {'system.ads': 'system-xi-arm.ads',
              's-textio.adb': 's-textio-zynq.adb',
-             's-macres.adb': 's-macres-zynq.adb'})
+             's-macres.adb': 's-macres-zynq.adb',
+             'i-cache.adb': 'i-cache-armv7.adb'})
         self.config_files.update(
             {'runtime.xml': readfile('arm/zynq/runtime.xml')})
 
