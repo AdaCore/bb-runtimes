@@ -4080,19 +4080,19 @@ __mmu_l0:
 	.long 0x00000000  @ for 0xfed00000, *none*
 	.long 0x00000000  @ for 0xfee00000, *none*
 	.long 0x00000000  @ for 0xfef00000, *none*
-	.long 0x00000000  @ for 0xff000000, *none*
-	.long 0x00000000  @ for 0xff100000, *none*
-	.long 0x00000000  @ for 0xff200000, *none*
-	.long 0x00000000  @ for 0xff300000, *none*
-	.long 0x00000000  @ for 0xff400000, *none*
-	.long 0x00000000  @ for 0xff500000, *none*
-	.long 0x00000000  @ for 0xff600000, *none*
-	.long 0x00000000  @ for 0xff700000, *none*
-	.long 0x00000000  @ for 0xff800000, *none*
-	.long 0x00000000  @ for 0xff900000, *none*
-	.long 0x00000000  @ for 0xffa00000, *none*
-	.long 0x00000000  @ for 0xffb00000, *none*
-	.long 0x00000000  @ for 0xffc00000, *none*
-	.long 0x00000000  @ for 0xffd00000, *none*
-	.long 0x00000000  @ for 0xffe00000, *none*
-	.long 0x00000000  @ for 0xfff00000, *none*
+	.long 0xff010c16  @ for 0xff000000, ocm_high
+	.long 0xff110c16  @ for 0xff100000, ocm_high
+	.long 0xff210c16  @ for 0xff200000, ocm_high
+	.long 0xff310c16  @ for 0xff300000, ocm_high
+	.long 0xff410c16  @ for 0xff400000, ocm_high
+	.long 0xff510c16  @ for 0xff500000, ocm_high
+	.long 0xff610c16  @ for 0xff600000, ocm_high
+	.long 0xff710c16  @ for 0xff700000, ocm_high
+	.long 0xff810c16  @ for 0xff800000, ocm_high
+	.long 0xff910c16  @ for 0xff900000, ocm_high
+	.long 0xffa10c16  @ for 0xffa00000, ocm_high
+	.long 0xffb10c16  @ for 0xffb00000, ocm_high
+	.long 0xffc10c16  @ for 0xffc00000, ocm_high
+	.long 0xffd10c16  @ for 0xffd00000, ocm_high
+	.long 0xffe10c16  @ for 0xffe00000, ocm_high
+	.long 0xfff10c16  @ for 0xfff00000, ocm_high

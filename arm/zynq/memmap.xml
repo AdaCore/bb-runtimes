@@ -12,5 +12,9 @@
   <region access="rw-rw-" cache="nc"
 	  virt="0xf8000000" size="0x01000000" name="sys"/>
 
-  <!-- Not described: OCM (when mapped high), Quad-SPI, GP ports to PL -->
+  <!--  OCM high, required to boot the secondary processor.  -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0xff000000" size="0x01000000" name="ocm_high"/>
+
+  <!-- Not described: Quad-SPI, GP ports to PL -->
 </memmap>
