@@ -87,6 +87,8 @@ class arm_mmu(Arch):
 
     def generate(self):
         addr = 0
+        print "\t.p2align 14"
+        print "__mmu_l0:"
         for e in self.tt:
             if e:
                 v = e['val']
@@ -301,6 +303,7 @@ def usage():
     print "usage: memmap.py OPTIONS [INPUT]"
     print "Options are:"
     print " --arch=ARCH      set architecture"
+    print "    architectures are: %s" % ", ".join(arches.keys())
 
 
 def main():
