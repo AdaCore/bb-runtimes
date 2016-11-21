@@ -298,7 +298,7 @@ package body Trap_Handler is
    procedure Smc_Switch_Mon;
    pragma Import (C, Smc_Switch_Mon, "__gnat_smc_switch_mon");
 
-   procedure Install_Handlers
+   procedure Install_Monitor_Handlers
    is
       use System;
 
@@ -361,5 +361,5 @@ package body Trap_Handler is
          end;
          Vectors (2) := Smc_Trap_Mon'Address;
       end if;
-   end Install_Handlers;
+   end Install_Monitor_Handlers;
 end Trap_Handler;

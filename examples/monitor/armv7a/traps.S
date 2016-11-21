@@ -49,6 +49,14 @@
 	handler __gnat_irq_trap, 6
 	handler __gnat_fiq_trap, 7
 
+        .bss
+	.p2align 4
+__cpu0_mon_stack_start:
+	.skip 	512
+__cpu0_mon_stack_end:
+
+	.text
+
 	.macro mon_handler, name, num
 	.globl \name
 	.type \name, %function
@@ -70,6 +78,9 @@
 	mon_handler __gnat_irq_trap_mon, 14
 	mon_handler __gnat_fiq_trap_mon, 15
 
+	# For the monitor
+	.arch armv7ve
+
 	.globl __gnat_smc_switch_mon
 	.type __gnat_smc_switch_mon, %function
 __gnat_smc_switch_mon:
@@ -79,3 +90,4 @@ __gnat_smc_switch_mon:
 	mov	r1, sp
 	bx	r2
 	.size __gnat_smc_switch_mon, . - __gnat_smc_switch_mon
+

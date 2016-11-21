@@ -89,8 +89,19 @@ package body Armv7a is
       return Lo;
    end Get_CPUECTLR;
 
+   function Get_MIDR return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrc p15, #0, %0, c0, c0, #0",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_MIDR;
+
    procedure Proc_Cr is
       CPSR : constant Unsigned_32 := Get_CPSR;
+      MIDR : constant Unsigned_32 := Get_MIDR;
    begin
       Put ("VBAR: " & Image8 (Get_VBAR));
       Put (", CPSR: " & Image8 (CPSR));
@@ -108,10 +119,19 @@ package body Armv7a is
          when others => Put ("???");
       end case;
       New_Line;
-      Put ("CPUECTLR: ");
-      Put (Image8 (Get_CPUECTLR));
+
+      Put ("MIDR: " & Image8 (Get_MIDR));
+      New_Line;
+
+      --  Only for A53
+      if (MIDR and 16#ff_0_f_fff_0#) = 16#41_0_f_d03_0# then
+         Put ("CPUECTLR: ");
+         Put (Image8 (Get_CPUECTLR));
+         New_Line;
+      end if;
 
       if (CPSR and 16#1f#) = 2#10110# then
+         --  Only for monitor.
          Put (", SCR: ");
          Put (Image8 (Get_SCR));
       end if;
@@ -233,6 +253,8 @@ package body Armv7a is
       null);
 begin
    Register_Commands (Commands'Access);
-   Trap_Handler.Install_Handlers;
-   Put_Line ("Handlers installed");
+   if False then
+      Trap_Handler.Install_Monitor_Handlers;
+      Put_Line ("Handlers installed");
+   end if;
 end Armv7a;

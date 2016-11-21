@@ -43,5 +43,5 @@ package Trap_Handler is
    procedure Traps_Handler (Ctxt : Trap_Context_Acc; Num : Natural);
    pragma Export (C, Traps_Handler, "__gnat_trap_dump");
 
-   procedure Install_Handlers;
+   procedure Install_Monitor_Handlers;
 end Trap_Handler;
