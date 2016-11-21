@@ -1,0 +1,43 @@
+Notes on ZC702 REV 1.0 Board
+============================
+
+The two main documents are:
+ [TRM] ug585-Zynq-7000-TRM.pdf (The technical Reference Manual)
+ [EBD] ug850-zc702-eval-bd.pdf (Evaluation Board User Guide)
+
+Booting
+-------
+
+The simplest way is to use u-boot (in flash) and then download via
+ethernet:
+> set ipaddr x.x.x.x
+> nfs 0x10000000 y.y.y.y:/path/to/file
+> bootelf 0x10000000
+
+Console
+-------
+
+The default console is available via USB, 115200 Baud 8N1 from UART-1.
+(Baud_rate_gen=20Mhz/86  baud_rate=20Mhz/86/(4+1)=116279)
+
+Clocks
+------
+
+According to [EBD], PS_CLK is set to 33.333333 Mhz.
+U-Boot settings:
+
+ARM_PLL: PLL_FDIV=40
+DDR_PLL: PLL_FDIV=32 (1066Mhz)
+IO_PLL:  PLL_FDIV=30
+
+ARM_CLK: DIVISOR=2, SRCSEL=ARM_PLL   -> 666.6 Mhz
+DDR_CLK: 2XCLK_DIVISOR=3, 3XCLK_DIVISOR=2
+DCI_CLK: DIVISOR1=3, DIVISOR0=35
+APER_CLK: DMA,USB0,USB1,GEM0,SDIO0,CAN0,I2C0,I2C1,UART1,GPIO,LQSPI,SMC
+SDIO_CLK: DIVISOR=20, SRCSEL=IO_PLL, CLKACT0=EN (50Mhz)
+UART_CLK: DIVISOR=20, SRCSEL=IO_PLL, CLKACT1=EN (50Mhz)
+
+Memory Map
+----------
+
+See memmap.xml for memory map used.
