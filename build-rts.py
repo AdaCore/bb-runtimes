@@ -1514,7 +1514,7 @@ class Zynq7000(DFBBTarget):
             'system.ads': 'system-xi-cortexa-sfp.ads',
             's-bbcppr.adb': 's-bbcppr-arm.adb',
             's-bbcpsp.ads': 's-bbcpsp-arm.ads',
-            'a-intnam.ads': 'a-intnam-dummy.ads',
+            'a-intnam.ads': 'a-intnam-xi-zynq.ads',
             's-bbbosu.adb': 's-bbbosu-cortexa9.adb',
             's-bbtime.adb': 's-bbtime-ppc.adb',
             's-bbpara.ads': 's-bbpara-cortexa9.ads'})
