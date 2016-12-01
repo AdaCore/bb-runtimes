@@ -2313,7 +2313,7 @@ def build_configs(target, runtime):
         t = Leon2()
     elif target == 'leon3':
         t = Leon3()
-    elif target == '8641d':
+    elif target == 'mpc8641':
         t = MPC8641()
     elif target == '8349e':
         t = MPC8349e()
