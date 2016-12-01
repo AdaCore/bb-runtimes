@@ -19,6 +19,7 @@ import re
 gnatdir = "../gnat"
 gccdir = "../gcc"
 crossdir = "../cross/bare_board/libbareboard"
+shared_sources = "rts-sources"
 
 # Output directory
 objdir = "install"
@@ -216,8 +217,8 @@ class SourceDirs(FilesHolder):
             print('undefined shared directory %s' % dirname)
 
         if create_common:
-            # Change dirs to ../shared/<dirname>
-            rel = os.path.join('..', 'shared', dirname)
+            # Change dirs to ../rts-sources/<dirname>
+            rel = os.path.join('..', shared_sources, dirname)
         else:
             rel = dirname
 
@@ -496,17 +497,17 @@ class SourceDirs(FilesHolder):
             self.add_sources('gnarl/spinlock/leon',
                              {'s-musplo.adb': 's-musplo-leon.adb'})
         else:
-            self.add_sources('gnarl', 's-musplo.adb')
+            self.add_sources('gnarl/common', 's-musplo.adb')
 
         # memory profile
-        self.add_sources('gnarl/mem-small',
-                         {'s-parame.ads': 's-parame-xi-small.ads'})
         if self._is_bb:
+            self.add_sources('gnarl/mem-small',
+                             {'s-parame.ads': 's-parame-xi-small.ads'})
             self.add_sources('gnarl/mem-large',
                              {'s-parame.ads': 's-parame-xi.ads'})
         else:
             # PikeOS:
-            self.add_sources('gnarl/full',
+            self.add_sources('gnarl/common',
                              {'s-parame.ads': 's-parame-xi.ads'})
 
     def _init_full(self):
