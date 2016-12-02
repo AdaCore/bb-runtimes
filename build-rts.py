@@ -19,7 +19,7 @@ import re
 gnatdir = "../gnat"
 gccdir = "../gcc"
 crossdir = "../cross/bare_board/libbareboard"
-shared_sources = "rts-sources"
+shared_sources = "runtime-sources"
 
 # Output directory
 objdir = "install"
