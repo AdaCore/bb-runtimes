@@ -10,7 +10,8 @@ project Runtime_Build is
   for Library_Dir use "adalib";
   for Object_Dir use "obj";
 
-  for Source_Dirs use ("{source_dirs}");
+  for Source_Dirs use
+   ("{source_dirs}");
   for Target use "{target}";
 
   type Build_Type is ("Production", "Debug", "Assert", "Gnatcov");
