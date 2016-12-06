@@ -154,7 +154,7 @@ class Stm32F469discoBSP(Stm32GenericBSP):
             's-textio.adb': 's-textio-stm32f469.adb'})
 
 
-class Stm32F7discoBSP(Stm32GenericBSP):
+class Stm32F746discoBSP(Stm32GenericBSP):
     @property
     def name(self):
         return 'stm32f746disco'
@@ -164,13 +164,13 @@ class Stm32F7discoBSP(Stm32GenericBSP):
         return 'stm32f7x'
 
     def __init__(self):
-        super(Stm32F7discoBSP, self).__init__()
+        super(Stm32F746discoBSP, self).__init__()
         self.add_sources('crt0', {
             's-stm32.adb': 's-stm32-f7x.adb',
             's-textio.adb': 's-textio-stm32f7.adb'})
 
 
-class Stm32F769discoBSP(Stm32F7discoBSP):
+class Stm32F769discoBSP(Stm32F746discoBSP):
     @property
     def name(self):
         return 'stm32f769disco'
@@ -195,8 +195,8 @@ class Stm32(CortexMTarget):
             return OpenMV2BSP
         elif self.board == 'stm32f469disco':
             return Stm32F469discoBSP
-        elif self.board == 'stm32f7disco':
-            return Stm32F7discoBSP
+        elif self.board == 'stm32f746disco':
+            return Stm32F746discoBSP
         elif self.board == 'stm32f769disco':
             return Stm32F769discoBSP
         else:
