@@ -217,9 +217,6 @@ class BSP(SharedFilesHolder):
 
         switches = []
         for val in self.ld_scripts:
-            if val['loader'] == '':
-                # '' means: do not use explicitely
-                continue
             if val['loader'] is None:
                 # use for all loaders
                 switches.append('"-T", "%s"' % val['name'])

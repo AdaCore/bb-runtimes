@@ -24,7 +24,7 @@ class TMS570BSP(BSP):
     def __init__(self):
         super(TMS570BSP, self).__init__()
 
-        self.add_linker_script('arm/tms570/common.ld', loader=None)
+        self.add_linker_script('arm/tms570/common.ld')
         self.add_linker_script('arm/tms570/tms570.ld', loader='PROBE')
         self.add_linker_script('arm/tms570/flash.ld', loader='FLASH')
         self.add_linker_script('arm/tms570/monitor.ld', loader='MONITOR')
