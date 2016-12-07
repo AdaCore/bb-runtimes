@@ -92,7 +92,7 @@ class PPC6XXTarget(DFBBTarget):
              readfile('powerpc/prep/link-zcx.spec')})
         self.config_files['runtime.xml'] = \
             self.config_files['runtime.xml'].replace(
-                '"-nolibc"',
+                '"-nolibc", "-nostartfiles"',
                 '"-nolibc",\n' +
                 '         "-lgnat", "-lgcc", "-lgnat",\n' +
                 '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
@@ -118,11 +118,10 @@ class PPCSPETarget(PPC6XXTarget):
         self.update_pairs({
             'system.ads': 'system-xi-e500v2-full.ads'})
         self.config_files.update(
-            {'link-zcx.spec':
-             readfile('powerpc/prep/link-zcx.spec')})
+            {'link-zcx.spec': readfile('powerpc/prep/link-zcx.spec')})
         self.config_files['runtime.xml'] = \
             self.config_files['runtime.xml'].replace(
-                '"-nolibc"',
+                '"-nolibc", "-nostartfiles"',
                 '"-nolibc",\n' +
                 '         "-lgnat", "-lgcc", "-lgnat",\n' +
                 '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
