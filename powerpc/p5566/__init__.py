@@ -14,7 +14,7 @@ class P5566BSP(BSP):
 
     @property
     def compiler_switches(self):
-        return ('-mfloat-gprs=single')
+        return ('-mfloat-gprs=single', )
 
     @property
     def loaders(self):
