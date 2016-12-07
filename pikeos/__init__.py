@@ -78,7 +78,7 @@ class ArmPikeOS(PikeOS4):
 class PpcPikeOS(PikeOS3):
     @property
     def target(self):
-        return 'powerpc-pikeos'
+        return 'ppc-pikeos'
 
     def amend_zfp(self):
         super(PpcPikeOS, self).amend_zfp()

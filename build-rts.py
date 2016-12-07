@@ -815,7 +815,7 @@ class SourceDirs(SharedFilesHolder):
 
         if cpu in ('arm', 'aarch64'):
             dirs.append('full/zcx-arm')
-        elif cpu in ('powerpc',):
+        elif cpu in ('powerpc', 'ppc'):
             dirs.append('full/zcx-dw2')
             dirs.append('full/zcx-ppc')
         elif cpu in ('leon', 'leon3'):
