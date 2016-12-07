@@ -3,9 +3,12 @@ from build_rts_support.target import DFBBTarget
 
 
 class NativeBSP(BSP):
-    @property
     def name(self):
         return 'native'
+
+    @property
+    def add_linker_section(self):
+        return False
 
     def __init__(self):
         super(NativeBSP, self).__init__()

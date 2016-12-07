@@ -43,6 +43,10 @@ class BSP(SharedFilesHolder):
     def c_switches(self):
         return None
 
+    @property
+    def add_linker_section(self):
+        return True
+
     def has_c(self, dir):
         if dir.startswith(self.rel_path):
             d = dir.replace(self.rel_path, '')
@@ -202,6 +206,14 @@ class BSP(SharedFilesHolder):
                 ret += "C_Required_Switches"
             ret += ";\n"
         ret += "   end Compiler;\n"
+
+        if not self.add_linker_section:
+            ret += """
+   </config>
+  </configuration>
+</gprconfig>
+"""
+            return ret
 
         switches = []
         for val in self.ld_scripts:
