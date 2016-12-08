@@ -14,7 +14,7 @@ class P2020BSP(BSP):
 
     @property
     def compiler_switches(self):
-        return ('-mfloat-gprs=double')
+        return ('-mfloat-gprs=double', )
 
     def __init__(self):
         super(P2020BSP, self).__init__()
