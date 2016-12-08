@@ -24,7 +24,7 @@ class P5566BSP(BSP):
         super(P5566BSP, self).__init__()
         self.add_linker_script('powerpc/p5566/bam.ld', loader='BAM')
         self.add_linker_script('powerpc/p5566/flash.ld', loader='FLASH')
-        self.add_linker_script('powerpc/p5566/ram.ld', loader='RAM')
+        self.add_linker_script('powerpc/p5566/ram.ld', loader='EXTRAM')
         self.add_sources('crt0', [
             'powerpc/p5566/start-bam.S',
             'powerpc/p5566/start-ram.S',
