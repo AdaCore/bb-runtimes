@@ -3,6 +3,7 @@ from build_rts_support.target import DFBBTarget
 
 
 class NativeBSP(BSP):
+    @property
     def name(self):
         return 'native'
 
