@@ -128,10 +128,9 @@ class BSP(SharedFilesHolder):
 
             if not os.path.exists(destdir):
                 os.makedirs(destdir)
-            if not os.path.exists(os.path.join(destdir, val['name'])):
-                self._copy_pair(dst=val['name'], srcfile=val['pair'],
-                                destdir=destdir,
-                                installed_files=installed_files)
+            self._copy_pair(dst=val['name'], srcfile=val['pair'],
+                            destdir=destdir,
+                            installed_files=installed_files)
 
     def install_libgnat(self, dest, dirs, installed_files):
         if self._arch is not None:
@@ -160,12 +159,9 @@ class BSP(SharedFilesHolder):
         if not os.path.exists(destdir):
             os.makedirs(destdir)
 
-            for k, v in self.dirs[dirname].items():
-                self._copy_pair(dst=k, srcfile=v, destdir=destdir,
-                                installed_files=installed_files)
-        else:
-            for k, v in self.dirs[dirname].items():
-                installed_files.append(os.path.basename(k))
+        for k, v in self.dirs[dirname].items():
+            self._copy_pair(dst=k, srcfile=v, destdir=destdir,
+                            installed_files=installed_files)
 
         return rel
 

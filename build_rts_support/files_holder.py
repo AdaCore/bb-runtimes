@@ -95,26 +95,43 @@ class FilesHolder(object):
         if not os.path.isfile(src):
             print "runtime file " + src + " does not exists"
             sys.exit(4)
+
+        already_exists = False
+
         if os.path.isfile(dst):
-            print "runtime file " + dst + " already exists"
-            sys.exit(5)
+            with open(dst, 'r') as fp:
+                cnt1 = fp.read()
+            with open(src, 'r') as fp:
+                cnt2 = fp.read()
+            if cnt1 != cnt2:
+                print "runtime file " + dst + " already exists"
+                sys.exit(5)
+            else:
+                already_exists = True
+
         if os.path.basename(dst) in installed_files:
             print "runtime file " + dst + " installed multiple times"
             sys.exit(6)
 
         installed_files.append(os.path.basename(dst))
 
-        if Config.verbose:
-            print "copy " + src + " to " + dst
-        if Config.link:
-            try:
-                os.symlink(os.path.abspath(src), dst)
-            except os.error, e:
-                print "symlink error for " + src
-                print "msg: " + str(e)
-                sys.exit(2)
+        if already_exists:
+            if Config.verbose:
+                print "same file, skip: " + src + ", " + dst
         else:
-            shutil.copy(src, dst)
+            installed_files.append(os.path.basename(dst))
+
+            if Config.verbose:
+                print "copy " + src + " to " + dst
+            if Config.link:
+                try:
+                    os.symlink(os.path.abspath(src), dst)
+                except os.error, e:
+                    print "symlink error for " + src
+                    print "msg: " + str(e)
+                    sys.exit(2)
+            else:
+                shutil.copy(src, dst)
 
     def _copy_pair(self, dst, srcfile, destdir, installed_files):
         "Copy after substitution with pairs"

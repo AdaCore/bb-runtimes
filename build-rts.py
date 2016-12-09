@@ -80,12 +80,9 @@ class SourceDirs(SharedFilesHolder):
         if not os.path.exists(destdir):
             os.makedirs(destdir)
 
-            for k, v in self.dirs[dirname].items():
-                self._copy_pair(dst=k, srcfile=v, destdir=destdir,
-                                installed_files=installed_files)
-        else:
-            for k, v in self.dirs[dirname].items():
-                installed_files.append(os.path.basename(k))
+        for k, v in self.dirs[dirname].items():
+            self._copy_pair(dst=k, srcfile=v, destdir=destdir,
+                            installed_files=installed_files)
 
         return rel
 
