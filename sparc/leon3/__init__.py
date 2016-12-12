@@ -31,12 +31,13 @@ class Leon3BSP(BSP):
         self.add_sources('crt0', {
             's-textio.adb': 's-textio-leon3.adb',
             's-bbbopa.ads': 's-bbbopa-leon3.ads'})
-        self.add_sources('gnarl', [
+        self.add_sources('gnat', [
             'i-leon3.ads',
+            'i-leon3-uart.ads',
+            'i-leon3-cache.ads'])
+        self.add_sources('gnarl', [
             'i-leon3-timers.ads',
             'i-leon3-irqmp.ads',
-            'i-leon3-uart.ads',
-            'i-leon3-cache.ads',
             {'s-bbbosu.adb': 's-bbbosu-leon3.adb',
              's-bbpara.ads': 's-bbpara-leon.ads',
              'a-intnam.ads': 'a-intnam-xi-leon3.ads'}])
