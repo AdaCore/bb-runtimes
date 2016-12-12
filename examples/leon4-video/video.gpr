@@ -1,0 +1,6 @@
+project Video is
+   for Main use ("video.adb");
+   package Compiler is
+      for Switches ("Ada") use ("-g");
+   end Compiler;
+end Video;
