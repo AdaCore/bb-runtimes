@@ -72,6 +72,12 @@ class Target(TargetConfiguration):
                             'asm_flags': [],
                             'c_flags': ['-DIN_RTS', '-Dinhibit_libc']}
 
+        readme = None
+        if self.bsp:
+            readme = self.bsp.readme_file
+        if readme:
+            self.config_files.update({'README': readfile(readme)})
+
     def amend_zfp(self):
         if self.bsp is not None:
             self.config_files.update(

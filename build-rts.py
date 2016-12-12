@@ -35,6 +35,7 @@ from aarch64.rpi3 import RPI3
 # leon
 from sparc.leon import Leon2
 from sparc.leon3 import Leon3
+from sparc.leon4 import Leon4
 
 # powerpc
 from powerpc.mpc8641 import MPC8641
@@ -815,7 +816,7 @@ class SourceDirs(SharedFilesHolder):
         elif cpu in ('powerpc', 'ppc'):
             dirs.append('full/zcx-dw2')
             dirs.append('full/zcx-ppc')
-        elif cpu in ('leon', 'leon3'):
+        elif cpu in ('leon', 'leon3', 'leon4'):
             dirs.append('full/zcx-dw2')
             dirs.append('full/zcx-leon')
         elif cpu in ('x86'):
@@ -868,6 +869,8 @@ def build_configs(target, runtime):
         t = Leon2()
     elif target == 'leon3':
         t = Leon3()
+    elif target == 'leon4':
+        t = Leon4()
     elif target == 'mpc8641':
         t = MPC8641()
     elif target == '8349e':

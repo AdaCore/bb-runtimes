@@ -1,0 +1,29 @@
+Leon3 runtime
+-------------
+
+The runtime was built and tested on an UT699 compatible board using
+a 40Mhz clock. You need to change the parameters if your system is different.
+
+All the parameters are set in s-bbbopa.ads.
+You need to specify:
+
+- the clock frequency (used for delays).  An incorrect value won't result in
+  a crash but will change the second definition of the runtime.
+
+- whether or not extended interrupts are present, and if they are, their
+  priorities.
+
+- the address of the interrupt controler. It is used for timers interrupts
+  and for user interrupt handlers
+
+- the address of the timers unit.  The runtime uses timer 1 and timer 2 for
+  the clock and for the delays.  The interrupt number of timer 1 is also
+  specified.
+
+- the address of the uart used by the console (and Ada.Text_IO).
+
+- The number of CPUs.  Runtime is SMP if there are at least 2 CPUs.
+
+Finally the package Ada.Interrupts.Names declares a name for each interrupt.
+You may need to change it if your board is different.
+
