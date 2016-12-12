@@ -51,7 +51,8 @@ ENTRY(__start_ram);
 
 MEMORY
 {
-  SRAM (rwx) : ORIGIN = 64M, LENGTH = 1024M
+  SRAM (rwx) : ORIGIN = 1M, LENGTH = 1022M
+  UCSRAM (rw) : ORIGIN = 1023M, LENGTH = 1M
 }
 
 REGION_ALIAS("REGION_CODE", SRAM)
@@ -206,6 +207,11 @@ SECTIONS
   } > REGION_DATA
 
    __bss_words = (__bss_end - __bss_start) >> 2;
+
+   .ucache (NOLOAD): {
+     . = ALIGN(0x08);
+     *(.ucache)
+   } > UCSRAM
 
   /* DWARF debug sections.
      Symbols in the DWARF debugging sections are relative to the beginning

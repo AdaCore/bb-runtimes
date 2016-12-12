@@ -31,6 +31,10 @@ class Zynq7kBSP(BSP):
                 '-mfpu=%s' % self.fpu,
                 '-marm', '-mno-unaligned-access')
 
+    @property
+    def readme_file(self):
+        return 'arm/zynq/README'
+
     def __init__(self):
         super(Zynq7kBSP, self).__init__()
         self.add_linker_script('arm/zynq/ram.ld', loader='RAM')

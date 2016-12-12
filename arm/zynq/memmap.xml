@@ -1,8 +1,12 @@
 <?xml version="1.0"?>
-<memmap>
-  <!--  Main memory for Zynq -->
+<memmap arch="arm">
+  <!--  Main memory (1GB) for Zynq -->
   <region access="rwx---" cache="wb"
-	  virt="0x00000000" size="0x40000000" name="ram"/>
+	  virt="0x00000000" size="0x3ff00000" name="ram"/>
+
+  <!--  Reserved a small part (1MB) of main memory as not cached  -->
+  <region access="rwx---" cache="nc"
+	  virt="0x3ff00000" size="0x00100000" name="ram-uc"/>
 
   <!-- IO Peripheral -->
   <region access="rw-rw-" cache="nc"

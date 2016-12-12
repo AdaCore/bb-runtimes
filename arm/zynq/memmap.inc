@@ -1023,7 +1023,7 @@ __mmu_l0:
 	.long 0x3fc17c0e  @ for 0x3fc00000, ram
 	.long 0x3fd17c0e  @ for 0x3fd00000, ram
 	.long 0x3fe17c0e  @ for 0x3fe00000, ram
-	.long 0x3ff17c0e  @ for 0x3ff00000, ram
+	.long 0x3ff10c06  @ for 0x3ff00000, ram-uc
 	.long 0x00000000  @ for 0x40000000, *none*
 	.long 0x00000000  @ for 0x40100000, *none*
 	.long 0x00000000  @ for 0x40200000, *none*
