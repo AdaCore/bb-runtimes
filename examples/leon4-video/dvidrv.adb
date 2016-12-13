@@ -29,6 +29,7 @@
 pragma Ada_2012;
 
 with System;
+with System.BB.Board_Support.LEON_3;
 with Interfaces; use Interfaces;
 with Ada.Text_IO; use Ada.Text_IO;
 with I2cm; use I2cm;
@@ -36,6 +37,8 @@ with I2cm; use I2cm;
 package body Dvidrv is
 
    I2cm_Video_Base : constant := 16#c000_0900#;
+
+   I2cm_Video_Interrupt : constant := 18;
 
    I2cm_Clock_Prescale : I2cm_Clock_Prescale_Register
      with Address => System'To_Address (I2cm_Video_Base + 16#00#),
@@ -59,6 +62,34 @@ package body Dvidrv is
      with Address => System'To_Address (I2cm_Video_Base + 16#0c#),
      Volatile, Import;
 
+   I2cm_Ien : constant Boolean := True;
+
+   protected I2c_Prot is
+      pragma Interrupt_Priority (System.Interrupt_Priority'First);
+
+      procedure Handler;
+      pragma Attach_Handler (Handler, I2cm_Video_Interrupt);
+
+      entry Wait_Tfr;
+   private
+      It_Pending : Boolean := False;
+   end I2c_Prot;
+
+   protected body I2c_Prot is
+      procedure Handler is
+      begin
+         It_Pending := True;
+         I2cm_Command := (Sta => False, Sto => False,
+                          Wr => False, Rd => False,
+                          Ack => False, Iack => True, Res_0 => 0, Res_1 => 0);
+      end Handler;
+
+      entry Wait_Tfr when It_Pending is
+      begin
+         It_Pending := False;
+      end Wait_Tfr;
+   end I2c_Prot;
+
    procedure I2c_Start (Addr : Unsigned_8; Ok : out Boolean) is
    begin
       --  Address
@@ -68,9 +99,13 @@ package body Dvidrv is
                        Wr => True, Rd => False,
                        Ack => False, Iack => False, Res_0 => 0, Res_1 => 0);
 
-      while I2cm_Status.Tip loop
-         null;
-      end loop;
+      if I2cm_Ien then
+         I2c_Prot.Wait_Tfr;
+      else
+         while I2cm_Status.Tip loop
+            null;
+         end loop;
+      end if;
 
       if I2cm_Status.Rxack then
          Put_Line ("no ack");
@@ -86,9 +121,13 @@ package body Dvidrv is
       I2cm_Command := (Sta => False, Sto => Stop,
                        Wr => True, Rd => False,
                        Ack => False, Iack => False, Res_0 => 0, Res_1 => 0);
-      while I2cm_Status.Tip loop
-         null;
-      end loop;
+      if I2cm_Ien then
+         I2c_Prot.Wait_Tfr;
+      else
+         while I2cm_Status.Tip loop
+            null;
+         end loop;
+      end if;
    end I2c_Write;
 
    procedure I2c_Read (Data : out Unsigned_8; Stop : Boolean) is
@@ -96,9 +135,13 @@ package body Dvidrv is
       I2cm_Command := (Sta => False, Sto => Stop,
                        Wr => False, Rd => True,
                        Ack => False, Iack => False, Res_0 => 0, Res_1 => 0);
-      while I2cm_Status.Tip loop
-         null;
-      end loop;
+      if I2cm_Ien then
+         I2c_Prot.Wait_Tfr;
+      else
+         while I2cm_Status.Tip loop
+            null;
+         end loop;
+      end if;
 
       Data := I2cm_Data.Data;
    end I2c_Read;
@@ -145,7 +188,16 @@ package body Dvidrv is
         Unsigned_16 (100_000_000 / (5 * 100_000) - 1);
 
       --  Enable
-      I2cm_Control := (Res_0 => 0, En => True, Ien => False, Res_1 => 0);
+      I2cm_Control := (Res_0 => 0, En => True, Ien => I2cm_Ien, Res_1 => 0);
+
+      if I2cm_Ien then
+         declare
+            use System.BB.Board_Support.LEON_3;
+         begin
+            Interrupt_Mask (1) :=
+              Interrupt_Mask (1) or 2**I2cm_Video_Interrupt;
+         end;
+      end if;
 
       Read (16#ec#, 16#4a#, Val);
       Put ("VID: ");

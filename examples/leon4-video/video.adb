@@ -32,6 +32,7 @@ with Dvidrv;
 
 procedure Video is
 begin
-   Dvidrv.Init;
    Put_Line ("Simple video example");
+   Dvidrv.Init;
+   Put_Line ("Done.");
 end Video;
