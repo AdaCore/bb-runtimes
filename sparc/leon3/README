@@ -27,3 +27,5 @@ You need to specify:
 Finally the package Ada.Interrupts.Names declares a name for each interrupt.
 You may need to change it if your board is different.
 
+Interrupts are not unmasked when attached, so user has to manually
+unmask them.  This will also specify which CPU the interrupt is delivered to.
