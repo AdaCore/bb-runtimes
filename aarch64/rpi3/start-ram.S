@@ -449,5 +449,9 @@ __trap_syn_elx:
 	.weak	__gnat_irq_handler
 	.weak	__gnat_context_switch_needed
 	.weak	__gnat_pre_context_switch
+	.weak	__gnat_context_switch
+	.weak	__gnat_initialize_cpu_devices
+	.weak	__gnat_initialize_slave
+	.weak	__gnat_fpen_trap
 
 #include "memmap.s"
