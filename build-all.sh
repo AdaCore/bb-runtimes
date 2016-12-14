@@ -63,7 +63,7 @@ build_rts()
          fi
          runcmd ./build-rts.py --output=$objdir --gcc-dir=$GCC_SRC_DIR \
 	 	    --gnat-dir=$GNAT_SRC_DIR $src_opts ${flag_verbose:+-v} \
-	 	    $opts $config  || \
+	 	    --create-common $opts $config  || \
 	 return 1
       fi
 
