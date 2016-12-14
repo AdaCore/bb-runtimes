@@ -31,6 +31,7 @@ from arm.zynq import Zynq7000
 
 # Aarch64
 from aarch64.rpi3 import RPI3
+from aarch64.qemu import AARCH64QEMU
 
 # leon
 from sparc.leon import Leon2
@@ -853,6 +854,8 @@ def build_configs(target, runtime):
         t = RPI2()
     elif target == 'rpi3':
         t = RPI3()
+    elif target == 'aarch64-qemu':
+        t = AARCH64QEMU()
     elif target.startswith('sam'):
         t = Sam(target)
     elif target.startswith('smartfusion2'):

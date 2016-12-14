@@ -319,6 +319,11 @@ build_sfp_rpi3()
     do_ravenscar aarch64-elf ravenscar-sfp/rpi3
 }
 
+build_zfp_aarch64_qemu()
+{
+    do_zfp aarch64-elf zfp/aarch64-qemu
+}
+
 build_zfp_stm32f4()
 {
     do_zfp arm-eabi zfp/stm32f4
@@ -839,7 +844,12 @@ else
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;
-
+	  aarch64-qemu)
+               case $opt in
+                   zfp)  build_zfp_aarch64_qemu ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
 	  # Sparc based
           erc32)
               case $opt in
