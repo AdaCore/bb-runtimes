@@ -29,10 +29,12 @@
 
 with Ada.Text_IO; use Ada.Text_IO;
 with Dvidrv;
+with Ada.Real_Time;
 
 procedure Video is
 begin
    Put_Line ("Simple video example");
    Dvidrv.Init;
    Put_Line ("Done.");
+   delay until Ada.Real_Time.Time_Last;
 end Video;

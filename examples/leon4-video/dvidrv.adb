@@ -29,7 +29,7 @@
 pragma Ada_2012;
 
 with System;
-with System.BB.Board_Support.LEON_3;
+with Interfaces.Leon3.Irqmp;
 with Interfaces; use Interfaces;
 with Ada.Text_IO; use Ada.Text_IO;
 with I2cm; use I2cm;
@@ -192,7 +192,7 @@ package body Dvidrv is
 
       if I2cm_Ien then
          declare
-            use System.BB.Board_Support.LEON_3;
+            use Interfaces.Leon3.Irqmp;
          begin
             Interrupt_Mask (1) :=
               Interrupt_Mask (1) or 2**I2cm_Video_Interrupt;
