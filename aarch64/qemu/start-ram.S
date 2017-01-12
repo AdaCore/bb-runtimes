@@ -48,9 +48,8 @@ __start_ram1:
 	# Load stack pointer (on 32bit)
 	adrp	x2,system_stack_base
 	add	x2, x2, #:lo12:system_stack_base
-#	ldr	w0,[x2, x7, lsl #2]
-#	msr	sp_el1,x0
-	mov	sp, x2
+	ldr	w0,[x2]
+	mov	sp, x0
 
 	/* Enable SIMD.  */
 	mov	x0, #(1 << 20)
