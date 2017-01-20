@@ -180,7 +180,13 @@ class BSP(SharedFilesHolder):
             ret += '   type Loaders is ("%s");\n' % ('", "').join(self.loaders)
             ret += '   Loader : Loaders := External("LOADER", "%s");\n' % (
                 self.loaders[0])
+        elif self.loaders is not None:
+            ret += '   LDSCRIPT := external ("LDSCRIPT",\n'
+            ret += '                         "%s");\n' % (
+                "${RUNTIME_DIR(ada)}/" + self.ld_scripts[0]['path'] +
+                "/" + self.ld_scripts[0]['name'])
 
+        ret += "\n"
         ret += "   package Compiler is\n"
         if self.compiler_switches is not None:
             ret += '      Common_Required_Switches := ("%s");\n' % \
@@ -219,7 +225,7 @@ class BSP(SharedFilesHolder):
         for val in self.ld_scripts:
             if val['loader'] is None:
                 # use for all loaders
-                switches.append('"-T", "%s"' % val['name'])
+                switches.append('"-T" &amp; LDSCRIPT')
         for sw in self.ld_switches:
             if sw['loader'] is None or sw['loader'] == '':
                 switches.append('"%s"' % sw['switch'])
