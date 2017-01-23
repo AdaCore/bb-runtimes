@@ -641,10 +641,12 @@ class SourceDirs(SharedFilesHolder):
 
         # Zero-cost-exception support
         self.add_sources('full/zcx-arm', {
+            's-excmac.adb': 's-excmac-arm.adb',
             's-excmac.ads': 's-excmac-arm.ads',
             's-traceb.adb': 's-traceb-xi-armeabi.adb'})
         self.add_sources('full/zcx-dw2', [
-            {'s-excmac.ads': 's-excmac-gcc.ads'},
+            {'s-excmac.ads': 's-excmac-gcc.ads',
+             's-excmac.adb': 's-excmac-gcc.adb'},
             'libgcc/unwind-dw2-fde.h'])
         if self._is_bb:
             self.add_sources('full/zcx-dw2', 'src/unwind-dw2-fde-bb.c')
