@@ -12,10 +12,6 @@ class Leon2BSP(BSP):
         return LeonArch
 
     @property
-    def loaders(self):
-        return ()
-
-    @property
     def c_switches(self):
         # The required compiler switches
         return ('-DLEON', '-DLEON2')

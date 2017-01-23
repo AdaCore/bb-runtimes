@@ -176,11 +176,11 @@ class BSP(SharedFilesHolder):
   <configuration>
    <config>
 """
-        if self.loaders is not None and len(self.loaders) > 0:
+        if self.loaders is not None:
             ret += '   type Loaders is ("%s");\n' % ('", "').join(self.loaders)
             ret += '   Loader : Loaders := External("LOADER", "%s");\n' % (
                 self.loaders[0])
-        elif self.loaders is not None:
+        else:
             ret += '   LDSCRIPT := external ("LDSCRIPT",\n'
             ret += '                         "%s");\n' % (
                 "${RUNTIME_DIR(ada)}/" + self.ld_scripts[0]['path'] +
@@ -254,7 +254,7 @@ class BSP(SharedFilesHolder):
         indent = 6
         blank = indent * ' '
 
-        if self.loaders is not None and len(self.loaders) > 0:
+        if self.loaders is not None:
             ret += '\n' + blank
             ret += 'case Loader is\n'
             indent += 3
