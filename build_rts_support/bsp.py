@@ -180,7 +180,7 @@ class BSP(SharedFilesHolder):
             ret += '   type Loaders is ("%s");\n' % ('", "').join(self.loaders)
             ret += '   Loader : Loaders := External("LOADER", "%s");\n' % (
                 self.loaders[0])
-        else:
+        elif len(self.ld_scripts) > 0:
             ret += '   LDSCRIPT := external ("LDSCRIPT",\n'
             ret += '                         "%s");\n' % (
                 "${RUNTIME_DIR(ada)}/" + self.ld_scripts[0]['path'] +
