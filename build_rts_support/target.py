@@ -229,16 +229,16 @@ class Target(TargetConfiguration, BSP):
                     install_prefix = Config.prefix
                 else:
                     install_prefix = Config.prefix + '/'
-            else:
+            elif not self.is_pikeos:
                 install_prefix = \
                     self.target + '/lib/gnat/'
             if self.is_pikeos:
-                install_prefix += rts_name
+                install_prefix += 'rts-%s' % rts_name
             else:
                 install_prefix += '%s-%s' % (rts_name, self.name)
 
             if not os.path.exists(base_rts):
-                os.mkdir(base_rts)
+                os.makedirs(base_rts)
 
             src_dirs = []
 
@@ -412,7 +412,8 @@ class Target(TargetConfiguration, BSP):
             if sw['loader'] is None or sw['loader'] == '':
                 switches.append('"%s"' % sw['switch'])
 
-        if rts.rts_vars['RTS'] == 'ravenscar-full':
+        if rts.rts_vars['RTS'] == 'ravenscar-full' or (
+           rts.rts_vars['RTS'] == 'ravenscar-sfp' and self.is_pikeos):
             # We need a binder section to prevent the link with libgnarl, which
             # we don't have as it's merged with libgnat in this case
             ret += '   package Binder is\n'
