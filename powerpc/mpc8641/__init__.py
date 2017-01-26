@@ -2,11 +2,7 @@ from build_rts_support.bsp import BSP
 from powerpc import PPC6XXArch, PPC6XXTarget
 
 
-class MPC8641BSP(BSP):
-    @property
-    def parent(self):
-        return PPC6XXArch
-
+class MPC8641(PPC6XXTarget):
     @property
     def name(self):
         return 'mpc8641'
@@ -20,7 +16,7 @@ class MPC8641BSP(BSP):
         return ('ROM', 'RAM')
 
     def __init__(self):
-        super(MPC8641BSP, self).__init__()
+        super(MPC8641, self).__init__()
         self.add_linker_script('powerpc/mpc8641/qemu-rom.ld', loader='ROM')
         self.add_linker_switch('-Wl,-u_start_rom', loader='ROM')
         self.add_linker_script('powerpc/mpc8641/ram.ld', loader='RAM')
@@ -39,9 +35,3 @@ class MPC8641BSP(BSP):
             's-bbsumu.adb': 's-bbsumu-8641d.adb',
             's-bbpara.ads': 's-bbpara-8641d.ads',
             'a-intnam.ads': 'a-intnam-xi-ppc-openpic.ads'})
-
-
-class MPC8641(PPC6XXTarget):
-    @property
-    def bspclass(self):
-        return MPC8641BSP

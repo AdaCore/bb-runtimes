@@ -1,15 +1,10 @@
-from build_rts_support.bsp import BSP
-from aarch64 import Aarch64Arch, Aarch64Target
+from aarch64 import Aarch64Target
 
 
-class Rpi3BSP(BSP):
+class Rpi3(Aarch64Target):
     @property
     def name(self):
-        return "raspberry-pi3"
-
-    @property
-    def parent(self):
-        return Aarch64Arch
+        return "rpi3"
 
     @property
     def loaders(self):
@@ -21,7 +16,9 @@ class Rpi3BSP(BSP):
         return ('-mlittle-endian', '-mcpu=cortex-a53')
 
     def __init__(self):
-        super(Rpi3BSP, self).__init__()
+        super(Rpi3, self).__init__(
+            mem_routines=True,
+            small_mem=False)
 
         self.add_linker_script('aarch64/rpi3/ram.ld', loader='RAM')
         self.add_sources('crt0', [
@@ -36,26 +33,3 @@ class Rpi3BSP(BSP):
             'a-intnam.ads': 'a-intnam-dummy.ads',
             's-bbpara.ads': 's-bbpara-rpi2.ads',
             's-bbbosu.adb': 's-bbbosu-rpi3.adb'})
-
-
-class RPI3(Aarch64Target):
-    @property
-    def bspclass(self):
-        return Rpi3BSP
-
-    def __init__(self):
-        super(RPI3, self).__init__(
-            mem_routines=True,
-            small_mem=False)
-
-    def amend_zfp(self):
-        super(RPI3, self).amend_zfp()
-        self.update_pairs({'system.ads': 'system-xi-aarch64.ads'})
-
-    def amend_ravenscar_sfp(self):
-        super(RPI3, self).amend_ravenscar_sfp()
-        self.update_pairs({'system.ads': 'system-xi-arm-sfp.ads'})
-
-    def amend_ravenscar_full(self):
-        super(RPI3, self).amend_ravenscar_full()
-        self.update_pairs({'system.ads': 'system-xi-arm-full.ads'})

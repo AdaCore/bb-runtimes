@@ -46,6 +46,10 @@ class PPC6XXTarget(DFBBTarget):
         return 'powerpc-elf'
 
     @property
+    def parent(self):
+        return PPC6XXArch
+
+    @property
     def has_timer_64(self):
         return True
 
@@ -68,31 +72,30 @@ class PPC6XXTarget(DFBBTarget):
         # But use soft float in the math lib
         return False
 
+    @property
+    def zfp_system_ads(self):
+        return 'system-xi-ppc.ads'
+
+    @property
+    def sfp_system_ads(self):
+        return 'system-xi-ppc-sfp.ads'
+
+    @property
+    def full_system_ads(self):
+        return 'system-xi-ppc-full.ads'
+
     def __init__(self):
         super(PPC6XXTarget, self).__init__(
             mem_routines=True,
             small_mem=False)
 
-    def amend_zfp(self):
-        super(PPC6XXTarget, self).amend_zfp()
-        self.update_pairs({
-            'system.ads': 'system-xi-ppc.ads'})
-
-    def amend_ravenscar_sfp(self):
-        super(PPC6XXTarget, self).amend_ravenscar_sfp()
-        self.update_pairs({
-            'system.ads': 'system-xi-ppc-sfp.ads'})
-
-    def amend_ravenscar_full(self):
-        super(PPC6XXTarget, self).amend_ravenscar_full()
-        self.update_pairs({
-            'system.ads': 'system-xi-ppc-full.ads'})
-        self.config_files.update(
+    def amend_ravenscar_full(self, conf):
+        super(PPC6XXTarget, self).amend_ravenscar_full(conf)
+        conf.config_files.update(
             {'link-zcx.spec':
              readfile('powerpc/prep/link-zcx.spec')})
-        self.config_files['runtime.xml'] = \
-            self.config_files['runtime.xml'].replace(
-                '"-nolibc", "-nostartfiles"',
+        conf.rts_xml = conf.rts_xml.replace(
+                '"-nostartfiles", "-lgnat", "-lgcc"',
                 '"-nolibc",\n' +
                 '         "-lgnat", "-lgcc", "-lgnat",\n' +
                 '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
@@ -100,28 +103,21 @@ class PPC6XXTarget(DFBBTarget):
 
 class PPCSPETarget(PPC6XXTarget):
     @property
+    def parent(self):
+        return PPCSPEArch
+
+    @property
     def target(self):
         return 'powerpc-eabispe'
 
-    def amend_zfp(self):
-        super(PPCSPETarget, self).amend_zfp()
-        self.update_pairs({
-            'system.ads': 'system-xi-e500v2.ads'})
+    @property
+    def zfp_system_ads(self):
+        return 'system-xi-e500v2.ads'
 
-    def amend_ravenscar_sfp(self):
-        super(PPCSPETarget, self).amend_ravenscar_sfp()
-        self.update_pairs({
-            'system.ads': 'system-xi-e500v2-sfp.ads'})
+    @property
+    def sfp_system_ads(self):
+        return 'system-xi-e500v2-sfp.ads'
 
-    def amend_ravenscar_full(self):
-        super(PPCSPETarget, self).amend_ravenscar_full()
-        self.update_pairs({
-            'system.ads': 'system-xi-e500v2-full.ads'})
-        self.config_files.update(
-            {'link-zcx.spec': readfile('powerpc/prep/link-zcx.spec')})
-        self.config_files['runtime.xml'] = \
-            self.config_files['runtime.xml'].replace(
-                '"-nolibc", "-nostartfiles"',
-                '"-nolibc",\n' +
-                '         "-lgnat", "-lgcc", "-lgnat",\n' +
-                '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
+    @property
+    def full_system_ads(self):
+        return 'system-xi-e500v2-full.ads'

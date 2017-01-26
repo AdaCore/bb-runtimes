@@ -2,14 +2,10 @@ from build_rts_support.bsp import BSP
 from arm.cortexar import CortexARArch, CortexARTarget
 
 
-class TMS570BSP(BSP):
+class TMS570(CortexARTarget):
     @property
     def name(self):
         return "tms570"
-
-    @property
-    def parent(self):
-        return CortexARArch
 
     @property
     def loaders(self):
@@ -21,8 +17,18 @@ class TMS570BSP(BSP):
         return ('-mbig-endian', '-mhard-float', '-mcpu=cortex-r4',
                 '-mfpu=vfpv3-d16', '-marm')
 
+    @property
+    def sfp_system_ads(self):
+        return 'system-xi-arm-sfp.ads'
+
+    @property
+    def full_system_ads(self):
+        return 'system-xi-arm-full.ads'
+
     def __init__(self):
-        super(TMS570BSP, self).__init__()
+        super(TMS570, self).__init__(
+            mem_routines=True,
+            small_mem=True)
 
         self.add_linker_script('arm/tms570/common.ld')
         self.add_linker_script('arm/tms570/tms570.ld', loader='PROBE')
@@ -45,24 +51,3 @@ class TMS570BSP(BSP):
             's-bbpara.ads': 's-bbpara-tms570.ads',
             's-bbbosu.adb': 's-bbbosu-tms570.adb'})
         self.add_sources('gnarl', 's-bbsumu.adb')
-
-
-class TMS570(CortexARTarget):
-    @property
-    def bspclass(self):
-        return TMS570BSP
-
-    def __init__(self):
-        super(TMS570, self).__init__(
-            mem_routines=True,
-            small_mem=True)
-
-    def amend_ravenscar_sfp(self):
-        super(TMS570, self).amend_ravenscar_sfp()
-        self.update_pairs({
-            'system.ads': 'system-xi-arm-sfp.ads'})
-
-    def amend_ravenscar_full(self):
-        super(TMS570, self).amend_ravenscar_full()
-        self.update_pairs({
-            'system.ads': 'system-xi-arm-full.ads'})

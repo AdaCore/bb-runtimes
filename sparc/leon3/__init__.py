@@ -2,10 +2,14 @@ from build_rts_support.bsp import BSP
 from sparc import LeonArch, LeonTarget
 
 
-class Leon3BSP(BSP):
+class Leon3(LeonTarget):
     @property
     def name(self):
         return "leon3"
+
+    @property
+    def target(self):
+        return 'leon3-elf'
 
     @property
     def parent(self):
@@ -21,7 +25,7 @@ class Leon3BSP(BSP):
         return 'sparc/leon3/README'
 
     def __init__(self):
-        super(Leon3BSP, self).__init__()
+        super(Leon3, self).__init__()
 
         self.add_linker_script('leon3-elf/leon.ld', loader=None)
         self.add_sources('crt0', {
@@ -37,13 +41,3 @@ class Leon3BSP(BSP):
             {'s-bbbosu.adb': 's-bbbosu-leon3.adb',
              's-bbpara.ads': 's-bbpara-leon.ads',
              'a-intnam.ads': 'a-intnam-xi-leon3.ads'}])
-
-
-class Leon3(LeonTarget):
-    @property
-    def target(self):
-        return 'leon3-elf'
-
-    @property
-    def bspclass(self):
-        return Leon3BSP

@@ -9,12 +9,13 @@ class Config(object):
     # Output directory
     objdir = "install"
 
+    # RTS installation directory
+    prefix = None
+
     # Display actions
     verbose = False
 
-    # create a common directory
-    create_common = False
-    # common rts files
+    # common rts files to install
     rts_srcs = None
 
     link = False

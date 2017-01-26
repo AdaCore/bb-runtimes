@@ -67,12 +67,10 @@ class FilesHolder(object):
         return False
 
     def update_pair(self, dest, src):
-        if not isinstance(dest, basestring):
-            print "dest is not a string: %s (src is %s)" % (dest, src)
-            sys.exit(2)
-        if src is not None and not isinstance(src, basestring):
-            print "src is not a string: %s (dest is %s)" % (src, dest)
-            sys.exit(2)
+        assert isinstance(dest, basestring), \
+            "dest is not a string: %s (src is %s)" % (dest, src)
+        assert src is None or isinstance(src, basestring), \
+            "src is not a string: %s (dest is %s)" % (src, dest)
 
         for d in self.dirs:
             if dest in self.dirs[d]:
@@ -105,22 +103,22 @@ class FilesHolder(object):
                 cnt2 = fp.read()
             if cnt1 != cnt2:
                 print "runtime file " + dst + " already exists"
+                print "cannot install " + src
                 sys.exit(5)
             else:
                 already_exists = True
 
-        if os.path.basename(dst) in installed_files:
-            print "runtime file " + dst + " installed multiple times"
-            sys.exit(6)
+        if installed_files is not None:
+            if os.path.basename(dst) in installed_files:
+                print "runtime file " + dst + " installed multiple times"
+                sys.exit(6)
 
-        installed_files.append(os.path.basename(dst))
+            installed_files.append(os.path.basename(dst))
 
         if already_exists:
             if Config.verbose:
                 print "same file, skip: " + src + ", " + dst
         else:
-            installed_files.append(os.path.basename(dst))
-
             if Config.verbose:
                 print "copy " + src + " to " + dst
             if Config.link:
@@ -133,7 +131,7 @@ class FilesHolder(object):
             else:
                 shutil.copy(src, dst)
 
-    def _copy_pair(self, dst, srcfile, destdir, installed_files):
+    def _copy_pair(self, dst, srcfile, destdir, installed_files=None):
         "Copy after substitution with pairs"
 
         dstdir = os.path.join(destdir, os.path.basename(dst))
@@ -145,9 +143,9 @@ class FilesHolder(object):
 
         if '/' not in srcfile:
             # Files without path elements are in gnat
-            if self.manifest and srcfile not in self.manifest:
-                print "Error: source file %s not in MANIFEST" % srcfile
-                sys.exit(2)
+            assert self.manifest, "Error: MANIFEST file not found"
+            assert srcfile in self.manifest, \
+                "Error: source file %s not in MANIFEST" % srcfile
             self._copy(os.path.join(Config.gnatdir, srcfile),
                        dstdir, installed_files)
         else:

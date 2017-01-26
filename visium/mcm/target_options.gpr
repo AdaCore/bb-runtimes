@@ -1,3 +1,0 @@
-abstract project Target_Options is
-   CFLAGS := ("-muser-mode");
-end Target_Options;

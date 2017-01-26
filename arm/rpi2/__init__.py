@@ -1,15 +1,10 @@
-from build_rts_support.bsp import BSP
-from arm.cortexar import CortexARArch, CortexARTarget
+from arm.cortexar import CortexARTarget
 
 
-class Rpi2BSP(BSP):
+class Rpi2(CortexARTarget):
     @property
     def name(self):
-        return "raspberry-pi2"
-
-    @property
-    def parent(self):
-        return CortexARArch
+        return "rpi2"
 
     @property
     def loaders(self):
@@ -24,6 +19,10 @@ class Rpi2BSP(BSP):
         return 'vfpv4'
 
     @property
+    def has_timer_64(self):
+        return True
+
+    @property
     def compiler_switches(self):
         # The required compiler switches
         return ('-mlittle-endian', '-mhard-float',
@@ -31,8 +30,18 @@ class Rpi2BSP(BSP):
                 '-mfpu=%s' % self.fpu,
                 '-marm', '-mno-unaligned-access')
 
+    @property
+    def sfp_system_ads(self):
+        return 'system-xi-arm-sfp.ads'
+
+    @property
+    def full_system_ads(self):
+        return 'system-xi-arm-full.ads'
+
     def __init__(self):
-        super(Rpi2BSP, self).__init__()
+        super(Rpi2, self).__init__(
+            mem_routines=True,
+            small_mem=False)
 
         self.add_linker_script('arm/rpi2/ram.ld', loader='RAM')
         self.add_sources('crt0', [
@@ -45,28 +54,3 @@ class Rpi2BSP(BSP):
             'a-intnam.ads': 'a-intnam-dummy.ads',
             's-bbpara.ads': 's-bbpara-rpi2.ads',
             's-bbbosu.adb': 's-bbbosu-rpi2.adb'})
-
-
-class RPI2(CortexARTarget):
-    @property
-    def bspclass(self):
-        return Rpi2BSP
-
-    @property
-    def has_timer_64(self):
-        return True
-
-    def __init__(self):
-        super(RPI2, self).__init__(
-            mem_routines=True,
-            small_mem=False)
-
-    def amend_ravenscar_sfp(self):
-        super(RPI2, self).amend_ravenscar_sfp()
-        self.update_pairs({
-            'system.ads': 'system-xi-arm-sfp.ads'})
-
-    def amend_ravenscar_full(self):
-        super(RPI2, self).amend_ravenscar_full()
-        self.update_pairs({
-            'system.ads': 'system-xi-arm-full.ads'})

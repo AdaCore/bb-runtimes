@@ -28,10 +28,13 @@ class CortexARTarget(DFBBTarget):
         return 'arm-eabi'
 
     @property
+    def parent(self):
+        return CortexARArch
+
+    @property
     def has_newlib(self):
         return True
 
-    def amend_zfp(self):
-        super(CortexARTarget, self).amend_zfp()
-        self.update_pairs(
-            {'system.ads': 'system-xi-arm.ads'})
+    @property
+    def zfp_system_ads(self):
+        return 'system-xi-arm.ads'

@@ -38,32 +38,36 @@ class LeonTarget(DFBBTarget):
     def has_newlib(self):
         return True
 
+    @property
+    def zfp_system_ads(self):
+        return 'system-xi-sparc.ads'
+
+    @property
+    def sfp_system_ads(self):
+        return 'system-xi-sparc-ravenscar.ads'
+
+    @property
+    def full_system_ads(self):
+        return 'system-xi-sparc-full.ads'
+
     def __init__(self):
         super(LeonTarget, self).__init__(
             mem_routines=True,
             small_mem=False)
 
-    def amend_zfp(self):
-        super(LeonTarget, self).amend_zfp()
-        self.update_pairs({'system.ads': 'system-xi-sparc.ads'})
-        self.config_files['runtime.xml'] = \
-            self.config_files['runtime.xml'].replace(
-                '"-nolibc", ', '')
+    def amend_zfp(self, conf):
+        super(LeonTarget, self).amend_zfp(conf)
+        conf.rts_xml = \
+            conf.rts_xml.replace(
+                ' "-nolibc",', '')
 
-    def amend_ravenscar_sfp(self):
-        super(LeonTarget, self).amend_ravenscar_sfp()
-        self.update_pairs({'system.ads': 'system-xi-sparc-ravenscar.ads'})
-
-    def amend_ravenscar_full(self):
-        super(LeonTarget, self).amend_ravenscar_full()
-        self.update_pairs({
-            'system.ads': 'system-xi-sparc-full.ads'})
+    def amend_ravenscar_full(self, conf):
+        super(LeonTarget, self).amend_ravenscar_full(conf)
         # Use leon-zcx.specs to link with -lc.
-        self.config_files.update(
+        conf.config_files.update(
             {'link-zcx.spec':
              readfile(os.path.join(Config.crossdir,
                                    'leon-elf/leon-zcx.specs'))})
-        self.config_files['runtime.xml'] = \
-            self.config_files['runtime.xml'].replace(
-                '"-nostartfiles",',
-                '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec",')
+        conf.rts_xml = conf.rts_xml.replace(
+            '"-nostartfiles",',
+            '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec",')

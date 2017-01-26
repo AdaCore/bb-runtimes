@@ -27,6 +27,10 @@ class CortexMTarget(Target):
         return "arm-eabi"
 
     @property
+    def parent(self):
+        return CortexMArch
+
+    @property
     def has_timer_64(self):
         return False
 
@@ -42,22 +46,19 @@ class CortexMTarget(Target):
     def has_double_precision_fpu(self):
         return False
 
+    @property
+    def zfp_system_ads(self):
+        return 'system-xi-arm.ads'
+
+    @property
+    def sfp_system_ads(self):
+        return 'system-xi-cortexm4-sfp.ads'
+
+    @property
+    def full_system_ads(self):
+        return 'system-xi-cortexm4-full.ads'
+
     def __init__(self):
         super(CortexMTarget, self).__init__(
             mem_routines=True,
             small_mem=True)
-
-    def amend_zfp(self):
-        super(CortexMTarget, self).amend_zfp()
-        self.update_pairs({
-            'system.ads': 'system-xi-arm.ads'})
-
-    def amend_ravenscar_sfp(self):
-        super(CortexMTarget, self).amend_ravenscar_sfp()
-        self.update_pairs({
-            'system.ads': 'system-xi-cortexm4-sfp.ads'})
-
-    def amend_ravenscar_full(self):
-        super(CortexMTarget, self).amend_ravenscar_full()
-        self.update_pairs({
-            'system.ads': 'system-xi-cortexm4-full.ads'})

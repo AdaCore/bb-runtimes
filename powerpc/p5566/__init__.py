@@ -1,13 +1,7 @@
-from build_rts_support import readfile
-from build_rts_support.bsp import BSP
-from powerpc import PPCSPEArch, PPCSPETarget
+from powerpc import PPCSPETarget
 
 
-class P5566BSP(BSP):
-    @property
-    def parent(self):
-        return PPCSPEArch
-
+class P5566(PPCSPETarget):
     @property
     def name(self):
         return 'p5566'
@@ -21,7 +15,7 @@ class P5566BSP(BSP):
         return ('EXTRAM', 'BAM', 'FLASH')
 
     def __init__(self):
-        super(P5566BSP, self).__init__()
+        super(P5566, self).__init__()
         self.add_linker_script('powerpc/p5566/bam.ld', loader='BAM')
         self.add_linker_script('powerpc/p5566/flash.ld', loader='FLASH')
         self.add_linker_script('powerpc/p5566/ram.ld', loader='EXTRAM')
@@ -40,9 +34,3 @@ class P5566BSP(BSP):
              's-bbsuti.adb': 's-bbsuti-ppc.adb',
              's-bbpara.ads': 's-bbpara-p55.ads',
              'a-intnam.ads': 'a-intnam-xi-p55.ads'}])
-
-
-class P5566(PPCSPETarget):
-    @property
-    def bspclass(self):
-        return P5566BSP

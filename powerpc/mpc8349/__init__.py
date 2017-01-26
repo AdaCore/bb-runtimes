@@ -1,12 +1,7 @@
-from build_rts_support.bsp import BSP
-from powerpc import PPC6XXArch, PPC6XXTarget
+from powerpc import PPC6XXTarget
 
 
-class MPC8349BSP(BSP):
-    @property
-    def parent(self):
-        return PPC6XXArch
-
+class MPC8349e(PPC6XXTarget):
     @property
     def name(self):
         return 'mpc8349e'
@@ -16,7 +11,7 @@ class MPC8349BSP(BSP):
         return ('-msoft-float', '-mno-sdata')
 
     def __init__(self):
-        super(MPC8349BSP, self).__init__()
+        super(MPC8349e, self).__init__()
 
         self.add_linker_script('powerpc/mpc8349/ram.ld', loader=None)
         self.add_linker_switch('-Wl,-z,max-page-size=0x1000')
@@ -31,9 +26,3 @@ class MPC8349BSP(BSP):
             's-bbsuti.adb': 's-bbsuti-ppc.adb',
             's-bbpara.ads': 's-bbpara-ppc.ads',
             'a-intnam.ads': 'a-intnam-xi-8349e.ads'})
-
-
-class MPC8349e(PPC6XXTarget):
-    @property
-    def bspclass(self):
-        return MPC8349BSP

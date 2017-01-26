@@ -30,14 +30,26 @@ class SamCommonBSP(BSP):
             's-bbpara.ads': 's-bbpara-sam4s.ads'})
 
 
-class SamGenericBSP(BSP):
+class Sam(CortexMTarget):
+    @property
+    def name(self):
+        return self.board
+
     @property
     def parent(self):
         return SamCommonBSP
 
     @property
     def has_single_precision_fpu(self):
-        assert False, "Not implemented"
+        if self.board == 'sam4s':
+            return False
+        else:
+            return True
+
+    @property
+    def full_system_ads(self):
+        # No runtime full
+        return None
 
     @property
     def compiler_switches(self):
@@ -48,8 +60,10 @@ class SamGenericBSP(BSP):
         else:
             return base + ('-mhard-float', '-mfpu=fpv4-sp-d16', )
 
-    def __init__(self):
-        super(SamGenericBSP, self).__init__()
+    def __init__(self, board):
+        assert board in ('sam4s', 'samg55'), "Unexpected SAM board %s" % board
+        self.board = board
+        super(Sam, self).__init__()
 
         self.add_linker_script(
             'arm/sam/%s/memory-map.ld' % self.name,
@@ -70,42 +84,3 @@ class SamGenericBSP(BSP):
             'arm/sam/%s/s-bbbopa.ads' % self.name,
             'arm/sam/%s/s-bbmcpa.ads' % self.name,
             {'a-intnam.ads': 'arm/sam/%s/svd/a-intnam.ads' % self.name}])
-
-
-class Sam4sBSP(SamGenericBSP):
-    @property
-    def name(self):
-        return 'sam4s'
-
-    @property
-    def has_single_precision_fpu(self):
-        return False
-
-
-class SamG55BSP(SamGenericBSP):
-    @property
-    def name(self):
-        return 'samg55'
-
-    @property
-    def has_single_precision_fpu(self):
-        return True
-
-
-class Sam(CortexMTarget):
-    @property
-    def bspclass(self):
-        if self.board == 'sam4s':
-            return Sam4sBSP
-        elif self.board == 'samg55':
-            return SamG55BSP
-        else:
-            assert False, "Unexpected board %s" % self.board
-
-    @property
-    def has_single_precision_fpu(self):
-        return self.bsp.has_single_precision_fpu
-
-    def __init__(self, board):
-        self.board = board
-        super(Sam, self).__init__()

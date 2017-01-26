@@ -1,0 +1,26 @@
+project Install is
+
+   for Languages use ("XML");
+
+   package Compiler is
+      for Driver ("XML") use "";
+   end Compiler;
+
+   package Naming is
+      for Spec_Suffix ("XML") use ".xml";
+   end Naming;
+
+   for Source_Files use ("runtime.xml");
+
+   Install_Prefix := "{prefix}";
+
+   package Install is
+      for Prefix use Install_Prefix;
+      for Required_Artifacts ("") use
+        ("{rts_files}");
+      for Required_Artifacts("ld") use
+        ("{link_sources}");
+      for Sources_Subdir use ".";
+   end Install;
+
+end Install;

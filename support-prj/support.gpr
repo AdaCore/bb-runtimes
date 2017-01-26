@@ -1,9 +1,0 @@
-project Support is
-  for Library_Auto_Init use "False";
-  for Library_Name use "support";
-  for Library_Kind use "static";
-
-  for Externally_Built use "true";
-  for Library_Dir use "lib";
-  for Source_Dirs use ("arch", "common");
-end Support;

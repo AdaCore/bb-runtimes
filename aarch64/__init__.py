@@ -27,9 +27,25 @@ class Aarch64Target(DFBBTarget):
         return 'aarch64-elf'
 
     @property
+    def parent(self):
+        return Aarch64Arch
+
+    @property
     def has_newlib(self):
         return True
 
     @property
     def has_timer_64(self):
         return True
+
+    @property
+    def zfp_system_ads(self):
+        return 'system-xi-aarch64.ads'
+
+    @property
+    def sfp_system_ads(self):
+        return 'system-xi-arm-sfp.ads'
+
+    @property
+    def full_system_ads(self):
+        return 'system-xi-arm-full.ads'

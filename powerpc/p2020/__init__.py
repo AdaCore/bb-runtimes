@@ -1,23 +1,17 @@
-from build_rts_support import readfile
-from build_rts_support.bsp import BSP
-from powerpc import PPCSPEArch, PPCSPETarget
+from powerpc import PPCSPETarget
 
 
-class P2020BSP(BSP):
-    @property
-    def parent(self):
-        return PPCSPEArch
-
+class P2020(PPCSPETarget):
     @property
     def name(self):
-        return 'p2020rdb'
+        return 'p2020'
 
     @property
     def compiler_switches(self):
         return ('-mfloat-gprs=double', )
 
     def __init__(self):
-        super(P2020BSP, self).__init__()
+        super(P2020, self).__init__()
         self.add_linker_script('powerpc/p2020/p2020.ld', loader=None)
         self.add_sources('crt0', [
             'powerpc/p2020/start-ram.S',
@@ -31,9 +25,3 @@ class P2020BSP(BSP):
              's-bbsuti.adb': 's-bbsuti-ppc.adb',
              's-bbpara.ads': 's-bbpara-ppc.ads',
              'a-intnam.ads': 'a-intnam-xi-ppc-openpic.ads'}])
-
-
-class P2020(PPCSPETarget):
-    @property
-    def bspclass(self):
-        return P2020BSP

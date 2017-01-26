@@ -32,19 +32,22 @@ class Stm32CommonBSP(BSP):
             'arm/stm32/setup_pll.ads'])
 
 
-class Stm32GenericBSP(BSP):
+class Stm32(CortexMTarget):
     """Generic handling of stm32 boards"""
+    @property
+    def name(self):
+        return self.board
+
     @property
     def parent(self):
         return Stm32CommonBSP
 
     @property
-    def mcu(self):
-        assert False, "Not implemented"
-
-    @property
     def has_double_precision_fpu(self):
-        return False
+        if self.mcu == 'stm32f7x9':
+            return True
+        else:
+            return False
 
     @property
     def cortex(self):
@@ -72,8 +75,25 @@ class Stm32GenericBSP(BSP):
                 '-mfpu=%s' % self.fpu,
                 '-mthumb')
 
-    def __init__(self):
-        super(Stm32GenericBSP, self).__init__()
+    def __init__(self, board):
+        self.board = board
+        if self.board == 'stm32f4':
+            self.mcu = 'stm32f40x'
+        elif self.board == 'stm32f429disco':
+            self.mcu = 'stm32f429x'
+        elif self.board == 'openmv2':
+            self.mcu = 'stm32f429x'
+        elif self.board == 'stm32f469disco':
+            self.mcu = 'stm32f469x'
+        elif self.board == 'stm32f746disco':
+            self.mcu = 'stm32f7x'
+        elif self.board == 'stm32f769disco':
+            self.mcu = 'stm32f7x9'
+        else:
+            assert False, "Unknown stm32 board: %s" % self.board
+
+        super(Stm32, self).__init__()
+
         self.add_linker_script('arm/stm32/%s/memory-map.ld' % self.mcu,
                                loader=('RAM', 'ROM'))
         # startup code
@@ -89,123 +109,35 @@ class Stm32GenericBSP(BSP):
             'arm/stm32/%s/svd/i-stm32-syscfg.ads' % self.mcu,
             'arm/stm32/%s/svd/i-stm32-usart.ads' % self.mcu])
 
+        if self.board == 'stm32f4':
+            self.add_sources('crt0', {
+                's-stm32.adb': 's-stm32-f40x.adb',
+                's-textio.adb': 's-textio-stm32f4.adb'})
+        elif self.board == 'stm32f429disco':
+            self.add_sources('crt0', {
+                's-stm32.adb': 's-stm32-f4x9x.adb',
+                's-textio.adb': 's-textio-stm32f4.adb'})
+        elif self.board == 'openmv2':
+            self.add_sources('crt0', {
+                's-stm32.adb': 's-stm32-f4x9x.adb',
+                's-textio.adb': 's-textio-stm32f4.adb'})
+            self.update_pairs('crt0', {
+                's-bbbopa.ads': 'arm/stm32/%s/s-bbbopa-openmv2.ads' %
+                                self.mcu})
+        elif self.board == 'stm32f469disco':
+            self.add_sources('crt0', {
+                's-stm32.adb': 's-stm32-f4x9x.adb',
+                's-textio.adb': 's-textio-stm32f469.adb'})
+        elif self.board == 'stm32f746disco':
+            self.add_sources('crt0', {
+                's-stm32.adb': 's-stm32-f7x.adb',
+                's-textio.adb': 's-textio-stm32f7.adb'})
+        elif self.board == 'stm32f769disco':
+            self.add_sources('crt0', {
+                's-stm32.adb': 's-stm32-f7x.adb',
+                's-textio.adb': 's-textio-stm32f7.adb'})
+
         # ravenscar support
         self.add_sources('gnarl', [
             'arm/stm32/%s/svd/handler.S' % self.mcu,
-            {'a-intnam.ads': 'arm/stm32/%s/svd/a-intnam.ads' % self.mcu}])
-
-
-class Stm32F4BSP(Stm32GenericBSP):
-    @property
-    def name(self):
-        return 'stm32f4'
-
-    @property
-    def mcu(self):
-        return 'stm32f40x'
-
-    def __init__(self):
-        super(Stm32F4BSP, self).__init__()
-        self.add_sources('crt0', {
-            's-stm32.adb': 's-stm32-f40x.adb',
-            's-textio.adb': 's-textio-stm32f4.adb'})
-
-
-class Stm32F429discoBSP(Stm32GenericBSP):
-    @property
-    def name(self):
-        return 'stm32f429disco'
-
-    @property
-    def mcu(self):
-        return 'stm32f429x'
-
-    def __init__(self):
-        super(Stm32F429discoBSP, self).__init__()
-        self.add_sources('crt0', {
-            's-stm32.adb': 's-stm32-f4x9x.adb',
-            's-textio.adb': 's-textio-stm32f4.adb'})
-
-
-class OpenMV2BSP(Stm32F429discoBSP):
-    @property
-    def name(self):
-        return 'openmv2'
-
-    def __init__(self):
-        super(OpenMV2BSP, self).__init__()
-        self.update_pairs('crt0', {
-            's-bbbopa.ads': 'arm/stm32/%s/s-bbbopa-openmv2.ads' % self.mcu})
-
-
-class Stm32F469discoBSP(Stm32GenericBSP):
-    @property
-    def name(self):
-        return 'stm32f469disco'
-
-    @property
-    def mcu(self):
-        return 'stm32f469x'
-
-    def __init__(self):
-        super(Stm32F469discoBSP, self).__init__()
-        self.add_sources('crt0', {
-            's-stm32.adb': 's-stm32-f4x9x.adb',
-            's-textio.adb': 's-textio-stm32f469.adb'})
-
-
-class Stm32F746discoBSP(Stm32GenericBSP):
-    @property
-    def name(self):
-        return 'stm32f746disco'
-
-    @property
-    def mcu(self):
-        return 'stm32f7x'
-
-    def __init__(self):
-        super(Stm32F746discoBSP, self).__init__()
-        self.add_sources('crt0', {
-            's-stm32.adb': 's-stm32-f7x.adb',
-            's-textio.adb': 's-textio-stm32f7.adb'})
-
-
-class Stm32F769discoBSP(Stm32F746discoBSP):
-    @property
-    def name(self):
-        return 'stm32f769disco'
-
-    @property
-    def mcu(self):
-        return 'stm32f7x9'
-
-    @property
-    def has_double_precision_fpu(self):
-        return True
-
-
-class Stm32(CortexMTarget):
-    @property
-    def bspclass(self):
-        if self.board == 'stm32f4':
-            return Stm32F4BSP
-        elif self.board == 'stm32f429disco':
-            return Stm32F429discoBSP
-        elif self.board == 'openmv2':
-            return OpenMV2BSP
-        elif self.board == 'stm32f469disco':
-            return Stm32F469discoBSP
-        elif self.board == 'stm32f746disco':
-            return Stm32F746discoBSP
-        elif self.board == 'stm32f769disco':
-            return Stm32F769discoBSP
-        else:
-            assert False, "Unknown stm32 board: %s" % self.board
-
-    @property
-    def has_double_precision_fpu(self):
-        return self.bsp.has_double_precision_fpu
-
-    def __init__(self, board):
-        self.board = board
-        super(Stm32, self).__init__()
+            'arm/stm32/%s/svd/a-intnam.ads' % self.mcu])

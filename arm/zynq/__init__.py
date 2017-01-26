@@ -1,15 +1,10 @@
-from build_rts_support.bsp import BSP
-from arm.cortexar import CortexARArch, CortexARTarget
+from arm.cortexar import CortexARTarget
 
 
-class Zynq7kBSP(BSP):
+class Zynq7000(CortexARTarget):
     @property
     def name(self):
-        return "zynq7k"
-
-    @property
-    def parent(self):
-        return CortexARArch
+        return "zynq7000"
 
     @property
     def loaders(self):
@@ -24,6 +19,10 @@ class Zynq7kBSP(BSP):
         return 'vfpv3'
 
     @property
+    def has_timer_64(self):
+        return True
+
+    @property
     def compiler_switches(self):
         # The required compiler switches
         return ('-mlittle-endian', '-mhard-float',
@@ -35,8 +34,18 @@ class Zynq7kBSP(BSP):
     def readme_file(self):
         return 'arm/zynq/README'
 
+    @property
+    def sfp_system_ads(self):
+        return 'system-xi-cortexa-sfp.ads'
+
+    @property
+    def full_system_ads(self):
+        return 'system-xi-cortexa-full.ads'
+
     def __init__(self):
-        super(Zynq7kBSP, self).__init__()
+        super(Zynq7000, self).__init__(
+            mem_routines=True,
+            small_mem=False)
         self.add_linker_script('arm/zynq/ram.ld', loader='RAM')
         self.add_sources('crt0', [
             'arm/zynq/start-ram.S',
@@ -47,27 +56,3 @@ class Zynq7kBSP(BSP):
             'a-intnam.ads': 'a-intnam-xi-zynq.ads',
             's-bbpara.ads': 's-bbpara-cortexa9.ads',
             's-bbbosu.adb': 's-bbbosu-cortexa9.adb'})
-
-
-class Zynq7000(CortexARTarget):
-    @property
-    def bspclass(self):
-        return Zynq7kBSP
-
-    @property
-    def has_timer_64(self):
-        return True
-
-    def __init__(self):
-        super(Zynq7000, self).__init__(
-            mem_routines=True,
-            small_mem=False)
-
-    def amend_ravenscar_sfp(self):
-        super(Zynq7000, self).amend_ravenscar_sfp()
-        self.update_pairs({'system.ads': 'system-xi-cortexa-sfp.ads'})
-
-    def amend_ravenscar_full(self):
-        super(Zynq7000, self).amend_ravenscar_full()
-        self.update_pairs({
-            'system.ads': 'system-xi-cortexa-full.ads'})
