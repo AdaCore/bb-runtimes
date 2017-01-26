@@ -131,33 +131,6 @@ class SourceDirs(SharedFilesHolder):
             ret += blank + 'end case;\n'
         return ret
 
-    def dump_rts_project_file(self, target, rts):
-        ret = 'aggregate project Runtime_Build is\n'
-        ret += '\n'
-        for val in rts:
-            ret += '   for external("%s") use "%s";\n' % (val, rts[val])
-        ret += '\n'
-        ret += '   for Target use "%s";\n' % target
-        ret += '   for Runtime ("Ada") use Project\'Project_Dir;\n'
-        ret += '\n'
-        ret += '   for Project_Path use (Project\'Project_Dir);\n'
-        if rts['RTS'] == 'zfp':
-            ret += '   for Project_Files use ("../internal/libgnat.gpr",\n'
-            ret += '                          "install.gpr");\n'
-        elif rts['RTS'] == 'ravenscar-sfp':
-            ret += '   for Project_Files use\n'
-            ret += '     ("../internal/libgnat.gpr",\n'
-            ret += '      "../internal/libgnarl.gpr",\n'
-            ret += '      "install.gpr");\n'
-        else:
-            ret += '   for Project_Files use\n'
-            ret += '     ("../internal/libgnat_merged.gpr",\n'
-            ret += '      "install.gpr");\n'
-        ret += '\n'
-        ret += 'end Runtime_Build;\n'
-
-        return ret
-
     def dump_source_project_file(self, dest):
         ret = 'abstract project Libgnat_Sources is\n'
         ret += '\n'
@@ -926,9 +899,6 @@ class SourceDirs(SharedFilesHolder):
         self.update_pairs('full', {
             'a-elchha.adb': 'a-elchha-xi.adb',
             'a-excach.adb': 'a-excach-cert.adb',
-            'a-except.adb': 'a-except-2005.adb',
-            'a-except.ads': 'a-except-2005.ads',
-            'a-exexpr.adb': 'a-exexpr-gcc.adb',
             's-flocon.adb': 's-flocon-none.adb',
             's-io.adb': 's-io-xi.adb',
             's-ransee.adb': 's-ransee-xi.adb',

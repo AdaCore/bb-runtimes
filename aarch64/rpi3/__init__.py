@@ -15,6 +15,10 @@ class Rpi3(Aarch64Target):
         # The required compiler switches
         return ('-mlittle-endian', '-mcpu=cortex-a53')
 
+    @property
+    def full_system_ads(self):
+        return None
+
     def __init__(self):
         super(Rpi3, self).__init__(
             mem_routines=True,

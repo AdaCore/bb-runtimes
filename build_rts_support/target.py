@@ -148,6 +148,42 @@ class Target(TargetConfiguration, BSP):
     def amend_ravenscar_full(self, cfg):
         self.amend_ravenscar_sfp(cfg)
 
+    def dump_rts_project_file(self, rts, destination):
+        rtsname = '%s-%s' % (rts['RTS'], self.name)
+        prj = '%s.gpr' % rtsname.replace('-', '_')
+        prjname = rtsname.replace('-', '_').title()
+        prj = os.path.join(destination, prj)
+
+        rts_path = os.path.join(self.rel_path, rts['RTS'])
+        int_path = os.path.join(self.rel_path, 'internal')
+
+        ret = 'aggregate project %s is\n' % prjname
+        ret += '\n'
+        for val in rts:
+            ret += '   for external("%s") use "%s";\n' % (val, rts[val])
+        ret += '\n'
+        ret += '   for Target use "%s";\n' % self.target
+        ret += '   for Runtime ("Ada") use Project\'Project_Dir &\n'
+        ret += '       "%s";\n' % rts_path
+        ret += '\n'
+        ret += '   for Project_Path use\n'
+        ret += '     ("%s");\n' % rts_path
+        ret += '   for Project_Files use\n'
+        if rts['RTS'] == 'zfp':
+            ret += '     ("%s",\n' % os.path.join(int_path, 'libgnat.gpr')
+        elif rts['RTS'] == 'ravenscar-sfp':
+            ret += '     ("%s",\n' % os.path.join(int_path, 'libgnat.gpr')
+            ret += '      "%s",\n' % os.path.join(int_path, 'libgnarl.gpr')
+        else:
+            ret += '     ("%s",\n' % os.path.join(
+                int_path, 'libgnat_merged.gpr')
+        ret += '      "%s");\n' % os.path.join(rts_path, 'install.gpr')
+        ret += '\n'
+        ret += 'end %s;\n' % prjname
+
+        with open(prj, 'w') as fp:
+            fp.write(ret)
+
     def install(self, destination):
         # Update the runtimes objects according to target specifications
         if 'zfp' in self.runtimes:
@@ -295,11 +331,7 @@ class Target(TargetConfiguration, BSP):
                 fp.write(rts_obj.rts_xml)
 
             # and now install the rts project with the proper scenario values
-            cnt = Config.rts_srcs.dump_rts_project_file(
-                self.target, rts_obj.rts_vars)
-            dest = os.path.join(base_rts, 'runtime_build.gpr')
-            with open(dest, 'w') as fp:
-                fp.write(cnt)
+            self.dump_rts_project_file(rts_obj.rts_vars, destination)
 
             inst_files = ['runtime.xml']
             support_dir = os.path.relpath(
