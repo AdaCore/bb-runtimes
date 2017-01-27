@@ -395,12 +395,14 @@ class Target(TargetConfiguration, BSP):
         if self.loaders is not None:
             ret += '   type Loaders is ("%s");\n' % '", "'.join(
                 self.loaders)
-            ret += '   Loader : Loaders := External("LOADER", "%s");\n\n' % (
+            ret += '   Loader : Loaders := external("LOADER", "%s");\n\n' % (
                 self.loaders[0])
-        elif len(self.ld_scripts) > 0:
+        elif len(self.ld_scripts) == 1:
+            # No loader defined, and a single ld script
+            # Let's make it user-configurable
             ret += '   LDSCRIPT := external("LDSCRIPT",\n'
-            ret += '                        "${RUNTIME_DIR(ada)}/%s/%s");' % (
-                self.ld_scripts[0]['path'], self.ld_scripts[0]['name'])
+            ret += '                        "${RUNTIME_DIR(ada)}/ld/%s");' % (
+                self.ld_scripts[0]['name'],)
             ret += '\n\n'
 
         ret += '   package Compiler is\n'
@@ -436,10 +438,13 @@ class Target(TargetConfiguration, BSP):
             return ret
 
         switches = []
-        for val in self.ld_scripts:
-            if val['loader'] is None:
-                # use for all loaders
-                switches.append('"-T", "%s"' % val['name'])
+        if len(self.ld_scripts) == 1 and self.loaders is None:
+            switches.append('"-T", LDSCRIPT')
+        else:
+            for val in self.ld_scripts:
+                if val['loader'] is None:
+                    # use for all loaders
+                    switches.append('"-T", "%s"' % val['name'])
         for sw in self.ld_switches:
             if sw['loader'] is None or sw['loader'] == '':
                 switches.append('"%s"' % sw['switch'])
@@ -473,8 +478,10 @@ class Target(TargetConfiguration, BSP):
                 ret += ', "-lc", "-lgnat"'
             ret += ', "-lgcc"'
 
+        ret += ',\n'
+
         if len(self.ld_scripts) > 0:
-            ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld"'
+            ret += blank + '"-L${RUNTIME_DIR(ada)}/ld"'
 
         if len(switches) > 0:
             ret += ',\n'
