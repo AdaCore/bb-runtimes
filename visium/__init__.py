@@ -22,6 +22,10 @@ class Visium(DFBBTarget):
     def parent(self):
         return VisiumBSP
 
+    def amend_zfp(self, conf):
+        conf.rts_xml = readfile('visium/mcm/runtime.xml')
+        conf.build_flags['common_flags'] += ['-muser-mode']
+
     @property
     def zfp_system_ads(self):
         return 'system-xi-visium.ads'
@@ -30,4 +34,3 @@ class Visium(DFBBTarget):
         super(Visium, self).__init__(
             mem_routines=False,
             small_mem=True)
-        self.build_flags['common_flags'] += ['-muser-mode']
