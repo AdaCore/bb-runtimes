@@ -171,7 +171,7 @@ class Target(TargetConfiguration, BSP):
         ret += '   for Project_Files use\n'
         if rts['RTS'] == 'zfp':
             ret += '     ("%s",\n' % os.path.join(int_path, 'libgnat.gpr')
-        elif rts['RTS'] == 'ravenscar-sfp':
+        elif rts['RTS'] == 'ravenscar-sfp' and not self.is_pikeos:
             ret += '     ("%s",\n' % os.path.join(int_path, 'libgnat.gpr')
             ret += '      "%s",\n' % os.path.join(int_path, 'libgnarl.gpr')
         else:
