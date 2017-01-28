@@ -20,7 +20,7 @@ class NativeBSP(BSP):
 
 class X86Native(DFBBTarget):
     @property
-    def bspclass(self):
+    def parent(self):
         return NativeBSP
 
     def __init__(self):
@@ -28,25 +28,26 @@ class X86Native(DFBBTarget):
             mem_routines=False,
             small_mem=False)
 
-    def amend_zfp(self):
-        super(X86Native, self).amend_zfp()
-        self.update_pairs(
-            {'system.ads': 'system-xi-x86.ads'})
+    @property
+    def zfp_system_ads(self):
+        return 'system-xi-x86.ads'
 
 
 class X86Linux(X86Native):
     @property
-    def target(self):
+    def name(self):
         return 'x86-linux'
 
-    def __init__(self):
-        super(X86Linux, self).__init__()
+    @property
+    def target(self):
+        return 'x86-linux'
 
 
 class X86Windows(X86Native):
     @property
-    def target(self):
+    def name(self):
         return 'x86-windows'
 
-    def __init__(self):
-        super(X86Windows, self).__init__()
+    @property
+    def target(self):
+        return 'x86-windows'

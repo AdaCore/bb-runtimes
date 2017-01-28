@@ -478,14 +478,11 @@ class Target(TargetConfiguration, BSP):
                 ret += ', "-lc", "-lgnat"'
             ret += ', "-lgcc"'
 
-        ret += ',\n'
-
         if len(self.ld_scripts) > 0:
-            ret += blank + '"-L${RUNTIME_DIR(ada)}/ld"'
+            ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld"'
 
         if len(switches) > 0:
-            ret += ',\n'
-            ret += blank
+            ret += ',\n' + blank
             ret += (',\n' + blank).join(switches)
             blank = indent * ' '
         ret += ') &amp;\n' + blank + 'Compiler.Common_Required_Switches;\n'
