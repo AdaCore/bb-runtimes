@@ -19,7 +19,7 @@ project Install is
       for Required_Artifacts ("") use
         ("{rts_files}");
       for Required_Artifacts("ld") use
-        ("{link_sources}");
+        ({link_sources});
       for Sources_Subdir use ".";
    end Install;
 

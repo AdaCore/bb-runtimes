@@ -344,8 +344,13 @@ class Target(TargetConfiguration, BSP):
                 with open(os.path.join(base_rts, name), 'w') as fp:
                     fp.write(content)
 
+            if len(script_files) > 0:
+                link_sources = '"%s"' % '",\n         "'.join(script_files)
+            else:
+                link_sources = ''
+
             build_flags = {
-                'link_sources': '",\n         "'.join(script_files),
+                'link_sources': link_sources,
                 'rts_files': '",\n         "'.join(inst_files),
                 'prefix': install_prefix}
             cnt = readfile(fullpath('src/install.gpr'))
