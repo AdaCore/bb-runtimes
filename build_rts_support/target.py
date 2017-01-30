@@ -396,7 +396,7 @@ class Target(TargetConfiguration, BSP):
         ret = '<?xml version="1.0" ?>\n\n'
         ret += '<gprconfig>\n'
         ret += '  <configuration>\n'
-        ret += '    <config>\n\n'
+        ret += '    <config><![CDATA[\n'
         if self.loaders is not None:
             ret += '   type Loaders is ("%s");\n' % '", "'.join(
                 self.loaders)
@@ -427,16 +427,17 @@ class Target(TargetConfiguration, BSP):
             w = '      '
             ret += w + 'for Leading_Required_Switches ("%s") use\n' % lang
             w = '         '
-            ret += w + 'Compiler\'Leading_Required_Switches ("%s") &amp;\n' % \
+            ret += w + 'Compiler\'Leading_Required_Switches ("%s") &\n' % \
                 lang
             ret += w + 'Common_Required_Switches'
             if lang != 'Ada' and len(self.c_switches) > 0:
-                ret += ' &amp;\n' + w
+                ret += ' &\n' + w
                 ret += 'C_Required_Switches'
             ret += ';\n'
         ret += '   end Compiler;\n\n'
 
         if not self.add_linker_section:
+            ret += ']]>\n'
             ret += '    </config>\n'
             ret += '  </configuration>\n'
             ret += '</gprconfig>\n'
@@ -454,34 +455,35 @@ class Target(TargetConfiguration, BSP):
             if sw['loader'] is None or sw['loader'] == '':
                 switches.append('"%s"' % sw['switch'])
 
-        if rts.rts_vars['RTS'] == 'ravenscar-full' or (
-           rts.rts_vars['RTS'] == 'ravenscar-sfp' and self.is_pikeos):
+        if rts.rts_vars['RTS'] == 'ravenscar-full':
+            do_merge = True
+        else:
+            do_merge = False
+
+        if do_merge:
             # We need a binder section to prevent the link with libgnarl, which
             # we don't have as it's merged with libgnat in this case
             ret += '   package Binder is\n'
             ret += ('      for Required_Switches ("Ada") use '
-                    'Binder\'Required_Switches ("Ada") &amp;\n')
-            ret += '        ("-nostdlib");\n'
+                    'Binder\'Required_Switches ("Ada") &\n')
+            ret += '        ("-nognarl");\n'
             ret += '   end Binder;\n\n'
 
         ret += '   package Linker is\n'
         indent = 6
         blank = indent * ' '
         ret += blank + \
-            'for Required_Switches use Linker\'Required_Switches &amp;\n'
+            'for Required_Switches use Linker\'Required_Switches &\n'
         ret += blank + '  ("-L${RUNTIME_DIR(ada)}/adalib",\n'
         indent = 9
         blank = indent * ' '
 
         ret += blank + '"-nostartfiles"'
-        if rts.rts_vars['RTS'] != 'ravenscar-full':
+        if rts.rts_vars['RTS'] != "ravenscar-full":
             ret += ', "-nolibc"'
-        else:
-            # -nostdlib used in the binder: force libgnat here
-            ret += ', "-lgnat"'
-            if self.has_newlib:
-                ret += ', "-lc", "-lgnat"'
-            ret += ', "-lgcc"'
+        elif self.has_newlib:
+            # Newlib depends on libgnat, so force an explicit reference
+            ret += ', "-lc", "-lgnat"'
 
         if len(self.ld_scripts) > 0:
             ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld"'
@@ -490,7 +492,7 @@ class Target(TargetConfiguration, BSP):
             ret += ',\n' + blank
             ret += (',\n' + blank).join(switches)
             blank = indent * ' '
-        ret += ') &amp;\n' + blank + 'Compiler.Common_Required_Switches;\n'
+        ret += ') &\n' + blank + 'Compiler.Common_Required_Switches;\n'
         indent = 6
         blank = indent * ' '
 
@@ -527,7 +529,7 @@ class Target(TargetConfiguration, BSP):
                     ret += blank
                     ret += \
                         'for Required_Switches use Linker\'Required_Switches'
-                    ret += ' &amp;\n' + blank + '  '
+                    ret += ' &\n' + blank + '  '
                     ret += '(%s);\n' % (',\n   ' + blank).join(switches)
                 indent -= 3
                 blank = indent * ' '
@@ -538,7 +540,7 @@ class Target(TargetConfiguration, BSP):
 
         ret += """
    end Linker;
-
+]]>
    </config>
   </configuration>
 </gprconfig>
