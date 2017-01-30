@@ -53,12 +53,19 @@ class PikeOS3(PikeOS):
             filter(lambda x: x not in ['-ffunction-sections',
                                        '-fdata-sections'],
                    self.build_flags['common_flags'])
+        conf.rts_xml = conf.rts_xml.replace(
+            '@version@', 'pikeos-3.4')
 
 
 class PikeOS4(PikeOS):
     @property
     def pikeos_version(selfs):
         return 'pikeos4'
+
+    def amend_zfp(self, conf):
+        super(PikeOS4, self).amend_zfp(conf)
+        conf.rts_xml = conf.rts_xml.replace(
+            '@version@', 'pikeos-4.0')
 
 
 class ArmPikeOS(PikeOS4):
@@ -82,6 +89,11 @@ class ArmPikeOS(PikeOS4):
     def full_system_ads(self):
         return 'system-pikeos-arm-ravenscar-full.ads'
 
+    def amend_zfp(self, conf):
+        super(ArmPikeOS, self).amend_zfp(conf)
+        conf.rts_xml = conf.rts_xml.replace(
+            '@target@', 'arm/v7hf')
+
 
 class PpcPikeOS(PikeOS3):
     @property
@@ -104,6 +116,12 @@ class PpcPikeOS(PikeOS3):
     def full_system_ads(self):
         return 'system-pikeos-ppc-ravenscar-full.ads'
 
+    def amend_zfp(self, conf):
+        super(PpcPikeOS, self).amend_zfp(conf)
+        conf.rts_xml = conf.rts_xml.replace(
+            '/include")', '/include", "-DPPC_OEA")').replace(
+            '@target@', 'ppc/oea')
+
 
 class X86PikeOS(PikeOS3):
     @property
@@ -125,3 +143,8 @@ class X86PikeOS(PikeOS3):
     @property
     def full_system_ads(self):
         return 'system-pikeos-x86-ravenscar-full.ads'
+
+    def amend_zfp(self, conf):
+        super(X86PikeOS, self).amend_zfp(conf)
+        conf.rts_xml = conf.rts_xml.replace(
+            '@target@', 'x86/i586')

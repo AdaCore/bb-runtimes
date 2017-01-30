@@ -2,15 +2,26 @@
 
 <gprconfig>
   <configuration>
-   <config>
+   <config><![CDATA[
   Pikeos_Files := external ("PIKEOS_TARGET_FILES",
-                            "/opt/pikeos-4.0/target/arm/v7hf");
+                            "/opt/@version@/target/@target@");
 
    package Compiler is
      for Leading_Required_Switches ("C") use
-        Compiler'Leading_Required_Switches ("C") &amp;
-        ("-I" &amp; Pikeos_Files &amp; "/include");
+        Compiler'Leading_Required_Switches ("C") &
+        ("-I" & Pikeos_Files & "/include");
    end Compiler;
+
+   package Binder is
+      for Required_Switches ("Ada") use Binder'Required_Switches ("Ada") &
+        ("-nognarl");
+   end Binder;
+
+   package Linker is
+      for Required_Switches use Linker'Required_Switches &
+        ("-L${RUNTIME_DIR(ada)}/ld");
+   end Linker;
+]]>
    </config>
   </configuration>
 </gprconfig>
