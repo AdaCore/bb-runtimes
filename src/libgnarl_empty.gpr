@@ -1,0 +1,26 @@
+with "target_options";
+with "install";
+
+project Libgnarl_Empty is
+
+   RTS   := External ("RTS");
+
+   for Languages use ("C");
+
+   for Library_Auto_Init use "False";
+   for Library_Name use "gnarl";
+   for Library_Kind use "static";
+   for Library_Dir use "../" & RTS & "/adalib";
+   for Object_Dir use "../" & RTS & "/obj";
+
+   for Source_Files use ("empty.c");
+
+   package Compiler renames Target_Options.Compiler;
+
+   package Install is
+      for Prefix use Install.Install_Prefix;
+      for Sources_Subdir use "gnarl";
+      for Lib_Subdir use "adalib";
+   end Install;
+
+end Libgnarl_Empty;

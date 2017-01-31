@@ -181,6 +181,8 @@ class Target(TargetConfiguration, BSP):
         else:
             ret += '     ("%s",\n' % os.path.join(
                 int_path, 'libgnat_merged.gpr')
+            ret += '      "%s",\n' % os.path.join(
+                int_path, 'libgnarl_empty.gpr')
         ret += '      "%s");\n' % os.path.join(rts_path, 'install.gpr')
         ret += '\n'
         ret += 'end %s;\n' % prjname
@@ -388,13 +390,17 @@ class Target(TargetConfiguration, BSP):
         if not os.path.exists(base_prj):
             os.mkdir(base_prj)
 
-        for fname in ('libgnat', 'libgnarl', 'libgnat_merged'):
+        projects = ('libgnat', 'libgnarl', 'libgnat_merged', 'libgnarl_empty')
+        for fname in projects:
             cnt = readfile(fullpath('src/%s.gpr' % fname))
             # Format
             cnt = cnt.format(**build_flags)
             # Write
             with open(os.path.join(base_prj, '%s.gpr' % fname), 'w') as fp:
                 fp.write(cnt)
+        empty_c = os.path.join(base_prj, 'empty.c')
+        with open(empty_c, 'w') as fp:
+            fp.write('')
 
     def runtime_xml(self, rts):
         ret = '<?xml version="1.0" ?>\n\n'
@@ -470,7 +476,7 @@ class Target(TargetConfiguration, BSP):
             ret += '   package Binder is\n'
             ret += ('      for Required_Switches ("Ada") use '
                     'Binder\'Required_Switches ("Ada") &\n')
-            ret += '        ("-nognarl");\n'
+            ret += '        ("-nostdlib");\n'
             ret += '   end Binder;\n\n'
 
         ret += '   package Linker is\n'
@@ -485,9 +491,12 @@ class Target(TargetConfiguration, BSP):
         ret += blank + '"-nostartfiles"'
         if rts.rts_vars['RTS'] != "ravenscar-full":
             ret += ', "-nolibc"'
-        elif self.has_newlib:
-            # Newlib depends on libgnat, so force an explicit reference
-            ret += ', "-lc", "-lgnat"'
+        else:
+            ret += ', "-lgnat"'
+            if self.has_newlib:
+                # Newlib depends on libgnat, so force an explicit reference
+                ret += ', "-lc", "-lgnat"'
+            ret += ', "-lgcc"'
 
         if len(self.ld_scripts) > 0:
             ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld"'

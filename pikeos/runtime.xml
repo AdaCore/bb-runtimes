@@ -11,16 +11,6 @@
         Compiler'Leading_Required_Switches ("C") &
         ("-I" & Pikeos_Files & "/include");
    end Compiler;
-
-   package Binder is
-      for Required_Switches ("Ada") use Binder'Required_Switches ("Ada") &
-        ("-nognarl");
-   end Binder;
-
-   package Linker is
-      for Required_Switches use Linker'Required_Switches &
-        ("-L${RUNTIME_DIR(ada)}/ld");
-   end Linker;
 ]]>
    </config>
   </configuration>
