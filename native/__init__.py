@@ -23,6 +23,10 @@ class X86Native(DFBBTarget):
     def parent(self):
         return NativeBSP
 
+    @property
+    def is_native(self):
+        return True
+
     def __init__(self):
         super(X86Native, self).__init__(
             mem_routines=False,

@@ -23,6 +23,10 @@ class TargetConfiguration(object):
         return 'pikeos' in self.target
 
     @property
+    def is_native(self):
+        return False
+
+    @property
     def has_fpu(self):
         return self.is_pikeos or \
             self.has_single_precision_fpu or self.has_double_precision_fpu
@@ -265,10 +269,10 @@ class Target(TargetConfiguration, BSP):
                     install_prefix = Config.prefix
                 else:
                     install_prefix = Config.prefix + '/'
-            elif not self.is_pikeos:
+            else:
                 install_prefix = \
                     self.target + '/lib/gnat/'
-            if self.is_pikeos:
+            if self.is_pikeos or self.is_native:
                 install_prefix += 'rts-%s' % rts_name
             else:
                 install_prefix += '%s-%s' % (rts_name, self.name)
