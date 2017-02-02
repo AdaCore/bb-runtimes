@@ -65,7 +65,7 @@ class PikeOS4(PikeOS):
     def amend_zfp(self, conf):
         super(PikeOS4, self).amend_zfp(conf)
         conf.rts_xml = conf.rts_xml.replace(
-            '@version@', 'pikeos-4.0')
+            '@version@', 'pikeos-4.1')
 
 
 class ArmPikeOS(PikeOS4):
