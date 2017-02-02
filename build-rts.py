@@ -377,7 +377,6 @@ class SourceDirs(SharedFilesHolder):
         self.add_rule('common', None)
         self.add_sources('common', [
             'a-assert.ads', 'a-assert.adb',
-            {'a-textio.ads': 'a-textio-zfp.ads'},
             'a-unccon.ads',
             'a-uncdea.ads',
             'ada.ads',
@@ -403,19 +402,15 @@ class SourceDirs(SharedFilesHolder):
             's-stoele.ads', 's-stoele.adb',
             {'s-textio.ads': 's-textio-zfp.ads'},
             's-unstyp.ads',
-            'text_io.ads',
             'unchconv.ads',
             'unchdeal.ads'])
 
         if self._is_bb:
             self.add_sources('common', [
+                'text_io.ads',
+                {'a-textio.ads': 'a-textio-zfp.ads'},
                 {'a-textio.adb': 'a-textio-zfp.adb'},
                 's-bb.ads'])
-        else:
-            self.add_rule('zfp_io', 'RTS:zfp')
-            self.add_sources('zfp_io', {'a-textio.adb': 'a-textio-zfp.adb'})
-            self.add_rule('sfp_io', 'RTS:!zfp')
-            self.add_sources('sfp_io', {'a-textio.adb': 'a-textio-raven.adb'})
 
         # FPU support sources
         self.add_rule('fpu', 'Has_FPU:true')
@@ -533,6 +528,11 @@ class SourceDirs(SharedFilesHolder):
             self.add_sources('zfp', {
                 's-memory.adb': 's-memory-zfp.adb'})
         else:
+            self.add_rule('zfp-io', 'RTS:zfp')
+            self.add_sources('zfp-io', [
+                'text_io.ads',
+                {'a-textio.ads': 'a-textio-zfp.ads',
+                 'a-textio.adb': 'a-textio-zfp.adb'}])
             self.add_sources('zfp', {
                 's-memory.adb': 's-memory-raven-min.adb'})
 
@@ -592,7 +592,10 @@ class SourceDirs(SharedFilesHolder):
         else:
             # PikeOS case
             self.add_sources('gnarl/common', [
-                {'s-multip.ads': 's-multip-raven-default.ads',
+                'text_io.ads',
+                {'a-textio.ads': 'a-textio-zfp.ads',
+                 'a-textio.adb': 'a-textio-raven.adb',
+                 's-multip.ads': 's-multip-raven-default.ads',
                  's-multip.adb': 's-multip-raven-default.adb',
                  's-taprop.adb': 's-taprop-pikeos.adb'},
                 's-tpobmu.adb'])
