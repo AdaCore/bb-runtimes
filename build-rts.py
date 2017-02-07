@@ -702,6 +702,7 @@ class SourceDirs(SharedFilesHolder):
             'g-comver.ads', 'g-comver.adb',
             'g-crc32.ads', 'g-crc32.adb',
             'g-debuti.ads', 'g-debuti.adb',
+            'g-dyntab.ads', 'g-dyntab.adb',
             'g-except.ads',
             'g-heasor.ads', 'g-heasor.adb',
             'g-hesora.ads', 'g-hesora.adb',
