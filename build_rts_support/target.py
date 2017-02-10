@@ -55,7 +55,7 @@ class TargetConfiguration(object):
 
     @property
     def add_linker_section(self):
-        """Whethet runtime.xml contains a linker section"""
+        """Whether runtime.xml contains a linker section"""
         return True
 
     @property

@@ -18,7 +18,11 @@ class Leon3(LeonTarget):
     @property
     def c_switches(self):
         # The required compiler switches
-        return ('-DLEON', '-DLEON3')
+        return ('-DLEON', '-DLEON3', '-DFIX_UT699')
+
+    @property
+    def compiler_switches(self):
+        return ('-mfix-ut699',)
 
     @property
     def readme_file(self):
