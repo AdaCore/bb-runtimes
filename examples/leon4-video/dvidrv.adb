@@ -2,7 +2,7 @@
 --                                                                          --
 --                               GNAT EXAMPLE                               --
 --                                                                          --
---                        Copyright (C) 2016, AdaCore                       --
+--                     Copyright (C) 2016-2017, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -33,6 +33,7 @@ with Interfaces.Leon3.Irqmp;
 with Interfaces; use Interfaces;
 with Ada.Text_IO; use Ada.Text_IO;
 with I2cm; use I2cm;
+with Svga; use Svga;
 
 package body Dvidrv is
 
@@ -63,6 +64,15 @@ package body Dvidrv is
      Volatile, Import;
 
    I2cm_Ien : constant Boolean := True;
+
+   SVGA_Regs : SVGA_Controller_Registers
+     with Address => System'To_Address (16#c080_0000#),
+     Volatile, Import;
+
+   type Svga_Screen_Type is array (0 .. 639, 0 .. 799) of Unsigned_16;
+   SVGA_Buffer : Svga_Screen_Type
+     with Address => System'To_Address (16#4d00_0000#),
+     Volatile, Import;
 
    protected I2c_Prot is
       pragma Interrupt_Priority (System.Interrupt_Priority'First);
@@ -177,9 +187,20 @@ package body Dvidrv is
       I2c_Read (Val, True);
    end Read;
 
-   procedure Init
-   is
-      Val : Unsigned_8;
+   subtype String2 is String (1 .. 2);
+
+   Hex_Digits : constant array (0 .. 15) of Character := "0123456789abcdef";
+
+   function Hex1 (V : Unsigned_8) return String2 is
+      Res : String2;
+   begin
+      for I in Res'Range loop
+         Res (I) := Hex_Digits (Natural (Shift_Right (V, 4 * (2 - I)) and 15));
+      end loop;
+      return Res;
+   end Hex1;
+
+   procedure Init_I2C is
    begin
       I2cm_Control := (Res_0 => 0, En => False, Ien => False, Res_1 => 0);
 
@@ -198,6 +219,26 @@ package body Dvidrv is
               Interrupt_Mask (1) or 2**I2cm_Video_Interrupt;
          end;
       end if;
+   end Init_I2C;
+
+   procedure Init_Encoder is
+      type U8_Array is array (Natural range <>) of Unsigned_8;
+      Regs : constant U8_Array :=
+        (16#1c#, 16#1d#, 16#1e#, 16#1f#,
+         16#20#, 16#21#, 16#23#, 16#31#,
+         16#33#, 16#34#, 16#35#, 16#36#,
+         16#37#, 16#48#, 16#49#, 16#4a#,
+         16#4b#, 16#56#);
+
+      Val : Unsigned_8;
+   begin
+      for I in Regs'Range loop
+         Read (16#ec#, Regs (I), Val);
+         Put (Hex1 (Regs (I)));
+         Put (": ");
+         Put (Hex1 (Val));
+         New_Line;
+      end loop;
 
       Read (16#ec#, 16#4a#, Val);
       Put ("VID: ");
@@ -213,13 +254,53 @@ package body Dvidrv is
          Write (16#ec#, 16#1d#, 16#45#);
          Write (16#ec#, 16#1e#, 16#c0#);
          Write (16#ec#, 16#1f#, 16#8a#);  -- 16 bit
-         Write (16#ec#, 16#21#, 16#00#);  -- DVI
+         Write (16#ec#, 16#21#, 16#09#);  -- DVI
          Write (16#ec#, 16#33#, 16#08#);
          Write (16#ec#, 16#34#, 16#16#);
          Write (16#ec#, 16#36#, 16#60#);
-         Write (16#ec#, 16#48#, 16#19#); --  Color Bars
+         Write (16#ec#, 16#48#, 16#18#); --  Color Bars
          Write (16#ec#, 16#49#, 16#c0#);
          Write (16#ec#, 16#56#, 16#00#);
       end if;
+   end Init_Encoder;
+
+   procedure Init_Svga is
+   begin
+      Svga_Regs.Status.Rst := True;
+
+      Svga_Regs.Status := (Vpol => False,
+                           Hpol => False,
+                           Clksel => 2,
+                           Bdsel => Depth_16,
+                           Vr => False,
+                           Rst => False,
+                           En => False,
+                           Res_1 => False,
+                           Res_2 => 0);
+      Svga_Regs.Video_Length := (Vres => 16#257#, Hres => 16#31f#);
+      Svga_Regs.Front_Porch := (Vporch => 1, Hporch => 40);
+      Svga_Regs.Sync_Length := (Vplen => 4, Hplen => 128);
+      Svga_Regs.Line_Length := (Vllen => 16#273#, Hllen => 16#41f#);
+      Svga_Regs.Framebuffer := Svga_Buffer'Address;
+      Svga_Regs.Clock_0 := 16#9c40#;
+      Svga_Regs.Clock_1 := 16#9c40#;
+      Svga_Regs.Clock_2 := 16#61a8#;
+      Svga_Regs.Clock_3 := 16#3c19#;
+
+      Svga_Regs.Status.En := True;
+   end Init_Svga;
+
+   procedure Init is
+   begin
+      Init_I2C;
+      Init_Encoder;
+      Init_Svga;
+
+      for I in Svga_Buffer'Range (2) loop
+         Svga_Buffer (10, I) := 2#11111_000000_00000#;
+         Svga_Buffer (50, I) := 2#00000_111111_00000#;
+         Svga_Buffer (90, I) := 2#00000_000000_11111#;
+      end loop;
    end Init;
+
 end Dvidrv;
