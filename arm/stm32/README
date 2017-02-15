@@ -1,0 +1,63 @@
+ARM STM32 Runtimes
+--------------
+
+Runtimes Supported
+
+   ZFP
+   Ravenscar-SFP
+   Ravenscar-Full
+
+Targets Supported
+
+   Cortex-M4 and Cortex-M7 MCUs
+
+   The runtime implementation uses target-specific interfacing code provided by packages generated from SVD files. This code is located in target-specific directories named "svd", for example "stm32f40x/svd".
+
+   The SVD files are produced by some (relatively few) ARM vendors. Those that are available are located in the SVD2ADA project located on GitHub at https://github.com/AdaCore/svd2ada. The generator tool source is located there too.
+
+   Generation of the interfacing files is controlled by makefiles. There is a makefile fragment named "svd.mk" at the root of the arm projects, and others with the same name in the target-specific subdirectories. The makefiles invoke the SVD2ADA tool.
+
+System Clocks
+
+   Clocks Configuration
+
+   The system clock source is the main phase-locked loop (PLL) driven by an external crystal. The frequency of the external crystal (HSE) is specified in package System.BB.Board_Parameters (s-bbbopa.ads), as is the main clock frequency. For example:
+
+         Main_Clock_Frequency : constant := 168_000_000;
+
+         HSE_Clock_Frequency : constant := 8_000_000;
+
+   Change the values in that package to reflect your specific board, as necessary. The runtime system uses them to configure the clocks so changes will take effect automatically.  Package System.BB.Parameters (in the gnat repository, e.g.,  gnat/s-bbpara-stm32f4.ads) imports those values and re-exports them as constants used by library procedure Setup_PLL. The shared procedure Setup_PLL configures the PLL and the derived clocks to achieve that main clock frequency.  Compilation will fail if the requested clock frequency is not achievable.
+
+   Clock Overdriving
+
+   Procedure Setup_PLL always attempts to enable clock overdriving by calling procedure PWR_Overdrive_Enable declared in package System.BB.MCU_Parameters. However, not all targets allow overdriving so the corresponding procedure body is null in the sources for those targets. Change the procedure body for your target accordingly.
+
+Startup Code
+
+   There are two assembly language files for the startup code, one each for executing from RAM or ROM, plus a common file shared by both (e.g., that starts the FPU). These are start-ram.S, start-rom.S, and common.S, respectively.
+
+   For the ZFP runtime the start-*.S file is used to initialize the vector table.
+
+   For the Ravenscar runtimes, the vector table is initialized by code in handler.S, located in target-specific subdirectories. The code in package System.BB.CPU_Primitives (gnat/s-bbcppr-armv7m.adb) installs GNAT-specific handlers that raise exceptions for the traps.
+
+Floating-point Co-processor 
+
+   Package System.BB.Parameters (e.g., gnat/s-bbpara-stm32f4.ads) specifies whether a FPU is present, but this is used in conditional code in the context switch routine, not to decide whether to enable the FPU. The supported STM32 targets all have an FPU so the unit is enabled in the common startup code (start-common.S). If your target does not have an FPU change the assembly code and the System.BB.Parameters package.
+
+Interrupts
+
+   The package Ada.Interrupts.Names (a-intnam.ads) is located in the target-specific SVD directory. This package spec was automatically generated from an SVD file so you will not need to change it unless an SVD file was unavailable for your target.
+
+   See package System.BB.MCU_Parameters (e.g., stm32f40x/s-bbmcpa.ads) for the number of interrupts defined. That number must reflect the contents of the SVD-generated package Ada.Interrupts.Names. 
+
+Memory Layout
+
+   The memory layout is controlled by linker scripts specific to the targets, for example "stm32f40x/memory-map.ld". In addition, two other linker scripts are shared among the STM32 targets, one each for running from RAM or ROM. These are common-RAM.ld and common-ROM.ld, respectively. You can modify all of these scripts as required. Alternatively, these  scripts can be overridden at link time using the LDSCRIPT environment variable.
+
+Resources Used
+
+   The Ravenscar runtime libraries use the SysTick interrupt to implement Ada semantics for time, i.e., delay statements and package Ada.Real_Time. The SysTick interrupt handler runs at highest priority.  See procedure Sys_Tick_Handler in package body System.BB.CPU_Primitives (gnat/s-bbcppr-armv7m.adb), which calls through to the handler in the trap vectors only when necessary for the sake of efficiency.
+
+   The runtime libraries provide a minimal version of package Ada.Text_IO supporting character- and string-based input and output routines. These are implemented using a board-specific UART. You can change the UART selection as well as the configuration (e.g., the baud rate). The source files are located in the gnat sources, in a package named System.Text_IO. That package has a body specific to the target board since the UARTs are different. See s-textio-stm32f4.adb and s-textio-stm32f7.adb for examples.
+
