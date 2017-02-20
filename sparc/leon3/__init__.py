@@ -16,13 +16,27 @@ class Leon3(LeonTarget):
         return LeonArch
 
     @property
+    def need_fix_ut699(self):
+        return True
+
+    @property
     def c_switches(self):
         # The required compiler switches
-        return ('-DLEON', '-DLEON3', '-DFIX_UT699')
+        res = ('-DLEON', '-DLEON3')
+        if self.need_fix_ut699:
+            res += ('-DFIX_UT699',)
+        return res
 
     @property
     def compiler_switches(self):
-        return ('-mfix-ut699',)
+        if self.need_fix_ut699:
+            return ('-mfix-ut699',)
+        return ()
+
+    @property
+    def has_single_precision_fpu(self):
+        # Single precision sqrt is buggy on UT699
+        return not self.need_fix_ut699
 
     @property
     def readme_file(self):
