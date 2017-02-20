@@ -70,7 +70,8 @@ class SourceDirs(SharedFilesHolder):
             'Timer': ['timer32', 'timer64'],
             'Pikeos_Version': ['pikeos3', 'pikeos4'],
             'Add_Math_Lib': [
-                'no', 'softfloat', 'hardfloat_sp', 'hardfloat_dp'],
+                'no', 'softfloat', 'hardfloat',
+                'hardfloat_dp', 'hardfloat_sp'],
             'Add_Memory_Operations': ['no', 'yes'],
             'Add_C_Support': ['no', 'ada_clib', 'newlib']}
         self.libgnat_scenarios = [
@@ -447,8 +448,8 @@ class SourceDirs(SharedFilesHolder):
             'newlib-bb.c'])
 
         # Math support
-        self.add_rule('math',
-                      ['Add_Math_Lib:softfloat,hardfloat_sp,hardfloat_dp'])
+        self.add_rule('math', [
+            'Add_Math_Lib:softfloat,hardfloat,hardfloat_sp,hardfloat_dp'])
         self.add_sources('math', [
             'a-ncelfu.ads',
             'a-ngcefu.ads', 'a-ngcefu.adb',
@@ -490,7 +491,7 @@ class SourceDirs(SharedFilesHolder):
             'a-nurear.ads'])
 
         if self._is_bb:
-            self.add_rule('math/softsp', 'Add_Math_Lib:softfloat')
+            self.add_rule('math/softsp', 'Add_Math_Lib:softfloat,hardfloat_dp')
             self.add_sources('math/softsp', {
                 's-lisisq.adb': 's-lisisq-ada.adb'})
             self.add_rule('math/softdp', 'Add_Math_Lib:softfloat,hardfloat_sp')
@@ -498,10 +499,10 @@ class SourceDirs(SharedFilesHolder):
                 's-lidosq.adb': 's-lidosq-ada.adb'})
 
             self.add_rule('math/hardsp',
-                          'Add_Math_Lib:hardfloat_sp,hardfloat_dp')
+                          'Add_Math_Lib:hardfloat,hardfloat_sp')
             self.add_sources('math/hardsp', {
                 's-lisisq.adb': 's-lisisq-fpu.adb'})
-            self.add_rule('math/harddp', 'Add_Math_Lib:hardfloat_dp')
+            self.add_rule('math/harddp', 'Add_Math_Lib:hardfloat,hardfloat_dp')
             self.add_sources('math/harddp', {
                 's-lidosq.adb': 's-lidosq-fpu.adb'})
         else:
@@ -1065,14 +1066,22 @@ class SourceDirs(SharedFilesHolder):
 
         if math_lib:
             if self._is_bb:
-                if not config.has_single_precision_fpu:
-                    ret['Add_Math_Lib'] = 'softfloat'
-                elif not config.has_double_precision_fpu:
-                    ret['Add_Math_Lib'] = 'hardfloat_sp'
+                if config.has_single_precision_fpu:
+                    if config.has_double_precision_fpu:
+                        # Full hardware
+                        ret['Add_Math_Lib'] = 'hardfloat'
+                    else:
+                        # Hardware only for SP.
+                        ret['Add_Math_Lib'] = 'hardfloat_sp'
                 else:
-                    ret['Add_Math_Lib'] = 'hardfloat_dp'
+                    if config.has_double_precision_fpu:
+                        # Hardware only for DP.
+                        ret['Add_Math_Lib'] = 'hardfloat_dp'
+                    else:
+                        # No hardware support
+                        ret['Add_Math_Lib'] = 'softfloat'
             else:
-                ret['Add_Math_Lib'] = 'hardfloat_dp'
+                ret['Add_Math_Lib'] = 'hardfloat'
         else:
             ret['Add_Math_Lib'] = 'no'
 
