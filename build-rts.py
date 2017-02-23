@@ -1249,6 +1249,8 @@ def main():
             Config.gnatdir = arg
         elif opt == "--prefix":
             Config.prefix = arg
+        elif opt == "--cross-dir":
+            pass
         else:
             print "unexpected switch: %s" % opt
             sys.exit(2)
