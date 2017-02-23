@@ -16,7 +16,7 @@ class LeonArch(BSP):
         super(LeonArch, self).__init__()
         self.add_linker_switch('-Wl,-u_start', loader=None)
         self.add_sources('arch', [
-            'leon-elf/crt0.S',
+            'sparc/leon/crt0.S',
             'sparc/leon/hw_init.S',
             {'s-macres.adb': 's-macres-leon.adb',
              'sparc.h': 'sparc-bb.h'}])
@@ -66,8 +66,7 @@ class LeonTarget(DFBBTarget):
         # Use leon-zcx.specs to link with -lc.
         conf.config_files.update(
             {'link-zcx.spec':
-             readfile(os.path.join(Config.crossdir,
-                                   'leon-elf/leon-zcx.specs'))})
+             readfile('sparc/leon/leon-zcx.specs')})
         conf.rts_xml = conf.rts_xml.replace(
             '"-nostartfiles",',
             '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec",')

@@ -2,7 +2,6 @@ class Config(object):
     # Sources directories
     gnatdir = "../gnat"
     gccdir = "../gcc"
-    crossdir = "../cross/bare_board/libbareboard"
     shared_sources = "runtime-sources"
     bsp_sources = "bsps"
 

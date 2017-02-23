@@ -149,7 +149,7 @@ class FilesHolder(object):
             self._copy(os.path.join(Config.gnatdir, srcfile),
                        dstdir, installed_files)
         else:
-            for d in ('.', Config.gccdir, Config.crossdir):
+            for d in ('.', Config.gccdir):
                 src = os.path.join(fullpath(d), srcfile)
                 if os.path.exists(src):
                     self._copy(src, dstdir, installed_files)

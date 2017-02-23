@@ -1213,12 +1213,11 @@ def usage():
     print " --prefix=DIR     where built rts will be installed"
     print " --gcc-dir=DIR    gcc source directory"
     print " --gnat-dir=DIR   gnat source directory"
-    print " --cross-dir=DIR  cross source directory"
     print " --link           create symbolic links"
 
 
 def main():
-    # global link, gccdir, gnatdir, crossdir, verbose, create_common
+    # global link, gccdir, gnatdir, verbose, create_common
 
     Config.install = Config.objdir
 
@@ -1248,8 +1247,6 @@ def main():
             Config.gccdir = arg
         elif opt == "--gnat-dir":
             Config.gnatdir = arg
-        elif opt == "--cross-dir":
-            Config.crossdir = arg
         elif opt == "--prefix":
             Config.prefix = arg
         else:

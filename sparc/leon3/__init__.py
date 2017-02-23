@@ -45,7 +45,7 @@ class Leon3(LeonTarget):
     def __init__(self):
         super(Leon3, self).__init__()
 
-        self.add_linker_script('leon3-elf/leon.ld', loader=None)
+        self.add_linker_script('sparc/leon3/leon.ld', loader=None)
         self.add_sources('crt0', {
             's-textio.adb': 's-textio-leon3.adb',
             's-bbbopa.ads': 's-bbbopa-leon3.ads'})
