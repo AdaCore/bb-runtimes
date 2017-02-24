@@ -263,5 +263,5 @@ rom_size = _PROM_SIZE;
 ram_start = _RAM_START;
 ram_size = _RAM_SIZE;
 
-heap_start = _end;
-heap_end = _RAM_END;
+__heap_start = _end;
+__heap_end = _RAM_END;
