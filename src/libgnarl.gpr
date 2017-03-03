@@ -27,6 +27,7 @@ project Libgnarl is
       for Prefix use Install.Install_Prefix;
       for Sources_Subdir use "gnarl";
       for Lib_Subdir use "adalib";
+      for Install_Project use "false";
    end Install;
 
 end Libgnarl;

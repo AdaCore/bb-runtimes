@@ -27,6 +27,7 @@ library project Libgnat is
       for Prefix use Install.Install_Prefix;
       for Sources_Subdir use "gnat";
       for Lib_Subdir use "adalib";
+      for Install_Project use "false";
    end Install;
 
 end Libgnat;
