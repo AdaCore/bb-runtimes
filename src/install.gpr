@@ -12,7 +12,7 @@ project Install is
 
    for Source_Files use ("runtime.xml");
 
-   Install_Prefix := "{prefix}";
+   Install_Prefix := external ("INSTALL_PREFIX");
 
    package Install is
       for Prefix use Install_Prefix;
@@ -21,6 +21,7 @@ project Install is
       for Required_Artifacts("ld") use
         ({link_sources});
       for Sources_Subdir use ".";
+      for Install_Project use "false";
    end Install;
 
 end Install;

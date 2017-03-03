@@ -152,30 +152,45 @@ class Target(TargetConfiguration, BSP):
     def amend_ravenscar_full(self, cfg):
         self.amend_ravenscar_sfp(cfg)
 
-    def dump_rts_project_file(self, rts, destination):
-        rtsname = '%s-%s' % (rts['RTS'], self.name)
+    def dump_rts_project_file(self, rts, destination, rts_prefix):
+        rtsname = '%s-%s' % (rts['RTS_Profile'], self.name)
         prj = '%s.gpr' % rtsname.replace('-', '_')
         prjname = rtsname.replace('-', '_').title()
         prj = os.path.join(destination, prj)
 
-        rts_path = os.path.join(self.rel_path, rts['RTS'])
+        rts_path = os.path.join(self.rel_path, rts['RTS_Profile'])
         int_path = os.path.join(self.rel_path, 'internal')
+        base = os.path.dirname(rts_prefix)
+        board = os.path.basename(rts_prefix).replace(
+            '%s-' % rts['RTS_Profile'], '')
 
         ret = 'aggregate project %s is\n' % prjname
+        ret += '\n'
+        ret += '   Base_Installation_Dir := "%s";\n' % base
+        ret += '   Board                 := "%s";\n' % board
+        ret += '   Default_Prefix        := \n'
+        ret += '     Base_Installation_Dir & "/%s-" & Board;\n' % \
+               rts['RTS_Profile']
+        ret += '   Install_Dir           := ' \
+               'external ("PREFIX", Default_Prefix);\n'
         ret += '\n'
         for val in rts:
             ret += '   for external("%s") use "%s";\n' % (val, rts[val])
         ret += '\n'
-        ret += '   for Target use "%s";\n' % self.target
+        ret += '   for external ("INSTALL_PREFIX") use Install_Dir;\n'
+        ret += '\n'
+
+        if self.target is not None:
+            ret += '   for Target use "%s";\n' % self.target
         ret += '   for Runtime ("Ada") use Project\'Project_Dir &\n'
         ret += '       "%s";\n' % rts_path
         ret += '\n'
         ret += '   for Project_Path use\n'
         ret += '     ("%s");\n' % rts_path
         ret += '   for Project_Files use\n'
-        if rts['RTS'] == 'zfp':
+        if rts['RTS_Profile'] == 'zfp':
             ret += '     ("%s",\n' % os.path.join(int_path, 'libgnat.gpr')
-        elif rts['RTS'] == 'ravenscar-sfp':
+        elif rts['RTS_Profile'] == 'ravenscar-sfp':
             ret += '     ("%s",\n' % os.path.join(int_path, 'libgnat.gpr')
             ret += '      "%s",\n' % os.path.join(int_path, 'libgnarl.gpr')
         else:
@@ -287,7 +302,7 @@ class Target(TargetConfiguration, BSP):
             for dirname, l in rts_obj.dirs.items():
                 if l and len(l) > 0:
                     src_dirs.append(dirname)
-                    rel = '"../" & RTS & "/%s"' % dirname
+                    rel = '"../" & Profile & "/%s"' % dirname
                     if 'gnarl' in dirname:
                         if rel not in gnarl_dirs:
                             gnarl_dirs.append(rel)
@@ -337,7 +352,8 @@ class Target(TargetConfiguration, BSP):
                 fp.write(rts_obj.rts_xml)
 
             # and now install the rts project with the proper scenario values
-            self.dump_rts_project_file(rts_obj.rts_vars, destination)
+            self.dump_rts_project_file(
+                rts_obj.rts_vars, destination, install_prefix)
 
             inst_files = ['runtime.xml']
             support_dir = os.path.relpath(
@@ -357,8 +373,7 @@ class Target(TargetConfiguration, BSP):
 
             build_flags = {
                 'link_sources': link_sources,
-                'rts_files': '",\n         "'.join(inst_files),
-                'prefix': install_prefix}
+                'rts_files': '",\n         "'.join(inst_files)}
             cnt = readfile(fullpath('src/install.gpr'))
             # Format
             cnt = cnt.format(**build_flags)
@@ -465,7 +480,7 @@ class Target(TargetConfiguration, BSP):
             if sw['loader'] is None or sw['loader'] == '':
                 switches.append('"%s"' % sw['switch'])
 
-        if rts.rts_vars['RTS'] == 'ravenscar-full':
+        if rts.rts_vars['RTS_Profile'] == 'ravenscar-full':
             do_merge = True
         else:
             do_merge = False
@@ -489,7 +504,7 @@ class Target(TargetConfiguration, BSP):
         blank = indent * ' '
 
         ret += blank + '"-nostartfiles"'
-        if rts.rts_vars['RTS'] != "ravenscar-full":
+        if rts.rts_vars['RTS_Profile'] != "ravenscar-full":
             ret += ', "-nolibc"'
         else:
             ret += ', "-lgnat"'

@@ -4,7 +4,7 @@ with "install";
 
 library project Libgnat is
 
-   RTS   := External ("RTS");
+   Profile := External ("RTS_Profile");
 
    for Languages use
      Libgnat_Sources.Gnat_Langs &
@@ -14,8 +14,8 @@ library project Libgnat is
    for Library_Name use "gnat";
    for Library_Kind use "static";
 
-   for Library_Dir use "../" & RTS & "/adalib";
-   for Object_Dir use "../" & RTS & "/obj";
+   for Library_Dir use "../" & Profile & "/adalib";
+   for Object_Dir use "../" & Profile & "/obj";
 
    for Source_Dirs use
      Libgnat_Sources.Gnat_Dirs &

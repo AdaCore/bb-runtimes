@@ -3,15 +3,15 @@ with "install";
 
 project Libgnarl_Empty is
 
-   RTS   := External ("RTS");
+   Profile := External ("RTS_Profile");
 
    for Languages use ("C");
 
    for Library_Auto_Init use "False";
    for Library_Name use "gnarl";
    for Library_Kind use "static";
-   for Library_Dir use "../" & RTS & "/adalib";
-   for Object_Dir use "../" & RTS & "/obj";
+   for Library_Dir use "../" & Profile & "/adalib";
+   for Object_Dir use "../" & Profile & "/obj";
 
    for Source_Files use ("empty.c");
 

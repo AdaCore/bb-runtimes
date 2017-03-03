@@ -63,7 +63,7 @@ class SourceDirs(SharedFilesHolder):
         super(SourceDirs, self).__init__()
         self._is_bb = is_bb
         self.scenario = {
-            'RTS': ['zfp', 'ravenscar-sfp', 'ravenscar-full'],
+            'RTS_Profile': ['zfp', 'ravenscar-sfp', 'ravenscar-full'],
             'CPU_Family': ['arm', 'leon', 'powerpc', 'x86'],
             'Has_FPU': ['true', 'false'],
             'Memory_Profile': ['small', 'large'],
@@ -75,7 +75,7 @@ class SourceDirs(SharedFilesHolder):
             'Add_Memory_Operations': ['no', 'yes'],
             'Add_C_Support': ['no', 'ada_clib', 'newlib']}
         self.libgnat_scenarios = [
-            'RTS',
+            'RTS_Profile',
             'CPU_Family',
             'Has_FPU',
             'Add_Math_Lib',
@@ -483,7 +483,7 @@ class SourceDirs(SharedFilesHolder):
             {'s-lisisq.ads': 's-lisisq-ada.ads'}])
 
         self.add_rule('math/full',
-                      ['RTS:ravenscar-full',
+                      ['RTS_Profile:ravenscar-full',
                        'Add_Math_Lib:!no'])
         self.add_sources('math/full', [
             'a-ngcoar.ads', 'a-ngcoar.adb',
@@ -512,7 +512,7 @@ class SourceDirs(SharedFilesHolder):
                 's-lidosq.adb': 's-lidosq-fpu.adb'})
 
         # Finally, the ZFP & SFP-specific libgnat files
-        self.add_rule('zfp', 'RTS:zfp,ravenscar-sfp')
+        self.add_rule('zfp', 'RTS_Profile:zfp,ravenscar-sfp')
         self.add_sources('zfp', {
             'a-elchha.ads': 'a-elchha-zfp.ads',
             'a-elchha.adb': 'a-elchha-zfp.adb',
@@ -529,7 +529,7 @@ class SourceDirs(SharedFilesHolder):
             self.add_sources('zfp', {
                 's-memory.adb': 's-memory-zfp.adb'})
         else:
-            self.add_rule('zfp-io', 'RTS:zfp')
+            self.add_rule('zfp-io', 'RTS_Profile:zfp')
             self.add_sources('zfp-io', [
                 'text_io.ads',
                 {'a-textio.ads': 'a-textio-zfp.ads',
@@ -612,7 +612,7 @@ class SourceDirs(SharedFilesHolder):
                 's-osinte.adb': 's-osinte-pikeos4.adb'})
 
         # SFP-specific files
-        self.add_rule('gnarl/sfp', 'RTS:ravenscar-sfp')
+        self.add_rule('gnarl/sfp', 'RTS_Profile:ravenscar-sfp')
         self.add_sources('gnarl/sfp', {
             's-taskin.ads': 's-taskin-raven.ads',
             's-tposen.adb': 's-tposen-raven.adb',
@@ -651,7 +651,7 @@ class SourceDirs(SharedFilesHolder):
         """ravenscar-full files"""
 
         # libgnat files for the full profile
-        self.add_rule('full', 'RTS:ravenscar-full')
+        self.add_rule('full', 'RTS_Profile:ravenscar-full')
         self.add_sources('full', [
             'a-chahan.ads', 'a-chahan.adb',
             'a-charac.ads',
@@ -924,13 +924,13 @@ class SourceDirs(SharedFilesHolder):
 
         # Zero-cost-exception support
         self.add_rule('full/zcx-arm', [
-            'RTS:ravenscar-full', 'CPU_Family:arm'])
+            'RTS_Profile:ravenscar-full', 'CPU_Family:arm'])
         self.add_sources('full/zcx-arm', {
             's-excmac.adb': 's-excmac-arm.adb',
             's-excmac.ads': 's-excmac-arm.ads',
             's-traceb.adb': 's-traceb-xi-armeabi.adb'})
         self.add_rule('full/zcx-dw2', [
-            'RTS:ravenscar-full', 'CPU_Family:!arm'])
+            'RTS_Profile:ravenscar-full', 'CPU_Family:!arm'])
         self.add_sources('full/zcx-dw2', [
             {'s-excmac.ads': 's-excmac-gcc.ads',
              's-excmac.adb': 's-excmac-gcc.adb'},
@@ -939,20 +939,20 @@ class SourceDirs(SharedFilesHolder):
             self.add_sources('full/zcx-dw2', 'src/unwind-dw2-fde-bb.c')
 
         self.add_rule('full/zcx-ppc',
-                      ['RTS:ravenscar-full', 'CPU_Family:powerpc'])
+                      ['RTS_Profile:ravenscar-full', 'CPU_Family:powerpc'])
         self.add_sources('full/zcx-ppc', {
             's-traceb.adb': 's-traceb-xi-ppc.adb'})
         self.add_rule('full/zcx-leon',
-                      ['RTS:ravenscar-full', 'CPU_Family:leon'])
+                      ['RTS_Profile:ravenscar-full', 'CPU_Family:leon'])
         self.add_sources('full/zcx-leon', {
             's-traceb.adb': 's-traceb-xi-sparc.adb'})
         self.add_rule('full/zcx-x86',
-                      ['RTS:ravenscar-full', 'CPU_Family:x86'])
+                      ['RTS_Profile:ravenscar-full', 'CPU_Family:x86'])
         self.add_sources('full/zcx-x86', {
             's-traceb.adb': 's-traceb-vx653-sim.adb'})
 
         # Containers
-        self.add_rule('containers', 'RTS:ravenscar-full')
+        self.add_rule('containers', 'RTS_Profile:ravenscar-full')
         self.add_sources('containers', [
             'a-btgbso.adb', 'a-btgbso.ads',
             'a-cbdlli.adb', 'a-cbdlli.ads',
@@ -1019,7 +1019,7 @@ class SourceDirs(SharedFilesHolder):
             's-atocou.adb': 's-atocou-builtin.adb'})
 
         # GNARL files for the full runtime
-        self.add_rule('gnarl/full', 'RTS:ravenscar-full')
+        self.add_rule('gnarl/full', 'RTS_Profile:ravenscar-full')
         self.add_sources('gnarl/full', {
             's-taskin.ads': 's-taskin-xi-full.ads',
             's-tposen.adb': 's-tposen-xi-full.adb',
@@ -1030,7 +1030,7 @@ class SourceDirs(SharedFilesHolder):
                 's-btstch.ads', 's-btstch.adb'])
 
         # Ravenscar extended: relative delays
-        self.add_rule('gnarl/full/extended', 'RTS:ravenscar-full')
+        self.add_rule('gnarl/full/extended', 'RTS_Profile:ravenscar-full')
         self.add_sources('gnarl/full/extended', {
             's-reldel.ads': 's-reldel-xi.ads',
             's-reldel.adb': 's-reldel-xi.adb'})
@@ -1052,7 +1052,7 @@ class SourceDirs(SharedFilesHolder):
     def zfp_scenarios(self, config, mem_routines, math_lib):
         """Returns the list of directories contained in a base ZFP runtime"""
         ret = {}
-        ret['RTS'] = 'zfp'
+        ret['RTS_Profile'] = 'zfp'
 
         if config.has_fpu:
             ret['Has_FPU'] = 'true'
@@ -1111,7 +1111,7 @@ class SourceDirs(SharedFilesHolder):
     def sfp_scenarios(self, config, mem_routines, math_lib, small_mem):
         """Returns the list of directories contained in a base SFP runtime"""
         ret = self.zfp_scenarios(config, mem_routines, math_lib)
-        ret['RTS'] = 'ravenscar-sfp'
+        ret['RTS_Profile'] = 'ravenscar-sfp'
 
         if not config.is_pikeos:
             # source installation for PikeOS do not consider those
@@ -1135,7 +1135,7 @@ class SourceDirs(SharedFilesHolder):
         ret = self.sfp_scenarios(config, mem_routines, math_lib, small_mem)
 
         # override the RTS value
-        ret['RTS'] = 'ravenscar-full'
+        ret['RTS_Profile'] = 'ravenscar-full'
 
         if not config.is_pikeos:
             # PikeOS provides its own C library
