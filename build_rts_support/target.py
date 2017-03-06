@@ -161,16 +161,20 @@ class Target(TargetConfiguration, BSP):
         rts_path = os.path.join(self.rel_path, rts['RTS_Profile'])
         int_path = os.path.join(self.rel_path, 'internal')
         base = os.path.dirname(rts_prefix)
-        board = os.path.basename(rts_prefix).replace(
-            '%s-' % rts['RTS_Profile'], '')
-
         ret = 'aggregate project %s is\n' % prjname
         ret += '\n'
         ret += '   Base_Installation_Dir := "%s";\n' % base
-        ret += '   Board                 := "%s";\n' % board
-        ret += '   Default_Prefix        := \n'
-        ret += '     Base_Installation_Dir & "/%s-" & Board;\n' % \
-               rts['RTS_Profile']
+        if not self.is_pikeos and not self.is_native:
+            board = os.path.basename(rts_prefix).replace(
+                '%s-' % rts['RTS_Profile'], '')
+            ret += '   Board                 := "%s";\n' % board
+            ret += '   Default_Prefix        := \n'
+            ret += '     Base_Installation_Dir & "/%s-" & Board;\n' % \
+                   rts['RTS_Profile']
+        else:
+            ret += '   Default_Prefix        := \n'
+            ret += '     Base_Installation_Dir & "/%s";\n' % \
+                   os.path.basename(rts_prefix)
         ret += '   Install_Dir           := ' \
                'external ("PREFIX", Default_Prefix);\n'
         ret += '\n'
