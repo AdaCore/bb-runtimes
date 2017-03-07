@@ -35,6 +35,21 @@
 	.globl	_stm32_start_common
         .type _stm32_start_common, #function
 _stm32_start_common:
+
+        /************************
+        * Enable debug Monitor *
+        ************************/
+
+        /* Debug register definition */
+        .set    DEMCR,  0xE000EDFC
+          
+        /* Enable the debug monitor so that bkpt instructions are not treated
+        * as hard fault when no debugger is attached */
+        ldr     r0, =DEMCR
+        ldr     r1, [r0]
+        orr     r1, r1, #0x10000 /* Set MON_EN in DEMCR */
+        str     r1, [r0]
+
         /**************/
         /* Enable FPU */
         /**************/

@@ -24,7 +24,7 @@ __vectors:
 	.word   fault                /* 9 reserved. */
 	.word   fault                /* 10 reserved. */
 	.word   __gnat_sv_call_trap  /* 11 SVCall. */
-	.word   fault                /* 12 reserved for debug. */
+	.word   __gnat_bkpt_trap     /* 12 Breakpoint. */
 	.word   fault                /* 13 reserved. */
 	.word   __gnat_pend_sv_trap  /* 14 PendSV. */
 	.word   __gnat_sys_tick_trap /* 15 Systick. */

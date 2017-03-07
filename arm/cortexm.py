@@ -11,7 +11,8 @@ class CortexMArch(BSP):
     def __init__(self):
         super(CortexMArch, self).__init__()
         self.add_sources('arch', {
-            's-macres.adb': 's-macres-cortexm3.adb'})
+            's-macres.adb': 's-macres-cortexm3.adb',
+            'breakpoint_handler.S': 'arm/src/breakpoint_handler-cortexm.S'})
         self.add_sources('gnarl', {
             's-bbcppr.adb': 's-bbcppr-armv7m.adb',
             's-bbbosu.adb': 's-bbbosu-armv7m.adb'})
