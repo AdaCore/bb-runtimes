@@ -47,7 +47,7 @@ from powerpc.mpc5634 import P5634
 from visium import Visium
 
 # native
-from native import X86Linux, X86Windows, X8664Linux, X8664Windows
+from native import X86Native, X8664Native
 
 import getopt
 import os
@@ -1196,13 +1196,13 @@ def build_configs(target):
     elif target == 'mcm':
         t = Visium()
     elif target == 'x86-linux':
-        t = X86Linux()
+        t = X86Native()
     elif target == 'x86-windows':
-        t = X86Windows()
+        t = X86Native()
     elif target == 'x86_64-linux':
-        t = X8664Linux()
+        t = X8664Native()
     elif target == 'x86_64-windows':
-        t = X8664Windows()
+        t = X8664Native()
     else:
         print 'Error: undefined target %s' % target
         sys.exit(2)
