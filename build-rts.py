@@ -47,7 +47,7 @@ from powerpc.mpc5634 import P5634
 from visium import Visium
 
 # native
-from native import X86Linux, X86Windows
+from native import X86Linux, X86Windows, X8664Linux, X8664Windows
 
 import getopt
 import os
@@ -1087,22 +1087,23 @@ class SourceDirs(SharedFilesHolder):
 
         ret['Add_C_Support'] = "no"
 
-        cpu = config.target.split('-')[0]
+        if config.target is not None:
+            cpu = config.target.split('-')[0]
 
-        if cpu in ('arm', 'aarch64'):
-            ret['CPU_Family'] = 'arm'
-        elif cpu in ('powerpc', 'ppc'):
-            ret['CPU_Family'] = 'powerpc'
-        elif cpu.startswith('leon'):
-            ret['CPU_Family'] = 'leon'
-        elif cpu in ('x86',):
-            ret['CPU_Family'] = 'x86'
-        elif cpu in ('visium',):
-            ret['CPU_Family'] = 'visium'
-        else:
-            print "Unexpected cpu %s" % cpu
-            print "  not in 'arm', 'aarch64', 'powerpc', 'leon', 'leon3'"
-            sys.exit(2)
+            if cpu in ('arm', 'aarch64'):
+                ret['CPU_Family'] = 'arm'
+            elif cpu in ('powerpc', 'ppc'):
+                ret['CPU_Family'] = 'powerpc'
+            elif cpu.startswith('leon'):
+                ret['CPU_Family'] = 'leon'
+            elif cpu in ('x86',):
+                ret['CPU_Family'] = 'x86'
+            elif cpu in ('visium',):
+                ret['CPU_Family'] = 'visium'
+            else:
+                print "Unexpected cpu %s" % cpu
+                print "  not in 'arm', 'aarch64', 'powerpc', 'leon', 'leon3'"
+                sys.exit(2)
 
         self.targets.append(config)
         self.rts.append(ret)
@@ -1198,6 +1199,10 @@ def build_configs(target):
         t = X86Linux()
     elif target == 'x86-windows':
         t = X86Windows()
+    elif target == 'x86_64-linux':
+        t = X8664Linux()
+    elif target == 'x86_64-windows':
+        t = X8664Windows()
     else:
         print 'Error: undefined target %s' % target
         sys.exit(2)

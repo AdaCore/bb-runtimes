@@ -20,7 +20,7 @@ class TargetConfiguration(object):
 
     @property
     def is_pikeos(self):
-        return 'pikeos' in self.target
+        return self.target is not None and 'pikeos' in self.target
 
     @property
     def is_native(self):
@@ -290,9 +290,11 @@ class Target(TargetConfiguration, BSP):
                     install_prefix = Config.prefix
                 else:
                     install_prefix = Config.prefix + '/'
-            else:
+            elif self.target is not None:
                 install_prefix = \
                     self.target + '/lib/gnat/'
+            else:
+                install_prefix = 'lib/gnat/'
             if self.is_pikeos or self.is_native:
                 install_prefix += 'rts-%s' % rts_name
             else:
@@ -352,8 +354,9 @@ class Target(TargetConfiguration, BSP):
             for name, content in self.config_files.iteritems():
                 with open(os.path.join(base_rts, name), 'w') as fp:
                     fp.write(content)
-            with open(os.path.join(base_rts, 'runtime.xml'), 'w') as fp:
-                fp.write(rts_obj.rts_xml)
+            if rts_obj.rts_xml is not None:
+                with open(os.path.join(base_rts, 'runtime.xml'), 'w') as fp:
+                    fp.write(rts_obj.rts_xml)
 
             # and now install the rts project with the proper scenario values
             self.dump_rts_project_file(
