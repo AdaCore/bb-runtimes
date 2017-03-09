@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2016, AdaCore
+--  Copyright (C) 2017, AdaCore
 --
 
 --  This spec has been automatically generated from M2Sxxx.svd
@@ -71,7 +71,8 @@ package Interfaces.SF2.GPIO is
    end record;
 
    --  No description provided for this register
-   type CONFIG_Registers is array (0 .. 31) of CONFIG_Register;
+   type CONFIG_Registers is array (0 .. 31) of CONFIG_Register
+     with Volatile;
 
    --  INTR_INT array
    type INTR_INT_Field_Array is array (0 .. 31) of Boolean
@@ -156,14 +157,14 @@ package Interfaces.SF2.GPIO is
    --  General-purpose IO peripheral
    type GPIO_Peripheral is record
       --  No description provided for this register
-      CONFIG : CONFIG_Registers;
+      CONFIG : aliased CONFIG_Registers;
       --  GPIO Interrupt register
-      INTR   : INTR_Register;
+      INTR   : aliased INTR_Register;
       --  GPIO input register - Read-only for input configured Ports
-      GPIN   : GPIN_Register;
+      GPIN   : aliased GPIN_Register;
       --  GPIO Output register - Writeable/Readable for output configured
       --  ports. No action required for input configured ports.
-      GPOUT  : GPOUT_Register;
+      GPOUT  : aliased GPOUT_Register;
    end record
      with Volatile;
 

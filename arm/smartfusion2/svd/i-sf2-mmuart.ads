@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2016, AdaCore
+--  Copyright (C) 2017, AdaCore
 --
 
 --  This spec has been automatically generated from M2Sxxx.svd
@@ -736,36 +736,36 @@ package Interfaces.SF2.MMUART is
      (Discriminent : MMUART_0_Disc := Mode_1)
    is record
       --  Line Control register
-      LCR : LCR_Register;
+      LCR : aliased LCR_Register;
       --  Modem Control register
-      MCR : MCR_Register;
+      MCR : aliased MCR_Register;
       --  Line Status register
-      LSR : LSR_Register;
+      LSR : aliased LSR_Register;
       --  Modem Status register
-      MSR : MSR_Register;
+      MSR : aliased MSR_Register;
       --  Scratch register. This register has no effect on MMUART_x operation.
-      SR  : Interfaces.SF2.Byte;
+      SR  : aliased Interfaces.SF2.Byte;
       --  Multi-mode interrupt enable register
-      IEM : IEM_Register;
+      IEM : aliased IEM_Register;
       --  Multi-mode Interrupt identification register
-      IIM : IIM_Register;
+      IIM : aliased IIM_Register;
       --  Multi-mode control register 0
-      MM0 : MM0_Register;
+      MM0 : aliased MM0_Register;
       --  Multi-mode control register 1
-      MM1 : MM1_Register;
+      MM1 : aliased MM1_Register;
       --  Multi-mode control register 2
-      MM2 : MM2_Register;
+      MM2 : aliased MM2_Register;
       --  Divisor Fractional Register
-      DFR : DFR_Register;
+      DFR : aliased DFR_Register;
       --  Glitch filter register
-      GFR : GFR_Register;
+      GFR : aliased GFR_Register;
       --  Transmitter time guard register. If the transmitter time guard is
       --  enabled from the multi-mode control register 0 (MM0), the transmitter
       --  time guard value determines the amount of system clock cycles to wait
       --  between transmissions. The time guard equation is based on the baud
       --  rate bit time (Tbit) value as follows: Tx Time Guard Value = TTG x
       --  Bit Time (Tbit)
-      TTG : Interfaces.SF2.Byte;
+      TTG : aliased Interfaces.SF2.Byte;
       --  Receiver time-tou receiver. Writing to the RTO register sets the
       --  counter value and enables, if the ERTO bit in the MM0 is enabled. You
       --  can configure the timeout value by writing into this register. The
@@ -776,12 +776,12 @@ package Interfaces.SF2.MMUART is
       --  counter. The receiver timeout value equation is based on the baud
       --  rate bit time (Tbit) as follows: Rx Timeout Value = 4 x RTO x Bit
       --  Time (Tbit)
-      RTO : Interfaces.SF2.Byte;
+      RTO : aliased Interfaces.SF2.Byte;
       --  Address register. The address register is used in 9-bit Address Flag
       --  mode. When an address flag is received on the 9th bit, and EAFM is
       --  set in MM2, the incoming data is checked against the address
       --  register. If a match occurs, the Rx FIFO is enabled.
-      ADR : Interfaces.SF2.Byte;
+      ADR : aliased Interfaces.SF2.Byte;
       case Discriminent is
          when Mode_1 =>
             --  Receiver buffer register. This register holds the receive data
@@ -793,11 +793,11 @@ package Interfaces.SF2.MMUART is
             --  register. This register is read only. Writing to this register
             --  with the DLAB 0 changes the transmit holding register (THR)
             --  register value.
-            RBR : Interfaces.SF2.Byte;
+            RBR : aliased Interfaces.SF2.Byte;
             --  Divisor latch (MSB)
-            DMR : Interfaces.SF2.Byte;
+            DMR : aliased Interfaces.SF2.Byte;
             --  FIFO control register
-            FCR : FCR_Register;
+            FCR : aliased FCR_Register;
          when Mode_2 =>
             --  Transmit holding register. This register holds the data bits to
             --  be transmitted. Bit 0 is the LSB and is transmitted first. The
@@ -807,14 +807,14 @@ package Interfaces.SF2.MMUART is
             --  bit 7 of LCR, must be 0 to write to this register. This
             --  register is write only. Reading from this register with the
             --  DLAB 0 reads the RBR register value.
-            THR : Interfaces.SF2.Byte;
+            THR : aliased Interfaces.SF2.Byte;
             --  Interupt Enable Register
-            IER : IER_Register;
+            IER : aliased IER_Register;
             --  Interrupt identification register
-            IIR : IIR_Register;
+            IIR : aliased IIR_Register;
          when Mode_3 =>
             --  Divisor latch (LSB)
-            DLR : Interfaces.SF2.Byte;
+            DLR : aliased Interfaces.SF2.Byte;
       end case;
    end record
      with Unchecked_Union, Volatile;

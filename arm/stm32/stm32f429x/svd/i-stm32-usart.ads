@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2016, AdaCore
+--  Copyright (C) 2017, AdaCore
 --
 
 --  This spec has been automatically generated from STM32F429x.svd
@@ -442,17 +442,17 @@ package Interfaces.STM32.USART is
    --  Universal synchronous asynchronous receiver transmitter
    type UART4_Peripheral is record
       --  Status register
-      SR  : SR_Register;
+      SR  : aliased SR_Register;
       --  Data register
-      DR  : DR_Register;
+      DR  : aliased DR_Register;
       --  Baud rate register
-      BRR : BRR_Register;
+      BRR : aliased BRR_Register;
       --  Control register 1
-      CR1 : CR1_Register;
+      CR1 : aliased CR1_Register;
       --  Control register 2
-      CR2 : CR2_Register;
+      CR2 : aliased CR2_Register;
       --  Control register 3
-      CR3 : CR3_Register;
+      CR3 : aliased CR3_Register;
    end record
      with Volatile;
 
@@ -484,19 +484,19 @@ package Interfaces.STM32.USART is
    --  Universal synchronous asynchronous receiver transmitter
    type USART1_Peripheral is record
       --  Status register
-      SR   : SR_Register_1;
+      SR   : aliased SR_Register_1;
       --  Data register
-      DR   : DR_Register;
+      DR   : aliased DR_Register;
       --  Baud rate register
-      BRR  : BRR_Register;
+      BRR  : aliased BRR_Register;
       --  Control register 1
-      CR1  : CR1_Register;
+      CR1  : aliased CR1_Register;
       --  Control register 2
-      CR2  : CR2_Register_1;
+      CR2  : aliased CR2_Register_1;
       --  Control register 3
-      CR3  : CR3_Register_1;
+      CR3  : aliased CR3_Register_1;
       --  Guard time and prescaler register
-      GTPR : GTPR_Register;
+      GTPR : aliased GTPR_Register;
    end record
      with Volatile;
 

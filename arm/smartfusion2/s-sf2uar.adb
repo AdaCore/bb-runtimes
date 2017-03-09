@@ -2,7 +2,7 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---                       Copyright (C) 2016, AdaCore                        --
+--                    Copyright (C) 2016-2017, AdaCore                      --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -246,7 +246,7 @@ package body System.SF2.UART is
             end if;
 
             for J in 1 .. Transmit loop
-               This.Regs.THR := Data (Index);
+               This.Regs.THR := Interfaces.SF2.Byte (Data (Index));
                Index := Index + 1;
             end loop;
 

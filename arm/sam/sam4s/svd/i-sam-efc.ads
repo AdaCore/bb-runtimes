@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2016, AdaCore
+--  Copyright (C) 2017, AdaCore
 --
 
 --  This spec has been automatically generated from ATSAM4SD32C.svd
@@ -192,13 +192,13 @@ package Interfaces.SAM.EFC is
    --  Embedded Flash Controller 0
    type EFC_Peripheral is record
       --  EEFC Flash Mode Register
-      FMR : EFC0_FMR_Register;
+      FMR : aliased EFC0_FMR_Register;
       --  EEFC Flash Command Register
-      FCR : EFC0_FCR_Register;
+      FCR : aliased EFC0_FCR_Register;
       --  EEFC Flash Status Register
-      FSR : EFC0_FSR_Register;
+      FSR : aliased EFC0_FSR_Register;
       --  EEFC Flash Result Register
-      FRR : Interfaces.SAM.UInt32;
+      FRR : aliased Interfaces.SAM.UInt32;
    end record
      with Volatile;
 

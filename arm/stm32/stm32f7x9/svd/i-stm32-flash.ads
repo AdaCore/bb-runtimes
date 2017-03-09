@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2016, AdaCore
+--  Copyright (C) 2017, AdaCore
 --
 
 --  This spec has been automatically generated from STM32F7x9.svd
@@ -238,19 +238,19 @@ package Interfaces.STM32.FLASH is
    --  FLASH
    type FLASH_Peripheral is record
       --  Flash access control register
-      ACR     : ACR_Register;
+      ACR     : aliased ACR_Register;
       --  Flash key register
-      KEYR    : Interfaces.STM32.UInt32;
+      KEYR    : aliased Interfaces.STM32.UInt32;
       --  Flash option key register
-      OPTKEYR : Interfaces.STM32.UInt32;
+      OPTKEYR : aliased Interfaces.STM32.UInt32;
       --  Status register
-      SR      : SR_Register;
+      SR      : aliased SR_Register;
       --  Control register
-      CR      : CR_Register;
+      CR      : aliased CR_Register;
       --  Flash option control register
-      OPTCR   : OPTCR_Register;
+      OPTCR   : aliased OPTCR_Register;
       --  Flash option control register 1
-      OPTCR1  : OPTCR1_Register;
+      OPTCR1  : aliased OPTCR1_Register;
    end record
      with Volatile;
 

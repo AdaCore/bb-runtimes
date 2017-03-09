@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2016, AdaCore
+--  Copyright (C) 2017, AdaCore
 --
 
 --  This spec has been automatically generated from ATSAMG55J19.svd
@@ -224,15 +224,15 @@ package Interfaces.SAM.EFC is
    --  Embedded Flash Controller
    type EFC_Peripheral is record
       --  EEFC Flash Mode Register
-      FMR  : EFC_FMR_Register;
+      FMR  : aliased EFC_FMR_Register;
       --  EEFC Flash Command Register
-      FCR  : EFC_FCR_Register;
+      FCR  : aliased EFC_FCR_Register;
       --  EEFC Flash Status Register
-      FSR  : EFC_FSR_Register;
+      FSR  : aliased EFC_FSR_Register;
       --  EEFC Flash Result Register
-      FRR  : Interfaces.SAM.UInt32;
+      FRR  : aliased Interfaces.SAM.UInt32;
       --  Write Protection Mode Register
-      WPMR : EFC_WPMR_Register;
+      WPMR : aliased EFC_WPMR_Register;
    end record
      with Volatile;
 

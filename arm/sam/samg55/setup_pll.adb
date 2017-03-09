@@ -2,7 +2,7 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---                    Copyright (C) 2013-2016, AdaCore                      --
+--                    Copyright (C) 2013-2017, AdaCore                      --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -29,7 +29,7 @@ pragma Restrictions (No_Elaboration_Code);
 
 with Board_Config;          use Board_Config;
 
-with Interfaces;            use Interfaces;
+with Interfaces.SAM;        use Interfaces.SAM;
 with Interfaces.SAM.EFC;    use Interfaces.SAM.EFC;
 with Interfaces.SAM.PMC;    use Interfaces.SAM.PMC;
 with Interfaces.SAM.SYSC;   use Interfaces.SAM.SYSC;

@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2016, AdaCore
+--  Copyright (C) 2017, AdaCore
 --
 
 --  This spec has been automatically generated from STM32F46_79x.svd
@@ -286,19 +286,19 @@ package Interfaces.STM32.SYSCFG is
    --  System configuration controller
    type SYSCFG_Peripheral is record
       --  memory remap register
-      MEMRM   : MEMRM_Register;
+      MEMRM   : aliased MEMRM_Register;
       --  peripheral mode configuration register
-      PMC     : PMC_Register;
+      PMC     : aliased PMC_Register;
       --  external interrupt configuration register 1
-      EXTICR1 : EXTICR1_Register;
+      EXTICR1 : aliased EXTICR1_Register;
       --  external interrupt configuration register 2
-      EXTICR2 : EXTICR2_Register;
+      EXTICR2 : aliased EXTICR2_Register;
       --  external interrupt configuration register 3
-      EXTICR3 : EXTICR3_Register;
+      EXTICR3 : aliased EXTICR3_Register;
       --  external interrupt configuration register 4
-      EXTICR4 : EXTICR4_Register;
+      EXTICR4 : aliased EXTICR4_Register;
       --  Compensation cell control register
-      CMPCR   : CMPCR_Register;
+      CMPCR   : aliased CMPCR_Register;
    end record
      with Volatile;
 

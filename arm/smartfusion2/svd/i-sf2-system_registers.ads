@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2016, AdaCore
+--  Copyright (C) 2017, AdaCore
 --
 
 --  This spec has been automatically generated from M2Sxxx.svd
@@ -4605,351 +4605,351 @@ package Interfaces.SF2.System_Registers is
    --  No description provided for this peripheral
    type System_Registers_Peripheral is record
       --  No description provided for this register
-      ESRAM_CR                  : ESRAM_CR_Register;
+      ESRAM_CR                  : aliased ESRAM_CR_Register;
       --  No description provided for this register
-      ESRAM_MAX_LAT_CR          : ESRAM_MAX_LAT_CR_Register;
+      ESRAM_MAX_LAT_CR          : aliased ESRAM_MAX_LAT_CR_Register;
       --  No description provided for this register
-      DDR_CR                    : DDR_CR_Register;
+      DDR_CR                    : aliased DDR_CR_Register;
       --  No description provided for this register
-      ENVM_CR                   : ENVM_CR_Register;
+      ENVM_CR                   : aliased ENVM_CR_Register;
       --  No description provided for this register
-      ENVM_REMAP_BASE_CR        : ENVM_REMAP_BASE_CR_Register;
+      ENVM_REMAP_BASE_CR        : aliased ENVM_REMAP_BASE_CR_Register;
       --  No description provided for this register
-      ENVM_REMAP_FAB_CR         : ENVM_REMAP_FAB_CR_Register;
+      ENVM_REMAP_FAB_CR         : aliased ENVM_REMAP_FAB_CR_Register;
       --  No description provided for this register
-      CC_CR                     : CC_CR_Register;
+      CC_CR                     : aliased CC_CR_Register;
       --  No description provided for this register
-      CC_REGION_CR              : CC_REGION_CR_Register;
+      CC_REGION_CR              : aliased CC_REGION_CR_Register;
       --  No description provided for this register
-      CC_LOCK_BASE_ADDR_CR      : CC_LOCK_BASE_ADDR_CR_Register;
+      CC_LOCK_BASE_ADDR_CR      : aliased CC_LOCK_BASE_ADDR_CR_Register;
       --  No description provided for this register
-      CC_FLUSH_INDX_CR          : CC_FLUSH_INDX_CR_Register;
+      CC_FLUSH_INDX_CR          : aliased CC_FLUSH_INDX_CR_Register;
       --  No description provided for this register
-      DDRB_BUF_TIMER_CR         : DDRB_BUF_TIMER_CR_Register;
+      DDRB_BUF_TIMER_CR         : aliased DDRB_BUF_TIMER_CR_Register;
       --  No description provided for this register
-      DDRB_NB_ADDR_CR           : DDRB_NB_ADDR_CR_Register;
+      DDRB_NB_ADDR_CR           : aliased DDRB_NB_ADDR_CR_Register;
       --  No description provided for this register
-      DDRB_NB_SIZE_CR           : DDRB_NB_SIZE_CR_Register;
+      DDRB_NB_SIZE_CR           : aliased DDRB_NB_SIZE_CR_Register;
       --  No description provided for this register
-      DDRB_CR                   : DDRB_CR_Register;
+      DDRB_CR                   : aliased DDRB_CR_Register;
       --  No description provided for this register
-      EDAC_CR                   : EDAC_CR_Register;
+      EDAC_CR                   : aliased EDAC_CR_Register;
       --  No description provided for this register
-      MASTER_WEIGHT0_CR         : MASTER_WEIGHT0_CR_Register;
+      MASTER_WEIGHT0_CR         : aliased MASTER_WEIGHT0_CR_Register;
       --  No description provided for this register
-      MASTER_WEIGHT1_CR         : MASTER_WEIGHT1_CR_Register;
+      MASTER_WEIGHT1_CR         : aliased MASTER_WEIGHT1_CR_Register;
       --  No description provided for this register
-      SOFT_IRQ_CR               : SOFT_IRQ_CR_Register;
+      SOFT_IRQ_CR               : aliased SOFT_IRQ_CR_Register;
       --  No description provided for this register
-      SOFT_RESET_CR             : SOFT_RESET_CR_Register;
+      SOFT_RESET_CR             : aliased SOFT_RESET_CR_Register;
       --  No description provided for this register
-      M3_CR                     : M3_CR_Register;
+      M3_CR                     : aliased M3_CR_Register;
       --  No description provided for this register
-      FAB_IF_CR                 : FAB_IF_CR_Register;
+      FAB_IF_CR                 : aliased FAB_IF_CR_Register;
       --  No description provided for this register
-      LOOPBACK_CR               : LOOPBACK_CR_Register;
+      LOOPBACK_CR               : aliased LOOPBACK_CR_Register;
       --  No description provided for this register
-      GPIO_SYSRESET_SEL_CR      : GPIO_SYSRESET_SEL_CR_Register;
+      GPIO_SYSRESET_SEL_CR      : aliased GPIO_SYSRESET_SEL_CR_Register;
       --  No description provided for this register
-      GPIN_SRC_SEL_CR           : Interfaces.SF2.UInt32;
+      GPIN_SRC_SEL_CR           : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      MDDR_CR                   : MDDR_CR_Register;
+      MDDR_CR                   : aliased MDDR_CR_Register;
       --  No description provided for this register
-      USB_IO_INPUT_SEL_CR       : USB_IO_INPUT_SEL_CR_Register;
+      USB_IO_INPUT_SEL_CR       : aliased USB_IO_INPUT_SEL_CR_Register;
       --  No description provided for this register
-      PERIPH_CLK_MUX_SEL_CR     : PERIPH_CLK_MUX_SEL_CR_Register;
+      PERIPH_CLK_MUX_SEL_CR     : aliased PERIPH_CLK_MUX_SEL_CR_Register;
       --  No description provided for this register
-      WDOG_CR                   : WDOG_CR_Register;
+      WDOG_CR                   : aliased WDOG_CR_Register;
       --  No description provided for this register
-      MDDR_IO_CALIB_CR          : MDDR_IO_CALIB_CR_Register;
+      MDDR_IO_CALIB_CR          : aliased MDDR_IO_CALIB_CR_Register;
       --  No description provided for this register
-      SPARE_OUT_CR              : SPARE_OUT_CR_Register;
+      SPARE_OUT_CR              : aliased SPARE_OUT_CR_Register;
       --  No description provided for this register
-      EDAC_IRQ_ENABLE_CR        : EDAC_IRQ_ENABLE_CR_Register;
+      EDAC_IRQ_ENABLE_CR        : aliased EDAC_IRQ_ENABLE_CR_Register;
       --  No description provided for this register
-      USB_CR                    : USB_CR_Register;
+      USB_CR                    : aliased USB_CR_Register;
       --  No description provided for this register
-      ESRAM_PIPELINE_CR         : ESRAM_PIPELINE_CR_Register;
+      ESRAM_PIPELINE_CR         : aliased ESRAM_PIPELINE_CR_Register;
       --  No description provided for this register
-      MSS_IRQ_ENABLE_CR         : MSS_IRQ_ENABLE_CR_Register;
+      MSS_IRQ_ENABLE_CR         : aliased MSS_IRQ_ENABLE_CR_Register;
       --  No description provided for this register
-      RTC_WAKEUP_CR             : RTC_WAKEUP_CR_Register;
+      RTC_WAKEUP_CR             : aliased RTC_WAKEUP_CR_Register;
       --  No description provided for this register
-      MAC_CR                    : MAC_CR_Register;
+      MAC_CR                    : aliased MAC_CR_Register;
       --  No description provided for this register
-      MSSDDR_PLL_STATUS_LOW_CR  : MSSDDR_PLL_STATUS_LOW_CR_Register;
+      MSSDDR_PLL_STATUS_LOW_CR  : aliased MSSDDR_PLL_STATUS_LOW_CR_Register;
       --  No description provided for this register
-      MSSDDR_PLL_STATUS_HIGH_CR : MSSDDR_PLL_STATUS_HIGH_CR_Register;
+      MSSDDR_PLL_STATUS_HIGH_CR : aliased MSSDDR_PLL_STATUS_HIGH_CR_Register;
       --  No description provided for this register
-      MSSDDR_FACC1_CR           : MSSDDR_FACC1_CR_Register;
+      MSSDDR_FACC1_CR           : aliased MSSDDR_FACC1_CR_Register;
       --  No description provided for this register
-      MSSDDR_FACC2_CR           : MSSDDR_FACC2_CR_Register;
+      MSSDDR_FACC2_CR           : aliased MSSDDR_FACC2_CR_Register;
       --  No description provided for this register
-      PLL_LOCK_EN_CR            : PLL_LOCK_EN_CR_Register;
+      PLL_LOCK_EN_CR            : aliased PLL_LOCK_EN_CR_Register;
       --  No description provided for this register
-      MSSDDR_CLK_CALIB_CR       : MSSDDR_CLK_CALIB_CR_Register;
+      MSSDDR_CLK_CALIB_CR       : aliased MSSDDR_CLK_CALIB_CR_Register;
       --  No description provided for this register
-      PLL_DELAY_LINE_SEL_CR     : PLL_DELAY_LINE_SEL_CR_Register;
+      PLL_DELAY_LINE_SEL_CR     : aliased PLL_DELAY_LINE_SEL_CR_Register;
       --  No description provided for this register
-      MAC_STAT_CLRONRD_CR       : MAC_STAT_CLRONRD_CR_Register;
+      MAC_STAT_CLRONRD_CR       : aliased MAC_STAT_CLRONRD_CR_Register;
       --  No description provided for this register
-      RESET_SOURCE_CR           : RESET_SOURCE_CR_Register;
+      RESET_SOURCE_CR           : aliased RESET_SOURCE_CR_Register;
       --  No description provided for this register
-      CC_ERRRSPADDRD_SR         : Interfaces.SF2.UInt32;
+      CC_ERRRSPADDRD_SR         : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      CC_ERRRSPADDRI_SR         : Interfaces.SF2.UInt32;
+      CC_ERRRSPADDRI_SR         : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      CC_ERRRSPADDRS_SR         : Interfaces.SF2.UInt32;
+      CC_ERRRSPADDRS_SR         : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      CC_ECCERRINDXADR_SR       : CC_ECCERRINDXADR_SR_Register;
+      CC_ECCERRINDXADR_SR       : aliased CC_ECCERRINDXADR_SR_Register;
       --  No description provided for this register
-      CC_IC_MISS_CNTR_SR        : Interfaces.SF2.UInt32;
+      CC_IC_MISS_CNTR_SR        : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      CC_IC_HIT_CNTR_SR         : Interfaces.SF2.UInt32;
+      CC_IC_HIT_CNTR_SR         : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      CC_DC_MISS_CNTR_SR        : Interfaces.SF2.UInt32;
+      CC_DC_MISS_CNTR_SR        : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      CC_DC_HIT_CNTR_CR         : Interfaces.SF2.UInt32;
+      CC_DC_HIT_CNTR_CR         : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      CC_IC_TRANS_CNTR_SR       : Interfaces.SF2.UInt32;
+      CC_IC_TRANS_CNTR_SR       : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      CC_DC_TRANS_CNTR_SR       : Interfaces.SF2.UInt32;
+      CC_DC_TRANS_CNTR_SR       : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      DDRB_DS_ERR_ADR_SR        : Interfaces.SF2.UInt32;
+      DDRB_DS_ERR_ADR_SR        : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      DDRB_HPD_ERR_ADR_SR       : Interfaces.SF2.UInt32;
+      DDRB_HPD_ERR_ADR_SR       : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      DDRB_SW_ERR_ADR_SR        : Interfaces.SF2.UInt32;
+      DDRB_SW_ERR_ADR_SR        : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      DDRB_BUF_EMPTY_SR         : DDRB_BUF_EMPTY_SR_Register;
+      DDRB_BUF_EMPTY_SR         : aliased DDRB_BUF_EMPTY_SR_Register;
       --  No description provided for this register
-      DDRB_DSBL_DN_SR           : DDRB_DSBL_DN_SR_Register;
+      DDRB_DSBL_DN_SR           : aliased DDRB_DSBL_DN_SR_Register;
       --  No description provided for this register
-      ESRAM0_EDAC_CNT           : ESRAM0_EDAC_CNT_Register;
+      ESRAM0_EDAC_CNT           : aliased ESRAM0_EDAC_CNT_Register;
       --  No description provided for this register
-      ESRAM1_EDAC_CNT           : ESRAM1_EDAC_CNT_Register;
+      ESRAM1_EDAC_CNT           : aliased ESRAM1_EDAC_CNT_Register;
       --  No description provided for this register
-      CC_EDAC_CNT               : CC_EDAC_CNT_Register;
+      CC_EDAC_CNT               : aliased CC_EDAC_CNT_Register;
       --  No description provided for this register
-      MAC_EDAC_TX_CNT           : MAC_EDAC_TX_CNT_Register;
+      MAC_EDAC_TX_CNT           : aliased MAC_EDAC_TX_CNT_Register;
       --  No description provided for this register
-      MAC_EDAC_RX_CNT           : MAC_EDAC_RX_CNT_Register;
+      MAC_EDAC_RX_CNT           : aliased MAC_EDAC_RX_CNT_Register;
       --  No description provided for this register
-      USB_EDAC_CNT              : USB_EDAC_CNT_Register;
+      USB_EDAC_CNT              : aliased USB_EDAC_CNT_Register;
       --  No description provided for this register
-      CAN_EDAC_CNT              : CAN_EDAC_CNT_Register;
+      CAN_EDAC_CNT              : aliased CAN_EDAC_CNT_Register;
       --  No description provided for this register
-      ESRAM0_EDAC_ADR           : ESRAM0_EDAC_ADR_Register;
+      ESRAM0_EDAC_ADR           : aliased ESRAM0_EDAC_ADR_Register;
       --  No description provided for this register
-      ESRAM1_EDAC_ADR           : ESRAM1_EDAC_ADR_Register;
+      ESRAM1_EDAC_ADR           : aliased ESRAM1_EDAC_ADR_Register;
       --  No description provided for this register
-      MAC_EDAC_RX_ADR           : MAC_EDAC_RX_ADR_Register;
+      MAC_EDAC_RX_ADR           : aliased MAC_EDAC_RX_ADR_Register;
       --  No description provided for this register
-      MAC_EDAC_TX_ADR           : MAC_EDAC_TX_ADR_Register;
+      MAC_EDAC_TX_ADR           : aliased MAC_EDAC_TX_ADR_Register;
       --  No description provided for this register
-      CAN_EDAC_ADR              : CAN_EDAC_ADR_Register;
+      CAN_EDAC_ADR              : aliased CAN_EDAC_ADR_Register;
       --  No description provided for this register
-      USB_EDAC_ADR              : USB_EDAC_ADR_Register;
+      USB_EDAC_ADR              : aliased USB_EDAC_ADR_Register;
       --  No description provided for this register
-      MM0_1_2_SECURITY          : MM0_1_2_SECURITY_Register;
+      MM0_1_2_SECURITY          : aliased MM0_1_2_SECURITY_Register;
       --  No description provided for this register
-      MM4_5_FIC64_SECURITY      : MM4_5_FIC64_SECURITY_Register;
+      MM4_5_FIC64_SECURITY      : aliased MM4_5_FIC64_SECURITY_Register;
       --  No description provided for this register
-      MM3_6_7_8_SECURITY        : MM3_6_7_8_SECURITY_Register;
+      MM3_6_7_8_SECURITY        : aliased MM3_6_7_8_SECURITY_Register;
       --  No description provided for this register
-      MM9_SECURITY              : MM9_SECURITY_Register;
+      MM9_SECURITY              : aliased MM9_SECURITY_Register;
       --  No description provided for this register
-      M3_SR                     : M3_SR_Register;
+      M3_SR                     : aliased M3_SR_Register;
       --  No description provided for this register
-      ETM_COUNT_LOW             : Interfaces.SF2.UInt32;
+      ETM_COUNT_LOW             : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      ETM_COUNT_HIGH            : ETM_COUNT_HIGH_Register;
+      ETM_COUNT_HIGH            : aliased ETM_COUNT_HIGH_Register;
       --  No description provided for this register
-      DEVICE_SR                 : DEVICE_SR_Register;
+      DEVICE_SR                 : aliased DEVICE_SR_Register;
       --  No description provided for this register
-      ENVM_PROTECT_USER         : ENVM_PROTECT_USER_Register;
+      ENVM_PROTECT_USER         : aliased ENVM_PROTECT_USER_Register;
       --  No description provided for this register
-      G4C_ENVM_STATUS           : G4C_ENVM_STATUS_Register;
+      G4C_ENVM_STATUS           : aliased G4C_ENVM_STATUS_Register;
       --  No description provided for this register
-      DEVICE_VERSION            : DEVICE_VERSION_Register;
+      DEVICE_VERSION            : aliased DEVICE_VERSION_Register;
       --  No description provided for this register
-      MSSDDR_PLL_STATUS         : MSSDDR_PLL_STATUS_Register;
+      MSSDDR_PLL_STATUS         : aliased MSSDDR_PLL_STATUS_Register;
       --  No description provided for this register
-      USB_SR                    : USB_SR_Register;
+      USB_SR                    : aliased USB_SR_Register;
       --  No description provided for this register
-      ENVM_SR                   : ENVM_SR_Register;
+      ENVM_SR                   : aliased ENVM_SR_Register;
       --  No description provided for this register
-      SPARE_IN                  : SPARE_IN_Register;
+      SPARE_IN                  : aliased SPARE_IN_Register;
       --  No description provided for this register
-      DDRB_STATUS               : Interfaces.SF2.UInt32;
+      DDRB_STATUS               : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      MDDR_IO_CALIB_STATUS      : MDDR_IO_CALIB_STATUS_Register;
+      MDDR_IO_CALIB_STATUS      : aliased MDDR_IO_CALIB_STATUS_Register;
       --  No description provided for this register
-      MSSDDR_CLK_CALIB_STATUS   : MSSDDR_CLK_CALIB_STATUS_Register;
+      MSSDDR_CLK_CALIB_STATUS   : aliased MSSDDR_CLK_CALIB_STATUS_Register;
       --  No description provided for this register
-      WDOGLOAD                  : WDOGLOAD_Register;
+      WDOGLOAD                  : aliased WDOGLOAD_Register;
       --  No description provided for this register
-      WDOGMVRP                  : Interfaces.SF2.UInt32;
+      WDOGMVRP                  : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      USERCONFIG0               : Interfaces.SF2.UInt32;
+      USERCONFIG0               : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      USERCONFIG1               : Interfaces.SF2.UInt32;
+      USERCONFIG1               : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      USERCONFIG2               : Interfaces.SF2.UInt32;
+      USERCONFIG2               : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      USERCONFIG3               : Interfaces.SF2.UInt32;
+      USERCONFIG3               : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      FAB_PROT_SIZE             : FAB_PROT_SIZE_Register;
+      FAB_PROT_SIZE             : aliased FAB_PROT_SIZE_Register;
       --  No description provided for this register
-      FAB_PROT_BASE             : Interfaces.SF2.UInt32;
+      FAB_PROT_BASE             : aliased Interfaces.SF2.UInt32;
       --  No description provided for this register
-      MSS_GPIO_DEF              : MSS_GPIO_DEF_Register;
+      MSS_GPIO_DEF              : aliased MSS_GPIO_DEF_Register;
       --  No description provided for this register
-      EDAC_SR                   : EDAC_SR_Register;
+      EDAC_SR                   : aliased EDAC_SR_Register;
       --  No description provided for this register
-      MSS_INTERNAL_SR           : MSS_INTERNAL_SR_Register;
+      MSS_INTERNAL_SR           : aliased MSS_INTERNAL_SR_Register;
       --  No description provided for this register
-      MSS_EXTERNAL_SR           : MSS_EXTERNAL_SR_Register;
+      MSS_EXTERNAL_SR           : aliased MSS_EXTERNAL_SR_Register;
       --  No description provided for this register
-      WDOGTIMEOUTEVENT          : WDOGTIMEOUTEVENT_Register;
+      WDOGTIMEOUTEVENT          : aliased WDOGTIMEOUTEVENT_Register;
       --  No description provided for this register
-      CLR_MSS_COUNTERS          : CLR_MSS_COUNTERS_Register;
+      CLR_MSS_COUNTERS          : aliased CLR_MSS_COUNTERS_Register;
       --  No description provided for this register
-      CLR_EDAC_COUNTERS         : CLR_EDAC_COUNTERS_Register;
+      CLR_EDAC_COUNTERS         : aliased CLR_EDAC_COUNTERS_Register;
       --  No description provided for this register
-      FLUSH_CR                  : FLUSH_CR_Register;
+      FLUSH_CR                  : aliased FLUSH_CR_Register;
       --  No description provided for this register
-      MAC_STAT_CLR_CR           : MAC_STAT_CLR_CR_Register;
+      MAC_STAT_CLR_CR           : aliased MAC_STAT_CLR_CR_Register;
       --  No description provided for this register
-      IOMUXCELL_0_CONFIG        : IOMUXCELL_0_CONFIG_Register;
+      IOMUXCELL_0_CONFIG        : aliased IOMUXCELL_0_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_1_CONFIG        : IOMUXCELL_1_CONFIG_Register;
+      IOMUXCELL_1_CONFIG        : aliased IOMUXCELL_1_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_2_CONFIG        : IOMUXCELL_2_CONFIG_Register;
+      IOMUXCELL_2_CONFIG        : aliased IOMUXCELL_2_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_3_CONFIG        : IOMUXCELL_3_CONFIG_Register;
+      IOMUXCELL_3_CONFIG        : aliased IOMUXCELL_3_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_4_CONFIG        : IOMUXCELL_4_CONFIG_Register;
+      IOMUXCELL_4_CONFIG        : aliased IOMUXCELL_4_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_5_CONFIG        : IOMUXCELL_5_CONFIG_Register;
+      IOMUXCELL_5_CONFIG        : aliased IOMUXCELL_5_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_6_CONFIG        : IOMUXCELL_6_CONFIG_Register;
+      IOMUXCELL_6_CONFIG        : aliased IOMUXCELL_6_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_7_CONFIG        : IOMUXCELL_7_CONFIG_Register;
+      IOMUXCELL_7_CONFIG        : aliased IOMUXCELL_7_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_8_CONFIG        : IOMUXCELL_8_CONFIG_Register;
+      IOMUXCELL_8_CONFIG        : aliased IOMUXCELL_8_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_9_CONFIG        : IOMUXCELL_9_CONFIG_Register;
+      IOMUXCELL_9_CONFIG        : aliased IOMUXCELL_9_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_10_CONFIG       : IOMUXCELL_10_CONFIG_Register;
+      IOMUXCELL_10_CONFIG       : aliased IOMUXCELL_10_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_11_CONFIG       : IOMUXCELL_11_CONFIG_Register;
+      IOMUXCELL_11_CONFIG       : aliased IOMUXCELL_11_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_12_CONFIG       : IOMUXCELL_12_CONFIG_Register;
+      IOMUXCELL_12_CONFIG       : aliased IOMUXCELL_12_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_13_CONFIG       : IOMUXCELL_13_CONFIG_Register;
+      IOMUXCELL_13_CONFIG       : aliased IOMUXCELL_13_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_14_CONFIG       : IOMUXCELL_14_CONFIG_Register;
+      IOMUXCELL_14_CONFIG       : aliased IOMUXCELL_14_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_15_CONFIG       : IOMUXCELL_15_CONFIG_Register;
+      IOMUXCELL_15_CONFIG       : aliased IOMUXCELL_15_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_16_CONFIG       : IOMUXCELL_16_CONFIG_Register;
+      IOMUXCELL_16_CONFIG       : aliased IOMUXCELL_16_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_17_CONFIG       : IOMUXCELL_17_CONFIG_Register;
+      IOMUXCELL_17_CONFIG       : aliased IOMUXCELL_17_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_18_CONFIG       : IOMUXCELL_18_CONFIG_Register;
+      IOMUXCELL_18_CONFIG       : aliased IOMUXCELL_18_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_19_CONFIG       : IOMUXCELL_19_CONFIG_Register;
+      IOMUXCELL_19_CONFIG       : aliased IOMUXCELL_19_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_20_CONFIG       : IOMUXCELL_20_CONFIG_Register;
+      IOMUXCELL_20_CONFIG       : aliased IOMUXCELL_20_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_21_CONFIG       : IOMUXCELL_21_CONFIG_Register;
+      IOMUXCELL_21_CONFIG       : aliased IOMUXCELL_21_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_22_CONFIG       : IOMUXCELL_22_CONFIG_Register;
+      IOMUXCELL_22_CONFIG       : aliased IOMUXCELL_22_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_23_CONFIG       : IOMUXCELL_23_CONFIG_Register;
+      IOMUXCELL_23_CONFIG       : aliased IOMUXCELL_23_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_24_CONFIG       : IOMUXCELL_24_CONFIG_Register;
+      IOMUXCELL_24_CONFIG       : aliased IOMUXCELL_24_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_25_CONFIG       : IOMUXCELL_25_CONFIG_Register;
+      IOMUXCELL_25_CONFIG       : aliased IOMUXCELL_25_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_26_CONFIG       : IOMUXCELL_26_CONFIG_Register;
+      IOMUXCELL_26_CONFIG       : aliased IOMUXCELL_26_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_27_CONFIG       : IOMUXCELL_27_CONFIG_Register;
+      IOMUXCELL_27_CONFIG       : aliased IOMUXCELL_27_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_28_CONFIG       : IOMUXCELL_28_CONFIG_Register;
+      IOMUXCELL_28_CONFIG       : aliased IOMUXCELL_28_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_29_CONFIG       : IOMUXCELL_29_CONFIG_Register;
+      IOMUXCELL_29_CONFIG       : aliased IOMUXCELL_29_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_30_CONFIG       : IOMUXCELL_30_CONFIG_Register;
+      IOMUXCELL_30_CONFIG       : aliased IOMUXCELL_30_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_31_CONFIG       : IOMUXCELL_31_CONFIG_Register;
+      IOMUXCELL_31_CONFIG       : aliased IOMUXCELL_31_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_32_CONFIG       : IOMUXCELL_32_CONFIG_Register;
+      IOMUXCELL_32_CONFIG       : aliased IOMUXCELL_32_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_33_CONFIG       : IOMUXCELL_33_CONFIG_Register;
+      IOMUXCELL_33_CONFIG       : aliased IOMUXCELL_33_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_34_CONFIG       : IOMUXCELL_34_CONFIG_Register;
+      IOMUXCELL_34_CONFIG       : aliased IOMUXCELL_34_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_35_CONFIG       : IOMUXCELL_35_CONFIG_Register;
+      IOMUXCELL_35_CONFIG       : aliased IOMUXCELL_35_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_36_CONFIG       : IOMUXCELL_36_CONFIG_Register;
+      IOMUXCELL_36_CONFIG       : aliased IOMUXCELL_36_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_37_CONFIG       : IOMUXCELL_37_CONFIG_Register;
+      IOMUXCELL_37_CONFIG       : aliased IOMUXCELL_37_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_38_CONFIG       : IOMUXCELL_38_CONFIG_Register;
+      IOMUXCELL_38_CONFIG       : aliased IOMUXCELL_38_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_39_CONFIG       : IOMUXCELL_39_CONFIG_Register;
+      IOMUXCELL_39_CONFIG       : aliased IOMUXCELL_39_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_40_CONFIG       : IOMUXCELL_40_CONFIG_Register;
+      IOMUXCELL_40_CONFIG       : aliased IOMUXCELL_40_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_41_CONFIG       : IOMUXCELL_41_CONFIG_Register;
+      IOMUXCELL_41_CONFIG       : aliased IOMUXCELL_41_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_42_CONFIG       : IOMUXCELL_42_CONFIG_Register;
+      IOMUXCELL_42_CONFIG       : aliased IOMUXCELL_42_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_43_CONFIG       : IOMUXCELL_43_CONFIG_Register;
+      IOMUXCELL_43_CONFIG       : aliased IOMUXCELL_43_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_44_CONFIG       : IOMUXCELL_44_CONFIG_Register;
+      IOMUXCELL_44_CONFIG       : aliased IOMUXCELL_44_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_45_CONFIG       : IOMUXCELL_45_CONFIG_Register;
+      IOMUXCELL_45_CONFIG       : aliased IOMUXCELL_45_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_46_CONFIG       : IOMUXCELL_46_CONFIG_Register;
+      IOMUXCELL_46_CONFIG       : aliased IOMUXCELL_46_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_47_CONFIG       : IOMUXCELL_47_CONFIG_Register;
+      IOMUXCELL_47_CONFIG       : aliased IOMUXCELL_47_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_48_CONFIG       : IOMUXCELL_48_CONFIG_Register;
+      IOMUXCELL_48_CONFIG       : aliased IOMUXCELL_48_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_49_CONFIG       : IOMUXCELL_49_CONFIG_Register;
+      IOMUXCELL_49_CONFIG       : aliased IOMUXCELL_49_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_50_CONFIG       : IOMUXCELL_50_CONFIG_Register;
+      IOMUXCELL_50_CONFIG       : aliased IOMUXCELL_50_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_51_CONFIG       : IOMUXCELL_51_CONFIG_Register;
+      IOMUXCELL_51_CONFIG       : aliased IOMUXCELL_51_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_52_CONFIG       : IOMUXCELL_52_CONFIG_Register;
+      IOMUXCELL_52_CONFIG       : aliased IOMUXCELL_52_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_53_CONFIG       : IOMUXCELL_53_CONFIG_Register;
+      IOMUXCELL_53_CONFIG       : aliased IOMUXCELL_53_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_54_CONFIG       : IOMUXCELL_54_CONFIG_Register;
+      IOMUXCELL_54_CONFIG       : aliased IOMUXCELL_54_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_55_CONFIG       : IOMUXCELL_55_CONFIG_Register;
+      IOMUXCELL_55_CONFIG       : aliased IOMUXCELL_55_CONFIG_Register;
       --  No description provided for this register
-      IOMUXCELL_56_CONFIG       : IOMUXCELL_56_CONFIG_Register;
+      IOMUXCELL_56_CONFIG       : aliased IOMUXCELL_56_CONFIG_Register;
       --  No description provided for this register
-      NVM_PROTECT_FACTORY       : NVM_PROTECT_FACTORY_Register;
+      NVM_PROTECT_FACTORY       : aliased NVM_PROTECT_FACTORY_Register;
       --  No description provided for this register
-      DEVICE_STATUS_FIXED       : DEVICE_STATUS_FIXED_Register;
+      DEVICE_STATUS_FIXED       : aliased DEVICE_STATUS_FIXED_Register;
       --  No description provided for this register
-      MBIST_ES0                 : MBIST_ES0_Register;
+      MBIST_ES0                 : aliased MBIST_ES0_Register;
       --  No description provided for this register
-      MBIST_ES1                 : MBIST_ES1_Register;
+      MBIST_ES1                 : aliased MBIST_ES1_Register;
       --  No description provided for this register
-      MSDDR_PLL_STAUS_1         : MSDDR_PLL_STAUS_1_Register;
+      MSDDR_PLL_STAUS_1         : aliased MSDDR_PLL_STAUS_1_Register;
       --  No description provided for this register
-      REDUNDANCY_ESRAM0         : REDUNDANCY_ESRAM0_Register;
+      REDUNDANCY_ESRAM0         : aliased REDUNDANCY_ESRAM0_Register;
       --  No description provided for this register
-      REDUNDANCY_ESRAM1         : REDUNDANCY_ESRAM1_Register;
+      REDUNDANCY_ESRAM1         : aliased REDUNDANCY_ESRAM1_Register;
       --  No description provided for this register
-      SERDESIF                  : SERDESIF_Register;
+      SERDESIF                  : aliased SERDESIF_Register;
    end record
      with Volatile;
 

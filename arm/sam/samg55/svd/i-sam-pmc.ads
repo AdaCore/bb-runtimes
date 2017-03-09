@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2016, AdaCore
+--  Copyright (C) 2017, AdaCore
 --
 
 --  This spec has been automatically generated from ATSAMG55J19.svd
@@ -604,7 +604,8 @@ package Interfaces.SAM.PMC is
    end record;
 
    --  Programmable Clock 0 Register
-   type PMC_PCK_Registers is array (0 .. 7) of PMC_PCK_Register;
+   type PMC_PCK_Registers is array (0 .. 7) of PMC_PCK_Register
+     with Volatile;
 
    --  PMC_IER_PCKRDY array
    type PMC_IER_PCKRDY_Field_Array is array (0 .. 7) of Boolean
@@ -1336,63 +1337,63 @@ package Interfaces.SAM.PMC is
    --  Power Management Controller
    type PMC_Peripheral is record
       --  System Clock Enable Register
-      PMC_SCER       : PMC_SCER_Register;
+      PMC_SCER       : aliased PMC_SCER_Register;
       --  System Clock Disable Register
-      PMC_SCDR       : PMC_SCDR_Register;
+      PMC_SCDR       : aliased PMC_SCDR_Register;
       --  System Clock Status Register
-      PMC_SCSR       : PMC_SCSR_Register;
+      PMC_SCSR       : aliased PMC_SCSR_Register;
       --  Peripheral Clock Enable Register 0
-      PMC_PCER0      : PMC_PCER0_Register;
+      PMC_PCER0      : aliased PMC_PCER0_Register;
       --  Peripheral Clock Disable Register 0
-      PMC_PCDR0      : PMC_PCDR0_Register;
+      PMC_PCDR0      : aliased PMC_PCDR0_Register;
       --  Peripheral Clock Status Register 0
-      PMC_PCSR0      : PMC_PCSR0_Register;
+      PMC_PCSR0      : aliased PMC_PCSR0_Register;
       --  Main Oscillator Register
-      CKGR_MOR       : CKGR_MOR_Register;
+      CKGR_MOR       : aliased CKGR_MOR_Register;
       --  Main Clock Frequency Register
-      CKGR_MCFR      : CKGR_MCFR_Register;
+      CKGR_MCFR      : aliased CKGR_MCFR_Register;
       --  PLLA Register
-      CKGR_PLLAR     : CKGR_PLLAR_Register;
+      CKGR_PLLAR     : aliased CKGR_PLLAR_Register;
       --  PLLB Register
-      CKGR_PLLBR     : CKGR_PLLBR_Register;
+      CKGR_PLLBR     : aliased CKGR_PLLBR_Register;
       --  Master Clock Register
-      PMC_MCKR       : PMC_MCKR_Register;
+      PMC_MCKR       : aliased PMC_MCKR_Register;
       --  USB Clock Register
-      PMC_USB        : PMC_USB_Register;
+      PMC_USB        : aliased PMC_USB_Register;
       --  Programmable Clock 0 Register
-      PMC_PCK        : PMC_PCK_Registers;
+      PMC_PCK        : aliased PMC_PCK_Registers;
       --  Interrupt Enable Register
-      PMC_IER        : PMC_IER_Register;
+      PMC_IER        : aliased PMC_IER_Register;
       --  Interrupt Disable Register
-      PMC_IDR        : PMC_IDR_Register;
+      PMC_IDR        : aliased PMC_IDR_Register;
       --  Status Register
-      PMC_SR         : PMC_SR_Register;
+      PMC_SR         : aliased PMC_SR_Register;
       --  Interrupt Mask Register
-      PMC_IMR        : PMC_IMR_Register;
+      PMC_IMR        : aliased PMC_IMR_Register;
       --  Fast Startup Mode Register
-      PMC_FSMR       : PMC_FSMR_Register;
+      PMC_FSMR       : aliased PMC_FSMR_Register;
       --  Fast Startup Polarity Register
-      PMC_FSPR       : PMC_FSPR_Register;
+      PMC_FSPR       : aliased PMC_FSPR_Register;
       --  Fault Output Clear Register
-      PMC_FOCR       : PMC_FOCR_Register;
+      PMC_FOCR       : aliased PMC_FOCR_Register;
       --  Write Protection Mode Register
-      PMC_WPMR       : PMC_WPMR_Register;
+      PMC_WPMR       : aliased PMC_WPMR_Register;
       --  Write Protection Status Register
-      PMC_WPSR       : PMC_WPSR_Register;
+      PMC_WPSR       : aliased PMC_WPSR_Register;
       --  Peripheral Control Register
-      PMC_PCR        : PMC_PCR_Register;
+      PMC_PCR        : aliased PMC_PCR_Register;
       --  Oscillator Calibration Register
-      PMC_OCR        : PMC_OCR_Register;
+      PMC_OCR        : aliased PMC_OCR_Register;
       --  SleepWalking Enable Register 0
-      PMC_SLPWK_ER0  : PMC_SLPWK_ER0_Register;
+      PMC_SLPWK_ER0  : aliased PMC_SLPWK_ER0_Register;
       --  SleepWalking Disable Register 0
-      PMC_SLPWK_DR0  : PMC_SLPWK_DR0_Register;
+      PMC_SLPWK_DR0  : aliased PMC_SLPWK_DR0_Register;
       --  SleepWalking Status Register 0
-      PMC_SLPWK_SR0  : PMC_SLPWK_SR0_Register;
+      PMC_SLPWK_SR0  : aliased PMC_SLPWK_SR0_Register;
       --  SleepWalking Activity Status Register 0
-      PMC_SLPWK_ASR0 : PMC_SLPWK_ASR0_Register;
+      PMC_SLPWK_ASR0 : aliased PMC_SLPWK_ASR0_Register;
       --  PLL Maximum Multiplier Value Register
-      PMC_PMMR       : PMC_PMMR_Register;
+      PMC_PMMR       : aliased PMC_PMMR_Register;
    end record
      with Volatile;
 

@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2016, AdaCore
+--  Copyright (C) 2017, AdaCore
 --
 
 --  This spec has been automatically generated from ATSAM4SD32C.svd
@@ -20,9 +20,9 @@ package Interfaces.SAM is
    -- Base type --
    ---------------
 
-   subtype UInt32 is Interfaces.Unsigned_32;
-   subtype UInt16 is Interfaces.Unsigned_16;
-   subtype Byte is Interfaces.Unsigned_8;
+   type UInt32 is new Interfaces.Unsigned_32;
+   type UInt16 is new Interfaces.Unsigned_16;
+   type Byte is new Interfaces.Unsigned_8;
    type Bit is mod 2**1
      with Size => 1;
    type UInt2 is mod 2**2

@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2016, AdaCore
+--  Copyright (C) 2017, AdaCore
 --
 
 --  This spec has been automatically generated from ATSAMG55J19.svd
@@ -20,7 +20,8 @@ package Interfaces.SAM.SYSC is
    --  General Purpose Backup Register
 
    --  General Purpose Backup Register
-   type GPBR_GPBR_Registers is array (0 .. 7) of Interfaces.SAM.UInt32;
+   type GPBR_GPBR_Registers is array (0 .. 7) of Interfaces.SAM.UInt32
+     with Volatile;
 
    --  System Reset Key
    type CR_KEY_Field is
@@ -1828,7 +1829,7 @@ package Interfaces.SAM.SYSC is
    --  General Purpose Backup Registers
    type GPBR_Peripheral is record
       --  General Purpose Backup Register
-      GPBR : GPBR_GPBR_Registers;
+      GPBR : aliased GPBR_GPBR_Registers;
    end record
      with Volatile;
 
@@ -1843,11 +1844,11 @@ package Interfaces.SAM.SYSC is
    --  Reset Controller
    type RSTC_Peripheral is record
       --  Control Register
-      CR : RSTC_CR_Register;
+      CR : aliased RSTC_CR_Register;
       --  Status Register
-      SR : RSTC_SR_Register;
+      SR : aliased RSTC_SR_Register;
       --  Mode Register
-      MR : RSTC_MR_Register;
+      MR : aliased RSTC_MR_Register;
    end record
      with Volatile;
 
@@ -1864,33 +1865,33 @@ package Interfaces.SAM.SYSC is
    --  Real-time Clock
    type RTC_Peripheral is record
       --  Control Register
-      CR     : RTC_CR_Register;
+      CR     : aliased RTC_CR_Register;
       --  Mode Register
-      MR     : RTC_MR_Register;
+      MR     : aliased RTC_MR_Register;
       --  Time Register
-      TIMR   : RTC_TIMR_Register;
+      TIMR   : aliased RTC_TIMR_Register;
       --  Calendar Register
-      CALR   : RTC_CALR_Register;
+      CALR   : aliased RTC_CALR_Register;
       --  Time Alarm Register
-      TIMALR : RTC_TIMALR_Register;
+      TIMALR : aliased RTC_TIMALR_Register;
       --  Calendar Alarm Register
-      CALALR : RTC_CALALR_Register;
+      CALALR : aliased RTC_CALALR_Register;
       --  Status Register
-      SR     : RTC_SR_Register;
+      SR     : aliased RTC_SR_Register;
       --  Status Clear Command Register
-      SCCR   : RTC_SCCR_Register;
+      SCCR   : aliased RTC_SCCR_Register;
       --  Interrupt Enable Register
-      IER    : RTC_IER_Register;
+      IER    : aliased RTC_IER_Register;
       --  Interrupt Disable Register
-      IDR    : RTC_IDR_Register;
+      IDR    : aliased RTC_IDR_Register;
       --  Interrupt Mask Register
-      IMR    : RTC_IMR_Register;
+      IMR    : aliased RTC_IMR_Register;
       --  Valid Entry Register
-      VER    : RTC_VER_Register;
+      VER    : aliased RTC_VER_Register;
       --  Milliseconds Register
-      MSR    : RTC_MSR_Register;
+      MSR    : aliased RTC_MSR_Register;
       --  Write Protection Mode Register
-      WPMR   : RTC_WPMR_Register;
+      WPMR   : aliased RTC_WPMR_Register;
    end record
      with Volatile;
 
@@ -1918,15 +1919,15 @@ package Interfaces.SAM.SYSC is
    --  Real-time Timer
    type RTT_Peripheral is record
       --  Mode Register
-      MR   : RTT_MR_Register;
+      MR   : aliased RTT_MR_Register;
       --  Alarm Register
-      AR   : Interfaces.SAM.UInt32;
+      AR   : aliased Interfaces.SAM.UInt32;
       --  Value Register
-      VR   : Interfaces.SAM.UInt32;
+      VR   : aliased Interfaces.SAM.UInt32;
       --  Status Register
-      SR   : RTT_SR_Register;
+      SR   : aliased RTT_SR_Register;
       --  Modulo Selection Register
-      MODR : RTT_MODR_Register;
+      MODR : aliased RTT_MODR_Register;
    end record
      with Volatile;
 
@@ -1945,19 +1946,19 @@ package Interfaces.SAM.SYSC is
    --  Supply Controller
    type SUPC_Peripheral is record
       --  Supply Controller Control Register
-      CR   : SUPC_CR_Register;
+      CR   : aliased SUPC_CR_Register;
       --  Supply Controller Supply Monitor Mode Register
-      SMMR : SUPC_SMMR_Register;
+      SMMR : aliased SUPC_SMMR_Register;
       --  Supply Controller Mode Register
-      MR   : SUPC_MR_Register;
+      MR   : aliased SUPC_MR_Register;
       --  Supply Controller Wake-up Mode Register
-      WUMR : SUPC_WUMR_Register;
+      WUMR : aliased SUPC_WUMR_Register;
       --  Supply Controller Wake-up Inputs Register
-      WUIR : SUPC_WUIR_Register;
+      WUIR : aliased SUPC_WUIR_Register;
       --  Supply Controller Status Register
-      SR   : SUPC_SR_Register;
+      SR   : aliased SUPC_SR_Register;
       --  Supply Controller Power Mode Register
-      PWMR : SUPC_PWMR_Register;
+      PWMR : aliased SUPC_PWMR_Register;
    end record
      with Volatile;
 
@@ -1978,11 +1979,11 @@ package Interfaces.SAM.SYSC is
    --  Watchdog Timer
    type WDT_Peripheral is record
       --  Control Register
-      CR : WDT_CR_Register;
+      CR : aliased WDT_CR_Register;
       --  Mode Register
-      MR : WDT_MR_Register;
+      MR : aliased WDT_MR_Register;
       --  Status Register
-      SR : WDT_SR_Register;
+      SR : aliased WDT_SR_Register;
    end record
      with Volatile;
 

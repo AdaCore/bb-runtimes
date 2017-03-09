@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2016, AdaCore
+--  Copyright (C) 2017, AdaCore
 --
 
 --  This spec has been automatically generated from STM32F7x.svd
@@ -307,13 +307,13 @@ package Interfaces.STM32.PWR is
    --  Power control
    type PWR_Peripheral is record
       --  power control register
-      CR1  : CR1_Register;
+      CR1  : aliased CR1_Register;
       --  power control/status register
-      CSR1 : CSR1_Register;
+      CSR1 : aliased CSR1_Register;
       --  power control register
-      CR2  : CR2_Register;
+      CR2  : aliased CR2_Register;
       --  power control/status register
-      CSR2 : CSR2_Register;
+      CSR2 : aliased CSR2_Register;
    end record
      with Volatile;
 
