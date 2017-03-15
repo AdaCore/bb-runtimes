@@ -163,17 +163,19 @@ class Target(TargetConfiguration, BSP):
         base = os.path.dirname(rts_prefix)
         ret = 'aggregate project %s is\n' % prjname
         ret += '\n'
-        ret += '   Base_Installation_Dir := "%s";\n' % base
+        ret += '   Base_BSP_Source_Dir   := Project\'Project_Dir & "%s";\n' % \
+               self.rel_path
+        ret += '   Base_Installation_Dir := "%s/";\n' % base
         if not self.is_pikeos and not self.is_native:
             board = os.path.basename(rts_prefix).replace(
                 '%s-' % rts['RTS_Profile'], '')
             ret += '   Board                 := "%s";\n' % board
             ret += '   Default_Prefix        := \n'
-            ret += '     Base_Installation_Dir & "/%s-" & Board;\n' % \
+            ret += '     Base_Installation_Dir & "%s-" & Board;\n' % \
                    rts['RTS_Profile']
         else:
             ret += '   Default_Prefix        := \n'
-            ret += '     Base_Installation_Dir & "/%s";\n' % \
+            ret += '     Base_Installation_Dir & "%s";\n' % \
                    os.path.basename(rts_prefix)
         ret += '   Install_Dir           := ' \
                'external ("PREFIX", Default_Prefix);\n'
@@ -186,23 +188,24 @@ class Target(TargetConfiguration, BSP):
 
         if self.target is not None:
             ret += '   for Target use "%s";\n' % self.target
-        ret += '   for Runtime ("Ada") use Project\'Project_Dir &\n'
-        ret += '       "%s";\n' % rts_path
+        ret += '   for Runtime ("Ada") use Base_BSP_Source_Dir &\n'
+        ret += '       "%s";\n' % rts['RTS_Profile']
         ret += '\n'
-        ret += '   for Project_Path use\n'
-        ret += '     ("%s");\n' % rts_path
+        ret += '   for Project_Path use (Base_BSP_Source_Dir & "%s");\n' %\
+               rts['RTS_Profile']
         ret += '   for Project_Files use\n'
         if rts['RTS_Profile'] == 'zfp':
-            ret += '     ("%s",\n' % os.path.join(int_path, 'libgnat.gpr')
+            ret += '     (Base_BSP_Source_Dir & "internal/libgnat.gpr",\n'
         elif rts['RTS_Profile'] == 'ravenscar-sfp':
-            ret += '     ("%s",\n' % os.path.join(int_path, 'libgnat.gpr')
-            ret += '      "%s",\n' % os.path.join(int_path, 'libgnarl.gpr')
+            ret += '     (Base_BSP_Source_Dir & "internal/libgnat.gpr",\n'
+            ret += '      Base_BSP_Source_Dir & "internal/libgnarl.gpr",\n'
         else:
-            ret += '     ("%s",\n' % os.path.join(
-                int_path, 'libgnat_merged.gpr')
-            ret += '      "%s",\n' % os.path.join(
-                int_path, 'libgnarl_empty.gpr')
-        ret += '      "%s");\n' % os.path.join(rts_path, 'install.gpr')
+            ret += ('     (Base_BSP_Source_Dir & '
+                    '"internal/libgnat_merged.gpr",\n')
+            ret += ('      Base_BSP_Source_Dir & '
+                    '"internal/libgnarl_empty.gpr", \n')
+        ret += '      Base_BSP_Source_Dir & "%s/install.gpr");\n' % \
+               rts['RTS_Profile']
         ret += '\n'
         ret += 'end %s;\n' % prjname
 
