@@ -17,31 +17,19 @@ from build_rts_support.files_holder import SharedFilesHolder, readfile
 from pikeos import ArmPikeOS, PpcPikeOS, X86PikeOS
 
 # Cortex-M runtimes
-from arm.stm32 import Stm32
-from arm.sam import Sam
-from arm.smartfusion2 import SmartFusion2
-from arm.lm3s import LM3S
+from arm.cortexm import Stm32, Sam, SmartFusion2, LM3S
 
 # Cortex-A/R runtimes
-from arm.tms570 import TMS570
-from arm.rpi2 import Rpi2
-from arm.zynq import Zynq7000
+from arm.cortexar import TMS570, Rpi2, Zynq7000
 
 # Aarch64
-from aarch64.rpi3 import Rpi3
-from aarch64.qemu import AARCH64QEMU
+from aarch64 import Rpi3, AARCH64QEMU
 
 # leon
-from sparc.leon import Leon2
-from sparc.leon3 import Leon3
-from sparc.leon4 import Leon4
+from sparc import Leon2, Leon3, Leon4
 
 # powerpc
-from powerpc.mpc8641 import MPC8641
-from powerpc.mpc8349 import MPC8349e
-from powerpc.p2020 import P2020
-from powerpc.p5566 import P5566
-from powerpc.mpc5634 import P5634
+from powerpc import MPC8641, MPC8349e, P2020, P5566, P5634
 
 # visium
 from visium import Visium
