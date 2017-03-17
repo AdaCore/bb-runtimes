@@ -18,7 +18,10 @@ class BSP(SharedFilesHolder):
 
     @property
     def readme_file(self):
-        return None
+        if self._parent is not None:
+            return self._parent.readme_file
+        else:
+            return None
 
     @property
     def rel_path(self):

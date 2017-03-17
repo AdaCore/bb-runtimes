@@ -141,6 +141,10 @@ class MPC8641(PPC6XXTarget):
     def loaders(self):
         return ('ROM', 'RAM')
 
+    @property
+    def readme_file(self):
+        return 'powerpc/mpc8641/README'
+
     def __init__(self):
         super(MPC8641, self).__init__()
         self.add_linker_script('powerpc/mpc8641/qemu-rom.ld', loader='ROM')

@@ -90,6 +90,10 @@ class LM3S(CortexMTarget):
                 '-mcpu=cortex-m3')
 
     @property
+    def readme_file(self):
+        return 'arm/lm3s/README'
+
+    @property
     def sfp_system_ads(self):
         return None
 
@@ -268,6 +272,10 @@ class Stm32CommonBSP(BSP):
     @property
     def loaders(self):
         return ('ROM', 'RAM', 'USER')
+
+    @property
+    def readme_file(self):
+        return 'arm/stm32/README'
 
     def __init__(self):
         super(Stm32CommonBSP, self).__init__()

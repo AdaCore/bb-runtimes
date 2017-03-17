@@ -108,7 +108,7 @@ class Target(TargetConfiguration, BSP):
                             'asm_flags': [],
                             'c_flags': ['-DIN_RTS', '-Dinhibit_libc']}
 
-        readme = self._parent.readme_file
+        readme = self.readme_file
         if readme:
             self.config_files.update({'README': readfile(readme)})
 
@@ -181,7 +181,7 @@ class Target(TargetConfiguration, BSP):
                'external ("PREFIX", Default_Prefix);\n'
         ret += '\n'
         for val in rts:
-            ret += '   for external("%s") use "%s";\n' % (val, rts[val])
+            ret += '   for external ("%s") use "%s";\n' % (val, rts[val])
         ret += '\n'
         ret += '   for external ("INSTALL_PREFIX") use Install_Dir;\n'
         ret += '\n'
@@ -400,6 +400,13 @@ class Target(TargetConfiguration, BSP):
             cnt = cnt.format(**build_flags)
             # Write
             with open(os.path.join(base_rts, 'target_options.gpr'), 'w') as fp:
+                fp.write(cnt)
+
+        if 'README' in self.config_files:
+            cnt = self.config_files['README']
+            readme_fname = os.path.join(
+                destination, 'README-%s.txt' % self.name)
+            with open(readme_fname, 'w') as fp:
                 fp.write(cnt)
 
         # Set source_dirs and languages

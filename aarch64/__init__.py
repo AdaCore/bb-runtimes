@@ -106,6 +106,10 @@ class Rpi3(Aarch64Target):
         return ('-mlittle-endian', '-mcpu=cortex-a53')
 
     @property
+    def readme_file(self):
+        return 'arm/rpi2/README'
+
+    @property
     def full_system_ads(self):
         return None
 

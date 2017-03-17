@@ -70,6 +70,10 @@ class Rpi2(CortexARTarget):
                 '-marm', '-mno-unaligned-access')
 
     @property
+    def readme_file(self):
+        return 'arm/rpi2/README'
+
+    @property
     def sfp_system_ads(self):
         return 'system-xi-arm-sfp.ads'
 
@@ -109,6 +113,10 @@ class TMS570(CortexARTarget):
         # The required compiler switches
         return ('-mbig-endian', '-mhard-float', '-mcpu=cortex-r4',
                 '-mfpu=vfpv3-d16', '-marm')
+
+    @property
+    def readme_file(self):
+        return 'arm/tms570/README'
 
     @property
     def sfp_system_ads(self):
