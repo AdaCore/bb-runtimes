@@ -246,6 +246,10 @@ class P5566(PPCSPETarget):
     def loaders(self):
         return ('EXTRAM', 'BAM', 'FLASH')
 
+    @property
+    def readme_file(self):
+        return 'powerpc/p5566/README'
+
     def __init__(self):
         super(P5566, self).__init__()
         self.add_linker_script('powerpc/p5566/bam.ld', loader='BAM')
