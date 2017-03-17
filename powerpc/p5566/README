@@ -18,6 +18,8 @@ System Clocks
 Startup Code
 
    There are three assembly language files for the startup code, one each for executing from RAM, BAM (the boot assist module), or FLASH. These are start-ram.S, start-bam.S, and start-flash.S respectively.
+   
+   Selection of the startup code is controlled indirectly by a scenario variable named "Loader." This scenario variable is declared in an xml file (runtime.xml) read by gprbuild automatically and used to specify linker switches and scripts. These linker scripts select the startup code by specifying the entry point using the names defined in the assembly files.
 
    The assembly file setup.S is called by these three assembly files above to enable the SPE and the overflow, division by zero, and invalid exceptions.
 
@@ -35,7 +37,7 @@ Interrupts
 
 Memory Layout
 
-   The memory layout is controlled by a scenario variable named "Loader". This scenario variable is declared in an xml file (runtime.xml) read by gprbuild automatically and used to define linker switches. These switches specify the startup code corresponding to the scenario value, as follows:
+   The memory layout is controlled by the scenario variable named "Loader" described above that specifies linker switches and scripts. These scripts specify the layout corresponding to the scenario value, as follows:
 
    EXTRAM : ram.ld
    BAM    : bam.ld
