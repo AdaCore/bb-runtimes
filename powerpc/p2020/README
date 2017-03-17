@@ -17,7 +17,7 @@ System Clocks
 
 Startup Code
 
-   There is one assembly language files for the startup code, start-ram.S. Note that there is a conditional variable that can be used if the IVPR (Interrupt Vector Prefix Register) needs to be saved.
+   There is one assembly language file for the startup code, start-ram.S. Note that there is a conditional variable that can be used if the IVPR (Interrupt Vector Prefix Register) needs to be saved.
 
    There is a second assembly file, setup.S, that defines a branchpoint called by start-ram.S to:
 
@@ -38,7 +38,7 @@ Interrupts
 
 Memory Layout
 
-   The memory layout is controlled by the p2020.ld linker script. The script to be applied can be overriden with the LDSCRIPT scenario variable.
+   The memory layout is controlled by the p2020.ld linker script. The script to be applied can be overridden with the LDSCRIPT scenario variable.
 
 Resources Used
 
