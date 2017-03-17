@@ -2,7 +2,7 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---          Copyright (C) 2012-2016, Free Software Foundation, Inc.         --
+--          Copyright (C) 2012-2017, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -74,9 +74,6 @@ procedure Setup_Pll is
       -- Compute Clock Frequencies --
       -------------------------------
 
-      PLLP_Value  : constant PLLP_Range := 2;
-      --  Arbitrary fixed to a convenient value
-
       PLLCLKIN    : constant Integer := 1_000_000;
       PLLM_Value  : constant Integer  := HSE_Clock / PLLCLKIN;
       --  First divider M is set to produce a 1Mhz clock
@@ -88,11 +85,16 @@ procedure Setup_Pll is
       PLLVC0      : constant Integer := PLLCLKIN * PLLN_Value;
       PLLCLKOUT   : constant Integer := PLLVC0 / PLLP_Value;
 
-      PLLQ_Value  : constant PLLQ_Range := 7;
-      --  Arbitrary fixed
+      pragma Compile_Time_Error
+        (PLLP_Value not in PLLP_Range,
+         "Invalid PLLP clock configuration value");
+      pragma Compile_Time_Error
+        (PLLQ_Value not in PLLQ_Range,
+         "Invalid PLLQ clock configuration value");
 
       PLLM        : constant UInt6 := UInt6 (PLLM_Value);
       PLLN        : constant UInt9 := UInt9 (PLLN_Value);
+      --  PLLP and PLLQ are configured in System.BB.Board_Parameters
       PLLP        : constant UInt2 := UInt2 (PLLP_Value / 2 - 1);
       PLLQ        : constant UInt4 := UInt4 (PLLQ_Value);
 

@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---                      Copyright (C) 2016, AdaCore                         --
+--                   Copyright (C) 2016-2017, AdaCore                       --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -49,5 +49,7 @@ package System.BB.Board_Parameters is
    --  Frequency of High Speed External clock.
 
    FLASH_Latency : constant := 6;
+   PLLP_Value    : constant := 2;
+   PLLQ_Value    : constant := 7;
 
 end System.BB.Board_Parameters;
