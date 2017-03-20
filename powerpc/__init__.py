@@ -216,6 +216,10 @@ class P2020(PPCSPETarget):
     def compiler_switches(self):
         return ('-mfloat-gprs=double', )
 
+    @property
+    def readme_file(self):
+        return 'powerpc/p2020/README'
+
     def __init__(self):
         super(P2020, self).__init__()
         self.add_linker_script('powerpc/p2020/p2020.ld', loader=None)
