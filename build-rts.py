@@ -404,7 +404,6 @@ class SourceDirs(SharedFilesHolder):
             self.add_rule('system_io', 'Use_Semihosting_IO:no')
             self.add_rule('semihost', 'Use_Semihosting_IO:yes')
             self.add_sources('system_io', {
-                's-textio.adb': 's-textio-zfp.adb',
                 'a-textio.adb': 'a-textio-zfp.adb'})
             self.add_sources('semihost', [
                 's-semiho.ads',
