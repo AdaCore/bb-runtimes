@@ -53,7 +53,7 @@ class SourceDirs(SharedFilesHolder):
         self.scenario = {
             'RTS_Profile': ['zfp', 'ravenscar-sfp', 'ravenscar-full'],
             'CPU_Family': ['arm', 'leon', 'powerpc', 'x86'],
-            'Has_FPU': ['true', 'false'],
+            'Has_FPU': ['no', 'yes'],
             'Memory_Profile': ['small', 'large'],
             'Timer': ['timer32', 'timer64'],
             'Pikeos_Version': ['pikeos3', 'pikeos4'],
@@ -61,14 +61,16 @@ class SourceDirs(SharedFilesHolder):
                 'no', 'softfloat', 'hardfloat',
                 'hardfloat_dp', 'hardfloat_sp'],
             'Add_Memory_Operations': ['no', 'yes'],
-            'Add_C_Support': ['no', 'ada_clib', 'newlib']}
+            'Add_C_Support': ['no', 'ada_clib', 'newlib'],
+            'Use_Semihosting_IO': ['no', 'yes']}
         self.libgnat_scenarios = [
             'RTS_Profile',
             'CPU_Family',
             'Has_FPU',
             'Add_Math_Lib',
             'Add_Memory_Operations',
-            'Add_C_Support']
+            'Add_C_Support',
+            'Use_Semihosting_IO']
         self.gnat_rules = {}
         self.gnarl_rules = {}
 
@@ -398,11 +400,20 @@ class SourceDirs(SharedFilesHolder):
             self.add_sources('common', [
                 'text_io.ads',
                 {'a-textio.ads': 'a-textio-zfp.ads'},
-                {'a-textio.adb': 'a-textio-zfp.adb'},
                 's-bb.ads'])
+            self.add_rule('system_io', 'Use_Semihosting_IO:no')
+            self.add_rule('semihost', 'Use_Semihosting_IO:yes')
+            self.add_sources('system_io', {
+                's-textio.adb': 's-textio-zfp.adb',
+                'a-textio.adb': 'a-textio-zfp.adb'})
+            self.add_sources('semihost', [
+                's-semiho.ads',
+                's-semiho.adb',
+                {'s-textio.adb': 's-textio-semihosting.adb',
+                 'a-textio.adb': 'a-textio-semihosting.adb'}])
 
         # FPU support sources
-        self.add_rule('fpu', 'Has_FPU:true')
+        self.add_rule('fpu', 'Has_FPU:yes')
         self.add_sources('fpu', [
             's-fatflt.ads',
             's-fatgen.ads', 's-fatgen.adb',
@@ -1043,9 +1054,9 @@ class SourceDirs(SharedFilesHolder):
         ret['RTS_Profile'] = 'zfp'
 
         if config.has_fpu:
-            ret['Has_FPU'] = 'true'
+            ret['Has_FPU'] = 'yes'
         else:
-            ret['Has_FPU'] = 'false'
+            ret['Has_FPU'] = 'no'
 
         if mem_routines:
             ret['Add_Memory_Operations'] = 'yes'
@@ -1074,6 +1085,11 @@ class SourceDirs(SharedFilesHolder):
             ret['Add_Math_Lib'] = 'no'
 
         ret['Add_C_Support'] = "no"
+
+        if config.use_semihosting_io:
+            ret['Use_Semihosting_IO'] = 'yes'
+        else:
+            ret['Use_Semihosting_IO'] = 'no'
 
         if config.target is not None:
             cpu = config.target.split('-')[0]

@@ -40,6 +40,10 @@ class TargetConfiguration(object):
         raise Exception("not implemented")
 
     @property
+    def use_semihosting_io(self):
+        return False
+
+    @property
     def has_timer_64(self):
         raise Exception("not implemented")
 

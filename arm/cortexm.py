@@ -304,6 +304,10 @@ class Stm32(CortexMTarget):
         return Stm32CommonBSP
 
     @property
+    def use_semihosting_io(self):
+        return True
+
+    @property
     def has_double_precision_fpu(self):
         if self.mcu == 'stm32f7x9':
             return True
@@ -372,31 +376,25 @@ class Stm32(CortexMTarget):
 
         if self.board == 'stm32f4':
             self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f40x.adb',
-                's-textio.adb': 's-textio-stm32f4.adb'})
+                's-stm32.adb': 's-stm32-f40x.adb'})
         elif self.board == 'stm32f429disco':
             self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f4x9x.adb',
-                's-textio.adb': 's-textio-stm32f4.adb'})
+                's-stm32.adb': 's-stm32-f4x9x.adb'})
         elif self.board == 'openmv2':
             self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f4x9x.adb',
-                's-textio.adb': 's-textio-stm32f4.adb'})
+                's-stm32.adb': 's-stm32-f4x9x.adb'})
             self.update_pairs('crt0', {
                 's-bbbopa.ads': 'arm/stm32/%s/s-bbbopa-openmv2.ads' %
                                 self.mcu})
         elif self.board == 'stm32f469disco':
             self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f4x9x.adb',
-                's-textio.adb': 's-textio-stm32f469.adb'})
+                's-stm32.adb': 's-stm32-f4x9x.adb'})
         elif self.board == 'stm32f746disco':
             self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f7x.adb',
-                's-textio.adb': 's-textio-stm32f7.adb'})
+                's-stm32.adb': 's-stm32-f7x.adb'})
         elif self.board == 'stm32f769disco':
             self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f7x.adb',
-                's-textio.adb': 's-textio-stm32f7.adb'})
+                's-stm32.adb': 's-stm32-f7x.adb'})
 
         # ravenscar support
         self.add_sources('gnarl', [
