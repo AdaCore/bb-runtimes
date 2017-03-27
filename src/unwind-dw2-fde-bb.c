@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013-2014, Free Software Foundation, Inc.
+   Copyright (C) 2013-2017, Free Software Foundation, Inc.
 
    This file is part of GCC.
 
@@ -154,13 +154,10 @@ bad_eh_frame_hdr (void)
 const fde *
 _Unwind_Find_FDE (void *pc, struct dwarf_eh_bases *bases)
 {
-  const fde *ret;
   extern const struct unw_eh_frame_hdr __eh_frame_hdr;
   const struct unw_eh_frame_hdr *hdr = &__eh_frame_hdr;
   const unsigned char *p;
   _Unwind_Ptr eh_frame;
-  struct object ob;
-  _Unwind_Ptr pc_low = 0, pc_high = 0;
   _Unwind_Ptr fde_count;
   unsigned char table_enc = (DW_EH_PE_datarel | DW_EH_PE_sdata4);
   fde *f;
@@ -215,7 +212,7 @@ _Unwind_Find_FDE (void *pc, struct dwarf_eh_bases *bases)
       {
 	lo = 0;
 	hi = mid;
-	
+
 	while (lo < hi)
 	  {
 	    mid = (lo + hi) / 2;
