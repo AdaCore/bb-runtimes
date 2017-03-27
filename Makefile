@@ -1,18 +1,12 @@
 # User variables. type make to get some help
 JOBS=0
 TARGET=
-GNAT_SOURCES=$(SRC_DIR)/gnat
-GCC_SOURCES=$(SRC_DIR)/gcc
-GCC_VERSION=unknown
-CROSS_SOURCES=$(SRC_DIR)/libbareboard
-NEWLIB_INCLUDE=unknown
+GNAT_SOURCES=$(SRC_DIR)/../gnat
+GCC_SOURCES=$(SRC_DIR)/../gcc
 
 ###################
 # Other variables #
 ###################
-
-# If yes gdbstub example will be included
-NEED_GDBSTUB=no
 
 SRC_DIR:=$(shell pwd)
 
@@ -20,86 +14,77 @@ SRC_DIR:=$(shell pwd)
 # TARGET Configurations #
 #########################
 
-# This section defined the list of configuration available for each target
-# It's mainly used to compute the prerequisites of the all and install target
-#
-# When you add a new configuration you need to add also a <config>.src target
-# that will perform the right call to build-rts.sh script.
+TARGETS=none
 
 ifeq ($(TARGET), powerpc-elf)
-    RTS_LIST=ravenscar-sfp-mpc8641 ravenscar-full-mpc8641 zfp-mpc8641
-    NEED_GDBSTUB=yes
+    TARGETS=mpc8641 8349e
 endif
 
 ifeq ($(TARGET), powerpc-eabispe)
-    RTS_LIST=zfp-p2020 ravenscar-sfp-p2020 ravenscar-full-p2020 zfp-p5566 ravenscar-full-p5566 ravenscar-sfp-p5566
+    TARGETS=p2020 p5566 mpc5634
+endif
+
+ifeq ($(TARGET), aarch64-elf)
+    TARGETS=aarch64-qemu rpi3
 endif
 
 ifeq ($(TARGET), arm-eabi)
-    RTS_LIST=zfp-tms570 ravenscar-sfp-tms570 ravenscar-full-tms570 \
-	     zfp-lm3s \
-             zfp-stm32f4 ravenscar-sfp-stm32f4 ravenscar-full-stm32f4 \
-	     zfp-zynq7000 ravenscar-sfp-zynq7000 ravenscar-full-zynq7000
-ifneq ($(GPL),)
-    RTS_LIST+=ravenscar-sfp-stm32f429disco ravenscar-full-stm32f429disco \
-              ravenscar-sfp-stm32f469disco ravenscar-full-stm32f469disco \
-              ravenscar-sfp-stm32f7disco ravenscar-full-stm32f7disco \
-              ravenscar-sfp-stm32f769disco ravenscar-full-stm32f769disco
-endif
+    TARGETS=zynq7000 rpi2 sam4s samg55 smartfusion2 openmv2 stm32f4 \
+       stm32f429disco stm32f469disco stm32f746disco stm32f769disco tms570 lm3s
 endif
 
 ifeq ($(TARGET), leon-elf)
-    RTS_LIST=zfp-leon ravenscar-sfp-leon ravenscar-full-leon
+    TARGETS=leon
 endif
 
 ifeq ($(TARGET), leon3-elf)
-    RTS_LIST=zfp-leon3 ravenscar-sfp-leon3 ravenscar-full-leon3
+    TARGETS=leon3
 endif
 
 ifeq ($(TARGET), visium-elf)
-    RTS_LIST=zfp-mcm
+    TARGETS=mcm
 endif
 
 ifeq ($(TARGET), i686-pc-linux-gnu)
-    RTS_LIST=zfp-x86-linux
+    TARGETS=x86-linux
 endif
 
 ifeq ($(TARGET), i686-pc-mingw32)
-    RTS_LIST=zfp-x86-windows
-endif
-
-ifeq ($(TARGET), sparc-sun-solaris2.8)
-    RTS_LIST=zfp-sparc-solaris
+    TARGETS=x86-windows
 endif
 
 ifeq ($(TARGET), arm-sysgo-pikeos)
-    RTS_LIST=ravenscar-full-arm-pikeos ravenscar-sfp-arm-pikeos zfp-arm-pikeos
+    TARGETS=arm-pikeos
 endif
 
 ifeq ($(TARGET), powerpc-sysgo-pikeos)
-    RTS_LIST=ravenscar-full-ppc-pikeos ravenscar-sfp-ppc-pikeos zfp-ppc-pikeos
+    TARGETS=ppc-pikeos
 endif
 
 ifeq ($(TARGET), i586-sysgo-pikeos)
-    RTS_LIST=ravenscar-full-x86-pikeos ravenscar-sfp-x86-pikeos zfp-x86-pikeos
+    TARGETS=x86-pikeos
 endif
 
-# Helper for creating <config>.src targets.
-# you can use it the following way $(BUILD_RTS) config [build-rts opts...]
-# you don't have to specify --objdir and gnat sources location.
-BUILD_RTS=fun () (if [ \"$(TARGET)\" = \"\" ]; then echo "TARGET not defined"; return 1; fi; \
-	          mkdir -p obj; rm -rf obj/$@; config=$$1; shift; \
-	          set -x; ./build-rts.py $$@ --output=obj/$@ --cross-dir=$(CROSS_SOURCES) --gnat-dir=$(GNAT_SOURCES) --gcc-dir=$(GCC_SOURCES) $${config}); \
-          fun
-
-# Compute prerequisites for target all
-PREREQUISITES:=$(patsubst %, %.build, $(RTS_LIST))
-
-# Compute prerequisites for target install
-INSTALL_PREREQUISITES:=$(patsubst %, %.install, $(RTS_LIST))
-ifeq ($(NEED_GDBSTUB),yes)
-    INSTALL_PREREQUISITES+=install-gdbstub
+ifeq ($(TARGETS), none)
+  ifeq ($(TARGET),)
+    $(error Error: TARGET is not defined)
+  else
+    $(error Error: unknown TARGET: '$(TARGET)')
+  endif
 endif
+
+#########
+# Tools #
+#########
+
+GCC_PREFIX:=$(abspath $(dir $(shell which $(TARGET)-gcc))/..)
+ifneq ($(PREFIX),)
+  GCC_PREFIX:=$(PREFIX)
+endif
+
+GPRINSTALL:=GPR_PROJECT_PATH=obj/$(TARGET)/lib/gnat gprinstall -p -f \
+              --prefix=$(GCC_PREFIX)
+GPRBUILD:=GPR_PROJECT_PATH=obj/$(TARGET)/lib/gnat gprbuild -j$(JOBS)
 
 default:
 	@echo "This makefile builds&install recompilable runtimes"
@@ -111,258 +96,84 @@ default:
 	@echo "                   default is $(GNAT_SOURCES)"
 	@echo "  GCC_SOURCES      location of GCC sources"
 	@echo "                   default is $(GCC_SOURCES)"
-	@echo "  CROSS_SOURCES    location of cross sources"
-	@echo "                   default is $(CROSS_SOURCES)"
-	@echo "  PREFIX           required for install targets"
-	@echo "  GCC_VERSION      required for install targets on pikeos"
+	@echo "  PREFIX           overrides the default prefix (gcc dir)"
 	@echo
 	@echo "The makefile accepts the following targets:"
 	@echo
-	@echo "  make all          Build all runtimes (and maybe libm) for a given target"
+	@echo "  make all          Build all runtimes for a given target"
 	@echo "  make install      Install all runtimes for a given target"
-	@echo "  make <config>.src Build runtime sources for 'config' in"
-	@echo "                    ./obj/<config>.src". If needed it also build libm.
-	@echo "  make <config>.build"
-	@echo "                    Build the runtime in ./obj/<config>.build"
-	@echo "  make <config>.install"
-	@echo "                    Install a given runtime in PREFIX"
+	@echo "  make srcs         Build runtime sources in ./obj"
+	@echo "  make <board>.build"
+	@echo "                    Build the runtimes for the board"
+	@echo "  make <board>.fullbuild"
+	@echo "                    Build the full runtime for the board"
+	@echo "  make <board>.sfpbuild"
+	@echo "                    Build the sfp runtime for the board"
+	@echo "  make <board>.zfpbuild"
+	@echo "                    Build the zfp runtime for the board"
+	@echo "  make <board>.install"
+	@echo "                    Install the board's rts in gcc"
+	@echo "  make <board>.fullinstall"
+	@echo "                    Install the board's full rts in gcc"
+	@echo "  make <board>.sfpinstall"
+	@echo "                    Install the board's sfp rts in gcc"
+	@echo "  make <board>.zfpinstall"
+	@echo "                    Install the board's zfp rts in gcc"
 
+.PHONY: force
 
-all: $(PREREQUISITES)
+obj/$(TARGET): force
+	mkdir -p obj && rm -rf obj/$(TARGET)
+	set -x; ./build-rts.py --output=obj/$(TARGET) --gnat-dir=$(GNAT_SOURCES) --gcc-dir=$(GCC_SOURCES) $(TARGETS)
 
-install: $(INSTALL_PREREQUISITES)
+srcs: obj/$(TARGET)
 
-%.build: %.src
-	@if [ "$(TARGET)" = "" ]; then \
-	   echo "TARGET variable should be specified"; \
-	   exit 1; \
-	fi
-	mkdir -p obj
-	rm -rf obj/$@
-	cp -pr obj/$*.src obj/$@
-	cd obj/$@ && gprbuild --target=$(TARGET) -j$(JOBS) runtime_build.gpr $(EXTRA_GPRBUILD_OPTIONS) -cargs:C -I$(NEWLIB_INCLUDE)
-	if [ -f obj/$@/ravenscar_build.gpr ]; then \
-	 cd obj/$@ && \
-	 gprbuild --target=$(TARGET) -j$(JOBS) ravenscar_build.gpr $(EXTRA_GPRBUILD_OPTIONS); \
-	fi
-	cd obj/$@ && chmod a-w adalib/*.ali
-
-# Runtimes to be installed in the standard location (lib/gcc/target/version)
-ravenscar-full-arm-pikeos.install \
-ravenscar-sfp-arm-pikeos.install \
-zfp-arm-pikeos.install \
-ravenscar-full-ppc-pikeos.install \
-ravenscar-sfp-ppc-pikeos.install \
-zfp-ppc-pikeos.install \
-ravenscar-full-x86-pikeos.install \
-ravenscar-sfp-x86-pikeos.install \
-zfp-x86-pikeos.install:
-	@if [ "$(PREFIX)" = "" ]; then \
-	   echo "PREFIX variable should be specified"; \
-	   exit 1; \
-	fi
-	mkdir -p $(PREFIX)/lib/gcc/$(TARGET)/$(GCC_VERSION)
-	set -x; \
-	rts_name=rts-`echo $@ | sed -e 's/-[a-z0-9]*-pikeos.install//'`; \
-	rts_dir=$(PREFIX)/lib/gcc/$(TARGET)/$(GCC_VERSION)/$$rts_name; \
-	rm -rf $$rts_dir; \
-	mkdir $$rts_dir; \
-	cp -rp obj/`echo $@ | sed -e 's/\.install/.build/'`/* $$rts_dir
-
-%.install:
-	@if [ "$(PREFIX)" = "" ]; then \
-	   echo "PREFIX variable should be specified"; \
-	   exit 1; \
-	fi
-	mkdir -p $(PREFIX)/$(TARGET)/lib/gnat
-	rm -rf $(PREFIX)/$(TARGET)/lib/gnat/$*
-	cp -rp obj/$*.build $(PREFIX)/$(TARGET)/lib/gnat/$*
-
-# GDB stub.
-test-gdbstub:
-	rm -rf obj/gdbstub
-	mkdir -p obj/gdbstub
-	for ext in adb ads S gpr; do \
-	   cp -rp powerpc/gdbstub/*.$$ext obj/gdbstub; \
-	done
-	# Compile gdbstub just for testing purposes
-	cd obj/gdbstub && gprbuild --target=$(TARGET) -Pstub.gpr
-
-install-gdbstub:
-	@if [ "$(PREFIX)" = "" ]; then \
-	   echo "PREFIX variable should be specified"; \
-	   exit 1; \
-	fi
-	rm -rf $(PREFIX)/share/examples/gnat-cross/gdbstub/powerpc-elf
-	mkdir -p $(PREFIX)/share/examples/gnat-cross/gdbstub/powerpc-elf
-	for ext in adb ads S gpr; do \
-	   cp -rp powerpc/gdbstub/*.$$ext \
-	       $(PREFIX)/share/examples/gnat-cross/gdbstub/powerpc-elf; \
+all: obj/$(TARGET)
+	for f in obj/$(TARGET)/BSPs/*.gpr; do \
+	  $(GPRBUILD) -P $$f; \
 	done
 
-# powerpc-elf runtimes
-zfp-mpc8641.src:
-	@$(BUILD_RTS) zfp/8641d
+install: all
+	for f in obj/$(TARGET)/BSPs/*.gpr; do \
+	  $(GPRINSTALL) -P $$f; \
+	done
 
-ravenscar-sfp-mpc8641.src:
-	@$(BUILD_RTS) ravenscar-sfp/8641d
+%.build: obj/$(TARGET)
+	for f in obj/$(TARGET)/BSPs/*_$*.gpr; do \
+	  $(GPRBUILD) -P $$f; \
+	done
 
-ravenscar-full-mpc8641.src:
-	@$(BUILD_RTS) ravenscar-full/8641d --gcc-dir=$(GCC_SOURCES)
+%.fullbuild: obj/$(TARGET)
+	if [ ! -f obj/$(TARGET)/BSPs/ravenscar_full_$*.gpr ]; then \
+	  echo "no ravenscar-full runtime for $*"; \
+	  exit 1; \
+	fi
+	$(GPRBUILD) -P obj/$(TARGET)/BSPs/ravenscar_full_$*.gpr
 
-# powerpc-eabispe runtimes
-zfp-p2020.src:
-	@$(BUILD_RTS) zfp/p2020
+%.sfpbuild: obj/$(TARGET)
+	if [ ! -f obj/$(TARGET)/BSPs/ravenscar_sfp_$*.gpr ]; then \
+	  echo "no ravenscar-sfp runtime for $*"; \
+	  exit 1; \
+	fi
+	$(GPRBUILD) -P obj/$(TARGET)/BSPs/ravenscar_sfp_$*.gpr
 
-ravenscar-sfp-p2020.src:
-	@$(BUILD_RTS) ravenscar-sfp/p2020
+%.zfpbuild: obj/$(TARGET)
+	if [ ! -f obj/$(TARGET)/BSPs/zfp_$*.gpr ]; then \
+	  echo "no ravenscar-sfp runtime for $*"; \
+	  exit 1; \
+	fi
+	$(GPRBUILD) -P obj/$(TARGET)/BSPs/zfp_$*.gpr
 
-ravenscar-full-p2020.src:
-	@$(BUILD_RTS) ravenscar-full/p2020 --gcc-dir=$(GCC_SOURCES)
+%.install: %.build
+	for f in obj/$(TARGET)/BSPs/*_$*.gpr; do \
+	  $(GPRINSTALL) -P $$f; \
+	done
 
-ravenscar-sfp-p5566.src:
-	@$(BUILD_RTS) ravenscar-sfp/p5566
+%.fullinstall: %.fullbuild
+	$(GPRINSTALL) -P obj/$(TARGET)/BSPs/ravenscar_full_$*.gpr
 
-ravenscar-full-p5566.src:
-	@$(BUILD_RTS) ravenscar-full/p5566 --gcc-dir=$(GCC_SOURCES)
+%.sfpinstall: %.sfpbuild
+	$(GPRINSTALL) -P obj/$(TARGET)/BSPs/ravenscar_sfp_$*.gpr
 
-zfp-p5566.src:
-	@$(BUILD_RTS) zfp/p5566
-
-zfp-mpc5634.src:
-	@$(BUILD_RTS) zfp/mpc5634
-
-# leon-elf runtimes
-zfp-leon.src:
-	$(BUILD_RTS) zfp/leon
-
-ravenscar-sfp-leon.src:
-	$(BUILD_RTS) ravenscar-sfp/leon
-
-ravenscar-full-leon.src:
-	$(BUILD_RTS) ravenscar-full/leon --gcc-dir=$(GCC_SOURCES)
-
-# leon3-elf runtimes
-zfp-leon3.src:
-	$(BUILD_RTS) zfp/leon3
-
-ravenscar-sfp-leon3.src:
-	$(BUILD_RTS) ravenscar-sfp/leon3
-
-ravenscar-full-leon3.src:
-	$(BUILD_RTS) ravenscar-full/leon3 --gcc-dir=$(GCC_SOURCES)
-
-# arm-eabi runtimes
-zfp-tms570.src:
-	@$(BUILD_RTS) zfp/tms570
-
-ravenscar-sfp-tms570.src:
-	@$(BUILD_RTS) ravenscar-sfp/tms570
-
-ravenscar-full-tms570.src:
-	@$(BUILD_RTS) ravenscar-full/tms570 --gcc-dir=$(GCC_SOURCES)
-
-ravenscar-full-tms570-sci.src:
-	@$(BUILD_RTS) ravenscar-full/tms570-sci --gcc-dir=$(GCC_SOURCES)
-
-zfp-lm3s.src:
-	@$(BUILD_RTS) zfp/lm3s
-
-zfp-stm32f4.src:
-	@$(BUILD_RTS) zfp/stm32f4
-
-ravenscar-sfp-stm32f4.src:
-	@$(BUILD_RTS) ravenscar-sfp/stm32f4
-
-ravenscar-full-stm32f4.src:
-	@$(BUILD_RTS) ravenscar-full/stm32f4
-
-zfp-zynq7000.src:
-	@$(BUILD_RTS) zfp/zynq7000
-
-ravenscar-sfp-zynq7000.src:
-	@$(BUILD_RTS) ravenscar-sfp/zynq7000
-
-ravenscar-full-zynq7000.src:
-	@$(BUILD_RTS) ravenscar-full/zynq7000
-
-zfp-stm32f429disco.src:
-	@$(BUILD_RTS) zfp/stm32f429disco
-
-ravenscar-sfp-stm32f429disco.src:
-	@$(BUILD_RTS) ravenscar-sfp/stm32f429disco
-
-ravenscar-full-stm32f429disco.src:
-	@$(BUILD_RTS) ravenscar-full/stm32f429disco
-
-zfp-stm32f469disco.src:
-	@$(BUILD_RTS) zfp/stm32f469disco
-
-ravenscar-sfp-stm32f469disco.src:
-	@$(BUILD_RTS) ravenscar-sfp/stm32f469disco
-
-ravenscar-full-stm32f469disco.src:
-	@$(BUILD_RTS) ravenscar-full/stm32f469disco
-
-zfp-stm32f7disco.src:
-	@$(BUILD_RTS) zfp/stm32f7disco
-
-ravenscar-sfp-stm32f7disco.src:
-	@$(BUILD_RTS) ravenscar-sfp/stm32f7disco
-
-ravenscar-full-stm32f7disco.src:
-	@$(BUILD_RTS) ravenscar-full/stm32f7disco
-
-zfp-stm32f769disco.src:
-	@$(BUILD_RTS) zfp/stm32f769disco
-
-ravenscar-sfp-stm32f769disco.src:
-	@$(BUILD_RTS) ravenscar-sfp/stm32f769disco
-
-ravenscar-full-stm32f769disco.src:
-	@$(BUILD_RTS) ravenscar-full/stm32f769disco
-
-ravenscar-sfp-sam4s.src:
-	@$(BUILD_RTS) ravenscar-sfp/sam4s
-
-ravenscar-sfp-samg55.src:
-	@$(BUILD_RTS) ravenscar-sfp/samg55
-
-# visium-elf
-zfp-mcm.src:
-	@$(BUILD_RTS) zfp/mcm
-
-# Native
-zfp-x86-linux.src:
-	@$(BUILD_RTS) zfp/x86-linux
-
-zfp-x86-windows.src:
-	@$(BUILD_RTS) zfp/x86-windows
-
-# pikeos
-zfp-arm-pikeos.src:
-	@$(BUILD_RTS) zfp/arm-pikeos
-
-ravenscar-sfp-arm-pikeos.src:
-	@$(BUILD_RTS) ravenscar-sfp/arm-pikeos
-
-ravenscar-full-arm-pikeos.src:
-	@$(BUILD_RTS) ravenscar-full/arm-pikeos
-
-zfp-ppc-pikeos.src:
-	@$(BUILD_RTS) zfp/ppc-pikeos
-
-ravenscar-sfp-ppc-pikeos.src:
-	@$(BUILD_RTS) ravenscar-sfp/ppc-pikeos
-
-ravenscar-full-ppc-pikeos.src:
-	@$(BUILD_RTS) ravenscar-full/ppc-pikeos
-
-ravenscar-full-x86-pikeos.src:
-	@$(BUILD_RTS) ravenscar-full/x86-pikeos
-
-ravenscar-sfp-x86-pikeos.src:
-	@$(BUILD_RTS) ravenscar-sfp/x86-pikeos
-
-zfp-x86-pikeos.src:
-	@$(BUILD_RTS) zfp/x86-pikeos
+%.zfpinstall: %.zfpbuild
+	$(GPRINSTALL) -P obj/$(TARGET)/BSPs/zfp_$*.gpr

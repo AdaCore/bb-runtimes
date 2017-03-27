@@ -1,11 +1,10 @@
 import copy
 import os
 
-from config import Config
-from files_holder import SharedFilesHolder
+from files_holder import FilesHolder
 
 
-class BSP(SharedFilesHolder):
+class BSP(FilesHolder):
     """Handles the startup files and linker scripts"""
 
     @property

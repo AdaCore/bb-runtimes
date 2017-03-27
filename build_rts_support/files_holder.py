@@ -2,18 +2,26 @@ import os
 import shutil
 import sys
 
-from build_rts_support import fullpath, readfile
-from build_rts_support.config import Config
+from build_rts_support import fullpath
 
 
 class FilesHolder(object):
+    # Sources directories
+    gnatdir = "../gnat"
+    gccdir = "../gcc"
+
+    # Display actions
+    verbose = False
+
+    link = False
+
     def __init__(self):
         self.dirs = {}
         self.c_srcs = []
         self.asm_srcs = []
 
         # Read manifest file (if exists)
-        manifest_file = os.path.join(Config.gnatdir, "MANIFEST.GNAT")
+        manifest_file = os.path.join(self.gnatdir, "MANIFEST.GNAT")
         self.manifest = []
         if os.path.isfile(manifest_file):
             f = open(manifest_file, 'r')
@@ -116,12 +124,12 @@ class FilesHolder(object):
             installed_files.append(os.path.basename(dst))
 
         if already_exists:
-            if Config.verbose:
+            if self.verbose:
                 print "same file, skip: " + src + ", " + dst
         else:
-            if Config.verbose:
+            if self.verbose:
                 print "copy " + src + " to " + dst
-            if Config.link:
+            if self.link:
                 try:
                     os.symlink(os.path.abspath(src), dst)
                 except os.error, e:
@@ -146,27 +154,13 @@ class FilesHolder(object):
             assert self.manifest, "Error: MANIFEST file not found"
             assert srcfile in self.manifest, \
                 "Error: source file %s not in MANIFEST" % srcfile
-            self._copy(os.path.join(Config.gnatdir, srcfile),
+            self._copy(os.path.join(self.gnatdir, srcfile),
                        dstdir, installed_files)
         else:
-            for d in ('.', Config.gccdir):
+            for d in ('.', self.gccdir):
                 src = os.path.join(fullpath(d), srcfile)
                 if os.path.exists(src):
                     self._copy(src, dstdir, installed_files)
                     return
             print "Cannot find source dir for %s" % srcfile
             sys.exit(2)
-
-
-class SharedFilesHolder(FilesHolder):
-    def update_pairs(self, dir, pairs):
-        # overload the parent method: this one allows updating pairs in a
-        # specific directory. This is needed in the shared sources case as
-        # it is expected to have different version of the same source in
-        # different sub-directories
-        for k, v in pairs.items():
-            if k not in self.dirs[dir]:
-                print "in update_pairs: no such source: %s" % k
-            else:
-                self.dirs[dir][k] = v
-        return True

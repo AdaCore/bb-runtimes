@@ -2,9 +2,6 @@
 from build_rts_support import readfile
 from build_rts_support.bsp import BSP
 from build_rts_support.target import DFBBTarget
-from build_rts_support.config import Config
-
-import os
 
 
 class LeonArch(BSP):

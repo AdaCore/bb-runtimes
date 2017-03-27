@@ -1,9 +1,10 @@
-import os
 import copy
+import os
 
-from config import Config
 from bsp import BSP
-from files_holder import FilesHolder, readfile, fullpath
+from build_rts_support import readfile
+from files_holder import FilesHolder, fullpath
+from rts_sources import RTSOptions
 
 
 class TargetConfiguration(object):
@@ -72,24 +73,27 @@ class TargetConfiguration(object):
         """Switches to be used when compiling C code."""
         return ()
 
+    @property
+    def zfp_system_ads(self):
+        """The system.ads file to use for a zfp runtime"""
+        return None
+
+    @property
+    def sfp_system_ads(self):
+        """The system.ads file to use for a ravenscar-sfp runtime"""
+        return None
+
+    @property
+    def full_system_ads(self):
+        """The system.ads file to use for a ravenscar-full runtime"""
+        return None
+
 
 class Target(TargetConfiguration, BSP):
     """Handles the creation of runtimes for a particular target"""
     @property
     def rel_path(self):
         return self._parent.rel_path + self.name + '/'
-
-    @property
-    def zfp_system_ads(self):
-        return None
-
-    @property
-    def sfp_system_ads(self):
-        return None
-
-    @property
-    def full_system_ads(self):
-        return None
 
     def __init__(self, mem_routines, small_mem):
         """Initialize the target
@@ -104,6 +108,7 @@ class Target(TargetConfiguration, BSP):
         self._small_mem = small_mem
         self.config_files = {}
         self.runtimes = {}
+        self.rts_options = RTSOptions(self)
 
         self.build_flags = {'source_dirs': None,
                             'common_flags': ['-fcallgraph-info=su,da',
@@ -118,16 +123,16 @@ class Target(TargetConfiguration, BSP):
 
         if self.zfp_system_ads is not None:
             self.runtimes['zfp'] = FilesHolder()
-            self.runtimes['zfp'].rts_vars = Config.rts_srcs.zfp_scenarios(
-                self, self._mem_routines, math_lib=False)
+            self.runtimes['zfp'].rts_vars = self.rts_options.zfp_scenarios(
+                self._mem_routines, math_lib=False)
             self.runtimes['zfp'].add_sources('arch', {
                 'system.ads': self.zfp_system_ads})
 
         if self.sfp_system_ads is not None:
             self.runtimes['ravenscar-sfp'] = FilesHolder()
             self.runtimes['ravenscar-sfp'].rts_vars = \
-                Config.rts_srcs.sfp_scenarios(
-                    self, self._mem_routines,
+                self.rts_options.sfp_scenarios(
+                    self._mem_routines,
                     math_lib=False,
                     small_mem=self._small_mem)
             self.runtimes['ravenscar-sfp'].add_sources('arch', {
@@ -136,8 +141,8 @@ class Target(TargetConfiguration, BSP):
         if self.full_system_ads is not None:
             self.runtimes['ravenscar-full'] = FilesHolder()
             self.runtimes['ravenscar-full'].rts_vars = \
-                Config.rts_srcs.full_scenarios(
-                    self, mem_routines, math_lib=True, small_mem=small_mem)
+                self.rts_options.full_scenarios(
+                    mem_routines, math_lib=True, small_mem=small_mem)
             self.runtimes['ravenscar-full'].add_sources('arch', {
                 'system.ads': self.full_system_ads})
 
@@ -148,6 +153,7 @@ class Target(TargetConfiguration, BSP):
             v.config_files = {}
 
     def amend_zfp(self, cfg):
+        """to be overriden by the actual target to refine the zfp runtime"""
         cfg.rts_xml = self.runtime_xml(cfg)
 
     def amend_ravenscar_sfp(self, cfg):
@@ -156,7 +162,12 @@ class Target(TargetConfiguration, BSP):
     def amend_ravenscar_full(self, cfg):
         self.amend_ravenscar_sfp(cfg)
 
+    #########################
+    # dump_rts_project_file #
+    #########################
+
     def dump_rts_project_file(self, rts, destination, rts_prefix):
+        """Dumps the main project used to build the runtime"""
         rtsname = '%s-%s' % (rts['RTS_Profile'], self.name)
         prj = '%s.gpr' % rtsname.replace('-', '_')
         prjname = rtsname.replace('-', '_').title()
@@ -216,7 +227,168 @@ class Target(TargetConfiguration, BSP):
         with open(prj, 'w') as fp:
             fp.write(ret)
 
-    def install(self, destination):
+    ###############
+    # runtime_xml #
+    ###############
+
+    def runtime_xml(self, rts):
+        " Dumps the runtime.xml file that gives the configuration to gprbuild"
+        ret = '<?xml version="1.0" ?>\n\n'
+        ret += '<gprconfig>\n'
+        ret += '  <configuration>\n'
+        ret += '    <config><![CDATA[\n'
+        if self.loaders is not None:
+            ret += '   type Loaders is ("%s");\n' % '", "'.join(
+                self.loaders)
+            ret += '   Loader : Loaders := external("LOADER", "%s");\n\n' % (
+                self.loaders[0])
+        elif len(self.ld_scripts) == 1:
+            # No loader defined, and a single ld script
+            # Let's make it user-configurable
+            ret += '   LDSCRIPT := external("LDSCRIPT",\n'
+            ret += '                        "${RUNTIME_DIR(ada)}/ld/%s");' % (
+                self.ld_scripts[0]['name'],)
+            ret += '\n\n'
+
+        ret += '   package Compiler is\n'
+        if len(self.compiler_switches) > 0:
+            ret += '      Common_Required_Switches := ("%s");\n' % \
+                   '", "'.join(self.compiler_switches)
+        else:
+            ret += '      Common_Required_Switches := ();\n'
+
+        if len(self.c_switches) > 0:
+            ret += '      C_Required_Switches := ("%s");\n' % \
+                   '", "'.join(self.c_switches)
+
+        ret += '\n'
+
+        for lang in ('Ada', 'C', 'Asm', 'Asm2', 'Asm_Cpp'):
+            w = '      '
+            ret += w + 'for Leading_Required_Switches ("%s") use\n' % lang
+            w = '         '
+            ret += w + 'Compiler\'Leading_Required_Switches ("%s") &\n' % \
+                       lang
+            ret += w + 'Common_Required_Switches'
+            if lang != 'Ada' and len(self.c_switches) > 0:
+                ret += ' &\n' + w
+                ret += 'C_Required_Switches'
+            ret += ';\n'
+        ret += '   end Compiler;\n\n'
+
+        if not self.add_linker_section:
+            ret += ']]>\n'
+            ret += '    </config>\n'
+            ret += '  </configuration>\n'
+            ret += '</gprconfig>\n'
+            return ret
+
+        switches = []
+        if len(self.ld_scripts) == 1 and self.loaders is None:
+            switches.append('"-T", LDSCRIPT')
+        else:
+            for val in self.ld_scripts:
+                if val['loader'] is None:
+                    # use for all loaders
+                    switches.append('"-T", "%s"' % val['name'])
+        for sw in self.ld_switches:
+            if sw['loader'] is None or sw['loader'] == '':
+                switches.append('"%s"' % sw['switch'])
+
+        if rts.rts_vars['RTS_Profile'] == 'ravenscar-full':
+            do_merge = True
+        else:
+            do_merge = False
+
+        if do_merge:
+            # We need a binder section to prevent the link with libgnarl, which
+            # we don't have as it's merged with libgnat in this case
+            ret += '   package Binder is\n'
+            ret += ('      for Required_Switches ("Ada") use '
+                    'Binder\'Required_Switches ("Ada") &\n')
+            ret += '        ("-nostdlib");\n'
+            ret += '   end Binder;\n\n'
+
+        ret += '   package Linker is\n'
+        indent = 6
+        blank = indent * ' '
+        ret += blank + \
+            'for Required_Switches use Linker\'Required_Switches &\n'
+        ret += blank + '  ("-L${RUNTIME_DIR(ada)}/adalib",\n'
+        indent = 9
+        blank = indent * ' '
+
+        ret += blank + '"-nostartfiles"'
+        if rts.rts_vars['RTS_Profile'] != "ravenscar-full":
+            ret += ', "-nolibc"'
+        else:
+            ret += ', "-lgnat"'
+            if self.has_newlib:
+                # Newlib depends on libgnat, so force an explicit reference
+                ret += ', "-lc", "-lgnat"'
+            ret += ', "-lgcc"'
+
+        if len(self.ld_scripts) > 0:
+            ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld"'
+
+        if len(switches) > 0:
+            ret += ',\n' + blank
+            ret += (',\n' + blank).join(switches)
+            blank = indent * ' '
+        ret += ') &\n' + blank + 'Compiler.Common_Required_Switches;\n'
+        indent = 6
+        blank = indent * ' '
+
+        if self.loaders is not None:
+            ret += '\n' + blank
+            ret += 'case Loader is\n'
+            indent += 3
+            blank = indent * ' '
+
+            for l in self.loaders:
+                ret += blank
+                ret += 'when "%s" =>\n' % l
+                indent += 3
+                blank = indent * ' '
+
+                switches = []
+                for val in self.ld_scripts:
+                    if val['loader'] is None:
+                        continue
+                    if isinstance(val['loader'], basestring):
+                        if val['loader'] == l:
+                            switches.append('"-T", "%s"' % val['name'])
+                    else:
+                        if l in val['loader']:
+                            switches.append('"-T", "%s"' % val['name'])
+                for sw in self.ld_switches:
+                    if isinstance(sw['loader'], basestring) \
+                            and sw['loader'] == l:
+                        switches.append('"%s"' % sw['switch'])
+                    if isinstance(sw['loader'], list) \
+                            and l in sw['loader']:
+                        switches.append('"%s"' % sw['switch'])
+                if len(switches) > 0:
+                    ret += blank
+                    ret += \
+                        'for Required_Switches use Linker\'Required_Switches'
+                    ret += ' &\n' + blank + '  '
+                    ret += '(%s);\n' % (',\n   ' + blank).join(switches)
+                indent -= 3
+                blank = indent * ' '
+
+            indent -= 3
+            blank = indent * ' '
+            ret += '%send case;' % blank
+
+        ret += ('   end Linker;\n'
+                ']]>\n'
+                '   </config>\n'
+                '  </configuration>\n'
+                '</gprconfig>\n')
+        return ret
+
+    def install(self, destination, prefix):
         # Update the runtimes objects according to target specifications
         if 'zfp' in self.runtimes:
             self.amend_zfp(self.runtimes['zfp'])
@@ -226,7 +398,7 @@ class Target(TargetConfiguration, BSP):
             self.amend_ravenscar_full(self.runtimes['ravenscar-full'])
 
         # Build target directories
-        destination = fullpath(destination)
+        destination = os.path.abspath(destination)
         if not os.path.exists(destination):
             os.mkdir(destination)
 
@@ -292,11 +464,11 @@ class Target(TargetConfiguration, BSP):
         # Now install the rts-specific sources
         for rts_name, rts_obj in self.runtimes.items():
             base_rts = os.path.join(base_bsp, rts_name)
-            if Config.prefix is not None:
-                if Config.prefix.endswith('/'):
-                    install_prefix = Config.prefix
+            if prefix is not None:
+                if prefix.endswith('/'):
+                    install_prefix = prefix
                 else:
-                    install_prefix = Config.prefix + '/'
+                    install_prefix = prefix + '/'
             elif self.target is not None:
                 install_prefix = \
                     self.target + '/lib/gnat/'
@@ -437,164 +609,6 @@ class Target(TargetConfiguration, BSP):
         empty_c = os.path.join(base_prj, 'empty.c')
         with open(empty_c, 'w') as fp:
             fp.write('')
-
-    def runtime_xml(self, rts):
-        ret = '<?xml version="1.0" ?>\n\n'
-        ret += '<gprconfig>\n'
-        ret += '  <configuration>\n'
-        ret += '    <config><![CDATA[\n'
-        if self.loaders is not None:
-            ret += '   type Loaders is ("%s");\n' % '", "'.join(
-                self.loaders)
-            ret += '   Loader : Loaders := external("LOADER", "%s");\n\n' % (
-                self.loaders[0])
-        elif len(self.ld_scripts) == 1:
-            # No loader defined, and a single ld script
-            # Let's make it user-configurable
-            ret += '   LDSCRIPT := external("LDSCRIPT",\n'
-            ret += '                        "${RUNTIME_DIR(ada)}/ld/%s");' % (
-                self.ld_scripts[0]['name'],)
-            ret += '\n\n'
-
-        ret += '   package Compiler is\n'
-        if len(self.compiler_switches) > 0:
-            ret += '      Common_Required_Switches := ("%s");\n' % \
-                   '", "'.join(self.compiler_switches)
-        else:
-            ret += '      Common_Required_Switches := ();\n'
-
-        if len(self.c_switches) > 0:
-            ret += '      C_Required_Switches := ("%s");\n' % \
-                   '", "'.join(self.c_switches)
-
-        ret += '\n'
-
-        for lang in ('Ada', 'C', 'Asm', 'Asm2', 'Asm_Cpp'):
-            w = '      '
-            ret += w + 'for Leading_Required_Switches ("%s") use\n' % lang
-            w = '         '
-            ret += w + 'Compiler\'Leading_Required_Switches ("%s") &\n' % \
-                lang
-            ret += w + 'Common_Required_Switches'
-            if lang != 'Ada' and len(self.c_switches) > 0:
-                ret += ' &\n' + w
-                ret += 'C_Required_Switches'
-            ret += ';\n'
-        ret += '   end Compiler;\n\n'
-
-        if not self.add_linker_section:
-            ret += ']]>\n'
-            ret += '    </config>\n'
-            ret += '  </configuration>\n'
-            ret += '</gprconfig>\n'
-            return ret
-
-        switches = []
-        if len(self.ld_scripts) == 1 and self.loaders is None:
-            switches.append('"-T", LDSCRIPT')
-        else:
-            for val in self.ld_scripts:
-                if val['loader'] is None:
-                    # use for all loaders
-                    switches.append('"-T", "%s"' % val['name'])
-        for sw in self.ld_switches:
-            if sw['loader'] is None or sw['loader'] == '':
-                switches.append('"%s"' % sw['switch'])
-
-        if rts.rts_vars['RTS_Profile'] == 'ravenscar-full':
-            do_merge = True
-        else:
-            do_merge = False
-
-        if do_merge:
-            # We need a binder section to prevent the link with libgnarl, which
-            # we don't have as it's merged with libgnat in this case
-            ret += '   package Binder is\n'
-            ret += ('      for Required_Switches ("Ada") use '
-                    'Binder\'Required_Switches ("Ada") &\n')
-            ret += '        ("-nostdlib");\n'
-            ret += '   end Binder;\n\n'
-
-        ret += '   package Linker is\n'
-        indent = 6
-        blank = indent * ' '
-        ret += blank + \
-            'for Required_Switches use Linker\'Required_Switches &\n'
-        ret += blank + '  ("-L${RUNTIME_DIR(ada)}/adalib",\n'
-        indent = 9
-        blank = indent * ' '
-
-        ret += blank + '"-nostartfiles"'
-        if rts.rts_vars['RTS_Profile'] != "ravenscar-full":
-            ret += ', "-nolibc"'
-        else:
-            ret += ', "-lgnat"'
-            if self.has_newlib:
-                # Newlib depends on libgnat, so force an explicit reference
-                ret += ', "-lc", "-lgnat"'
-            ret += ', "-lgcc"'
-
-        if len(self.ld_scripts) > 0:
-            ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld"'
-
-        if len(switches) > 0:
-            ret += ',\n' + blank
-            ret += (',\n' + blank).join(switches)
-            blank = indent * ' '
-        ret += ') &\n' + blank + 'Compiler.Common_Required_Switches;\n'
-        indent = 6
-        blank = indent * ' '
-
-        if self.loaders is not None:
-            ret += '\n' + blank
-            ret += 'case Loader is\n'
-            indent += 3
-            blank = indent * ' '
-
-            for l in self.loaders:
-                ret += blank
-                ret += 'when "%s" =>\n' % l
-                indent += 3
-                blank = indent * ' '
-
-                switches = []
-                for val in self.ld_scripts:
-                    if val['loader'] is None:
-                        continue
-                    if isinstance(val['loader'], basestring):
-                        if val['loader'] == l:
-                            switches.append('"-T", "%s"' % val['name'])
-                    else:
-                        if l in val['loader']:
-                            switches.append('"-T", "%s"' % val['name'])
-                for sw in self.ld_switches:
-                    if isinstance(sw['loader'], basestring) \
-                       and sw['loader'] == l:
-                        switches.append('"%s"' % sw['switch'])
-                    if isinstance(sw['loader'], list) \
-                       and l in sw['loader']:
-                        switches.append('"%s"' % sw['switch'])
-                if len(switches) > 0:
-                    ret += blank
-                    ret += \
-                        'for Required_Switches use Linker\'Required_Switches'
-                    ret += ' &\n' + blank + '  '
-                    ret += '(%s);\n' % (',\n   ' + blank).join(switches)
-                indent -= 3
-                blank = indent * ' '
-
-            indent -= 3
-            blank = indent * ' '
-            ret += '%send case;' % blank
-
-        ret += """
-   end Linker;
-]]>
-   </config>
-  </configuration>
-</gprconfig>
-"""
-        return ret
 
 
 class DFBBTarget(Target):
