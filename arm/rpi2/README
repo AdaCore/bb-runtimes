@@ -1,17 +1,30 @@
-Ravenscar for Raspberry Pi 2 board
-----------------------------------
+Ravenscar for Raspberry Pi 2/3 boards
+=====================================
 
-By default the board boot on the SD-CARD.
-You need to have the following firmware files:
+Boot the board with an Ada program:
+-----------------------------------
+
+By default the board boots on the FAT-formatted SD-CARD.
+
+On this sd-card, you need to have the following firmware files:
 - bootcode.bin (required)
 - start.elf (required)
 - fixup.dat (required to use 1GB)
 
-Use gprbuild to build the application, then:
+Those startup files can be found with the raspbian distribution.
+
+Use gprbuild to build the application, then for the Raspberry Pi2:
 - arm-eabi-objcopy -O binary PROG PROG.bin
-- cp PROG.bin /sdcard/kernel7.bin
+or for the Raspberry Pi3:
+- aarch64-elf-objcopy -O binary PROG PROG.bin
+and finally:
+- cp PROG.bin /sdcard/kernel7.img
+
+Install the sdcard on the Pi, and power it up.
 
 Resources used by the runtime:
+------------------------------
+
 - mini-uart (MU) for textio.
   Uses pins of the GPIO port:
     5V +-+ GND
@@ -31,7 +44,28 @@ Resources used by the runtime:
 - Mailbox 3 of each core is used to start the cores and for inter
   processor interrupts (IPI).
 
+Memory mapping:
+---------------
+  <!--  Main memory for ARM -->
+  <region access="rwx---" cache="wb"
+	  virt="0x00000000" size="0x3ae00000" name="ram"/>
+
+  <!--  Uncachable area to communicate with devices -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0x3ae00000" size="0x00200000" name="uc"/>
+
+  <!--  Frame buffer (64MB) -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0x3b000000" size="0x04000000" name="vc"/>
+
+  <!-- IO -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0x3f000000" size="0x02000000" name="io"/>
+
+
 Boot:
+-----
+
 - Use the normal boot (starts at 0x8000).
 - Switch from HYP to SYS mode
 - For ref, the reset code is:

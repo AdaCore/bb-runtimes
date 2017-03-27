@@ -46,6 +46,10 @@ class Aarch64Target(DFBBTarget):
     def sfp_system_ads(self):
         return 'system-xi-arm-sfp.ads'
 
+    @property
+    def full_system_ads(self):
+        return 'system-xi-arm-full.ads'
+
 
 class AARCH64QEMU(Aarch64Target):
     @property
@@ -109,10 +113,6 @@ class Rpi3(Aarch64Target):
     def readme_file(self):
         return 'arm/rpi2/README'
 
-    @property
-    def full_system_ads(self):
-        return None
-
     def __init__(self):
         super(Rpi3, self).__init__(
             mem_routines=True,
@@ -128,6 +128,6 @@ class Rpi3(Aarch64Target):
             {'s-textio.adb': 's-textio-rpi2.adb',
              's-macres.adb': 's-macres-rpi2.adb'}])
         self.add_sources('gnarl', {
-            'a-intnam.ads': 'a-intnam-dummy.ads',
+            'a-intnam.ads': 'arm/rpi2/a-intnam.ads',
             's-bbpara.ads': 's-bbpara-rpi2.ads',
             's-bbbosu.adb': 's-bbbosu-rpi3.adb'})

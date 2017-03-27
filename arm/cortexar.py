@@ -94,7 +94,7 @@ class Rpi2(CortexARTarget):
             {'s-textio.adb': 's-textio-rpi2.adb',
              's-macres.adb': 's-macres-rpi2.adb'}])
         self.add_sources('gnarl', {
-            'a-intnam.ads': 'a-intnam-dummy.ads',
+            'a-intnam.ads': 'arm/rpi2/a-intnam.ads',
             's-bbpara.ads': 's-bbpara-rpi2.ads',
             's-bbbosu.adb': 's-bbbosu-rpi2.adb'})
 
