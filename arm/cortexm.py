@@ -383,9 +383,8 @@ class Stm32(CortexMTarget):
         elif self.board == 'openmv2':
             self.add_sources('crt0', {
                 's-stm32.adb': 's-stm32-f4x9x.adb'})
-            self.update_pairs('crt0', {
-                's-bbbopa.ads': 'arm/stm32/%s/s-bbbopa-openmv2.ads' %
-                                self.mcu})
+            self.update_pair(
+                's-bbbopa.ads', 'arm/stm32/%s/s-bbbopa-openmv2.ads' % self.mcu)
         elif self.board == 'stm32f469disco':
             self.add_sources('crt0', {
                 's-stm32.adb': 's-stm32-f4x9x.adb'})
