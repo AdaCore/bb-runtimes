@@ -15,7 +15,7 @@ abstract project Target_Options is
      --  Per language flags (COMFLAGS will be added later)
      ADAFLAGS := ("-gnatg", "-nostdinc");
      ASMFLAGS := ("{asm_flags}");
-     CFLAGS := ("{c_flags}");
+     CFLAGS := ("{c_flags}", "-Werror", "-Wall");
      case Build is
         when "Production" =>
 	   --  Optimize
