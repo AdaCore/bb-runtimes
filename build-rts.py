@@ -178,7 +178,7 @@ def main():
     boards = []
     rts_profile = 'zfp'
 
-    is_pikeos = 'pikeos' in arg[0]
+    is_pikeos = 'pikeos' in args[0]
 
     for arg in args:
         board_is_pikeos = 'pikeos' in arg
