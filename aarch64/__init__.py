@@ -113,6 +113,13 @@ class Rpi3(Aarch64Target):
     def readme_file(self):
         return 'arm/rpi2/README'
 
+    def amend_ravenscar_full(self, cfg):
+        super(Rpi3, self).amend_ravenscar_full(cfg)
+        cfg.rts_xml = cfg.rts_xml.replace(
+            '"-nostartfiles"',
+            ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
+             '        "-nostartfiles"'))
+
     def __init__(self):
         super(Rpi3, self).__init__(
             mem_routines=True,

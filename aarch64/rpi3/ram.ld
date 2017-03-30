@@ -102,6 +102,7 @@ SECTIONS
   
   .text :
   {
+    __text = .;
     *(.text .text.* .gnu.linkonce.t*)
   } > REGION_CODE
 
@@ -110,13 +111,17 @@ SECTIONS
     *(.rodata .rodata.* .gnu.linkonce.r*)
   } > REGION_CODE
 
-  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > REGION_CODE
-  PROVIDE_HIDDEN (__exidx_start = .);
-  .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > REGION_CODE
-  PROVIDE_HIDDEN (__exidx_end = .);
+  .eh_frame_hdr :
+  {
+     __eh_frame_hdr = .;
+    *(.eh_frame_hdr)
+  } > REGION_CODE
+  .eh_frame         : { KEEP (*(.eh_frame)) } > REGION_DATA
+  .gcc_except_table : { *(.gcc_except_table .gcc_except_table.*) } > REGION_DATA
 
   .data :
   {
+    __data = .;
     __data_start = .;
     *(.data .data.* .gnu.linkonce.d*)
     . = ALIGN(0x10);
