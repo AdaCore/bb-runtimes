@@ -322,14 +322,10 @@ class Target(TargetConfiguration, BSP):
         if rts.rts_vars['RTS_Profile'] != "ravenscar-full":
             ret += ', "-nolibc"'
         else:
-            # Circular dependency between libgnat and newlib: --start-group
-            # and --end-group solves this issue
-            ret += ', "-Wl,--start-group"'
             ret += ', "-lgnat"'
             if self.has_newlib:
-                ret += ', "-lc"'
+                ret += ', "-lc", "-lgnat"'
             ret += ', "-lgcc"'
-            ret += ', "-Wl,--end-group"'
 
         if len(self.ld_scripts) > 0:
             ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld"'
