@@ -1654,6 +1654,11 @@ class Leon3(SparcBBTarget):
             's-bbpara.ads': 's-bbpara-leon.ads',
             'a-intnam.ads': 'a-intnam-xi-leon3.ads'})
 
+    def amend_ravenscar_full(self):
+        super(Leon3, self).amend_ravenscar_full()
+        # Single precision sqrt is buggy on UT699
+        self.pairs.update({'s-lisisq.adb': 's-lisisq-ada.adb'})
+
 
 class PPC6XXBBTarget(DFBBTarget):
     def __init__(self):
