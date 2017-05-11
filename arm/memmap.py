@@ -10,9 +10,6 @@ import xml.etree.ElementTree as ET
 
 filename = "memmap.xml"
 
-pagesize = 0
-pageshift = 0
-
 
 class Arch(object):
     """Describe the architecture to build the MMU tables"""
@@ -27,17 +24,17 @@ class Arch(object):
 
 
 class arm_mmu(Arch):
-    def __init__(self):
+    def __init__(self, pageshift):
         # Translation table (initially empty)
         self.tt = [None for x in range(4096)]
+        self.pageshift = pageshift if pageshift else self.default_pageshift()
+        self.pagesize = 1 << self.pageshift
 
-    def pageshift(self):
+    def default_pageshift(self):
         # Handle only large pages
         return 20
 
     def insert(self, name, virt, phys, size, cache, access):
-        global pagesize
-
         # Convert cache
         if cache == 'wb':
             tex = 7
@@ -70,8 +67,8 @@ class arm_mmu(Arch):
 
         # Fill tt
         p = phys
-        for v in range(virt, virt + size, pagesize):
-            vn = v / pagesize
+        for v in range(virt, virt + size, self.pagesize):
+            vn = v / self.pagesize
             if self.tt[vn]:
                 print "overlap at %s in region %s" % (hex(v), name)
                 exit(1)
@@ -83,7 +80,7 @@ class arm_mmu(Arch):
                            'nG': nG, 'S': S, 'AP': ap, 'TEX': tex,
                            'domain': domain, 'XN': nx, 'C': c, 'B': b,
                            'val': val}
-            p += pagesize
+            p += self.pagesize
 
     def generate(self):
         addr = 0
@@ -98,87 +95,81 @@ class arm_mmu(Arch):
                 n = "*none*"
 
             print "\t.long 0x%08x  @ for 0x%08x, %s" % (v, addr, n)
-            addr += pagesize
-
-
-class aarch64_pge(object):
-    def __init__(self, name, va, pa,
-                 uxn, pxn, cont, nG, AF, SH, AP, NS, attridx, log2_sz):
-        self.name = name
-        self.va = va
-        self.pa = pa
-        self.uxn = uxn
-        self.pxn = pxn
-        self.cont = cont
-        self.nG = nG
-        self.AF = AF
-        self.SH = SH
-        self.AP = AP
-        self.NS = NS
-        self.attridx = attridx
-        self.log2_sz = log2_sz
-        if log2_sz == pageshift:
-            # A level-3 descriptor
-            bt = 0x3
-        else:
-            # A block descriptor
-            bt = 0x1
-        self.val = ((uxn << 54) + (pxn << 53) + (cont << 52) +
-                    (nG << 11) + (AF << 10) + (SH << 8) + (AP << 6) +
-                    (NS << 5) + (attridx << 2) +
-                    (pa & 0x0000fffffffff000) + bt)
-
-    def generate_table(self, level):
-        pass
-
-    def generate_entry(self, level):
-        print "\t.dword 0x%016x  // for 0x%08x, %s" % \
-          (self.val, self.va, self.name)
-
-
-class aarch64_pgd(object):
-    def __init__(self, log2_granule, log2_entries, va, va_shift):
-        self.tt = [None for x in range(1 << log2_entries)]
-        self.va = va
-        self.va_shift = va_shift
-        self.log2_entries = log2_entries
-        self.log2_granule = log2_granule
-
-    def generate_entry(self, level):
-        # NSTable: 1
-        # APTable: 00 (no effect)
-        # XNTable: 0
-        # PXNTable: 0
-        v = 0x3 + (1 << 63)
-        print "\t.dword __mmu_l%d_%09x + 0x%x" % \
-            (level, self.va >> pageshift, v)
-
-    def generate_table(self, level):
-        # First the next level
-        for t1 in self.tt:
-            if t1:
-                t1.generate_table(level + 1)
-        # then the pgd
-        print "\t.p2align %d" % pageshift
-        print "__mmu_l%d_%09x:" % (level, self.va >> pageshift)
-        for t1 in self.tt:
-            if t1:
-                t1.generate_entry(level + 1)
-            else:
-                print "\t.dword 0"
+            addr += self.pagesize
 
 
 class aarch64_mmu(Arch):
-    def __init__(self):
-        # Translation table (initially empty)
-        self.log2_granule = 12  # Page size
-        self.log2_entries = self.log2_granule - 3   # log2 nbr entries per page
-        self.tt = aarch64_pgd(self.log2_granule,
-                              self.log2_entries, 0, 48 - self.log2_entries)
+    class aarch64_pge(object):
+        def __init__(self, mmu, name, va, pa,
+                     uxn, pxn, cont, nG, AF, SH, AP, NS, attridx, log2_sz):
+            self.mmu = mmu
+            self.name = name
+            self.va = va
+            self.pa = pa
+            self.uxn = uxn
+            self.pxn = pxn
+            self.cont = cont
+            self.nG = nG
+            self.AF = AF
+            self.SH = SH
+            self.AP = AP
+            self.NS = NS
+            self.attridx = attridx
+            self.log2_sz = log2_sz
+            if log2_sz == self.mmu.pageshift:
+                # A level-3 descriptor
+                bt = 0x3
+            else:
+                # A block descriptor
+                bt = 0x1
+            self.val = ((uxn << 54) + (pxn << 53) + (cont << 52) +
+                        (nG << 11) + (AF << 10) + (SH << 8) + (AP << 6) +
+                        (NS << 5) + (attridx << 2) +
+                        (pa & 0x0000fffffffff000) + bt)
 
-    def pageshift(self):
-        # Handle only large pages
-        return self.log2_granule
+        def generate_table(self, level):
+            pass
+
+        def generate_entry(self, level):
+            print "\t.dword 0x%016x  // for 0x%08x, %s" % \
+              (self.val, self.va, self.name)
+
+    class aarch64_pgd(object):
+        def __init__(self, mmu, va, va_shift):
+            self.mmu = mmu
+            self.tt = [None for x in range(1 << self.mmu.log2_entries)]
+            self.va = va
+            self.va_shift = va_shift
+
+        def generate_entry(self, level):
+            # NSTable: 1
+            # APTable: 00 (no effect)
+            # XNTable: 0
+            # PXNTable: 0
+            v = 0x3 + (1 << 63)
+            print "\t.dword __mmu_l%d_%09x + 0x%x" % \
+                (level, self.va >> self.mmu.pageshift, v)
+
+        def generate_table(self, level):
+            # First the next level
+            for t1 in self.tt:
+                if t1:
+                    t1.generate_table(level + 1)
+            # then the pgd
+            print "\t.p2align %d" % self.mmu.pageshift
+            print "__mmu_l%d_%09x:" % (level, self.va >> self.mmu.pageshift)
+            for t1 in self.tt:
+                if t1:
+                    t1.generate_entry(level + 1)
+                else:
+                    print "\t.dword 0"
+
+    def __init__(self, pageshift):
+        # Translation table (initially empty)
+        self.log2_granule = pageshift if pageshift else 12  # Page size
+        self.log2_entries = self.log2_granule - 3   # log2 nbr entries per page
+        self.pageshift = self.log2_granule
+        self.tt = self.aarch64_pgd(self, 0, 48 - self.log2_entries)
 
     def insert(self, name, virt, phys, size, cache, access):
         # Convert cache
@@ -225,10 +216,10 @@ class aarch64_mmu(Arch):
                 sz = block1_log2_size
             else:
                 sz = self.log2_granule
-            e = aarch64_pge(name=name, va=va, pa=pa,
-                            uxn=uxn, pxn=pxn, cont=cont,
-                            nG=nG, AF=AF, SH=SH, AP=AP, NS=NS,
-                            attridx=attridx, log2_sz=sz)
+            e = self.aarch64_pge(mmu=self, name=name, va=va, pa=pa,
+                                 uxn=uxn, pxn=pxn, cont=cont,
+                                 nG=nG, AF=AF, SH=SH, AP=AP, NS=NS,
+                                 attridx=attridx, log2_sz=sz)
 
             self.insert_entry(self.tt, e)
             pa += 1 << sz
@@ -242,7 +233,7 @@ class aarch64_mmu(Arch):
                 print "overlap at %s in region %s" % (hex(e.va), e.name)
                 exit(1)
             t.tt[ia] = e
-        elif isinstance(t.tt[ia], aarch64_pge):
+        elif isinstance(t.tt[ia], self.aarch64_pge):
             # There is already a superpage
             print "overlap at %s in region %s" % (hex(e.va), e.name)
             exit(1)
@@ -251,8 +242,7 @@ class aarch64_mmu(Arch):
                 # Create table
                 nsh = t.va_shift - self.log2_entries
                 va = (e.va >> nsh) << nsh
-                t.tt[ia] = aarch64_pgd(self.log2_granule, self.log2_entries,
-                                       va, nsh)
+                t.tt[ia] = self.aarch64_pgd(self, va, nsh)
             self.insert_entry(t.tt[ia], e)
 
     def generate(self):
@@ -310,7 +300,6 @@ def usage():
 def main():
     global filename
     global pageshift
-    global pagesize
 
     arch = None
 
@@ -350,13 +339,17 @@ def main():
             print "Use --arch or set arch attribute"
             sys.exit(3)
 
+    if 'pageshift' in root.attrib:
+        pageshift = int(root.attrib['pageshift'])
+    else:
+        pageshift = None
+
     if arch not in arches:
         sys.stderr.write("error: unknown architecture '%s'\n" % arch)
         sys.exit(1)
 
-    mmu = arches[arch]()
-    pageshift = mmu.pageshift()
-    pagesize = 1 << pageshift
+    mmu = arches[arch](pageshift)
+    pagesize = 1 << mmu.pageshift
 
     # Create entries for each regions
     for child in root:
