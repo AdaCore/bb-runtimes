@@ -24,7 +24,7 @@ class Arch(object):
 
 
 class arm_mmu(Arch):
-    def __init__(self, pageshift):
+    def __init__(self, mode, pageshift):
         # Translation table (initially empty)
         self.tt = [None for x in range(4096)]
         self.pageshift = pageshift if pageshift else self.default_pageshift()
@@ -100,21 +100,13 @@ class arm_mmu(Arch):
 
 class aarch64_mmu(Arch):
     class aarch64_pge(object):
-        def __init__(self, mmu, name, va, pa,
-                     uxn, pxn, cont, nG, AF, SH, AP, NS, attridx, log2_sz):
+        def __init__(self, mmu, name, va, pa, upper, lower, log2_sz):
             self.mmu = mmu
             self.name = name
             self.va = va
             self.pa = pa
-            self.uxn = uxn
-            self.pxn = pxn
-            self.cont = cont
-            self.nG = nG
-            self.AF = AF
-            self.SH = SH
-            self.AP = AP
-            self.NS = NS
-            self.attridx = attridx
+            self.upper = upper
+            self.lower = lower
             self.log2_sz = log2_sz
             if log2_sz == self.mmu.pageshift:
                 # A level-3 descriptor
@@ -122,10 +114,7 @@ class aarch64_mmu(Arch):
             else:
                 # A block descriptor
                 bt = 0x1
-            self.val = ((uxn << 54) + (pxn << 53) + (cont << 52) +
-                        (nG << 11) + (AF << 10) + (SH << 8) + (AP << 6) +
-                        (NS << 5) + (attridx << 2) +
-                        (pa & 0x0000fffffffff000) + bt)
+            self.val = upper + (pa & 0x0000fffffffff000) + lower + bt
 
         def generate_table(self, prefix, level):
             pass
@@ -142,11 +131,11 @@ class aarch64_mmu(Arch):
             self.va_shift = va_shift
 
         def generate_entry(self, prefix, level):
-            # NSTable: 1
+            # NSTable: 0
             # APTable: 00 (no effect)
             # XNTable: 0
             # PXNTable: 0
-            v = 0x3 + (1 << 63)
+            v = 0x3
             print "\t.dword {}_l{}_{:09x} + 0x{:x}".format(
                 prefix, level, self.va >> self.mmu.pageshift, v)
 
@@ -165,47 +154,69 @@ class aarch64_mmu(Arch):
                 else:
                     print "\t.dword 0"
 
-    def __init__(self, pageshift):
-        # Translation table (initially empty)
+    def __init__(self, mode, pageshift):
         self.log2_granule = pageshift if pageshift else 12  # Page size
         self.log2_entries = self.log2_granule - 3   # log2 nbr entries per page
         self.pageshift = self.log2_granule
+        self.mode = mode
+        # Translation table (initially empty)
         self.tt = self.aarch64_pgd(self, 0, 48 - self.log2_entries)
 
     def insert(self, name, virt, phys, size, cache, access):
-        # Convert cache
-        if cache == 'wb':
-            attridx = 0
-        elif cache == 'nc':
-            attridx = 1
-        else:
-            sys.stderr.write(
-                "unhandled cache attribute '%s' for region %s\n" %
-                (cache, name))
-            exit(1)
+
+        cont = 0    # Not contiguous (by default)
 
         # Convert access
-        if access == "rwx---":
-            AP = 0
-            uxn = 0
-            pxn = 0
-        elif access == "r-x---":
-            AP = 2
-            pxn = 0
-            uxn = 0
-        elif access == "rw-rw-":
-            AP = 1
-            uxn = 1
-            pxn = 1
+        if self.mode is None or self.mode == "el1" or self.mode == "el2":
+            # Convert cache
+            attridx = {'wb': 0, 'nc': 1}[cache]
+
+            if self.mode == "el2":
+                uxn = 1 if access[2] == 'x' else 0
+                pxn = 0   # Res0 in el2 and el3
+                # For el2, AP[1] is res1
+                AP = {"rw": 2, "r-": 3}[access[0:2]]
+            else:
+                if access == "rwx---":
+                    AP = 0
+                    uxn = 0
+                    pxn = 0
+                elif access == "r-x---":
+                    AP = 2
+                    pxn = 0
+                    uxn = 0
+                elif access == "rw-rw-":
+                    AP = 1
+                    uxn = 1
+                    pxn = 1
+                else:
+                    print "unhandled access '%s' for region %s" % (
+                        access, name)
+                    exit(1)
+
+            nG = 0      # Not global
+            AF = 1		# Access flag (don't care)
+            SH = 2		# Shareability
+            NS = 1      # Not secure
+
+            upper = (uxn << 54) | (pxn << 53) | (cont << 52)
+            lower = (nG << 11) | (AF << 10) | (SH << 8) | (AP << 6) \
+                | (NS << 5) | (attridx << 2)
+        elif self.mode == "stage2":
+            xn = 1 if access[2] == 'x' else 0
+
+            S2AP = {"--": 0, "r-": 1, "-w": 2, "rw": 3}[access[0:2]]
+            AF = 1		# Access flag (don't care)
+            SH = 2		# Shareability
+
+            # Convert cache
+            memattr = {'wb': 0b1111, 'nc': 0}[cache]
+
+            upper = (xn << 54) | (cont << 52)
+            lower = (AF << 10) | (SH << 8) | (S2AP << 6) | (memattr << 2)
         else:
-            print "unhandled access '%s' for region %s" % (access, name)
+            print "unknown mode '%s' for region %s" % (self.mode, name)
             exit(1)
-        aptable = 0
-        cont = 0    # Not contiguous (by default)
-        nG = 0      # Not global
-        AF = 1		# Access flag (don't care)
-        SH = 2		# Shareability
-        NS = 1      # Not secure
 
         # Fill tt
         pa = phys
@@ -222,9 +233,7 @@ class aarch64_mmu(Arch):
             else:
                 sz = self.log2_granule
             e = self.aarch64_pge(mmu=self, name=name, va=va, pa=pa,
-                                 uxn=uxn, pxn=pxn, cont=cont,
-                                 nG=nG, AF=AF, SH=SH, AP=AP, NS=NS,
-                                 attridx=attridx, log2_sz=sz)
+                                 lower=lower, upper=upper, log2_sz=sz)
 
             self.insert_entry(self.tt, e)
             pa += 1 << sz
@@ -354,7 +363,7 @@ def create_mmu_from_xml(root, arch=None, mode=None):
         sys.stderr.write("error: unknown architecture '%s'\n" % arch)
         sys.exit(1)
 
-    mmu = arches[arch](pageshift)
+    mmu = arches[arch](mode, pageshift)
     return mmu
 
 
