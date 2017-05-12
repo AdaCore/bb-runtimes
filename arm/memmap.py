@@ -19,7 +19,7 @@ class Arch(object):
     def insert(self, name, virt, phys, size, cache, access):
         pass
 
-    def generate(self):
+    def generate(self, prefix):
         pass
 
 
@@ -82,10 +82,10 @@ class arm_mmu(Arch):
                            'val': val}
             p += self.pagesize
 
-    def generate(self):
+    def generate(self, prefix):
         addr = 0
         print "\t.p2align 14"
-        print "__mmu_l0:"
+        print "{}_l0:".format(prefix)
         for e in self.tt:
             if e:
                 v = e['val']
@@ -127,10 +127,10 @@ class aarch64_mmu(Arch):
                         (NS << 5) + (attridx << 2) +
                         (pa & 0x0000fffffffff000) + bt)
 
-        def generate_table(self, level):
+        def generate_table(self, prefix, level):
             pass
 
-        def generate_entry(self, level):
+        def generate_entry(self, prefix, level):
             print "\t.dword 0x%016x  // for 0x%08x, %s" % \
               (self.val, self.va, self.name)
 
@@ -141,26 +141,27 @@ class aarch64_mmu(Arch):
             self.va = va
             self.va_shift = va_shift
 
-        def generate_entry(self, level):
+        def generate_entry(self, prefix, level):
             # NSTable: 1
             # APTable: 00 (no effect)
             # XNTable: 0
             # PXNTable: 0
             v = 0x3 + (1 << 63)
-            print "\t.dword __mmu_l%d_%09x + 0x%x" % \
-                (level, self.va >> self.mmu.pageshift, v)
+            print "\t.dword {}_l{}_{:09x} + 0x{:x}".format(
+                prefix, level, self.va >> self.mmu.pageshift, v)
 
-        def generate_table(self, level):
+        def generate_table(self, prefix, level):
             # First the next level
             for t1 in self.tt:
                 if t1:
-                    t1.generate_table(level + 1)
+                    t1.generate_table(prefix, level + 1)
             # then the pgd
             print "\t.p2align %d" % self.mmu.pageshift
-            print "__mmu_l%d_%09x:" % (level, self.va >> self.mmu.pageshift)
+            print "{}_l{}_{:09x}:".format(
+                prefix, level, self.va >> self.mmu.pageshift)
             for t1 in self.tt:
                 if t1:
-                    t1.generate_entry(level + 1)
+                    t1.generate_entry(prefix, level + 1)
                 else:
                     print "\t.dword 0"
 
@@ -188,6 +189,10 @@ class aarch64_mmu(Arch):
             AP = 0
             uxn = 0
             pxn = 0
+        elif access == "r-x---":
+            AP = 2
+            pxn = 0
+            uxn = 0
         elif access == "rw-rw-":
             AP = 1
             uxn = 1
@@ -245,7 +250,7 @@ class aarch64_mmu(Arch):
                 t.tt[ia] = self.aarch64_pgd(self, va, nsh)
             self.insert_entry(t.tt[ia], e)
 
-    def generate(self):
+    def generate(self, prefix):
         #  Look for the max size.
         level = 1
         va_max = 48
@@ -267,7 +272,7 @@ class aarch64_mmu(Arch):
             va_max -= 1
         print "// Maz VA size: 2**%d, (sz = %d)" % (va_max, sz)
         t.tt = t.tt[0:sz]
-        t.generate_table(level)
+        t.generate_table(prefix, level)
 
 
 def parse_addr(str):
@@ -285,9 +290,72 @@ def parse_addr(str):
         return int(ustr)
 
 
+class mmu_region(object):
+    def __init__(self, name, virt, phys, size, cache, access):
+        self.name = name
+        self.virt = virt
+        self.phys = phys
+        self.size = size
+        self.cache = cache
+        self.access = access
+
+
+def parse_memmap(mmu, root):
+    res = []
+
+    # Create entries for each regions
+    pagesize = 1 << mmu.pageshift
+    for child in root:
+        name = child.attrib['name']
+        virt = parse_addr(child.attrib['virt'])
+        if 'phys' in child.attrib:
+            phys = parse_addr(child.attrib['phys'])
+        else:
+            phys = virt
+        size = parse_addr(child.attrib['size'])
+        if (virt % pagesize) != 0:
+            sys.stderr.write("%s.virt is not aligned\n" % name)
+            exit(1)
+        if (phys % pagesize) != 0:
+            sys.stderr.write("%s.phys is not aligned\n" % name)
+            exit(1)
+        if (size % pagesize) != 0:
+            sys.stderr.write("size of %s is not aligned\n" % name)
+            exit(1)
+
+        cache = child.attrib['cache']
+        access = child.attrib['access']
+
+        res.append(mmu_region(name, virt, phys, size, cache, access))
+
+    return res
+
+
 # Supported architectures
 arches = {'arm': arm_mmu,
           'aarch64': aarch64_mmu}
+
+
+def create_mmu_from_xml(root, arch=None, mode=None):
+    if not arch:
+        if 'arch' in root.attrib:
+            arch = root.attrib['arch']
+        else:
+            print "error: unknown architecture"
+            print "Use --arch or set arch attribute"
+            sys.exit(3)
+
+    if 'pageshift' in root.attrib:
+        pageshift = int(root.attrib['pageshift'])
+    else:
+        pageshift = None
+
+    if arch not in arches:
+        sys.stderr.write("error: unknown architecture '%s'\n" % arch)
+        sys.exit(1)
+
+    mmu = arches[arch](pageshift)
+    return mmu
 
 
 def usage():
@@ -331,51 +399,14 @@ def main():
     tree = ET.parse(filename)
     root = tree.getroot()
 
-    if not arch:
-        if 'arch' in root.attrib:
-            arch = root.attrib['arch']
-        else:
-            print "error: unknown architecture"
-            print "Use --arch or set arch attribute"
-            sys.exit(3)
+    mmu = create_mmu_from_xml(root, arch)
 
-    if 'pageshift' in root.attrib:
-        pageshift = int(root.attrib['pageshift'])
-    else:
-        pageshift = None
+    regions = parse_memmap(mmu, root)
 
-    if arch not in arches:
-        sys.stderr.write("error: unknown architecture '%s'\n" % arch)
-        sys.exit(1)
+    for r in regions:
+        mmu.insert(r.name, r.virt, r.phys, r.size, r.cache, r.access)
 
-    mmu = arches[arch](pageshift)
-    pagesize = 1 << mmu.pageshift
-
-    # Create entries for each regions
-    for child in root:
-        name = child.attrib['name']
-        virt = parse_addr(child.attrib['virt'])
-        if 'phys' in child.attrib:
-            phys = parse_addr(child.attrib['phys'])
-        else:
-            phys = virt
-        size = parse_addr(child.attrib['size'])
-        if (virt % pagesize) != 0:
-            sys.stderr.write("%s.virt is not aligned\n" % name)
-            exit(1)
-        if (phys % pagesize) != 0:
-            sys.stderr.write("%s.phys is not aligned\n" % name)
-            exit(1)
-        if (size % pagesize) != 0:
-            sys.stderr.write("size of %s is not aligned\n" % name)
-            exit(1)
-
-        cache = child.attrib['cache']
-        access = child.attrib['access']
-
-        mmu.insert(name, virt, phys, size, cache, access)
-
-    mmu.generate()
+    mmu.generate("__mmu")
 
 if __name__ == '__main__':
     main()
