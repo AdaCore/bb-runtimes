@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<multi-image arch="aarch64">
+  <!--  Definition of the memory map -->
+  <include file="../../arm/rpi2/memmap.xml"/>
+
+  <!--  Definition of the boot image -->
+  <image region="ram">
+    <cpu num="default" rom_size="16MB" ram_size="32MB"/>
+    <cpu num="1"       rom_size="16MB" ram_size="128MB"/>
+  </image>
+</multi-image>
+
+
+  
