@@ -8,16 +8,17 @@
 
      for Leading_Required_Switches ("Ada") use
         Compiler'Leading_Required_Switches ("Ada") &amp;
+	("-mfix-ut699") &amp;
         Common_Required_Switches;
 
      for Leading_Required_Switches ("C") use
         Compiler'Leading_Required_Switches ("C") &amp;
-	("-DLEON", "-DLEON3") &amp;
+	("-DLEON", "-DLEON3", "-mfix-ut699") &amp;
         Common_Required_Switches;
 
      for Leading_Required_Switches ("Asm_Cpp") use
         Compiler'Leading_Required_Switches ("Asm_Cpp") &amp;
-	("-DLEON", "-DLEON3") &amp;
+	("-DLEON", "-DLEON3", "-DFIX_UT699") &amp;
         Common_Required_Switches;
    end Compiler;
 
