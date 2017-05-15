@@ -172,10 +172,10 @@ class aarch64_mmu(Arch):
             attridx = {'wb': 0, 'nc': 1}[cache]
 
             if self.mode == "el2":
-                uxn = 1 if access[2] == 'x' else 0
+                uxn = 0 if access[2] == 'x' else 1
                 pxn = 0   # Res0 in el2 and el3
                 # For el2, AP[1] is res1
-                AP = {"rw": 2, "r-": 3}[access[0:2]]
+                AP = {"rw": 1, "r-": 3}[access[0:2]]
             else:
                 if access == "rwx---":
                     AP = 0
