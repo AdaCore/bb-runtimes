@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2016, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -127,6 +127,13 @@ package body System.BB.CPU_Primitives is
       if New_Priority < Interrupt_Priority'Last then
          Board_Support.Interrupts.Set_Current_Priority (New_Priority);
       end if;
+
+      --  Lazy FPU context switch. The FPU context will be saved and restored
+      --  only when required, so disable the FPU for the next task.
+
+      Disable_FPU;
+
+      --  Parameters for the assembly routine
 
       return (Running_Thread_Table (CPU_Id)'Address,
               First_Thread_Table (CPU_Id)'Address);

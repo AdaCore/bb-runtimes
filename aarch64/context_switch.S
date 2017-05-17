@@ -9,11 +9,6 @@ __gnat_context_switch:
 	ldr	x2, [x0]
 	ldr	x4, [x1]
 
-	//  Disable SIMD (Set FPEN to x0)
-	mrs	x3, cpacr_el1
-	bic	x3, x3, #(1 << 20)
-	msr	cpacr_el1, x3
-
 	//  Save context
 	mov	x3, sp
 	stp	x19, x20, [x2, #0]
