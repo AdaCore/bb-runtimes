@@ -13,6 +13,14 @@ On this sd-card, you need to have the following firmware files:
 
 Those startup files can be found with the raspbian distribution.
 
+On aarch64 (available only on Raspberry Pi3), the config.txt file should
+contain the following lines:
+
+# 64-bit mode
+arm_control=0x200
+kernel_old=1
+disable_commandline_tags=1
+
 Use gprbuild to build the application, then for the Raspberry Pi2:
 - arm-eabi-objcopy -O binary PROG PROG.bin
 or for the Raspberry Pi3:
