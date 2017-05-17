@@ -151,11 +151,16 @@ class FilesHolder(object):
 
         if '/' not in srcfile:
             # Files without path elements are in gnat
-            assert self.manifest, "Error: MANIFEST file not found"
-            assert srcfile in self.manifest, \
-                "Error: source file %s not in MANIFEST" % srcfile
-            self._copy(os.path.join(self.gnatdir, srcfile),
-                       dstdir, installed_files)
+            # ??? Temporarily moving them to gnat.bb for now
+            bb_file = os.path.join(self.gnatdir, 'bb', srcfile)
+            if os.path.exists(bb_file):
+                self._copy(bb_file, dstdir, installed_files)
+            else:
+                assert self.manifest, "Error: MANIFEST file not found"
+                assert srcfile in self.manifest, \
+                    "Error: source file %s not in MANIFEST" % srcfile
+                self._copy(os.path.join(self.gnatdir, srcfile),
+                           dstdir, installed_files)
         else:
             for d in ('.', self.gccdir):
                 src = os.path.join(fullpath(d), srcfile)
