@@ -3,6 +3,7 @@ JOBS=0
 TARGET=
 GNAT_SOURCES=$(SRC_DIR)/../gnat
 GCC_SOURCES=$(SRC_DIR)/../gcc
+LINK=n
 
 ###################
 # Other variables #
@@ -82,6 +83,11 @@ ifneq ($(PREFIX),)
   GCC_PREFIX:=$(PREFIX)
 endif
 
+ifeq ($(LINK),y)
+  BUILD_RTS:=python build-rts.py --link
+else
+  BUILD_RTS:=python build-rts.py
+endif
 GPRINSTALL:=GPR_PROJECT_PATH=obj/$(TARGET)/lib/gnat gprinstall -p -f \
               --prefix=$(GCC_PREFIX)
 GPRBUILD:=GPR_PROJECT_PATH=obj/$(TARGET)/lib/gnat gprbuild -j$(JOBS)
@@ -124,7 +130,7 @@ default:
 
 obj/$(TARGET): force
 	mkdir -p obj && rm -rf obj/$(TARGET)
-	set -x; ./build-rts.py --output=obj/$(TARGET) --gnat-dir=$(GNAT_SOURCES) --gcc-dir=$(GCC_SOURCES) $(TARGETS)
+	set -x; $(BUILD_RTS) --output=obj/$(TARGET) --gnat-dir=$(GNAT_SOURCES) --gcc-dir=$(GCC_SOURCES) $(TARGETS)
 
 srcs: obj/$(TARGET)
 

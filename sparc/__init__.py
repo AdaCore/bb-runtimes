@@ -18,15 +18,15 @@ class LeonArch(BSP):
             'src/s-macres/leon/s-macres.adb',
             {'sparc.h': 'sparc-bb.h'}])
         self.add_sources('gnarl', [
-            {'s-bbcppr.adb': 's-bbcppr-sparc.adb',
-             's-bcpith.adb': 's-bcpith-bb-sparc.adb',
+            'src/s-bbcppr/old/s-bbcppr.ads',
+            'src/s-bbcppr/sparc/s-bbcppr.adb',
+            {'s-bcpith.adb': 's-bcpith-bb-sparc.adb',
              'context_switch.S': 'context_switch-bb-sparc.S',
              'trap_handler.S': 'trap_handler-bb-sparc.S',
              'interrupt_masking.S': 'interrupt_masking-bb-sparc.S',
              'floating_point.S': 'floating_point-bb-sparc.S',
              's-bbcaco.adb': 's-bbcaco-leon.adb'},
             's-bbcaco.ads',
-            's-bbcppr.ads',
             's-bbinte.adb'])
 
 

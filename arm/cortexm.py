@@ -14,10 +14,9 @@ class CortexMArch(BSP):
             'src/s-macres/cortexm3/s-macres.adb',
             'arm/src/breakpoint_handler-cortexm.S'])
         self.add_sources('gnarl', [
-            {'s-bbcppr.adb': 's-bbcppr-armv7m.adb'},
-            'src/s-bbbosu/armv7m/s-bbbosu.adb'])
-        self.add_sources('gnarl', [
-            's-bbcppr.ads',
+            'src/s-bbbosu/armv7m/s-bbbosu.adb',
+            'src/s-bbcppr/old/s-bbcppr.ads',
+            'src/s-bbcppr/armv7m/s-bbcppr.adb',
             's-bbinte.adb',
             's-bbsumu.adb'])
 

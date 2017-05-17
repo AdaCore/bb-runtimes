@@ -12,10 +12,10 @@ class PPCArch(BSP):
 
     def __init__(self):
         super(PPCArch, self).__init__()
-        self.add_sources('gnarl', {
-            's-bbcppr.adb': 's-bbcppr-ppc.adb',
-            's-bbcppr.ads': 's-bbcppr-ppc.ads',
-            's-bbinte.adb': 's-bbinte-ppc.adb'})
+        self.add_sources('gnarl', [
+            'src/s-bbcppr/new/s-bbcppr.ads',
+            'src/s-bbcppr/ppc/s-bbcppr.adb',
+            {'s-bbinte.adb': 's-bbinte-ppc.adb'}])
 
 
 class PPC6XXArch(PPCArch):
@@ -24,9 +24,9 @@ class PPC6XXArch(PPCArch):
         self.add_sources('gnarl-ppc6xx', [
             'powerpc/6xx/context_switch.S',
             'powerpc/6xx/handler.S'])
-        self.add_sources('gnarl-ppc6xx', {
-            's-bbcpsp.ads': 's-bbcpsp-6xx.ads',
-            's-bbcpsp.adb': 's-bbcpsp-6xx.adb'})
+        self.add_sources('gnarl-ppc6xx', [
+            'src/s-bbcpsp/6xx/s-bbcpsp.ads',
+            'src/s-bbcpsp/6xx/s-bbcpsp.adb'])
 
 
 class PPCSPEArch(PPCArch):
@@ -35,9 +35,9 @@ class PPCSPEArch(PPCArch):
         self.add_sources('gnarl-spe', [
             'powerpc/spe/handler.S',
             'powerpc/spe/context_switch.S'])
-        self.add_sources('gnarl-spe', {
-            's-bbcpsp.ads': 's-bbcpsp-spe.ads',
-            's-bbcpsp.adb': 's-bbcpsp-spe.adb'})
+        self.add_sources('gnarl-spe', [
+            'src/s-bbcpsp/spe/s-bbcpsp.ads',
+            'src/s-bbcpsp/spe/s-bbcpsp.adb'])
 
 
 class PPC6XXTarget(DFBBTarget):
