@@ -91,12 +91,12 @@ class Rpi2(CortexARTarget):
             'i-raspberry_pi.ads',
             'arm/rpi2/start-ram.S',
             'arm/rpi2/memmap.s',
-            {'s-textio.adb': 's-textio-rpi2.adb',
-             's-macres.adb': 's-macres-rpi2.adb'}])
-        self.add_sources('gnarl', {
-            'a-intnam.ads': 'arm/rpi2/a-intnam.ads',
-            's-bbpara.ads': 's-bbpara-rpi2.ads',
-            's-bbbosu.adb': 's-bbbosu-rpi2.adb'})
+            'src/s-textio/rpi2/s-textio.adb',
+            'src/s-macres/rpi2/s-macres.adb'])
+        self.add_sources('gnarl', [
+            'arm/rpi2/a-intnam.ads',
+            'src/s-bbpara/rpi2/s-bbpara.ads',
+            'src/s-bbbosu/rpi2/s-bbbosu.adb'])
 
 
 class TMS570(CortexARTarget):
@@ -145,12 +145,12 @@ class TMS570(CortexARTarget):
             'arm/tms570/crt0.S',
             'arm/tms570/start-ram.S',
             'arm/tms570/start-rom.S',
-            {'s-textio.adb': 's-textio-tms570.adb',
-             's-macres.adb': 's-macres-tms570.adb'}])
-        self.add_sources('gnarl', {
-            'a-intnam.ads': 'a-intnam-xi-tms570.ads',
-            's-bbpara.ads': 's-bbpara-tms570.ads',
-            's-bbbosu.adb': 's-bbbosu-tms570.adb'})
+            'src/s-textio/tms570/s-textio.adb',
+            'src/s-macres/tms570/s-macres.adb'])
+        self.add_sources('gnarl', [
+            'src/a-intnam/tms570/a-intnam.ads',
+            'src/s-bbpara/tms570/s-bbpara.ads',
+            'src/s-bbbosu/tms570/s-bbbosu.adb'])
         self.add_sources('gnarl', 's-bbsumu.adb')
 
 
@@ -203,9 +203,9 @@ class Zynq7000(CortexARTarget):
         self.add_sources('crt0', [
             'arm/zynq/start-ram.S',
             'arm/zynq/memmap.inc',
-            {'s-textio.adb': 's-textio-zynq.adb',
-             's-macres.adb': 's-macres-zynq.adb'}])
-        self.add_sources('gnarl', {
-            'a-intnam.ads': 'a-intnam-xi-zynq.ads',
-            's-bbpara.ads': 's-bbpara-cortexa9.ads',
-            's-bbbosu.adb': 's-bbbosu-cortexa9.adb'})
+            'src/s-textio/zynq/s-textio.adb',
+            'src/s-macres/zynq/s-macres.adb'])
+        self.add_sources('gnarl', [
+            'src/a-intnam/zynq/a-intnam.ads',
+            'src/s-bbpara/cortexa9/s-bbpara.ads',
+            'src/s-bbbosu/cortexa9/s-bbbosu.adb'])

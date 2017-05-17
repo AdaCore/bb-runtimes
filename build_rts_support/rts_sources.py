@@ -380,11 +380,11 @@ class SourceDirs(SharedFilesHolder):
             's-imgllu.ads', 's-imgllu.adb',
             's-imguns.ads', 's-imguns.adb',
             's-maccod.ads',
-            's-macres.ads',
+            'src/s-macres/s-macres.ads',
             {'s-secsta.ads': 's-secsta-zfp.ads'},
             {'s-secsta.adb': 's-secsta-zfp.adb'},
             's-stoele.ads', 's-stoele.adb',
-            {'s-textio.ads': 's-textio-zfp.ads'},
+            'src/s-textio/s-textio.ads',
             's-unstyp.ads',
             'unchconv.ads',
             'unchdeal.ads'])
@@ -402,8 +402,8 @@ class SourceDirs(SharedFilesHolder):
             self.add_sources('semihost', [
                 's-semiho.ads',
                 's-semiho.adb',
-                {'s-textio.adb': 's-textio-semihosting.adb',
-                 'a-textio.adb': 'a-textio-semihosting.adb'}])
+                'src/s-textio/semihosting/s-textio.adb',
+                {'a-textio.adb': 'a-textio-semihosting.adb'}])
 
         # FPU support sources
         self.add_rule('fpu', 'Has_FPU:yes')
@@ -566,7 +566,7 @@ class SourceDirs(SharedFilesHolder):
                  'a-extiin.adb': 'a-extiin-bb.adb'},
                 {'a-rttiev.ads': 'a-rttiev-bb.ads',
                  'a-rttiev.adb': 'a-rttiev-bb.adb'},
-                's-bbbosu.ads',
+                'src/s-bbbosu/s-bbbosu.ads',
                 's-bbexti.ads', 's-bbexti.adb',
                 's-bbinte.ads',
                 's-bbprot.ads', 's-bbprot.adb',

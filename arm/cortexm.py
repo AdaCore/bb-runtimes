@@ -10,12 +10,12 @@ class CortexMArch(BSP):
 
     def __init__(self):
         super(CortexMArch, self).__init__()
-        self.add_sources('arch', {
-            's-macres.adb': 's-macres-cortexm3.adb',
-            'breakpoint_handler.S': 'arm/src/breakpoint_handler-cortexm.S'})
-        self.add_sources('gnarl', {
-            's-bbcppr.adb': 's-bbcppr-armv7m.adb',
-            's-bbbosu.adb': 's-bbbosu-armv7m.adb'})
+        self.add_sources('arch', [
+            'src/s-macres/cortexm3/s-macres.adb',
+            'arm/src/breakpoint_handler-cortexm.S'])
+        self.add_sources('gnarl', [
+            {'s-bbcppr.adb': 's-bbcppr-armv7m.adb'},
+            'src/s-bbbosu/armv7m/s-bbbosu.adb'])
         self.add_sources('gnarl', [
             's-bbcppr.ads',
             's-bbinte.adb',
@@ -111,7 +111,7 @@ class LM3S(CortexMTarget):
             'arm/lm3s/start-ram.S',
             'arm/lm3s/setup_pll.adb',
             'arm/lm3s/setup_pll.ads',
-            {'s-textio.adb': 's-textio-lm3s.adb'}])
+            'src/s-textio/lm3s/s-textio.adb'])
 
 
 class SamCommonBSP(BSP):
@@ -138,8 +138,8 @@ class SamCommonBSP(BSP):
             'arm/sam/start-rom.S',
             'arm/sam/start-ram.S',
             'arm/sam/setup_pll.ads'])
-        self.add_sources('gnarl', {
-            's-bbpara.ads': 's-bbpara-sam4s.ads'})
+        self.add_sources('gnarl', [
+            'src/s-bbpara/sam4s/s-bbpara.ads'])
 
 
 class Sam(CortexMTarget):
@@ -187,7 +187,7 @@ class Sam(CortexMTarget):
             'arm/sam/%s/svd/i-sam-efc.ads' % self.name,
             'arm/sam/%s/svd/i-sam-pmc.ads' % self.name,
             'arm/sam/%s/svd/i-sam-sysc.ads' % self.name,
-            {'s-textio.adb': 's-textio-sam4s.adb'}])
+            'src/s-textio/sam4s/s-textio.adb'])
         # FIXME: s-textio.adb is invalid for the g55
 
         # ravenscar support
@@ -195,7 +195,7 @@ class Sam(CortexMTarget):
             'arm/sam/%s/svd/handler.S' % self.name,
             'arm/sam/%s/s-bbbopa.ads' % self.name,
             'arm/sam/%s/s-bbmcpa.ads' % self.name,
-            {'a-intnam.ads': 'arm/sam/%s/svd/a-intnam.ads' % self.name}])
+            'arm/sam/%s/svd/a-intnam.ads' % self.name])
 
 
 class SmartFusion2(CortexMTarget):
@@ -256,7 +256,7 @@ class SmartFusion2(CortexMTarget):
             'arm/smartfusion2/s-sf2gpi.adb',
             'arm/smartfusion2/svd/handler.S',
             'arm/smartfusion2/svd/a-intnam.ads',
-            {'s-bbpara.ads': 's-bbpara-smartfusion2.ads'}])
+            'src/s-bbpara/smartfusion2/s-bbpara.ads'])
 
 
 class Stm32CommonBSP(BSP):
@@ -284,7 +284,7 @@ class Stm32CommonBSP(BSP):
         self.add_linker_script('arm/stm32/common-ROM.ld', loader='ROM')
 
         self.add_sources('crt0', [
-            {'s-bbpara.ads': 's-bbpara-stm32f4.ads'},
+            'src/s-bbpara/stm32f4/s-bbpara.ads',
             's-stm32.ads',
             'arm/stm32/start-rom.S',
             'arm/stm32/start-ram.S',

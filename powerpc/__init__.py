@@ -118,14 +118,14 @@ class MPC8349e(PPC6XXTarget):
         self.add_sources('crt0', [
             'powerpc/mpc8349/start-ram.S',
             'powerpc/mpc8349/setup.S',
-            {'s-macres.adb': 's-macres-8349e.adb',
-             's-bbbopa.ads': 's-bbbopa-8349e.ads',
-             's-textio.adb': 's-textio-p2020.adb'}])
-        self.add_sources('gnarl', {
-            's-bbbosu.adb': 's-bbbosu-8349e.adb',
-            's-bbsuti.adb': 's-bbsuti-ppc.adb',
-            's-bbpara.ads': 's-bbpara-ppc.ads',
-            'a-intnam.ads': 'a-intnam-xi-8349e.ads'})
+            'src/s-macres/8349e/s-macres.adb',
+            'src/s-bbbopa/8349e/s-bbbopa.ads',
+            'src/s-textio/p2020/s-textio.adb'])
+        self.add_sources('gnarl', [
+            'src/s-bbbosu/8349e/s-bbbosu.adb',
+            'src/s-bbpara/ppc/s-bbpara.ads',
+            {'s-bbsuti.adb': 's-bbsuti-ppc.adb'},
+            'src/a-intnam/8349e/a-intnam.ads'])
 
 
 class MPC8641(PPC6XXTarget):
@@ -155,16 +155,16 @@ class MPC8641(PPC6XXTarget):
         self.add_sources('crt0', [
             'powerpc/mpc8641/start-rom.S',
             'powerpc/mpc8641/setup.S'])
-        self.add_sources('crt0', {
-            's-macres.adb': 's-macres-p2020.adb',
-            's-bbbopa.ads': 's-bbbopa-8641d.ads',
-            's-textio.adb': 's-textio-p2020.adb'})
-        self.add_sources('gnarl', {
-            's-bbbosu.adb': 's-bbbosu-ppc-openpic.adb',
-            's-bbsuti.adb': 's-bbsuti-ppc.adb',
-            's-bbsumu.adb': 's-bbsumu-8641d.adb',
-            's-bbpara.ads': 's-bbpara-8641d.ads',
-            'a-intnam.ads': 'a-intnam-xi-ppc-openpic.ads'})
+        self.add_sources('crt0', [
+            'src/s-macres/p2020/s-macres.adb',
+            'src/s-bbbopa/8641d/s-bbbopa.ads',
+            'src/s-textio/p2020/s-textio.adb'])
+        self.add_sources('gnarl', [
+            'src/s-bbbosu/ppc-openpic/s-bbbosu.adb',
+            {'s-bbsuti.adb': 's-bbsuti-ppc.adb',
+             's-bbsumu.adb': 's-bbsumu-8641d.adb'},
+            'src/s-bbpara/8641d/s-bbpara.ads',
+            'src/a-intnam/ppc-openpic/a-intnam.ads'])
 
 
 class PPCSPETarget(PPC6XXTarget):
@@ -203,8 +203,8 @@ class P5634(PPCSPETarget):
         self.add_linker_script('powerpc/mpc5634/5634.ld', loader=None)
         self.add_sources('crt0', [
             'powerpc/mpc5634/start.S',
-            {'s-macres.adb': 's-macres-p55.adb',
-             's-textio.adb': 's-textio-p55.adb'}])
+            'src/s-macres/p55/s-macres.adb',
+            'src/s-textio/p55/s-textio.adb'])
 
 
 class P2020(PPCSPETarget):
@@ -226,15 +226,15 @@ class P2020(PPCSPETarget):
         self.add_sources('crt0', [
             'powerpc/p2020/start-ram.S',
             'powerpc/p2020/setup.S',
-            {'s-macres.adb': 's-macres-p2020.adb',
-             's-bbbopa.ads': 's-bbbopa-p2020.ads',
-             's-textio.adb': 's-textio-p2020.adb'}])
+            'src/s-macres/p2020/s-macres.adb',
+            'src/s-bbbopa/p2020/s-bbbopa.ads',
+            'src/s-textio/p2020/s-textio.adb'])
         self.add_sources('gnarl', [
             's-bbsumu.adb',
-            {'s-bbbosu.adb': 's-bbbosu-ppc-openpic.adb',
-             's-bbsuti.adb': 's-bbsuti-ppc.adb',
-             's-bbpara.ads': 's-bbpara-ppc.ads',
-             'a-intnam.ads': 'a-intnam-xi-ppc-openpic.ads'}])
+            'src/s-bbbosu/ppc-openpic/s-bbbosu.adb',
+            {'s-bbsuti.adb': 's-bbsuti-ppc.adb'},
+            'src/s-bbpara/ppc/s-bbpara.ads',
+            'src/a-intnam/ppc-openpic/a-intnam.ads'])
 
 
 class P5566(PPCSPETarget):
@@ -265,12 +265,12 @@ class P5566(PPCSPETarget):
             'powerpc/p5566/start-flash.S',
             'powerpc/p5566/setup.S',
             'powerpc/p5566/setup-pll.S',
-            {'s-macres.adb': 's-macres-p55.adb',
-             's-textio.adb': 's-textio-p55.adb'}])
+            'src/s-macres/p55/s-macres.adb',
+            'src/s-textio/p55/s-textio.adb'])
         self.add_sources('gnarl', [
             's-bbsumu.adb',
-            {'s-bbbopa.ads': 's-bbbopa-p55.ads',
-             's-bbbosu.adb': 's-bbbosu-p55.adb',
-             's-bbsuti.adb': 's-bbsuti-ppc.adb',
-             's-bbpara.ads': 's-bbpara-p55.ads',
-             'a-intnam.ads': 'a-intnam-xi-p55.ads'}])
+            'src/s-bbbopa/p55/s-bbbopa.ads',
+            {'s-bbsuti.adb': 's-bbsuti-ppc.adb'},
+            'src/s-bbbosu/p55/s-bbbosu.adb',
+            'src/s-bbpara/p55/s-bbpara.ads',
+            'src/a-intnam/p55/a-intnam.ads'])

@@ -15,8 +15,8 @@ class LeonArch(BSP):
         self.add_sources('arch', [
             'sparc/leon/crt0.S',
             'sparc/leon/hw_init.S',
-            {'s-macres.adb': 's-macres-leon.adb',
-             'sparc.h': 'sparc-bb.h'}])
+            'src/s-macres/leon/s-macres.adb',
+            {'sparc.h': 'sparc-bb.h'}])
         self.add_sources('gnarl', [
             {'s-bbcppr.adb': 's-bbcppr-sparc.adb',
              's-bcpith.adb': 's-bcpith-bb-sparc.adb',
@@ -91,15 +91,15 @@ class Leon2(LeonTarget):
         super(Leon2, self).__init__()
 
         self.add_linker_script('sparc/leon/leon.ld', loader=None)
-        self.add_sources('crt0', {
-            's-textio.adb': 's-textio-leon.adb',
-            's-bbbopa.ads': 's-bbbopa-leon.ads'})
+        self.add_sources('crt0', [
+            'src/s-textio/leon/s-textio.adb',
+            'src/s-bbbopa/leon/s-bbbopa.ads'])
         self.add_sources('gnarl', [
             's-bbsule.ads',
             's-bbsumu.adb',
-            {'s-bbbosu.adb': 's-bbbosu-leon.adb',
-             's-bbpara.ads': 's-bbpara-leon.ads',
-             'a-intnam.ads': 'a-intnam-xi-leon.ads'}])
+            'src/s-bbbosu/leon/s-bbbosu.adb',
+            'src/s-bbpara/leon/s-bbpara.ads',
+            'src/a-intnam/leon/a-intnam.ads'])
 
 
 class Leon3(LeonTarget):
@@ -146,9 +146,9 @@ class Leon3(LeonTarget):
         super(Leon3, self).__init__()
 
         self.add_linker_script('sparc/leon3/leon.ld', loader=None)
-        self.add_sources('crt0', {
-            's-textio.adb': 's-textio-leon3.adb',
-            's-bbbopa.ads': 's-bbbopa-leon3.ads'})
+        self.add_sources('crt0', [
+            'src/s-textio/leon3/s-textio.adb',
+            'src/s-bbbopa/leon3/s-bbbopa.ads'])
         self.add_sources('gnat', [
             'i-leon3.ads',
             'i-leon3-uart.ads',
@@ -156,9 +156,9 @@ class Leon3(LeonTarget):
         self.add_sources('gnarl', [
             'i-leon3-timers.ads',
             'i-leon3-irqmp.ads',
-            {'s-bbbosu.adb': 's-bbbosu-leon3.adb',
-             's-bbpara.ads': 's-bbpara-leon.ads',
-             'a-intnam.ads': 'a-intnam-xi-leon3.ads'}])
+            'src/s-bbbosu/leon3/s-bbbosu.adb',
+            'src/s-bbpara/leon/s-bbpara.ads',
+            'src/a-intnam/leon3/a-intnam.ads'])
 
 
 class Leon4(Leon3):
@@ -168,4 +168,4 @@ class Leon4(Leon3):
 
     def __init__(self):
         super(Leon4, self).__init__()
-        self.update_pair('s-bbbopa.ads', 's-bbbopa-leon4.ads')
+        self.update_pair('s-bbbopa.ads', 'src/s-bbbopa/leon4/s-bbbopa.ads')

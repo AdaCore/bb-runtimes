@@ -87,12 +87,8 @@ class AARCH64QEMU(Aarch64Target):
         self.add_linker_script('aarch64/qemu/ram.ld', loader='RAM')
         self.add_sources('crt0', [
             'aarch64/qemu/start-ram.S',
-            {'s-textio.adb': 's-textio-zynq.adb',
-             's-macres.adb': 's-macres-zynq.adb'}])
-        self.add_sources('gnarl', {
-            'a-intnam.ads': 'a-intnam-dummy.ads',
-            's-bbpara.ads': 's-bbpara-rpi2.ads',
-            's-bbbosu.adb': 's-bbbosu-qemu.adb'})
+            'src/s-textio/zynq/s-textio.adb',
+            'src/s-macres/zynq/s-macres.adb'])
 
 
 class Rpi3(Aarch64Target):
@@ -132,9 +128,9 @@ class Rpi3(Aarch64Target):
             'aarch64/rpi3/memmap.s',
             'aarch64/rpi3/trap_dump.ads',
             'aarch64/rpi3/trap_dump.adb',
-            {'s-textio.adb': 's-textio-rpi2.adb',
-             's-macres.adb': 's-macres-rpi2.adb'}])
-        self.add_sources('gnarl', {
-            'a-intnam.ads': 'arm/rpi2/a-intnam.ads',
-            's-bbpara.ads': 's-bbpara-rpi2.ads',
-            's-bbbosu.adb': 's-bbbosu-rpi3.adb'})
+            'src/s-textio/rpi2/s-textio.adb',
+            'src/s-macres/rpi2/s-macres.adb'])
+        self.add_sources('gnarl', [
+            {'a-intnam.ads': 'arm/rpi2/a-intnam.ads'},
+            'src/s-bbpara/rpi2/s-bbpara.ads',
+            'src/s-bbbosu/rpi3/s-bbbosu.adb'])
