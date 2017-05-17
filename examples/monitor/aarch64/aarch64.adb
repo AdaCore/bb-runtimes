@@ -2,7 +2,7 @@
 --                                                                          --
 --                               GNAT EXAMPLE                               --
 --                                                                          --
---                        Copyright (C) 2016, AdaCore                       --
+--                     Copyright (C) 2016-2017, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -125,15 +125,47 @@ package body Aarch64 is
       return Res;
    end Get_HCR_EL2;
 
-   function Get_TCR_EL2 return Unsigned_64
+   function Get_TCR_EL2 return Unsigned_32
    is
-      Res : Unsigned_64;
+      Res : Unsigned_32;
    begin
       Asm ("mrs %0, tcr_el2",
-           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
            Volatile => True);
       return Res;
    end Get_TCR_EL2;
+
+   function Get_SCTLR_EL2 return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, sctlr_el2",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SCTLR_EL2;
+
+   function Get_TTBR0_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, ttbr0_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_TTBR0_EL2;
+
+   function Get_VBAR_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, vbar_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_VBAR_EL2;
+
+   --  EL1
 
    function Get_SP_EL1 return Unsigned_64
    is
@@ -204,6 +236,45 @@ package body Aarch64 is
            Volatile => True);
       return Res;
    end Get_ID_AA64MMFR0_EL1;
+
+   --  Timers
+
+   function Get_CNTP_CTL_EL0 return Unsigned_32 is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, cntp_ctl_el0",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_CNTP_CTL_EL0;
+
+   function Get_CNTV_CTL_EL0 return Unsigned_32 is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, cntv_ctl_el0",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_CNTV_CTL_EL0;
+
+   function Get_CNTHP_CTL_EL2 return Unsigned_32 is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, cnthp_ctl_el2",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_CNTHP_CTL_EL2;
+
+   function Get_CNTPCT_EL0 return Unsigned_64 is
+      Res : Unsigned_64;
+   begin
+      --  Read CNTPCT
+      Asm ("mrs %0, cntpct_el0",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_CNTPCT_EL0;
 
    procedure Proc_El1 is
    begin
@@ -316,7 +387,14 @@ package body Aarch64 is
          Put ("EL2 HCR: ");
          Put (Hex8 (Get_HCR_EL2));
          Put (" TCR: ");
-         Put (Hex8 (Get_TCR_EL2));
+         Put (Hex4 (Get_TCR_EL2));
+         Put (" VBAR: ");
+         Put (Hex8 (Get_VBAR_EL2));
+         New_Line;
+         Put ("EL2 SCTLR: ");
+         Put (Hex4 (Get_SCTLR_EL2));
+         Put (" TTBR0: ");
+         Put (Hex8 (Get_TTBR0_EL2));
          New_Line;
          Put ("EL1 SP: ");
          Put (Hex8 (Get_SP_EL1));
@@ -411,8 +489,42 @@ package body Aarch64 is
       New_Line;
    end Proc_Features;
 
+   procedure Proc_Mmu_On is
+      EL : constant Unsigned_32 := Get_Current_EL;
+      Sctlr : Unsigned_32;
+   begin
+      if EL = 2 * 4 then
+         Sctlr := Get_SCTLR_EL2;
+         Sctlr := Sctlr or 1;
+         Asm ("msr sctlr_el2, %0"  & ASCII.LF & ASCII.HT &
+              "isb",
+              Inputs => Unsigned_32'Asm_Input ("r", Sctlr),
+              Volatile => True);
+      else
+         Put_Line ("Not implemented at this level");
+      end if;
+   end Proc_Mmu_On;
+
+   procedure Proc_Timers is
+      EL : constant Unsigned_32 := Get_Current_EL;
+   begin
+      if EL >= 2 * 4 then
+         Put ("EL2: CNTHP_CTL: ");
+         Put (Hex4 (Get_CNTHP_CTL_EL2));
+         New_Line;
+      end if;
+
+      Put ("EL0: CNTP_CTL: ");
+      Put (Hex4 (Get_CNTP_CTL_EL0));
+      Put (" CNTV_CTL: ");
+      Put (Hex4 (Get_CNTV_CTL_EL0));
+      Put (" CNTPCT: ");
+      Put (Hex8 (Get_CNTPCT_EL0));
+      New_Line;
+   end Proc_Timers;
+
    Commands : aliased Command_List :=
-     (8,
+     (10,
       (1 => (new String'("cr - Display some config registers"),
              Proc_Cr'Access),
        2 => (new String'("el1 - Switch to el1"),
@@ -427,7 +539,11 @@ package body Aarch64 is
              Proc_Smc'Access),
        7 => (new String'("at - address translate"),
              Proc_At'Access),
-       8 => (new String'("features - disp processor features"),
+       8 => (new String'("mmu_on - Enable mmu"),
+             Proc_Mmu_On'Access),
+       9 => (new String'("timers - Display timers regs"),
+             Proc_Timers'Access),
+       10 => (new String'("features - disp processor features"),
              Proc_Features'Access)),
       null);
 begin
