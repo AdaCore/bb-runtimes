@@ -91,11 +91,7 @@ class AARCH64QEMU(Aarch64Target):
             'src/s-macres/zynq/s-macres.adb'])
 
 
-class Rpi3(Aarch64Target):
-    @property
-    def name(self):
-        return "rpi3"
-
+class Rpi3Base(Aarch64Target):
     @property
     def loaders(self):
         return ('RAM', )
@@ -110,22 +106,20 @@ class Rpi3(Aarch64Target):
         return 'arm/rpi2/README'
 
     def amend_ravenscar_full(self, cfg):
-        super(Rpi3, self).amend_ravenscar_full(cfg)
+        super(Rpi3Base, self).amend_ravenscar_full(cfg)
         cfg.rts_xml = cfg.rts_xml.replace(
             '"-nostartfiles"',
             ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
              '        "-nostartfiles"'))
 
     def __init__(self):
-        super(Rpi3, self).__init__(
+        super(Rpi3Base, self).__init__(
             mem_routines=True,
             small_mem=False)
 
         self.add_linker_script('aarch64/rpi3/ram.ld', loader='RAM')
         self.add_sources('crt0', [
             'i-raspberry_pi.ads',
-            'aarch64/rpi3/start-ram.S',
-            'aarch64/rpi3/memmap.s',
             'aarch64/rpi3/trap_dump.ads',
             'aarch64/rpi3/trap_dump.adb',
             'src/s-textio/rpi2/s-textio.adb',
@@ -134,3 +128,29 @@ class Rpi3(Aarch64Target):
             {'a-intnam.ads': 'arm/rpi2/a-intnam.ads'},
             'src/s-bbpara/rpi2/s-bbpara.ads',
             'src/s-bbbosu/rpi3/s-bbbosu.adb'])
+
+
+class Rpi3(Rpi3Base):
+    @property
+    def name(self):
+        return "rpi3"
+
+    def __init__(self):
+        super(Rpi3, self).__init__()
+
+        self.add_sources('crt0', [
+            'aarch64/rpi3/start-ram.S',
+            'aarch64/rpi3/memmap.s'])
+
+
+class Rpi3Mc(Rpi3Base):
+    @property
+    def name(self):
+        return "rpi3mc"
+
+    def __init__(self):
+        super(Rpi3Mc, self).__init__()
+
+        self.add_sources('crt0', [
+            'aarch64/rpi3-mc/start-ram.S',
+            'aarch64/rpi3-mc/memmap.s'])

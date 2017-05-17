@@ -101,8 +101,9 @@ __start_ram1:
 	# Enable FPU (don't trap accesses)
 	msr	cptr_el3, xzr
 
-	# HCR_EL2: RW(1), DC
-	mov	x0,#((1<<31)) // | (1<<12))
+	# HCR_EL2: RW(1), DC, IMO(4), FMO(3), AMO(5)
+	# For RPi3, redirect IRQ/FIQ/ABT to EL2.
+	ldr	x0,=((1<<31) | (1<<12) | (1<<5) | (1<<4) | (1<<3))
 	msr	hcr_el2,x0
 
 	# Switch to el2h, set AIF
@@ -125,9 +126,7 @@ __start_el2:
 	msr	ttbr0_el2, x0
 	// TCR_EL2: TB0=0, PS=000 (4GB),
 	//          TG0=00, SH0=11, ORGN0=01, IRGN1=01, T0SZ=32
-	movz	x0, #((32 << 0) | (1 << 8) | (1 << 10) | (3 << 12) \
-	              | (0 << 14)), LSL #16
-	movk	x0, #((32 << 0) | (1 << 8) | (1 << 10) | (3 << 12) \
+	ldr	x0, =((32 << 0) | (1 << 8) | (1 << 10) | (3 << 12) \
 	              | (0 << 14))
 	msr	tcr_el2, x0
 	movz	x0,#0x00ee

@@ -59,13 +59,13 @@ __start_ram1:
 	mrs	x7, mpidr_el1
 	and	x7, x7, #3
 
-	# Load stack pointer (on 32bit)
+	# Load EL3 stack pointer (on 32bit)
 	adrp	x2,system_stack_el3_base
 	add	x2, x2, #:lo12:system_stack_el3_base
 	ldr	w0,[x2, x7, lsl #2]
 	mov	sp,x0
 
-	# Load stack pointer (on 32bit)
+	# Load EL2 stack pointer (on 32bit)
 	adrp	x2,system_stack_el2_base
 	add	x2, x2, #:lo12:system_stack_el2_base
 	ldr	w0,[x2, x7, lsl #2]
@@ -118,7 +118,7 @@ __start_el2:
 	# Enable FPU (don't trap accesses)
 	msr	cptr_el2, xzr
 
-	# Load stack pointer (on 32bit)
+	# Load EL1 stack pointer (on 32bit)
 	adrp	x2,system_stack_base
 	add	x2, x2, #:lo12:system_stack_base
 	ldr	w0,[x2, x7, lsl #2]
