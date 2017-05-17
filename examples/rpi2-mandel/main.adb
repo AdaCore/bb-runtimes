@@ -2,7 +2,7 @@
 --                                                                          --
 --                               GNAT EXAMPLE                               --
 --                                                                          --
---                        Copyright (C) 2016, AdaCore                       --
+--                     Copyright (C) 2016-2017, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -36,11 +36,17 @@ with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
 procedure Main is
    T : Time;
 begin
+   Put_Line ("*******");
+
    Init_Video;
 
+   Put_Line ("Waiting for screen...");
+
    --  Wait for screen on.
-   T := Clock + Seconds (2);
+   T := Clock + Seconds (1);
    delay until T;
+
+   Put_Line ("Starting...");
 
    loop
       --  Start tasks.
@@ -62,5 +68,7 @@ begin
          Put_Line (" ms");
       end loop;
       New_Line;
+
+      delay until Clock + Seconds (5);
    end loop;
 end Main;

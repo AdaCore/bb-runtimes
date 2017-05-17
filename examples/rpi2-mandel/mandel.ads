@@ -2,7 +2,7 @@
 --                                                                          --
 --                               GNAT EXAMPLE                               --
 --                                                                          --
---                        Copyright (C) 2016, AdaCore                       --
+--                     Copyright (C) 2016-2017, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -40,7 +40,7 @@ package Mandel is
       Width, Height : Natural;
    end record;
 
-   Regions : array (1 .. Nbr_Tasks) of Mandel_Screen :=
+   Regions : array (1 .. 4) of Mandel_Screen :=
      (1 => (0, 0, Width / 2, Height / 2),
       2 =>  (Width / 2, 0, Width / 2, Height / 2),
       3 =>  (0, Height / 2, Width / 2, Height / 2),

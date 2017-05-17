@@ -2,7 +2,7 @@
 --                                                                          --
 --                               GNAT EXAMPLE                               --
 --                                                                          --
---                        Copyright (C) 2016, AdaCore                       --
+--                     Copyright (C) 2016-2017, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -33,7 +33,8 @@ with System.Storage_Elements; use System.Storage_Elements;
 with Ada.Unchecked_Conversion;
 with Ada.Text_IO; use Ada.Text_IO;
 with Interfaces.Raspberry_Pi; use Interfaces.Raspberry_Pi;
-with Interfaces.ARM_V7AR; use Interfaces.ARM_V7AR;
+with Interfaces.Cache;
+--  with Interfaces.ARM_V7AR; use Interfaces.ARM_V7AR;
 
 package body Video is
    subtype String8 is String (1 .. 8);
@@ -116,7 +117,7 @@ package body Video is
       Msg (0) := Msg'Length * 4;
 
       --  Clean and invalidate so that GPU can read it
-      ARM_V7AR.Cache.Dcache_Flush_By_Range (Msg'Address, Msg'Length * 4);
+      Cache.Dcache_Flush_By_Range (Msg'Address, Msg'Length * 4);
 
       Mailbox_Write (To_Unsigned_32 (Msg'Address), Channel_Tags_ARM_To_VC);
       Res := Mailbox_Read (Channel_Tags_ARM_To_VC);
@@ -132,6 +133,6 @@ package body Video is
       Put_Line (Image8 (Msg (6)));
 
       --  Map to uncached address
-      Fb := To_Frame_Buffer_Acc ((Msg (5) and 16#3fff_ffff#) or 16#8000_0000#);
+      Fb := To_Frame_Buffer_Acc ((Msg (5) and 16#3fff_ffff#));
    end Init_Video;
 end Video;

@@ -2,7 +2,7 @@
 --                                                                          --
 --                               GNAT EXAMPLE                               --
 --                                                                          --
---                        Copyright (C) 2016, AdaCore                       --
+--                     Copyright (C) 2016-2017, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -27,12 +27,10 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO; use Ada.Text_IO;
 with System;
 with Interfaces; use Interfaces;
 with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
 with System.Multiprocessors; use System.Multiprocessors;
-with Interfaces.ARM_V7AR;
 
 package body Mandel is
    --  Initial picture
@@ -155,26 +153,10 @@ package body Mandel is
    end T;
 
    task body T is
-      use Interfaces.ARM_V7AR;
-      use Interfaces.ARM_V7AR.CP15;
-      use Interfaces.ARM_V7AR.Barriers;
-      SCTLR : Unsigned_32;
       T0 : Time;
    begin
-      SCTLR := Get_SCTLR;
-      if Id = 2 or Id = 4 then
-         SCTLR := SCTLR and not SCTLR_C;
-      end if;
-      if Id = 3 or Id = 4 then
-         SCTLR := SCTLR and not SCTLR_I;
-      end if;
-      Set_SCTLR (SCTLR);
-      ISB;
-
       if Id = 2 then
-         Put_Line ("CPU 2!!!");
          delay until Clock + Milliseconds (200);
-         Put_Line ("CPU 2 again");
       end if;
 
       loop
@@ -183,6 +165,7 @@ package body Mandel is
          for I in 1 .. 5 loop
             Draw_Mandelbrot (Regions (Id).X, Regions (Id).Y,
                              Regions (Id).Width, Regions (Id).Height);
+            delay until Time_First;
          end loop;
          Times (Id) := Clock - T0;
          Set_True (Wait (Id));
