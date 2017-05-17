@@ -17,8 +17,8 @@ class CortexMArch(BSP):
             'src/s-bbbosu/armv7m/s-bbbosu.adb',
             'src/s-bbcppr/old/s-bbcppr.ads',
             'src/s-bbcppr/armv7m/s-bbcppr.adb',
-            's-bbinte.adb',
-            's-bbsumu.adb'])
+            'src/s-bbinte/generic/s-bbinte.adb',
+            'src/s-bbsumu/generic/s-bbsumu.adb'])
 
 
 class CortexMTarget(Target):
@@ -284,7 +284,7 @@ class Stm32CommonBSP(BSP):
 
         self.add_sources('crt0', [
             'src/s-bbpara/stm32f4/s-bbpara.ads',
-            's-stm32.ads',
+            'arm/stm32/s-stm32.ads',
             'arm/stm32/start-rom.S',
             'arm/stm32/start-ram.S',
             'arm/stm32/start-common.S',
@@ -374,25 +374,25 @@ class Stm32(CortexMTarget):
             'arm/stm32/%s/svd/i-stm32-usart.ads' % self.mcu])
 
         if self.board == 'stm32f4':
-            self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f40x.adb'})
+            self.add_sources('crt0', [
+                'arm/stm32/stm32f40x/s-stm32.adb'])
         elif self.board == 'stm32f429disco':
-            self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f4x9x.adb'})
+            self.add_sources('crt0', [
+                'arm/stm32/stm32f429x/s-stm32.adb'])
         elif self.board == 'openmv2':
-            self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f4x9x.adb'})
+            self.add_sources('crt0', [
+                'arm/stm32/stm32f429x/s-stm32.adb'])
             self.update_pair(
                 's-bbbopa.ads', 'arm/stm32/%s/s-bbbopa-openmv2.ads' % self.mcu)
         elif self.board == 'stm32f469disco':
-            self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f4x9x.adb'})
+            self.add_sources('crt0', [
+                'arm/stm32/stm32f429x/s-stm32.adb'])
         elif self.board == 'stm32f746disco':
-            self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f7x.adb'})
+            self.add_sources('crt0', [
+                'arm/stm32/stm32f7x/s-stm32.adb'])
         elif self.board == 'stm32f769disco':
-            self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f7x.adb'})
+            self.add_sources('crt0', [
+                'arm/stm32/stm32f7x/s-stm32.adb'])
 
         # ravenscar support
         self.add_sources('gnarl', [

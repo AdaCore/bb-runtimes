@@ -568,7 +568,7 @@ class SourceDirs(SharedFilesHolder):
                  'a-rttiev.adb': 'a-rttiev-bb.adb'},
                 'src/s-bbbosu/s-bbbosu.ads',
                 's-bbexti.ads', 's-bbexti.adb',
-                's-bbinte.ads',
+                'src/s-bbinte/s-bbinte.ads',
                 's-bbprot.ads', 's-bbprot.adb',
                 's-bbthqu.ads', 's-bbthqu.adb',
                 's-bbthre.ads', 's-bbthre.adb',

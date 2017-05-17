@@ -15,7 +15,7 @@ class PPCArch(BSP):
         self.add_sources('gnarl', [
             'src/s-bbcppr/new/s-bbcppr.ads',
             'src/s-bbcppr/ppc/s-bbcppr.adb',
-            {'s-bbinte.adb': 's-bbinte-ppc.adb'}])
+            'src/s-bbinte/ppc/s-bbinte.adb'])
 
 
 class PPC6XXArch(PPCArch):
@@ -161,8 +161,8 @@ class MPC8641(PPC6XXTarget):
             'src/s-textio/p2020/s-textio.adb'])
         self.add_sources('gnarl', [
             'src/s-bbbosu/ppc-openpic/s-bbbosu.adb',
-            {'s-bbsuti.adb': 's-bbsuti-ppc.adb',
-             's-bbsumu.adb': 's-bbsumu-8641d.adb'},
+            {'s-bbsuti.adb': 's-bbsuti-ppc.adb'},
+            'src/s-bbsumu/8641d/s-bbsumu.adb',
             'src/s-bbpara/8641d/s-bbpara.ads',
             'src/a-intnam/ppc-openpic/a-intnam.ads'])
 
@@ -230,7 +230,7 @@ class P2020(PPCSPETarget):
             'src/s-bbbopa/p2020/s-bbbopa.ads',
             'src/s-textio/p2020/s-textio.adb'])
         self.add_sources('gnarl', [
-            's-bbsumu.adb',
+            'src/s-bbsumu/generic/s-bbsumu.adb',
             'src/s-bbbosu/ppc-openpic/s-bbbosu.adb',
             {'s-bbsuti.adb': 's-bbsuti-ppc.adb'},
             'src/s-bbpara/ppc/s-bbpara.ads',
@@ -268,7 +268,7 @@ class P5566(PPCSPETarget):
             'src/s-macres/p55/s-macres.adb',
             'src/s-textio/p55/s-textio.adb'])
         self.add_sources('gnarl', [
-            's-bbsumu.adb',
+            'src/s-bbsumu/generic/s-bbsumu.adb',
             'src/s-bbbopa/p55/s-bbbopa.ads',
             {'s-bbsuti.adb': 's-bbsuti-ppc.adb'},
             'src/s-bbbosu/p55/s-bbbosu.adb',

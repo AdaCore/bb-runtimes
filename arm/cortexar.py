@@ -19,7 +19,7 @@ class CortexARArch(BSP):
             'src/s-bbcpsp/arm/s-bbcpsp.ads',
             'src/s-bbcppr/old/s-bbcppr.ads',
             'src/s-bbcppr/arm/s-bbcppr.adb',
-            's-bbinte.adb'])
+            'src/s-bbinte/generic/s-bbinte.adb'])
 
 
 class CortexARTarget(DFBBTarget):
@@ -150,8 +150,8 @@ class TMS570(CortexARTarget):
         self.add_sources('gnarl', [
             'src/a-intnam/tms570/a-intnam.ads',
             'src/s-bbpara/tms570/s-bbpara.ads',
-            'src/s-bbbosu/tms570/s-bbbosu.adb'])
-        self.add_sources('gnarl', 's-bbsumu.adb')
+            'src/s-bbbosu/tms570/s-bbbosu.adb',
+            'src/s-bbsumu/generic/s-bbsumu.adb'])
 
 
 class Zynq7000(CortexARTarget):

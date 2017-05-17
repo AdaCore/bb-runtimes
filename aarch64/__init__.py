@@ -18,7 +18,7 @@ class Aarch64Arch(BSP):
             'src/s-bbcppr/new/s-bbcppr.ads',
             'src/s-bbcppr/aarch64/s-bbcppr.adb',
             'aarch64/context_switch.S',
-            's-bbinte.adb'])
+            'src/s-bbinte/generic/s-bbinte.adb'])
 
 
 class Aarch64Target(DFBBTarget):

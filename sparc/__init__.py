@@ -27,7 +27,7 @@ class LeonArch(BSP):
              'floating_point.S': 'floating_point-bb-sparc.S',
              's-bbcaco.adb': 's-bbcaco-leon.adb'},
             's-bbcaco.ads',
-            's-bbinte.adb'])
+            'src/s-bbinte/generic/s-bbinte.adb'])
 
 
 class LeonTarget(DFBBTarget):
@@ -96,7 +96,7 @@ class Leon2(LeonTarget):
             'src/s-bbbopa/leon/s-bbbopa.ads'])
         self.add_sources('gnarl', [
             's-bbsule.ads',
-            's-bbsumu.adb',
+            'src/s-bbsumu/generic/s-bbsumu.adb',
             'src/s-bbbosu/leon/s-bbbosu.adb',
             'src/s-bbpara/leon/s-bbpara.ads',
             'src/a-intnam/leon/a-intnam.ads'])
