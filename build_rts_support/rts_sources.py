@@ -366,7 +366,7 @@ class SourceDirs(SharedFilesHolder):
             'ada.ads',
             {'g-io.ads': 'g-io-zfp.ads'},
             {'g-io.adb': 'g-io-zfp.adb'},
-            {'g-io-put.adb': 'g-io-put-stextio.adb'},
+            'src/rts_files/g-io-put.adb',
             'g-souinf.ads',
             'gnat.ads',
             'i-cexten.ads',
@@ -393,17 +393,17 @@ class SourceDirs(SharedFilesHolder):
             self.add_sources('common', [
                 'text_io.ads',
                 {'a-textio.ads': 'a-textio-zfp.ads'},
-                's-bb.ads'])
+                'src/rts_files/s-bb.ads'])
 
             self.add_rule('system_io', 'Use_Semihosting_IO:no')
             self.add_rule('semihost', 'Use_Semihosting_IO:yes')
             self.add_sources('system_io', {
                 'a-textio.adb': 'a-textio-zfp.adb'})
             self.add_sources('semihost', [
-                's-semiho.ads',
-                's-semiho.adb',
-                'src/s-textio/semihosting/s-textio.adb',
-                {'a-textio.adb': 'a-textio-semihosting.adb'}])
+                'src/semihosting/s-semiho.ads',
+                'src/semihosting/s-semiho.adb',
+                'src/semihosting/s-textio.adb',
+                'src/semihosting/a-textio.adb'])
 
         # FPU support sources
         self.add_rule('fpu', 'Has_FPU:yes')
@@ -560,27 +560,23 @@ class SourceDirs(SharedFilesHolder):
         if self._is_bb:
             # BB case
             self.add_sources('gnarl/common', [
-                {'a-exetim.ads': 'a-exetim-bb.ads',
-                 'a-exetim.adb': 'a-exetim-bb.adb'},
-                {'a-extiin.ads': 'a-extiin-bb.ads',
-                 'a-extiin.adb': 'a-extiin-bb.adb'},
-                {'a-rttiev.ads': 'a-rttiev-bb.ads',
-                 'a-rttiev.adb': 'a-rttiev-bb.adb'},
+                'src/rts_files/a-exetim.ads', 'src/rts_files/a-exetim.adb',
+                'src/rts_files/a-extiin.ads', 'src/rts_files/a-extiin.adb',
+                'src/rts_files/a-rttiev.ads', 'src/rts_files/a-rttiev.adb'},
                 'src/s-bbbosu/s-bbbosu.ads',
-                's-bbexti.ads', 's-bbexti.adb',
+                'src/rts_files/s-bbexti.ads', 'src/rts_files/s-bbexti.adb',
                 'src/s-bbinte/s-bbinte.ads',
-                's-bbprot.ads', 's-bbprot.adb',
-                's-bbthqu.ads', 's-bbthqu.adb',
-                's-bbthre.ads', 's-bbthre.adb',
-                's-bbtiev.ads', 's-bbtiev.adb',
-                's-bbtime.ads',
-                's-bcprmu.ads', 's-bcprmu.adb',
-                {'s-interr.adb': 's-interr-xi.adb'},
-                {'s-multip.ads': 's-multip-bb.ads',
-                 's-multip.adb': 's-multip-bb.adb'},
-                {'s-taprop.adb': 's-taprop-xi.adb'},
-                {'s-tpobmu.adb': 's-tpobmu-bb.adb'},
-                {'s-osinte.ads': 's-osinte-bb.ads'}])
+                'src/rts_files/s-bbprot.ads', 'src/rts_files/s-bbprot.adb',
+                'src/rts_files/s-bbthqu.ads', 'src/rts_files/s-bbthqu.adb',
+                'src/rts_files/s-bbthre.ads', 'src/rts_files/s-bbthre.adb',
+                'src/rts_files/s-bbtiev.ads', 'src/rts_files/s-bbtiev.adb',
+                'src/rts_files/s-bbtime.ads',
+                'src/rts_files/s-bcprmu.ads', 'src/rts_files/s-bcprmu.adb',
+                'src/rts_files/s-interr.adb',
+                'src/rts_files/s-multip.ads', 'src/rts_files/s-multip.adb',
+                'src/rts_files/s-taprop.adb',
+                'src/rts_files/s-tpobmu.adb',
+                'src/rts_files/s-osinte.ads'])
         else:
             # PikeOS case
             self.add_sources('gnarl/common', [
@@ -611,9 +607,9 @@ class SourceDirs(SharedFilesHolder):
 
         # timer support
         self.add_rule('gnarl/timer32', 'Timer:timer32')
-        self.add_sources('gnarl/timer32', 's-bbtime.adb')
+        self.add_sources('gnarl/timer32', 'src/s-bbtime/32bit/s-bbtime.adb')
         self.add_rule('gnarl/timer64', 'Timer:timer64')
-        self.add_sources('gnarl/timer64', {'s-bbtime.adb': 's-bbtime-ppc.adb'})
+        self.add_sources('gnarl/timer64', 'src/s-bbtime/64bit/s-bbtime.adb'})
 
         # spinlock support (leon workaround)
         if self._is_bb:
