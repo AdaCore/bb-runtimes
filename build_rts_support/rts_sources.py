@@ -557,7 +557,7 @@ class SourceDirs(SharedFilesHolder):
                 'src/a-exetim.ads', 'src/a-exetim.adb',
                 'src/a-extiin.ads', 'src/a-extiin.adb',
                 'src/a-rttiev.ads', 'src/a-rttiev.adb',
-                'src/s-bbbosu/s-bbbosu.ads',
+                'src/s-bbbosu.ads',
                 'src/s-bbexti.ads', 'src/s-bbexti.adb',
                 'src/s-bbinte.ads',
                 'src/s-bbprot.ads', 'src/s-bbprot.adb',
