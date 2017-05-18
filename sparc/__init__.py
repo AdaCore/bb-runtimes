@@ -150,12 +150,12 @@ class Leon3(LeonTarget):
             'src/s-textio/leon3/s-textio.adb',
             'src/s-bbbopa/leon3/s-bbbopa.ads'])
         self.add_sources('gnat', [
-            'i-leon3.ads',
-            'i-leon3-uart.ads',
-            'i-leon3-cache.ads'])
+            'sparc/leon3/i-leon3.ads',
+            'sparc/leon3/i-leon3-uart.ads',
+            'sparc/leon3/i-leon3-cache.ads'])
         self.add_sources('gnarl', [
-            'i-leon3-timers.ads',
-            'i-leon3-irqmp.ads',
+            'sparc/leon3/i-leon3-timers.ads',
+            'sparc/leon3/i-leon3-irqmp.ads',
             'src/s-bbbosu/leon3/s-bbbosu.adb',
             'src/s-bbpara/leon/s-bbpara.ads',
             'src/a-intnam/leon3/a-intnam.ads'])

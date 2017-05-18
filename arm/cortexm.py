@@ -133,7 +133,7 @@ class SamCommonBSP(BSP):
         self.add_linker_script('arm/sam/common-ROM.ld', loader='ROM')
 
         self.add_sources('crt0', [
-            's-sam4s.ads',
+            'arm/sam/s-sam4s.ads',
             'arm/sam/start-rom.S',
             'arm/sam/start-ram.S',
             'arm/sam/setup_pll.ads'])
