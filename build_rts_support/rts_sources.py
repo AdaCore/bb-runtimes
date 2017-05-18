@@ -417,10 +417,10 @@ class SourceDirs(SharedFilesHolder):
         # Memory support sources
         self.add_rule('mem', 'Add_Memory_Operations:yes')
         self.add_sources('mem', [
-            's-memcom.ads', 's-memcom.adb',
+            'src/s-memcom.ads', 'src/s-memcom.adb',
             'src/s-memcop.ads', 'src/s-memcop.adb',
-            's-memmov.ads', 's-memmov.adb',
-            's-memset.ads', 's-memset.adb'])
+            'src/s-memmov.ads', 'src/s-memmov.adb',
+            'src/s-memset.ads', 'src/s-memset.adb'])
 
         # Libc implementation
         self.add_rule('libc', 'Add_C_Support:ada_clib')
