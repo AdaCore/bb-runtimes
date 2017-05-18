@@ -562,7 +562,7 @@ class SourceDirs(SharedFilesHolder):
             self.add_sources('gnarl/common', [
                 'src/rts_files/a-exetim.ads', 'src/rts_files/a-exetim.adb',
                 'src/rts_files/a-extiin.ads', 'src/rts_files/a-extiin.adb',
-                'src/rts_files/a-rttiev.ads', 'src/rts_files/a-rttiev.adb'},
+                'src/rts_files/a-rttiev.ads', 'src/rts_files/a-rttiev.adb',
                 'src/s-bbbosu/s-bbbosu.ads',
                 'src/rts_files/s-bbexti.ads', 'src/rts_files/s-bbexti.adb',
                 'src/s-bbinte/s-bbinte.ads',
@@ -607,9 +607,11 @@ class SourceDirs(SharedFilesHolder):
 
         # timer support
         self.add_rule('gnarl/timer32', 'Timer:timer32')
-        self.add_sources('gnarl/timer32', 'src/s-bbtime/32bit/s-bbtime.adb')
+        self.add_sources('gnarl/timer32', [
+            'src/s-bbtime/32bit/s-bbtime.adb'])
         self.add_rule('gnarl/timer64', 'Timer:timer64')
-        self.add_sources('gnarl/timer64', 'src/s-bbtime/64bit/s-bbtime.adb'})
+        self.add_sources('gnarl/timer64', [
+            'src/s-bbtime/64bit/s-bbtime.adb'])
 
         # spinlock support (leon workaround)
         if self._is_bb:
@@ -912,10 +914,10 @@ class SourceDirs(SharedFilesHolder):
         # Zero-cost-exception support
         self.add_rule('full/zcx-arm', [
             'RTS_Profile:ravenscar-full', 'CPU_Family:arm'])
-        self.add_sources('full/zcx-arm', {
-            's-excmac.adb': 's-excmac-arm.adb',
-            's-excmac.ads': 's-excmac-arm.ads',
-            's-traceb.adb': 's-traceb-xi-armeabi.adb'})
+        self.add_sources('full/zcx-arm', [
+            {'s-excmac.adb': 's-excmac-arm.adb',
+             's-excmac.ads': 's-excmac-arm.ads'},
+            'src/s-traceb/arm/s-traceb.adb'])
         self.add_rule('full/zcx-dw2', [
             'RTS_Profile:ravenscar-full', 'CPU_Family:!arm'])
         self.add_sources('full/zcx-dw2', [
@@ -927,16 +929,16 @@ class SourceDirs(SharedFilesHolder):
 
         self.add_rule('full/zcx-aarch64',
                       ['RTS_Profile:ravenscar-full', 'CPU_Family:aarch64'])
-        self.add_sources('full/zcx-aarch64', {
-            's-traceb.adb': 's-traceb-xi-dwarf.adb'})
+        self.add_sources('full/zcx-aarch64', [
+            'src/s-traceb/dwarf/s-traceb.adb'])
         self.add_rule('full/zcx-ppc',
                       ['RTS_Profile:ravenscar-full', 'CPU_Family:powerpc'])
-        self.add_sources('full/zcx-ppc', {
-            's-traceb.adb': 's-traceb-xi-ppc.adb'})
+        self.add_sources('full/zcx-ppc', [
+            'src/s-traceb/ppc/s-traceb.adb'])
         self.add_rule('full/zcx-leon',
                       ['RTS_Profile:ravenscar-full', 'CPU_Family:leon'])
-        self.add_sources('full/zcx-leon', {
-            's-traceb.adb': 's-traceb-xi-sparc.adb'})
+        self.add_sources('full/zcx-leon', [
+            'src/s-traceb/sparc/s-traceb.adb'])
         self.add_rule('full/zcx-x86',
                       ['RTS_Profile:ravenscar-full', 'CPU_Family:x86'])
         self.add_sources('full/zcx-x86', {
