@@ -58,7 +58,9 @@ is
 
    function "-"
      (Left  : CPU_Time;
-      Right : CPU_Time) return Ada.Real_Time.Time_Span;
+      Right : CPU_Time) return Ada.Real_Time.Time_Span
+   with
+     Global => null;
 
    function "<"  (Left, Right : CPU_Time) return Boolean with
      Global => null;
