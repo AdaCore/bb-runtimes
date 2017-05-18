@@ -2,11 +2,11 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---    A D A . E X C E P T I O N S . L A S T _ C H A N C E _ H A N D L E R   --
+--                          A D A . T E X T _ I O                           --
 --                                                                          --
---                                 B o d y                                  --
+--                                 S p e c                                  --
 --                                                                          --
---          Copyright (C) 2003-2015, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2011, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -29,41 +29,24 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with System.IO;                use System.IO;
-with GNAT.Debug_Utilities;     use GNAT.Debug_Utilities;
-with System;
-with System.OS_Interface;
+--  Note: this package is not compliant with the one defined in the Ada
+--  Reference Manual. It is a stripped down version for ZFP and bare-board
+--  runtimes.
 
---  Default last chance handler for use with full run-time library on bare
---  board targets.
+package Ada.Text_IO is
+   procedure Get (C : out Character);
+   --  Read from console
 
---  It dumps the exception identity and the non-symbolic traceback from the
---  point where the exception was triggered.
+   procedure Put (Item : Character);
+   --  Output character to the console
 
-procedure Ada.Exceptions.Last_Chance_Handler (Except : Exception_Occurrence) is
-begin
-   Put_Line ("In last chance handler");
-   Put_Line ("Unhandled Ada Exception: " & Exception_Name (Except));
-   Put_Line ("Message: " & Exception_Message (Except));
-   Put_Line ("Call stack traceback locations:");
+   procedure Put (Item : String);
+   --  Output string to the console
 
-   --  Dump backtrace PC values
+   procedure Put_Line (Item : String);
+   --  Output string followed by new line to the console
 
-   for J in 1 .. Except.Num_Tracebacks loop
-      Put (Image_C (Except.Tracebacks (J)));
-      Put (" ");
-   end loop;
+   procedure New_Line;
+   --  Output new line character to the console
 
-   New_Line;
-
-   --  Suspend forever
-
-   System.OS_Interface.Sleep;
-
-   --  The following junk raise of Program_Error is required because
-   --  this is a No_Return function, and unfortunately Suspend can
-   --  return (although this particular call won't).
-
-   raise Program_Error;
-
-end Ada.Exceptions.Last_Chance_Handler;
+end Ada.Text_IO;
