@@ -97,9 +97,17 @@ package body System.BB.CPU_Primitives is
    CPACR_FPEN : constant := 16#100000#;
    --  FPU enable bit of CPACR
 
+   function Get_CPTR_EL2 return Unsigned_64;
+   procedure Set_CPTR_EL2 (Val : Unsigned_64);
+   --  Low-level access to CPTR_EL2 register
+
+   CPTR_TFP : constant := 16#400#;
+   --  FPU trap bit of CPTR
+
    procedure Disable_FPU;
    procedure Enable_FPU;
-   --  Disable/enable FPU by changing the FPEN bit of CPACR
+   --  Disable/enable FPU by changing the FPEN bit of CPACR or the TFP bit of
+   --  CPTR.
 
    procedure Fpen_Trap;
    pragma Export (C, Fpen_Trap, "__gnat_fpen_trap");
@@ -282,6 +290,31 @@ package body System.BB.CPU_Primitives is
            Volatile => True);
    end Set_CPACR_EL1;
 
+   ------------------
+   -- Get_CPTR_EL2 --
+   ------------------
+
+   function Get_CPTR_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, cptr_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_CPTR_EL2;
+
+   ------------------
+   -- Set_CPTR_EL2 --
+   ------------------
+
+   procedure Set_CPTR_EL2 (Val : Unsigned_64) is
+   begin
+      Asm ("msr cptr_el2, %0",
+           Inputs => Unsigned_64'Asm_Input ("r", Val),
+           Volatile => True);
+   end Set_CPTR_EL2;
+
    -----------------
    -- Disable_FPU --
    -----------------
@@ -289,9 +322,16 @@ package body System.BB.CPU_Primitives is
    procedure Disable_FPU is
       V : Unsigned_64;
    begin
-      V := Get_CPACR_EL1;
-      V := V and not CPACR_FPEN;
-      Set_CPACR_EL1 (V);
+      case Parameters.Runtime_EL is
+         when 1 =>
+            V := Get_CPACR_EL1;
+            V := V and not CPACR_FPEN;
+            Set_CPACR_EL1 (V);
+         when 2 =>
+            V := Get_CPTR_EL2;
+            V := V or CPTR_TFP;
+            Set_CPTR_EL2 (V);
+      end case;
    end Disable_FPU;
 
    ----------------
@@ -301,9 +341,16 @@ package body System.BB.CPU_Primitives is
    procedure Enable_FPU is
       V : Unsigned_64;
    begin
-      V := Get_CPACR_EL1;
-      V := V or CPACR_FPEN;
-      Set_CPACR_EL1 (V);
+      case Parameters.Runtime_EL is
+         when 1 =>
+            V := Get_CPACR_EL1;
+            V := V or CPACR_FPEN;
+            Set_CPACR_EL1 (V);
+         when 2 =>
+            V := Get_CPTR_EL2;
+            V := V and not CPTR_TFP;
+            Set_CPTR_EL2 (V);
+      end case;
    end Enable_FPU;
 
    ---------------

@@ -83,7 +83,7 @@ package System.BB.Parameters is
    --  empted. Most of the space is currently required for floating point
    --  state, which is saved lazily.
 
-   --  The TMS570 processor needs to save:
+   --  The ARM processor needs to save:
 
    --   * 6 integer registers of 32 bits (r0, r1, PC, CPSR, R12, SP)
    --     for normal processing
@@ -114,5 +114,15 @@ package System.BB.Parameters is
 
    Multiprocessor : constant Boolean := Max_Number_Of_CPUs /= 1;
    --  Are we on a multiprocessor board?
+
+   ---------------
+   -- Privilege --
+   ---------------
+
+   type Runtime_EL_Type is range 1 .. 2;
+   Runtime_EL : constant Runtime_EL_Type := 1;
+   --  Exception level for the runtime (currently used only on aarch64).  Only
+   --  EL1 and EL2 are supported. EL0 and EL3 are excluded as they don't
+   --  provide timers.
 
 end System.BB.Parameters;

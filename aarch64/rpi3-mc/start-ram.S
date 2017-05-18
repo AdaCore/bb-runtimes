@@ -387,7 +387,7 @@ __trap_syn_elx:
 	str	x30, [sp, #240]
 	adr	x30,__vector_restore
 	mrs	x0, esr_el2
-	ubfx	x1, x0, #26, #6
+	ubfx	x1, x0, #26, #6	 // Extract EC
 	cmp	x1, #0x07
 	bne	1f
 	b	__gnat_fpen_trap

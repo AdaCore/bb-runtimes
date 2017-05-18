@@ -37,7 +37,7 @@
 with Ada.Unchecked_Conversion;
 with System.Machine_Code;
 with System.BB.CPU_Primitives.Multiprocessors;
-with System.BB.Parameters;
+with System.BB.Parameters; use System.BB.Parameters;
 with Interfaces; use Interfaces;
 with Interfaces.Raspberry_Pi;
 
@@ -54,11 +54,6 @@ package body System.BB.Board_Support is
    procedure Initialize_CPU_Devices;
    pragma Export (C, Initialize_CPU_Devices, "__gnat_initialize_cpu_devices");
    --  Per CPU device initialization
-
-   type Runtime_EL_Type is range 1 .. 2;
-   Runtime_EL : constant Runtime_EL_Type := 1;
-   --  Exception level for the runtime.  Only EL1 and EL2 are supported.
-   --  EL0 and EL3 are excluded as they don't provide timers.
 
    procedure Set_CNTP_CTL_EL0 (Val : Unsigned_32) with Inline_Always;
    procedure Set_CNTHP_CTL_EL2 (Val : Unsigned_32) with Inline_Always;
