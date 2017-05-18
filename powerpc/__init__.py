@@ -124,7 +124,7 @@ class MPC8349e(PPC6XXTarget):
         self.add_sources('gnarl', [
             'src/s-bbbosu/8349e/s-bbbosu.adb',
             'src/s-bbpara/ppc/s-bbpara.ads',
-            {'s-bbsuti.adb': 's-bbsuti-ppc.adb'},
+            'src/s-bbsuti/ppc/s-bbsuti.adb',
             'src/a-intnam/8349e/a-intnam.ads'])
 
 
@@ -161,7 +161,7 @@ class MPC8641(PPC6XXTarget):
             'src/s-textio/p2020/s-textio.adb'])
         self.add_sources('gnarl', [
             'src/s-bbbosu/ppc-openpic/s-bbbosu.adb',
-            {'s-bbsuti.adb': 's-bbsuti-ppc.adb'},
+            'src/s-bbsuti/ppc/s-bbsuti.adb',
             'src/s-bbsumu/8641d/s-bbsumu.adb',
             'src/s-bbpara/8641d/s-bbpara.ads',
             'src/a-intnam/ppc-openpic/a-intnam.ads'])
@@ -232,7 +232,7 @@ class P2020(PPCSPETarget):
         self.add_sources('gnarl', [
             'src/s-bbsumu/generic/s-bbsumu.adb',
             'src/s-bbbosu/ppc-openpic/s-bbbosu.adb',
-            {'s-bbsuti.adb': 's-bbsuti-ppc.adb'},
+            'src/s-bbsuti/ppc/s-bbsuti.adb',
             'src/s-bbpara/ppc/s-bbpara.ads',
             'src/a-intnam/ppc-openpic/a-intnam.ads'])
 
@@ -270,7 +270,7 @@ class P5566(PPCSPETarget):
         self.add_sources('gnarl', [
             'src/s-bbsumu/generic/s-bbsumu.adb',
             'src/s-bbbopa/p55/s-bbbopa.ads',
-            {'s-bbsuti.adb': 's-bbsuti-ppc.adb'},
+            'src/s-bbsuti/ppc/s-bbsuti.adb',
             'src/s-bbbosu/p55/s-bbbosu.adb',
             'src/s-bbpara/p55/s-bbpara.ads',
             'src/a-intnam/p55/a-intnam.ads'])

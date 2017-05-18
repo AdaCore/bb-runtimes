@@ -15,18 +15,18 @@ class LeonArch(BSP):
         self.add_sources('arch', [
             'sparc/leon/crt0.S',
             'sparc/leon/hw_init.S',
-            'src/s-macres/leon/s-macres.adb',
-            {'sparc.h': 'sparc-bb.h'}])
+            'sparc/src/sparc.h',
+            'src/s-macres/leon/s-macres.adb'])
         self.add_sources('gnarl', [
             'src/s-bbcppr/old/s-bbcppr.ads',
             'src/s-bbcppr/sparc/s-bbcppr.adb',
-            {'s-bcpith.adb': 's-bcpith-bb-sparc.adb',
-             'context_switch.S': 'context_switch-bb-sparc.S',
-             'trap_handler.S': 'trap_handler-bb-sparc.S',
-             'interrupt_masking.S': 'interrupt_masking-bb-sparc.S',
-             'floating_point.S': 'floating_point-bb-sparc.S',
-             's-bbcaco.adb': 's-bbcaco-leon.adb'},
-            's-bbcaco.ads',
+            'src/s-bbcppr/sparc/s-bcpith.adb',
+            'sparc/src/context_switch.S',
+            'sparc/src/trap_handler.S',
+            'sparc/src/interrupt_masking.S',
+            'sparc/src/floating_point.S',
+            'src/s-bbcaco/s-bbcaco.ads',
+            'src/s-bbcaco/leon/s-bbcaco.adb',
             'src/s-bbinte/generic/s-bbinte.adb'])
 
 
@@ -95,8 +95,8 @@ class Leon2(LeonTarget):
             'src/s-textio/leon/s-textio.adb',
             'src/s-bbbopa/leon/s-bbbopa.ads'])
         self.add_sources('gnarl', [
-            's-bbsule.ads',
             'src/s-bbsumu/generic/s-bbsumu.adb',
+            'src/s-bbbosu/leon/s-bbsule.ads',
             'src/s-bbbosu/leon/s-bbbosu.adb',
             'src/s-bbpara/leon/s-bbpara.ads',
             'src/a-intnam/leon/a-intnam.ads'])
