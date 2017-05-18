@@ -126,7 +126,7 @@ class Target(TargetConfiguration, BSP):
             self.runtimes['zfp'].rts_vars = self.rts_options.zfp_scenarios(
                 self._mem_routines, math_lib=False)
             self.runtimes['zfp'].add_sources('arch', {
-                'system.ads': self.zfp_system_ads})
+                'system.ads': 'src/system/%s' % self.zfp_system_ads})
 
         if self.sfp_system_ads is not None:
             self.runtimes['ravenscar-sfp'] = FilesHolder()
@@ -136,7 +136,7 @@ class Target(TargetConfiguration, BSP):
                     math_lib=False,
                     small_mem=self._small_mem)
             self.runtimes['ravenscar-sfp'].add_sources('arch', {
-                'system.ads': self.sfp_system_ads})
+                'system.ads': 'src/system/%s' % self.sfp_system_ads})
 
         if self.full_system_ads is not None:
             self.runtimes['ravenscar-full'] = FilesHolder()
@@ -144,7 +144,7 @@ class Target(TargetConfiguration, BSP):
                 self.rts_options.full_scenarios(
                     mem_routines, math_lib=True, small_mem=small_mem)
             self.runtimes['ravenscar-full'].add_sources('arch', {
-                'system.ads': self.full_system_ads})
+                'system.ads': 'src/system/%s' % self.full_system_ads})
 
         assert len(self.runtimes) > 0, "No runtime defined"
 
