@@ -380,11 +380,11 @@ class SourceDirs(SharedFilesHolder):
             's-imgllu.ads', 's-imgllu.adb',
             's-imguns.ads', 's-imguns.adb',
             's-maccod.ads',
-            'src/s-macres/s-macres.ads',
+            'src/s-macres.ads',
             {'s-secsta.ads': 's-secsta-zfp.ads'},
             {'s-secsta.adb': 's-secsta-zfp.adb'},
             's-stoele.ads', 's-stoele.adb',
-            'src/s-textio/s-textio.ads',
+            'src/s-textio.ads',
             's-unstyp.ads',
             'unchconv.ads',
             'unchdeal.ads'])
@@ -503,13 +503,13 @@ class SourceDirs(SharedFilesHolder):
         self.add_sources('zfp', [
             'src/a-elchha/zfp/a-elchha.ads',
             'src/a-elchha/zfp/a-elchha.adb',
+            'src/s-sssita.ads', 'src/s-sssita.adb',
             {'a-except.ads': 'a-except-zfp.ads',
              'a-except.adb': 'a-except-zfp.adb',
              'a-tags.ads': 'a-tags-hie.ads',
              'a-tags.adb': 'a-tags-hie.adb',
              'i-c.ads': 'i-c-hie.ads',
-             's-assert.adb': 's-assert-xi.adb'},
-            'src/s-sssita.ads', 'src/s-sssita.adb'])
+             's-assert.adb': 's-assert-xi.adb'}])
         if self._is_bb:
             self.add_sources('zfp', [
                 'src/s-memory/zfp/s-memory.ads',
@@ -539,7 +539,7 @@ class SourceDirs(SharedFilesHolder):
             {'s-interr.ads': 's-interr-raven.ads'},
             's-mufalo.ads', 's-mufalo.adb',
             's-musplo.ads',
-            'src/s-parame/s-parame.adb',
+            'src/s-parame.adb',
             {'s-taprob.ads': 's-taprob-raven.ads',
              's-taprob.adb': 's-taprob-raven.adb'},
             'src/s-taprop.ads', 's-taprop.adb',
@@ -547,7 +547,7 @@ class SourceDirs(SharedFilesHolder):
             {'s-tasdeb.ads': 's-tasdeb-xi.ads',
              's-tasdeb.adb': 's-tasdeb-raven.adb'},
             's-tasinf.ads', 's-tasinf.adb',
-            'src/s-taskin/raven/s-taskin.adb',
+            'src/s-taskin.adb',
             'src/s-taspri.ads',
             's-tasres.ads',
             's-tpobmu.ads'])
@@ -559,7 +559,7 @@ class SourceDirs(SharedFilesHolder):
                 'src/a-rttiev.ads', 'src/a-rttiev.adb',
                 'src/s-bbbosu/s-bbbosu.ads',
                 'src/s-bbexti.ads', 'src/s-bbexti.adb',
-                'src/s-bbinte/s-bbinte.ads',
+                'src/s-bbinte.ads',
                 'src/s-bbprot.ads', 'src/s-bbprot.adb',
                 'src/s-bbthqu.ads', 'src/s-bbthqu.adb',
                 'src/s-bbthre.ads', 'src/s-bbthre.adb',
@@ -999,7 +999,7 @@ class SourceDirs(SharedFilesHolder):
         # GNARL files for the full runtime
         self.add_rule('gnarl/full', 'RTS_Profile:ravenscar-full')
         self.add_sources('gnarl/full', [
-            'src/s-taskin/xi-full/s-taskin.ads',
+            'src/s-taskin/full/s-taskin.ads',
             {'s-tposen.adb': 's-tposen-xi-full.adb',
              's-tposen.ads': 's-tposen-xi-full.ads'}])
 
