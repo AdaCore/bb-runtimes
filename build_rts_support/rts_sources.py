@@ -902,7 +902,7 @@ class SourceDirs(SharedFilesHolder):
         self.add_sources('full/zcx-arm', [
             {'s-excmac.adb': 's-excmac-arm.adb',
              's-excmac.ads': 's-excmac-arm.ads'},
-            'src/s-traceb/arm/s-traceb.adb'])
+            'src/s-traceb/armeabi/s-traceb.adb'])
         self.add_rule('full/zcx-dw2', [
             'RTS_Profile:ravenscar-full', 'CPU_Family:!arm'])
         self.add_sources('full/zcx-dw2', [
