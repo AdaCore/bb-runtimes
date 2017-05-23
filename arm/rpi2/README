@@ -52,6 +52,17 @@ Resources used by the runtime:
 - Mailbox 3 of each core is used to start the cores and for inter
   processor interrupts (IPI).
 
+Interrupts:
+-----------
+
+Interrupts 0 to 11 correspond to the core interrupt as described in
+Quad-A7 control document, section 4.10
+
+GPU interrupts are mapped to id 12 - 76.
+
+For example, mini-uart interrupt is named Aux_int, is GPU interrupt #29 so
+has Ada Interrupt_ID 41.
+
 Memory mapping:
 ---------------
   <!--  Main memory for ARM -->
