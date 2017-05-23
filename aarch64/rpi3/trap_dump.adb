@@ -2,7 +2,7 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---                        Copyright (C) 2016, AdaCore                       --
+--                    Copyright (C) 2016-2017, AdaCore                      --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -118,27 +118,36 @@ package body Trap_Dump is
    function Get_Current_EL return Unsigned_32;
    function Get_ELR_EL3 return Unsigned_64;
    procedure Set_ELR_EL3 (V : Unsigned_64);
-   function Get_SPSR_EL3 return Unsigned_64;
+   function Get_SPSR_EL3 return Unsigned_32;
    function Get_ESR_EL3 return Unsigned_32;
    function Get_FAR_EL3 return Unsigned_64;
 
    function Get_ELR_EL2 return Unsigned_64;
    procedure Set_ELR_EL2 (V : Unsigned_64);
-   function Get_SPSR_EL2 return Unsigned_64;
+   function Get_SPSR_EL2 return Unsigned_32;
    function Get_ESR_EL2 return Unsigned_32;
    function Get_FAR_EL2 return Unsigned_64;
+   function Get_HPFAR_EL2 return Unsigned_64;
    function Get_SP_EL2 return Unsigned_64;
+   function Get_HCR_EL2 return Unsigned_64;
+   function Get_VTCR_EL2 return Unsigned_64;
+   function Get_VTTBR_EL2 return Unsigned_64;
+   function Get_SCTLR_EL2 return Unsigned_32;
 
    function Get_ELR_EL1 return Unsigned_64;
    procedure Set_ELR_EL1 (V : Unsigned_64);
-   function Get_SPSR_EL1 return Unsigned_64;
+   function Get_SPSR_EL1 return Unsigned_32;
+   function Get_VBAR_EL1 return Unsigned_64;
    function Get_ESR_EL1 return Unsigned_32;
    function Get_FAR_EL1 return Unsigned_64;
    function Get_SP_EL1 return Unsigned_64;
+   function Get_SCTLR_EL1 return Unsigned_32;
+   function Get_TCR_EL1 return Unsigned_64;
 
    function Get_SP_EL0 return Unsigned_64;
 
    procedure Print_ESR (ESR : Unsigned_32);
+   procedure Print_SPSR (SPSR : Unsigned_32);
 
    function Get_Current_EL return Unsigned_32
    is
@@ -167,12 +176,12 @@ package body Trap_Dump is
            Volatile => True);
    end Set_ELR_EL3;
 
-   function Get_SPSR_EL3 return Unsigned_64
+   function Get_SPSR_EL3 return Unsigned_32
    is
-      Res : Unsigned_64;
+      Res : Unsigned_32;
    begin
       Asm ("mrs %0, spsr_el3",
-           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
            Volatile => True);
       return Res;
    end Get_SPSR_EL3;
@@ -214,12 +223,12 @@ package body Trap_Dump is
            Volatile => True);
    end Set_ELR_EL2;
 
-   function Get_SPSR_EL2 return Unsigned_64
+   function Get_SPSR_EL2 return Unsigned_32
    is
-      Res : Unsigned_64;
+      Res : Unsigned_32;
    begin
       Asm ("mrs %0, spsr_el2",
-           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
            Volatile => True);
       return Res;
    end Get_SPSR_EL2;
@@ -244,6 +253,46 @@ package body Trap_Dump is
       return Res;
    end Get_FAR_EL2;
 
+   function Get_HPFAR_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, hpfar_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_HPFAR_EL2;
+
+   function Get_VTCR_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, vtcr_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_VTCR_EL2;
+
+   function Get_VTTBR_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, vttbr_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_VTTBR_EL2;
+
+   function Get_HCR_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, hcr_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_HCR_EL2;
+
    function Get_SP_EL2 return Unsigned_64
    is
       Res : Unsigned_64;
@@ -253,6 +302,16 @@ package body Trap_Dump is
            Volatile => True);
       return Res;
    end Get_SP_EL2;
+
+   function Get_SCTLR_EL2 return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, sctlr_el2",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SCTLR_EL2;
 
    function Get_ELR_EL1 return Unsigned_64
    is
@@ -271,15 +330,25 @@ package body Trap_Dump is
            Volatile => True);
    end Set_ELR_EL1;
 
-   function Get_SPSR_EL1 return Unsigned_64
+   function Get_SPSR_EL1 return Unsigned_32
    is
-      Res : Unsigned_64;
+      Res : Unsigned_32;
    begin
       Asm ("mrs %0, spsr_el1",
-           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
            Volatile => True);
       return Res;
    end Get_SPSR_EL1;
+
+   function Get_VBAR_EL1 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, vbar_el1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_VBAR_EL1;
 
    function Get_ESR_EL1 return Unsigned_32
    is
@@ -311,6 +380,26 @@ package body Trap_Dump is
       return Res;
    end Get_SP_EL1;
 
+   function Get_SCTLR_EL1 return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, sctlr_el1",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SCTLR_EL1;
+
+   function Get_TCR_EL1 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, tcr_el1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_TCR_EL1;
+
    function Get_SP_EL0 return Unsigned_64
    is
       Res : Unsigned_64;
@@ -329,6 +418,15 @@ package body Trap_Dump is
       Put_Hex1 (Unsigned_8 (Shift_Right (ESR, 26)));
       Put (')');
    end Print_ESR;
+
+   procedure Print_SPSR (SPSR : Unsigned_32) is
+   begin
+      Put ("SPSR:");
+      Put_Hex4 (SPSR);
+      Put (" (EL:");
+      Put_Hex1 (Unsigned_8 (Shift_Right (SPSR, 2)) and 3);
+      Put (')');
+   end Print_SPSR;
 
    procedure Dump (Regs : Registers_List_Acc; Id : Natural)
    is
@@ -372,8 +470,8 @@ package body Trap_Dump is
       if EL = 3 * 4 then
          Put ("EL3 ELR:");
          Put_Hex8 (Get_ELR_EL3);
-         Put (", SPSR:");
-         Put_Hex8 (Get_SPSR_EL3);
+         Put (", ");
+         Print_SPSR (Get_SPSR_EL3);
          New_Line;
          Put ("EL3 ");
          Print_ESR (Get_ESR_EL3);
@@ -387,23 +485,37 @@ package body Trap_Dump is
       if EL >= 2 * 4 then
          Put ("EL2 ELR:");
          Put_Hex8 (Get_ELR_EL2);
-         Put (", SPSR:");
-         Put_Hex8 (Get_SPSR_EL2);
+         Put (", ");
+         Print_SPSR (Get_SPSR_EL2);
+         Put (", EL1 SP:");
+         Put_Hex8 (Get_SP_EL1);
          New_Line;
          Put ("EL2 ");
          Print_ESR (Get_ESR_EL2);
          Put (", FAR:");
          Put_Hex8 (Get_FAR_EL2);
-         Put (", EL1 SP:");
-         Put_Hex8 (Get_SP_EL1);
+         Put (", HPFAR:");
+         Put_Hex8 (Get_HPFAR_EL2);
+         New_Line;
+         Put ("EL2 VTCR:");
+         Put_Hex8 (Get_VTCR_EL2);
+         Put (", VTTBR:");
+         Put_Hex8 (Get_VTTBR_EL2);
+         Put (", HCR:");
+         Put_Hex8 (Get_HCR_EL2);
+         New_Line;
+         Put ("EL2 SCTLR:");
+         Put_Hex4 (Get_SCTLR_EL2);
          New_Line;
       end if;
 
       if EL >= 1 * 4 then
          Put ("EL1 ELR:");
          Put_Hex8 (Get_ELR_EL1);
-         Put (", SPSR:");
-         Put_Hex8 (Get_SPSR_EL1);
+         Put (", ");
+         Print_SPSR (Get_SPSR_EL1);
+         Put (", VBAR:");
+         Put_Hex8 (Get_VBAR_EL1);
          New_Line;
          Put ("EL1 ");
          Print_ESR (Get_ESR_EL1);
@@ -411,6 +523,11 @@ package body Trap_Dump is
          Put_Hex8 (Get_FAR_EL1);
          Put (", EL0 SP:");
          Put_Hex8 (Get_SP_EL0);
+         New_Line;
+         Put ("EL1 SCTLR:");
+         Put_Hex4 (Get_SCTLR_EL1);
+         Put (", TCR:");
+         Put_Hex8 (Get_TCR_EL1);
          New_Line;
       end if;
 
