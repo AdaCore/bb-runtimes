@@ -168,6 +168,10 @@ package Interfaces.Raspberry_Pi is
      with Address => System'To_Address (MU_Base + 16#04#), Import, Volatile;
    MU_IO : Unsigned_32
      with Address => System'To_Address (MU_Base + 16#40#), Import, Volatile;
+   MU_IIR : Unsigned_32
+     with Address => System'To_Address (MU_Base + 16#44#), Import, Volatile;
+   MU_IER : Unsigned_32
+     with Address => System'To_Address (MU_Base + 16#48#), Import, Volatile;
    MU_LCR : Unsigned_32
      with Address => System'To_Address (MU_Base + 16#4c#), Import, Volatile;
    MU_LSR : Unsigned_32
