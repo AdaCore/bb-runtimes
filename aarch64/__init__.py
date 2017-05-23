@@ -62,7 +62,7 @@ class AARCH64QEMU(Aarch64Target):
 
     @property
     def loaders(self):
-        return ('RAM', )
+        return ('RAM', 'MCPART')
 
     @property
     def sfp_system_ads(self):
@@ -85,8 +85,10 @@ class AARCH64QEMU(Aarch64Target):
             small_mem=False)
 
         self.add_linker_script('aarch64/qemu/ram.ld', loader='RAM')
+        self.add_linker_script('aarch64/qemu/mcpart.ld', loader='MCPART')
         self.add_sources('crt0', [
             'aarch64/qemu/start-ram.S',
+            'aarch64/qemu/start-part.S',
             'src/s-textio/zynq/s-textio.adb',
             'src/s-macres/zynq/s-macres.adb'])
 
