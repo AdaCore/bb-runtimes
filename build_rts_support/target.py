@@ -206,8 +206,9 @@ class Target(TargetConfiguration, BSP):
         ret += '   for Runtime ("Ada") use Base_BSP_Source_Dir &\n'
         ret += '       "%s";\n' % rts['RTS_Profile']
         ret += '\n'
-        ret += '   for Project_Path use (Base_BSP_Source_Dir & "%s");\n' %\
-               rts['RTS_Profile']
+        ret += '   for Project_Path use\n'
+        ret += '     (Base_BSP_Source_Dir & "%s",\n' % rts['RTS_Profile']
+        ret += '      "../lib/gnat");\n'  # pick up the local rts srcs if any
         ret += '   for Project_Files use\n'
         if rts['RTS_Profile'] == 'zfp':
             ret += '     (Base_BSP_Source_Dir & "internal/libgnat.gpr",\n'
