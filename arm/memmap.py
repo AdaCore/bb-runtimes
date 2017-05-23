@@ -11,6 +11,10 @@ import xml.etree.ElementTree as ET
 filename = "memmap.xml"
 
 
+class ConfigException(Exception):
+    pass
+
+
 class Arch(object):
     """Describe the architecture to build the MMU tables"""
     def pageshift(self):
@@ -24,15 +28,15 @@ class Arch(object):
 
 
 class arm_mmu(Arch):
-    def __init__(self, mode, pageshift):
+    def __init__(self, mode, root):
         # Translation table (initially empty)
         self.tt = [None for x in range(4096)]
-        self.pageshift = pageshift if pageshift else self.default_pageshift()
+        if 'pageshift' in root.attrib:
+            self.pageshift = int(root.attrib['pageshift'])
+        else:
+            # Handle only large pages
+            self.pageshift = 20
         self.pagesize = 1 << self.pageshift
-
-    def default_pageshift(self):
-        # Handle only large pages
-        return 20
 
     def insert(self, name, virt, phys, size, cache, access):
         # Convert cache
@@ -146,16 +150,25 @@ class aarch64_mmu(Arch):
                     t1.generate_table(prefix, level + 1)
             # then the pgd
             print "\t.p2align %d" % self.mmu.pageshift
-            print "{}_l{}_{:09x}:".format(
+            sym = "{}_l{}_{:09x}".format(
                 prefix, level, self.va >> self.mmu.pageshift)
+            print sym + ":"
             for t1 in self.tt:
                 if t1:
                     t1.generate_entry(prefix, level + 1)
                 else:
                     print "\t.dword 0"
+            return sym
 
-    def __init__(self, mode, pageshift):
-        self.log2_granule = pageshift if pageshift else 12  # Page size
+    def __init__(self, mode, root):
+        # Pagesize
+        if 'pageshift' in root.attrib:
+            self.log2_granule = int(root.attrib['pageshift'])
+        else:
+            self.log2_granule = 12
+        if self.log2_granule not in (12, 14, 16):
+            raise ConfigException("bad value for pagesize")
+
         self.log2_entries = self.log2_granule - 3   # log2 nbr entries per page
         self.pageshift = self.log2_granule
         self.mode = mode
@@ -203,7 +216,7 @@ class aarch64_mmu(Arch):
             lower = (nG << 11) | (AF << 10) | (SH << 8) | (AP << 6) \
                 | (NS << 5) | (attridx << 2)
         elif self.mode == "stage2":
-            xn = 1 if access[2] == 'x' else 0
+            xn = 0 if access[2] == 'x' else 1
 
             S2AP = {"--": 0, "r-": 1, "-w": 2, "rw": 3}[access[0:2]]
             AF = 1		# Access flag (don't care)
@@ -260,28 +273,31 @@ class aarch64_mmu(Arch):
             self.insert_entry(t.tt[ia], e)
 
     def generate(self, prefix):
-        #  Look for the max size.
-        level = 1
+        #  First level
+        level = {12: 0, 14: 0, 16: 1}[self.log2_granule]
         va_max = 48
         sz = 1 << self.log2_entries
+        #  Look for the max size.
         t = self.tt
         while True:
-            # Not empty
             if [True for e in t.tt[sz >> 1:sz] if e]:
+                # Not empty
                 break
             if sz == 2:
-                if level == 2:
+                # Only one entry for that table
+                if level == {"stage2": 3, "el2": 2, "el1": 2}[self.mode]:
+                    # Minimum level
                     break
-                print "// Skip level %d" % level
                 level += 1
                 t = t.tt[0]
                 sz = 1 << self.log2_entries
             else:
                 sz = sz >> 1
             va_max -= 1
-        print "// Maz VA size: 2**%d, (sz = %d)" % (va_max, sz)
+        print "// First level: {} (w/ {} entries), max VA: 2**{}".format(
+            level, sz, va_max)
         t.tt = t.tt[0:sz]
-        t.generate_table(prefix, level)
+        return t.generate_table(prefix, level)
 
 
 def parse_addr(str):
@@ -354,16 +370,11 @@ def create_mmu_from_xml(root, arch=None, mode=None):
             print "Use --arch or set arch attribute"
             sys.exit(3)
 
-    if 'pageshift' in root.attrib:
-        pageshift = int(root.attrib['pageshift'])
-    else:
-        pageshift = None
-
     if arch not in arches:
         sys.stderr.write("error: unknown architecture '%s'\n" % arch)
         sys.exit(1)
 
-    mmu = arches[arch](mode, pageshift)
+    mmu = arches[arch](mode, root)
     return mmu
 
 
