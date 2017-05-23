@@ -1,0 +1,7 @@
+project hull is
+   for Main use ("main.adb");
+   for Languages use ("Ada", "Asm_Cpp");
+   package Compiler is
+      for Switches ("Ada") use ("-g");
+   end Compiler;
+end hull;
