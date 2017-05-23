@@ -122,7 +122,7 @@ __start_el2:
 	/* Enable MMU and cache.  */
 	mov	x0, xzr
 	tlbi	alle2
-	adrp	x0,__mmu_l2_000000000
+	adrp	x0,__mmu_l1_000000000
 	msr	ttbr0_el2, x0
 	// TCR_EL2: TB0=0, PS=000 (4GB),
 	//          TG0=00, SH0=11, ORGN0=01, IRGN1=01, T0SZ=32
@@ -408,15 +408,21 @@ __trap_syn_elx:
 
 	//  Lower level, aarch64
 	ehandler __trap_syn_a64, 9
+#if 0
+	ihandler_start __trap_irq_a64
+#else
 	ehandler __trap_irq_a64, 10
+#endif
 	ehandler __trap_fiq_a64, 11
 	ehandler __trap_ser_a64, 12
+
 	ehandler __trap_syn_a32, 13
 	ehandler __trap_irq_a32, 14
 	ehandler __trap_fiq_a32, 15
 	ehandler __trap_ser_a32, 16
 
 	ihandler_cont __trap_irq_elx,__gnat_irq_handler
+	ihandler_cont __trap_irq_a64,__gnat_irq_handler
 
 	.weak	__gnat_irq_handler
 	.weak	__gnat_context_switch_needed

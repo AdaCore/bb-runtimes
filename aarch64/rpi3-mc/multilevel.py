@@ -30,10 +30,12 @@ def main():
     arch = None
     gen_regions = False
     gen_mmu = False
+    gen_dir = False
 
     try:
         opts, args = getopt.getopt(
-            sys.argv[1:], "h", ["help", "arch=", "gen-regions", "gen-mmu"])
+            sys.argv[1:], "h", ["help", "arch=",
+                                "gen-regions", "gen-mmu", "gen-dir"])
     except getopt.GetoptError, e:
         sys.stderr.write("error: " + str(e) + '\n')
         sys.stderr.write("Try --help\n")
@@ -48,6 +50,8 @@ def main():
             gen_regions = True
         elif opt == "--gen-mmu":
             gen_mmu = True
+        elif opt == "--gen-dir":
+            gen_dir = True
         else:
             sys.abort()
 
@@ -90,6 +94,7 @@ def main():
         v.rom_paddr = base
         v.rom_vaddr = ram_size
         base += rom_size
+        v.filename = child.attrib.get('filename', None)
         cpus[num] = v
 
     if base > main_region.size:
@@ -114,14 +119,43 @@ def main():
             mmu.insert(r.name, r.virt, r.phys, r.size, r.cache, r.access)
         mmu.generate("__mmu")
 
+    if gen_dir:
         for k, v in cpus.iteritems():
             mmu = memmap.create_mmu_from_xml(root, arch, "stage2")
             mmu.insert("ram", v.ram_vaddr, v.ram_paddr, v.ram_size,
                        "wb", "rwx---")
             mmu.insert("rom", v.rom_vaddr, v.rom_paddr, v.rom_size,
                        "wb", "r-x---")
-            mmu.generate("__mmu_cpu_{}".format(k))
+            v.mmu_sym = mmu.generate("__mmu_cpu_{}".format(k))
 
+        for k, v in cpus.iteritems():
+            print "\t.globl __dir_cpu_{}".format(k)
+            print "\t.type __dir_cpu_{}, @object".format(k)
+            print "__dir_cpu_{}:".format(k)
+            print "\t.dword {}".format(v.mmu_sym)
+            print "\t.dword {:#x}".format(v.ram_vaddr)
+            print "\t.dword {:#x}".format(v.ram_paddr)
+            print "\t.dword {:#x}".format(v.ram_size)
+            print "\t.dword {:#x}".format(v.rom_vaddr)
+            print "\t.dword {:#x}".format(v.rom_paddr)
+            print "\t.dword {:#x}".format(v.rom_size)
+            if v.filename:
+                print "\t.dword __file_cpu_{}".format(k)
+                print "\t.dword __file_cpu_{}_end - __file_cpu_{}".format(k, k)
+            else:
+                print "\t.dword 0"
+                print "\t.dword 0"
+            print "\t.size __dir_cpu_{}, . - __dir_cpu_{}".format(k, k)
+            print
+
+        for k, v in cpus.iteritems():
+            if v.filename:
+                print "\t.type __file_cpu_{}, @object".format(k)
+                print "__file_cpu_{}:".format(k)
+                print '\t.incbin "{}"'.format(v.filename)
+                print "__file_cpu_{}_end:".format(k)
+                print "\t.size __file_cpu_{}, . - __file_cpu_{}".format(k, k)
+                print
 
 if __name__ == '__main__':
     main()
