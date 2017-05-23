@@ -286,8 +286,11 @@ package body System.BB.Board_Support is
    procedure IRQ_Handler
    is
       This_CPU  : constant CPU := Multiprocessors.Current_CPU;
+
       Src       : constant Unsigned_32 :=
                     Local_Registers.Cores_IRQ_Source (Natural (This_CPU));
+      --  Read interrupt source from Core_IRQ_Source
+
       Pending   : Unsigned_32;
       IRQ       : Interrupt_ID;
       Base      : Unsigned_32;
@@ -302,6 +305,7 @@ package body System.BB.Board_Support is
    begin
 
       if Src = 0 then
+         --  No interrupt
          return;
       end if;
 
