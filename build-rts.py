@@ -1537,6 +1537,29 @@ class RPI3(DFBBTarget):
             {'runtime.xml': readfile('aarch64/rpi3/runtime.xml')})
 
 
+class AARCH64QEMU(DFBBTarget):
+    def __init__(self):
+        super(AARCH64QEMU, self).__init__(
+            mem_routines=True,
+            libc_files=False,
+            arm_zcx=True)
+        self.build_flags['target'] = 'aarch64-elf'
+
+    def amend_zfp(self):
+        super(AARCH64QEMU, self).amend_zfp()
+        self.bsp += [
+            'aarch64/qemu/ram.ld',
+            'aarch64/qemu/mcpart.ld',
+            'aarch64/qemu/start-ram.S',
+            'aarch64/qemu/start-part.S']
+        self.pairs.update(
+            {'system.ads': 'system-xi-aarch64.ads',
+             's-textio.adb': 's-textio-zynq.adb',
+             's-macres.adb': 's-macres-zynq.adb'})
+        self.config_files.update(
+            {'runtime.xml': readfile('aarch64/qemu/runtime.xml')})
+
+
 class SparcBBTarget(DFBBTarget):
     def __init__(self):
         super(SparcBBTarget, self).__init__(
@@ -1963,6 +1986,8 @@ def build_configs(target, runtime):
         t = RPI2()
     elif target == 'rpi3':
         t = RPI3()
+    elif target == 'aarch64-qemu':
+        t = AARCH64QEMU()
     elif target.startswith('stm32'):
         t = Stm32(target)
     elif target.startswith('sam'):
