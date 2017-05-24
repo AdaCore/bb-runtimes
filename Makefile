@@ -48,6 +48,10 @@ ifneq ($(GPL),)
 endif
 endif
 
+ifeq ($(TARGET), aarch64-elf)
+    RTS_LIST=zfp-qemu
+endif
+
 ifeq ($(TARGET), leon-elf)
     RTS_LIST=zfp-leon ravenscar-sfp-leon ravenscar-full-leon
 endif
@@ -231,6 +235,10 @@ zfp-p5566.src:
 
 zfp-mpc5634.src:
 	@$(BUILD_RTS) zfp/mpc5634
+
+# aarch64-elf runtimes
+zfp-qemu.src:
+	$(BUILD_RTS) zfp/aarch64-qemu
 
 # leon-elf runtimes
 zfp-leon.src:
