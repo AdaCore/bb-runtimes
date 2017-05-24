@@ -218,7 +218,7 @@ interrupt_stack_el2_base:
 
 	.text
 
-	.macro  ehandler label, id
+	.macro  ehandler label, id, handler=__trap_dump
 	.p2align 7
 \label:
 	// Save all registers (32 * 8 = 256)
@@ -241,7 +241,7 @@ interrupt_stack_el2_base:
 	//  Call handler with context and number
 	mov	x0, sp
 	mov	x1, #\id
-	bl	__trap_dump
+	bl	\handler
 	//  Restore
 	ldp	x2, x3, [sp, #16]
 	ldp	x4, x5, [sp, #32]
@@ -407,7 +407,7 @@ __trap_syn_elx:
 	ehandler __trap_ser_elx, 8
 
 	//  Lower level, aarch64
-	ehandler __trap_syn_a64, 9
+	ehandler __trap_syn_a64, 9, __handler_trap_syn_a64
 #if 0
 	ihandler_start __trap_irq_a64
 #else
