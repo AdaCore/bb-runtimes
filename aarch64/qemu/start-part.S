@@ -53,6 +53,11 @@ __start_mcpart1:
 	ldr	w0,[x2]
 	mov	sp, x0
 
+	# Load vbars
+	adrp	x0,__vectors
+	add	x0,x0,#:lo12:__vectors
+	msr	vbar_el1, x0
+
 	/* Enable SIMD.  */
 	mov	x0, #(1 << 20)
 	msr	cpacr_el1, x0
