@@ -1,6 +1,7 @@
 # User variables. type make to get some help
 JOBS=0
 TARGET=
+LINK=
 GNAT_SOURCES=$(SRC_DIR)/../gnat
 GCC_SOURCES=$(SRC_DIR)/../gcc
 LINK=n
@@ -92,6 +93,12 @@ GPRINSTALL:=GPR_PROJECT_PATH=obj/$(TARGET)/lib/gnat gprinstall -p -f \
               --prefix=$(GCC_PREFIX)
 GPRBUILD:=GPR_PROJECT_PATH=obj/$(TARGET)/lib/gnat gprbuild -j$(JOBS)
 
+ifneq ($(LINK),)
+  BUILD_RTS:=./build-rts.py --link
+else
+  BUILD_RTS:=./build-rts.py
+endif
+
 default:
 	@echo "This makefile builds&install recompilable runtimes"
 	@echo "Here is the list of variables:"
@@ -141,6 +148,7 @@ all: obj/$(TARGET)
 
 install: all
 	for f in obj/$(TARGET)/BSPs/*.gpr; do \
+	  echo $(GPRINSTALL) -P $$f; \
 	  $(GPRINSTALL) -P $$f; \
 	done
 
