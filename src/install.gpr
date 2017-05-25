@@ -7,7 +7,7 @@ project Install is
    end Compiler;
 
    package Naming is
-      for Spec_Suffix ("XML") use ".xml";
+      for Body_Suffix ("XML") use ".xml";
    end Naming;
 
    for Source_Files use ("runtime.xml");
