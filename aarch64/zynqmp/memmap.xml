@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<memmap arch="aarch64">
+  <!-- DDR, 2GB on the UltraZed -->
+  <region access="rwxrwx" cache="wb"
+	  virt="0x0000000000" size="0x0080000000" name="ram"/>
+
+  <!-- PL -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0x0080000000" size="0x0040000000" name="pl"/>
+
+  <!-- QSPI, lower PCIe -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0x00C0000000" size="0x0020000000" name="qspi"/>
+
+  <!-- STM Coresight -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0x00F8000000" size="0x0007000000" name="io"/>
+
+  <!-- PL, PCIe > 32-bit -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0x0400000000" size="0x0400000000" name="pl_high"/>
+
+  <!-- DDR > 32-bit: unasigned on the UltraZed -->
+  <!--region access="rwxrwx" cache="wb"
+      virt="0x0800000000" size="0x0400000000" name="ram_high"/-->
+
+  <region access="rw-rw-" cache="nc"
+	  virt="0x1000000000" size="0xb000000000" name="pl_high2"/>
+</memmap>

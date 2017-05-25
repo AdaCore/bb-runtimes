@@ -26,7 +26,7 @@ ifeq ($(TARGET), powerpc-eabispe)
 endif
 
 ifeq ($(TARGET), aarch64-elf)
-    TARGETS=aarch64-qemu rpi3
+    TARGETS=aarch64-qemu rpi3 zynqmp
 endif
 
 ifeq ($(TARGET), arm-eabi)

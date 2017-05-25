@@ -94,6 +94,52 @@ class AARCH64QEMU(Aarch64Target):
             'src/s-macres/zynq/s-macres.adb'])
 
 
+class ZynqMP(Aarch64Target):
+    @property
+    def name(self):
+        return "zynqmp"
+
+    @property
+    def parent(self):
+        return Aarch64Arch
+
+    @property
+    def loaders(self):
+        return ('RAM', )
+
+    @property
+    def sfp_system_ads(self):
+        return 'system-xi-aarch64-sfp.ads'
+
+    @property
+    def full_system_ads(self):
+        return 'system-xi-aarch64-full.ads'
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mcpu=cortex-a53')
+
+    def __init__(self):
+        super(ZynqMP, self).__init__(
+            mem_routines=True,
+            small_mem=False)
+
+        self.add_linker_script('aarch64/zynqmp/ram.ld', loader=None)
+        self.add_sources('crt0', [
+            'aarch64/zynqmp/start-ram.S',
+            'aarch64/zynqmp/translation_table.S',
+            'aarch64/zynqmp/trap_vector.S',
+            'aarch64/rpi3/trap_dump.ads',
+            'aarch64/rpi3/trap_dump.adb',
+            'src/s-textio/zynqmp/s-textio.adb',
+            'src/s-macres/zynq/s-macres.adb'])
+        self.add_sources('gnarl', [
+            'src/a-intnam/zynqmp/a-intnam.ads',
+            'src/s-bbpara/zynqmp/s-bbpara.ads',
+            'src/s-bbbosu/armv8a/s-bbbosu.adb'])
+
+
 class Rpi3Base(Aarch64Target):
     @property
     def loaders(self):
