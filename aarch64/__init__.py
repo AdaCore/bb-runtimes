@@ -17,6 +17,7 @@ class Aarch64Arch(BSP):
             'src/s-bbcpsp/aarch64/s-bbcpsp.ads',
             'src/s-bbcppr/new/s-bbcppr.ads',
             'src/s-bbcppr/aarch64/s-bbcppr.adb',
+            'src/i-aarch64.ads', 'src/i-aarch64.adb',
             'aarch64/context_switch.S',
             'src/s-bbinte/generic/s-bbinte.adb'])
 

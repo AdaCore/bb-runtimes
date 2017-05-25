@@ -45,6 +45,7 @@ with System.BB.Protection;
 with System.BB.Board_Support;
 with System.BB.CPU_Primitives.Multiprocessors;
 with Interfaces;
+with Interfaces.AArch64;  use Interfaces.AArch64;
 
 package body System.BB.CPU_Primitives is
    use System.BB.Threads;
@@ -89,20 +90,6 @@ package body System.BB.CPU_Primitives is
    --  cannot allocate a frame but only assembly code can guarantee that. We
    --  also take advantage of this two stage call to extract queue pointers
    --  in the Ada code.
-
-   function Get_CPACR_EL1 return Unsigned_64;
-   procedure Set_CPACR_EL1 (Val : Unsigned_64);
-   --  Low-level access to CPACR_EL1 register
-
-   CPACR_FPEN : constant := 16#100000#;
-   --  FPU enable bit of CPACR
-
-   function Get_CPTR_EL2 return Unsigned_64;
-   procedure Set_CPTR_EL2 (Val : Unsigned_64);
-   --  Low-level access to CPTR_EL2 register
-
-   CPTR_TFP : constant := 16#400#;
-   --  FPU trap bit of CPTR
 
    procedure Disable_FPU;
    procedure Enable_FPU;
@@ -265,56 +252,6 @@ package body System.BB.CPU_Primitives is
       Disable_FPU;
    end Initialize_CPU;
 
-   -------------------
-   -- Get_CPACR_EL1 --
-   -------------------
-
-   function Get_CPACR_EL1 return Unsigned_64
-   is
-      Res : Unsigned_64;
-   begin
-      Asm ("mrs %0, cpacr_el1",
-           Outputs => Unsigned_64'Asm_Output ("=r", Res),
-           Volatile => True);
-      return Res;
-   end Get_CPACR_EL1;
-
-   -------------------
-   -- Set_CPACR_EL1 --
-   -------------------
-
-   procedure Set_CPACR_EL1 (Val : Unsigned_64) is
-   begin
-      Asm ("msr cpacr_el1, %0",
-           Inputs => Unsigned_64'Asm_Input ("r", Val),
-           Volatile => True);
-   end Set_CPACR_EL1;
-
-   ------------------
-   -- Get_CPTR_EL2 --
-   ------------------
-
-   function Get_CPTR_EL2 return Unsigned_64
-   is
-      Res : Unsigned_64;
-   begin
-      Asm ("mrs %0, cptr_el2",
-           Outputs => Unsigned_64'Asm_Output ("=r", Res),
-           Volatile => True);
-      return Res;
-   end Get_CPTR_EL2;
-
-   ------------------
-   -- Set_CPTR_EL2 --
-   ------------------
-
-   procedure Set_CPTR_EL2 (Val : Unsigned_64) is
-   begin
-      Asm ("msr cptr_el2, %0",
-           Inputs => Unsigned_64'Asm_Input ("r", Val),
-           Volatile => True);
-   end Set_CPTR_EL2;
-
    -----------------
    -- Disable_FPU --
    -----------------
@@ -322,16 +259,16 @@ package body System.BB.CPU_Primitives is
    procedure Disable_FPU is
       V : Unsigned_64;
    begin
-      case Parameters.Runtime_EL is
-         when 1 =>
-            V := Get_CPACR_EL1;
-            V := V and not CPACR_FPEN;
-            Set_CPACR_EL1 (V);
-         when 2 =>
-            V := Get_CPTR_EL2;
-            V := V or CPTR_TFP;
-            Set_CPTR_EL2 (V);
-      end case;
+--        case Parameters.Runtime_EL is
+--           when 1 =>
+      V := Get_CPACR_EL1;
+      V := V and not CPACR_FPEN;
+      Set_CPACR_EL1 (V);
+--           when 2 =>
+--              V := Get_CPTR_EL2;
+--              V := V or CPTR_TFP;
+--              Set_CPTR_EL2 (V);
+--        end case;
    end Disable_FPU;
 
    ----------------
@@ -341,16 +278,16 @@ package body System.BB.CPU_Primitives is
    procedure Enable_FPU is
       V : Unsigned_64;
    begin
-      case Parameters.Runtime_EL is
-         when 1 =>
-            V := Get_CPACR_EL1;
-            V := V or CPACR_FPEN;
-            Set_CPACR_EL1 (V);
-         when 2 =>
-            V := Get_CPTR_EL2;
-            V := V and not CPTR_TFP;
-            Set_CPTR_EL2 (V);
-      end case;
+--        case Parameters.Runtime_EL is
+--           when 1 =>
+      V := Get_CPACR_EL1;
+      V := V or CPACR_FPEN;
+      Set_CPACR_EL1 (V);
+--           when 2 =>
+--              V := Get_CPTR_EL2;
+--              V := V and not CPTR_TFP;
+--              Set_CPTR_EL2 (V);
+--        end case;
    end Enable_FPU;
 
    ---------------

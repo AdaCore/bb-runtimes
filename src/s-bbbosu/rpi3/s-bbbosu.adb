@@ -38,7 +38,8 @@ with Ada.Unchecked_Conversion;
 with System.Machine_Code;
 with System.BB.CPU_Primitives.Multiprocessors;
 with System.BB.Parameters; use System.BB.Parameters;
-with Interfaces; use Interfaces;
+with Interfaces;           use Interfaces;
+with Interfaces.AArch64;   use Interfaces.AArch64;
 with Interfaces.Raspberry_Pi;
 
 package body System.BB.Board_Support is
@@ -54,119 +55,6 @@ package body System.BB.Board_Support is
    procedure Initialize_CPU_Devices;
    pragma Export (C, Initialize_CPU_Devices, "__gnat_initialize_cpu_devices");
    --  Per CPU device initialization
-
-   procedure Set_CNTP_CTL_EL0 (Val : Unsigned_32) with Inline_Always;
-   procedure Set_CNTHP_CTL_EL2 (Val : Unsigned_32) with Inline_Always;
-   procedure Set_CNTP_CTL (Val : Unsigned_32);
-   --  Set the CNTP_CTL register
-
-   procedure Set_CNTV_CTL_EL0 (Val : Unsigned_32) with Inline_Always;
-   --  Set the CNTV_CTL_EL0 register
-
-   procedure Set_CNTP_TVAL_EL0 (Val : Unsigned_32) with Inline_Always;
-   procedure Set_CNTHP_TVAL_EL2 (Val : Unsigned_32) with Inline_Always;
-   procedure Set_CNTP_TVAL (Val : Unsigned_32);
-   --  Set the CNTP_TVAL register
-
-   function Get_CNTPCT_EL0 return Unsigned_64 with Inline_Always;
-   --  Get the CNTPCT register
-
-   ----------------------
-   -- Set_CNTP_CTL_EL0 --
-   ----------------------
-
-   procedure Set_CNTP_CTL_EL0 (Val : Unsigned_32) is
-   begin
-      Asm ("msr cntp_ctl_el0, %0",
-           Inputs => Unsigned_32'Asm_Input ("r", Val),
-           Volatile => True);
-   end Set_CNTP_CTL_EL0;
-
-   ----------------------
-   -- Set_CNTP_CTL_EL2 --
-   ----------------------
-
-   procedure Set_CNTHP_CTL_EL2 (Val : Unsigned_32) is
-   begin
-      Asm ("msr cnthp_ctl_el2, %0",
-           Inputs => Unsigned_32'Asm_Input ("r", Val),
-           Volatile => True);
-   end Set_CNTHP_CTL_EL2;
-
-   ------------------
-   -- Set_CNTP_CTL --
-   ------------------
-
-   procedure Set_CNTP_CTL (Val : Unsigned_32) is
-   begin
-      case Runtime_EL is
-         when 1 =>
-            Set_CNTP_CTL_EL0 (Val);
-         when 2 =>
-            Set_CNTHP_CTL_EL2 (Val);
-      end case;
-   end Set_CNTP_CTL;
-
-   ----------------------
-   -- Set_CNTV_CTL_EL0 --
-   ----------------------
-
-   procedure Set_CNTV_CTL_EL0 (Val : Unsigned_32) is
-   begin
-      Asm ("msr cntv_ctl_el0, %0",
-           Inputs => Unsigned_32'Asm_Input ("r", Val),
-           Volatile => True);
-   end Set_CNTV_CTL_EL0;
-
-   -----------------------
-   -- Set_CNTV_TVAL_EL0 --
-   -----------------------
-
-   procedure Set_CNTP_TVAL_EL0 (Val : Unsigned_32) is
-   begin
-      Asm ("msr cntp_tval_el0, %0",
-           Inputs => Unsigned_32'Asm_Input ("r", Val),
-           Volatile => True);
-   end Set_CNTP_TVAL_EL0;
-
-   -----------------------
-   -- Set_CNTV_TVAL_EL2 --
-   -----------------------
-
-   procedure Set_CNTHP_TVAL_EL2 (Val : Unsigned_32) is
-   begin
-      Asm ("msr cnthp_tval_el2, %0",
-           Inputs => Unsigned_32'Asm_Input ("r", Val),
-           Volatile => True);
-   end Set_CNTHP_TVAL_EL2;
-
-   -------------------
-   -- Set_CNTP_TVAL --
-   -------------------
-
-   procedure Set_CNTP_TVAL (Val : Unsigned_32) is
-   begin
-      case Runtime_EL is
-         when 1 =>
-            Set_CNTP_TVAL_EL0 (Val);
-         when 2 =>
-            Set_CNTHP_TVAL_EL2 (Val);
-      end case;
-   end Set_CNTP_TVAL;
-
-   --------------------
-   -- Get_CNTPCT_EL0 --
-   --------------------
-
-   function Get_CNTPCT_EL0 return Unsigned_64 is
-      Res : Unsigned_64;
-   begin
-      --  Read CNTPCT
-      Asm ("mrs %0, cntpct_el0",
-           Outputs => Unsigned_64'Asm_Output ("=r", Res),
-           Volatile => True);
-      return Res;
-   end Get_CNTPCT_EL0;
 
    ----------------------------
    -- Initialize_CPU_Devices --
@@ -221,7 +109,7 @@ package body System.BB.Board_Support is
    package body Time is
 
       Alarm_Interrupt_ID : constant BB.Interrupts.Interrupt_ID :=
-        (case Runtime_EL is when 1 => 1, when 2 => 2);
+                             (case Runtime_EL is when 1 => 1, when 2 => 2);
       --  Non-secure counter (CNTPNSIRQ)
 
       ------------------------
