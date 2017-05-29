@@ -30,7 +30,6 @@
 ------------------------------------------------------------------------------
 
 with System.Machine_Code;  use System.Machine_Code;
-with System.BB.Parameters; use System.BB.Parameters;
 with Interfaces;           use Interfaces;
 
 package body Interfaces.AArch64 is
@@ -107,20 +106,6 @@ package body Interfaces.AArch64 is
            Volatile => True);
    end Set_CNTHP_CTL_EL2;
 
-   ------------------
-   -- Set_CNTP_CTL --
-   ------------------
-
-   procedure Set_CNTP_CTL (Val : Unsigned_32) is
-   begin
-      case Runtime_EL is
-         when 1 =>
-            Set_CNTP_CTL_EL0 (Val);
-         when 2 =>
-            Set_CNTHP_CTL_EL2 (Val);
-      end case;
-   end Set_CNTP_CTL;
-
    ----------------------
    -- Set_CNTV_CTL_EL0 --
    ----------------------
@@ -153,20 +138,6 @@ package body Interfaces.AArch64 is
            Inputs => Unsigned_32'Asm_Input ("r", Val),
            Volatile => True);
    end Set_CNTHP_TVAL_EL2;
-
-   -------------------
-   -- Set_CNTP_TVAL --
-   -------------------
-
-   procedure Set_CNTP_TVAL (Val : Unsigned_32) is
-   begin
-      case Runtime_EL is
-         when 1 =>
-            Set_CNTP_TVAL_EL0 (Val);
-         when 2 =>
-            Set_CNTHP_TVAL_EL2 (Val);
-      end case;
-   end Set_CNTP_TVAL;
 
    --------------------
    -- Get_CNTPCT_EL0 --

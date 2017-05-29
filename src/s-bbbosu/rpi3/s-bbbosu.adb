@@ -56,6 +56,40 @@ package body System.BB.Board_Support is
    pragma Export (C, Initialize_CPU_Devices, "__gnat_initialize_cpu_devices");
    --  Per CPU device initialization
 
+   procedure Set_CNTP_TVAL (Val : Unsigned_32);
+   --  Set CNTP_TVAL_EL0 or CNTP_TVAL_EL2
+
+   procedure Set_CNTP_CTL (Val : Unsigned_32);
+   --  Set CNTP_CTL_EL0 or CNTP_CTL_EL2
+
+   ------------------
+   -- Set_CNTP_CTL --
+   ------------------
+
+   procedure Set_CNTP_CTL (Val : Unsigned_32) is
+   begin
+      case Runtime_EL is
+         when 1 =>
+            Set_CNTP_CTL_EL0 (Val);
+         when 2 =>
+            Set_CNTHP_CTL_EL2 (Val);
+      end case;
+   end Set_CNTP_CTL;
+
+   -------------------
+   -- Set_CNTP_TVAL --
+   -------------------
+
+   procedure Set_CNTP_TVAL (Val : Unsigned_32) is
+   begin
+      case Runtime_EL is
+         when 1 =>
+            Set_CNTP_TVAL_EL0 (Val);
+         when 2 =>
+            Set_CNTHP_TVAL_EL2 (Val);
+      end case;
+   end Set_CNTP_TVAL;
+
    ----------------------------
    -- Initialize_CPU_Devices --
    ----------------------------

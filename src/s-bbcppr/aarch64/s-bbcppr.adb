@@ -259,16 +259,16 @@ package body System.BB.CPU_Primitives is
    procedure Disable_FPU is
       V : Unsigned_64;
    begin
---        case Parameters.Runtime_EL is
---           when 1 =>
-      V := Get_CPACR_EL1;
-      V := V and not CPACR_FPEN;
-      Set_CPACR_EL1 (V);
---           when 2 =>
---              V := Get_CPTR_EL2;
---              V := V or CPTR_TFP;
---              Set_CPTR_EL2 (V);
---        end case;
+      case Parameters.Runtime_EL is
+         when 1 =>
+            V := Get_CPACR_EL1;
+            V := V and not CPACR_FPEN;
+            Set_CPACR_EL1 (V);
+         when 2 =>
+            V := Get_CPTR_EL2;
+            V := V or CPTR_TFP;
+            Set_CPTR_EL2 (V);
+      end case;
    end Disable_FPU;
 
    ----------------
@@ -278,16 +278,16 @@ package body System.BB.CPU_Primitives is
    procedure Enable_FPU is
       V : Unsigned_64;
    begin
---        case Parameters.Runtime_EL is
---           when 1 =>
-      V := Get_CPACR_EL1;
-      V := V or CPACR_FPEN;
-      Set_CPACR_EL1 (V);
---           when 2 =>
---              V := Get_CPTR_EL2;
---              V := V and not CPTR_TFP;
---              Set_CPTR_EL2 (V);
---        end case;
+      case Parameters.Runtime_EL is
+         when 1 =>
+            V := Get_CPACR_EL1;
+            V := V or CPACR_FPEN;
+            Set_CPACR_EL1 (V);
+         when 2 =>
+            V := Get_CPTR_EL2;
+            V := V and not CPTR_TFP;
+            Set_CPTR_EL2 (V);
+      end case;
    end Enable_FPU;
 
    ---------------

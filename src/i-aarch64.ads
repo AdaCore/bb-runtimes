@@ -36,9 +36,6 @@ with Interfaces;
 package Interfaces.AArch64 is
    pragma Preelaborate;
 
---     function Runtime_EL return Exception_Level with Inline_Always;
-   --  Current exception level
-
    function Get_CPACR_EL1 return Interfaces.Unsigned_64
      with Inline_Always;
    procedure Set_CPACR_EL1 (Val : Interfaces.Unsigned_64)
@@ -61,8 +58,6 @@ package Interfaces.AArch64 is
      with Inline_Always;
    procedure Set_CNTHP_CTL_EL2 (Val : Interfaces.Unsigned_32)
      with Inline_Always;
-   procedure Set_CNTP_CTL (Val : Interfaces.Unsigned_32)
-     with Inline_Always;
    --  Set the CNTP_CTL register
 
    procedure Set_CNTV_CTL_EL0 (Val : Interfaces.Unsigned_32)
@@ -72,8 +67,6 @@ package Interfaces.AArch64 is
    procedure Set_CNTP_TVAL_EL0 (Val : Interfaces.Unsigned_32)
      with Inline_Always;
    procedure Set_CNTHP_TVAL_EL2 (Val : Interfaces.Unsigned_32)
-     with Inline_Always;
-   procedure Set_CNTP_TVAL (Val : Interfaces.Unsigned_32)
      with Inline_Always;
    --  Set the CNTP_TVAL register
 
