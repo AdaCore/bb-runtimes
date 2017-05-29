@@ -233,11 +233,18 @@ __gnat_context_switch:
 	NOP_FIX_GRLIB_TN_0009
 	std	%i4, [%sp + I4_OFFSET]
 
+#ifdef FIX_UT699
+	! Even if there is no store at the target of the branch, avoid a
+	! warning from the leon3ftststscan GRLIB-TN-0009 detection script.
 	NOP_FIX_GRLIB_TN_0009
+	std	 %i6, [%sp + I6_OFFSET]		! using the delay slot
 	ba	.Lsave_frame_loop
-	 ! No need for NOP_FIX_GRLIB_TN_0009, as the target is not a store
+	 nop
+#else
+	ba	.Lsave_frame_loop
 	 std	 %i6, [%sp + I6_OFFSET]		! using the delay slot
-
+#endif
+	
 .Ldone_flushing:
 	/* We store the number of extra windows (apart from the one that was
 	   being used by the task) that have been saved on the stack. */
