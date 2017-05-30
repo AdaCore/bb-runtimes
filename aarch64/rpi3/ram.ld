@@ -93,13 +93,25 @@ SECTIONS
 {
   .traps :
   {
+    /* Rpi3 boot at 0.  */
     KEEP (*(.traps))
+    
+    /* Space for command line (normally not used).  */
+    
+    . = ALIGN(0x800);
+    __vectors_el3 = .;
+    KEEP(*(.vects_el3_cur))
+    KEEP(*(.vects_el3_low))
+    . = ALIGN(0x800);
+    __vectors_el2 = .;
+    KEEP(*(.vects_el2_cur))
+    KEEP(*(.vects_el2_low))
+    . = ALIGN(0x800);
+    __vectors_el1 = .;
+    KEEP(*(.vects_el1_cur))
+    KEEP(*(.vects_el1_low))
   } > REGION_CODE
 
-  /* Space for command line.  */
-
-  . = 0x8000;
-  
   .text :
   {
     __text = .;
@@ -264,4 +276,3 @@ SECTIONS
 
   /DISCARD/ : { *(.note.GNU-stack) *(.gnu_debuglink) *(.gnu.lto_*) }
 }
-

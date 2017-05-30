@@ -72,11 +72,12 @@ __start_ram1:
 	msr	sp_el2,x0
 
 	# Load vbars
-	adrp	x0,__vectors
-	add	x0,x0,#:lo12:__vectors
+	adrp	x0,__vectors_el3_cur
+	add	x0,x0,#:lo12:__vectors_el3_cur
 	msr	vbar_el3, x0
+	adrp	x0,__vectors_el2_cur
+	add	x0,x0,#:lo12:__vectors_el2_cur
 	msr	vbar_el2, x0
-	msr	vbar_el1, x0
 
 	# Enable SMPEN
 	mrs	x0, S3_1_C15_C2_1
@@ -210,6 +211,7 @@ interrupt_stack_end_lit:
 	.dword	__interrupt_stack_end
 
 	.data
+	.globl  interrupt_stack_el2_base
 interrupt_stack_el2_base:
 	.dword	__cpu0_interrupt_stack_end
 	.dword	__cpu1_interrupt_stack_end
@@ -432,4 +434,9 @@ __trap_syn_elx:
 	.weak	__gnat_initialize_slave
 	.weak	__gnat_fpen_trap
 
+	.extern __vectors_el3_cur
+	.extern __vectors_el3_low
+	.extern __vectors_el2_cur
+	.extern __vectors_el2_low
+	
 #include "memmap.s"

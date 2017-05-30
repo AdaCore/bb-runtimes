@@ -202,4 +202,8 @@ class Rpi3Mc(Rpi3Base):
 
         self.add_sources('crt0', [
             'aarch64/rpi3-mc/start-ram.S',
+            'aarch64/rpi3-mc/traps_el3.S',
+            'aarch64/rpi3-mc/traps_el2cur.S',
+            'aarch64/rpi3-mc/traps_el2low.S',
+            'aarch64/rpi3-mc/traps_common.h',
             'aarch64/rpi3-mc/memmap.s'])
