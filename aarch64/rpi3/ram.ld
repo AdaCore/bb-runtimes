@@ -97,7 +97,8 @@ SECTIONS
     KEEP (*(.traps))
     
     /* Space for command line (normally not used).  */
-    
+
+    /* Overridable vectors (used by rpi3-mc).  */
     . = ALIGN(0x800);
     __vectors_el3 = .;
     KEEP(*(.vects_el3_cur))
