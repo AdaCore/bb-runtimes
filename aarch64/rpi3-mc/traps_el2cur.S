@@ -66,3 +66,8 @@ __vector_restore:
 	ldp	x0, x1, [sp], #256
 	eret
 
+	.weak	__gnat_fpen_trap
+	.weak	__gnat_context_switch
+	.weak	__gnat_pre_context_switch
+	.weak	__gnat_context_switch_needed
+	.weak	__gnat_irq_handler
