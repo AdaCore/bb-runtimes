@@ -29,12 +29,14 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-pragma Restrictions (No_Elaboration_Code);
-
+with System; use System;
 with Interfaces;
 
 package Interfaces.AArch64 is
    pragma Preelaborate;
+   pragma No_Elaboration_Code_All;
+
+   --  Counters and timers
 
    function Get_CPACR_EL1 return Interfaces.Unsigned_64
      with Inline_Always;
@@ -74,4 +76,78 @@ package Interfaces.AArch64 is
      with Inline_Always;
    --  Get the CNTPCT register
 
+   --  MMU
+
+   TCR_PS_4GB      : constant := 2#000# * 2**16;
+   TCR_TG0_4KB     : constant := 2#00# * 2**14;
+   TCR_SH0_OS      : constant := 2#10# * 2**12;
+   TCR_ORGN0_WBWAC : constant := 2#01# * 2**10;
+   TCR_IRGN0_WBWAC : constant := 2#01# * 2**8;
+   TCR_SL0_00      : constant := 2#00# * 2**6;
+   TCR_T0SZ        : constant := 2**0;
+
+   HCR_RW  : constant := 2**31;
+   HCR_DC  : constant := 2**12;
+   HCR_AMO : constant := 2**5;
+   HCR_IMO : constant := 2**4;
+   HCR_FMO : constant := 2**3;
+   HCR_VM  : constant := 2**0;
+
+   function Get_Current_EL return Unsigned_32 with Inline_Always;
+
+   --  EL3 registers
+
+   function Get_ELR_EL3 return Unsigned_64 with Inline_Always;
+   procedure Set_ELR_EL3 (V : Unsigned_64) with Inline_Always;
+   function Get_SPSR_EL3 return Unsigned_32 with Inline_Always;
+   function Get_ESR_EL3 return Unsigned_32 with Inline_Always;
+   function Get_FAR_EL3 return Unsigned_64 with Inline_Always;
+
+   --  EL2 registers
+
+   function Get_ELR_EL2 return Unsigned_64 with Inline_Always;
+   procedure Set_ELR_EL2 (V : Unsigned_64) with Inline_Always;
+   function Get_SPSR_EL2 return Unsigned_32 with Inline_Always;
+   function Get_ESR_EL2 return Unsigned_32 with Inline_Always;
+   function Get_FAR_EL2 return Unsigned_64 with Inline_Always;
+   function Get_HPFAR_EL2 return Unsigned_64 with Inline_Always;
+   function Get_SP_EL2 return Unsigned_64 with Inline_Always;
+   function Get_HCR_EL2 return Unsigned_64 with Inline_Always;
+   function Get_VTCR_EL2 return Unsigned_64 with Inline_Always;
+   function Get_VTTBR_EL2 return Unsigned_64 with Inline_Always;
+   function Get_SCTLR_EL2 return Unsigned_32 with Inline_Always;
+
+   --  EL1 registers
+   function Get_ELR_EL1 return Unsigned_64 with Inline_Always;
+   procedure Set_ELR_EL1 (V : Unsigned_64) with Inline_Always;
+   function Get_SPSR_EL1 return Unsigned_32 with Inline_Always;
+   function Get_VBAR_EL1 return Unsigned_64 with Inline_Always;
+   function Get_ESR_EL1 return Unsigned_32 with Inline_Always;
+   function Get_FAR_EL1 return Unsigned_64 with Inline_Always;
+   function Get_SP_EL1 return Unsigned_64 with Inline_Always;
+   function Get_SCTLR_EL1 return Unsigned_32 with Inline_Always;
+   function Get_TCR_EL1 return Unsigned_64 with Inline_Always;
+
+   --  EL0 registers
+   function Get_SP_EL0 return Unsigned_64 with Inline_Always;
+
+   --  Cache control
+
+   procedure DC_CVAU (Addr : Address)
+     with Inline_Always;
+   --  Clean D-cache by virtual address
+
+   procedure IC_IVAU (Addr : Address)
+     with Inline_Always;
+   --  Invalidate I-cache by virtual address
+
+   --  Barriers
+
+   procedure DSB_ISH
+     with Inline_Always;
+   --  Data Synchronization Barrier
+
+   procedure ISB
+     with Inline_Always;
+   --  Instruction Synchronization Barrier
 end Interfaces.AArch64;

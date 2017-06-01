@@ -153,4 +153,413 @@ package body Interfaces.AArch64 is
       return Res;
    end Get_CNTPCT_EL0;
 
+   -------------
+   -- DC_CVAU --
+   -------------
+
+   procedure DC_CVAU (Addr : Address) is
+   begin
+      Asm ("dc cvau, %0",
+           Inputs => Address'Asm_Input ("r", Addr),
+           Volatile => True);
+   end DC_CVAU;
+
+   -------------
+   -- IC_IVAU --
+   -------------
+
+   procedure IC_IVAU (Addr : Address) is
+   begin
+      Asm ("ic ivau, %0",
+           Inputs => Address'Asm_Input ("r", Addr),
+           Volatile => True);
+   end IC_IVAU;
+
+   -------------
+   -- DSB_ISH --
+   -------------
+
+   procedure DSB_ISH is
+   begin
+      Asm ("dsb ish", Volatile => True);
+   end DSB_ISH;
+
+   ---------
+   -- ISB --
+   ---------
+
+   procedure ISB is
+   begin
+      Asm ("isb", Volatile => True);
+   end ISB;
+
+   --------------------
+   -- Get_Current_EL --
+   --------------------
+
+   function Get_Current_EL return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, currentel",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_Current_EL;
+
+   -----------------
+   -- Get_ELR_EL3 --
+   -----------------
+
+   function Get_ELR_EL3 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, elr_el3",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_ELR_EL3;
+
+   -----------------
+   -- Set_ELR_EL3 --
+   -----------------
+
+   procedure Set_ELR_EL3 (V : Unsigned_64) is
+   begin
+      Asm ("msr elr_el3, %0",
+           Inputs => Unsigned_64'Asm_Input ("r", V),
+           Volatile => True);
+   end Set_ELR_EL3;
+
+   ------------------
+   -- Get_SPSR_EL3 --
+   ------------------
+
+   function Get_SPSR_EL3 return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, spsr_el3",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SPSR_EL3;
+
+   -----------------
+   -- Get_ESR_EL3 --
+   -----------------
+
+   function Get_ESR_EL3 return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, esr_el3",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_ESR_EL3;
+
+   -----------------
+   -- Get_FAR_EL3 --
+   -----------------
+
+   function Get_FAR_EL3 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, far_el3",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_FAR_EL3;
+
+   -----------------
+   -- Get_ELR_EL2 --
+   -----------------
+
+   function Get_ELR_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, elr_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_ELR_EL2;
+
+   -----------------
+   -- Set_ELR_EL2 --
+   -----------------
+
+   procedure Set_ELR_EL2 (V : Unsigned_64) is
+   begin
+      Asm ("msr elr_el2, %0",
+           Inputs => Unsigned_64'Asm_Input ("r", V),
+           Volatile => True);
+   end Set_ELR_EL2;
+
+   ------------------
+   -- Get_SPSR_EL2 --
+   ------------------
+
+   function Get_SPSR_EL2 return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, spsr_el2",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SPSR_EL2;
+
+   -----------------
+   -- Get_ESR_EL2 --
+   -----------------
+
+   function Get_ESR_EL2 return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, esr_el2",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_ESR_EL2;
+
+   -----------------
+   -- Get_FAR_EL2 --
+   -----------------
+
+   function Get_FAR_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, far_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_FAR_EL2;
+
+   -------------------
+   -- Get_HPFAR_EL2 --
+   -------------------
+
+   function Get_HPFAR_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, hpfar_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_HPFAR_EL2;
+
+   ------------------
+   -- Get_VTCR_EL2 --
+   ------------------
+
+   function Get_VTCR_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, vtcr_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_VTCR_EL2;
+
+   -------------------
+   -- Get_VTTBR_EL2 --
+   -------------------
+
+   function Get_VTTBR_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, vttbr_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_VTTBR_EL2;
+
+   -----------------
+   -- Get_HCR_EL2 --
+   -----------------
+
+   function Get_HCR_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, hcr_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_HCR_EL2;
+
+   ----------------
+   -- Get_SP_EL2 --
+   ----------------
+
+   function Get_SP_EL2 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, sp_el2",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SP_EL2;
+
+   -------------------
+   -- Get_SCTLR_EL2 --
+   -------------------
+
+   function Get_SCTLR_EL2 return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, sctlr_el2",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SCTLR_EL2;
+
+   -----------------
+   -- Get_ELR_EL1 --
+   -----------------
+
+   function Get_ELR_EL1 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, elr_el1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_ELR_EL1;
+
+   -----------------
+   -- Set_ELR_EL1 --
+   -----------------
+
+   procedure Set_ELR_EL1 (V : Unsigned_64) is
+   begin
+      Asm ("msr elr_el1, %0",
+           Inputs => Unsigned_64'Asm_Input ("r", V),
+           Volatile => True);
+   end Set_ELR_EL1;
+
+   ------------------
+   -- Get_SPSR_EL1 --
+   ------------------
+
+   function Get_SPSR_EL1 return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, spsr_el1",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SPSR_EL1;
+
+   ------------------
+   -- Get_VBAR_EL1 --
+   ------------------
+
+   function Get_VBAR_EL1 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, vbar_el1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_VBAR_EL1;
+
+   -----------------
+   -- Get_ESR_EL1 --
+   -----------------
+
+   function Get_ESR_EL1 return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, esr_el1",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_ESR_EL1;
+
+   -----------------
+   -- Get_FAR_EL1 --
+   -----------------
+
+   function Get_FAR_EL1 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, far_el1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_FAR_EL1;
+
+   ----------------
+   -- Get_SP_EL1 --
+   ----------------
+
+   function Get_SP_EL1 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, sp_el1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SP_EL1;
+
+   -------------------
+   -- Get_SCTLR_EL1 --
+   -------------------
+
+   function Get_SCTLR_EL1 return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrs %0, sctlr_el1",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SCTLR_EL1;
+
+   -----------------
+   -- Get_TCR_EL1 --
+   -----------------
+
+   function Get_TCR_EL1 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, tcr_el1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_TCR_EL1;
+
+   ----------------
+   -- Get_SP_EL0 --
+   ----------------
+
+   function Get_SP_EL0 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, sp_el0",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_SP_EL0;
+
 end Interfaces.AArch64;
