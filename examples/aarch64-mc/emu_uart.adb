@@ -121,7 +121,7 @@ package body Emu_Uart is
             Dev.CR := (Dev.CR and not Mask) or (Val and Mask);
          when Reg_Tx_Rx_Fifo =>
             if (Mask and 16#ff#) /= 0
-              and then (Dev.Cr and (CR_TX_EN or CR_TX_DIS)) = CR_TX_EN
+              and then (Dev.CR and (CR_TX_EN or CR_TX_DIS)) = CR_TX_EN
             then
                Put (Character'Val (Val and 16#ff#));
             end if;

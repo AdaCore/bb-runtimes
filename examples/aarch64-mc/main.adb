@@ -35,7 +35,11 @@ with Uart;
 procedure Main is
    Part0_Desc : Hull_Desc;
    pragma Import (C, Part0_Desc, "__dir_cpu_1");
+
+   Part0_Ctxt : aliased Hull_Context;
 begin
+   New_Line;
+   New_Line;
    Put_Line ("Start UART..");
    Uart.Init;
    if False then
@@ -43,7 +47,7 @@ begin
          null;
       end loop;
    else
-      Hulls.Create_Hull (Part0_Desc);
+      Hulls.Create_Hull (Part0_Desc, Part0_Ctxt'Unchecked_Access);
       Put_Line ("??? return");
    end if;
 end Main;

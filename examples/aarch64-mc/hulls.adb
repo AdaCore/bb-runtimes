@@ -27,39 +27,19 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Unchecked_Conversion;
 with System.Machine_Code; use System.Machine_Code;
 with Ada.Text_IO; use Ada.Text_IO;
 with IOEmu; use IOEmu;
 with Emu_Uart;
 with Interfaces; use Interfaces;
+with Interfaces.AArch64; use Interfaces.AArch64;
 
 package body Hulls is
-   procedure Start_Hull (Mmu_Map : Address; Start : Address);
-   pragma Import (Asm, Start_Hull);
+   procedure Handler_Syn_A64 (Ctxt : Hull_Context_Acc);
 
-   procedure DC_CVAU (Addr : Address) is
-   begin
-      Asm ("dc cvau, %0",
-           Inputs => Address'Asm_Input ("r", Addr),
-           Volatile => True);
-   end DC_CVAU;
-
-   procedure IC_IVAU (Addr : Address) is
-   begin
-      Asm ("ic ivau, %0",
-           Inputs => Address'Asm_Input ("r", Addr),
-           Volatile => True);
-   end IC_IVAU;
-
-   procedure DSB is
-   begin
-      Asm ("dsb ish", Volatile => True);
-   end DSB;
-
-   procedure ISB is
-   begin
-      Asm ("isb", Volatile => True);
-   end ISB;
+   function To_unsigned_64 is new Ada.Unchecked_Conversion
+     (Source => Address, Target => Unsigned_64);
 
    procedure Cache_Sync_By_Range
      (Start : System.Address;
@@ -81,11 +61,11 @@ package body Hulls is
          Addr := Addr + Line_Size;
       end loop;
 
-      DSB;
+      DSB_ISH;
       ISB;
    end Cache_Sync_By_Range;
 
-   procedure Create_Hull (Desc : Hull_Desc) is
+   procedure Create_Hull (Desc : Hull_Desc; Ctxt : Hull_Context_Acc) is
    begin
       --  Copy file
       if Desc.File_Base /= Null_Address then
@@ -112,7 +92,28 @@ package body Hulls is
 
       Put_Line ("Starting Hull......");
 
-      Start_Hull (Desc.Mmu_Base, Desc.Ram_Vaddr);
+      Ctxt.PC := To_unsigned_64 (Desc.Ram_Vaddr);
+
+      Ctxt.Vttbr := To_unsigned_64 (Desc.Mmu_Base);
+      Ctxt.Vtcr := TCR_PS_4GB or TCR_TG0_4KB or TCR_SH0_OS
+        or TCR_ORGN0_WBWAC or TCR_IRGN0_WBWAC or TCR_SL0_00 or (38 * TCR_T0SZ);
+      Ctxt.Hcr := HCR_RW or HCR_DC or HCR_IMO or HCR_FMO or HCR_VM;
+      Ctxt.Vbar := 16#ffffffff_fffff000#;
+      Ctxt.Sp := 16#100#;
+      Ctxt.Pstate := 16#1c5#;  -- el1h
+      Ctxt.Xregs := (others => 0);
+      Ctxt.Xregs (0) := 16#ff_00#;
+      Ctxt.Xregs (1) := 16#01_00#;
+      Ctxt.Xregs (12) := 16#12_00#;
+      Ctxt.Xregs (30) := 16#30_00#;
+
+      Ctxt.Machine_Reset := False;
+
+      loop
+         Execute_Hull (Ctxt);
+         Handler_Syn_A64 (Ctxt);
+         exit when Ctxt.Machine_Reset;
+      end loop;
    end Create_Hull;
 
    --  IO Emulation
@@ -154,73 +155,11 @@ package body Hulls is
 
    --  Exceptions
 
-   type X_Regs is array (0 .. 31) of Unsigned_64;
-   pragma Suppress_Initialization (X_Regs);
+   procedure Dump (Regs : Hull_Context_Acc; Id : Natural);
 
-   type Registers_List is record
-      Xr : X_Regs;
-   end record;
-   pragma Convention (C, Registers_List);
-   pragma Suppress_Initialization (Registers_List);
-
-   type Registers_List_Acc is access Registers_List;
-
-   procedure Handler_Syn_A64 (Xregs : Registers_List_Acc; Id : Natural);
-   pragma Export (C, Handler_Syn_A64, "__handler_trap_syn_a64");
-
-   function Get_ESR_EL2 return Unsigned_32
+   procedure Handler_Syn_A64 (Ctxt : Hull_Context_Acc)
    is
-      Res : Unsigned_32;
-   begin
-      Asm ("mrs %0, esr_el2",
-           Outputs => Unsigned_32'Asm_Output ("=r", Res),
-           Volatile => True);
-      return Res;
-   end Get_ESR_EL2;
-
-   function Get_HPFAR_EL2 return Unsigned_64
-   is
-      Res : Unsigned_64;
-   begin
-      Asm ("mrs %0, hpfar_el2",
-           Outputs => Unsigned_64'Asm_Output ("=r", Res),
-           Volatile => True);
-      return Res;
-   end Get_HPFAR_EL2;
-
-   function Get_FAR_EL2 return Unsigned_64
-   is
-      Res : Unsigned_64;
-   begin
-      Asm ("mrs %0, far_el2",
-           Outputs => Unsigned_64'Asm_Output ("=r", Res),
-           Volatile => True);
-      return Res;
-   end Get_FAR_EL2;
-
-   function Get_ELR_EL2 return Unsigned_64
-   is
-      Res : Unsigned_64;
-   begin
-      Asm ("mrs %0, elr_el2",
-           Outputs => Unsigned_64'Asm_Output ("=r", Res),
-           Volatile => True);
-      return Res;
-   end Get_ELR_EL2;
-
-   procedure Set_ELR_EL2 (V : Unsigned_64) is
-   begin
-      Asm ("msr elr_el2, %0",
-           Inputs => Unsigned_64'Asm_Input ("r", V),
-           Volatile => True);
-   end Set_ELR_EL2;
-
-   procedure Dump (Regs : Registers_List_Acc; Id : Natural);
-   pragma Import (C, Dump, "__trap_dump");
-
-   procedure Handler_Syn_A64 (Xregs : Registers_List_Acc; Id : Natural)
-   is
-      ESR : constant Unsigned_32 := Get_ESR_EL2;
+      ESR : constant Unsigned_32 := Ctxt.Esr;
       EC : constant Unsigned_8 := Unsigned_8 (Shift_Right (ESR, 26));
    begin
       if EC = 16#24# then
@@ -228,13 +167,13 @@ package body Hulls is
 
          --  Check ISV, if no -> fails
          if (ESR and 16#100_0000#) = 0 then
-            Dump (Xregs, 16 + 1);
+            Dump (Ctxt, 16 + 1);
             return;
          end if;
 
          --  Check AR, fails if set.
          if (ESR and 16#4000#) /= 0 then
-            Dump (Xregs, 16 + 4);
+            Dump (Ctxt, 16 + 4);
             return;
          end if;
 
@@ -243,19 +182,19 @@ package body Hulls is
             when 2#100# | 2#101# | 2#110# | 2#111# =>
                null;
             when others =>
-               Dump (Xregs, 16 + 5);
+               Dump (Ctxt, 16 + 5);
          end case;
 
          --  Check EA
          if (ESR and 16#200#) /= 0 then
-            Dump (Xregs, 16 + 6);
+            Dump (Ctxt, 16 + 6);
             return;
          end if;
 
          --  Check FAR/HPFAR and find emu in table.  If no -> fails
          declare
-            HPFAR : constant Unsigned_64 := Get_HPFAR_EL2;
-            FAR : constant Unsigned_64 := Get_FAR_EL2;
+            HPFAR : constant Unsigned_64 := Ctxt.Hpfar;
+            FAR : constant Unsigned_64 := Ctxt.Far;
             Addr : constant Address :=
               System'To_Address (HPFAR * 16#100# or (FAR and 16#fff#));
             SAS : constant Natural range 0 .. 3 :=
@@ -267,7 +206,7 @@ package body Hulls is
          begin
             Find_IO (Addr, Dev, Off);
             if Dev = null then
-               Dump (Xregs, 16 + 2);
+               Dump (Ctxt, 16 + 2);
                return;
             end if;
 
@@ -310,7 +249,7 @@ package body Hulls is
                         R := Dev.Read64 (Off);
                   end case;
                   if SRT >= 31 then
-                     Dump (Xregs, 16 + 3);
+                     Dump (Ctxt, 16 + 3);
                      return;
                   end if;
 
@@ -318,7 +257,7 @@ package body Hulls is
                      R := R and 16#00000000_ffffffff#;
                   end if;
 
-                  Xregs.Xr (SRT) := R;
+                  Ctxt.Xregs (SRT) := R;
                end;
             else
                --  If write: compute data and dispatch
@@ -326,11 +265,11 @@ package body Hulls is
                   R : Unsigned_64;
                begin
                   if SRT >= 31 then
-                     Dump (Xregs, 16 + 4);
+                     Dump (Ctxt, 16 + 4);
                      return;
                   end if;
 
-                  R := Xregs.Xr (SRT);
+                  R := Ctxt.Xregs (SRT);
 
                   case SAS is
                      when 0 =>
@@ -347,9 +286,19 @@ package body Hulls is
          end;
 
          --  PC = PC + 4
-         Set_ELR_EL2 (Get_ELR_EL2 + 4);
+         Ctxt.PC := Ctxt.PC + 4;
       else
-         Dump (Xregs, 32);
+         Dump (Ctxt, 32);
       end if;
    end Handler_Syn_A64;
+
+   procedure Dump (Regs : Hull_Context_Acc; Id : Natural)
+   is
+      procedure Trap_dump (Regs : Hull_Context_Acc; Id : Natural);
+      pragma Import (C, Trap_dump, "__trap_dump");
+   begin
+      Asm ("msr DAIFset, #3", Volatile => True);
+      Trap_dump (Regs, Id);
+      Asm ("msr DAIFclr, #3", Volatile => True);
+   end Dump;
 end Hulls;

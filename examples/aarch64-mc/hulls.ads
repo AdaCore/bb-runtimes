@@ -29,6 +29,7 @@
 
 with System; use System;
 with System.Storage_Elements; use System.Storage_Elements;
+with Interfaces; use Interfaces;
 
 package Hulls is
    type Hull_Desc is record
@@ -42,6 +43,44 @@ package Hulls is
       File_Base : Address;
       File_Size : Storage_Count;
    end record;
+   pragma Convention (C, Hull_Desc);
 
-   procedure Create_Hull (Desc : Hull_Desc);
+   type Unsigned_64_Array is array (Natural range <>) of Unsigned_64;
+
+   type Hull_Context is record
+      --  EL1 registers
+
+      Xregs : Unsigned_64_Array (0 .. 30);       --    0 .. 247
+      Sp : Unsigned_64;      --  From sp_el1     --  248
+      PC : Unsigned_64;      --  From elr_el2    --  256
+      Pstate : Unsigned_32;  --  From spsr_el2   --  264
+
+      Vbar : Unsigned_64;                        --  272
+
+      --  EL0 registers
+
+      Sp_El0 : Unsigned_64;                      --  280
+
+      --  EL2 registers
+
+      Esr : Unsigned_32;                         --  288
+      Far : Unsigned_64;                         --  296
+      Hpfar : Unsigned_64;                       --  304
+
+      Vtcr : Unsigned_64;                        --  312
+      Vttbr : Unsigned_64;                       --  320
+      Hcr : Unsigned_64;                         --  328
+
+      --  Machine independant
+      Machine_Reset : Boolean;
+   end record;
+   pragma Convention (C, Hull_Context);
+
+   type Hull_Context_Acc is access all Hull_Context;
+   pragma Convention (C, Hull_Context_Acc);
+
+   procedure Create_Hull (Desc : Hull_Desc; Ctxt : Hull_Context_Acc);
+
+   procedure Execute_Hull (Ctxt : Hull_Context_Acc);
+   pragma Import (C, Execute_Hull);
 end Hulls;

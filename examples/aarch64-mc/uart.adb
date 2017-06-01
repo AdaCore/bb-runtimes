@@ -28,7 +28,9 @@
 ------------------------------------------------------------------------------
 
 with Interfaces.Raspberry_Pi; use Interfaces.Raspberry_Pi; use Interfaces;
+pragma Warnings (Off);
 with System.Text_IO;
+pragma Warnings (On);
 with System.Machine_Code; use System.Machine_Code;
 
 package body Uart is
