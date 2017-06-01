@@ -2,6 +2,8 @@ project hull is
    for Main use ("main.adb");
    for Languages use ("Ada", "Asm_Cpp");
    for Object_Dir use "obj";
+   for Target use "aarch64-elf";
+   for Runtime("Ada") use "../../install/aarch64-elf/lib/gnat/ravenscar-sfp-rpi3mc";
 
    package Compiler is
       for Switches ("Ada") use ("-g", "-gnatyg-s");

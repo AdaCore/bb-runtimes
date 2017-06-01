@@ -32,36 +32,19 @@ pragma Warnings (Off);
 with System.Text_IO;
 pragma Warnings (On);
 with System.Machine_Code; use System.Machine_Code;
+with Interfaces.AArch64; use Interfaces.AArch64;
 
 package body Uart is
+   Use_Mini_Uart : constant Boolean := False;
+
    protected Prot is
       pragma Interrupt_Priority (System.Interrupt_Priority'Last);
 
       procedure Handler;
-      pragma Attach_Handler (Handler, 41);
+      pragma Attach_Handler (Handler, (if Use_Mini_Uart then 41 else 69));
 
       procedure Init;
    end Prot;
-
-   function Get_ELR_EL2 return Unsigned_64
-   is
-      Res : Unsigned_64;
-   begin
-      Asm ("mrs %0, elr_el2",
-           Outputs => Unsigned_64'Asm_Output ("=r", Res),
-           Volatile => True);
-      return Res;
-   end Get_ELR_EL2;
-
-   function Get_SPSR_EL2 return Unsigned_32
-   is
-      Res : Unsigned_32;
-   begin
-      Asm ("mrs %0, spsr_el2",
-           Outputs => Unsigned_32'Asm_Output ("=r", Res),
-           Volatile => True);
-      return Res;
-   end Get_SPSR_EL2;
 
    Hex_Digits : constant array (0 .. 15) of Character := "0123456789abcdef";
 
@@ -129,7 +112,13 @@ package body Uart is
       begin
          --  Enable receive interrupt (note that doc is incorrect, bits 0
          --  and 1 are swapped!).
-         MU_IIR := 1;
+         if Use_Mini_Uart then
+            MU_IIR := 1;
+         else
+            PL011_Registers.IFLS := 0;
+            PL011_Registers.IMSC :=
+              PL011_Registers.IMSC or PL011_Bits.MASK_RT;
+         end if;
       end Init;
    end Prot;
 
@@ -146,4 +135,20 @@ package body Uart is
 
       Prot.Init;
    end Init;
+
+   procedure Dump_Status is
+   begin
+      Put ("CR: ");
+      Put_Hex4 (PL011_Registers.CR);
+      Put (", FR: ");
+      Put_Hex4 (PL011_Registers.FR);
+      Put (", RIS: ");
+      Put_Hex4 (PL011_Registers.RIS);
+      Put (", MIS: ");
+      Put_Hex4 (PL011_Registers.MIS);
+      Put (", IMSC: ");
+      Put_Hex4 (PL011_Registers.IMSC);
+      New_Line;
+   end Dump_Status;
+
 end Uart;

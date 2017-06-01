@@ -31,7 +31,7 @@ with Ada.Unchecked_Conversion;
 with System.Machine_Code; use System.Machine_Code;
 with Ada.Text_IO; use Ada.Text_IO;
 with IOEmu; use IOEmu;
-with Emu_Uart;
+with Emu_Miniuart;
 with Interfaces; use Interfaces;
 with Interfaces.AArch64; use Interfaces.AArch64;
 
@@ -128,7 +128,7 @@ package body Hulls is
 
    type IOEmu_Map_Array is array (Natural range <>) of IOEmu_Map_Entry;
 
-   Uart : aliased Emu_Uart.Uart_Dev;
+   Uart : aliased Emu_Miniuart.Mini_Uart_Dev;
 
    IOEmu_Map : constant IOEmu_Map_Array :=
      (0 => (System'To_Address (16#e000_1000#), 16#100#, Uart'Access));

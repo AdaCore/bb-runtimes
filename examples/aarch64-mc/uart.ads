@@ -29,6 +29,7 @@
 
 package Uart is
    procedure Init;
+   procedure Dump_Status;
 
    procedure Put (C : Character);
    procedure Get (C : out Character);

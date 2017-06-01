@@ -29,7 +29,7 @@
 
 with Ada.Text_IO; use Ada.Text_IO;
 
-package body Emu_Uart is
+package body Emu_Miniuart is
    --  Registers
    Reg_Control           : constant := 16#00#;
    Reg_Mode              : constant := 16#04#;
@@ -94,7 +94,8 @@ package body Emu_Uart is
       end case;
    end Disp_Reg_Name;
 
-   function Read32 (Dev : in out Uart_Dev; Off : Off_T) return Unsigned_32 is
+   function Read32 (Dev : in out Mini_Uart_Dev; Off : Off_T)
+                   return Unsigned_32 is
    begin
       case Off is
          when Reg_Control =>
@@ -111,7 +112,7 @@ package body Emu_Uart is
    end Read32;
 
    procedure Write32_Mask
-     (Dev : in out Uart_Dev;
+     (Dev : in out Mini_Uart_Dev;
       Off : Off_T;
       Val : Unsigned_32;
       Mask : Unsigned_32) is
@@ -131,4 +132,4 @@ package body Emu_Uart is
             New_Line;
       end case;
    end Write32_Mask;
-end Emu_Uart;
+end Emu_Miniuart;

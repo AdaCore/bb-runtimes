@@ -194,7 +194,7 @@ __dir_cpu_1:
 
 	.type __file_cpu_1, @object
 __file_cpu_1:
-	.incbin "hello.bin"
+	.incbin "monitor.bin"
 __file_cpu_1_end:
 	.size __file_cpu_1, . - __file_cpu_1
 

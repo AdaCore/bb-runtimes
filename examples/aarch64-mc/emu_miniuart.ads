@@ -30,18 +30,19 @@
 with IOEmu; use IOEmu;
 with Interfaces; use Interfaces;
 
-package Emu_Uart is
-   type Uart_Dev is new IOEmu_Dev32 with private;
+package Emu_Miniuart is
+   type Mini_Uart_Dev is new IOEmu_Dev32 with private;
 
-   function Read32 (Dev : in out Uart_Dev; Off : Off_T) return Unsigned_32;
+   function Read32 (Dev : in out Mini_Uart_Dev; Off : Off_T)
+                   return Unsigned_32;
    procedure Write32_Mask
-     (Dev : in out Uart_Dev;
+     (Dev : in out Mini_Uart_Dev;
       Off : Off_T;
       Val : Unsigned_32;
       Mask : Unsigned_32);
 
 private
-   type Uart_Dev is new IOEmu_Dev32 with record
+   type Mini_Uart_Dev is new IOEmu_Dev32 with record
       CR : Unsigned_32 := 16#10#;
    end record;
-end Emu_Uart;
+end Emu_Miniuart;

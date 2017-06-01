@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Real_Time;
 with System;
 with Hulls; use Hulls;
 with Uart;
@@ -42,10 +43,19 @@ begin
    New_Line;
    Put_Line ("Start UART..");
    Uart.Init;
+
    if False then
-      loop
-         null;
-      end loop;
+      declare
+         use Ada.Real_Time;
+         T : Time := Clock;
+      begin
+         loop
+            delay until T;
+            T := T + Seconds (1);
+            Uart.Dump_Status;
+            Put ('*');
+         end loop;
+      end;
    else
       Hulls.Create_Hull (Part0_Desc, Part0_Ctxt'Unchecked_Access);
       Put_Line ("??? return");
