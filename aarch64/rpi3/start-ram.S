@@ -48,6 +48,10 @@ __start_ram1:
 	# Boot conditions on RPi3
 	# CurrentEL: 3
 
+	# Read processor number
+	mrs	x7, mpidr_el1
+	and	x7, x7, #3
+
 	mrs	x1, currentel
 	cmp	x1, #(3<<2)
 	b.ne	__start_el2
@@ -55,21 +59,11 @@ __start_ram1:
 	# Started in EL3
 	# Configure EL3
 
-	# Read processor number
-	mrs	x7, mpidr_el1
-	and	x7, x7, #3
-
 	# Load EL3 stack pointer (on 32bit)
 	adrp	x2,system_stack_el3_base
 	add	x2, x2, #:lo12:system_stack_el3_base
 	ldr	w0,[x2, x7, lsl #2]
 	mov	sp,x0
-
-	# Load EL2 stack pointer (on 32bit)
-	adrp	x2,system_stack_el2_base
-	add	x2, x2, #:lo12:system_stack_el2_base
-	ldr	w0,[x2, x7, lsl #2]
-	msr	sp_el2,x0
 
 	# Load vbars
 	adrp	x0,__vectors
@@ -115,16 +109,25 @@ __start_ram1:
 	eret
 
 __start_el2:
-	# Enable FPU (don't trap accesses)
+	cmp	x1, #(3<<2)
+	b.ne	__start_el1
+
+	// Load EL2 stack pointer (on 32bit)
+	adrp	x2,system_stack_el2_base
+	add	x2, x2, #:lo12:system_stack_el2_base
+	ldr	w0,[x2, x7, lsl #2]
+	mov	sp,x0
+
+	// Enable FPU (don't trap accesses)
 	msr	cptr_el2, xzr
 
-	# Load EL1 stack pointer (on 32bit)
-	adrp	x2,system_stack_base
-	add	x2, x2, #:lo12:system_stack_base
-	ldr	w0,[x2, x7, lsl #2]
-	msr	sp_el1,x0
-
-	# Switch to el1h, set AIF
+	// Load vbars
+	adrp	x0,__vectors
+	add	x0,x0,#:lo12:__vectors
+	msr	vbar_el2, x0
+	msr	vbar_el1, x0
+	
+	// Switch to el1h, set AIF
 	mov	x0, #(0x1c0 + 5)
 	msr	spsr_el2, x0
 	adr	x0, __start_el1
@@ -134,6 +137,17 @@ __start_el2:
 	eret
 
 __start_el1:
+	// Load EL1 stack pointer (on 32bit)
+	adrp	x2,system_stack_base
+	add	x2, x2, #:lo12:system_stack_base
+	ldr	w0,[x2, x7, lsl #2]
+	mov	sp,x0
+
+	// Load vbars
+	adrp	x0,__vectors
+	add	x0,x0,#:lo12:__vectors
+	msr	vbar_el1, x0
+	
 	/* Enable SIMD.  */
 	mov	x0, #(1 << 20)
 	msr	cpacr_el1, x0
