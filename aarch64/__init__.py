@@ -11,13 +11,13 @@ class Aarch64Arch(BSP):
     def __init__(self):
         super(Aarch64Arch, self).__init__()
         self.add_sources('arch', [
+            'src/i-aarch64.ads', 'src/i-aarch64.adb',
             'src/i-cache/i-cache.ads',
             'src/i-cache/aarch64/i-cache.adb'])
         self.add_sources('gnarl', [
             'src/s-bbcpsp/aarch64/s-bbcpsp.ads',
             'src/s-bbcppr/new/s-bbcppr.ads',
             'src/s-bbcppr/aarch64/s-bbcppr.adb',
-            'src/i-aarch64.ads', 'src/i-aarch64.adb',
             'aarch64/context_switch.S',
             'src/s-bbinte/generic/s-bbinte.adb'])
 
