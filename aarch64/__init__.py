@@ -171,7 +171,7 @@ class Rpi3Base(Aarch64Target):
             'arm/rpi2/i-raspberry_pi.ads',
             'aarch64/rpi3/trap_dump.ads',
             'aarch64/rpi3/trap_dump.adb',
-            'src/s-textio/rpi2/s-textio.adb',
+            'src/s-textio/rpi2-mini/s-textio.adb',
             'src/s-macres/rpi2/s-macres.adb'])
         self.add_sources('gnarl', [
             'arm/rpi2/a-intnam.ads',

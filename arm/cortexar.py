@@ -91,7 +91,7 @@ class Rpi2(CortexARTarget):
             'arm/rpi2/i-raspberry_pi.ads',
             'arm/rpi2/start-ram.S',
             'arm/rpi2/memmap.s',
-            'src/s-textio/rpi2/s-textio.adb',
+            'src/s-textio/rpi2-mini/s-textio.adb',
             'src/s-macres/rpi2/s-macres.adb'])
         self.add_sources('gnarl', [
             'arm/rpi2/a-intnam.ads',
