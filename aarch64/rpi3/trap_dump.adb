@@ -31,6 +31,9 @@ with Interfaces.AArch64; use Interfaces.AArch64;
 with Ada.Unchecked_Conversion;
 
 package body Trap_Dump is
+   Lock_Magic : constant Unsigned_32 := 16#0badcafe#;
+   Lock : aliased Unsigned_32 := 0;
+
    procedure Put (Item : Character);
    procedure Put (Item : String);
    procedure New_Line;
@@ -142,6 +145,12 @@ package body Trap_Dump is
       EL : Unsigned_32;
       C : Character;
    begin
+      --  Very crude lock, but cache may not be enabled
+      while Lock = Lock_Magic loop
+         null;
+      end loop;
+      Lock := Lock_Magic;
+
       --  Initialize console in case of very early crash
       if not Initialized then
          Initialize;
@@ -247,8 +256,7 @@ package body Trap_Dump is
 
          case C is
             when 'c' | 'C' =>
-               New_Line;
-               return;
+               exit;
             when 'n' | 'N' =>
                case EL is
                   when 1 * 4 =>
@@ -260,13 +268,14 @@ package body Trap_Dump is
                   when others =>
                      null;
                end case;
-               New_Line;
-               return;
+               exit;
             when 'r' | 'R' =>
                System.Machine_Reset.Stop;
             when others =>
                Put ('?');
          end case;
       end loop;
+      New_Line;
+      Lock := 0;
    end Dump;
 end Trap_Dump;
