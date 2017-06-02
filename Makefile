@@ -1,10 +1,22 @@
 # User variables. type make to get some help
+
+# Parallelism used when building the runtimes
 JOBS=0
-TARGET=
+
+# Whether to create symlinks or just copy files when generating the rts
 LINK=
-GNAT_SOURCES=$(SRC_DIR)/../gnat
-GCC_SOURCES=$(SRC_DIR)/../gcc
-LINK=n
+
+# Build with Debug ?
+DEBUG=
+
+# The target to build
+TARGET=
+
+# Sources of GNAT and GCC
+GNAT=$(SRC_DIR)/../gnat
+GCC=$(SRC_DIR)/../gcc
+GNAT_SOURCES=$(GNAT)
+GCC_SOURCES=$(GCC)
 
 ###################
 # Other variables #
@@ -18,52 +30,64 @@ SRC_DIR:=$(shell pwd)
 
 TARGETS=none
 
-ifeq ($(TARGET), powerpc-elf)
+ifeq ($(TARGET),$(filter $(TARGET),powerpc-elf ppc-elf ppc))
+    TGT=powerpc-elf
     TARGETS=mpc8641 8349e
 endif
 
-ifeq ($(TARGET), powerpc-eabispe)
+ifeq ($(TARGET),$(filter $(TARGET),powerpc-eabispe p55-elf p55))
+    TGT=powerpc-eabispe
     TARGETS=p2020 p5566 mpc5634
 endif
 
-ifeq ($(TARGET), aarch64-elf)
+ifeq ($(TARGET),$(filter $(TARGET),aarch64-elf aarch64))
+    TGT=aarch64-elf
     TARGETS=aarch64-qemu rpi3 zynqmp
 endif
 
-ifeq ($(TARGET), arm-eabi)
+ifeq ($(TARGET),$(filter $(TARGET),arm-eabi arm-elf arm))
+    TGT=arm-eabi
     TARGETS=zynq7000 rpi2 sam4s samg55 smartfusion2 openmv2 stm32f4 \
        stm32f429disco stm32f469disco stm32f746disco stm32f769disco tms570 lm3s
 endif
 
-ifeq ($(TARGET), leon-elf)
+ifeq ($(TARGET),$(filter $(TARGET),leon-elf leon2-elf leon leon2))
+    TGT=leon-elf
     TARGETS=leon
 endif
 
-ifeq ($(TARGET), leon3-elf)
+ifeq ($(TARGET),$(filter $(TARGET),leon3-elf leon3))
+   TGT=leon3-elf
     TARGETS=leon3
 endif
 
-ifeq ($(TARGET), visium-elf)
+ifeq ($(TARGET),$(filter $(TARGET),visium-elf visium))
+    TGT=visium-elf
     TARGETS=mcm
 endif
 
-ifeq ($(TARGET), i686-pc-linux-gnu)
+ifeq ($(TARGET),$(filter $(TARGET),i686-pc-linux-gnu x86-linux))
+    TGT=i686-pc-linux-gnu
     TARGETS=x86-linux
 endif
 
-ifeq ($(TARGET), i686-pc-mingw32)
+ifeq ($(TARGET),$(filter $(TARGET),i686-pc-mingw32 x86-windows))
+    TGT=i686-pc-mingw32
     TARGETS=x86-windows
 endif
 
-ifeq ($(TARGET), arm-sysgo-pikeos)
+ifeq ($(TARGET),$(filter $(TARGET),arm-sysgo-pikeos arm-pikeos))
+    TGT=arm-sysgo-pikeos
     TARGETS=arm-pikeos
 endif
 
-ifeq ($(TARGET), powerpc-sysgo-pikeos)
+ifeq ($(TARGET),$(filter $(TARGET),powerpc-sysgo-pikeos ppc-pikeos))
+    TGT=powerpc-sysgo-pikeos
     TARGETS=ppc-pikeos
 endif
 
-ifeq ($(TARGET), i586-sysgo-pikeos)
+ifeq ($(TARGET),$(filter $(TARGET),i586-sysgo-pikeos x86-pikeos))
+    TGT=i586-sysgo-pikeos
     TARGETS=x86-pikeos
 endif
 
@@ -79,25 +103,27 @@ endif
 # Tools #
 #########
 
-GCC_PREFIX:=$(abspath $(dir $(shell which $(TARGET)-gcc))/..)
+GCC_PREFIX:=$(abspath $(dir $(shell which $(TGT)-gcc))/..)
 ifneq ($(PREFIX),)
   GCC_PREFIX:=$(PREFIX)
 endif
 
-ifeq ($(LINK),y)
-  BUILD_RTS:=python build-rts.py --link
-else
-  BUILD_RTS:=python build-rts.py
+BUILD_RTS_FLAGS=
+GPRBUILD_FLAGS:=-j$(JOBS) -v
+
+ifneq ($(DEBUG),)
+  GPRBUILD_FLAGS:=$(GPRBUILD_FLAGS) -XBUILD=Debug
 endif
-GPRINSTALL:=GPR_PROJECT_PATH=obj/$(TARGET)/lib/gnat gprinstall -p -f \
-              --prefix=$(GCC_PREFIX)
-GPRBUILD:=GPR_PROJECT_PATH=obj/$(TARGET)/lib/gnat gprbuild -j$(JOBS)
 
 ifneq ($(LINK),)
-  BUILD_RTS:=./build-rts.py --link
-else
-  BUILD_RTS:=./build-rts.py
+  BUILD_RTS_FLAGS:=$(BUILD_RTS_FLAGS) --link
 endif
+
+GPRBUILD:=GPR_PROJECT_PATH=obj/$(TGT)/lib/gnat gprbuild $(GPRBUILD_FLAGS)
+GPRINSTALL:=GPR_PROJECT_PATH=obj/$(TGT)/lib/gnat gprinstall \
+              --prefix=$(GCC_PREFIX)
+BUILD_RTS:=./build-rts.py $(BUILD_RTS_FLAGS)
+
 
 default:
 	@echo "This makefile builds&install recompilable runtimes"
@@ -135,59 +161,60 @@ default:
 
 .PHONY: force
 
-obj/$(TARGET): force
-	mkdir -p obj && rm -rf obj/$(TARGET)
-	set -x; $(BUILD_RTS) --output=obj/$(TARGET) --gnat-dir=$(GNAT_SOURCES) --gcc-dir=$(GCC_SOURCES) $(TARGETS)
+obj/$(TGT): force
+	mkdir -p obj && rm -rf obj/$(TGT)
+	set -x; $(BUILD_RTS) --output=obj/$(TGT) --gnat-dir=$(GNAT_SOURCES) --gcc-dir=$(GCC_SOURCES) $(TARGETS)
 
-srcs: obj/$(TARGET)
+srcs: obj/$(TGT)
 
-all: obj/$(TARGET)
-	for f in obj/$(TARGET)/BSPs/*.gpr; do \
+all: obj/$(TGT)
+	for f in obj/$(TGT)/BSPs/*.gpr; do \
 	  $(GPRBUILD) -P $$f; \
 	done
 
 install: all
-	for f in obj/$(TARGET)/BSPs/*.gpr; do \
+	for f in obj/$(TGT)/BSPs/*.gpr; do \
 	  echo $(GPRINSTALL) -P $$f; \
-	  $(GPRINSTALL) -P $$f; \
+	  $(GPRINSTALL) --uninstall -q -P $$f; \
+	  $(GPRINSTALL) -p -f -P $$f; \
 	done
 
-%.build: obj/$(TARGET)
-	for f in obj/$(TARGET)/BSPs/*_$*.gpr; do \
+%.build: obj/$(TGT)
+	for f in obj/$(TGT)/BSPs/*_$*.gpr; do \
 	  $(GPRBUILD) -P $$f; \
 	done
 
-%.fullbuild: obj/$(TARGET)
-	if [ ! -f obj/$(TARGET)/BSPs/ravenscar_full_$*.gpr ]; then \
+%.fullbuild: obj/$(TGT)
+	if [ ! -f obj/$(TGT)/BSPs/ravenscar_full_$*.gpr ]; then \
 	  echo "no ravenscar-full runtime for $*"; \
 	  exit 1; \
 	fi
-	$(GPRBUILD) -P obj/$(TARGET)/BSPs/ravenscar_full_$*.gpr
+	$(GPRBUILD) -P obj/$(TGT)/BSPs/ravenscar_full_$*.gpr
 
-%.sfpbuild: obj/$(TARGET)
-	if [ ! -f obj/$(TARGET)/BSPs/ravenscar_sfp_$*.gpr ]; then \
+%.sfpbuild: obj/$(TGT)
+	if [ ! -f obj/$(TGT)/BSPs/ravenscar_sfp_$*.gpr ]; then \
 	  echo "no ravenscar-sfp runtime for $*"; \
 	  exit 1; \
 	fi
-	$(GPRBUILD) -P obj/$(TARGET)/BSPs/ravenscar_sfp_$*.gpr
+	$(GPRBUILD) -P obj/$(TGT)/BSPs/ravenscar_sfp_$*.gpr
 
-%.zfpbuild: obj/$(TARGET)
-	if [ ! -f obj/$(TARGET)/BSPs/zfp_$*.gpr ]; then \
+%.zfpbuild: obj/$(TGT)
+	if [ ! -f obj/$(TGT)/BSPs/zfp_$*.gpr ]; then \
 	  echo "no ravenscar-sfp runtime for $*"; \
 	  exit 1; \
 	fi
-	$(GPRBUILD) -P obj/$(TARGET)/BSPs/zfp_$*.gpr
+	$(GPRBUILD) -P obj/$(TGT)/BSPs/zfp_$*.gpr
 
 %.install: %.build
-	for f in obj/$(TARGET)/BSPs/*_$*.gpr; do \
+	for f in obj/$(TGT)/BSPs/*_$*.gpr; do \
 	  $(GPRINSTALL) -P $$f; \
 	done
 
 %.fullinstall: %.fullbuild
-	$(GPRINSTALL) -P obj/$(TARGET)/BSPs/ravenscar_full_$*.gpr
+	$(GPRINSTALL) -P obj/$(TGT)/BSPs/ravenscar_full_$*.gpr
 
 %.sfpinstall: %.sfpbuild
-	$(GPRINSTALL) -P obj/$(TARGET)/BSPs/ravenscar_sfp_$*.gpr
+	$(GPRINSTALL) -P obj/$(TGT)/BSPs/ravenscar_sfp_$*.gpr
 
 %.zfpinstall: %.zfpbuild
-	$(GPRINSTALL) -P obj/$(TARGET)/BSPs/zfp_$*.gpr
+	$(GPRINSTALL) -P obj/$(TGT)/BSPs/zfp_$*.gpr
