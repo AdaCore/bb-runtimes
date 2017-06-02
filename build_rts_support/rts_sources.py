@@ -398,12 +398,12 @@ class SourceDirs(SharedFilesHolder):
             self.add_rule('system_io', 'Use_Semihosting_IO:no')
             self.add_rule('semihost', 'Use_Semihosting_IO:yes')
             self.add_sources('system_io', [
-                'src/a-textio.adb'])
+                'src/a-textio/bb/a-textio.adb'])
             self.add_sources('semihost', [
-                'src/semihosting/s-semiho.ads',
-                'src/semihosting/s-semiho.adb',
-                'src/semihosting/s-textio.adb',
-                'src/semihosting/a-textio.adb'])
+                'src/s-semiho.ads',
+                'src/s-semiho.adb',
+                'src/s-textio/semihosting/s-textio.adb',
+                'src/a-textio/semihosting/a-textio.adb'])
 
         # FPU support sources
         self.add_rule('fpu', 'Has_FPU:yes')
@@ -519,7 +519,7 @@ class SourceDirs(SharedFilesHolder):
             self.add_sources('zfp-io', [
                 'text_io.ads',
                 'src/a-textio.ads',
-                'src/a-textio.adb'])
+                'src/a-textio/bb/a-textio.adb'])
             self.add_sources('zfp', [
                 'src/s-memory/zfp/s-memory.ads',
                 'src/s-memory/raven-min/s-memory.adb'])
@@ -576,7 +576,7 @@ class SourceDirs(SharedFilesHolder):
             self.add_sources('gnarl/common', [
                 'text_io.ads',
                 'src/a-textio.ads',
-                'pikeos/a-textio.adb',
+                'src/a-textio/pikeos/a-textio.adb',
                 {'s-multip.ads': 's-multip-raven-default.ads',
                  's-multip.adb': 's-multip-raven-default.adb'},
                 'pikeos/s-taprop.adb',
@@ -612,7 +612,7 @@ class SourceDirs(SharedFilesHolder):
             self.add_rule('gnarl/spinlock-leon', 'CPU_Family:leon')
             self.add_rule('gnarl/spinlock-gcc', 'CPU_Family:!leon')
             self.add_sources('gnarl/spinlock-gcc', 's-musplo.adb')
-            self.add_sources('gnarl/spinlock-leon', 'sparc/src/s-musplo.adb')
+            self.add_sources('gnarl/spinlock-leon', 'src/leon/s-musplo.adb')
         else:
             self.add_sources('gnarl/common', 's-musplo.adb')
 

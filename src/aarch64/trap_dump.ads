@@ -2,11 +2,7 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---                          A D A . T E X T _ I O                           --
---                                                                          --
---                                 B o d y                                  --
---                                                                          --
---          Copyright (C) 1992-2011, Free Software Foundation, Inc.         --
+--                     Copyright (C) 2016-2017, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -29,70 +25,25 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  Version for use with zero foot print run time
+with Interfaces; use Interfaces;
 
-with System.Text_IO; use System.Text_IO;
+package Trap_Dump is
+   pragma No_Elaboration_Code_All;
 
-package body Ada.Text_IO is
+   --  CPU registers saved in exception handler
 
-   ---------
-   -- Get --
-   ---------
+   type X_Regs is array (0 .. 31) of Unsigned_64;
+   pragma Suppress_Initialization (X_Regs);
 
-   procedure Get (C : out Character) is
-   begin
-      while not Is_Rx_Ready loop
-         null;
-      end loop;
+   type Registers_List is record
+      Xr : X_Regs;
+   end record;
+   pragma Convention (C, Registers_List);
+   pragma Suppress_Initialization (Registers_List);
 
-      C := System.Text_IO.Get;
-   end Get;
+   type Registers_List_Acc is access Registers_List;
 
-   --------------
-   -- New_Line --
-   --------------
-
-   procedure New_Line is
-   begin
-      if Use_Cr_Lf_For_New_Line then
-         Put (ASCII.CR);
-      end if;
-
-      Put (ASCII.LF);
-   end New_Line;
-
-   ---------
-   -- Put --
-   ---------
-
-   procedure Put (Item : Character) is
-   begin
-      while not Is_Tx_Ready loop
-         null;
-      end loop;
-
-      System.Text_IO.Put (Item);
-   end Put;
-
-   procedure Put (Item : String) is
-   begin
-      for J in Item'Range loop
-         Put (Item (J));
-      end loop;
-   end Put;
-
-   --------------
-   -- Put_Line --
-   --------------
-
-   procedure Put_Line (Item : String) is
-   begin
-      Put (Item);
-      New_Line;
-   end Put_Line;
-
-begin
-   if not Initialized then
-      Initialize;
-   end if;
-end Ada.Text_IO;
+   procedure Dump (Regs : Registers_List_Acc; Id : Natural);
+   pragma Export (C, Dump, "__trap_dump");
+   --  Called from hardware exception
+end Trap_Dump;

@@ -11,8 +11,8 @@ class CortexARArch(BSP):
     def __init__(self):
         super(CortexARArch, self).__init__()
         self.add_sources('arch', [
-            'arm/src/i-arm_v7ar.ads',
-            'arm/src/i-arm_v7ar.adb',
+            'src/i-arm_v7ar.ads',
+            'src/i-arm_v7ar.adb',
             'src/i-cache/i-cache.ads',
             'src/i-cache/armv7/i-cache.adb'])
         self.add_sources('gnarl', [
@@ -88,13 +88,13 @@ class Rpi2(CortexARTarget):
 
         self.add_linker_script('arm/rpi2/ram.ld', loader='RAM')
         self.add_sources('crt0', [
-            'arm/rpi2/i-raspberry_pi.ads',
+            'src/i-raspberry_pi.ads',
             'arm/rpi2/start-ram.S',
             'arm/rpi2/memmap.s',
             'src/s-textio/rpi2-mini/s-textio.adb',
             'src/s-macres/rpi2/s-macres.adb'])
         self.add_sources('gnarl', [
-            'arm/rpi2/a-intnam.ads',
+            'src/a-intnam/rpi2/a-intnam.ads',
             'src/s-bbpara/rpi2/s-bbpara.ads',
             'src/s-bbbosu/rpi2/s-bbbosu.adb'])
 

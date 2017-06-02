@@ -130,8 +130,8 @@ class ZynqMP(Aarch64Target):
             'aarch64/zynqmp/start-ram.S',
             'aarch64/zynqmp/translation_table.S',
             'aarch64/zynqmp/trap_vector.S',
-            'aarch64/rpi3/trap_dump.ads',
-            'aarch64/rpi3/trap_dump.adb',
+            'src/aarch64/trap_dump.ads',
+            'src/aarch64/trap_dump.adb',
             'src/s-textio/zynqmp/s-textio.adb',
             'src/s-macres/zynq/s-macres.adb'])
         self.add_sources('gnarl', [
@@ -168,13 +168,13 @@ class Rpi3Base(Aarch64Target):
 
         self.add_linker_script('aarch64/rpi3/ram.ld', loader='RAM')
         self.add_sources('crt0', [
-            'arm/rpi2/i-raspberry_pi.ads',
-            'aarch64/rpi3/trap_dump.ads',
-            'aarch64/rpi3/trap_dump.adb',
+            'src/i-raspberry_pi.ads',
+            'src/aarch64/trap_dump.ads',
+            'src/aarch64/trap_dump.adb',
             'src/s-textio/rpi2-mini/s-textio.adb',
             'src/s-macres/rpi2/s-macres.adb'])
         self.add_sources('gnarl', [
-            'arm/rpi2/a-intnam.ads',
+            'src/a-intnam/rpi2/a-intnam.ads',
             'src/s-bbpara/rpi2/s-bbpara.ads',
             'src/s-bbbosu/rpi3/s-bbbosu.adb'])
 
