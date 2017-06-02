@@ -30,6 +30,7 @@
 with System; use System;
 with System.Storage_Elements; use System.Storage_Elements;
 with Interfaces; use Interfaces;
+with IOEmu; use IOEmu;
 
 package Hulls is
    type Hull_Desc is record
@@ -45,9 +46,30 @@ package Hulls is
    end record;
    pragma Convention (C, Hull_Desc);
 
+   type Ioemu_Map_Array_Acc is access all IOEmu_Map_Array;
+
    type Unsigned_64_Array is array (Natural range <>) of Unsigned_64;
 
-   type Hull_Context is record
+   type Hull_Context_AArch64 is private;
+
+   type Hull_Context is abstract tagged record
+      Cpu : aliased Hull_Context_AArch64;
+
+      --  Machine independant
+      Machine_Reset : Boolean;
+   end record;
+
+   procedure Find_IO
+     (Hull : Hull_Context;
+      Addr : Address;
+      Dev : out IOEmu_Dev_Acc;
+      Off : out Off_T) is abstract;
+
+   type Hull_Context_Acc is access all Hull_Context'Class;
+
+   procedure Create_Hull (Desc : Hull_Desc; Ctxt : Hull_Context_Acc);
+private
+   type Hull_Context_AArch64 is record
       --  EL1 registers
 
       Xregs : Unsigned_64_Array (0 .. 30);       --    0 .. 247
@@ -70,17 +92,7 @@ package Hulls is
       Vtcr : Unsigned_64;                        --  312
       Vttbr : Unsigned_64;                       --  320
       Hcr : Unsigned_64;                         --  328
-
-      --  Machine independant
-      Machine_Reset : Boolean;
    end record;
-   pragma Convention (C, Hull_Context);
+   pragma Convention (C, Hull_Context_AArch64);
 
-   type Hull_Context_Acc is access all Hull_Context;
-   pragma Convention (C, Hull_Context_Acc);
-
-   procedure Create_Hull (Desc : Hull_Desc; Ctxt : Hull_Context_Acc);
-
-   procedure Execute_Hull (Ctxt : Hull_Context_Acc);
-   pragma Import (C, Execute_Hull);
 end Hulls;

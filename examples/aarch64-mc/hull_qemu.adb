@@ -27,69 +27,23 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with System.Storage_Elements; use System.Storage_Elements;
-use System;
-with Interfaces; use Interfaces;
+with IOEmu; use IOEmu;
 
-package IOEmu is
-   subtype Off_T is Storage_Count;
-
-   type IOEmu_Dev is abstract tagged null record;
-
-   function Read8  (Dev : in out IOEmu_Dev; Off : Off_T) return Unsigned_8
-     is abstract;
-   function Read16 (Dev : in out IOEmu_Dev; Off : Off_T) return Unsigned_16
-      is abstract;
-   function Read32 (Dev : in out IOEmu_Dev; Off : Off_T) return Unsigned_32
-      is abstract;
-   function Read64 (Dev : in out IOEmu_Dev; Off : Off_T) return Unsigned_64
-      is abstract;
-
-   procedure Write8  (Dev : in out IOEmu_Dev; Off : Off_T; Val : Unsigned_8)
-      is abstract;
-   procedure Write16 (Dev : in out IOEmu_Dev; Off : Off_T; Val : Unsigned_16)
-      is abstract;
-   procedure Write32 (Dev : in out IOEmu_Dev; Off : Off_T; Val : Unsigned_32)
-      is abstract;
-   procedure Write64 (Dev : in out IOEmu_Dev; Off : Off_T; Val : Unsigned_64)
-      is abstract;
-
-   type IOEmu_Dev32 is abstract new IOEmu_Dev with null record;
-
-   procedure Write32_Mask
-     (Dev : in out IOEmu_Dev32;
-      Off : Off_T;
-      Val : Unsigned_32;
-      Mask : Unsigned_32) is abstract;
-   --  Write to DEV at offset OFF
-
-   function Read8  (Dev : in out IOEmu_Dev32; Off : Off_T) return Unsigned_8;
-   function Read16 (Dev : in out IOEmu_Dev32; Off : Off_T) return Unsigned_16;
-   function Read64 (Dev : in out IOEmu_Dev32; Off : Off_T) return Unsigned_64;
-
-   procedure Write8
-     (Dev : in out IOEmu_Dev32; Off : Off_T; Val : Unsigned_8);
-   procedure Write16
-     (Dev : in out IOEmu_Dev32; Off : Off_T; Val : Unsigned_16);
-   procedure Write32
-     (Dev : in out IOEmu_Dev32; Off : Off_T; Val : Unsigned_32);
-   procedure Write64
-     (Dev : in out IOEmu_Dev32; Off : Off_T; Val : Unsigned_64);
-
-   type IOEmu_Dev_Acc is access all IOEmu_Dev'Class;
-
-   type IOEmu_Map_Entry is record
-      Base : Address;
-      Len  : Storage_Count;
-      Dev : IOEmu_Dev_Acc;
-   end record;
-
-   type IOEmu_Map_Array is array (Natural range <>) of IOEmu_Map_Entry;
+package body Hull_Qemu is
+   procedure Init (H : out Hull_Qemu_Type) is
+   begin
+      H.Iomap :=
+        (0 => (System'To_Address (16#0900_0000#), 16#1000#,
+               H.Uart'Unchecked_Access));
+   end Init;
 
    procedure Find_IO
-     (Map : IOEmu_Map_Array;
+     (Hull : Hull_Qemu_Type;
       Addr : Address;
       Dev : out IOEmu_Dev_Acc;
-      Off : out Off_T);
+      Off : out Off_T) is
+   begin
+      Find_IO (Hull.Iomap, Addr, Dev, Off);
+   end Find_IO;
 
-end IOEmu;
+end Hull_Qemu;

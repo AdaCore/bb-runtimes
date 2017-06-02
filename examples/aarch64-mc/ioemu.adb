@@ -94,4 +94,28 @@ package body IOEmu is
         (Off + 4, Unsigned_32 (Shift_Right (Val, 32) and 16#ffff_ffff#),
          16#ffff_ffff#);
    end Write64;
+
+   procedure Find_IO
+     (Map : IOEmu_Map_Array;
+      Addr : Address;
+      Dev : out IOEmu_Dev_Acc;
+      Off : out Off_T)
+   is
+   begin
+      for I in Map'Range loop
+         declare
+            E : IOEmu_Map_Entry renames Map (I);
+         begin
+            if Addr >= E.Base and then Addr < E.Base + E.Len then
+               Dev := E.Dev;
+               Off := Addr - E.Base;
+               return;
+            end if;
+         end;
+      end loop;
+
+      Dev := null;
+      Off := 0;
+   end Find_IO;
+
 end IOEmu;

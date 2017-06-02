@@ -37,6 +37,8 @@ with Interfaces.AArch64; use Interfaces.AArch64;
 package body Uart is
    Use_Mini_Uart : constant Boolean := False;
 
+   type Char_Emu_Acc_Arr is array (Natural range <>) of Char_Emu_Acc;
+
    protected Prot is
       pragma Interrupt_Priority (System.Interrupt_Priority'Last);
 
@@ -44,6 +46,12 @@ package body Uart is
       pragma Attach_Handler (Handler, (if Use_Mini_Uart then 41 else 69));
 
       procedure Init;
+
+      procedure Register_Client (Client : Char_Emu_Acc);
+   private
+      Clients : Char_Emu_Acc_Arr (0 .. 7);
+      Nbr_Clients : Natural := 0;
+      Cur_Client : Natural := 0;
    end Prot;
 
    Hex_Digits : constant array (0 .. 15) of Character := "0123456789abcdef";
@@ -120,6 +128,15 @@ package body Uart is
               PL011_Registers.IMSC or PL011_Bits.MASK_RT;
          end if;
       end Init;
+
+      procedure Register_Client (Client : Char_Emu_Acc) is
+      begin
+         if Nbr_Clients = Clients'Last then
+            raise Constraint_Error;
+         end if;
+         Clients (Nbr_Clients) := Client;
+         Nbr_Clients := Nbr_Clients + 1;
+      end Register_Client;
    end Prot;
 
    procedure Get (C : out Character) is
@@ -150,5 +167,17 @@ package body Uart is
       Put_Hex4 (PL011_Registers.IMSC);
       New_Line;
    end Dump_Status;
+
+   procedure Put (Emu : in out Uart_Emu_Type; C : Character)
+   is
+      pragma Unreferenced (Emu);
+   begin
+      Put (C);
+   end Put;
+
+   procedure Register_Client (Emu : Char_Emu_Acc) is
+   begin
+      Prot.Register_Client (Emu);
+   end Register_Client;
 
 end Uart;

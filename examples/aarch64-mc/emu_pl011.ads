@@ -27,69 +27,22 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with System.Storage_Elements; use System.Storage_Elements;
-use System;
+with IOEmu; use IOEmu;
 with Interfaces; use Interfaces;
 
-package IOEmu is
-   subtype Off_T is Storage_Count;
+package Emu_PL011 is
+   type PL011_Uart_Dev is new IOEmu_Dev32 with private;
 
-   type IOEmu_Dev is abstract tagged null record;
-
-   function Read8  (Dev : in out IOEmu_Dev; Off : Off_T) return Unsigned_8
-     is abstract;
-   function Read16 (Dev : in out IOEmu_Dev; Off : Off_T) return Unsigned_16
-      is abstract;
-   function Read32 (Dev : in out IOEmu_Dev; Off : Off_T) return Unsigned_32
-      is abstract;
-   function Read64 (Dev : in out IOEmu_Dev; Off : Off_T) return Unsigned_64
-      is abstract;
-
-   procedure Write8  (Dev : in out IOEmu_Dev; Off : Off_T; Val : Unsigned_8)
-      is abstract;
-   procedure Write16 (Dev : in out IOEmu_Dev; Off : Off_T; Val : Unsigned_16)
-      is abstract;
-   procedure Write32 (Dev : in out IOEmu_Dev; Off : Off_T; Val : Unsigned_32)
-      is abstract;
-   procedure Write64 (Dev : in out IOEmu_Dev; Off : Off_T; Val : Unsigned_64)
-      is abstract;
-
-   type IOEmu_Dev32 is abstract new IOEmu_Dev with null record;
-
+   function Read32 (Dev : in out PL011_Uart_Dev; Off : Off_T)
+                   return Unsigned_32;
    procedure Write32_Mask
-     (Dev : in out IOEmu_Dev32;
+     (Dev : in out PL011_Uart_Dev;
       Off : Off_T;
       Val : Unsigned_32;
-      Mask : Unsigned_32) is abstract;
-   --  Write to DEV at offset OFF
+      Mask : Unsigned_32);
 
-   function Read8  (Dev : in out IOEmu_Dev32; Off : Off_T) return Unsigned_8;
-   function Read16 (Dev : in out IOEmu_Dev32; Off : Off_T) return Unsigned_16;
-   function Read64 (Dev : in out IOEmu_Dev32; Off : Off_T) return Unsigned_64;
-
-   procedure Write8
-     (Dev : in out IOEmu_Dev32; Off : Off_T; Val : Unsigned_8);
-   procedure Write16
-     (Dev : in out IOEmu_Dev32; Off : Off_T; Val : Unsigned_16);
-   procedure Write32
-     (Dev : in out IOEmu_Dev32; Off : Off_T; Val : Unsigned_32);
-   procedure Write64
-     (Dev : in out IOEmu_Dev32; Off : Off_T; Val : Unsigned_64);
-
-   type IOEmu_Dev_Acc is access all IOEmu_Dev'Class;
-
-   type IOEmu_Map_Entry is record
-      Base : Address;
-      Len  : Storage_Count;
-      Dev : IOEmu_Dev_Acc;
+private
+   type PL011_Uart_Dev is new IOEmu_Dev32 with record
+      CR : Unsigned_32 := 16#10#;
    end record;
-
-   type IOEmu_Map_Array is array (Natural range <>) of IOEmu_Map_Entry;
-
-   procedure Find_IO
-     (Map : IOEmu_Map_Array;
-      Addr : Address;
-      Dev : out IOEmu_Dev_Acc;
-      Off : out Off_T);
-
-end IOEmu;
+end Emu_PL011;

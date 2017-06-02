@@ -175,37 +175,38 @@ exec_cont:
 	eret
 	.endm
 
-	//  Interrupt handle frame size
-	//  x0-x18 		(19*8 = 152)
-	//  x29-x30 		(16   -> 168)
-	//  spsr, elr, cpacr	(24   -> 192)
-	//  sp, PAD             (16   -> 208)
-#define IFRAME_SIZE 208
+	.type	irq_handler,@function
+irq_handler:
+	//  Save x0 and load context
+	str	x0, [sp, #168]
+	ldr	x0, [sp, #160]
 
-	//  interrupt handler
-	.macro  ihandler_start label, el
-	.p2align 7
-\label:
-	//  1) save caller-saved regs
-	stp	x0, x1, [sp, #-IFRAME_SIZE]!
-	stp	x2, x3, [sp, #16]
-	stp	x4, x5, [sp, #32]
-	stp	x6, x7, [sp, #48]
-	stp	x8, x9, [sp, #64]
-	stp	x10, x11, [sp, #80]
-	stp	x12, x13, [sp, #96]
-	stp	x14, x15, [sp, #112]
-	stp	x16, x17, [sp, #128]
-	stp	x18, x29, [sp, #144]
-	mrs	x4, spsr_\el
-	mrs	x5, elr_\el
-	mrs	x6, cptr_\el
-	stp	x30, x4, [sp, #160]
-	stp	x5, x6, [sp, #176]
+	//  Save regs (only volatile ones)
+	stp	x2, x3, [x0, #16]
+	stp	x4, x5, [x0, #32]
+	stp	x6, x7, [x0, #48]
+	stp	x8, x9, [x0, #64]
+	stp	x10, x11, [x0, #80]
+	stp	x12, x13, [x0, #96]
+	stp	x14, x15, [x0, #112]
+	stp	x16, x17, [x0, #128]
+	stp	x18, x19, [x0, #144]
+	stp	x29, x30, [x0, #232]
+	ldr	x2, [sp, #168]
+	stp	x2, x1, [x0, #0]
+	
+	//  Save PC, SP, SPSR
+	mrs	x1, sp_el1
+	mrs	x2, elr_el2
+	mrs	x3, spsr_el2
+	stp	x1, x2, [x0, #248]
+	str	x3, [x0, #264]
+
+	//  No need to save ESR, FAR, HPFAR (as this is an interrupt)
 
 	// 2) load stack pointer
-	adrp	x0,interrupt_stack_\el\()_base
-	add	x0, x0, #:lo12:interrupt_stack_\el\()_base
+	adrp	x0,interrupt_stack_el2_base
+	add	x0, x0, #:lo12:interrupt_stack_el2_base
 	mrs	x1, mpidr_el1
 	and	x1, x1, #3
 	ldr	x2, [x0, x1, lsl #3]	//  Load new stack pointer
@@ -216,18 +217,13 @@ exec_cont:
 	str	x1, [x2, #16]
 	mov	sp, x2
 
-	b	\label\()_cont
-	.endm
-
-	.macro  ihandler_cont label, handler, el
-\label\()_cont:
 	//  4) disable fpu
-	mrs	x4, cptr_\el
+	mrs	x4, cptr_el2
 	orr	x4, x4, #(1 << 10)
-	msr	cptr_\el, x4
+	msr	cptr_el2, x4
 
 	//  5) call handler
-	bl	\handler
+	bl	__gnat_irq_handler
 
 	//  6) Switch back to EL2 stack
 	ldr	x1, [sp, #16]
@@ -242,34 +238,49 @@ exec_cont:
 
 	//  8) restore registers
 1:
-	ldp	x5, x6, [sp, #176]
-	ldp	x30, x4, [sp, #160]
-	msr	spsr_\el, x4
-	msr	elr_\el, x5
-	msr	cptr_\el, x6
-	ldp	x18, x29, [sp, #144]
-	ldp	x16, x17, [sp, #128]
-	ldp	x14, x15, [sp, #112]
-	ldp	x12, x13, [sp, #96]
-	ldp	x10, x11, [sp, #80]
-	ldp	x8, x9, [sp, #64]
-	ldp	x6, x7, [sp, #48]
-	ldp	x4, x5, [sp, #32]
-	ldp	x2, x3, [sp, #16]
-	ldp	x0, x1, [sp], #IFRAME_SIZE
+	ldr	x0, [sp, #160]
 
+	//  Load HCR
+	ldr	x3, [x0, #328]
+	msr	hcr_el2, x3
+
+	//  SP and PC
+	ldp	x4, x5, [x0, #248]
+	msr	sp_el1, x4
+	msr	elr_el2, x5
+
+	//  Spsr and vbar
+	ldp	x6, x7, [x0, #264]
+	msr	spsr_el2, x6
+	msr	vbar_el1, x7
+
+	//  Load registers
+	ldp	x2, x3, [x0, #16]
+	ldp	x4, x5, [x0, #32]
+	ldp	x6, x7, [x0, #48]
+	ldp	x8, x9, [x0, #64]
+	ldp	x10, x11, [x0, #80]
+	ldp	x12, x13, [x0, #96]
+	ldp	x14, x15, [x0, #112]
+	ldp	x16, x17, [x0, #128]
+	ldp	x18, x19, [x0, #144]
+	ldp	x29, x30, [x0, #232]
+	ldp	x0, x1, [x0, #0]
+	
 	//  9) return
 	eret
-	.endm
+	.size	irq_handler, . - irq_handler
 	
 	.section .vects_el2_low,"ax"
 	.globl  __vectors_el2_low
+	.p2align 7
 __vectors_el2_low:
 	//  Lower level, aarch64
-	.p2align 7
-	b	exec_cont
 	//ehandler __trap_el2_syn_a64, 9 //, __handler_trap_syn_a64
-	ehandler __trap_el2_irq_a64, 10
+	b	exec_cont
+	.p2align 7
+	//ehandler __trap_el2_irq_a64, 10
+	b	irq_handler
 	ehandler __trap_el2_fiq_a64, 11
 	ehandler __trap_el2_ser_a64, 12
 

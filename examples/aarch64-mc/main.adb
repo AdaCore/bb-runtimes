@@ -32,17 +32,20 @@ with Ada.Real_Time;
 with System;
 with Hulls; use Hulls;
 with Uart;
+with Hull_Qemu; use Hull_Qemu;
 
 procedure Main is
    Part0_Desc : Hull_Desc;
    pragma Import (C, Part0_Desc, "__dir_cpu_1");
 
-   Part0_Ctxt : aliased Hull_Context;
+   Part0 : aliased Hull_Qemu.Hull_Qemu_Type;
 begin
    New_Line;
    New_Line;
    Put_Line ("Start UART..");
    Uart.Init;
+
+   Init (Part0);
 
    if False then
       declare
@@ -57,7 +60,7 @@ begin
          end loop;
       end;
    else
-      Hulls.Create_Hull (Part0_Desc, Part0_Ctxt'Unchecked_Access);
+      Hulls.Create_Hull (Part0_Desc, Part0'Unchecked_Access);
       Put_Line ("??? return");
    end if;
 end Main;

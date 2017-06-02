@@ -29,13 +29,19 @@
 
 with Ada.Unchecked_Conversion;
 with System.Machine_Code; use System.Machine_Code;
-with Ada.Text_IO; use Ada.Text_IO;
+with Uart; use Uart;
 with IOEmu; use IOEmu;
-with Emu_Miniuart;
+with Emu_PL011;
 with Interfaces; use Interfaces;
 with Interfaces.AArch64; use Interfaces.AArch64;
 
 package body Hulls is
+   type Hull_Context_AArch64_Acc is access all Hull_Context_AArch64;
+   pragma Convention (C, Hull_Context_AArch64_Acc);
+
+   procedure Execute_Hull (Ctxt : Hull_Context_AArch64_Acc);
+   pragma Import (C, Execute_Hull);
+
    procedure Handler_Syn_A64 (Ctxt : Hull_Context_Acc);
 
    function To_unsigned_64 is new Ada.Unchecked_Conversion
@@ -69,7 +75,8 @@ package body Hulls is
    begin
       --  Copy file
       if Desc.File_Base /= Null_Address then
-         Put_Line ("Copying Hull......");
+         Put ("Copying Hull......");
+         New_Line;
 
          if Desc.File_Size > Desc.Ram_Size then
             raise Constraint_Error;
@@ -90,68 +97,32 @@ package body Hulls is
          end;
       end if;
 
-      Put_Line ("Starting Hull......");
+      Put ("Starting Hull......");
+      New_Line;
 
-      Ctxt.PC := To_unsigned_64 (Desc.Ram_Vaddr);
+      Ctxt.Cpu.PC := To_unsigned_64 (Desc.Ram_Vaddr);
 
-      Ctxt.Vttbr := To_unsigned_64 (Desc.Mmu_Base);
-      Ctxt.Vtcr := TCR_PS_4GB or TCR_TG0_4KB or TCR_SH0_OS
+      Ctxt.Cpu.Vttbr := To_unsigned_64 (Desc.Mmu_Base);
+      Ctxt.Cpu.Vtcr := TCR_PS_4GB or TCR_TG0_4KB or TCR_SH0_OS
         or TCR_ORGN0_WBWAC or TCR_IRGN0_WBWAC or TCR_SL0_00 or (38 * TCR_T0SZ);
-      Ctxt.Hcr := HCR_RW or HCR_DC or HCR_IMO or HCR_FMO or HCR_VM;
-      Ctxt.Vbar := 16#ffffffff_fffff000#;
-      Ctxt.Sp := 16#100#;
-      Ctxt.Pstate := 16#1c5#;  -- el1h
-      Ctxt.Xregs := (others => 0);
-      Ctxt.Xregs (0) := 16#ff_00#;
-      Ctxt.Xregs (1) := 16#01_00#;
-      Ctxt.Xregs (12) := 16#12_00#;
-      Ctxt.Xregs (30) := 16#30_00#;
+      Ctxt.Cpu.Hcr := HCR_RW or HCR_DC or HCR_IMO or HCR_FMO or HCR_VM;
+      Ctxt.Cpu.Vbar := 16#ffffffff_fffff000#;
+      Ctxt.Cpu.Sp := 16#100#;
+      Ctxt.Cpu.Pstate := 16#1c5#;  -- el1h
+      Ctxt.Cpu.Xregs := (others => 0);
+      Ctxt.Cpu.Xregs (0) := 16#ff_00#;
+      Ctxt.Cpu.Xregs (1) := 16#01_00#;
+      Ctxt.Cpu.Xregs (12) := 16#12_00#;
+      Ctxt.Cpu.Xregs (30) := 16#30_00#;
 
       Ctxt.Machine_Reset := False;
 
       loop
-         Execute_Hull (Ctxt);
+         Execute_Hull (Ctxt.Cpu'Access);
          Handler_Syn_A64 (Ctxt);
          exit when Ctxt.Machine_Reset;
       end loop;
    end Create_Hull;
-
-   --  IO Emulation
-
-   type IOEmu_Dev_Acc is access all IOEmu_Dev'Class;
-
-   type IOEmu_Map_Entry is record
-      Base : Address;
-      Len  : Storage_Count;
-      Dev : IOEmu_Dev_Acc;
-   end record;
-
-   type IOEmu_Map_Array is array (Natural range <>) of IOEmu_Map_Entry;
-
-   Uart : aliased Emu_Miniuart.Mini_Uart_Dev;
-
-   IOEmu_Map : constant IOEmu_Map_Array :=
-     (0 => (System'To_Address (16#e000_1000#), 16#100#, Uart'Access));
-
-   procedure Find_IO
-     (Addr : Address; Dev : out IOEmu_Dev_Acc; Off : out Off_T)
-   is
-   begin
-      for I in IOEmu_Map'Range loop
-         declare
-            E : IOEmu_Map_Entry renames IOEmu_Map (I);
-         begin
-            if Addr >= E.Base and then Addr < E.Base + E.Len then
-               Dev := E.Dev;
-               Off := Addr - E.Base;
-               return;
-            end if;
-         end;
-      end loop;
-
-      Dev := null;
-      Off := 0;
-   end Find_IO;
 
    --  Exceptions
 
@@ -159,9 +130,15 @@ package body Hulls is
 
    procedure Handler_Syn_A64 (Ctxt : Hull_Context_Acc)
    is
-      ESR : constant Unsigned_32 := Ctxt.Esr;
+      ESR : constant Unsigned_32 := Ctxt.Cpu.Esr;
       EC : constant Unsigned_8 := Unsigned_8 (Shift_Right (ESR, 26));
    begin
+      if False then
+         Put ("SYN, EC=");
+         Put_Hex4 (ESR);
+         New_Line;
+      end if;
+
       if EC = 16#24# then
          --  Exception from a Data abort.
 
@@ -193,8 +170,8 @@ package body Hulls is
 
          --  Check FAR/HPFAR and find emu in table.  If no -> fails
          declare
-            HPFAR : constant Unsigned_64 := Ctxt.Hpfar;
-            FAR : constant Unsigned_64 := Ctxt.Far;
+            HPFAR : constant Unsigned_64 := Ctxt.Cpu.Hpfar;
+            FAR : constant Unsigned_64 := Ctxt.Cpu.Far;
             Addr : constant Address :=
               System'To_Address (HPFAR * 16#100# or (FAR and 16#fff#));
             SAS : constant Natural range 0 .. 3 :=
@@ -204,7 +181,7 @@ package body Hulls is
             Dev : IOEmu_Dev_Acc;
             Off : Off_T;
          begin
-            Find_IO (Addr, Dev, Off);
+            Find_IO (Ctxt.all, Addr, Dev, Off);
             if Dev = null then
                Dump (Ctxt, 16 + 2);
                return;
@@ -257,19 +234,18 @@ package body Hulls is
                      R := R and 16#00000000_ffffffff#;
                   end if;
 
-                  Ctxt.Xregs (SRT) := R;
+                  Ctxt.Cpu.Xregs (SRT) := R;
                end;
             else
                --  If write: compute data and dispatch
                declare
                   R : Unsigned_64;
                begin
-                  if SRT >= 31 then
-                     Dump (Ctxt, 16 + 4);
-                     return;
+                  if SRT = 31 then
+                     R := 0;
+                  else
+                     R := Ctxt.Cpu.Xregs (SRT);
                   end if;
-
-                  R := Ctxt.Xregs (SRT);
 
                   case SAS is
                      when 0 =>
@@ -286,7 +262,7 @@ package body Hulls is
          end;
 
          --  PC = PC + 4
-         Ctxt.PC := Ctxt.PC + 4;
+         Ctxt.Cpu.PC := Ctxt.Cpu.PC + 4;
       else
          Dump (Ctxt, 32);
       end if;
@@ -294,11 +270,11 @@ package body Hulls is
 
    procedure Dump (Regs : Hull_Context_Acc; Id : Natural)
    is
-      procedure Trap_dump (Regs : Hull_Context_Acc; Id : Natural);
+      procedure Trap_dump (Regs : Hull_Context_AArch64_Acc; Id : Natural);
       pragma Import (C, Trap_dump, "__trap_dump");
    begin
       Asm ("msr DAIFset, #3", Volatile => True);
-      Trap_dump (Regs, Id);
+      Trap_dump (Regs.Cpu'Unrestricted_Access, Id);
       Asm ("msr DAIFclr, #3", Volatile => True);
    end Dump;
 end Hulls;
