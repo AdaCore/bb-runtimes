@@ -35,6 +35,8 @@ package body Hull_Qemu is
       H.Iomap :=
         (0 => (System'To_Address (16#0900_0000#), 16#1000#,
                H.Uart'Unchecked_Access));
+
+      Init (H.Uart'Access);
    end Init;
 
    procedure Find_IO

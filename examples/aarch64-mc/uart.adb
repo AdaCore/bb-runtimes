@@ -106,14 +106,20 @@ package body Uart is
       is
          C : Character;
       begin
+         --  Read character
          C := System.Text_IO.Get;
-         System.Text_IO.Put (C);
 
-         Put ("EL2 ELR:");
-         Put_Hex8 (Get_ELR_EL2);
-         Put (", SPSR:");
-         Put_Hex4 (Get_SPSR_EL2);
-         New_Line;
+         if C = Character'Val (20) then
+            Put ("EL2 ELR:");
+            Put_Hex8 (Get_ELR_EL2);
+            Put (", SPSR:");
+            Put_Hex4 (Get_SPSR_EL2);
+            New_Line;
+         else
+            if Cur_Client < Nbr_Clients then
+               Clients (Cur_Client).Put (C => C);
+            end if;
+         end if;
       end Handler;
 
       procedure Init is

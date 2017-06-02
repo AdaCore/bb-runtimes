@@ -27,8 +27,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO; use Ada.Text_IO;
-
 package body Emu_PL011 is
    --  Registers
    Reg_DR     : constant := 16#00#;
@@ -95,8 +93,12 @@ package body Emu_PL011 is
                    return Unsigned_32 is
    begin
       case Off is
+         when Reg_DR =>
+            --  Now empty.
+            Dev.FR := Dev.FR or FR_RXFE;
+            return Dev.DR_Rx;
          when Reg_FR =>
-            return FR_TXFE or FR_RXFE;
+            return Dev.FR;
          when others =>
             Put ("uart.read ");
             Disp_Reg_Name (Off);
@@ -120,4 +122,20 @@ package body Emu_PL011 is
             New_Line;
       end case;
    end Write32_Mask;
+
+   procedure Put (Dev : in out PL011_Uart_Emu; C : Character) is
+   begin
+      Dev.Parent.DR_Rx := Character'Pos (C);
+      Dev.Parent.FR := Dev.Parent.FR and not FR_RXFE;
+   end Put;
+
+   procedure Init (Dev : access PL011_Uart_Dev) is
+   begin
+      Uart.Register_Client (Dev.Emu'Unrestricted_Access);
+
+      Dev.DR_Rx := 0;
+      Dev.FR := FR_RXFE or FR_TXFE;
+      Dev.Emu.Parent := Dev.all'Unrestricted_Access;
+   end Init;
+
 end Emu_PL011;

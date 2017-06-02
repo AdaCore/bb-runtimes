@@ -29,6 +29,7 @@
 
 with IOEmu; use IOEmu;
 with Interfaces; use Interfaces;
+with Uart; use Uart;
 
 package Emu_PL011 is
    type PL011_Uart_Dev is new IOEmu_Dev32 with private;
@@ -41,8 +42,21 @@ package Emu_PL011 is
       Val : Unsigned_32;
       Mask : Unsigned_32);
 
+   procedure Init (Dev : access PL011_Uart_Dev);
 private
+   type PL011_Uart_Dev_Acc is access all PL011_Uart_Dev;
+
+   type PL011_Uart_Emu is new Char_Emu_Type with record
+      Parent : PL011_Uart_Dev_Acc;
+   end record;
+
+   procedure Put (Dev : in out PL011_Uart_Emu; C : Character);
+   --  Called by emu when a character is received
+
    type PL011_Uart_Dev is new IOEmu_Dev32 with record
-      CR : Unsigned_32 := 16#10#;
+      Emu : aliased PL011_Uart_Emu;
+
+      DR_Rx : Unsigned_32;
+      FR : Unsigned_32;
    end record;
 end Emu_PL011;
