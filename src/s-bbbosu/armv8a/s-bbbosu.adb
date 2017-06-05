@@ -72,10 +72,16 @@ package body System.BB.Board_Support is
    --  the priority group used for preemption. However, if less bits are
    --  implemented, this should still work.
 
-   function To_PRI (P : Integer) return PRI;
-   pragma Inline (To_PRI);
+   function To_PRI (P : Integer) return PRI
+     with Inline_Always;
    --  Return the PRI mask for the given Ada priority. Note that the zero
    --  value here means no mask, so no interrupts are masked.
+
+   procedure Set_CNTP_TVAL (Val : Unsigned_32);
+   --  Set CNTP_TVAL_EL0 or CNTP_TVAL_EL2
+
+   procedure Set_CNTP_CTL (Val : Unsigned_32);
+   --  Set CNTP_CTL_EL0 or CNTP_CTL_EL2
 
    function To_PRI (P : Integer) return PRI is
    begin
@@ -87,6 +93,34 @@ package body System.BB.Board_Support is
          return PRI (Interrupt_Priority'Last - P + 1) * 16;
       end if;
    end To_PRI;
+
+   ------------------
+   -- Set_CNTP_CTL --
+   ------------------
+
+   procedure Set_CNTP_CTL (Val : Unsigned_32) is
+   begin
+      case Runtime_EL is
+         when 1 =>
+            Set_CNTP_CTL_EL0 (Val);
+         when 2 =>
+            Set_CNTHP_CTL_EL2 (Val);
+      end case;
+   end Set_CNTP_CTL;
+
+   -------------------
+   -- Set_CNTP_TVAL --
+   -------------------
+
+   procedure Set_CNTP_TVAL (Val : Unsigned_32) is
+   begin
+      case Runtime_EL is
+         when 1 =>
+            Set_CNTP_TVAL_EL0 (Val);
+         when 2 =>
+            Set_CNTHP_TVAL_EL2 (Val);
+      end case;
+   end Set_CNTP_TVAL;
 
    package GIC is
       --  This is support package for the GIC400 interrupt controller
@@ -165,36 +199,6 @@ package body System.BB.Board_Support is
         with Volatile, Import, Address => GIC_Base_Addr + 16#010#;
    end GIC;
 
---     package IPI is
---        IPI_BASEADDR : constant := 16#FF30_0000#;
---
---        IPI_TRIG_OFFSET     : constant := 16#0#;
---        IPI_OBS_OFFSET      : constant := 16#4#;
---
---        IPI_TRIG     : Unsigned_32
---          with Volatile, Import, Address => IPI_BASEADDR + IPI_TRIG_OFFSET;
---        IPI_OBS      : Unsigned_32
---          with Volatile, Import, Address => IPI_BASEADDR + IPI_OBS_OFFSET;
---
---        IPI_BUFFER_BASEADDR : constant := 16#FF99_0000#;
---
---        IPI_BUFFER_APU_BASE : constant := IPI_BUFFER_BASEADDR + 16#400#;
---  --        IPI_BUFFER_PMU_BASE : constant := IPI_BUFFER_BASEADDR + 16#E00#;
---
---        IPI_BUFFER_TARGET_PMU_OFFSET : constant := 16#1C0#;
---        IPI_BUFFER_REQ_OFFSET        : constant := 16#00#;
---  --        IPI_BUFFER_RESP_OFFSET       : constant := 16#20#;
---
---        type PM_Payload is array (1 .. 5) of Unsigned_32;
---        PM_REQ_WAKEUP        : constant := 10;
---        Node_Id              : constant array (CPU) of Unsigned_32 :=
---                                 (2, 3, 4, 5);
---  --        REQ_ACK_NO           : constant := 1;
---        REQ_ACK_BLOCKING     : constant := 2;
---  --        REQ_ACK_NON_BLOCKING : constant := 3;
---
---     end IPI;
-
    package APU is
       type Power_Down_Array is array (CPU) of Boolean with Pack;
       type UInt12 is mod 2 ** 12 with Size => 12;
@@ -263,22 +267,6 @@ package body System.BB.Board_Support is
       Regs : APU_Registers with Import, Address => 16#FD5C_0000#;
 
    end APU;
-
---     package PMU_GLOBAL is
---        --  PMU_GLOBAL peripheral registers
---        GLOBAL_CNTRL     : Unsigned_32
---          with Volatile, Import, Address => 16#FFD80000#;
---        REQ_PWRUP_STATUS : Unsigned_32
---          with Volatile, Import, Address => 16#FFD80110#;
---        REQ_PWRUP_INT_EN : Unsigned_32
---          with Volatile, Import, Address => 16#FFD80118#;
---        REQ_PWRUP_TRIG   : Unsigned_32
---          with Volatile, Import, Address => 16#FFD80120#;
---        REQ_SWRST_INT_EN : Unsigned_32
---          with Volatile, Import, Address => 16#FFD80418#;
---        REQ_SWRST_TRIG   : Unsigned_32
---          with Volatile, Import, Address => 16#FFD80420#;
---     end PMU_GLOBAL;
 
    procedure IRQ_Handler;
    pragma Export (C, IRQ_Handler, "__gnat_irq_handler");

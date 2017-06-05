@@ -128,7 +128,7 @@ class ZynqMP(Aarch64Target):
         self.add_linker_script('aarch64/zynqmp/ram.ld', loader=None)
         self.add_sources('crt0', [
             'aarch64/zynqmp/start-ram.S',
-            'aarch64/zynqmp/translation_table.S',
+            'aarch64/zynqmp/memmap.S',
             'aarch64/zynqmp/trap_vector.S',
             'src/aarch64/trap_dump.ads',
             'src/aarch64/trap_dump.adb',

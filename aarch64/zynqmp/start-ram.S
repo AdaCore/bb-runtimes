@@ -223,23 +223,22 @@ __start_el1:
         isb
 
         # TTBR0_EL1:
-        ldr     x0, =MMUTableL0
+        ldr     x0, =__mmu_l1_000000000
         msr     ttbr0_el1, x0
 
-        # TCR_EL1:
-        # Physical Address Size PS =  010 -> 40bits 1TB
-        # Granual Size TG0 = 00 -> 4KB
-        # ORGN, IRGN: Normal memory, Write-Through Cacheable
-        # Non-shareable
-        # size offset of the memory region T0SZ = 24 -> (region size 2^(64-24) = 2^40)
-        ldr     x0,=0x285800518
-        msr     tcr_el1, x0
-        
+        // TCR_EL1: TBI0=0, AS=0, IPS=000 (4GB),
+        //          TG1=10, SH1=10, ORGN1=11, IRGN1=11, EPD1=1, A1=0, T1SZ=32
+        //          TG0=00, SH0=10, ORGN0=11, IRGN0=11, EPD0=0,       T0SZ=32
+        movz    x0, #((32 << 0) | (1 << 7) | (3 << 8) | (3 << 10) | (2 << 12) \
+                      | (2 << 14)), LSL #16
+	movk    x0, #((32 << 0) | (0 << 7) | (3 << 8) | (3 << 10) | (2 << 12) \
+                      | (0 << 14))
+	msr     tcr_el1, x0
+
         # MAIR_EL1:
         # 0: b11101110 Outer write-back cacheable, Inner write-back cacheable
         # others: not used
-        # movz    x0,#0x00ee
-        ldr     x1, =0x000000BB0400FF44
+        movz    x0,#0x00ee
         msr     mair_el1,x0
         isb
 
@@ -250,14 +249,14 @@ __start_el1:
         # I-Cache enabled
         # D-Cache enabled
         # MMU enabled
-        mov     x1,#0x0
+        mov     x1, xzr
         orr     x1, x1, #(1 << 18)      // Set WFE non trapping
         orr     x1, x1, #(1 << 17)      // Set WFI non trapping
         orr     x1, x1, #(1 << 5)       // Set CP15 barrier enabled
         orr     x1, x1, #(1 << 12)      // Set I bit
         orr     x1, x1, #(1 << 2)       // Set C bit
         orr     x1, x1, #(1 << 0)       // Set M bit
-        msr     sctlr_el1, x0
+        msr     sctlr_el1, x1
         isb
 
         # CPU 0 starts master, the other are slave cpus
@@ -416,3 +415,5 @@ interrupt_stack_end_lit:
 .weak   __gnat_pre_context_switch
 .weak   __gnat_context_switch
 .weak   __gnat_fpen_trap
+
+#include "memmap.S"

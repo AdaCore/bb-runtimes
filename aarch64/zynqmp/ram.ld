@@ -41,7 +41,7 @@
 
 _DEFAULT_STACK_EL3_SIZE = (4 * 1024);
 _DEFAULT_STACK_EL2_SIZE = (4 * 1024);
-_DEFAULT_STACK_EL1_SIZE = (20 * 1024);
+_DEFAULT_STACK_EL1_SIZE = (200 * 1024);
 _IRQ_STACK_SIZE = (8 * 1024);
 
 ENTRY(__vectors);
@@ -125,7 +125,7 @@ SECTIONS
   __data_words = (__data_end - __data_start) >> 2;
 
   .bss (NOLOAD): {
-   . = ALIGN(64);
+   . = ALIGN(0x10);
    __bss_start = .;
 
    *(.bss .bss.*)
@@ -133,7 +133,7 @@ SECTIONS
 
    /* Align the stack to 64 bits */
 
-   . = ALIGN(64);
+   . = ALIGN(0x10);
    __bss_end = .;
 
 
@@ -142,62 +142,62 @@ SECTIONS
 
    __cpu0_stack_el3_start = .;
    . += DEFINED (__stack_el3_size) ? __stack_el3_size : _DEFAULT_STACK_EL3_SIZE;
-   . = ALIGN(64);
+   . = ALIGN(0x10);
    __cpu0_stack_el3_end = .;
 
    __cpu1_stack_el3_start = .;
    . += DEFINED (__stack_el3_size) ? __stack_el3_size : _DEFAULT_STACK_EL3_SIZE;
-   . = ALIGN(64);
+   . = ALIGN(0x10);
    __cpu1_stack_el3_end = .;
 
    __cpu2_stack_el3_start = .;
    . += DEFINED (__stack_el3_size) ? __stack_el3_size : _DEFAULT_STACK_EL3_SIZE;
-   . = ALIGN(64);
+   . = ALIGN(0x10);
    __cpu2_stack_el3_end = .;
 
    __cpu3_stack_el3_start = .;
    . += DEFINED (__stack_el3_size) ? __stack_el3_size : _DEFAULT_STACK_EL3_SIZE;
-   . = ALIGN(64);
+   . = ALIGN(0x10);
    __cpu3_stack_el3_end = .;
 
    __cpu0_stack_el2_start = .;
    . += DEFINED (__stack_el2_size) ? __stack_el2_size : _DEFAULT_STACK_EL2_SIZE;
-   . = ALIGN(64);
+   . = ALIGN(0x10);
    __cpu0_stack_el2_end = .;
 
    __cpu1_stack_el2_start = .;
    . += DEFINED (__stack_el2_size) ? __stack_el2_size : _DEFAULT_STACK_EL2_SIZE;
-   . = ALIGN(64);
+   . = ALIGN(0x10);
    __cpu1_stack_el2_end = .;
 
    __cpu2_stack_el2_start = .;
    . += DEFINED (__stack_el2_size) ? __stack_el2_size : _DEFAULT_STACK_EL2_SIZE;
-   . = ALIGN(64);
+   . = ALIGN(0x10);
    __cpu2_stack_el2_end = .;
 
    __cpu3_stack_el2_start = .;
    . += DEFINED (__stack_el2_size) ? __stack_el2_size : _DEFAULT_STACK_EL2_SIZE;
-   . = ALIGN(64);
+   . = ALIGN(0x10);
    __cpu3_stack_el2_end = .;
 
    __cpu0_stack_el1_start = .;
    . += DEFINED (__stack_el1_size) ? __stack_el1_size : _DEFAULT_STACK_EL1_SIZE;
-   . = ALIGN(64);
+   . = ALIGN(0x10);
    __cpu0_stack_el1_end = .;
 
    __cpu1_stack_el1_start = .;
    . += DEFINED (__stack_el1_size) ? __stack_el1_size : _DEFAULT_STACK_EL1_SIZE;
-   . = ALIGN(64);
+   . = ALIGN(0x10);
    __cpu1_stack_el1_end = .;
 
    __cpu2_stack_el1_start = .;
    . += DEFINED (__stack_el1_size) ? __stack_el1_size : _DEFAULT_STACK_EL1_SIZE;
-   . = ALIGN(64);
+   . = ALIGN(0x10);
    __cpu2_stack_el1_end = .;
 
    __cpu3_stack_el1_start = .;
    . += DEFINED (__stack_el1_size) ? __stack_el1_size : _DEFAULT_STACK_EL1_SIZE;
-   . = ALIGN(64);
+   . = ALIGN(0x10);
    __cpu3_stack_el1_end = .;
 
    __stack_end = .;
@@ -206,19 +206,19 @@ SECTIONS
    __interrupt_stack_start = .;
 
    __cpu0_interrupt_stack_start = .;
-   . = ALIGN(. + _IRQ_STACK_SIZE, 64);
+   . = ALIGN(. + _IRQ_STACK_SIZE, 0x10);
    __cpu0_interrupt_stack_end = .;
 
    __cpu1_interrupt_stack_start = .;
-   . = ALIGN(. + _IRQ_STACK_SIZE, 64);
+   . = ALIGN(. + _IRQ_STACK_SIZE, 0x10);
    __cpu1_interrupt_stack_end = .;
 
    __cpu2_interrupt_stack_start = .;
-   . = ALIGN(. + _IRQ_STACK_SIZE, 64);
+   . = ALIGN(. + _IRQ_STACK_SIZE, 0x10);
    __cpu2_interrupt_stack_end = .;
 
    __cpu3_interrupt_stack_start = .;
-   . = ALIGN(. + _IRQ_STACK_SIZE, 64);
+   . = ALIGN(. + _IRQ_STACK_SIZE, 0x10);
    __cpu3_interrupt_stack_end = .;
 
    __interrupt_stack_end = .;
