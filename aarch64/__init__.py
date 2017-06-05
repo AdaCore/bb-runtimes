@@ -133,7 +133,7 @@ class ZynqMP(Aarch64Target):
             'src/aarch64/trap_dump.ads',
             'src/aarch64/trap_dump.adb',
             'src/s-textio/zynqmp/s-textio.adb',
-            'src/s-macres/zynq/s-macres.adb'])
+            'src/s-macres/zynqmp/s-macres.adb'])
         self.add_sources('gnarl', [
             'src/a-intnam/zynqmp/a-intnam.ads',
             'src/s-bbpara/zynqmp/s-bbpara.ads',
