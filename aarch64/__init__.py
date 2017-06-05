@@ -51,6 +51,13 @@ class Aarch64Target(DFBBTarget):
     def full_system_ads(self):
         return 'system-xi-arm-full.ads'
 
+    def amend_ravenscar_full(self, cfg):
+        super(Aarch64Target, self).amend_ravenscar_full(cfg)
+        cfg.rts_xml = cfg.rts_xml.replace(
+            '"-nostartfiles"',
+            ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
+             '        "-nostartfiles"'))
+
 
 class AARCH64QEMU(Aarch64Target):
     @property
@@ -153,13 +160,6 @@ class Rpi3Base(Aarch64Target):
     @property
     def readme_file(self):
         return 'arm/rpi2/README'
-
-    def amend_ravenscar_full(self, cfg):
-        super(Rpi3Base, self).amend_ravenscar_full(cfg)
-        cfg.rts_xml = cfg.rts_xml.replace(
-            '"-nostartfiles"',
-            ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
-             '        "-nostartfiles"'))
 
     def __init__(self):
         super(Rpi3Base, self).__init__(

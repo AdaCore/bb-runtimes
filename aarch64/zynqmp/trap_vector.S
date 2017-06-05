@@ -89,31 +89,34 @@ interrupt_stack_el1_base:
 
 .text
 __fpu_fault_restore:
-        ldp     x29, x30, [sp], #0x10
-        ldp     x2, x3, [sp], #0x10
-        ldp     x4, x5, [sp], #0x10
-        ldp     x6, x7, [sp], #0x10
-        ldp     x8, x9, [sp], #0x10
-        ldp     x10, x11, [sp], #0x10
-        ldp     x12, x13, [sp], #0x10
-        ldp     x14, x15, [sp], #0x10
-        ldp     x16, x17, [sp], #0x10
-        ldp     x18, x19, [sp], #0x10
+        // restore
+        ldp     x2, x3, [sp, #16]
+        ldp     x4, x5, [sp, #32]
+        ldp     x6, x7, [sp, #48]
+        ldp     x8, x9, [sp, #64]
+        ldp     x10, x11, [sp, #80]
+        ldp     x12, x13, [sp, #96]
+        ldp     x14, x15, [sp, #112]
+        ldp     x16, x17, [sp, #128]
+        ldp     x18, x19, [sp, #144]
+        ldr     x30, [sp, #240]
         //  No need to restore callee saved registers
-        ldp     x0, x1, [sp], #0x10
+        ldp     x0, x1, [sp], #256
+        eret
 
 __sync_interrupt:
-        stp     x0, x1, [sp, #-0x10]!
-        stp     x2, x3, [sp, #-0x10]!
-        stp     x4, x5, [sp, #-0x10]!
-        stp     x6, x7, [sp, #-0x10]!
-        stp     x8, x9, [sp, #-0x10]!
-        stp     x10, x11, [sp, #-0x10]!
-        stp     x12, x13, [sp, #-0x10]!
-        stp     x14, x15, [sp, #-0x10]!
-        stp     x16, x17, [sp, #-0x10]!
-        stp     x18, x19, [sp, #-0x10]!
-        stp     x29, x30, [sp, #-0x10]!
+        // Save all caller-saved registers (32 * 8 = 256)
+        stp     x0, x1, [sp, #-256]!
+        stp     x2, x3, [sp, #16]
+        stp     x4, x5, [sp, #32]
+        stp     x6, x7, [sp, #48]
+        stp     x8, x9, [sp, #64]
+        stp     x10, x11, [sp, #80]
+        stp     x12, x13, [sp, #96]
+        stp     x14, x15, [sp, #112]
+        stp     x16, x17, [sp, #128]
+        stp     x18, x19, [sp, #144]
+        str     x30, [sp, #240]
         adr     x30,__fpu_fault_restore
 
         /* Check if the synchronous trap is due to floating point access */

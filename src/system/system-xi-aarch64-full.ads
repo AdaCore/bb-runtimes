@@ -34,6 +34,11 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+pragma Restrictions (No_Exception_Registration);
+--  Disable exception name registration. This capability is not used because
+--  it is only required by exception stream attributes which are not supported
+--  in this run time.
+
 pragma Profile (GNAT_Extended_Ravenscar);
 --  This is a Ravenscar run time
 

@@ -474,38 +474,38 @@ package body System.BB.CPU_Primitives is
          Asm ("msr fpcr, %0",
               Inputs => Unsigned_32'Asm_Input ("r", Default_FPCR),
               Volatile => True);
-         Asm ("fmov s0, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s1, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s2, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s3, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s4, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s5, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s6, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s7, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s8, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s9, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s10, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s11, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s12, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s13, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s14, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s15, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s16, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s17, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s18, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s19, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s20, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s21, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s22, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s23, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s24, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s25, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s26, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s27, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s28, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s29, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s30, xzr" & ASCII.LF & ASCII.HT &
-              "fmov s31, xzr" & ASCII.LF & ASCII.HT,
+         Asm ("ucvtf d0, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d1, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d2, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d3, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d4, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d5, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d6, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d7, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d8, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d9, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d10, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d11, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d12, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d13, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d14, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d15, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d16, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d17, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d18, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d19, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d20, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d21, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d22, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d23, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d24, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d25, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d26, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d27, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d28, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d29, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d30, wzr" & ASCII.LF & ASCII.HT &
+              "ucvtf d31, wzr" & ASCII.LF & ASCII.HT,
               Volatile => True);
       end if;
 
