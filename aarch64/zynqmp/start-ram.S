@@ -37,13 +37,16 @@
 .global __start_slave_cpu
 
 .set    vector_base,    __vectors
-.set    RVBAR_BASE,     0xFD5C0040
-.set    GICD_IGROUPR,   0xF9010080
-.set    GICC_PMR,       0xF9020004
-.set    SCNTRS_EN,      0xFF260000
+.set    RVBAR_BASE,     0xFD5C0040      /* Reset vector */
+.set    GICD_IGROUPR,   0xF9010080      /* Irq controller: groups */
+.set    GICC_PMR,       0xF9020004      /* Irq controller: priority mask */
+.set    SCNTRS_EN,      0xFF260000      /* Global counter */
 .set    SCNTRS_FREQ,    0xFF260020
 
 .section .boot,"ax"
+
+.weak   __gnat_initialize_cpu_devices
+.weak   __gnat_initialize_slave
 
 __start_ram:
         mov     x0, #0
@@ -417,11 +420,5 @@ interrupt_stack_end_lit:
         .dword  __interrupt_stack_end
 
         .text
-
-.weak   __gnat_irq_handler
-.weak   __gnat_context_switch_needed
-.weak   __gnat_pre_context_switch
-.weak   __gnat_context_switch
-.weak   __gnat_fpen_trap
 
 #include "memmap.S"

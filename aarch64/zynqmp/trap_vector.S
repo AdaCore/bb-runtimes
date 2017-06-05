@@ -42,6 +42,14 @@
 .org 0
 .section .vectors, "a"
 
+.weak   __gnat_context_switch_needed
+.weak   __gnat_pre_context_switch
+.weak   __gnat_context_switch
+.weak   __gnat_irq_handler
+.weak   __gnat_irq_pre_handler
+.weak   __gnat_irq_post_handler
+.weak   __gnat_fpen_trap
+
 //  Interrupt handle frame size
 //  generic registers
 //  x0-x18            (19*8 = 152)
@@ -61,7 +69,6 @@
 __vectors:
 .set vbar, __vectors
 .org vbar
-
         b       __start_ram
 .org (vbar + 0x200)
         b       __sync_interrupt
@@ -257,5 +264,3 @@ __serror_interrupt:
         //  No need to restore callee saved registers
         ldp     x0, x1, [sp], #256
         eret
-
-.end
