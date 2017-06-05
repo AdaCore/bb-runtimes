@@ -36,11 +36,12 @@
 .global __start_ram
 .global __start_slave_cpu
 
-.set    vector_base,   __vectors
-.set    GICD_IGROUPR,  0xF9010080
-.set    GICC_PMR,      0xF9020004
-.set    SCNTRS_EN,     0xFF260000
-.set    SCNTRS_FREQ,   0xFF260020
+.set    vector_base,    __vectors
+.set    RVBAR_BASE,     0xFD5C0040
+.set    GICD_IGROUPR,   0xF9010080
+.set    GICC_PMR,       0xF9020004
+.set    SCNTRS_EN,      0xFF260000
+.set    SCNTRS_FREQ,    0xFF260020
 
 .section .boot,"ax"
 
@@ -108,7 +109,14 @@ __start_el3:
 
         # Read processor number
         mrs     x7, mpidr_el1
-        and      x7, x7, #3
+        and     x7, x7, #3
+
+        # Set the reset vector address
+        ldr     w1, =RVBAR_BASE
+        mov     w3, #0x8
+        mul     w3, w3, w7  /* Offset from rvbar: CPU_num * 8 */
+        add     w1, w1, w3
+        str     x0, [x1]
 
         # Load stack pointer (on 32bit)
         adrp    x2,system_stack_el3_base

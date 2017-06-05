@@ -37,18 +37,27 @@
 .globl __irq_interrupt
 .globl __serror_interrupt
 .globl __sync_interrupt
-.globl interrupt_stack_el1_base        
+.globl interrupt_stack_el1_base
 
 .org 0
 .section .vectors, "a"
 
 //  Interrupt handle frame size
-//  x0-x18     (19*8 = 152)
-//  x29-x30     (16   -> 168)
+//  generic registers
+//  x0-x18            (19*8 = 152)
+//  x29-x30           (16   -> 168)
 //  spsr, elr, cpacr  (24   -> 192)
-//  sp, PAD             (16   -> 208)
-#define IFRAME_SIZE 208
-        
+.set IFRAME_SIZE, 192
+
+//  fpu registers
+//  offset                            0
+//  vfp_init_flag     (1           -> 0  .. 3)
+//  ctrl, status      (2*4         -> 4  .. 11)
+//  Q0 - Q31          (32*16 = 512 -> 16 .. 527)
+//  old_run           (8           -> 528 .. 535)
+//  + padding to align on 16 bytes
+.set IFRAME_FPU_SIZE, 544
+
 __vectors:
 .set vbar, __vectors
 .org vbar
@@ -72,7 +81,7 @@ interrupt_stack_el1_base:
 .dword  __cpu3_interrupt_stack_end
 
 .text
-__fpu_fault_restore:       
+__fpu_fault_restore:
         ldp     x29, x30, [sp], #0x10
         ldp     x2, x3, [sp], #0x10
         ldp     x4, x5, [sp], #0x10
@@ -85,7 +94,7 @@ __fpu_fault_restore:
         ldp     x18, x19, [sp], #0x10
         //  No need to restore callee saved registers
         ldp     x0, x1, [sp], #0x10
-                
+
 __sync_interrupt:
         stp     x0, x1, [sp, #-0x10]!
         stp     x2, x3, [sp, #-0x10]!
@@ -105,6 +114,8 @@ __sync_interrupt:
         ubfx    x1, x0, #26, #6
         cmp     x1, #0x07
         bne     1f
+
+        /* Reserve room for the FPU registers if needed */
         b       __gnat_fpen_trap
 1:
         stp     x20, x21, [sp, #-0x10]!
@@ -118,9 +129,10 @@ __sync_interrupt:
         b       __trap_dump
 
 __irq_interrupt:
-__fiq_interrupt:        
+__fiq_interrupt:
         //  1) save caller-saved regs
-        stp     x0, x1, [sp, #-IFRAME_SIZE]!
+        sub     sp, sp, #(IFRAME_SIZE + IFRAME_FPU_SIZE)
+        stp     x0, x1, [sp]
         stp     x2, x3, [sp, #16]
         stp     x4, x5, [sp, #32]
         stp     x6, x7, [sp, #48]
@@ -135,12 +147,26 @@ __fiq_interrupt:
         mrs     x6, cpacr_el1
         stp     x30, x4, [sp, #160]
         stp     x5, x6, [sp, #176]
+        //  Set v_init flag to 0 (false)
+        //  see s-bbcpsp.ads for the FPU context structure
+        add     x7, sp, #IFRAME_SIZE     /* x7 <- fp context address */
+        strb    wzr, [x7]                /* v_init <- 0 */
 
-        // 2) load stack pointer
+        // 2) load stack pointer if needed
+        //  the interrupt stacks are above the regular stack: if the current
+        //  stack pointer if greater than interrupt_stack_start, don't change
+        //  it
+        adrp    x0,__interrupt_stack_start
+        add     x0, x0, #:lo12:__interrupt_stack_start
+        cmp     sp, x0
+        b.ge    1f
+        //  at this point, we know that SP is in a task stack
+        //  let's move to the interrupt stack
         adrp    x0,interrupt_stack_el1_base
         add     x0, x0, #:lo12:interrupt_stack_el1_base
         mrs     x1, mpidr_el1
         and     x1, x1, #3
+
         ldr     x2, [x0, x1, lsl #3]  //  Load new stack pointer
 
         // 3) Create a frame, switch to irq stack
@@ -148,6 +174,7 @@ __fiq_interrupt:
         stp     x29, x30, [x2, #-32]!
         str     x1, [x2, #16]
         mov     sp, x2
+1:
 
         //  4) disable fpu
         mrs     x4, cpacr_el1
@@ -155,7 +182,11 @@ __fiq_interrupt:
         msr     cpacr_el1, x4
 
         //  5) call handler
+        //  pre-handler: x0: fpu context address
+        mov     x0, x7
+        bl      __gnat_irq_pre_handler
         bl      __gnat_irq_handler
+        bl      __gnat_irq_post_handler
 
         //  6) Switch back to EL1 stack
         ldr     x1, [sp, #16]
@@ -185,11 +216,12 @@ __fiq_interrupt:
         ldp     x4, x5, [sp, #32]
         ldp     x2, x3, [sp, #16]
         ldp     x0, x1, [sp], #IFRAME_SIZE
+        add     sp, sp, #IFRAME_FPU_SIZE
 
         //  9) return
-        eret        
+        eret
 
-__serror_interrupt:     
+__serror_interrupt:
         // Save all registers (32 * 8 = 256)
         stp     x0, x1, [sp, #-256]!
         stp     x2, x3, [sp, #16]
@@ -225,5 +257,5 @@ __serror_interrupt:
         //  No need to restore callee saved registers
         ldp     x0, x1, [sp], #256
         eret
-        
+
 .end

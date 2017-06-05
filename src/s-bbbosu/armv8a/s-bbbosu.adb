@@ -40,7 +40,7 @@ with Ada.Unchecked_Conversion;
 with System.Machine_Code;
 with System.BB.CPU_Primitives.Multiprocessors;
 with System.BB.Parameters;
-with Interfaces; use Interfaces;
+with Interfaces;                 use Interfaces;
 with Interfaces.AArch64;
 
 package body System.BB.Board_Support is
@@ -82,6 +82,10 @@ package body System.BB.Board_Support is
 
    procedure Set_CNTP_CTL (Val : Unsigned_32);
    --  Set CNTP_CTL_EL0 or CNTP_CTL_EL2
+
+   ------------
+   -- To_PRI --
+   ------------
 
    function To_PRI (P : Integer) return PRI is
    begin

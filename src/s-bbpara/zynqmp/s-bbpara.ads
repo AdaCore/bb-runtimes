@@ -47,10 +47,11 @@ package System.BB.Parameters is
    -- Hardware clock --
    --------------------
 
-   Clock_Frequency : constant := 100_000_000;
-   --  Frequency of the Global timestamp timer in Hz.
+   Clock_Frequency : constant := 1_099_989_000;
+   --  CPU frequency
 
-   Ticks_Per_Second : constant := Clock_Frequency;
+   Ticks_Per_Second : constant := 99_999_000;
+   --  Frequency of the Global timestamp timer in Hz.
 
    ----------------
    -- Interrupts --
