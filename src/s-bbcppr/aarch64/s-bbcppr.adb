@@ -67,7 +67,8 @@ package body System.BB.CPU_Primitives is
    --  for each CPU. Hence, it points to the place where the floating point
    --  state must be stored. Null means no task using it.
 
-   Running_IRQ_Context : FPU_Context_Table := (others => null);
+   Running_FPU_Context : FPU_Context_Table := (others => null);
+   --  Points to the currently running thread or interrupt's FPU context.
 
    type Context_Switch_Params is record
       Running_Thread_Address : Address;
@@ -102,33 +103,33 @@ package body System.BB.CPU_Primitives is
    --  Disable/enable FPU by changing the FPEN bit of CPACR or the TFP bit of
    --  CPTR.
 
-   function Running_FPU_Context
-     (CPU_Id : System.Multiprocessors.CPU) return FPU_Context_Access
-     with Inline_Always;
-   --  The FPU context of the running thread/interruption
-
    procedure Fpen_Trap;
    pragma Export (C, Fpen_Trap, "__gnat_fpen_trap");
    --  FPU enable trap handler
 
-   procedure Pre_IRQ_Handling (Ctxt : FPU_Context_Access);
+   function Pre_IRQ_Handling
+     (Ctxt : FPU_Context_Access) return FPU_Context_Access;
    pragma Export (Asm, Pre_IRQ_Handling, "__gnat_irq_pre_handler");
+   --  Sets the IRQ context as running context and returns the previously
+   --  running context
 
-   procedure Post_IRQ_Handling;
+   procedure Post_IRQ_Handling
+     (Ctxt      : FPU_Context_Access;
+      Prev_Ctxt : FPU_Context_Access);
    pragma Export (Asm, Post_IRQ_Handling, "__gnat_irq_post_handler");
 
    ------------------------
    -- Pre_Context_Switch --
    ------------------------
 
-   function Pre_Context_Switch return Context_Switch_Params is
+   function Pre_Context_Switch return Context_Switch_Params
+   is
       use System.BB.Threads.Queues;
 
       CPU_Id : constant System.Multiprocessors.CPU :=
                  Board_Support.Multiprocessors.Current_CPU;
       New_Priority : constant Integer :=
                        First_Thread_Table (CPU_Id).Active_Priority;
-
    begin
       --  Called with interrupts disabled
 
@@ -140,21 +141,23 @@ package body System.BB.CPU_Primitives is
          Board_Support.Interrupts.Set_Current_Priority (New_Priority);
       end if;
 
+      Disable_FPU;
+
+      --  Update the running FPU context
+      Running_FPU_Context (CPU_Id) :=
+        First_Thread_Table (CPU_Id).Context.FPU'Access;
+
       --  Lazy FPU context switch. The FPU context will be saved and restored
-      --  only when required, so disable the FPU for the next task.
-      --  In case the proper context is already there, do nothing: this
-      --  prevents case where only one task is performing FPU operations, and
-      --  has to constantly re-enable the FPU
+      --  only when required, so we:
+      --  * disable the FPU for the next task if some other task ever accessed
+      --    the FPU (or no task ever used the FPU)
+      --  * unless this task is the task we're switching to
 
-      if Current_FPU_Context (CPU_Id) =
-        First_Thread_Table (CPU_Id).Context.FPU'Access
-      then
-         Enable_FPU;
-      else
+      if Current_FPU_Context (CPU_Id) /= Running_FPU_Context (CPU_Id) then
          Disable_FPU;
+      else
+         Enable_FPU;
       end if;
-
-      --  Parameters for the assembly routine
 
       return (Running_Thread_Table (CPU_Id)'Address,
               First_Thread_Table (CPU_Id)'Address);
@@ -164,24 +167,22 @@ package body System.BB.CPU_Primitives is
    -- Context_Switch --
    --------------------
 
-   procedure Context_Switch is
-
+   procedure Context_Switch
+   is
       procedure Context_Switch_Asm
         (Running_Thread_Table_Element_Address : System.Address;
          Ready_Thread_Table_Element_Address : System.Address);
       pragma Import (Asm, Context_Switch_Asm, "__gnat_context_switch");
       --  Real context switch in assembly code
 
-      Params : Context_Switch_Params;
+      Params : constant Context_Switch_Params := Pre_Context_Switch;
    begin
-      --  First set priority and get pointers
-
-      Params := Pre_Context_Switch;
 
       --  Then the real context switch
 
-      Context_Switch_Asm (Params.Running_Thread_Address,
-                          Params.First_Thread_Address);
+      Context_Switch_Asm
+        (Params.Running_Thread_Address,
+         Params.First_Thread_Address);
    end Context_Switch;
 
    ------------------------
@@ -245,6 +246,8 @@ package body System.BB.CPU_Primitives is
       procedure Start_Thread_Asm;
       pragma Import (Asm, Start_Thread_Asm, "__gnat_start_thread");
 
+      CPU_Id     : constant System.Multiprocessors.CPU_Range :=
+                     Board_Support.Multiprocessors.Current_CPU;
       Initial_SP : Address;
 
    begin
@@ -270,6 +273,10 @@ package body System.BB.CPU_Primitives is
       --  Mark the FPU context as uninitialized
 
       Buffer.FPU.V_Init := False;
+
+      if Running_FPU_Context (CPU_Id) = null then
+         Running_FPU_Context (CPU_Id) := Buffer.FPU'Access;
+      end if;
    end Initialize_Context;
 
    --------------------
@@ -291,8 +298,6 @@ package body System.BB.CPU_Primitives is
       end if;
       --  Start with FPU disabled
       Disable_FPU;
-
-      Running_IRQ_Context (CPU_Id) := null;
    end Initialize_CPU;
 
    -----------------
@@ -337,14 +342,16 @@ package body System.BB.CPU_Primitives is
    -- Pre_IRQ_Handling --
    ----------------------
 
-   procedure Pre_IRQ_Handling (Ctxt : FPU_Context_Access)
+   function Pre_IRQ_Handling
+     (Ctxt : FPU_Context_Access) return FPU_Context_Access
    is
       CPU_Id : constant System.Multiprocessors.CPU :=
                  Board_Support.Multiprocessors.Current_CPU;
+      Old    : constant FPU_Context_Access := Running_FPU_Context (CPU_Id);
    begin
-      Ctxt.Interrupted_Context :=
-        Queues.Running_Thread_Table (CPU_Id).Context.FPU'Access;
-      Running_IRQ_Context (CPU_Id) := Ctxt;
+      Running_FPU_Context (CPU_Id) := Ctxt;
+
+      return Old;
    end Pre_IRQ_Handling;
 
    -----------------------
@@ -352,13 +359,13 @@ package body System.BB.CPU_Primitives is
    -----------------------
 
    procedure Post_IRQ_Handling
+     (Ctxt      : FPU_Context_Access;
+      Prev_Ctxt : FPU_Context_Access)
    is
       CPU_Id  : constant System.Multiprocessors.CPU :=
                   Board_Support.Multiprocessors.Current_CPU;
-      Old_Ctx : constant FPU_Context_Access :=
-                  Running_IRQ_Context (CPU_Id).Interrupted_Context;
    begin
-      if Current_FPU_Context (CPU_Id) = Running_IRQ_Context (CPU_Id) then
+      if Ctxt = Current_FPU_Context (CPU_Id) then
          --  FPU was used during IRQ handling:
          --  Invalidate the context as we're leaving the IRQ handler, so we
          --  won't have use for it, and it will be poped from the stack
@@ -368,26 +375,9 @@ package body System.BB.CPU_Primitives is
          Disable_FPU;
       end if;
 
-      if Old_Ctx.Interrupted_Context = null then
-         --  Leaving IRQ handling: no running IRQ context
-         Running_IRQ_Context (CPU_Id) := null;
-      end if;
+      --  Leaving IRQ handling: no running IRQ context
+      Running_FPU_Context (CPU_Id) := Prev_Ctxt;
    end Post_IRQ_Handling;
-
-   -------------------------
-   -- Running_FPU_Context --
-   -------------------------
-
-   function Running_FPU_Context
-     (CPU_Id : System.Multiprocessors.CPU) return FPU_Context_Access
-   is
-   begin
-      if Running_IRQ_Context (CPU_Id) /= null then
-         return Running_IRQ_Context (CPU_Id);
-      else
-         return Queues.Running_Thread_Table (CPU_Id).Context.FPU'Access;
-      end if;
-   end Running_FPU_Context;
 
    ---------------
    -- Fpen_Trap --

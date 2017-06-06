@@ -58,13 +58,10 @@
 .set IFRAME_SIZE, 192
 
 //  fpu registers
-//  offset                            0
 //  vfp_init_flag     (1           -> 0  .. 3)
 //  ctrl, status      (2*4         -> 4  .. 11)
 //  Q0 - Q31          (32*16 = 512 -> 16 .. 527)
-//  old_run           (8           -> 528 .. 535)
-//  + padding to align on 16 bytes
-.set IFRAME_FPU_SIZE, 544
+.set IFRAME_FPU_SIZE, 528
 
 __vectors:
 .set vbar, __vectors
@@ -86,6 +83,7 @@ interrupt_stack_el1_base:
 .dword  __cpu1_interrupt_stack_end
 .dword  __cpu2_interrupt_stack_end
 .dword  __cpu3_interrupt_stack_end
+
 
 .text
 __fpu_fault_restore:
@@ -141,7 +139,7 @@ __sync_interrupt:
 __irq_interrupt:
 __fiq_interrupt:
         //  1) save caller-saved regs
-        sub     sp, sp, #(IFRAME_SIZE + IFRAME_FPU_SIZE)
+        sub     sp, sp, #IFRAME_SIZE
         stp     x0, x1, [sp]
         stp     x2, x3, [sp, #16]
         stp     x4, x5, [sp, #32]
@@ -154,22 +152,26 @@ __fiq_interrupt:
         stp     x18, x29, [sp, #144]
         mrs     x4, spsr_el1
         mrs     x5, elr_el1
-        mrs     x6, cpacr_el1
         stp     x30, x4, [sp, #160]
-        stp     x5, x6, [sp, #176]
-        //  Set v_init flag to 0 (false)
-        //  see s-bbcpsp.ads for the FPU context structure
-        add     x7, sp, #IFRAME_SIZE     /* x7 <- fp context address */
-        strb    wzr, [x7]                /* v_init <- 0 */
+        str     x5, [sp, #176]
 
         // 2) load stack pointer if needed
-        //  the interrupt stacks are above the regular stack: if the current
-        //  stack pointer if greater than interrupt_stack_start, don't change
-        //  it
+        // if sp in __interrupt_stack_start .. __interrupt_stack_end, then we
+        // are in the nested irq handling case
         adrp    x0,__interrupt_stack_start
         add     x0, x0, #:lo12:__interrupt_stack_start
         cmp     sp, x0
+        b.le    1f
+        adrp    x0,__interrupt_stack_end
+        add     x0, x0, @:lo12:__interrupt_stack_end
+        cmp     sp, x0
         b.ge    1f
+
+        //  nested IRQ case: we stay on the current stack
+        mov     x2, sp
+        b       2f
+
+1:
         //  at this point, we know that SP is in a task stack
         //  let's move to the interrupt stack
         adrp    x0,interrupt_stack_el1_base
@@ -178,44 +180,64 @@ __fiq_interrupt:
         and     x1, x1, #3
 
         ldr     x2, [x0, x1, lsl #3]  //  Load new stack pointer
+        b       1f
+2:
 
         // 3) Create a frame, switch to irq stack
         mov     x1, sp
         stp     x29, x30, [x2, #-32]!
         str     x1, [x2, #16]
         mov     sp, x2
-1:
 
-        //  4) disable fpu
+        //  4) allocate the FPU context on the irq stack
+        mov     x7, sp                   /* x7 <- fp context address */
+        sub     sp, sp, #IFRAME_FPU_SIZE /* allocate the context */
+        strb    wzr, [x7]                /* ictxt.v_init <- 0 */
+
+        //  5) disable fpu
         mrs     x4, cpacr_el1
         bic     x4, x4, #(1 << 20)
         msr     cpacr_el1, x4
 
-        //  5) call handler
+        //  6) call handler
         //  pre-handler: x0: fpu context address
         mov     x0, x7
         bl      __gnat_irq_pre_handler
-        bl      __gnat_irq_handler
+        str     x0, [sp, #-16]!          /* push the prev_ctxt */
+        bl      __gnat_irq_handler       /* actually call the handler */
+        ldr     x1, [sp], 16             /* pop the prev_ctxt */
+        add     x0, sp, #IFRAME_FPU_SIZE /* get the irq fpu context */
         bl      __gnat_irq_post_handler
+        add     sp, sp, #IFRAME_FPU_SIZE /* free the irq fpu context */
 
-        //  6) Switch back to EL1 stack
+        //  7) Switch back to EL1 stack
+        add     x7, sp, #32              /* x7 <- before the frame created @3 */
         ldr     x1, [sp, #16]
         mov     sp, x1
 
-        //  7) switch context if needed
+        //  save the irq stack pointer
+        adrp    x0,interrupt_stack_el1_base
+        add     x0, x0, #:lo12:interrupt_stack_el1_base
+        mrs     x1, mpidr_el1
+        and     x1, x1, #3
+        str     x7, [x0, x1, lsl #3]  //  Save stack pointer
+
+        //  8) switch context if needed
+        str     x7, [sp, #-16]!
         bl      __gnat_context_switch_needed
+        ldr     x7, [sp], #16
         cbz     x0, 1f
 
+        //  perform the context switch
         bl      __gnat_pre_context_switch
         bl      __gnat_context_switch
 
-        //  8) restore registers
 1:
-        ldp     x5, x6, [sp, #176]
+        //  10) restore registers
+        ldr     x5, [sp, #176]
         ldp     x30, x4, [sp, #160]
         msr     spsr_el1, x4
         msr     elr_el1, x5
-        msr     cpacr_el1, x6
         ldp     x18, x29, [sp, #144]
         ldp     x16, x17, [sp, #128]
         ldp     x14, x15, [sp, #112]
@@ -226,9 +248,8 @@ __fiq_interrupt:
         ldp     x4, x5, [sp, #32]
         ldp     x2, x3, [sp, #16]
         ldp     x0, x1, [sp], #IFRAME_SIZE
-        add     sp, sp, #IFRAME_FPU_SIZE
 
-        //  9) return
+        //  12) return
         eret
 
 __serror_interrupt:
