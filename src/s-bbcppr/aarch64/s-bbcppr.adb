@@ -251,9 +251,10 @@ package body System.BB.CPU_Primitives is
       Initial_SP : Address;
 
    begin
-      --  No need to initialize the context of the environment task
-
       if Program_Counter = Null_Address then
+         --  Environment task: just initialize the running fpu context
+         Running_FPU_Context (CPU_Id) := Buffer.FPU'Access;
+
          return;
       end if;
 
@@ -273,10 +274,6 @@ package body System.BB.CPU_Primitives is
       --  Mark the FPU context as uninitialized
 
       Buffer.FPU.V_Init := False;
-
-      if Running_FPU_Context (CPU_Id) = null then
-         Running_FPU_Context (CPU_Id) := Buffer.FPU'Access;
-      end if;
    end Initialize_Context;
 
    --------------------
