@@ -161,11 +161,11 @@ __fiq_interrupt:
         adrp    x0,__interrupt_stack_start
         add     x0, x0, #:lo12:__interrupt_stack_start
         cmp     sp, x0
-        b.le    1f
+        ble     1f
         adrp    x0,__interrupt_stack_end
-        add     x0, x0, @:lo12:__interrupt_stack_end
+        add     x0, x0, #:lo12:__interrupt_stack_end
         cmp     sp, x0
-        b.ge    1f
+        bge     1f
 
         //  nested IRQ case: we stay on the current stack
         mov     x2, sp
