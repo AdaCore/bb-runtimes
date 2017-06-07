@@ -8,7 +8,6 @@ import getopt
 import sys
 import xml.etree.ElementTree as ET
 
-import sys
 sys.path.append('../../arm')
 import memmap
 
@@ -23,7 +22,7 @@ def usage():
     print "usage: multilevel.py [--gen-regions | --gen-mmu] OPTIONS [INPUT]"
     print "Options are:"
     print " --arch=ARCH      set architecture"
-    print "    architectures are: %s" % ", ".join(arches.keys())
+    print "    architectures are: %s" % ", ".join(memmap.arches.keys())
 
 
 def main():
