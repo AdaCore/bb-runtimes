@@ -123,7 +123,7 @@ __sync_interrupt:
         cmp     x1, #0x07
         bne     1f
 
-        /* Reserve room for the FPU registers if needed */
+        /* FPU access trap: save FPU context and enable FPU registers access */
         b       __gnat_fpen_trap
 1:
         stp     x20, x21, [sp, #-0x10]!
@@ -180,7 +180,6 @@ __fiq_interrupt:
         and     x1, x1, #3
 
         ldr     x2, [x0, x1, lsl #3]  //  Load new stack pointer
-        b       1f
 2:
 
         // 3) Create a frame, switch to irq stack

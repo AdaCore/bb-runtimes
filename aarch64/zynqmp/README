@@ -1,0 +1,49 @@
+Ravenscar for Xilinx Ultrascale+ boards
+=======================================
+
+Main characteristics:
+---------------------
+
+This runtime supports the running on the quad cortex-A53 SMP APU block of the
+UltraScale+ MPSoC.
+
+- boot from Exception Level 3-1: the boot process is configuring the various
+  EL down to 1 in 64-bit mode. The runtime mode used is EL1 non-secure.
+- MMU: the mmu configuration is expecting 2GB of DDRAM and configures the
+  memory access in 32-bit mode.
+- SMP: the four cores are supported by the runtime in SMP mode.
+- Interrupts: 16 level of interrupt priority are supported, and thus nested
+  interruptions are supported as well. Finally, the use of the FPU is always
+  supported, in tasks and in interrupt handlers.
+
+Resources used by the runtime:
+------------------------------
+
+- the GIC is configured to redirect the exceptions to the Ada runtime
+- the Software generated interrupt 0 is reserved by the runtime and should not
+  be used by user code.
+- The UART0 is used as standard input/output by the runtime.
+
+Memory mapping:
+---------------
+
+  <!-- DDR, 2GB -->
+  <region access="rwx---" cache="wb"
+	  virt="0x00000000" size="0x80000000" name="ram"/>
+
+  <!-- PL -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0x80000000" size="0x40000000" name="pl"/>
+
+  <!-- QSPI, lower PCIe -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0xC0000000" size="0x20000000" name="qspi"/>
+
+  <!-- Peripherals -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0xF8000000" size="0x08000000" name="io"/>
+
+Boot:
+-----
+
+For now, only boot from RAM is supported, with the entry point set to 0x00000.

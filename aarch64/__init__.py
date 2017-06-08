@@ -111,6 +111,10 @@ class ZynqMP(Aarch64Target):
         return Aarch64Arch
 
     @property
+    def readme_file(self):
+        return 'aarch64/zynqmp/README'
+
+    @property
     def loaders(self):
         return ('RAM', )
 

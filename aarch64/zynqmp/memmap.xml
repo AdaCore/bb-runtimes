@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <memmap arch="aarch64" pageshift="12">
-  <!-- DDR, 2GB on the UltraZed -->
+  <!-- DDR, 2GB -->
   <region access="rwx---" cache="wb"
 	  virt="0x00000000" size="0x80000000" name="ram"/>
 
@@ -12,7 +12,7 @@
   <region access="rw-rw-" cache="nc"
 	  virt="0xC0000000" size="0x20000000" name="qspi"/>
 
-  <!-- STM Coresight -->
+  <!-- Peripherals -->
   <region access="rw-rw-" cache="nc"
 	  virt="0xF8000000" size="0x08000000" name="io"/>
 

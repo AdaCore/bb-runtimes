@@ -182,16 +182,6 @@ __start_el2:
         # Enable FPU (don't trap accesses)
         msr     cptr_el2, xzr
 
-        # migrate vectors
-
-        # Load stack pointer (on 32bit)
-        # ??? As long as we're not using for now the EL2, we could skip the
-        # stack here
-        adrp    x2,system_stack_el1_base
-        add     x2, x2, #:lo12:system_stack_el1_base
-        ldr     w0,[x2, x7, lsl #2]
-        msr     sp_el1,x0
-
         # Make sure the generic timers are initialized
         mrs     x0, cnthctl_el2
         orr     x0, x0, #0x3    /* Enable EL1 access to timers */
@@ -224,6 +214,15 @@ __start_el1:
         # Enable FPU
         mov     x0, #(1 << 20)
         msr     cpacr_el1, x0
+
+        # Load stack pointer (on 32bit)
+        adrp    x2, system_stack_el1_base
+        add     x2, x2, #:lo12:system_stack_el1_base
+        ldr     w0, [x2, x7, lsl #2]
+        mov     sp, x0
+
+        ldr     x0, =vector_base
+        msr     vbar_el1, x0
 
         # Enable MMU and cache.
         tlbi    vmalle1
@@ -414,11 +413,6 @@ system_stack_el1_base:
         .word   __cpu2_stack_el1_end
         .word   __cpu3_stack_el1_end
 
-interrupt_stack_start_lit:
-        .dword  __interrupt_stack_start
-interrupt_stack_end_lit:
-        .dword  __interrupt_stack_end
-
-        .text
+.text
 
 #include "memmap.S"

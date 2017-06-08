@@ -42,7 +42,7 @@ package Ada.Interrupts.Names is
 
    --  Software Generated Interrupts (SGI)
 
-   SGI_0  : constant Interrupt_ID := 0;
+   SGI_0  : constant Interrupt_ID := 0; --  Reserved by the runtime
    SGI_1  : constant Interrupt_ID := 1;
    SGI_2  : constant Interrupt_ID := 2;
    SGI_3  : constant Interrupt_ID := 3;

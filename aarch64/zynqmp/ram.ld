@@ -124,6 +124,12 @@ SECTIONS
   } > REGION_DATA
   __data_words = (__data_end - __data_start) >> 2;
 
+  .mmu_tbl (ALIGN(4096)) : {
+     *(.mmu_tbl0)
+     *(.mmu_tbl1)
+     *(.mmu_tbl2)
+  } > REGION_DATA
+
   .bss (NOLOAD): {
    . = ALIGN(0x10);
    __bss_start = .;
@@ -229,12 +235,6 @@ SECTIONS
   } > REGION_DATA
 
    __bss_dwords = (__bss_end - __bss_start) >> 3;
-
-  .mmu_tbl (ALIGN(4096)) : {
-     *(.mmu_tbl0)
-     *(.mmu_tbl1)
-     *(.mmu_tbl2)
-  } > REGION_DATA
 
   /* DWARF debug sections.
      Symbols in the DWARF debugging sections are relative to the beginning
