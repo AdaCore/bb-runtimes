@@ -13,9 +13,10 @@ import memmap
 
 
 class vcpu(object):
-    def __init__(self, rom_size, ram_size):
-        self.rom_size = rom_size
-        self.ram_size = ram_size
+    def __init__(self, name):
+        self.name = name
+        self.regions = []
+        self.files = []
 
 
 def usage():
@@ -70,91 +71,132 @@ def main():
         sys.stderr.write("document tag must be 'multi-image'")
         sys.exit(2)
 
+    # Load and parse board memmap
     mmu = memmap.create_mmu_from_xml(root, arch, "el2")
 
     memmap_el = root.find('include')
     memmap_tree = ET.parse(memmap_el.get('file'))
     regions = memmap.parse_memmap(mmu, memmap_tree.getroot())
 
-    image_el = root.find('image')
-    main_region_name = image_el.get('region')
-    main_region = [r for r in regions if r.name == main_region_name][0]
+    core_el = root.find('core')
+    parts_el = root.find('partitions')
 
-    cpus = {}
-    base = main_region.phys
-    for child in image_el:
-        num = child.attrib['num']
-        ram_size = memmap.parse_addr(child.attrib['ram_size'])
-        rom_size = memmap.parse_addr(child.attrib['rom_size'])
-        v = vcpu(rom_size, ram_size)
-        v.ram_paddr = base
-        v.ram_vaddr = 0
-        base += ram_size
-        v.rom_paddr = base
-        v.rom_vaddr = ram_size
-        base += rom_size
-        v.filename = child.attrib.get('filename', None)
-        cpus[num] = v
+    offsets = {}
+    for r in regions:
+        offsets[r.name] = r.phys
 
-    if base > main_region.size:
-        sys.stderr.write("image size is too large")
-        sys.exit(2)
+    # Parse core
+    for a in core_el:
+        assert a.tag == 'area'
+        reg = a.attrib['region']
+        size = memmap.parse_addr(a.attrib['size'])
+        offsets[reg] += size
+
+    parts = {}
+    for child in parts_el:
+        name = child.attrib['name']
+        v = vcpu(name)
+        parts[name] = v
+        for a in child:
+            if a.tag == 'area':
+                size = memmap.parse_addr(a.attrib['size'])
+                vaddr = memmap.parse_addr(a.attrib['vaddr'])
+                reg = a.attrib['region']
+                name = a.attrib['name']
+                v.regions.append(
+                    memmap.mmu_region(name, vaddr, offsets[reg], size,
+                                      'cache', 'acc'))
+                offsets[reg] += size
+            elif a.tag == 'file':
+                filename = a.attrib['filename']
+                v.files.append(filename)
+            else:
+                sys.stderr.write("unhandled partition tag {}".format(a.tag))
+                sys.exit(2)
+
+#    if base > main_region.size:
+#        sys.stderr.write("image size is too large")
+#        sys.exit(2)
 
     if gen_regions:
-        for k, v in cpus.iteritems():
-            filename = 'cpu_{}.ld'.format(k)
+        # Per partition linker script (memory definition)
+        for k, v in parts.iteritems():
+            filename = '{}.ld'.format(k)
             print "Writing {}".format(filename)
             with open(filename, 'w') as f:
                 f.write("MEMORY\n")
                 f.write("{\n")
-                f.write("  RAM (rwx): ORIGIN = {:#x}, LENGTH = {:#x}\n".format(
-                    v.ram_vaddr, v.ram_size))
-                f.write("  ROM (rx):  ORIGIN = {:#x}, LENGTH = {:#x}\n".format(
-                    v.rom_vaddr, v.rom_size))
+                for a in v.regions:
+                    f.write(
+                        "  {} (rwx): ORIGIN = {:#x}, LENGTH = {:#x}\n".format(
+                            a.name, a.virt, a.size))
                 f.write("}\n")
 
     if gen_mmu:
+        # Core mmu definition
         for r in regions:
             mmu.insert(r.name, r.virt, r.phys, r.size, r.cache, r.access)
         mmu.generate("__mmu")
 
     if gen_dir:
-        for k, v in cpus.iteritems():
+        for k, v in parts.iteritems():
             mmu = memmap.create_mmu_from_xml(root, arch, "stage2")
-            mmu.insert("ram", v.ram_vaddr, v.ram_paddr, v.ram_size,
-                       "wb", "rwx---")
-            mmu.insert("rom", v.rom_vaddr, v.rom_paddr, v.rom_size,
-                       "wb", "r-x---")
-            v.mmu_sym = mmu.generate("__mmu_cpu_{}".format(k))
+            for a in v.regions:
+                mmu.insert(a.name, a.virt, a.phys, a.size, "wb", "rwx---")
+            v.mmu_sym = mmu.generate("__mmu_{}".format(k))
 
-        for k, v in cpus.iteritems():
-            print "\t.globl __dir_cpu_{}".format(k)
-            print "\t.type __dir_cpu_{}, @object".format(k)
-            print "__dir_cpu_{}:".format(k)
-            print "\t.dword {}".format(v.mmu_sym)
-            print "\t.dword {:#x}".format(v.ram_vaddr)
-            print "\t.dword {:#x}".format(v.ram_paddr)
-            print "\t.dword {:#x}".format(v.ram_size)
-            print "\t.dword {:#x}".format(v.rom_vaddr)
-            print "\t.dword {:#x}".format(v.rom_paddr)
-            print "\t.dword {:#x}".format(v.rom_size)
-            if v.filename:
-                print "\t.dword __file_cpu_{}".format(k)
-                print "\t.dword __file_cpu_{}_end - __file_cpu_{}".format(k, k)
-            else:
-                print "\t.dword 0"
-                print "\t.dword 0"
-            print "\t.size __dir_cpu_{}, . - __dir_cpu_{}".format(k, k)
+        for k, v in parts.iteritems():
+            print "\t.type __memmap_{}, @object".format(k)
+            print "__memmap_{}:".format(k)
+            for a in v.regions:
+                print "\t.dword {:#x}".format(a.virt)
+                print "\t.dword {:#x}".format(a.phys)
+                print "\t.dword {:#x}".format(a.size)
+            print "\t.size __memmap_{}, . - __memmap_{}".format(k, k)
+
+            cnt = 0
+            for f in v.files:
+                sym = "__files_{}_name_{}".format(k, cnt)
+                print "\t.type {}, @object".format(sym)
+                print "{}:".format(sym)
+                print "\t.asciz \"{}\"".format(f)
+                print "\t.size {}, . - {}".format(sym, sym)
+
+                sym = "__files_{}_content_{}".format(k, cnt)
+                print "\t.type {}, @object".format(sym)
+                print "{}:".format(sym)
+                print "\t.incbin \"{}\"".format(f)
+                print "{}_end:".format(sym)
+                print "\t.size {}, . - {}".format(sym, sym)
+
+                cnt += 1
             print
 
-        for k, v in cpus.iteritems():
-            if v.filename:
-                print "\t.type __file_cpu_{}, @object".format(k)
-                print "__file_cpu_{}:".format(k)
-                print '\t.incbin "{}"'.format(v.filename)
-                print "__file_cpu_{}_end:".format(k)
-                print "\t.size __file_cpu_{}, . - __file_cpu_{}".format(k, k)
-                print
+            sym = "__files_{}".format(k)
+            print "\t.type {}, @object".format(sym)
+            print "{}:".format(sym)
+            cnt = 0
+            for f in v.files:
+                print "\t.dword __files_{}_name_{}".format(k, cnt)
+                fsym = "__files_{}_content_{}".format(k, cnt)
+                print "\t.dword {}".format(fsym)
+                print "\t.dword {}_end - {}".format(fsym, fsym)
+                cnt += 1
+            print "\t.size {}, . - {}".format(sym, sym)
+            print
+
+            print "\t.globl __dir_{}".format(k)
+            print "\t.type __dir_{}, @object".format(k)
+            print "__dir_{}:".format(k)
+            print "\t.dword {}".format(v.mmu_sym)
+            print "\t.dword __memmap_{}".format(k)
+            print "\t.word {}".format(len(v.regions))
+            print "\t.word 0"
+            print "\t.dword __files_{}".format(k)
+            print "\t.word {}".format(len(v.files))
+            print "\t.word 0"
+            print "\t.size __dir_{}, . - __dir_{}".format(k, k)
+            print
 
 if __name__ == '__main__':
     main()

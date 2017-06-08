@@ -35,17 +35,17 @@ with Uart;
 with Hull_Qemu; use Hull_Qemu;
 
 procedure Main is
-   Part0_Desc : Hull_Desc;
-   pragma Import (C, Part0_Desc, "__dir_cpu_1");
+   Part1_Desc : Hull_Desc;
+   pragma Import (C, Part1_Desc, "__dir_part1");
 
-   Part0 : aliased Hull_Qemu.Hull_Qemu_Type;
+   Part1 : aliased Hull_Qemu.Hull_Qemu_Type;
 begin
    New_Line;
    New_Line;
    Put_Line ("Start UART..");
    Uart.Init;
 
-   Init (Part0);
+   Init (Part1);
 
    if False then
       declare
@@ -60,7 +60,7 @@ begin
          end loop;
       end;
    else
-      Hulls.Create_Hull (Part0_Desc, Part0'Unchecked_Access);
+      Hulls.Create_Hull (Part1_Desc, Part1'Unchecked_Access);
       Put_Line ("??? return");
    end if;
 end Main;

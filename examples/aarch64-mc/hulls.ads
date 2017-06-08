@@ -33,16 +33,31 @@ with Interfaces; use Interfaces;
 with IOEmu; use IOEmu;
 
 package Hulls is
+   type Memmap_Entry is record
+      Vaddr : Address;
+      Paddr : Address;
+      Size  : Storage_Count;
+   end record;
+   pragma Convention (C, Memmap_Entry);
+
+   type Memmap_Array is array (Natural) of Memmap_Entry;
+   type Memmap_Arr_Acc is access Memmap_Array;
+
+   type File_Entry is record
+      Name : Address;
+      Content : Address;
+      Len : Storage_Count;
+   end record;
+
+   type File_Array is array (Natural) of File_Entry;
+   type File_Arr_Acc is access File_Array;
+
    type Hull_Desc is record
-      Mmu_Base : Address;
-      Ram_Vaddr : Address;
-      Ram_Paddr : Address;
-      Ram_Size : Storage_Count;
-      Rom_Vaddr : Address;
-      Rom_Paddr : Address;
-      Rom_Size : Storage_Count;
-      File_Base : Address;
-      File_Size : Storage_Count;
+      Mmu_Table : Address;
+      Memmap : Memmap_Arr_Acc;
+      Memmap_Nbr : Natural;
+      Files : File_Arr_Acc;
+      Files_Nbr : Natural;
    end record;
    pragma Convention (C, Hull_Desc);
 

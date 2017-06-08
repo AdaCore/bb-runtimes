@@ -71,38 +71,61 @@ package body Hulls is
       ISB;
    end Cache_Sync_By_Range;
 
-   procedure Create_Hull (Desc : Hull_Desc; Ctxt : Hull_Context_Acc) is
-   begin
-      --  Copy file
-      if Desc.File_Base /= Null_Address then
-         Put ("Copying Hull......");
-         New_Line;
+   procedure Create_Hull (Desc : Hull_Desc; Ctxt : Hull_Context_Acc)
+   is
+      Base : Address;
+      Len : Storage_Count;
 
-         if Desc.File_Size > Desc.Ram_Size then
+      Start : Address;
+   begin
+      Start := Null_Address;
+
+      --  Copy file
+      if Desc.Files_Nbr > 0 then
+         if Desc.Memmap_Nbr = 0 then
+            --  There should be memory to load a file.
             raise Constraint_Error;
          end if;
 
-         declare
-            Src : Storage_Array (1 .. Desc.File_Size);
-            pragma Import (Ada, Src);
-            for Src'Address use Desc.File_Base;
+         Start := Desc.Memmap (0).Vaddr;
 
-            Dest : Storage_Array (1 .. Desc.File_Size);
-            pragma Import (Ada, Dest);
-            for Dest'Address use Desc.Ram_Paddr;
-         begin
-            Dest := Src;
+         Put ("Copying Hull......");
+         New_Line;
 
-            Cache_Sync_By_Range (Dest'Address, Desc.File_Size);
-         end;
+         Base := Desc.Memmap (0).Paddr;
+         Len := Desc.Memmap (0).Size;
+
+         for I in 0 .. Desc.Files_Nbr - 1 loop
+            declare
+               F : File_Entry renames Desc.Files (I);
+
+               Src : Storage_Array (1 .. F.Len);
+               pragma Import (Ada, Src);
+               for Src'Address use F.Content;
+
+               Dest : Storage_Array (1 .. F.Len);
+               pragma Import (Ada, Dest);
+               for Dest'Address use Base;
+            begin
+               if F.Len > Len then
+                  raise Constraint_Error;
+               end if;
+
+               Dest := Src;
+
+               Cache_Sync_By_Range (Dest'Address, F.Len);
+
+               Base := Base + F.Len;
+            end;
+         end loop;
       end if;
 
       Put ("Starting Hull......");
       New_Line;
 
-      Ctxt.Cpu.PC := To_unsigned_64 (Desc.Ram_Vaddr);
+      Ctxt.Cpu.PC := To_unsigned_64 (Start);
 
-      Ctxt.Cpu.Vttbr := To_unsigned_64 (Desc.Mmu_Base);
+      Ctxt.Cpu.Vttbr := To_unsigned_64 (Desc.Mmu_Table);
       Ctxt.Cpu.Vtcr := TCR_PS_4GB or TCR_TG0_4KB or TCR_SH0_OS
         or TCR_ORGN0_WBWAC or TCR_IRGN0_WBWAC or TCR_SL0_00 or (38 * TCR_T0SZ);
       Ctxt.Cpu.Hcr := HCR_RW or HCR_DC or HCR_IMO or HCR_FMO or HCR_VM;

@@ -3,11 +3,16 @@
   <!--  Definition of the memory map -->
   <include file="../../arm/rpi2/memmap.xml"/>
 
-  <!--  Definition of the boot image -->
-  <image region="ram">
-    <cpu num="default" rom_size="16MB" ram_size="32MB"/>
-    <cpu num="1"       rom_size="16MB" ram_size="128MB" filename="hello.bin"/>
-  </image>
+  <core>
+    <area size="32MB" region="ram"/>
+  </core>
+  
+  <partitions>
+    <partition name="part1">
+      <area name="RAM" size="128MB" region="ram" vaddr="0x00000000"/>
+      <file filename="monitor.bin" name="bin"/>
+    </partition>
+  </partitions>
 </multi-image>
 
 
