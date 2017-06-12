@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2016, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -38,6 +38,7 @@ pragma Restrictions (No_Elaboration_Code);
 
 with System.Storage_Elements;
 with System.BB.CPU_Primitives;
+with System.BB.CPU_Specific;
 with System.BB.Threads;
 with System.BB.Threads.Queues;
 with System.BB.Board_Support;
@@ -57,9 +58,9 @@ package body System.BB.Interrupts is
    type Stack_Space is new Storage_Elements.Storage_Array
      (1 .. Storage_Elements.Storage_Offset (Parameters.Interrupt_Stack_Size));
    pragma Suppress_Initialization (Stack_Space);
-   for Stack_Space'Alignment use 8;
+   for Stack_Space'Alignment use CPU_Specific.Stack_Alignment;
    --  Type used to represent the stack area for each interrupt. The stack must
-   --  be aligned to 8 bytes to allow double word data movements.
+   --  be aligned to the CPU specific alignment to hold the largest registers.
 
    Interrupt_Stacks : array (CPU) of Stack_Space;
    pragma Linker_Section (Interrupt_Stacks, ".interrupt_stacks");

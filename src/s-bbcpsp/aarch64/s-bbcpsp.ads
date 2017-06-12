@@ -79,9 +79,6 @@ package System.BB.CPU_Specific is
 
       V      : SIMD_Registers_Type;
       --  General-purpose FPU registers
-
-      Interrupted_Context : FPU_Context_Access;
-      --  Used to restore the context after an irq handler that uses the FPU
    end record;
 
    type Context_Buffer is record

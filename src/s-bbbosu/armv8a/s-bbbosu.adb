@@ -93,8 +93,8 @@ package body System.BB.Board_Support is
          --  Do not mask any interrupt
          return 255;
       else
-         --  change range 241 .. 254
-         return PRI (Interrupt_Priority'Last - P + 1) * 16;
+         --  change range 240 .. 254
+         return PRI (Interrupt_Priority'Last - P) * 16;
       end if;
    end To_PRI;
 
@@ -457,7 +457,7 @@ package body System.BB.Board_Support is
          if P = 0 then
             return Interrupt_Priority'Last;
          else
-            return Interrupt_Priority'Last - Any_Priority'Base (P / 16) + 1;
+            return Interrupt_Priority'Last - Any_Priority'Base (P / 16);
          end if;
       end To_Priority;
 
@@ -472,8 +472,7 @@ package body System.BB.Board_Support is
          use GIC;
       begin
          GICD_IPRIORITYR (Interrupt) := To_PRI (Prio);
-         GICD_ISENABLER (Reg_Num_32 (Interrupt)) :=
-           2 ** (Interrupt mod 32);
+         GICD_ISENABLER (Reg_Num_32 (Interrupt)) := 2 ** (Interrupt mod 32);
       end Install_Interrupt_Handler;
 
       ---------------------------

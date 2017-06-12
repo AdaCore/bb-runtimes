@@ -42,7 +42,6 @@
 _DEFAULT_STACK_EL3_SIZE = (4 * 1024);
 _DEFAULT_STACK_EL2_SIZE = (4 * 1024);
 _DEFAULT_STACK_EL1_SIZE = (200 * 1024);
-_IRQ_STACK_SIZE = (8 * 1024);
 
 ENTRY(__vectors);
 
@@ -137,13 +136,11 @@ SECTIONS
    *(.bss .bss.*)
    *(COMMON)
 
-   /* Align the stack to 64 bits */
-
+   /* Align the stack to 128 bits (SIMD/fpu register size) */
    . = ALIGN(0x10);
    __bss_end = .;
 
-
-   /* Separate stack per CPU */
+   /* Separate env stack per CPU and EL levels= */
    __stack_start = .;
 
    __cpu0_stack_el3_start = .;
@@ -208,25 +205,10 @@ SECTIONS
 
    __stack_end = .;
 
-   /* Interrupt stacks.  */
+   /* Interrupt stacks: defined in s-bbinte.adb.  */
    __interrupt_stack_start = .;
-
-   __cpu0_interrupt_stack_start = .;
-   . = ALIGN(. + _IRQ_STACK_SIZE, 0x10);
-   __cpu0_interrupt_stack_end = .;
-
-   __cpu1_interrupt_stack_start = .;
-   . = ALIGN(. + _IRQ_STACK_SIZE, 0x10);
-   __cpu1_interrupt_stack_end = .;
-
-   __cpu2_interrupt_stack_start = .;
-   . = ALIGN(. + _IRQ_STACK_SIZE, 0x10);
-   __cpu2_interrupt_stack_end = .;
-
-   __cpu3_interrupt_stack_start = .;
-   . = ALIGN(. + _IRQ_STACK_SIZE, 0x10);
-   __cpu3_interrupt_stack_end = .;
-
+   *(.interrupt_stacks)
+   . = ALIGN(0x10);
    __interrupt_stack_end = .;
 
    _end = .;

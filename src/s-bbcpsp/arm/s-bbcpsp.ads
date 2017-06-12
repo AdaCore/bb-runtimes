@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---                       Copyright (C) 2016, AdaCore                        --
+--                    Copyright (C) 2016-2017, AdaCore                      --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -40,6 +40,9 @@ package System.BB.CPU_Specific is
    pragma Preelaborate;
 
    subtype Vector_Id is System.BB.CPU_Primitives.Vector_Id;
+
+   Stack_Alignment : constant := 8;
+   --  Stack alignment defined by the ABI
 
    --  Define ARM vectors
 

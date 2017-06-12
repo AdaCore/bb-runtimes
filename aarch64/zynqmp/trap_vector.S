@@ -37,7 +37,7 @@
 .globl __irq_interrupt
 .globl __serror_interrupt
 .globl __sync_interrupt
-.globl interrupt_stack_el1_base
+.globl interrupt_stack_table
 
 .org 0
 .section .vectors, "a"
@@ -49,6 +49,7 @@
 .weak   __gnat_irq_pre_handler
 .weak   __gnat_irq_post_handler
 .weak   __gnat_fpen_trap
+.weak   interrupt_stack_table
 
 //  Interrupt handle frame size
 //  generic registers
@@ -75,14 +76,6 @@ __vectors:
         b       __fiq_interrupt
 .org (vbar + 0x380)
         b       __serror_interrupt
-
-
-.data
-interrupt_stack_el1_base:
-.dword  __cpu0_interrupt_stack_end
-.dword  __cpu1_interrupt_stack_end
-.dword  __cpu2_interrupt_stack_end
-.dword  __cpu3_interrupt_stack_end
 
 
 .text
@@ -174,8 +167,8 @@ __fiq_interrupt:
 1:
         //  at this point, we know that SP is in a task stack
         //  let's move to the interrupt stack
-        adrp    x0,interrupt_stack_el1_base
-        add     x0, x0, #:lo12:interrupt_stack_el1_base
+        adrp    x0,interrupt_stack_table
+        add     x0, x0, #:lo12:interrupt_stack_table
         mrs     x1, mpidr_el1
         and     x1, x1, #3
 
@@ -215,8 +208,8 @@ __fiq_interrupt:
         mov     sp, x1
 
         //  save the irq stack pointer
-        adrp    x0,interrupt_stack_el1_base
-        add     x0, x0, #:lo12:interrupt_stack_el1_base
+        adrp    x0,interrupt_stack_table
+        add     x0, x0, #:lo12:interrupt_stack_table
         mrs     x1, mpidr_el1
         and     x1, x1, #3
         str     x7, [x0, x1, lsl #3]  //  Save stack pointer

@@ -86,6 +86,10 @@ __start_ram:
 
         .type   __start_ram1, %function
 __start_ram1:
+        # Read processor number
+        mrs     x7, mpidr_el1
+        and     x7, x7, #3
+
         # Boot conditions : check the current EL
         mrs     x1, currentel
         cmp     x1, #(3<<2)
@@ -109,10 +113,6 @@ __start_el3:
         # Load vector table address
         ldr     x0, =vector_base
         msr     vbar_el3, x0
-
-        # Read processor number
-        mrs     x7, mpidr_el1
-        and     x7, x7, #3
 
         # Set the reset vector address
         ldr     w1, =RVBAR_BASE
@@ -193,7 +193,7 @@ __start_el2:
         mrs     x1, mpidr_el1
         msr     vpidr_el2, x0
         msr     vmpidr_el2, x1
-        
+
         # HCR_EL2: RW(1)
         mov     x0,#(1<<31)
         orr     x0, x0, #(1<<29) /* Disable HVC */
@@ -209,7 +209,7 @@ __start_el2:
 
         isb
         eret
-        
+
 __start_el1:
         # Enable FPU
         mov     x0, #(1 << 20)
@@ -293,7 +293,7 @@ __start_master:
         bl  _exit
 0:      b  0b
         .size  __start_ram1, . - __start_ram1
-        
+
 /* __start_slave_cpu
  */
 
