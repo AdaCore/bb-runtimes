@@ -15,6 +15,7 @@ class CortexMArch(BSP):
             'arm/src/breakpoint_handler-cortexm.S'])
         self.add_sources('gnarl', [
             'src/s-bbbosu/armv7m/s-bbbosu.adb',
+            'src/s-bbcpsp/cortexm/s-bbcpsp.ads',
             'src/s-bbcppr/old/s-bbcppr.ads',
             'src/s-bbcppr/armv7m/s-bbcppr.adb',
             'src/s-bbinte/generic/s-bbinte.adb',

@@ -21,6 +21,7 @@ class LeonArch(BSP):
             'src/s-bbcppr/old/s-bbcppr.ads',
             'src/s-bbcppr/sparc/s-bbcppr.adb',
             'src/s-bbcppr/sparc/s-bcpith.adb',
+            'src/s-bbcpsp/leon/s-bbcpsp.ads',
             'sparc/src/context_switch.S',
             'sparc/src/trap_handler.S',
             'sparc/src/interrupt_masking.S',
