@@ -33,12 +33,10 @@ pragma Restrictions (No_Elaboration_Code);
 with System.Storage_Elements;
 with System.Multiprocessors;
 with System.BB.Threads;
-with System.BB.CPU_Primitives.Multiprocessors;
 
 package body System.BB.CPU_Primitives is
    use BB.Parameters;
    use System.BB.Threads;
-   use System.BB.CPU_Primitives.Multiprocessors;
 
    package SSE renames System.Storage_Elements;
    use type SSE.Integer_Address;
