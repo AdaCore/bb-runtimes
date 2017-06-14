@@ -40,11 +40,9 @@
 with System.Machine_Code;    use System.Machine_Code;
 with System.Multiprocessors;
 with System.BB.CPU_Specific; use System.BB.CPU_Specific;
-with System.BB.Interrupts;
 with System.BB.Threads.Queues;
-with System.BB.Protection;
 with System.BB.Board_Support;
-with System.BB.CPU_Primitives.Multiprocessors;
+with System.BB.Parameters;
 with Interfaces;
 with Interfaces.AArch64;     use Interfaces.AArch64;
 
