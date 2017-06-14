@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 S p e c                                  --
 --                                                                          --
---                     Copyright (C) 2010-2016, AdaCore                     --
+--                     Copyright (C) 2010-2017, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -27,8 +27,6 @@
 ------------------------------------------------------------------------------
 
 pragma Restrictions (No_Elaboration_Code);
-
-with System.Multiprocessors;
 
 package System.BB.CPU_Primitives.Multiprocessors is
    pragma Preelaborate;
