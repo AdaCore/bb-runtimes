@@ -37,6 +37,7 @@
 pragma Restrictions (No_Elaboration_Code);
 
 with System.Storage_Elements;
+with System.Multiprocessors;
 with System.BB.CPU_Primitives;
 with System.BB.CPU_Specific;
 with System.BB.Threads;
