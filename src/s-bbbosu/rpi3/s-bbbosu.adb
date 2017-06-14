@@ -34,7 +34,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Unchecked_Conversion;
 with System.Machine_Code;
 with System.BB.CPU_Primitives.Multiprocessors;
 with System.BB.Parameters; use System.BB.Parameters;
