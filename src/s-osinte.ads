@@ -7,7 +7,7 @@
 --                                   S p e c                                --
 --                                                                          --
 --             Copyright (C) 1991-1994, Florida State University            --
---          Copyright (C) 1995-2016, Free Software Foundation, Inc.         --
+--          Copyright (C) 1995-2017, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -46,7 +46,6 @@ with System.BB.Time;
 with System.BB.Interrupts;
 with System.BB.Board_Support;
 with System.BB.Parameters;
-with System.BB.CPU_Primitives.Multiprocessors;
 
 package System.OS_Interface is
    pragma Preelaborate;
