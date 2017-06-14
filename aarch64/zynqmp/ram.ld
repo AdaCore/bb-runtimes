@@ -183,25 +183,25 @@ SECTIONS
    . = ALIGN(0x10);
    __cpu3_stack_el2_end = .;
 
-   __cpu0_stack_el1_start = .;
+   __cpu0_stack_start = .;
    . += DEFINED (__stack_el1_size) ? __stack_el1_size : _DEFAULT_STACK_EL1_SIZE;
    . = ALIGN(0x10);
-   __cpu0_stack_el1_end = .;
+   __cpu0_stack_end = .;
 
-   __cpu1_stack_el1_start = .;
+   __cpu1_stack_start = .;
    . += DEFINED (__stack_el1_size) ? __stack_el1_size : _DEFAULT_STACK_EL1_SIZE;
    . = ALIGN(0x10);
-   __cpu1_stack_el1_end = .;
+   __cpu1_stack_end = .;
 
-   __cpu2_stack_el1_start = .;
+   __cpu2_stack_start = .;
    . += DEFINED (__stack_el1_size) ? __stack_el1_size : _DEFAULT_STACK_EL1_SIZE;
    . = ALIGN(0x10);
-   __cpu2_stack_el1_end = .;
+   __cpu2_stack_end = .;
 
-   __cpu3_stack_el1_start = .;
+   __cpu3_stack_start = .;
    . += DEFINED (__stack_el1_size) ? __stack_el1_size : _DEFAULT_STACK_EL1_SIZE;
    . = ALIGN(0x10);
-   __cpu3_stack_el1_end = .;
+   __cpu3_stack_end = .;
 
    __stack_end = .;
 

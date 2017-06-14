@@ -408,10 +408,10 @@ system_stack_el2_base:
         .word   __cpu3_stack_el2_end
 
 system_stack_el1_base:
-        .word   __cpu0_stack_el1_end
-        .word   __cpu1_stack_el1_end
-        .word   __cpu2_stack_el1_end
-        .word   __cpu3_stack_el1_end
+        .word   __cpu0_stack_end
+        .word   __cpu1_stack_end
+        .word   __cpu2_stack_end
+        .word   __cpu3_stack_end
 
 .text
 
