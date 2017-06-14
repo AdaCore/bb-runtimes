@@ -84,14 +84,25 @@ package Interfaces.AArch64 is
    TCR_ORGN0_WBWAC : constant := 2#01# * 2**10;
    TCR_IRGN0_WBWAC : constant := 2#01# * 2**8;
    TCR_SL0_00      : constant := 2#00# * 2**6;
+   TCR_SL0_01      : constant := 2#01# * 2**6;
+   TCR_SL0_10      : constant := 2#10# * 2**6;
    TCR_T0SZ        : constant := 2**0;
 
-   HCR_RW  : constant := 2**31;
-   HCR_DC  : constant := 2**12;
-   HCR_AMO : constant := 2**5;
-   HCR_IMO : constant := 2**4;
-   HCR_FMO : constant := 2**3;
-   HCR_VM  : constant := 2**0;
+   HCR_RW    : constant := 2**31;
+   HCR_TACR  : constant := 2**21;
+   HCR_TIDCP : constant := 2**20;
+   HCR_TSC   : constant := 2**19;
+   HCR_TID3  : constant := 2**18;
+   HCR_TID2  : constant := 2**17;
+   HCR_TID1  : constant := 2**16;
+   HCR_TID0  : constant := 2**15;
+   HCR_TWE   : constant := 2**14;
+   HCR_TWI   : constant := 2**13;
+   HCR_DC    : constant := 2**12;
+   HCR_AMO   : constant := 2**5;
+   HCR_IMO   : constant := 2**4;
+   HCR_FMO   : constant := 2**3;
+   HCR_VM    : constant := 2**0;
 
    function Get_Current_EL return Unsigned_32 with Inline_Always;
 
@@ -130,6 +141,11 @@ package Interfaces.AArch64 is
 
    --  EL0 registers
    function Get_SP_EL0 return Unsigned_64 with Inline_Always;
+
+   --  ID registers
+
+   function Get_ID_AA64MMFR0_EL1 return Unsigned_64 with Inline_always;
+   function Get_ID_AA64MMFR1_EL1 return Unsigned_64 with Inline_always;
 
    --  Cache control
 

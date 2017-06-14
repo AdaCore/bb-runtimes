@@ -562,4 +562,29 @@ package body Interfaces.AArch64 is
       return Res;
    end Get_SP_EL0;
 
+   --------------------------
+   -- Get_ID_AA64MMFR0_EL1 --
+   --------------------------
+
+   function Get_ID_AA64MMFR0_EL1 return Unsigned_64 is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, ID_AA64MMFR0_EL1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_ID_AA64MMFR0_EL1;
+
+   --------------------------
+   -- Get_ID_AA64MMFR1_EL1 --
+   --------------------------
+
+   function Get_ID_AA64MMFR1_EL1 return Unsigned_64 is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, ID_AA64MMFR1_EL1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_ID_AA64MMFR1_EL1;
 end Interfaces.AArch64;
