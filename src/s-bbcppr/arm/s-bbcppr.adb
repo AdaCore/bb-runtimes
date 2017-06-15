@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2016, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -40,7 +40,6 @@ with System.BB.Threads;
 with System.BB.CPU_Specific;
 with System.BB.Threads.Queues;
 with System.BB.Board_Support;
-with System.BB.Protection;
 with System.Machine_Code; use System.Machine_Code;
 
 package body System.BB.CPU_Primitives is
