@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---                     Copyright (C) 2011-2013, AdaCore                     --
+--                     Copyright (C) 2011-2017, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -39,26 +39,7 @@ package System.Bb.Timing_Events is
 
    type Timing_Event_Access is access all Timing_Event;
 
-   type Timing_Event is tagged limited record
-      Timeout : System.BB.Time.Time := System.BB.Time.Time'First;
-      --  The time at which the user's handler should be invoked when the event
-      --  is "set" (i.e., when Handler is not null).
-
-      Handler : Timing_Event_Handler := null;
-      --  An access value designating the protected procedure to be invoked at
-      --  the Timeout time in the future. When this value is null the event is
-      --  said to be "cleared" and no timeout is processed.
-
-      Next : Timing_Event_Access := null;
-      --  Next event in the list
-
-      Prev : Timing_Event_Access := null;
-      --  Previous event in the list
-
-      CPU : System.Multiprocessors.CPU;
-      --  Owner of the timing event
-
-   end record;
+   type Timing_Event is tagged limited private;
 
    procedure Set_Handler
      (Event   : in out Timing_Event;
@@ -94,5 +75,27 @@ package System.Bb.Timing_Events is
 
    procedure Execute_Expired_Timing_Events (Now : System.BB.Time.Time);
    --  Execute all timing events whose expiration time is before Now
+
+private
+   type Timing_Event is tagged limited record
+      Timeout : System.BB.Time.Time := System.BB.Time.Time'First;
+      --  The time at which the user's handler should be invoked when the event
+      --  is "set" (i.e., when Handler is not null).
+
+      Handler : Timing_Event_Handler := null;
+      --  An access value designating the protected procedure to be invoked at
+      --  the Timeout time in the future. When this value is null the event is
+      --  said to be "cleared" and no timeout is processed.
+
+      Next : Timing_Event_Access := null;
+      --  Next event in the list
+
+      Prev : Timing_Event_Access := null;
+      --  Previous event in the list
+
+      CPU : System.Multiprocessors.CPU;
+      --  Owner of the timing event
+
+   end record;
 
 end System.BB.Timing_Events;
