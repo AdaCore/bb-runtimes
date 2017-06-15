@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2016, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -38,7 +38,6 @@ with System.Multiprocessors;
 with System.BB.Board_Support;
 with System.BB.Threads;
 with System.BB.Threads.Queues;
-with System.BB.Time;
 with System.Machine_Code; use System.Machine_Code;
 
 package body System.BB.CPU_Primitives is
@@ -406,7 +405,6 @@ package body System.BB.CPU_Primitives is
    ----------------------
 
    procedure Sys_Tick_Handler is
-      use Board_Support.Time;
       Max_Alarm_Interval : constant Timer_Interval := Timer_Interval'Last / 2;
       Now : constant Timer_Interval := Timer_Interval (Read_Clock);
 
