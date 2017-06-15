@@ -33,7 +33,6 @@
 
 pragma Restrictions (No_Elaboration_Code);
 
-with System;
 package Ada.Interrupts.Names is
 
    --  All identifiers in this unit are implementation defined

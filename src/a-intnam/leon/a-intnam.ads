@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---          Copyright (C) 1991-2011, Free Software Foundation, Inc.         --
+--          Copyright (C) 1991-2017, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -32,6 +32,7 @@
 --  This is the version for LEON targets of this package
 
 with System;
+
 package Ada.Interrupts.Names is
 
    --  All identifiers in this unit are implementation defined

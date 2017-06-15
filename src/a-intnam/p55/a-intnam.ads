@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---          Copyright (C) 2012-2016, Free Software Foundation, Inc.         --
+--          Copyright (C) 2012-2017, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -31,9 +31,8 @@
 
 --  This is the version for p5566 target of this package
 
-pragma Restrictions (no_elaboration_code);
+pragma Restrictions (No_Elaboration_Code);
 
-with System;
 package Ada.Interrupts.Names is
 
    --  All identifiers in this unit are implementation defined
