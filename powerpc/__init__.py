@@ -196,7 +196,7 @@ class P5634(PPCSPETarget):
 
     @property
     def compiler_switches(self):
-        return ('-mfloat-gprs=single')
+        return ('-mfloat-gprs=single',)
 
     def __init__(self):
         super(P5634, self).__init__()
