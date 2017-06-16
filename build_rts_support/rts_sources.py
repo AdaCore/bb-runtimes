@@ -764,7 +764,7 @@ class SourceDirs(SharedFilesHolder):
             's-imgrea.ads', 's-imgrea.adb',
             's-imgwch.ads', 's-imgwch.adb',
             's-imgwiu.ads', 's-imgwiu.adb',
-            's-init.ads', 's-init.adb',
+            's-init.ads', 'src/s-init.adb',
             's-io.ads', 'src/s-io.adb',
             's-mantis.ads', 's-mantis.adb',
             's-mastop.ads', 's-mastop.adb',
@@ -1005,7 +1005,7 @@ class SourceDirs(SharedFilesHolder):
 
         if self._is_bb:
             self.add_sources('gnarl/full', [
-                's-btstch.ads', 's-btstch.adb'])
+                'src/s-btstch.ads', 'src/s-btstch.adb'])
 
         # Ravenscar extended: relative delays
         self.add_rule('gnarl/full/extended', 'RTS_Profile:ravenscar-full')
