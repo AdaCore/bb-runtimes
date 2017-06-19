@@ -29,7 +29,6 @@
 
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Real_Time;
-with System;
 with Hulls; use Hulls;
 with Uart;
 with Hull_Qemu; use Hull_Qemu;

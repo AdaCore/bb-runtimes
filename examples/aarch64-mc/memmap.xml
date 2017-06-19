@@ -9,11 +9,9 @@
   
   <partitions>
     <partition name="part1">
-      <area name="RAM" size="128MB" region="ram" vaddr="0x00000000"/>
-      <file filename="monitor.bin" name="bin"/>
+      <area name="RAM" size="128MB" region="ram" vaddr="0x40000000"/>
+      <file filename="../linux/mc.dtb" name="dtb"/>
+      <file filename="../linux/Image" name="linux"/>
     </partition>
   </partitions>
 </multi-image>
-
-
-  

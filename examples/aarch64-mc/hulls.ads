@@ -107,6 +107,9 @@ private
       Vtcr : Unsigned_64;                        --  312
       Vttbr : Unsigned_64;                       --  320
       Hcr : Unsigned_64;                         --  328
+
+      --  Not used by asm code
+      V_MDSCR_EL1 : Unsigned_64;
    end record;
    pragma Convention (C, Hull_Context_AArch64);
 

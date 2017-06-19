@@ -48,10 +48,12 @@ package body Emu_PL011 is
    FR_TXFF : constant := 2**5;
    FR_RXFE : constant := 2**4;
    FR_BUSY : constant := 2**3;
+   pragma Unreferenced (FR_TXFF, FR_BUSY);
 
    MASK_RT : constant := 2**6;
    MASK_TX : constant := 2**5;
    MASK_RX : constant := 2**4;
+   pragma Unreferenced (MASK_RT, MASK_TX, MASK_RX);
 
    procedure Disp_Reg_Name (Off : Off_T) is
    begin
@@ -112,6 +114,7 @@ package body Emu_PL011 is
       Off : Off_T;
       Val : Unsigned_32;
       Mask : Unsigned_32) is
+      pragma Unreferenced (Dev, Mask);
    begin
       case Off is
          when Reg_DR =>

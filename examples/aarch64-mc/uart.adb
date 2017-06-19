@@ -27,11 +27,10 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Interfaces.Raspberry_Pi; use Interfaces.Raspberry_Pi; use Interfaces;
+with Interfaces.Raspberry_Pi; use Interfaces.Raspberry_Pi;
 pragma Warnings (Off);
 with System.Text_IO;
 pragma Warnings (On);
-with System.Machine_Code; use System.Machine_Code;
 with Interfaces.AArch64; use Interfaces.AArch64;
 
 package body Uart is
@@ -114,6 +113,8 @@ package body Uart is
             Put_Hex8 (Get_ELR_EL2);
             Put (", SPSR:");
             Put_Hex4 (Get_SPSR_EL2);
+            Put (", ESR:");
+            Put_Hex4 (Get_ESR_EL2);
             New_Line;
          else
             if Cur_Client < Nbr_Clients then

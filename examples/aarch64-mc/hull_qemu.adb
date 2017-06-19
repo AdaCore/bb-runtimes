@@ -27,8 +27,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with IOEmu; use IOEmu;
-
 package body Hull_Qemu is
    procedure Init (H : out Hull_Qemu_Type) is
    begin

@@ -19,6 +19,12 @@ class vcpu(object):
         self.files = []
 
 
+class file(object):
+    def __init__(self, name, filename):
+        self.name = name
+        self.filename = filename
+
+
 def usage():
     print "usage: multilevel.py [--gen-regions | --gen-mmu] OPTIONS [INPUT]"
     print "Options are:"
@@ -109,7 +115,8 @@ def main():
                 offsets[reg] += size
             elif a.tag == 'file':
                 filename = a.attrib['filename']
-                v.files.append(filename)
+                name = a.attrib['name']
+                v.files.append(file(name, filename))
             else:
                 sys.stderr.write("unhandled partition tag {}".format(a.tag))
                 sys.exit(2)
@@ -139,6 +146,7 @@ def main():
         mmu.generate("__mmu")
 
     if gen_dir:
+        print '\t.section .rodata,"a"'
         for k, v in parts.iteritems():
             mmu = memmap.create_mmu_from_xml(root, arch, "stage2")
             for a in v.regions:
@@ -159,13 +167,13 @@ def main():
                 sym = "__files_{}_name_{}".format(k, cnt)
                 print "\t.type {}, @object".format(sym)
                 print "{}:".format(sym)
-                print "\t.asciz \"{}\"".format(f)
+                print "\t.asciz \"{}\"".format(f.name)
                 print "\t.size {}, . - {}".format(sym, sym)
 
                 sym = "__files_{}_content_{}".format(k, cnt)
                 print "\t.type {}, @object".format(sym)
                 print "{}:".format(sym)
-                print "\t.incbin \"{}\"".format(f)
+                print "\t.incbin \"{}\"".format(f.filename)
                 print "{}_end:".format(sym)
                 print "\t.size {}, . - {}".format(sym, sym)
 
