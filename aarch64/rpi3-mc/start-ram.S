@@ -55,6 +55,10 @@ __start_ram1:
 	# Started in EL3
 	# Configure EL3
 
+	# Set timer frequency (just an indicator for software).
+	ldr	x2, =19200000
+	msr	cntfrq_el0, x2
+
 	# Read processor number
 	mrs	x7, mpidr_el1
 	and	x7, x7, #3
