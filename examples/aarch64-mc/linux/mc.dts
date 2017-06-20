@@ -57,6 +57,9 @@
 
 	chosen {
 		bootargs = "console=ttyAMA0,115200n8 earlycon=pl011,0x9000000 loglevel=8";
+		/* These are magic numbers that will be patched.... */
+		linux,initrd-start = <0x485bc755>;
+		linux,initrd-end = <0x485bc733>;
 		stdout-path = "/pl011@9000000";
 	};
 };

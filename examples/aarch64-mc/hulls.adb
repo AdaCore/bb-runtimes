@@ -57,7 +57,7 @@ package body Hulls is
       Addr := Start - Line_Off;
       Off := 0;
       loop
-         DC_CVAU (Addr);
+         DC_CVAC (Addr);
          IC_IVAU (Addr);
          Off := Off + Line_Size;
          exit when Off > Len + Line_Off;
@@ -143,11 +143,79 @@ package body Hulls is
       Off := Off + 16#800#;
    end Set_Debug_Vectors;
 
+   function Read_Be32 (Addr : Address) return Unsigned_32
+   is
+      type Uint8_Word is array (0 .. 3) of Unsigned_8;
+      Mem : Uint8_Word with Address => Addr, Import;
+      Res : Unsigned_32;
+   begin
+      Res := Shift_Left (Unsigned_32 (Mem (0)), 24)
+        or Shift_Left (Unsigned_32 (Mem (1)), 16)
+        or Shift_Left (Unsigned_32 (Mem (2)), 8)
+        or Shift_Left (Unsigned_32 (Mem (3)), 0);
+      return Res;
+   end Read_Be32;
+
+   procedure Write_Be32 (Addr : Address; V : Unsigned_32)
+   is
+      type Uint8_Word is array (0 .. 3) of Unsigned_8;
+      Mem : Uint8_Word with Address => Addr, Import;
+   begin
+      Mem (0) := Unsigned_8 (Shift_Right (V, 24) and 16#ff#);
+      Mem (1) := Unsigned_8 (Shift_Right (V, 16) and 16#ff#);
+      Mem (2) := Unsigned_8 (Shift_Right (V, 8) and 16#ff#);
+      Mem (3) := Unsigned_8 (Shift_Right (V, 0) and 16#ff#);
+   end Write_Be32;
+
+   procedure Patch_Dtb
+     (Paddr : Address;
+      Dtb_Off : Storage_Count; Dtb_Len : Storage_Count;
+      Vaddr : Address;
+      Initrd_Off : Storage_Count; Initrd_Len : Storage_Count)
+   is
+      Start : constant Unsigned_32 :=
+        Unsigned_32 (To_Unsigned_64 (Vaddr + Initrd_Off));
+      S : Storage_Count;
+      Addr : Address;
+      Val : Unsigned_32;
+   begin
+      if True then
+         Put ("DTB patching to ");
+         Put_Hex4 (Start);
+         Put (" - ");
+         Put_Hex4 (Start + Unsigned_32 (Initrd_Len));
+         New_Line;
+      end if;
+
+      S := 0;
+      while S < Dtb_Len loop
+         Addr := Paddr + Dtb_Off + S;
+         Val := Read_Be32 (Addr);
+
+         if False then
+            Put_Hex8 (To_Unsigned_64 (Addr));
+            Put (": ");
+            Put_Hex4 (Val);
+            New_Line;
+         end if;
+
+         if Val = 16#485bc755# then
+            Write_Be32 (Addr, Start);
+         elsif Val = 16#485bc733# then
+            Write_Be32 (Addr, Start + Unsigned_32 (Initrd_Len));
+         end if;
+
+         S := S + 4;
+      end loop;
+   end Patch_Dtb;
+
    procedure Load_Files (Desc : Hull_Desc; Ctxt : Hull_Context_Acc) is
       Vaddr : Address;
       Paddr : Address;
       Off : Storage_Count;
       Len : Storage_Offset;
+      Dtb_Off : Storage_Count;
+      Dtb_Len : Storage_Count;
    begin
       if Desc.Memmap_Nbr = 0 then
          --  There should be memory to load a file.
@@ -161,6 +229,8 @@ package body Hulls is
       Vaddr := Desc.Memmap (0).Vaddr;
       Off := 0;
       Len := Desc.Memmap (0).Size;
+
+      Dtb_Len := 0;
 
       for I in 0 .. Desc.Files_Nbr - 1 loop
          declare
@@ -180,6 +250,8 @@ package body Hulls is
                Ctxt.Cpu.Xregs (2) := 0;
                Ctxt.Cpu.Xregs (3) := 0;
 
+               Dtb_Off := Off;
+               Dtb_Len := F.Len;
                Off := Off + F.Len;
 
                if True then
@@ -187,6 +259,16 @@ package body Hulls is
                   Ctxt.Cpu.Vbar := To_Unsigned_64 (Vaddr + Off);
                   Set_Debug_Vectors (Paddr, Off);
                end if;
+
+            elsif Is_Image (F, "initrd") then
+               --  Align
+               Off := Storage_Count'Max (Off, Len / 2);
+               Align (Off, 16#1000#);
+
+               Copy_File (F, Paddr, Off, Len);
+
+               Patch_Dtb (Paddr, Dtb_Off, Dtb_Len, Vaddr, Off, F.Len);
+               Off := Off + F.Len;
 
             elsif Is_Image (F, "linux") then
                --  Assume everything is ok...
@@ -223,7 +305,7 @@ package body Hulls is
          Vttbr => To_Unsigned_64 (Desc.Mmu_Table),
          Vtcr => (TCR_PS_4GB or TCR_TG0_4KB or TCR_SH0_OS
                   or TCR_ORGN0_WBWAC or TCR_IRGN0_WBWAC
-                  or TCR_SL0_01 or (32 * TCR_T0SZ)),
+                  or TCR_SL0_01 or (33 * TCR_T0SZ)),
 
          --  TID2: concerns cache (CTR, CCSIDR, CLIDR, CSSELR)
          --  [TODO: value of CSSELR should be saved for context switch]

@@ -12,6 +12,7 @@
       <area name="RAM" size="128MB" region="ram" vaddr="0x40000000"/>
       <file filename="../linux/mc.dtb" name="dtb"/>
       <file filename="../linux/Image" name="linux"/>
+      <file filename="../linux/initramfs.cpio.gz" name="initrd"/>
     </partition>
   </partitions>
 </multi-image>

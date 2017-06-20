@@ -518,8 +518,6 @@ __mmu_part1_l2_000040000:
 __mmu_part1_l1_000040000:
 	.dword 0
 	.dword __mmu_part1_l2_000040000 + 0x3
-	.dword 0
-	.dword 0
 	.type __memmap_part1, @object
 __memmap_part1:
 	.dword 0x40000000
@@ -544,6 +542,15 @@ __files_part1_content_1:
 	.incbin "../linux/Image"
 __files_part1_content_1_end:
 	.size __files_part1_content_1, . - __files_part1_content_1
+	.type __files_part1_name_2, @object
+__files_part1_name_2:
+	.asciz "initrd"
+	.size __files_part1_name_2, . - __files_part1_name_2
+	.type __files_part1_content_2, @object
+__files_part1_content_2:
+	.incbin "../linux/initramfs.cpio.gz"
+__files_part1_content_2_end:
+	.size __files_part1_content_2, . - __files_part1_content_2
 
 	.type __files_part1, @object
 __files_part1:
@@ -553,6 +560,9 @@ __files_part1:
 	.dword __files_part1_name_1
 	.dword __files_part1_content_1
 	.dword __files_part1_content_1_end - __files_part1_content_1
+	.dword __files_part1_name_2
+	.dword __files_part1_content_2
+	.dword __files_part1_content_2_end - __files_part1_content_2
 	.size __files_part1, . - __files_part1
 
 	.globl __dir_part1
@@ -563,7 +573,7 @@ __dir_part1:
 	.word 1
 	.word 0
 	.dword __files_part1
-	.word 2
+	.word 3
 	.word 0
 	.size __dir_part1, . - __dir_part1
 
