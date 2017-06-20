@@ -193,6 +193,15 @@ package body Interfaces.AArch64 is
       Asm ("isb", Volatile => True);
    end ISB;
 
+   ---------------------
+   -- TLBI_VMALLS12E1 --
+   ---------------------
+
+   procedure TLBI_VMALLS12E1 is
+   begin
+      Asm ("tlbi vmalls12e1", Volatile => True);
+   end TLBI_VMALLS12E1;
+
    --------------------
    -- Get_Current_EL --
    --------------------
@@ -383,6 +392,17 @@ package body Interfaces.AArch64 is
       return Res;
    end Get_VTTBR_EL2;
 
+   -------------------
+   -- Set_VTTBR_EL2 --
+   -------------------
+
+   procedure Set_VTTBR_EL2 (V : Unsigned_64) is
+   begin
+      Asm ("msr vttbr_el2, %0",
+           Inputs => Unsigned_64'Asm_Input ("r", V),
+           Volatile => True);
+   end Set_VTTBR_EL2;
+
    -----------------
    -- Get_HCR_EL2 --
    -----------------
@@ -547,6 +567,47 @@ package body Interfaces.AArch64 is
            Volatile => True);
       return Res;
    end Get_TCR_EL1;
+
+   -------------------
+   -- Get_TTBR0_EL1 --
+   -------------------
+
+   function Get_TTBR0_EL1 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, ttbr0_el1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_TTBR0_EL1;
+
+   -------------------
+   -- Get_TTBR1_EL1 --
+   -------------------
+
+   function Get_TTBR1_EL1 return Unsigned_64
+   is
+      Res : Unsigned_64;
+   begin
+      Asm ("mrs %0, ttbr1_el1",
+           Outputs => Unsigned_64'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_TTBR1_EL1;
+
+   -------------------
+   -- Get_MPIDR_EL1 --
+   -------------------
+
+   function Get_MPIDR_EL1 return Unsigned_32 is
+      R : Unsigned_32;
+   begin
+      Asm ("mrs %0, mpidr_el1",
+           Outputs => Unsigned_32'Asm_Output ("=r", R),
+           Volatile => True);
+      return R;
+   end Get_MPIDR_EL1;
 
    ----------------
    -- Get_SP_EL0 --

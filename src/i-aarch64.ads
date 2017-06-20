@@ -126,6 +126,7 @@ package Interfaces.AArch64 is
    function Get_HCR_EL2 return Unsigned_64 with Inline_Always;
    function Get_VTCR_EL2 return Unsigned_64 with Inline_Always;
    function Get_VTTBR_EL2 return Unsigned_64 with Inline_Always;
+   procedure Set_VTTBR_EL2 (V : Unsigned_64) with Inline_Always;
    function Get_SCTLR_EL2 return Unsigned_32 with Inline_Always;
 
    --  EL1 registers
@@ -138,6 +139,9 @@ package Interfaces.AArch64 is
    function Get_SP_EL1 return Unsigned_64 with Inline_Always;
    function Get_SCTLR_EL1 return Unsigned_32 with Inline_Always;
    function Get_TCR_EL1 return Unsigned_64 with Inline_Always;
+   function Get_TTBR0_EL1 return Unsigned_64 with Inline_Always;
+   function Get_TTBR1_EL1 return Unsigned_64 with Inline_Always;
+   function Get_MPIDR_EL1 return Unsigned_32 with Inline_always;
 
    --  EL0 registers
    function Get_SP_EL0 return Unsigned_64 with Inline_Always;
@@ -159,11 +163,14 @@ package Interfaces.AArch64 is
 
    --  Barriers
 
-   procedure DSB_ISH
-     with Inline_Always;
+   procedure DSB_ISH with Inline_Always;
    --  Data Synchronization Barrier
 
-   procedure ISB
-     with Inline_Always;
+   procedure ISB with Inline_Always;
    --  Instruction Synchronization Barrier
+
+   --  TLB
+
+   procedure TLBI_VMALLS12E1 with Inline_Always;
+
 end Interfaces.AArch64;
