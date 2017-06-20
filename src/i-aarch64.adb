@@ -165,6 +165,17 @@ package body Interfaces.AArch64 is
    end DC_CVAU;
 
    -------------
+   -- DC_CVAC --
+   -------------
+
+   procedure DC_CVAC (Addr : Address) is
+   begin
+      Asm ("dc cvac, %0",
+           Inputs => Address'Asm_Input ("r", Addr),
+           Volatile => True);
+   end DC_CVAC;
+
+   -------------
    -- IC_IVAU --
    -------------
 
