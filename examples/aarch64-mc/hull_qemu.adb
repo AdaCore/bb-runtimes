@@ -27,14 +27,19 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with Timer;
+
 package body Hull_Qemu is
-   procedure Init (H : out Hull_Qemu_Type) is
+   procedure Init (H : Hull_Qemu_Acc) is
    begin
       H.Iomap :=
         (0 => (System'To_Address (16#0900_0000#), 16#1000#,
-               H.Uart'Unchecked_Access));
+               H.Uart'Unchecked_Access),
+         1 => (System'To_Address (16#0800_0000#), 16#2_0000#,
+               H.GIC'Unchecked_Access));
 
-      Init (H.Uart'Access);
+      Emu_PL011.Init (H.Uart'Access);
+      Emu_GIC.Init (H.GIC'Access, Hull_Context_Acc (H));
    end Init;
 
    procedure Find_IO

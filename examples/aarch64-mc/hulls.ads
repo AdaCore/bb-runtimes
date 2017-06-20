@@ -74,11 +74,16 @@ package Hulls is
       Machine_Reset : Boolean;
    end record;
 
+   --  Primitives
+
+   --  Define the IO map: translate an address to an IO emulation.
    procedure Find_IO
      (Hull : Hull_Context;
       Addr : Address;
       Dev : out IOEmu_Dev_Acc;
       Off : out Off_T) is abstract;
+
+   procedure Dump_Cpu (H : Hull_Context);
 
    type Hull_Context_Acc is access all Hull_Context'Class;
 
@@ -108,8 +113,9 @@ private
       Vttbr : Unsigned_64;                       --  320
       Hcr : Unsigned_64;                         --  328
 
-      --  Not used by asm code
+      --  Fully virtualized. Not used by asm code.
       V_MDSCR_EL1 : Unsigned_64;
+      V_OSLAR_EL1 : Unsigned_64;
    end record;
    pragma Convention (C, Hull_Context_AArch64);
 

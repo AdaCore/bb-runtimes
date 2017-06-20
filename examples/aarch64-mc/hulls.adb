@@ -228,12 +228,13 @@ package body Hulls is
          --  TID2: concerns cache (CTR, CCSIDR, CLIDR, CSSELR)
          --  [TODO: value of CSSELR should be saved for context switch]
          Hcr => (HCR_RW
-                 or HCR_TACR or HCR_TIDCP or HCR_TSC or HCR_TID3
-                 or HCR_TID1 or HCR_TID0 or HCR_TWE or HCR_TWI
+                 or HCR_TACR or HCR_TIDCP or HCR_TSC
+                 or HCR_TID0 or HCR_TWE or HCR_TWI
                  or HCR_IMO or HCR_FMO or HCR_VM),
 
          Vbar => 16#ffffffff_fffff000#,
-         V_MDSCR_EL1 => 0);
+         V_MDSCR_EL1 => 0,
+         V_OSLAR_EL1 => 0);
 
       Ctxt.Machine_Reset := False;
 
@@ -404,7 +405,8 @@ package body Hulls is
 
    type Sys_Reg_Enum is
      (Unknown, MDSCR_EL1, ID_AA64AFR0_EL1, ID_AA64DFR0_EL1,
-      ID_AA64MMFR0_EL1, ID_AA64MMFR1_EL1);
+      ID_AA64MMFR0_EL1, ID_AA64MMFR1_EL1,
+     ID_OSLAR_EL1);
 
    function Extract_Sys_Reg (ISS : Unsigned_32) return Sys_Reg_Enum is
    begin
@@ -420,6 +422,8 @@ package body Hulls is
             return ID_AA64MMFR0_EL1;
          when 2#11_001_000_0000_00000_0111_0# =>
             return ID_AA64MMFR0_EL1;
+         when 2#10_100_000_0001_00000_0000_0# =>
+            return ID_OSLAR_EL1;
          when others =>
             return Unknown;
       end case;
@@ -475,6 +479,12 @@ package body Hulls is
                --  TODO
                raise Program_Error;
             end if;
+         when ID_OSLAR_EL1 =>
+            if Is_Read then
+               Val := Ctxt.Cpu.V_OSLAR_EL1;
+            else
+               Ctxt.Cpu.V_OSLAR_EL1 := Val and 1;
+            end if;
          when Unknown =>
             Dump (Ctxt, 64 + 1);
       end case;
@@ -521,4 +531,15 @@ package body Hulls is
       Trap_dump (Regs.Cpu'Unrestricted_Access, Id);
       Asm ("msr DAIFclr, #3", Volatile => True);
    end Dump;
+
+   procedure Dump_Cpu (H : Hull_Context)
+   is
+      procedure Trap_dump (Regs : Hull_Context_AArch64_Acc; Id : Natural);
+      pragma Import (C, Trap_dump, "__trap_dump");
+   begin
+      --  Mask interrupts so that Trap_Dump has full control of the console
+      Asm ("msr DAIFset, #3", Volatile => True);
+      Trap_dump (H.Cpu'Unrestricted_Access, 0);
+      Asm ("msr DAIFclr, #3", Volatile => True);
+   end Dump_Cpu;
 end Hulls;

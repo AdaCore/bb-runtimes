@@ -28,7 +28,8 @@
 ------------------------------------------------------------------------------
 
 with Hulls; use Hulls;
-with Emu_PL011; use Emu_PL011;
+with Emu_PL011;
+with Emu_GIC;
 with System; use System;
 with IOEmu; use IOEmu;
 
@@ -36,7 +37,9 @@ package Hull_Qemu is
 
    type Hull_Qemu_Type is new Hull_Context with private;
 
-   procedure Init (H : out Hull_Qemu_Type);
+   type Hull_Qemu_Acc is access all Hull_Qemu_Type'Class;
+
+   procedure Init (H : Hull_Qemu_Acc);
 
    procedure Find_IO
      (Hull : Hull_Qemu_Type;
@@ -46,7 +49,8 @@ package Hull_Qemu is
 private
    type Hull_Qemu_Type is new Hull_Context with record
       Uart : aliased Emu_PL011.PL011_Uart_Dev;
-      Iomap : aliased IOEmu_Map_Array (0 .. 0);
+      GIC  : aliased Emu_GIC.GIC_Dev;
+      Iomap : aliased IOEmu_Map_Array (0 .. 1);
    end record;
 
 end Hull_Qemu;

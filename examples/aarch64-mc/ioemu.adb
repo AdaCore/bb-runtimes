@@ -95,6 +95,22 @@ package body IOEmu is
          16#ffff_ffff#);
    end Write64;
 
+   procedure Update
+     (Reg : in out Unsigned_32; Val : Unsigned_32; Mask : Unsigned_32) is
+   begin
+      Reg := Val or (Reg and not Mask);
+   end Update;
+
+   procedure Set_Enable (Reg : in out Unsigned_32; Val : Unsigned_32) is
+   begin
+      Reg := Reg or Val;
+   end Set_Enable;
+
+   procedure Set_Disable (Reg : in out Unsigned_32; Val : Unsigned_32) is
+   begin
+      Reg := Reg and (not Val);
+   end Set_Disable;
+
    procedure Find_IO
      (Map : IOEmu_Map_Array;
       Addr : Address;

@@ -29,6 +29,8 @@
 
 with System.Storage_Elements; use System.Storage_Elements;
 use System;
+with System.Multiprocessors; use System.Multiprocessors;
+with Interfaces.AArch64;
 with Interfaces; use Interfaces;
 
 package IOEmu is
@@ -92,4 +94,22 @@ package IOEmu is
       Dev : out IOEmu_Dev_Acc;
       Off : out Off_T);
 
+   --  Utilities
+   procedure Update
+     (Reg : in out Unsigned_32; Val : Unsigned_32; Mask : Unsigned_32);
+   pragma Inline (Update);
+   --  Do: Reg := Val or (Reg and not Mask)
+
+   procedure Set_Enable (Reg : in out Unsigned_32; Val : Unsigned_32);
+   pragma Inline (Set_Enable);
+
+   procedure Set_Disable (Reg : in out Unsigned_32; Val : Unsigned_32);
+   pragma Inline (Set_Disable);
+   --  Clear bits in Reg.
+
+   function Current_CPU return CPU is
+     (CPU ((AArch64.Get_MPIDR_EL1 and 3) + 1));
+
+   --  Common types.
+   type Unsigned_32_Arr is array (Natural range <>) of Unsigned_32;
 end IOEmu;

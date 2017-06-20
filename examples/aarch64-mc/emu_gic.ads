@@ -27,39 +27,38 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO; use Ada.Text_IO;
-with Ada.Real_Time;
-with Hulls; use Hulls;
-with Uart;
-with Hull_Qemu; use Hull_Qemu;
+with IOEmu; use IOEmu;
+with Interfaces; use Interfaces;
+with Hulls;
 
-procedure Main is
-   Part1_Desc : Hull_Desc;
-   pragma Import (C, Part1_Desc, "__dir_part1");
+package Emu_GIC is
+   type GIC_Dev is new IOEmu_Dev32 with private;
 
-   Part1 : aliased Hull_Qemu.Hull_Qemu_Type;
-begin
-   New_Line;
-   New_Line;
-   Put_Line ("Start UART..");
-   Uart.Init;
+   function Read32 (Dev : in out GIC_Dev; Off : Off_T)
+                   return Unsigned_32;
+   procedure Write32_Mask
+     (Dev : in out GIC_Dev;
+      Off : Off_T;
+      Val : Unsigned_32;
+      Mask : Unsigned_32);
 
-   Init (Part1'Unchecked_Access);
+   procedure Init (Dev : access GIC_Dev; Ctxt : Hulls.Hull_Context_Acc);
+private
+   Nbr_Int : constant := 64;
 
-   if False then
-      declare
-         use Ada.Real_Time;
-         T : Time := Clock;
-      begin
-         loop
-            delay until T;
-            T := T + Seconds (1);
-            Uart.Dump_Status;
-            Put ('*');
-         end loop;
-      end;
-   else
-      Hulls.Create_Hull (Part1_Desc, Part1'Unchecked_Access);
-      Put_Line ("??? return");
-   end if;
-end Main;
+   type GIC_Dev is new IOEmu_Dev32 with record
+      Ctxt : Hulls.Hull_Context_Acc;
+
+      --  Dist interface.
+      ICTLR : Unsigned_32;
+      ITARGETS : Unsigned_32_Arr (8 .. (Nbr_Int / 4) - 1);
+      ICFGR : Unsigned_32_Arr (2 .. (Nbr_Int / 16) - 1);
+      PRIORITY : Unsigned_32_Arr (0 .. (Nbr_Int / 4) - 1);
+      ACTIVE : Unsigned_32_Arr (0 .. (Nbr_Int / 32) - 1);
+      ENABLE : Unsigned_32_Arr (0 .. (Nbr_Int / 32) - 1);
+
+      --  CPU interface.
+      CCTLR : Unsigned_32;
+      PMR : Unsigned_32;
+   end record;
+end Emu_GIC;
