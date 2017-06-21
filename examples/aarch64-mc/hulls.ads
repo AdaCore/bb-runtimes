@@ -66,12 +66,15 @@ package Hulls is
    type Unsigned_64_Array is array (Natural range <>) of Unsigned_64;
 
    type Hull_Context_AArch64 is private;
+   type Wait_Prot is limited private;
 
-   type Hull_Context is abstract tagged record
+   type Hull_Context is abstract tagged limited record
       Cpu : aliased Hull_Context_AArch64;
 
       --  Machine independant
       Machine_Reset : Boolean;
+
+      Wait : Wait_Prot;
    end record;
 
    --  Primitives
@@ -89,6 +92,13 @@ package Hulls is
 
    procedure Create_Hull (Desc : Hull_Desc; Ctxt : Hull_Context_Acc);
 private
+   protected type Wait_Prot is
+      entry Wait_Interrupt;
+      procedure Set_Interrupt;
+   private
+      Barrier : Boolean := False;
+   end Wait_Prot;
+
    type Hull_Context_AArch64 is record
       --  EL1 registers
 
@@ -116,6 +126,8 @@ private
       --  Fully virtualized. Not used by asm code.
       V_MDSCR_EL1 : Unsigned_64;
       V_OSLAR_EL1 : Unsigned_64;
+
+--      Wait : Wait_Prot;
    end record;
    pragma Convention (C, Hull_Context_AArch64);
 

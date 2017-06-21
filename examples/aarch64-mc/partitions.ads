@@ -27,36 +27,13 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO; use Ada.Text_IO;
-with Ada.Real_Time;
-with Hulls; use Hulls;
-with Uart;
 with Hull_Qemu; use Hull_Qemu;
-with Partitions; use Partitions;
+with Hulls; use Hulls;
 
-procedure Main is
-begin
-   New_Line;
-   New_Line;
-   Put_Line ("Start UART..");
-   Uart.Init;
+package Partitions is
 
-   Init (Part1'Unchecked_Access);
+   Part1_Desc : Hull_Desc;
+   pragma Import (C, Part1_Desc, "__dir_part1");
 
-   if False then
-      declare
-         use Ada.Real_Time;
-         T : Time := Clock;
-      begin
-         loop
-            delay until T;
-            T := T + Seconds (1);
-            Uart.Dump_Status;
-            Put ('*');
-         end loop;
-      end;
-   else
-      Hulls.Create_Hull (Part1_Desc, Part1'Unchecked_Access);
-      Put_Line ("??? return");
-   end if;
-end Main;
+   Part1 : aliased Hull_Qemu.Hull_Qemu_Type;
+end Partitions;

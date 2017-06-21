@@ -41,7 +41,7 @@ execute_hull:
 	//  Spsr and vbar
 	ldp	x6, x7, [x0, #264]
 	msr	spsr_el2, x6
-	msr	vbar_el1, x7
+	// msr	vbar_el1, x7 // vbar is not saved
 	
 	//  Re-route debug: set MDCR_EL2.TDE
 	mrs	x8, mdcr_el2
@@ -252,7 +252,7 @@ irq_handler:
 	//  Spsr and vbar
 	ldp	x6, x7, [x0, #264]
 	msr	spsr_el2, x6
-	msr	vbar_el1, x7
+	// msr	vbar_el1, x7  // vbar is not saved
 
 	//  Load registers
 	ldp	x2, x3, [x0, #16]

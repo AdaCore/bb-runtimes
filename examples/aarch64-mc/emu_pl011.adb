@@ -44,16 +44,29 @@ package body Emu_PL011 is
    Reg_ICR    : constant := 16#44#;
    Reg_DMACR  : constant := 16#48#;
 
+   Reg_PeriphID0 : constant := 16#fe0#;
+   Reg_PeriphID1 : constant := 16#fe4#;
+   Reg_PeriphID2 : constant := 16#fe8#;
+   Reg_PeriphID3 : constant := 16#fec#;
+
+   Reg_CellID0 : constant := 16#ff0#;
+   Reg_CellID1 : constant := 16#ff4#;
+   Reg_CellID2 : constant := 16#ff8#;
+   Reg_CellID3 : constant := 16#ffc#;
+
    FR_TXFE : constant := 2**7;
    FR_TXFF : constant := 2**5;
    FR_RXFE : constant := 2**4;
    FR_BUSY : constant := 2**3;
    pragma Unreferenced (FR_TXFF, FR_BUSY);
 
+   CR_RXE : constant := 2**9;
+   CR_TXE : constant := 2**8;
+   CR_UARTEN : constant := 2**0;
+
    MASK_RT : constant := 2**6;
    MASK_TX : constant := 2**5;
    MASK_RX : constant := 2**4;
-   pragma Unreferenced (MASK_RT, MASK_TX, MASK_RX);
 
    procedure Disp_Reg_Name (Off : Off_T) is
    begin
@@ -87,20 +100,58 @@ package body Emu_PL011 is
          when Reg_DMACR  =>
             Put ("DMACR");
          when others =>
-            Put ("???");
+            Put_Hex4 (Unsigned_32 (Off));
       end case;
    end Disp_Reg_Name;
 
+   procedure Check_Interrupts (Dev : in out PL011_Uart_Dev) is
+   begin
+      if (Dev.RIS and Dev.IMSC) /= 0 then
+         --  Put ("PL011 INT!");
+         null;
+      end if;
+   end Check_Interrupts;
+
    function Read32 (Dev : in out PL011_Uart_Dev; Off : Off_T)
-                   return Unsigned_32 is
+                    return Unsigned_32 is
    begin
       case Off is
          when Reg_DR =>
             --  Now empty.
             Dev.FR := Dev.FR or FR_RXFE;
+            Dev.RIS := Dev.RIS and not (MASK_RX or MASK_RT);
+            Check_Interrupts (Dev);
             return Dev.DR_Rx;
          when Reg_FR =>
             return Dev.FR;
+         when Reg_CR =>
+            return Dev.CR;
+         when Reg_IMSC =>
+            return Dev.IMSC;
+         when Reg_IFLS =>
+            return Dev.IFLS;
+         when Reg_IBRD =>
+            return Dev.IBRD;
+         when Reg_FBRD =>
+            return Dev.FBRD;
+
+         when Reg_PeriphID0 =>
+            return 16#11#;
+         when Reg_PeriphID1 =>
+            return 16#10#;
+         when Reg_PeriphID2 =>
+            return 16#14#;
+         when Reg_PeriphID3 =>
+            return 16#00#;
+         when Reg_CellID0 =>
+            return 16#0d#;
+         when Reg_CellID1 =>
+            return 16#f0#;
+         when Reg_CellID2 =>
+            return 16#05#;
+         when Reg_CellID3 =>
+            return 16#b1#;
+
          when others =>
             Put ("uart.read ");
             Disp_Reg_Name (Off);
@@ -114,11 +165,30 @@ package body Emu_PL011 is
       Off : Off_T;
       Val : Unsigned_32;
       Mask : Unsigned_32) is
-      pragma Unreferenced (Dev, Mask);
    begin
       case Off is
          when Reg_DR =>
-            Put (Character'Val (Val and 16#ff#));
+            if (Dev.CR and (CR_UARTEN or CR_TXE)) = (CR_UARTEN or CR_TXE) then
+               Put (Character'Val (Val and 16#ff#));
+               Dev.RIS := Dev.RIS or MASK_TX;
+               Check_Interrupts (Dev);
+            end if;
+         when Reg_CR =>
+            Update (Dev.CR, Val and 16#ffff#, Mask);
+         when Reg_IMSC =>
+            Update (Dev.IMSC, Val and 16#3ff#, Mask);
+            Check_Interrupts (Dev);
+         when Reg_ICR =>
+            Set_Disable (Dev.RIS, Val);
+            Check_Interrupts (Dev);
+         when Reg_LCR =>
+            Update (Dev.LCR, Val and 16#ff#, Mask);
+         when Reg_IFLS =>
+            Update (Dev.IFLS, Val and 16#3f#, Mask);
+         when Reg_IBRD =>
+            Update (Dev.IBRD, Val and 16#ffff#, Mask);
+         when Reg_FBRD =>
+            Update (Dev.FBRD, Val and 16#3f#, Mask);
          when others =>
             Put ("uart.write ");
             Disp_Reg_Name (Off);
@@ -126,18 +196,34 @@ package body Emu_PL011 is
       end case;
    end Write32_Mask;
 
-   procedure Put (Dev : in out PL011_Uart_Emu; C : Character) is
+   procedure Put (Dev : in out PL011_Uart_Emu; C : Character)
+   is
+      D : PL011_Uart_Dev renames Dev.Parent.all;
    begin
-      Dev.Parent.DR_Rx := Character'Pos (C);
-      Dev.Parent.FR := Dev.Parent.FR and not FR_RXFE;
+      if (D.CR and (CR_UARTEN or CR_RXE)) = (CR_UARTEN or CR_RXE) then
+         D.DR_Rx := Character'Pos (C);
+         D.FR := D.FR and not FR_RXFE;
+         --  FIXME: handle overrun
+         D.RIS := D.RIS or MASK_RX or MASK_RT;
+         Check_Interrupts (D);
+      end if;
    end Put;
 
    procedure Init (Dev : access PL011_Uart_Dev) is
    begin
+      Dev.all := (Emu => <>,
+                  DR_Rx => 0,
+                  FR => FR_RXFE or FR_TXFE,
+                  CR => CR_RXE or CR_TXE or CR_UARTEN,
+                  RIS => MASK_TX or MASK_RT,
+                  LCR => 0,
+                  IFLS => 0,
+                  IMSC => 0,
+                  IBRD => 16,  -- non 0
+                  FBRD => 0);
+
       Uart.Register_Client (Dev.Emu'Unrestricted_Access);
 
-      Dev.DR_Rx := 0;
-      Dev.FR := FR_RXFE or FR_TXFE;
       Dev.Emu.Parent := Dev.all'Unrestricted_Access;
    end Init;
 

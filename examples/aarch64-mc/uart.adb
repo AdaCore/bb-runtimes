@@ -28,8 +28,10 @@
 ------------------------------------------------------------------------------
 
 with Interfaces.Raspberry_Pi; use Interfaces.Raspberry_Pi;
+with System.Machine_Code;
 pragma Warnings (Off);
 with System.Text_IO;
+with System.Machine_Reset;
 pragma Warnings (On);
 with Interfaces.AArch64; use Interfaces.AArch64;
 
@@ -48,6 +50,7 @@ package body Uart is
 
       procedure Register_Client (Client : Char_Emu_Acc);
    private
+      In_Meta : Boolean := False;
       Clients : Char_Emu_Acc_Arr (0 .. 7);
       Nbr_Clients : Natural := 0;
       Cur_Client : Natural := 0;
@@ -116,10 +119,25 @@ package body Uart is
             Put (", ESR:");
             Put_Hex4 (Get_ESR_EL2);
             New_Line;
-         else
-            if Cur_Client < Nbr_Clients then
-               Clients (Cur_Client).Put (C => C);
+            In_Meta := True;
+            return;
+         end if;
+
+         if In_Meta then
+            if C = Character'Val (18) then
+               --  C-r: reboot
+               System.Machine_Reset.Stop;
+               return;
+            elsif C = Character'Val (8) then
+               --  C-h: monitor
+               System.Machine_Code.Asm ("smc #1", Volatile => True);
             end if;
+         end if;
+
+         In_Meta := False;
+
+         if Cur_Client < Nbr_Clients then
+            Clients (Cur_Client).Put (C => C);
          end if;
       end Handler;
 

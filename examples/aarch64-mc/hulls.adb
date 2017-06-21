@@ -261,8 +261,9 @@ package body Hulls is
                end if;
 
             elsif Is_Image (F, "initrd") then
-               --  Align
+               --  Put it far enough so that it is not eraed
                Off := Storage_Count'Max (Off, Len / 2);
+               --  Align
                Align (Off, 16#1000#);
 
                Copy_File (F, Paddr, Off, Len);
@@ -579,6 +580,23 @@ package body Hulls is
       Ctxt.Cpu.PC := Ctxt.Cpu.PC + 4;
    end Handle_Sys_Reg;
 
+   protected body Wait_Prot is
+      entry Wait_Interrupt when Barrier is
+      begin
+         Barrier := False;
+      end Wait_Interrupt;
+
+      procedure Set_Interrupt is
+      begin
+         Barrier := True;
+      end Set_Interrupt;
+   end Wait_Prot;
+
+   procedure Handle_Wfi (Ctxt : Hull_Context_Acc) is
+   begin
+      Ctxt.Wait.Wait_Interrupt;
+   end Handle_Wfi;
+
    procedure Handler_Syn_A64 (Ctxt : Hull_Context_Acc)
    is
       ESR : constant Unsigned_32 := Ctxt.Cpu.Esr;
@@ -592,15 +610,23 @@ package body Hulls is
          New_Line;
       end if;
 
-      if EC = 16#24# then
-         --  Exception for a Data abort.
-         Handle_Data (Ctxt);
-      elsif EC = 16#18# then
-         --  Exception for MSR/MRS
-         Handle_Sys_Reg (Ctxt);
-      else
-         Dump (Ctxt, 32);
-      end if;
+      case EC is
+         when 16#01# =>
+            --  WFI/WFE
+            if (ESR and 1) = 0 then
+               Handle_Wfi (Ctxt);
+            else
+               Dump (Ctxt, 32);
+            end if;
+         when 16#24# =>
+            --  Exception for a Data abort.
+            Handle_Data (Ctxt);
+         when 16#18# =>
+            --  Exception for MSR/MRS
+            Handle_Sys_Reg (Ctxt);
+         when others =>
+            Dump (Ctxt, 32);
+      end case;
    end Handler_Syn_A64;
 
    procedure Dump (Regs : Hull_Context_Acc; Id : Natural)

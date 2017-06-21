@@ -56,7 +56,15 @@ private
    type PL011_Uart_Dev is new IOEmu_Dev32 with record
       Emu : aliased PL011_Uart_Emu;
 
+      RIS : Unsigned_32;
+
       DR_Rx : Unsigned_32;
       FR : Unsigned_32;
+      CR : Unsigned_32;
+      LCR : Unsigned_32;
+      IFLS : Unsigned_32;
+      IMSC : Unsigned_32;
+      IBRD : Unsigned_32;
+      FBRD : Unsigned_32;
    end record;
 end Emu_PL011;
