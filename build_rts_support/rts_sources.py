@@ -366,7 +366,7 @@ class SourceDirs(SharedFilesHolder):
             'ada.ads',
             {'g-io.ads': 'g-io-zfp.ads'},
             {'g-io.adb': 'g-io-zfp.adb'},
-            'src/g-io-put.adb',
+            'hie/g-io-put.adb',
             'g-souinf.ads',
             'gnat.ads',
             'i-cexten.ads',
@@ -380,11 +380,11 @@ class SourceDirs(SharedFilesHolder):
             's-imgllu.ads', 's-imgllu.adb',
             's-imguns.ads', 's-imguns.adb',
             's-maccod.ads',
-            'src/s-macres.ads',
+            'hie/s-macres.ads',
             {'s-secsta.ads': 's-secsta-zfp.ads'},
             {'s-secsta.adb': 's-secsta-zfp.adb'},
             's-stoele.ads', 's-stoele.adb',
-            'src/s-textio.ads',
+            'hie/s-textio.ads',
             's-unstyp.ads',
             'unchconv.ads',
             'unchdeal.ads'])
@@ -392,18 +392,18 @@ class SourceDirs(SharedFilesHolder):
         if self._is_bb:
             self.add_sources('common', [
                 'text_io.ads',
-                'src/a-textio.ads',
-                'src/s-bb.ads'])
+                'hie/a-textio.ads',
+                'hie/s-bb.ads'])
 
             self.add_rule('system_io', 'Use_Semihosting_IO:no')
             self.add_rule('semihost', 'Use_Semihosting_IO:yes')
             self.add_sources('system_io', [
-                'src/a-textio/bb/a-textio.adb'])
+                'hie/a-textio/bb/a-textio.adb'])
             self.add_sources('semihost', [
-                'src/s-semiho.ads',
-                'src/s-semiho.adb',
-                'src/s-textio/semihosting/s-textio.adb',
-                'src/a-textio/semihosting/a-textio.adb'])
+                'hie/s-semiho.ads',
+                'hie/s-semiho.adb',
+                'hie/semihosting/s-textio.adb',
+                'hie/a-textio/semihosting/a-textio.adb'])
 
         # FPU support sources
         self.add_rule('fpu', 'Has_FPU:yes')
@@ -417,23 +417,23 @@ class SourceDirs(SharedFilesHolder):
         # Memory support sources
         self.add_rule('mem', 'Add_Memory_Operations:yes')
         self.add_sources('mem', [
-            'src/s-memcom.ads', 'src/s-memcom.adb',
-            'src/s-memcop.ads', 'src/s-memcop.adb',
-            'src/s-memmov.ads', 'src/s-memmov.adb',
-            'src/s-memset.ads', 'src/s-memset.adb'])
+            'hie/s-memcom.ads', 'hie/s-memcom.adb',
+            'hie/s-memcop.ads', 'hie/s-memcop.adb',
+            'hie/s-memmov.ads', 'hie/s-memmov.adb',
+            'hie/s-memset.ads', 'hie/s-memset.adb'])
 
         # Libc implementation
         self.add_rule('libc', 'Add_C_Support:ada_clib')
         self.add_sources('libc', [
-            'src/s-c.ads',
-            'src/s-cerrno.ads', 'src/s-cerrno.adb',
-            'src/s-cmallo.ads', 'src/s-cmallo.adb',
-            'src/s-cstrle.ads', 'src/s-cstrle.adb'])
+            'hie/s-c.ads',
+            'hie/s-cerrno.ads', 'hie/s-cerrno.adb',
+            'hie/s-cmallo.ads', 'hie/s-cmallo.adb',
+            'hie/s-cstrle.ads', 'hie/s-cstrle.adb'])
 
         # Newlib support
         self.add_rule('newlib', 'Add_C_Support:newlib')
         self.add_sources('newlib', [
-            'src/newlib-bb.c'])
+            'hie/newlib-bb.c'])
 
         # Math support
         self.add_rule('math', 'Add_Math_Lib:!no')
@@ -501,9 +501,9 @@ class SourceDirs(SharedFilesHolder):
         # Finally, the ZFP & SFP-specific libgnat files
         self.add_rule('zfp', 'RTS_Profile:zfp,ravenscar-sfp')
         self.add_sources('zfp', [
-            'src/a-elchha/zfp/a-elchha.ads',
-            'src/a-elchha/zfp/a-elchha.adb',
-            'src/s-sssita.ads', 'src/s-sssita.adb',
+            'hie/a-elchha/zfp/a-elchha.ads',
+            'hie/a-elchha/zfp/a-elchha.adb',
+            'hie/s-sssita.ads', 'hie/s-sssita.adb',
             {'a-except.ads': 'a-except-zfp.ads',
              'a-except.adb': 'a-except-zfp.adb',
              'a-tags.ads': 'a-tags-hie.ads',
@@ -512,17 +512,17 @@ class SourceDirs(SharedFilesHolder):
              's-assert.adb': 's-assert-xi.adb'}])
         if self._is_bb:
             self.add_sources('zfp', [
-                'src/s-memory/zfp/s-memory.ads',
-                'src/s-memory/zfp/s-memory.adb'])
+                'hie/s-memory/zfp/s-memory.ads',
+                'hie/s-memory/zfp/s-memory.adb'])
         else:
             self.add_rule('zfp-io', 'RTS_Profile:zfp')
             self.add_sources('zfp-io', [
                 'text_io.ads',
-                'src/a-textio.ads',
-                'src/a-textio/bb/a-textio.adb'])
+                'hie/a-textio.ads',
+                'hie/a-textio/bb/a-textio.adb'])
             self.add_sources('zfp', [
-                'src/s-memory/zfp/s-memory.ads',
-                'src/s-memory/raven-min/s-memory.adb'])
+                'hie/s-memory/zfp/s-memory.ads',
+                'hie/s-memory/raven-min/s-memory.adb'])
 
     def init_sfp(self):
         """ravenscar-sfp files"""
@@ -530,89 +530,89 @@ class SourceDirs(SharedFilesHolder):
         self.add_rule('gnarl/common', None)
         self.add_sources('gnarl/common', [
             'a-interr.ads', {'a-interr.adb': 'a-interr-raven.adb'},
-            'src/a-reatim.ads', 'src/a-reatim.adb',
+            'hie/a-reatim.ads', 'hie/a-reatim.adb',
             'a-retide.ads', {'a-retide.adb': 'a-retide-raven.adb'},
             {'a-sytaco.ads': 'a-sytaco-xi.ads',
              'a-sytaco.adb': 'a-sytaco-xi.adb'},
             'a-taside.ads', {'a-taside.adb': 'a-taside-raven.adb'},
-            'src/a-taster.ads', 'src/a-taster.adb',
+            'hie/a-taster.ads', 'hie/a-taster.adb',
             {'s-interr.ads': 's-interr-raven.ads'},
             's-mufalo.ads', 's-mufalo.adb',
             's-musplo.ads',
-            'src/s-parame.adb',
+            'hie/s-parame.adb',
             {'s-taprob.ads': 's-taprob-raven.ads',
              's-taprob.adb': 's-taprob-raven.adb'},
-            'src/s-taprop.ads', 's-taprop.adb',
-            's-tarest.ads', 'src/s-tarest.adb',
+            'hie/s-taprop.ads',
+            's-tarest.ads', 'hie/s-tarest.adb',
             {'s-tasdeb.ads': 's-tasdeb-xi.ads',
              's-tasdeb.adb': 's-tasdeb-raven.adb'},
             's-tasinf.ads', 's-tasinf.adb',
-            'src/s-taskin.adb',
-            'src/s-taspri.ads',
+            'hie/s-taskin.adb',
+            'hie/s-taspri.ads',
             's-tasres.ads',
             's-tpobmu.ads'])
         if self._is_bb:
             # BB case
             self.add_sources('gnarl/common', [
-                'src/a-exetim.ads', 'src/a-exetim.adb',
-                'src/a-extiin.ads', 'src/a-extiin.adb',
-                'src/a-rttiev.ads', 'src/a-rttiev.adb',
-                'src/s-bbbosu.ads',
-                'src/s-bbexti.ads', 'src/s-bbexti.adb',
-                'src/s-bbinte.ads',
-                'src/s-bbprot.ads', 'src/s-bbprot.adb',
-                'src/s-bbthqu.ads', 'src/s-bbthqu.adb',
-                'src/s-bbthre.ads', 'src/s-bbthre.adb',
-                'src/s-bbtiev.ads', 'src/s-bbtiev.adb',
-                'src/s-bbtime.ads',
-                'src/s-bcprmu.ads', 'src/s-bcprmu.adb',
-                'src/s-interr.adb',
-                'src/s-multip.ads', 'src/s-multip.adb',
-                'src/s-taprop.adb',
-                'src/s-tpobmu.adb',
-                'src/s-osinte.ads'])
+                'hie/a-exetim.ads', 'hie/a-exetim.adb',
+                'hie/a-extiin.ads', 'hie/a-extiin.adb',
+                'hie/a-rttiev.ads', 'hie/a-rttiev.adb',
+                'hie/s-bbbosu.ads',
+                'hie/s-bbexti.ads', 'hie/s-bbexti.adb',
+                'hie/s-bbinte.ads',
+                'hie/s-bbprot.ads', 'hie/s-bbprot.adb',
+                'hie/s-bbthqu.ads', 'hie/s-bbthqu.adb',
+                'hie/s-bbthre.ads', 'hie/s-bbthre.adb',
+                'hie/s-bbtiev.ads', 'hie/s-bbtiev.adb',
+                'hie/s-bbtime.ads',
+                'hie/s-bcprmu.ads', 'hie/s-bcprmu.adb',
+                'hie/s-interr.adb',
+                'hie/s-multip.ads', 'hie/s-multip.adb',
+                'hie/s-taprop/bb/s-taprop.adb',
+                'hie/s-tpobmu.adb',
+                'hie/s-osinte.ads'])
         else:
             # PikeOS case
             self.add_sources('gnarl/common', [
                 'text_io.ads',
-                'src/a-textio.ads',
-                'src/a-textio/pikeos/a-textio.adb',
+                'hie/a-textio.ads',
+                'hie/a-textio/pikeos/a-textio.adb',
                 {'s-multip.ads': 's-multip-raven-default.ads',
                  's-multip.adb': 's-multip-raven-default.adb'},
-                'pikeos/s-taprop.adb',
+                'hie/s-taprop/pikeos/s-taprop.adb',
                 's-tpobmu.adb'])
             self.add_rule('gnarl/pikeos3', 'Pikeos_Version:pikeos3')
             self.add_sources('gnarl/pikeos3', [
-                'pikeos/pikeos3/s-interr.adb',
-                'pikeos/pikeos3/s-osinte.ads',
-                'pikeos/pikeos3/s-osinte.adb'])
+                'hie/pikeos3/s-interr.adb',
+                'hie/pikeos3/s-osinte.ads',
+                'hie/pikeos3/s-osinte.adb'])
             self.add_rule('gnarl/pikeos4', 'Pikeos_Version:pikeos4')
             self.add_sources('gnarl/pikeos4', [
-                'pikeos/pikeos4/s-interr.adb',
-                'pikeos/pikeos4/s-osinte.ads',
-                'pikeos/pikeos4/s-osinte.adb'])
+                'hie/pikeos4/s-interr.adb',
+                'hie/pikeos4/s-osinte.ads',
+                'hie/pikeos4/s-osinte.adb'])
 
         # SFP-specific files
         self.add_rule('gnarl/sfp', 'RTS_Profile:ravenscar-sfp')
         self.add_sources('gnarl/sfp', [
-            'src/s-taskin/raven/s-taskin.ads',
-            'src/s-tposen/raven/s-tposen.adb',
-            'src/s-tposen/raven/s-tposen.ads'])
+            'hie/s-taskin/raven/s-taskin.ads',
+            'hie/s-tposen/raven/s-tposen.adb',
+            'hie/s-tposen/raven/s-tposen.ads'])
 
         # timer support
         self.add_rule('gnarl/timer32', 'Timer:timer32')
         self.add_sources('gnarl/timer32', [
-            'src/s-bbtime/32bit/s-bbtime.adb'])
+            'hie/s-bbtime/32bit/s-bbtime.adb'])
         self.add_rule('gnarl/timer64', 'Timer:timer64')
         self.add_sources('gnarl/timer64', [
-            'src/s-bbtime/64bit/s-bbtime.adb'])
+            'hie/s-bbtime/64bit/s-bbtime.adb'])
 
         # spinlock support (leon workaround)
         if self._is_bb:
             self.add_rule('gnarl/spinlock-leon', 'CPU_Family:leon')
             self.add_rule('gnarl/spinlock-gcc', 'CPU_Family:!leon')
             self.add_sources('gnarl/spinlock-gcc', 's-musplo.adb')
-            self.add_sources('gnarl/spinlock-leon', 'src/leon/s-musplo.adb')
+            self.add_sources('gnarl/spinlock-leon', 'hie/leon/s-musplo.adb')
         else:
             self.add_sources('gnarl/common', 's-musplo.adb')
 
@@ -621,13 +621,13 @@ class SourceDirs(SharedFilesHolder):
             self.add_rule('gnarl/mem-small', 'Memory_Profile:small')
             self.add_rule('gnarl/mem-large', 'Memory_Profile:large')
             self.add_sources('gnarl/mem-small', [
-                'src/s-parame/small/s-parame.ads'])
+                'hie/s-parame/small/s-parame.ads'])
             self.add_sources('gnarl/mem-large', [
-                'src/s-parame/large/s-parame.ads'])
+                'hie/s-parame/large/s-parame.ads'])
         else:
             # PikeOS:
             self.add_sources('gnarl/common', [
-                'src/s-parame/large/s-parame.ads'])
+                'hie/s-parame/large/s-parame.ads'])
 
     def init_full(self):
         """ravenscar-full files"""
@@ -643,7 +643,7 @@ class SourceDirs(SharedFilesHolder):
             'a-cwila9.ads',
             'a-decima.ads', 'a-decima.adb',
             'a-einuoc.ads', 'a-einuoc.adb',
-            'a-elchha.ads', 'src/a-elchha/full/a-elchha.adb',
+            'a-elchha.ads', 'hie/a-elchha/full/a-elchha.adb',
             {'a-excach.adb': 'a-excach-cert.adb'},
             'a-except.ads', 'a-except.adb',
             'a-excpol.adb',
@@ -764,8 +764,8 @@ class SourceDirs(SharedFilesHolder):
             's-imgrea.ads', 's-imgrea.adb',
             's-imgwch.ads', 's-imgwch.adb',
             's-imgwiu.ads', 's-imgwiu.adb',
-            's-init.ads', 'src/s-init.adb',
-            's-io.ads', 'src/s-io.adb',
+            's-init.ads', 'hie/s-init/bb/s-init.adb',
+            's-io.ads', 'hie/s-io.adb',
             's-mantis.ads', 's-mantis.adb',
             's-mastop.ads', 's-mastop.adb',
             's-pack03.ads', 's-pack03.adb',
@@ -830,12 +830,12 @@ class SourceDirs(SharedFilesHolder):
             's-poosiz.ads', 's-poosiz.adb',
             's-powtab.ads',
             's-rannum.ads', 's-rannum.adb',
-            's-ransee.ads', 'src/s-ransee.adb',
+            's-ransee.ads', 'hie/s-ransee.adb',
             's-regexp.ads', 's-regexp.adb',
             's-restri.ads', 's-restri.adb',
             's-rident.ads',
             's-scaval.ads', 's-scaval.adb',
-            'src/s-soflin.ads', 'src/s-soflin.adb',
+            'hie/s-soflin.ads', 'hie/s-soflin.adb',
             's-sopco3.ads', 's-sopco3.adb',
             's-sopco4.ads', 's-sopco4.adb',
             's-sopco5.ads', 's-sopco5.adb',
@@ -879,22 +879,22 @@ class SourceDirs(SharedFilesHolder):
             's-wwdcha.ads', 's-wwdcha.adb',
             's-wwdenu.ads', 's-wwdenu.adb',
             's-wwdwch.ads', 's-wwdwch.adb',
-            'src/tconfig.h',
-            'src/tsystem.h',
+            'hie/tconfig.h',
+            'hie/tsystem.h',
             'libgcc/unwind-pe.h'])
 
         if self._is_bb:
-            self.add_sources('full', 'src/adaint-xi.c')
+            self.add_sources('full', 'hie/adaint-xi.c')
             self.add_sources('full', [
                 's-memory.ads',
-                'src/s-memory/xi/s-memory.adb'])
+                'hie/s-memory/xi/s-memory.adb'])
         else:
             # PikeOS
             self.add_sources('full', [
-                'src/s-memory/pikeos/s-memory.ads',
-                'src/s-memory/pikeos/s-memory.adb'])
+                'hie/s-memory/pikeos/s-memory.ads',
+                'hie/s-memory/pikeos/s-memory.adb'])
             self.update_pairs('full', {
-                's-init.adb': 'pikeos/s-init.adb'})
+                's-init.adb': 'hie/s-init/pikeos/s-init.adb'})
 
         # Zero-cost-exception support
         self.add_rule('full/zcx-arm', [
@@ -902,7 +902,7 @@ class SourceDirs(SharedFilesHolder):
         self.add_sources('full/zcx-arm', [
             {'s-excmac.adb': 's-excmac-arm.adb',
              's-excmac.ads': 's-excmac-arm.ads'},
-            'src/s-traceb/armeabi/s-traceb.adb'])
+            'hie/s-traceb/armeabi/s-traceb.adb'])
         self.add_rule('full/zcx-dw2', [
             'RTS_Profile:ravenscar-full', 'CPU_Family:!arm'])
         self.add_sources('full/zcx-dw2', [
@@ -910,20 +910,20 @@ class SourceDirs(SharedFilesHolder):
              's-excmac.adb': 's-excmac-gcc.adb'},
             'libgcc/unwind-dw2-fde.h'])
         if self._is_bb:
-            self.add_sources('full/zcx-dw2', 'src/unwind-dw2-fde-bb.c')
+            self.add_sources('full/zcx-dw2', 'hie/unwind-dw2-fde-bb.c')
 
         self.add_rule('full/zcx-aarch64',
                       ['RTS_Profile:ravenscar-full', 'CPU_Family:aarch64'])
         self.add_sources('full/zcx-aarch64', [
-            'src/s-traceb/dwarf/s-traceb.adb'])
+            'hie/s-traceb/dwarf/s-traceb.adb'])
         self.add_rule('full/zcx-ppc',
                       ['RTS_Profile:ravenscar-full', 'CPU_Family:powerpc'])
         self.add_sources('full/zcx-ppc', [
-            'src/s-traceb/ppc/s-traceb.adb'])
+            'hie/s-traceb/ppc/s-traceb.adb'])
         self.add_rule('full/zcx-leon',
                       ['RTS_Profile:ravenscar-full', 'CPU_Family:leon'])
         self.add_sources('full/zcx-leon', [
-            'src/s-traceb/sparc/s-traceb.adb'])
+            'hie/s-traceb/sparc/s-traceb.adb'])
         self.add_rule('full/zcx-x86',
                       ['RTS_Profile:ravenscar-full', 'CPU_Family:x86'])
         self.add_sources('full/zcx-x86', {
@@ -999,19 +999,19 @@ class SourceDirs(SharedFilesHolder):
         # GNARL files for the full runtime
         self.add_rule('gnarl/full', 'RTS_Profile:ravenscar-full')
         self.add_sources('gnarl/full', [
-            'src/s-taskin/full/s-taskin.ads',
+            'hie/s-taskin/full/s-taskin.ads',
             {'s-tposen.adb': 's-tposen-xi-full.adb',
              's-tposen.ads': 's-tposen-xi-full.ads'}])
 
         if self._is_bb:
             self.add_sources('gnarl/full', [
-                'src/s-btstch.ads', 'src/s-btstch.adb'])
+                'hie/s-btstch.ads', 'hie/s-btstch.adb'])
 
         # Ravenscar extended: relative delays
         self.add_rule('gnarl/full/extended', 'RTS_Profile:ravenscar-full')
         self.add_sources('gnarl/full/extended', [
-            'src/s-reldel.ads',
-            'src/s-reldel.adb'])
+            'hie/s-reldel.ads',
+            'hie/s-reldel.adb'])
 
         # Tasking extensions: multiple entries
         self.add_sources('gnarl/full/extended', [
@@ -1019,6 +1019,6 @@ class SourceDirs(SharedFilesHolder):
             'g-boubuf.adb', 'g-boubuf.ads',
             'g-boumai.ads',
             'g-semaph.adb', 'g-semaph.ads',
-            'src/s-tpoben.ads', 'src/s-tpoben.adb',
-            'src/s-tasque.ads', 'src/s-tasque.adb',
-            'src/s-tpobop.ads', 'src/s-tpobop.adb'])
+            'hie/s-tpoben.ads', 'hie/s-tpoben.adb',
+            'hie/s-tasque.ads', 'hie/s-tasque.adb',
+            'hie/s-tpobop.ads', 'hie/s-tpobop.adb'])
