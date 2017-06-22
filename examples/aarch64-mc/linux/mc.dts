@@ -14,6 +14,7 @@
 		compatible = "arm,pl011", "arm,primecell";
 	};
 
+	// Cf Documentation/devicetree/bindings/interrupt-controller/arm,gic.txt
 	intc {
 		phandle = <0x8001>;
 		reg = <0x0 0x8000000 0x0 0x10000 0x0 0x8010000 0x0 0x10000>;

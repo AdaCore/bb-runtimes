@@ -54,4 +54,5 @@ package Uart is
    procedure New_Line;
    procedure Put_Hex8 (V : Unsigned_64);
    procedure Put_Hex4 (V : Unsigned_32);
+   procedure Put_Dec (N : Natural);
 end Uart;

@@ -320,6 +320,7 @@ package body Hulls is
          V_OSLAR_EL1 => 0);
 
       Ctxt.Machine_Reset := False;
+      Ctxt.Interrupt_Dev := (Parent => Ctxt);
 
       --  Copy file
       if Desc.Files_Nbr > 0 then
@@ -628,6 +629,27 @@ package body Hulls is
             Dump (Ctxt, 32);
       end case;
    end Handler_Syn_A64;
+
+   procedure Set_Level
+     (Dev : in out Aarch64_Interrupt_Dev; Id : Natural; Level : Boolean)
+   is
+      Mask : Unsigned_64;
+   begin
+      if Id = 0 then
+         Mask := 16#80#;
+      elsif Id = 1 then
+         Mask := 16#40#;
+      else
+         raise Constraint_Error;
+      end if;
+
+      if Level then
+         Dev.Parent.Cpu.Hcr := Dev.Parent.Cpu.Hcr or Mask;
+         Dev.Parent.Wait.Set_Interrupt;
+      else
+         Dev.Parent.Cpu.Hcr := Dev.Parent.Cpu.Hcr and not Mask;
+      end if;
+   end Set_Level;
 
    procedure Dump (Regs : Hull_Context_Acc; Id : Natural)
    is

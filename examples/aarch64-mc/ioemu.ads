@@ -94,6 +94,21 @@ package IOEmu is
       Dev : out IOEmu_Dev_Acc;
       Off : out Off_T);
 
+   --  Interrupts
+   type Interrupt_Dev is abstract tagged null record;
+
+   procedure Set_Level
+     (Dev : in out Interrupt_Dev; Id : Natural; Level : Boolean)
+     is abstract;
+
+   type Interrupt_Dev_Acc is access all Interrupt_Dev'Class;
+
+   --  Debug
+   type Debug_Dev is abstract tagged null record;
+   procedure Debug (Dev : in out Debug_Dev) is abstract;
+
+   type Debug_Dev_Acc is access all Debug_Dev'Class;
+
    --  Utilities
    procedure Update
      (Reg : in out Unsigned_32; Val : Unsigned_32; Mask : Unsigned_32);

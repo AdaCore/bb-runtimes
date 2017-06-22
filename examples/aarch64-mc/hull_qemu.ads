@@ -47,7 +47,15 @@ package Hull_Qemu is
       Dev : out IOEmu_Dev_Acc;
       Off : out Off_T);
 private
+
+   type Qemu_Debug_Dev is new Debug_Dev with record
+      Parent : Hull_Qemu_Acc;
+   end record;
+
+   procedure Debug (Dev : in out Qemu_Debug_Dev);
+
    type Hull_Qemu_Type is new Hull_Context with record
+      Debug : aliased Qemu_Debug_Dev;
       Uart : aliased Emu_PL011.PL011_Uart_Dev;
       GIC  : aliased Emu_GIC.GIC_Dev;
       Iomap : aliased IOEmu_Map_Array (0 .. 1);

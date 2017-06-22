@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with Timer;
+with Emu_GIC; use Emu_GIC;
 
 package body Hull_Qemu is
    procedure Init (H : Hull_Qemu_Acc) is
@@ -37,9 +38,12 @@ package body Hull_Qemu is
                H.Uart'Unchecked_Access),
          1 => (System'To_Address (16#0800_0000#), 16#2_0000#,
                H.GIC'Unchecked_Access));
+      H.Debug := (Parent => H);
 
-      Emu_PL011.Init (H.Uart'Access);
-      Emu_GIC.Init (H.GIC'Access, Hull_Context_Acc (H));
+      Emu_PL011.Init (H.Uart'Access,
+                      Get_Interrupt_Dev (H.GIC'Access), 33,
+                      H.Debug'Access);
+      Emu_GIC.Init (H.GIC'Access, H.Interrupt_Dev'Access);
    end Init;
 
    procedure Find_IO
@@ -51,4 +55,8 @@ package body Hull_Qemu is
       Find_IO (Hull.Iomap, Addr, Dev, Off);
    end Find_IO;
 
+   procedure Debug (Dev : in out Qemu_Debug_Dev) is
+   begin
+      Dump (Dev.Parent.GIC);
+   end Debug;
 end Hull_Qemu;

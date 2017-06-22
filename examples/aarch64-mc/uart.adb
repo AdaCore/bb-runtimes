@@ -103,6 +103,19 @@ package body Uart is
       Put (Res);
    end Put_Hex4;
 
+   procedure Put_Dec (N : Natural) is
+      D, R : Natural;
+   begin
+      if N < 10 then
+         R := N;
+      else
+         D := N / 10;
+         R := N - D * 10;
+         Put_Dec (D);
+      end if;
+      Put (Character'Val (Character'Pos ('0') + R));
+   end Put_Dec;
+
    protected body Prot is
       procedure Handler
       is

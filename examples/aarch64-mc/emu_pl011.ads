@@ -42,7 +42,9 @@ package Emu_PL011 is
       Val : Unsigned_32;
       Mask : Unsigned_32);
 
-   procedure Init (Dev : access PL011_Uart_Dev);
+   procedure Init (Dev : access PL011_Uart_Dev;
+                   IT_Dev : Interrupt_Dev_Acc; IT_Id : Natural;
+                   Debug : Debug_Dev_Acc);
 private
    type PL011_Uart_Dev_Acc is access all PL011_Uart_Dev;
 
@@ -55,7 +57,13 @@ private
 
    type PL011_Uart_Dev is new IOEmu_Dev32 with record
       Emu : aliased PL011_Uart_Emu;
+      Debug : Debug_Dev_Acc;
 
+      --  Interrupt.
+      IT_Dev : Interrupt_Dev_Acc;
+      IT_Id : Natural;
+
+      --  Registers
       RIS : Unsigned_32;
 
       DR_Rx : Unsigned_32;

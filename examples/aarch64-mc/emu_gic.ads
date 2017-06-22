@@ -29,7 +29,6 @@
 
 with IOEmu; use IOEmu;
 with Interfaces; use Interfaces;
-with Hulls;
 
 package Emu_GIC is
    type GIC_Dev is new IOEmu_Dev32 with private;
@@ -42,23 +41,49 @@ package Emu_GIC is
       Val : Unsigned_32;
       Mask : Unsigned_32);
 
-   procedure Init (Dev : access GIC_Dev; Ctxt : Hulls.Hull_Context_Acc);
+   procedure Init (Dev : access GIC_Dev; Cpu : Interrupt_Dev_Acc);
+   function Get_Interrupt_Dev (Dev : access GIC_Dev) return Interrupt_Dev_Acc;
+   procedure Dump (Dev : GIC_Dev);
+
 private
    Nbr_Int : constant := 64;
 
+   type GIC_Dev_Acc is access all GIC_Dev;
+
+   type GIC_Interrupt_Dev is new Interrupt_Dev with record
+      Parent : GIC_Dev_Acc;
+   end record;
+   procedure Set_Level
+     (Dev : in out GIC_Interrupt_Dev; Id : Natural; Level : Boolean);
+
+   type State_Array is array (16 .. Nbr_Int - 1) of Boolean;
+
    type GIC_Dev is new IOEmu_Dev32 with record
-      Ctxt : Hulls.Hull_Context_Acc;
+      IT : aliased GIC_Interrupt_Dev;
+
+      Cpu : Interrupt_Dev_Acc;
+
+      --  Inputs.
+      Lines : State_Array;
 
       --  Dist interface.
-      ICTLR : Unsigned_32;
-      ITARGETS : Unsigned_32_Arr (8 .. (Nbr_Int / 4) - 1);
+      DCTLR : Unsigned_32;
       ICFGR : Unsigned_32_Arr (2 .. (Nbr_Int / 16) - 1);
       PRIORITY : Unsigned_32_Arr (0 .. (Nbr_Int / 4) - 1);
       ACTIVE : Unsigned_32_Arr (0 .. (Nbr_Int / 32) - 1);
       ENABLE : Unsigned_32_Arr (0 .. (Nbr_Int / 32) - 1);
+      PEND   : Unsigned_32_Arr (0 .. (Nbr_Int / 32) - 1);
 
       --  CPU interface.
       CCTLR : Unsigned_32;
       PMR : Unsigned_32;
+      BPR : Unsigned_32;
+      CRPR : Unsigned_32;
+      HPPIR : Unsigned_32;
+      HPPIR_Prio : Unsigned_32;  -- The priority of the HPPIR interrupt
+
+      --  Outputs
+      Irq : Boolean;
+      Fiq : Boolean;
    end record;
 end Emu_GIC;

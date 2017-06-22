@@ -107,8 +107,9 @@ package body Emu_PL011 is
    procedure Check_Interrupts (Dev : in out PL011_Uart_Dev) is
    begin
       if (Dev.RIS and Dev.IMSC) /= 0 then
-         --  Put ("PL011 INT!");
-         null;
+         Set_Level (Dev.IT_Dev.all, Dev.IT_Id, True);
+      else
+         Set_Level (Dev.IT_Dev.all, Dev.IT_Id, False);
       end if;
    end Check_Interrupts;
 
@@ -134,6 +135,8 @@ package body Emu_PL011 is
             return Dev.IBRD;
          when Reg_FBRD =>
             return Dev.FBRD;
+         when Reg_RIS =>
+            return Dev.RIS;
 
          when Reg_PeriphID0 =>
             return 16#11#;
@@ -156,7 +159,7 @@ package body Emu_PL011 is
             Put ("uart.read ");
             Disp_Reg_Name (Off);
             New_Line;
-            return 0;
+            raise Program_Error;
       end case;
    end Read32;
 
@@ -200,6 +203,11 @@ package body Emu_PL011 is
    is
       D : PL011_Uart_Dev renames Dev.Parent.all;
    begin
+      if C = Character'Val (9) then
+         --  C-i
+         Debug (D.Debug.all);
+         return;
+      end if;
       if (D.CR and (CR_UARTEN or CR_RXE)) = (CR_UARTEN or CR_RXE) then
          D.DR_Rx := Character'Pos (C);
          D.FR := D.FR and not FR_RXFE;
@@ -209,9 +217,14 @@ package body Emu_PL011 is
       end if;
    end Put;
 
-   procedure Init (Dev : access PL011_Uart_Dev) is
+   procedure Init (Dev : access PL011_Uart_Dev;
+                   IT_Dev : Interrupt_Dev_Acc; IT_Id : Natural;
+                  Debug : Debug_Dev_Acc) is
    begin
       Dev.all := (Emu => <>,
+                  Debug => Debug,
+                  IT_Dev => IT_Dev,
+                  IT_Id => IT_Id,
                   DR_Rx => 0,
                   FR => FR_RXFE or FR_TXFE,
                   CR => CR_RXE or CR_TXE or CR_UARTEN,

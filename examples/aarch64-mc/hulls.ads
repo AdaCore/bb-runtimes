@@ -68,11 +68,19 @@ package Hulls is
    type Hull_Context_AArch64 is private;
    type Wait_Prot is limited private;
 
+   type Aarch64_Interrupt_Dev is new Interrupt_Dev with private;
+
+   procedure Set_Level
+     (Dev : in out Aarch64_Interrupt_Dev; Id : Natural; Level : Boolean);
+
    type Hull_Context is abstract tagged limited record
       Cpu : aliased Hull_Context_AArch64;
 
       --  Machine independant
       Machine_Reset : Boolean;
+
+      --  Pseudo-device to interrupt the CPU.
+      Interrupt_Dev : aliased Aarch64_Interrupt_Dev;
 
       Wait : Wait_Prot;
    end record;
@@ -93,11 +101,16 @@ package Hulls is
    procedure Create_Hull (Desc : Hull_Desc; Ctxt : Hull_Context_Acc);
 private
    protected type Wait_Prot is
+      pragma Interrupt_Priority (System.Interrupt_Priority'Last);
       entry Wait_Interrupt;
       procedure Set_Interrupt;
    private
       Barrier : Boolean := False;
    end Wait_Prot;
+
+   type Aarch64_Interrupt_Dev is new Interrupt_Dev with record
+      Parent : Hull_Context_Acc;
+   end record;
 
    type Hull_Context_AArch64 is record
       --  EL1 registers
