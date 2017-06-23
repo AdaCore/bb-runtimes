@@ -72,6 +72,9 @@ package Hulls is
 
    procedure Set_Level
      (Dev : in out Aarch64_Interrupt_Dev; Id : Natural; Level : Boolean);
+   procedure Set_Ack_Cb
+     (Dev : in out Aarch64_Interrupt_Dev;
+      Id : Natural; Cb : Interrupt_Ack_Cb_Acc);
 
    type Hull_Context is abstract tagged limited record
       Cpu : aliased Hull_Context_AArch64;

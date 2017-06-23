@@ -45,6 +45,7 @@ package Emu_PL011 is
    procedure Init (Dev : access PL011_Uart_Dev;
                    IT_Dev : Interrupt_Dev_Acc; IT_Id : Natural;
                    Debug : Debug_Dev_Acc);
+   procedure Dump (Dev : PL011_Uart_Dev);
 private
    type PL011_Uart_Dev_Acc is access all PL011_Uart_Dev;
 
@@ -52,7 +53,7 @@ private
       Parent : PL011_Uart_Dev_Acc;
    end record;
 
-   procedure Put (Dev : in out PL011_Uart_Emu; C : Character);
+   procedure Put (Dev : in out PL011_Uart_Emu; C : Unsigned_32);
    --  Called by emu when a character is received
 
    type PL011_Uart_Dev is new IOEmu_Dev32 with record

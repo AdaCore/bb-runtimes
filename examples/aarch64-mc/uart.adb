@@ -141,6 +141,12 @@ package body Uart is
                --  C-r: reboot
                System.Machine_Reset.Stop;
                return;
+            elsif C = Character'Val (2) then
+               --  C-b: send break
+               if Cur_Client < Nbr_Clients then
+                  Clients (Cur_Client).Put (C => Break);
+               end if;
+               return;
             elsif C = Character'Val (8) then
                --  C-h: monitor
                System.Machine_Code.Asm ("smc #1", Volatile => True);
@@ -150,7 +156,7 @@ package body Uart is
          In_Meta := False;
 
          if Cur_Client < Nbr_Clients then
-            Clients (Cur_Client).Put (C => C);
+            Clients (Cur_Client).Put (C => Character'Pos (C));
          end if;
       end Handler;
 
@@ -206,11 +212,13 @@ package body Uart is
       New_Line;
    end Dump_Status;
 
-   procedure Put (Emu : in out Uart_Emu_Type; C : Character)
+   procedure Put (Emu : in out Uart_Emu_Type; C : Unsigned_32)
    is
       pragma Unreferenced (Emu);
    begin
-      Put (C);
+      if C <= 255 then
+         Put (Character'Val (C));
+      end if;
    end Put;
 
    procedure Register_Client (Emu : Char_Emu_Acc) is

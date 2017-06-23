@@ -64,6 +64,7 @@ package body Emu_PL011 is
    CR_TXE : constant := 2**8;
    CR_UARTEN : constant := 2**0;
 
+   MASK_BE : constant := 2**9;
    MASK_RT : constant := 2**6;
    MASK_TX : constant := 2**5;
    MASK_RX : constant := 2**4;
@@ -122,6 +123,11 @@ package body Emu_PL011 is
             Dev.FR := Dev.FR or FR_RXFE;
             Dev.RIS := Dev.RIS and not (MASK_RX or MASK_RT);
             Check_Interrupts (Dev);
+            if False then
+               Put ("PL011.DR <- ");
+               Put_Hex4 (Dev.DR_Rx);
+               New_Line;
+            end if;
             return Dev.DR_Rx;
          when Reg_FR =>
             return Dev.FR;
@@ -199,17 +205,24 @@ package body Emu_PL011 is
       end case;
    end Write32_Mask;
 
-   procedure Put (Dev : in out PL011_Uart_Emu; C : Character)
+   procedure Put (Dev : in out PL011_Uart_Emu; C : Unsigned_32)
    is
       D : PL011_Uart_Dev renames Dev.Parent.all;
    begin
-      if C = Character'Val (9) then
+      if C = 9 then
          --  C-i
          Debug (D.Debug.all);
          return;
       end if;
       if (D.CR and (CR_UARTEN or CR_RXE)) = (CR_UARTEN or CR_RXE) then
-         D.DR_Rx := Character'Pos (C);
+         if C = Break then
+            D.DR_Rx := 16#400#;
+            D.RIS := D.RIS or MASK_BE;
+         elsif C < 256 then
+            D.DR_Rx := C;
+         else
+            raise Program_Error;
+         end if;
          D.FR := D.FR and not FR_RXFE;
          --  FIXME: handle overrun
          D.RIS := D.RIS or MASK_RX or MASK_RT;
@@ -239,5 +252,18 @@ package body Emu_PL011 is
 
       Dev.Emu.Parent := Dev.all'Unrestricted_Access;
    end Init;
+
+   procedure Dump (Dev : PL011_Uart_Dev) is
+   begin
+      Put ("UART: FR:");
+      Put_Hex4 (Dev.FR);
+      Put (" CR:");
+      Put_Hex4 (Dev.CR);
+      Put (" RIS:");
+      Put_Hex4 (Dev.RIS);
+      Put (" MSC:");
+      Put_Hex4 (Dev.IMSC);
+      New_Line;
+   end Dump;
 
 end Emu_PL011;

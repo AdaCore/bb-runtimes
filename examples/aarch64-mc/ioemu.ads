@@ -95,10 +95,20 @@ package IOEmu is
       Off : out Off_T);
 
    --  Interrupts
+   type Interrupt_Ack_Cb is abstract tagged null record;
+   procedure Ack (This : Interrupt_Ack_Cb) is abstract;
+
+   type Interrupt_Ack_Cb_Acc is access all Interrupt_Ack_Cb'Class;
+
+   type Interrupt_Ack_Cb_Array is
+     array (Natural range <>) of Interrupt_Ack_Cb_Acc;
+
    type Interrupt_Dev is abstract tagged null record;
 
    procedure Set_Level
-     (Dev : in out Interrupt_Dev; Id : Natural; Level : Boolean)
+     (Dev : in out Interrupt_Dev; Id : Natural; Level : Boolean) is abstract;
+   procedure Set_Ack_Cb
+     (Dev : in out Interrupt_Dev; Id : Natural; Cb : Interrupt_Ack_Cb_Acc)
      is abstract;
 
    type Interrupt_Dev_Acc is access all Interrupt_Dev'Class;

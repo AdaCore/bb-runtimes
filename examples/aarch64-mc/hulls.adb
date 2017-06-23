@@ -312,7 +312,7 @@ package body Hulls is
          --  [TODO: value of CSSELR should be saved for context switch]
          Hcr => (HCR_RW
                  or HCR_TACR or HCR_TIDCP or HCR_TSC
-                 or HCR_TID0 or HCR_TWE or HCR_TWI
+                 or HCR_TID0 or HCR_TWI
                  or HCR_IMO or HCR_FMO or HCR_VM),
 
          Vbar => 16#ffffffff_fffff000#,
@@ -617,7 +617,8 @@ package body Hulls is
             if (ESR and 1) = 0 then
                Handle_Wfi (Ctxt);
             else
-               Dump (Ctxt, 32);
+               --  WFE is not trapped
+               raise Program_Error;
             end if;
          when 16#24# =>
             --  Exception for a Data abort.
@@ -651,6 +652,14 @@ package body Hulls is
       end if;
    end Set_Level;
 
+   procedure Set_Ack_Cb
+     (Dev : in out Aarch64_Interrupt_Dev;
+      Id : Natural; Cb : Interrupt_Ack_Cb_Acc) is
+   begin
+      --  Not supported.
+      raise Program_Error;
+   end Set_Ack_Cb;
+
    procedure Dump (Regs : Hull_Context_Acc; Id : Natural)
    is
       procedure Trap_dump (Regs : Hull_Context_AArch64_Acc; Id : Natural);
@@ -664,12 +673,11 @@ package body Hulls is
 
    procedure Dump_Cpu (H : Hull_Context)
    is
-      procedure Trap_dump (Regs : Hull_Context_AArch64_Acc; Id : Natural);
-      pragma Import (C, Trap_dump, "__trap_dump");
    begin
-      --  Mask interrupts so that Trap_Dump has full control of the console
-      Asm ("msr DAIFset, #3", Volatile => True);
-      Trap_dump (H.Cpu'Unrestricted_Access, 0);
-      Asm ("msr DAIFclr, #3", Volatile => True);
+      Put ("CPU PC:");
+      Put_Hex8 (H.Cpu.PC);
+      Put (" SP:");
+      Put_Hex8 (H.Cpu.Sp);
+      New_Line;
    end Dump_Cpu;
 end Hulls;

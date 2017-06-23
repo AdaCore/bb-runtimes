@@ -27,7 +27,14 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with System.Multiprocessors; use System.Multiprocessors;
+with IOEmu; use IOEmu;
+
 package Timer is
    pragma Elaborate_Body;
 
+   --  CTNV on cpu TARGET_CPU will set interrupt IT_ID on IT_DEV.
+   procedure Set_Handler (Target_CPU : CPU;
+                          IT_Dev : Interrupt_Dev_Acc;
+                          IT_Id : Natural);
 end Timer;

@@ -27,35 +27,87 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Uart; use Uart;
 with System;
 with Interfaces.Raspberry_Pi; use Interfaces;
-with IOEmu;
 
 package body Timer is
-   protected Prot is
+
+   type Timer_Handler is new Interrupt_Ack_Cb with record
+      C : CPU;
+      IT_Dev : Interrupt_Dev_Acc;
+      IT_Id : Natural;
+   end record;
+   procedure Ack (This : Timer_Handler);
+
+   type Timer_Handler_Arr is array (CPU) of aliased Timer_Handler;
+
+   Handlers : Timer_Handler_Arr;
+
+   procedure Set_Handler (Target_CPU : CPU;
+                          IT_Dev : Interrupt_Dev_Acc;
+                          IT_Id : Natural)
+   is
+      Hand : Timer_Handler renames Handlers (Target_CPU);
+   begin
+      if Hand.IT_Dev /= null then
+         --  Cannot override.
+         raise Program_Error;
+      end if;
+
+      Hand := (Target_CPU, IT_Dev, IT_Id);
+      IT_Dev.Set_Ack_Cb (IT_Id, Hand'Access);
+   end Set_Handler;
+
+   protected Prot_Cntv is
       pragma Interrupt_Priority (System.Interrupt_Priority'Last);
 
       procedure Handler;
       pragma Attach_Handler (Handler, 3);
-   end Prot;
 
-   protected body Prot is
+      procedure Enable (C : CPU);
+   end Prot_Cntv;
+
+   protected body Prot_Cntv is
+      procedure Disable (C : CPU) is
+         use Interfaces.Raspberry_Pi;
+         Idx : constant Natural := Natural (C);
+      begin
+         Local_Registers.Cores_Timer_Int_Ctr (Idx) :=
+           Local_Registers.Cores_Timer_Int_Ctr (Idx) and 2#0111#;
+      end Disable;
+
+      procedure Enable (C : CPU) is
+         use Interfaces.Raspberry_Pi;
+         Idx : constant Natural := Natural (C);
+      begin
+         Local_Registers.Cores_Timer_Int_Ctr (Idx) :=
+           Local_Registers.Cores_Timer_Int_Ctr (Idx) or 2#1000#;
+      end Enable;
+
       procedure Handler
       is
+         Cur_Cpu : constant CPU := Current_CPU;
       begin
-         Put ("Timer");
+         --  Put ("Timer");
 
          --  Mask the interrupt until it is delivered.
+         Disable (Cur_Cpu);
+
+         --  Signal the interrupt.
          declare
-            use Interfaces.Raspberry_Pi;
-            C : constant Natural := Natural (IOEmu.Current_CPU);
+            Hand : Timer_Handler renames Handlers (Cur_Cpu);
          begin
-            Local_Registers.Cores_Timer_Int_Ctr (C) :=
-              Local_Registers.Cores_Timer_Int_Ctr (C) and 2#0111#;
+            Set_Level (Hand.IT_Dev.all, Hand.IT_Id, True);
          end;
       end Handler;
-   end Prot;
+   end Prot_Cntv;
 
-   pragma Unreferenced (Prot);
+   procedure Ack (This : Timer_Handler) is
+   begin
+      Set_Level (This.IT_Dev.all, This.IT_Id, False);
+
+      Prot_Cntv.Enable (This.C);
+   end Ack;
+
+   pragma Unreferenced (Prot_Cntv);
 end Timer;

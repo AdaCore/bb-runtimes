@@ -55,13 +55,19 @@ private
    end record;
    procedure Set_Level
      (Dev : in out GIC_Interrupt_Dev; Id : Natural; Level : Boolean);
+   procedure Set_Ack_Cb
+     (Dev : in out GIC_Interrupt_Dev; Id : Natural; Cb : Interrupt_Ack_Cb_Acc);
 
    type State_Array is array (16 .. Nbr_Int - 1) of Boolean;
 
    type GIC_Dev is new IOEmu_Dev32 with record
       IT : aliased GIC_Interrupt_Dev;
 
+      --  The cpu for the interrupt
       Cpu : Interrupt_Dev_Acc;
+
+      --  Callbacks for PPI when they are ack-ed.
+      PPI_Acks : Interrupt_Ack_Cb_Array (16 .. 31);
 
       --  Inputs.
       Lines : State_Array;

@@ -284,14 +284,23 @@ package body Emu_GIC is
             declare
                Id : constant Natural := Natural (Res and 16#3ff#);
             begin
-               if Res /= 1023 then
+               if Id /= 1023 then
                   --  Acknowledge interrupt.
                   --  interrupt is active.
                   Set_Enable (Dev.ACTIVE (Id / 32), Shift_Left (1, Id mod 32));
                   --  If it is edge-triggered, disable pending bit.
-                  if (Get_Icfg (Dev, Id) and 2) = 2 then
-                     Set_Disable
-                       (Dev.PEND (Id / 32), Shift_Left (1, Id mod 32));
+                  if Id < 16 then
+                     --  SGI
+                     null;
+                  elsif Id < 32 then
+                     --  PPI
+                     Dev.PPI_Acks (Id).Ack;
+                  else
+                     --  SPI
+                     if (Get_Icfg (Dev, Id) and 2) = 2 then
+                        Set_Disable
+                          (Dev.PEND (Id / 32), Shift_Left (1, Id mod 32));
+                     end if;
                   end if;
                   --  Change running priority
                   Dev.CRPR := Dev.HPPIR_Prio;
@@ -446,6 +455,7 @@ package body Emu_GIC is
    begin
       Dev.all := (Cpu => Cpu,
                   IT => (Parent => GIC_Dev_Acc (Dev)),
+                  PPI_Acks => (others => null),
                   Lines => (others => False),
                   DCTLR => 0,
                   ICFGR => (others => 0),
@@ -599,7 +609,10 @@ package body Emu_GIC is
 
       D.Lines (Id) := Level;
 
-      if (Shift_Right (D.ICFGR (Id / 16), 2 * (Id mod 16) + 1) and 2) = 2 then
+      --  ICFGR are defined only for SPI.
+      if Id > 31
+        and then (Shift_Right (D.ICFGR (Id / 16), 2 * (Id mod 16)) and 2) = 2
+      then
          --  Edge triggered.
          if not Level then
             return;
@@ -644,6 +657,18 @@ package body Emu_GIC is
 
       Generate_Exceptions (D);
    end Set_Level;
+
+   procedure Set_Ack_Cb
+     (Dev : in out GIC_Interrupt_Dev; Id : Natural; Cb : Interrupt_Ack_Cb_Acc)
+   is
+   begin
+      if Dev.Parent.PPI_Acks (Id) /= null then
+         --  Must not be overriden.
+         raise Program_Error;
+      end if;
+
+      Dev.Parent.PPI_Acks (Id) := Cb;
+   end Set_Ack_Cb;
 
    procedure Dump (Dev : GIC_Dev) is
    begin

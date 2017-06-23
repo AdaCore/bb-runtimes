@@ -44,6 +44,9 @@ package body Hull_Qemu is
                       Get_Interrupt_Dev (H.GIC'Access), 33,
                       H.Debug'Access);
       Emu_GIC.Init (H.GIC'Access, H.Interrupt_Dev'Access);
+
+      Timer.Set_Handler (Current_CPU,
+                         Get_Interrupt_Dev (H.GIC'Access), 16 + 11);
    end Init;
 
    procedure Find_IO
@@ -57,6 +60,9 @@ package body Hull_Qemu is
 
    procedure Debug (Dev : in out Qemu_Debug_Dev) is
    begin
-      Dump (Dev.Parent.GIC);
+      Dev.Parent.GIC.Dump;
+      Dev.Parent.Uart.Dump;
+
+      Dump_Cpu (Dev.Parent.all);
    end Debug;
 end Hull_Qemu;
