@@ -56,9 +56,15 @@ private
    procedure Put (Dev : in out PL011_Uart_Emu; C : Unsigned_32);
    --  Called by emu when a character is received
 
+   type Rx_Fifo_Arr is array (0 .. 15) of Unsigned_32;
+
    type PL011_Uart_Dev is new IOEmu_Dev32 with record
       Emu : aliased PL011_Uart_Emu;
       Debug : Debug_Dev_Acc;
+
+      --  Input.
+      Rx_Fifo : Rx_Fifo_Arr;
+      Rx_Len : Natural;  --  Number of characters in the fifo.
 
       --  Interrupt.
       IT_Dev : Interrupt_Dev_Acc;
@@ -67,7 +73,6 @@ private
       --  Registers
       RIS : Unsigned_32;
 
-      DR_Rx : Unsigned_32;
       FR : Unsigned_32;
       CR : Unsigned_32;
       LCR : Unsigned_32;

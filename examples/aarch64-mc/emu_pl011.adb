@@ -54,6 +54,8 @@ package body Emu_PL011 is
    Reg_CellID2 : constant := 16#ff8#;
    Reg_CellID3 : constant := 16#ffc#;
 
+   LCR_FEN : constant := 2**4;
+
    FR_TXFE : constant := 2**7;
    FR_TXFF : constant := 2**5;
    FR_RXFE : constant := 2**4;
@@ -105,6 +107,11 @@ package body Emu_PL011 is
       end case;
    end Disp_Reg_Name;
 
+   function Fifo_En (Dev : PL011_Uart_Dev) return Boolean is
+   begin
+      return (Dev.LCR and LCR_FEN) /= 0;
+   end Fifo_En;
+
    procedure Check_Interrupts (Dev : in out PL011_Uart_Dev) is
    begin
       if (Dev.RIS and Dev.IMSC) /= 0 then
@@ -115,20 +122,29 @@ package body Emu_PL011 is
    end Check_Interrupts;
 
    function Read32 (Dev : in out PL011_Uart_Dev; Off : Off_T)
-                    return Unsigned_32 is
+                    return Unsigned_32
+   is
+      Res : Unsigned_32;
    begin
       case Off is
          when Reg_DR =>
             --  Now empty.
-            Dev.FR := Dev.FR or FR_RXFE;
-            Dev.RIS := Dev.RIS and not (MASK_RX or MASK_RT);
-            Check_Interrupts (Dev);
-            if False then
-               Put ("PL011.DR <- ");
-               Put_Hex4 (Dev.DR_Rx);
-               New_Line;
+            if Dev.Rx_Len = 0 then
+               --  Humm, no character
+               Res := 0;
+            elsif Dev.Rx_Len = 1 then
+               --  Only one character
+               Dev.Rx_Len := 0;
+               Dev.FR := Dev.FR or FR_RXFE;
+               Dev.RIS := Dev.RIS and not (MASK_RX or MASK_RT);
+               Check_Interrupts (Dev);
+               Res := Dev.Rx_Fifo (1);
+            else
+               Res := Dev.Rx_Fifo (1);
+               Dev.Rx_Fifo (1 .. 14) := Dev.Rx_Fifo (2 .. 15);
+               Dev.Rx_Len := Dev.Rx_Len - 1;
             end if;
-            return Dev.DR_Rx;
+            return Res;
          when Reg_FR =>
             return Dev.FR;
          when Reg_CR =>
@@ -208,6 +224,7 @@ package body Emu_PL011 is
    procedure Put (Dev : in out PL011_Uart_Emu; C : Unsigned_32)
    is
       D : PL011_Uart_Dev renames Dev.Parent.all;
+      Max : Natural;
    begin
       if C = 9 then
          --  C-i
@@ -215,18 +232,31 @@ package body Emu_PL011 is
          return;
       end if;
       if (D.CR and (CR_UARTEN or CR_RXE)) = (CR_UARTEN or CR_RXE) then
+         --  Uart is enabled.
+         if Fifo_En (D) then
+            Max := D.Rx_Fifo'Last;
+         else
+            Max := 1;
+         end if;
+         if D.Rx_Len = Max then
+            --  Overrun.
+            return;
+         end if;
+         D.Rx_Len := D.Rx_Len + 1;
          if C = Break then
-            D.DR_Rx := 16#400#;
+            D.Rx_Fifo (D.Rx_Len) := 16#400#;
             D.RIS := D.RIS or MASK_BE;
          elsif C < 256 then
-            D.DR_Rx := C;
+            D.Rx_Fifo (D.Rx_Len) := C;
          else
             raise Program_Error;
          end if;
-         D.FR := D.FR and not FR_RXFE;
-         --  FIXME: handle overrun
-         D.RIS := D.RIS or MASK_RX or MASK_RT;
-         Check_Interrupts (D);
+         if D.Rx_Len = 1 then
+            D.FR := D.FR and not FR_RXFE;
+            --  FIXME: handle overrun
+            D.RIS := D.RIS or MASK_RX or MASK_RT;
+            Check_Interrupts (D);
+         end if;
       end if;
    end Put;
 
@@ -238,7 +268,8 @@ package body Emu_PL011 is
                   Debug => Debug,
                   IT_Dev => IT_Dev,
                   IT_Id => IT_Id,
-                  DR_Rx => 0,
+                  Rx_Fifo => (others => 0),
+                  Rx_Len => 0,
                   FR => FR_RXFE or FR_TXFE,
                   CR => CR_RXE or CR_TXE or CR_UARTEN,
                   RIS => MASK_TX or MASK_RT,
