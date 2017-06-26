@@ -61,8 +61,6 @@ package body Hull_Qemu is
    procedure Debug (Dev : in out Qemu_Debug_Dev) is
    begin
       Dev.Parent.GIC.Dump;
-      Dev.Parent.Uart.Dump;
-
       Dump_Cpu (Dev.Parent.all);
    end Debug;
 end Hull_Qemu;
