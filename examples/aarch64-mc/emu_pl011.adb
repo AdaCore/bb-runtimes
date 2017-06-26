@@ -107,82 +107,190 @@ package body Emu_PL011 is
       end case;
    end Disp_Reg_Name;
 
-   function Fifo_En (Dev : PL011_Uart_Dev) return Boolean is
-   begin
-      return (Dev.LCR and LCR_FEN) /= 0;
-   end Fifo_En;
+   protected body PL011_Prot is
+      function Fifo_En return Boolean is
+      begin
+         return (S.LCR and LCR_FEN) /= 0;
+      end Fifo_En;
 
-   procedure Check_Interrupts (Dev : in out PL011_Uart_Dev) is
-   begin
-      if (Dev.RIS and Dev.IMSC) /= 0 then
-         Set_Level (Dev.IT_Dev.all, Dev.IT_Id, True);
-      else
-         Set_Level (Dev.IT_Dev.all, Dev.IT_Id, False);
-      end if;
-   end Check_Interrupts;
+      procedure Check_Interrupts is
+      begin
+         if (S.RIS and S.IMSC) /= 0 then
+            Set_Level (S.IT_Dev.all, S.IT_Id, True);
+         else
+            Set_Level (S.IT_Dev.all, S.IT_Id, False);
+         end if;
+      end Check_Interrupts;
 
-   function Read32 (Dev : in out PL011_Uart_Dev; Off : Off_T)
-                    return Unsigned_32
-   is
-      Res : Unsigned_32;
-   begin
-      case Off is
+      procedure Read32 (Off : Off_T; Res : out Unsigned_32) is
+      begin
+         case Off is
          when Reg_DR =>
             --  Now empty.
-            if Dev.Rx_Len = 0 then
+            if S.Rx_Len = 0 then
                --  Humm, no character
                Res := 0;
-            elsif Dev.Rx_Len = 1 then
+            elsif S.Rx_Len = 1 then
                --  Only one character
-               Dev.Rx_Len := 0;
-               Dev.FR := Dev.FR or FR_RXFE;
-               Dev.RIS := Dev.RIS and not (MASK_RX or MASK_RT);
-               Check_Interrupts (Dev);
-               Res := Dev.Rx_Fifo (1);
+               S.Rx_Len := 0;
+               S.FR := S.FR or FR_RXFE;
+               S.RIS := S.RIS and not (MASK_RX or MASK_RT);
+               Check_Interrupts;
+               Res := S.Rx_Fifo (1);
             else
-               Res := Dev.Rx_Fifo (1);
-               Dev.Rx_Fifo (1 .. 14) := Dev.Rx_Fifo (2 .. 15);
-               Dev.Rx_Len := Dev.Rx_Len - 1;
+               Res := S.Rx_Fifo (1);
+               S.Rx_Fifo (1 .. 14) := S.Rx_Fifo (2 .. 15);
+               S.Rx_Len := S.Rx_Len - 1;
             end if;
-            return Res;
          when Reg_FR =>
-            return Dev.FR;
+            Res := S.FR;
          when Reg_CR =>
-            return Dev.CR;
+            Res := S.CR;
          when Reg_IMSC =>
-            return Dev.IMSC;
+            Res := S.IMSC;
          when Reg_IFLS =>
-            return Dev.IFLS;
+            Res := S.IFLS;
          when Reg_IBRD =>
-            return Dev.IBRD;
+            Res := S.IBRD;
          when Reg_FBRD =>
-            return Dev.FBRD;
+            Res := S.FBRD;
          when Reg_RIS =>
-            return Dev.RIS;
+            Res := S.RIS;
 
          when Reg_PeriphID0 =>
-            return 16#11#;
+            Res := 16#11#;
          when Reg_PeriphID1 =>
-            return 16#10#;
+            Res := 16#10#;
          when Reg_PeriphID2 =>
-            return 16#14#;
+            Res := 16#14#;
          when Reg_PeriphID3 =>
-            return 16#00#;
+            Res := 16#00#;
          when Reg_CellID0 =>
-            return 16#0d#;
+            Res := 16#0d#;
          when Reg_CellID1 =>
-            return 16#f0#;
+            Res := 16#f0#;
          when Reg_CellID2 =>
-            return 16#05#;
+            Res := 16#05#;
          when Reg_CellID3 =>
-            return 16#b1#;
+            Res := 16#b1#;
 
          when others =>
             Put ("uart.read ");
             Disp_Reg_Name (Off);
             New_Line;
             raise Program_Error;
-      end case;
+         end case;
+      end Read32;
+
+      procedure Write32_Mask
+        (Off : Off_T; Val : Unsigned_32; Mask : Unsigned_32) is
+      begin
+         case Off is
+         when Reg_DR =>
+            if (S.CR and (CR_UARTEN or CR_TXE)) = (CR_UARTEN or CR_TXE) then
+               Put (Character'Val (Val and 16#ff#));
+               S.RIS := S.RIS or MASK_TX;
+               Check_Interrupts;
+            end if;
+         when Reg_CR =>
+            Update (S.CR, Val and 16#ffff#, Mask);
+         when Reg_IMSC =>
+            Update (S.IMSC, Val and 16#3ff#, Mask);
+            Check_Interrupts;
+         when Reg_ICR =>
+            Set_Disable (S.RIS, Val);
+            Check_Interrupts;
+         when Reg_LCR =>
+            Update (S.LCR, Val and 16#ff#, Mask);
+         when Reg_IFLS =>
+            Update (S.IFLS, Val and 16#3f#, Mask);
+         when Reg_IBRD =>
+            Update (S.IBRD, Val and 16#ffff#, Mask);
+         when Reg_FBRD =>
+            Update (S.FBRD, Val and 16#3f#, Mask);
+         when others =>
+            Put ("uart.write ");
+            Disp_Reg_Name (Off);
+            New_Line;
+         end case;
+      end Write32_Mask;
+
+      procedure Init (IT_Dev : Interrupt_Dev_Acc; IT_Id : Natural;
+                      Debug : Debug_Dev_Acc) is
+      begin
+         S := (Debug => Debug,
+               IT_Dev => IT_Dev,
+               IT_Id => IT_Id,
+               Rx_Fifo => (others => 0),
+               Rx_Len => 0,
+               FR => FR_RXFE or FR_TXFE,
+               CR => CR_RXE or CR_TXE or CR_UARTEN,
+               RIS => MASK_TX or MASK_RT,
+               LCR => 0,
+               IFLS => 0,
+               IMSC => 0,
+               IBRD => 16,  -- non 0
+               FBRD => 0);
+      end Init;
+
+      procedure Receive_Cb (C : Unsigned_32) is
+         Max : Natural;
+      begin
+         if C = 9 then
+            --  C-i
+            Debug (S.Debug.all);
+            return;
+         end if;
+         if (S.CR and (CR_UARTEN or CR_RXE)) = (CR_UARTEN or CR_RXE) then
+            --  Uart is enabled.
+            if Fifo_En then
+               Max := S.Rx_Fifo'Last;
+            else
+               Max := 1;
+            end if;
+            if S.Rx_Len = Max then
+               --  Overrun.
+               return;
+            end if;
+            S.Rx_Len := S.Rx_Len + 1;
+            if C = Break then
+               S.Rx_Fifo (S.Rx_Len) := 16#400#;
+               S.RIS := S.RIS or MASK_BE;
+            elsif C < 256 then
+               S.Rx_Fifo (S.Rx_Len) := C;
+            else
+               raise Program_Error;
+            end if;
+            if S.Rx_Len = 1 then
+               S.FR := S.FR and not FR_RXFE;
+               --  FIXME: handle overrun
+               S.RIS := S.RIS or MASK_RX or MASK_RT;
+               Check_Interrupts;
+            end if;
+         end if;
+      end Receive_Cb;
+
+      procedure Dump is
+      begin
+         Put ("UART: FR:");
+         Put_Hex4 (S.FR);
+         Put (" CR:");
+         Put_Hex4 (S.CR);
+         Put (" RIS:");
+         Put_Hex4 (S.RIS);
+         Put (" MSC:");
+         Put_Hex4 (S.IMSC);
+         New_Line;
+      end Dump;
+   end PL011_Prot;
+
+   function Read32 (Dev : in out PL011_Uart_Dev; Off : Off_T)
+                    return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Dev.Prot.Read32 (Off, Res);
+      return Res;
    end Read32;
 
    procedure Write32_Mask
@@ -191,110 +299,27 @@ package body Emu_PL011 is
       Val : Unsigned_32;
       Mask : Unsigned_32) is
    begin
-      case Off is
-         when Reg_DR =>
-            if (Dev.CR and (CR_UARTEN or CR_TXE)) = (CR_UARTEN or CR_TXE) then
-               Put (Character'Val (Val and 16#ff#));
-               Dev.RIS := Dev.RIS or MASK_TX;
-               Check_Interrupts (Dev);
-            end if;
-         when Reg_CR =>
-            Update (Dev.CR, Val and 16#ffff#, Mask);
-         when Reg_IMSC =>
-            Update (Dev.IMSC, Val and 16#3ff#, Mask);
-            Check_Interrupts (Dev);
-         when Reg_ICR =>
-            Set_Disable (Dev.RIS, Val);
-            Check_Interrupts (Dev);
-         when Reg_LCR =>
-            Update (Dev.LCR, Val and 16#ff#, Mask);
-         when Reg_IFLS =>
-            Update (Dev.IFLS, Val and 16#3f#, Mask);
-         when Reg_IBRD =>
-            Update (Dev.IBRD, Val and 16#ffff#, Mask);
-         when Reg_FBRD =>
-            Update (Dev.FBRD, Val and 16#3f#, Mask);
-         when others =>
-            Put ("uart.write ");
-            Disp_Reg_Name (Off);
-            New_Line;
-      end case;
+      Dev.Prot.Write32_Mask (Off, Val, Mask);
    end Write32_Mask;
 
-   procedure Put (Dev : in out PL011_Uart_Emu; C : Unsigned_32)
-   is
-      D : PL011_Uart_Dev renames Dev.Parent.all;
-      Max : Natural;
+   procedure Put (Dev : in out PL011_Uart_Emu; C : Unsigned_32) is
    begin
-      if C = 9 then
-         --  C-i
-         Debug (D.Debug.all);
-         return;
-      end if;
-      if (D.CR and (CR_UARTEN or CR_RXE)) = (CR_UARTEN or CR_RXE) then
-         --  Uart is enabled.
-         if Fifo_En (D) then
-            Max := D.Rx_Fifo'Last;
-         else
-            Max := 1;
-         end if;
-         if D.Rx_Len = Max then
-            --  Overrun.
-            return;
-         end if;
-         D.Rx_Len := D.Rx_Len + 1;
-         if C = Break then
-            D.Rx_Fifo (D.Rx_Len) := 16#400#;
-            D.RIS := D.RIS or MASK_BE;
-         elsif C < 256 then
-            D.Rx_Fifo (D.Rx_Len) := C;
-         else
-            raise Program_Error;
-         end if;
-         if D.Rx_Len = 1 then
-            D.FR := D.FR and not FR_RXFE;
-            --  FIXME: handle overrun
-            D.RIS := D.RIS or MASK_RX or MASK_RT;
-            Check_Interrupts (D);
-         end if;
-      end if;
+      Dev.Parent.Prot.Receive_Cb (C);
    end Put;
 
    procedure Init (Dev : access PL011_Uart_Dev;
                    IT_Dev : Interrupt_Dev_Acc; IT_Id : Natural;
-                  Debug : Debug_Dev_Acc) is
+                   Debug : Debug_Dev_Acc) is
    begin
-      Dev.all := (Emu => <>,
-                  Debug => Debug,
-                  IT_Dev => IT_Dev,
-                  IT_Id => IT_Id,
-                  Rx_Fifo => (others => 0),
-                  Rx_Len => 0,
-                  FR => FR_RXFE or FR_TXFE,
-                  CR => CR_RXE or CR_TXE or CR_UARTEN,
-                  RIS => MASK_TX or MASK_RT,
-                  LCR => 0,
-                  IFLS => 0,
-                  IMSC => 0,
-                  IBRD => 16,  -- non 0
-                  FBRD => 0);
-
-      Uart.Register_Client (Dev.Emu'Unrestricted_Access);
+      Dev.Prot.Init (IT_Dev, IT_Id, Debug);
 
       Dev.Emu.Parent := Dev.all'Unrestricted_Access;
+      Uart.Register_Client (Dev.Emu'Unrestricted_Access);
    end Init;
 
-   procedure Dump (Dev : PL011_Uart_Dev) is
+   procedure Dump (Dev : in out PL011_Uart_Dev) is
    begin
-      Put ("UART: FR:");
-      Put_Hex4 (Dev.FR);
-      Put (" CR:");
-      Put_Hex4 (Dev.CR);
-      Put (" RIS:");
-      Put_Hex4 (Dev.RIS);
-      Put (" MSC:");
-      Put_Hex4 (Dev.IMSC);
-      New_Line;
+      Dev.Prot.Dump;
    end Dump;
 
 end Emu_PL011;

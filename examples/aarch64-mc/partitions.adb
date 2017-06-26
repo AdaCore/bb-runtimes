@@ -27,20 +27,22 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Hull_Qemu; use Hull_Qemu;
-with Hulls; use Hulls;
-with Ada.Synchronous_Task_Control;
+with Uart; use Uart;
+with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
 
-package Partitions is
+package body Partitions is
 
-   Part1_Desc : Hull_Desc;
-   pragma Import (C, Part1_Desc, "__dir_part1");
+   task body Part1_Task is
+   begin
+      Suspend_Until_True (Part1_Suspend);
 
-   Part1 : aliased Hull_Qemu.Hull_Qemu_Type;
+      loop
+         Init (Part1'Unchecked_Access);
 
-   Part1_Suspend : Ada.Synchronous_Task_Control.Suspension_Object;
-
-   task Part1_Task is
-      pragma Cpu (2);
+         Hulls.Create_Hull (Part1_Desc, Part1'Unchecked_Access);
+         Put ("??? return");
+         New_Line;
+      end loop;
    end Part1_Task;
+
 end Partitions;

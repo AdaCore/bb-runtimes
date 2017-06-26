@@ -29,10 +29,9 @@
 
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Real_Time;
-with Hulls; use Hulls;
 with Uart;
-with Hull_Qemu; use Hull_Qemu;
-with Partitions; use Partitions;
+with Partitions;
+with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
 
 procedure Main is
 begin
@@ -41,22 +40,7 @@ begin
    Put_Line ("Start UART..");
    Uart.Init;
 
-   Init (Part1'Unchecked_Access);
+   Set_True (Partitions.Part1_Suspend);
 
-   if False then
-      declare
-         use Ada.Real_Time;
-         T : Time := Clock;
-      begin
-         loop
-            delay until T;
-            T := T + Seconds (1);
-            Uart.Dump_Status;
-            Put ('*');
-         end loop;
-      end;
-   else
-      Hulls.Create_Hull (Part1_Desc, Part1'Unchecked_Access);
-      Put_Line ("??? return");
-   end if;
+   delay until Ada.Real_Time.Time_Last;
 end Main;

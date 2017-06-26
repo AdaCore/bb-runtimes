@@ -36,7 +36,7 @@ with Interfaces; use Interfaces;
 package IOEmu is
    subtype Off_T is Storage_Count;
 
-   type IOEmu_Dev is abstract tagged null record;
+   type IOEmu_Dev is abstract tagged limited null record;
 
    function Read8  (Dev : in out IOEmu_Dev; Off : Off_T) return Unsigned_8
      is abstract;

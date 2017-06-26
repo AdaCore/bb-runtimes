@@ -60,7 +60,7 @@ private
 
    type State_Array is array (16 .. Nbr_Int - 1) of Boolean;
 
-   type GIC_Dev is new IOEmu_Dev32 with record
+   type GIC_State is record
       IT : aliased GIC_Interrupt_Dev;
 
       --  The cpu for the interrupt
@@ -91,5 +91,9 @@ private
       --  Outputs
       Irq : Boolean;
       Fiq : Boolean;
+   end record;
+
+   type GIC_Dev is new IOEmu_Dev32 with record
+      S : GIC_State;
    end record;
 end Emu_GIC;

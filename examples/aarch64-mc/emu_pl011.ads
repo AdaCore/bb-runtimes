@@ -30,6 +30,7 @@
 with IOEmu; use IOEmu;
 with Interfaces; use Interfaces;
 with Uart; use Uart;
+with System;
 
 package Emu_PL011 is
    type PL011_Uart_Dev is new IOEmu_Dev32 with private;
@@ -45,7 +46,8 @@ package Emu_PL011 is
    procedure Init (Dev : access PL011_Uart_Dev;
                    IT_Dev : Interrupt_Dev_Acc; IT_Id : Natural;
                    Debug : Debug_Dev_Acc);
-   procedure Dump (Dev : PL011_Uart_Dev);
+   procedure Dump (Dev : in out PL011_Uart_Dev);
+
 private
    type PL011_Uart_Dev_Acc is access all PL011_Uart_Dev;
 
@@ -58,8 +60,7 @@ private
 
    type Rx_Fifo_Arr is array (0 .. 15) of Unsigned_32;
 
-   type PL011_Uart_Dev is new IOEmu_Dev32 with record
-      Emu : aliased PL011_Uart_Emu;
+   type PL011_State is record
       Debug : Debug_Dev_Acc;
 
       --  Input.
@@ -80,5 +81,28 @@ private
       IMSC : Unsigned_32;
       IBRD : Unsigned_32;
       FBRD : Unsigned_32;
+   end record;
+
+   protected type PL011_Prot is
+      pragma Interrupt_Priority (System.Interrupt_Priority'Last);
+
+      procedure Read32 (Off : Off_T; Res : out Unsigned_32);
+      procedure Write32_Mask
+        (Off : Off_T; Val : Unsigned_32; Mask : Unsigned_32);
+
+      procedure Init (IT_Dev : Interrupt_Dev_Acc; IT_Id : Natural;
+                      Debug : Debug_Dev_Acc);
+
+      procedure Receive_Cb (C : Unsigned_32);
+
+      procedure Dump;
+   private
+      S : PL011_State;
+   end PL011_Prot;
+
+   type PL011_Uart_Dev is new IOEmu_Dev32 with record
+      Emu : aliased PL011_Uart_Emu;
+
+      Prot : PL011_Prot;
    end record;
 end Emu_PL011;
