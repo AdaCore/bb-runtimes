@@ -122,80 +122,80 @@ package body Emu_GIC is
    begin
       case Off is
          when Reg_GICD_CTLR =>
-            Put ("GICD_CTLR");
+            Log ("GICD_CTLR");
          when Reg_GICD_TYPER =>
-            Put ("GICD_TYPER");
+            Log ("GICD_TYPER");
          when Reg_GICD_IIDR =>
-            Put ("GICD_IIDR");
+            Log ("GICD_IIDR");
          when Reg_GICD_IGROUPRn =>
-            Put ("GICD_IGROUPRn");
+            Log ("GICD_IGROUPRn");
          when Reg_GICD_ISENABLER0 .. Reg_GICD_ISENABLER1 =>
-            Put ("GICD_ISENABLER");
-            Put_Dec (Natural (Off - Reg_GICD_ISENABLER0) / 4);
+            Log ("GICD_ISENABLER");
+            Log_Dec (Natural (Off - Reg_GICD_ISENABLER0) / 4);
          when Reg_GICD_ICENABLER0 .. Reg_GICD_ICENABLER1 =>
-            Put ("GICD_ICENABLER");
-            Put_Dec (Natural (Off - Reg_GICD_ICENABLER0) / 4);
+            Log ("GICD_ICENABLER");
+            Log_Dec (Natural (Off - Reg_GICD_ICENABLER0) / 4);
          when Reg_GICD_ISPENDRn =>
-            Put ("GICD_ISPENDRn");
+            Log ("GICD_ISPENDRn");
          when Reg_GICD_ICPENDRn =>
-            Put ("GICD_ICPENDRn");
+            Log ("GICD_ICPENDRn");
          when Reg_GICD_ISACTIVER0 .. Reg_GICD_ISACTIVER1 =>
-            Put ("GICD_ISACTIVER");
-            Put_Dec (Natural (Off - Reg_GICD_ISACTIVER0) / 4);
+            Log ("GICD_ISACTIVER");
+            Log_Dec (Natural (Off - Reg_GICD_ISACTIVER0) / 4);
          when Reg_GICD_ICACTIVER0 .. Reg_GICD_ICACTIVER1 =>
-            Put ("GICD_ICACTIVER");
-            Put_Dec (Natural (Off - Reg_GICD_ICACTIVER0) / 4);
+            Log ("GICD_ICACTIVER");
+            Log_Dec (Natural (Off - Reg_GICD_ICACTIVER0) / 4);
          when Reg_GICD_IPRIORITYR0 .. Reg_GICD_IPRIORITYR15 =>
-            Put ("GICD_IPRIORITYR");
-            Put_Dec (Natural (Off - Reg_GICD_IPRIORITYR0) / 4);
+            Log ("GICD_IPRIORITYR");
+            Log_Dec (Natural (Off - Reg_GICD_IPRIORITYR0) / 4);
          when Reg_GICD_ITARGETSR0 .. Reg_GICD_ITARGETSR15 =>
-            Put ("GICD_ITARGETSR");
-            Put_Dec (Natural (Off - Reg_GICD_ITARGETSR0) / 4);
+            Log ("GICD_ITARGETSR");
+            Log_Dec (Natural (Off - Reg_GICD_ITARGETSR0) / 4);
          when Reg_GICD_ICFGR0 .. Reg_GICD_ICFGR3 =>
-            Put ("GICD_ICFGR");
-            Put_Dec (Natural (Off - Reg_GICD_ICFGR0) / 4);
+            Log ("GICD_ICFGR");
+            Log_Dec (Natural (Off - Reg_GICD_ICFGR0) / 4);
          when Reg_GICD_NSACRn =>
-            Put ("GICD_NSACRn");
+            Log ("GICD_NSACRn");
          when Reg_GICD_SGIR =>
-            Put ("GICD_SGIR");
+            Log ("GICD_SGIR");
          when Reg_GICD_CPENDSGIRn =>
-            Put ("GICD_CPENDSGIRn");
+            Log ("GICD_CPENDSGIRn");
          when Reg_GICD_SPENDSGIRn =>
-            Put ("GICD_SPENDSGIRn");
+            Log ("GICD_SPENDSGIRn");
 
          when Reg_GICC_CTLR =>
-            Put ("GICC_CTLR");
+            Log ("GICC_CTLR");
          when Reg_GICC_PMR =>
-            Put ("GICC_PMR");
+            Log ("GICC_PMR");
          when Reg_GICC_BPR =>
-            Put ("GICC_BPR");
+            Log ("GICC_BPR");
          when Reg_GICC_IAR =>
-            Put ("GICC_IAR");
+            Log ("GICC_IAR");
          when Reg_GICC_EOIR =>
-            Put ("GICC_EOIR");
+            Log ("GICC_EOIR");
          when Reg_GICC_RPR =>
-            Put ("GICC_RPR");
+            Log ("GICC_RPR");
          when Reg_GICC_HPPIR =>
-            Put ("GICC_HPPIR");
+            Log ("GICC_HPPIR");
          when Reg_GICC_ABPR =>
-            Put ("GICC_ABPR");
+            Log ("GICC_ABPR");
          when Reg_GICC_AIAR =>
-            Put ("GICC_AIAR");
+            Log ("GICC_AIAR");
          when Reg_GICC_AEOIR =>
-            Put ("GICC_AEOIR");
+            Log ("GICC_AEOIR");
          when Reg_GICC_AHPPIR =>
-            Put ("GICC_AHPPIR");
+            Log ("GICC_AHPPIR");
          when Reg_GICC_APRn =>
-            Put ("GICC_APRn");
+            Log ("GICC_APRn");
          when Reg_GICC_NSAPRn =>
-            Put ("GICC_NSAPRn");
+            Log ("GICC_NSAPRn");
          when Reg_GICC_IIDR =>
-            Put ("GICC_IIDR");
+            Log ("GICC_IIDR");
          when Reg_GICC_DIR =>
-            Put ("GICC_DIR");
+            Log ("GICC_DIR");
 
          when others =>
-            Put_Hex4 (Unsigned_32 (Off));
+            Log_Hex4 (Unsigned_32 (Off));
       end case;
    end Disp_Reg_Name;
 
@@ -311,18 +311,18 @@ package body Emu_GIC is
             end;
 
          when others =>
-            Put ("gic.read ");
+            Log ("gic.read ");
             Disp_Reg_Name (Off);
-            New_Line;
+            Log_Line;
             raise Program_Error;
       end case;
 
       if Flag_Debug then
-         Put ("RGIC: ");
+         Log ("RGIC: ");
          Disp_Reg_Name (Off);
-         Put (" -> ");
-         Put_Hex4 (Res);
-         New_Line;
+         Log (" -> ");
+         Log_Hex4 (Res);
+         Log_Line;
       end if;
 
       return Res;
@@ -337,11 +337,11 @@ package body Emu_GIC is
       Idx : Natural;
    begin
       if Flag_Debug then
-         Put ("WGIC: ");
+         Log ("WGIC: ");
          Disp_Reg_Name (Off);
-         Put (" <- ");
-         Put_Hex4 (Val);
-         New_Line;
+         Log (" <- ");
+         Log_Hex4 (Val);
+         Log_Line;
       end if;
 
       case Off is
@@ -445,9 +445,9 @@ package body Emu_GIC is
             end;
 
          when others =>
-            Put ("gic.write ");
+            Log ("gic.write ");
             Disp_Reg_Name (Off);
-            New_Line;
+            Log_Line;
             raise Program_Error;
       end case;
    end Write32_Mask;
@@ -579,9 +579,9 @@ package body Emu_GIC is
          Dev.S.Cpu.Set_Level (0, Irq);
          if Flag_Debug then
             if Irq then
-               Put ("IRQ^");
+               Log ("IRQ^");
             else
-               Put ("IRQv");
+               Log ("IRQv");
             end if;
          end if;
       end if;
@@ -599,14 +599,14 @@ package body Emu_GIC is
       end if;
 
       if False then
-         Put ("IT");
+         Log ("IT");
          if Level then
-            Put ('S');
+            Log ('S');
          else
-            Put ('C');
+            Log ('C');
          end if;
-         Put_Dec (Id);
-         New_Line;
+         Log_Dec (Id);
+         Log_Line;
       end if;
 
       D.S.Lines (Id) := Level;
@@ -647,14 +647,14 @@ package body Emu_GIC is
       end if;
 
       if False then
-         Put ('{');
+         Log ('{');
          if Level then
-            Put ('r');
+            Log ('r');
          else
-            Put ('f');
+            Log ('f');
          end if;
-         Put_Hex4 (Unsigned_32 (Id));
-         Put ('}');
+         Log_Hex4 (Unsigned_32 (Id));
+         Log ('}');
       end if;
 
       Generate_Exceptions (D);
@@ -674,52 +674,52 @@ package body Emu_GIC is
 
    procedure Dump (Dev : GIC_Dev) is
    begin
-      Put ("GIC: DCTLR: ");
-      Put_Hex4 (Dev.S.DCTLR);
-      Put (" CCTLR: ");
-      Put_Hex4 (Dev.S.CCTLR);
-      Put (" PMR: ");
-      Put_Hex4 (Dev.S.PMR);
-      Put (" RPR: ");
-      Put_Hex4 (Dev.S.CRPR);
-      New_Line;
+      Log ("GIC: DCTLR: ");
+      Log_Hex4 (Dev.S.DCTLR);
+      Log (" CCTLR: ");
+      Log_Hex4 (Dev.S.CCTLR);
+      Log (" PMR: ");
+      Log_Hex4 (Dev.S.PMR);
+      Log (" RPR: ");
+      Log_Hex4 (Dev.S.CRPR);
+      Log_Line;
 
-      Put ("   PEND:");
+      Log ("   PEND:");
       for I in Dev.S.PEND'Range loop
-         Put (' ');
-         Put_Hex4 (Dev.S.PEND (I));
+         Log (' ');
+         Log_Hex4 (Dev.S.PEND (I));
       end loop;
-      New_Line;
+      Log_Line;
 
-      Put (" ENABLE:");
+      Log (" ENABLE:");
       for I in Dev.S.ENABLE'Range loop
-         Put (' ');
-         Put_Hex4 (Dev.S.ENABLE (I));
+         Log (' ');
+         Log_Hex4 (Dev.S.ENABLE (I));
       end loop;
-      New_Line;
+      Log_Line;
 
-      Put (" ACTIVE:");
+      Log (" ACTIVE:");
       for I in Dev.S.ACTIVE'Range loop
-         Put (' ');
-         Put_Hex4 (Dev.S.ACTIVE (I));
+         Log (' ');
+         Log_Hex4 (Dev.S.ACTIVE (I));
       end loop;
-      New_Line;
+      Log_Line;
 
-      Put ("  HPPIR: ");
-      Put_Dec (Natural (Dev.S.HPPIR));
-      Put (", PRIO: ");
-      Put_Hex4 (Dev.S.HPPIR_Prio);
-      New_Line;
+      Log ("  HPPIR: ");
+      Log_Dec (Natural (Dev.S.HPPIR));
+      Log (", PRIO: ");
+      Log_Hex4 (Dev.S.HPPIR_Prio);
+      Log_Line;
 
-      Put (" Lines: ");
+      Log (" Lines: ");
       for I in Dev.S.Lines'Range loop
          if Dev.S.Lines (I) then
-            Put ('1');
+            Log ('1');
          else
-            Put ('0');
+            Log ('0');
          end if;
       end loop;
-      New_Line;
+      Log_Line;
    end Dump;
 
 end Emu_GIC;

@@ -50,11 +50,10 @@ package Uart is
    procedure Dump_Status;
 
    --  Log
-   procedure Put (C : Character);
-   procedure Get (C : out Character);
-   procedure Put (Item : String);
-   procedure New_Line;
-   procedure Put_Hex8 (V : Unsigned_64);
-   procedure Put_Hex4 (V : Unsigned_32);
-   procedure Put_Dec (N : Natural);
+   procedure Log (C : Character);
+   procedure Log (Item : String);
+   procedure Log_Line;
+   procedure Log_Hex8 (V : Unsigned_64);
+   procedure Log_Hex4 (V : Unsigned_32);
+   procedure Log_Dec (N : Natural);
 end Uart;

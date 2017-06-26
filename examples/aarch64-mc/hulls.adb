@@ -92,14 +92,14 @@ package body Hulls is
          raise Constraint_Error;
       end if;
 
-      Put ("Copying '");
+      Log ("Copying '");
       for I in Name'Range loop
          exit when Name (I) = ASCII.NUL;
-         Put (Name (I));
+         Log (Name (I));
       end loop;
-      Put ("' to ");
-      Put_Hex8 (To_Unsigned_64 (Base + Off));
-      New_Line;
+      Log ("' to ");
+      Log_Hex8 (To_Unsigned_64 (Base + Off));
+      Log_Line;
 
       Dest := Src;
 
@@ -181,11 +181,11 @@ package body Hulls is
       Val : Unsigned_32;
    begin
       if True then
-         Put ("DTB patching to ");
-         Put_Hex4 (Start);
-         Put (" - ");
-         Put_Hex4 (Start + Unsigned_32 (Initrd_Len));
-         New_Line;
+         Log ("DTB patching to ");
+         Log_Hex4 (Start);
+         Log (" - ");
+         Log_Hex4 (Start + Unsigned_32 (Initrd_Len));
+         Log_Line;
       end if;
 
       S := 0;
@@ -194,10 +194,10 @@ package body Hulls is
          Val := Read_Be32 (Addr);
 
          if False then
-            Put_Hex8 (To_Unsigned_64 (Addr));
-            Put (": ");
-            Put_Hex4 (Val);
-            New_Line;
+            Log_Hex8 (To_Unsigned_64 (Addr));
+            Log (": ");
+            Log_Hex4 (Val);
+            Log_Line;
          end if;
 
          if Val = 16#485bc755# then
@@ -223,8 +223,8 @@ package body Hulls is
          raise Constraint_Error;
       end if;
 
-      Put ("Copying Hull......");
-      New_Line;
+      Log ("Copying Hull......");
+      Log_Line;
 
       Paddr := Desc.Memmap (0).Paddr;
       Vaddr := Desc.Memmap (0).Vaddr;
@@ -339,8 +339,8 @@ package body Hulls is
    is
    begin
       Init_Hull (Desc, Ctxt);
-      Put ("Starting Hull......");
-      New_Line;
+      Log ("Starting Hull......");
+      Log_Line;
 
       loop
          Execute_Hull (Ctxt.Vcpu'Access);
@@ -634,11 +634,11 @@ package body Hulls is
       EC : constant Unsigned_8 := Unsigned_8 (Shift_Right (ESR, 26));
    begin
       if False then
-         Put ("SYN, EC=");
-         Put_Hex4 (ESR);
-         Put (", PC=");
-         Put_Hex8 (Ctxt.Vcpu.PC);
-         New_Line;
+         Log ("SYN, EC=");
+         Log_Hex4 (ESR);
+         Log (", PC=");
+         Log_Hex8 (Ctxt.Vcpu.PC);
+         Log_Line;
       end if;
 
       case EC is
@@ -657,6 +657,7 @@ package body Hulls is
             --  Exception for MSR/MRS
             Handle_Sys_Reg (Ctxt);
          when others =>
+            Dump_Cpu (Ctxt.all);
             Dump (Ctxt, 32);
       end case;
    end Handler_Syn_A64;
@@ -698,12 +699,12 @@ package body Hulls is
    procedure Dump_Cpu (H : Hull_Context)
    is
    begin
-      Put ("CPU PC:");
-      Put_Hex8 (H.Vcpu.PC);
-      Put (" SP:");
-      Put_Hex8 (H.Vcpu.Sp);
-      Put (" CPU:");
-      Put_Dec (Natural (H.Home_CPU));
-      New_Line;
+      Log ("CPU PC:");
+      Log_Hex8 (H.Vcpu.PC);
+      Log (" SP:");
+      Log_Hex8 (H.Vcpu.Sp);
+      Log (" CPU:");
+      Log_Dec (Natural (H.Home_CPU));
+      Log_Line;
    end Dump_Cpu;
 end Hulls;

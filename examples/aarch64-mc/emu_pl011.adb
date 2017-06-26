@@ -75,35 +75,35 @@ package body Emu_PL011 is
    begin
       case Off is
          when Reg_DR     =>
-            Put ("DR");
+            Log ("DR");
          when Reg_ECRRSR =>
-            Put ("ECRRSR");
+            Log ("ECRRSR");
          when Reg_FR     =>
-            Put ("FR");
+            Log ("FR");
          when Reg_ILPR   =>
-            Put ("ILPR");
+            Log ("ILPR");
          when Reg_IBRD   =>
-            Put ("IBRD");
+            Log ("IBRD");
          when Reg_FBRD   =>
-            Put ("FBRD");
+            Log ("FBRD");
          when Reg_LCR    =>
-            Put ("LCR");
+            Log ("LCR");
          when Reg_CR     =>
-            Put ("CR");
+            Log ("CR");
          when Reg_IFLS   =>
-            Put ("IFLS");
+            Log ("IFLS");
          when Reg_IMSC   =>
-            Put ("IMSC");
+            Log ("IMSC");
          when Reg_RIS    =>
-            Put ("RIS");
+            Log ("RIS");
          when Reg_MIS    =>
-            Put ("MIS");
+            Log ("MIS");
          when Reg_ICR    =>
-            Put ("ICR");
+            Log ("ICR");
          when Reg_DMACR  =>
-            Put ("DMACR");
+            Log ("DMACR");
          when others =>
-            Put_Hex4 (Unsigned_32 (Off));
+            Log_Hex4 (Unsigned_32 (Off));
       end case;
    end Disp_Reg_Name;
 
@@ -175,9 +175,9 @@ package body Emu_PL011 is
             Res := 16#b1#;
 
          when others =>
-            Put ("uart.read ");
+            Log ("uart.read ");
             Disp_Reg_Name (Off);
-            New_Line;
+            Log_Line;
             raise Program_Error;
          end case;
       end Read32;
@@ -188,7 +188,7 @@ package body Emu_PL011 is
          case Off is
          when Reg_DR =>
             if (S.CR and (CR_UARTEN or CR_TXE)) = (CR_UARTEN or CR_TXE) then
-               Put (Character'Val (Val and 16#ff#));
+               Log (Character'Val (Val and 16#ff#));
                S.RIS := S.RIS or MASK_TX;
                Check_Interrupts;
             end if;
@@ -209,9 +209,9 @@ package body Emu_PL011 is
          when Reg_FBRD =>
             Update (S.FBRD, Val and 16#3f#, Mask);
          when others =>
-            Put ("uart.write ");
+            Log ("uart.write ");
             Disp_Reg_Name (Off);
-            New_Line;
+            Log_Line;
          end case;
       end Write32_Mask;
 
@@ -272,15 +272,15 @@ package body Emu_PL011 is
 
       procedure Dump is
       begin
-         Put ("UART: FR:");
-         Put_Hex4 (S.FR);
-         Put (" CR:");
-         Put_Hex4 (S.CR);
-         Put (" RIS:");
-         Put_Hex4 (S.RIS);
-         Put (" MSC:");
-         Put_Hex4 (S.IMSC);
-         New_Line;
+         Log ("UART: FR:");
+         Log_Hex4 (S.FR);
+         Log (" CR:");
+         Log_Hex4 (S.CR);
+         Log (" RIS:");
+         Log_Hex4 (S.RIS);
+         Log (" MSC:");
+         Log_Hex4 (S.IMSC);
+         Log_Line;
       end Dump;
    end PL011_Prot;
 

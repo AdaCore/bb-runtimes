@@ -52,8 +52,8 @@ package body Partitions is
          Init (Part1'Unchecked_Access);
 
          Hulls.Create_Hull (Part1_Desc, Part1'Unchecked_Access);
-         Put ("??? return");
-         New_Line;
+         Log ("??? return");
+         Log_Line;
       end loop;
    end Part1_Task;
 
@@ -65,8 +65,8 @@ package body Partitions is
          Init (Part2'Unchecked_Access);
 
          Hulls.Create_Hull (Part2_Desc, Part2'Unchecked_Access);
-         Put ("??? return");
-         New_Line;
+         Log ("??? return");
+         Log_Line;
       end loop;
    end Part2_Task;
 

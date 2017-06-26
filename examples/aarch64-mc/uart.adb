@@ -58,52 +58,52 @@ package body Uart is
 
    Hex_Digits : constant array (0 .. 15) of Character := "0123456789abcdef";
 
-   procedure Put (C : Character) is
+   procedure Log (C : Character) is
    begin
       while not System.Text_IO.Is_Tx_Ready loop
          null;
       end loop;
 
       System.Text_IO.Put (C);
-   end Put;
+   end Log;
 
-   procedure Put (Item : String) is
+   procedure Log (Item : String) is
    begin
       for J in Item'Range loop
-         Put (Item (J));
+         Log (Item (J));
       end loop;
-   end Put;
+   end Log;
 
-   procedure New_Line is
+   procedure Log_Line is
    begin
       if System.Text_IO.Use_Cr_Lf_For_New_Line then
-         Put (ASCII.CR);
+         Log (ASCII.CR);
       end if;
 
-      Put (ASCII.LF);
-   end New_Line;
+      Log (ASCII.LF);
+   end Log_Line;
 
-   procedure Put_Hex8 (V : Unsigned_64) is
+   procedure Log_Hex8 (V : Unsigned_64) is
       Res : String (1 .. 16);
    begin
       for I in Res'Range loop
          Res (I) :=
            Hex_Digits (Natural (Shift_Right (V, 4 * (16 - I)) and 15));
       end loop;
-      Put (Res);
-   end Put_Hex8;
+      Log (Res);
+   end Log_Hex8;
 
-   procedure Put_Hex4 (V : Unsigned_32) is
+   procedure Log_Hex4 (V : Unsigned_32) is
       Res : String (1 .. 8);
    begin
       for I in Res'Range loop
          Res (I) :=
            Hex_Digits (Natural (Shift_Right (V, 4 * (8 - I)) and 15));
       end loop;
-      Put (Res);
-   end Put_Hex4;
+      Log (Res);
+   end Log_Hex4;
 
-   procedure Put_Dec (N : Natural) is
+   procedure Log_Dec (N : Natural) is
       D, R : Natural;
    begin
       if N < 10 then
@@ -111,10 +111,10 @@ package body Uart is
       else
          D := N / 10;
          R := N - D * 10;
-         Put_Dec (D);
+         Log_Dec (D);
       end if;
-      Put (Character'Val (Character'Pos ('0') + R));
-   end Put_Dec;
+      Log (Character'Val (Character'Pos ('0') + R));
+   end Log_Dec;
 
    protected body Prot is
       procedure Send_Char (C : Unsigned_32) is
@@ -132,13 +132,13 @@ package body Uart is
          C := System.Text_IO.Get;
 
          if C = Character'Val (20) then
-            Put ("EL2 ELR:");
-            Put_Hex8 (Get_ELR_EL2);
-            Put (", SPSR:");
-            Put_Hex4 (Get_SPSR_EL2);
-            Put (", ESR:");
-            Put_Hex4 (Get_ESR_EL2);
-            New_Line;
+            Log ("EL2 ELR:");
+            Log_Hex8 (Get_ELR_EL2);
+            Log (", SPSR:");
+            Log_Hex4 (Get_SPSR_EL2);
+            Log (", ESR:");
+            Log_Hex4 (Get_ESR_EL2);
+            Log_Line;
             In_Meta := True;
             return;
          end if;
@@ -192,11 +192,6 @@ package body Uart is
       end Register_Client;
    end Prot;
 
-   procedure Get (C : out Character) is
-   begin
-      raise Program_Error;
-   end Get;
-
    procedure Init is
    begin
       if not System.Text_IO.Initialized then
@@ -208,17 +203,17 @@ package body Uart is
 
    procedure Dump_Status is
    begin
-      Put ("CR: ");
-      Put_Hex4 (PL011_Registers.CR);
-      Put (", FR: ");
-      Put_Hex4 (PL011_Registers.FR);
-      Put (", RIS: ");
-      Put_Hex4 (PL011_Registers.RIS);
-      Put (", MIS: ");
-      Put_Hex4 (PL011_Registers.MIS);
-      Put (", IMSC: ");
-      Put_Hex4 (PL011_Registers.IMSC);
-      New_Line;
+      Log ("CR: ");
+      Log_Hex4 (PL011_Registers.CR);
+      Log (", FR: ");
+      Log_Hex4 (PL011_Registers.FR);
+      Log (", RIS: ");
+      Log_Hex4 (PL011_Registers.RIS);
+      Log (", MIS: ");
+      Log_Hex4 (PL011_Registers.MIS);
+      Log (", IMSC: ");
+      Log_Hex4 (PL011_Registers.IMSC);
+      Log_Line;
    end Dump_Status;
 
    procedure Put (Emu : in out Uart_Emu_Type; C : Unsigned_32)
@@ -226,7 +221,7 @@ package body Uart is
       pragma Unreferenced (Emu);
    begin
       if C <= 255 then
-         Put (Character'Val (C));
+         Log (Character'Val (C));
       end if;
    end Put;
 
