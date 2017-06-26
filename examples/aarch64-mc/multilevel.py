@@ -23,6 +23,7 @@ class file(object):
     def __init__(self, name, filename):
         self.name = name
         self.filename = filename
+        self.idx = 0
 
 
 def usage():
@@ -99,6 +100,7 @@ def main():
         offsets[reg] += size
 
     parts = {}
+    files = {}
     for child in parts_el:
         name = child.attrib['name']
         v = vcpu(name)
@@ -116,7 +118,11 @@ def main():
             elif a.tag == 'file':
                 filename = a.attrib['filename']
                 name = a.attrib['name']
-                v.files.append(file(name, filename))
+                f = files.get(name)
+                if not f:
+                    f = file(name, filename)
+                    files[name] = f
+                v.files.append(f)
             else:
                 sys.stderr.write("unhandled partition tag {}".format(a.tag))
                 sys.exit(2)
@@ -147,6 +153,26 @@ def main():
 
     if gen_dir:
         print '\t.section .rodata,"a"'
+
+        idx = 1
+        for f in files.itervalues():
+            f.idx = idx
+            idx += 1
+
+            sym = "__files_{}_name".format(f.idx)
+            print "\t.type {}, @object".format(sym)
+            print "{}:".format(sym)
+            print "\t.asciz \"{}\"".format(f.name)
+            print "\t.size {}, . - {}".format(sym, sym)
+
+            sym = "__files_{}_content".format(f.idx)
+            print "\t.type {}, @object".format(sym)
+            print "{}:".format(sym)
+            print "\t.incbin \"{}\"".format(f.filename)
+            print "{}_end:".format(sym)
+            print "\t.size {}, . - {}".format(sym, sym)
+        print
+
         for k, v in parts.iteritems():
             mmu = memmap.create_mmu_from_xml(root, arch, "stage2")
             for a in v.regions:
@@ -162,34 +188,14 @@ def main():
                 print "\t.dword {:#x}".format(a.size)
             print "\t.size __memmap_{}, . - __memmap_{}".format(k, k)
 
-            cnt = 0
-            for f in v.files:
-                sym = "__files_{}_name_{}".format(k, cnt)
-                print "\t.type {}, @object".format(sym)
-                print "{}:".format(sym)
-                print "\t.asciz \"{}\"".format(f.name)
-                print "\t.size {}, . - {}".format(sym, sym)
-
-                sym = "__files_{}_content_{}".format(k, cnt)
-                print "\t.type {}, @object".format(sym)
-                print "{}:".format(sym)
-                print "\t.incbin \"{}\"".format(f.filename)
-                print "{}_end:".format(sym)
-                print "\t.size {}, . - {}".format(sym, sym)
-
-                cnt += 1
-            print
-
             sym = "__files_{}".format(k)
             print "\t.type {}, @object".format(sym)
             print "{}:".format(sym)
-            cnt = 0
             for f in v.files:
-                print "\t.dword __files_{}_name_{}".format(k, cnt)
-                fsym = "__files_{}_content_{}".format(k, cnt)
+                print "\t.dword __files_{}_name".format(f.idx)
+                fsym = "__files_{}_content".format(f.idx)
                 print "\t.dword {}".format(fsym)
                 print "\t.dword {}_end - {}".format(fsym, fsym)
-                cnt += 1
             print "\t.size {}, . - {}".format(sym, sym)
             print
 
