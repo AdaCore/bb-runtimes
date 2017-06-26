@@ -31,6 +31,7 @@ with System; use System;
 with System.Storage_Elements; use System.Storage_Elements;
 with Interfaces; use Interfaces;
 with IOEmu; use IOEmu;
+with System.Multiprocessors;
 
 package Hulls is
    type Memmap_Entry is record
@@ -77,7 +78,7 @@ package Hulls is
       Id : Natural; Cb : Interrupt_Ack_Cb_Acc);
 
    type Hull_Context is abstract tagged limited record
-      Cpu : aliased Hull_Context_AArch64;
+      Vcpu : aliased Hull_Context_AArch64;
 
       --  Machine independant
       Machine_Reset : Boolean;
@@ -85,6 +86,10 @@ package Hulls is
       --  Pseudo-device to interrupt the CPU.
       Interrupt_Dev : aliased Aarch64_Interrupt_Dev;
 
+      --  The real cpu this VCPU is running one.
+      Home_CPU : System.Multiprocessors.CPU;
+
+      --  Protected object to implement WFI.
       Wait : Wait_Prot;
    end record;
 
@@ -106,9 +111,12 @@ private
    protected type Wait_Prot is
       pragma Interrupt_Priority (System.Interrupt_Priority'Last);
       entry Wait_Interrupt;
-      procedure Set_Interrupt;
+      procedure Set_Interrupt (Id : Natural; Level : Boolean);
+
+      procedure Init (P : Hull_Context_Acc);
    private
       Barrier : Boolean := False;
+      Parent : Hull_Context_Acc;
    end Wait_Prot;
 
    type Aarch64_Interrupt_Dev is new Interrupt_Dev with record

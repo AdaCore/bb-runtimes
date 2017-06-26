@@ -31,6 +31,7 @@ with Ada.Unchecked_Conversion;
 with System.Machine_Code; use System.Machine_Code;
 with Uart; use Uart;
 with Interfaces.AArch64; use Interfaces.AArch64;
+with IPIs;
 
 package body Hulls is
    type Hull_Context_AArch64_Acc is access all Hull_Context_AArch64;
@@ -245,10 +246,10 @@ package body Hulls is
                end if;
 
                Copy_File (F, Paddr, Off, Len);
-               Ctxt.Cpu.Xregs (0) := To_Unsigned_64 (Vaddr + Off);
-               Ctxt.Cpu.Xregs (1) := 0;
-               Ctxt.Cpu.Xregs (2) := 0;
-               Ctxt.Cpu.Xregs (3) := 0;
+               Ctxt.Vcpu.Xregs (0) := To_Unsigned_64 (Vaddr + Off);
+               Ctxt.Vcpu.Xregs (1) := 0;
+               Ctxt.Vcpu.Xregs (2) := 0;
+               Ctxt.Vcpu.Xregs (3) := 0;
 
                Dtb_Off := Off;
                Dtb_Len := F.Len;
@@ -256,7 +257,7 @@ package body Hulls is
 
                if True then
                   Align (Off, 16#800#);
-                  Ctxt.Cpu.Vbar := To_Unsigned_64 (Vaddr + Off);
+                  Ctxt.Vcpu.Vbar := To_Unsigned_64 (Vaddr + Off);
                   Set_Debug_Vectors (Paddr, Off);
                end if;
 
@@ -276,12 +277,12 @@ package body Hulls is
                Align (Off, 16#80000#);
 
                Copy_File (F, Paddr, Off, Len);
-               Ctxt.Cpu.PC := To_Unsigned_64 (Vaddr + Off);
+               Ctxt.Vcpu.PC := To_Unsigned_64 (Vaddr + Off);
 
                Off := Off + F.Len;
             elsif Is_Image (F, "bin") then
                Copy_File (F, Paddr, Off, Len);
-               Ctxt.Cpu.PC := To_Unsigned_64 (Vaddr + Off);
+               Ctxt.Vcpu.PC := To_Unsigned_64 (Vaddr + Off);
                Off := Off + F.Len;
             else
                --  Not handled.
@@ -291,10 +292,10 @@ package body Hulls is
       end loop;
    end Load_Files;
 
-   procedure Create_Hull (Desc : Hull_Desc; Ctxt : Hull_Context_Acc)
+   procedure Init_Hull (Desc : Hull_Desc; Ctxt : Hull_Context_Acc)
    is
    begin
-      Ctxt.Cpu :=
+      Ctxt.Vcpu :=
         (Xregs => (others => 0),
          PC => 0,
          Sp => 16#100#,
@@ -321,20 +322,28 @@ package body Hulls is
 
       Ctxt.Machine_Reset := False;
       Ctxt.Interrupt_Dev := (Parent => Ctxt);
+      Ctxt.Home_CPU := Current_CPU;
+
+      Ctxt.Wait.Init (Ctxt);
 
       --  Copy file
       if Desc.Files_Nbr > 0 then
          Load_Files (Desc, Ctxt);
       end if;
 
-      Set_VTTBR_EL2 (Ctxt.Cpu.Vttbr);
+      Set_VTTBR_EL2 (Ctxt.Vcpu.Vttbr);
       TLBI_VMALLS12E1;
+   end Init_Hull;
 
+   procedure Create_Hull (Desc : Hull_Desc; Ctxt : Hull_Context_Acc)
+   is
+   begin
+      Init_Hull (Desc, Ctxt);
       Put ("Starting Hull......");
       New_Line;
 
       loop
-         Execute_Hull (Ctxt.Cpu'Access);
+         Execute_Hull (Ctxt.Vcpu'Access);
          Handler_Syn_A64 (Ctxt);
          exit when Ctxt.Machine_Reset;
       end loop;
@@ -353,7 +362,7 @@ package body Hulls is
       if Num = 31 then
          return 0;
       else
-         return Ctxt.Cpu.Xregs (Num);
+         return Ctxt.Vcpu.Xregs (Num);
       end if;
    end Get_Xreg;
 
@@ -365,12 +374,12 @@ package body Hulls is
          return;
       end if;
 
-      Ctxt.Cpu.Xregs (Num) := Val;
+      Ctxt.Vcpu.Xregs (Num) := Val;
    end Set_Xreg;
 
    procedure Handle_Data (Ctxt : Hull_Context_Acc)
    is
-      ESR : constant Unsigned_32 := Ctxt.Cpu.Esr;
+      ESR : constant Unsigned_32 := Ctxt.Vcpu.Esr;
    begin
       --  Exception from a Data abort.
 
@@ -402,8 +411,8 @@ package body Hulls is
 
       --  Check FAR/HPFAR and find emu in table.  If no -> fails
       declare
-         HPFAR : constant Unsigned_64 := Ctxt.Cpu.Hpfar;
-         FAR : constant Unsigned_64 := Ctxt.Cpu.Far;
+         HPFAR : constant Unsigned_64 := Ctxt.Vcpu.Hpfar;
+         FAR : constant Unsigned_64 := Ctxt.Vcpu.Far;
          Addr : constant Address :=
            System'To_Address (HPFAR * 16#100# or (FAR and 16#fff#));
          SAS : constant Natural range 0 .. 3 :=
@@ -484,7 +493,7 @@ package body Hulls is
       end;
 
       --  PC = PC + 4
-      Ctxt.Cpu.PC := Ctxt.Cpu.PC + 4;
+      Ctxt.Vcpu.PC := Ctxt.Vcpu.PC + 4;
    end Handle_Data;
 
    type Sys_Reg_Enum is
@@ -515,7 +524,7 @@ package body Hulls is
 
    procedure Handle_Sys_Reg (Ctxt : Hull_Context_Acc)
    is
-      ESR : constant Unsigned_32 := Ctxt.Cpu.Esr;
+      ESR : constant Unsigned_32 := Ctxt.Vcpu.Esr;
       Sreg : constant Sys_Reg_Enum := Extract_Sys_Reg (ESR);
       Is_Read : constant Boolean := (ESR and 1) = 1;
       Rt : constant Xreg_Num := Xreg_Num (Shift_Right (ESR, 5) and 31);
@@ -528,9 +537,9 @@ package body Hulls is
       case Sreg is
          when MDSCR_EL1 =>
             if Is_Read then
-               Val := Ctxt.Cpu.V_MDSCR_EL1;
+               Val := Ctxt.Vcpu.V_MDSCR_EL1;
             else
-               Ctxt.Cpu.V_MDSCR_EL1 := Val;
+               Ctxt.Vcpu.V_MDSCR_EL1 := Val;
             end if;
          when ID_AA64AFR0_EL1 =>
             if Is_Read then
@@ -565,9 +574,9 @@ package body Hulls is
             end if;
          when ID_OSLAR_EL1 =>
             if Is_Read then
-               Val := Ctxt.Cpu.V_OSLAR_EL1;
+               Val := Ctxt.Vcpu.V_OSLAR_EL1;
             else
-               Ctxt.Cpu.V_OSLAR_EL1 := Val and 1;
+               Ctxt.Vcpu.V_OSLAR_EL1 := Val and 1;
             end if;
          when Unknown =>
             Dump (Ctxt, 64 + 1);
@@ -578,7 +587,7 @@ package body Hulls is
       end if;
 
       --  PC = PC + 4
-      Ctxt.Cpu.PC := Ctxt.Cpu.PC + 4;
+      Ctxt.Vcpu.PC := Ctxt.Vcpu.PC + 4;
    end Handle_Sys_Reg;
 
    protected body Wait_Prot is
@@ -587,10 +596,31 @@ package body Hulls is
          Barrier := False;
       end Wait_Interrupt;
 
-      procedure Set_Interrupt is
+      procedure Set_Interrupt (Id : Natural; Level : Boolean) is
+         Mask : Unsigned_64;
       begin
-         Barrier := True;
+         if Id = 0 then
+            Mask := 16#80#;
+         elsif Id = 1 then
+            Mask := 16#40#;
+         else
+            raise Constraint_Error;
+         end if;
+
+         if Level then
+            --  Interrupt is set.
+            Parent.Vcpu.Hcr := Parent.Vcpu.Hcr or Mask;
+            Barrier := True;
+         else
+            --  Interrupt is cleared.
+            Parent.Vcpu.Hcr := Parent.Vcpu.Hcr and not Mask;
+         end if;
       end Set_Interrupt;
+
+      procedure Init (P : Hull_Context_Acc) is
+      begin
+         Parent := P;
+      end Init;
    end Wait_Prot;
 
    procedure Handle_Wfi (Ctxt : Hull_Context_Acc) is
@@ -600,14 +630,14 @@ package body Hulls is
 
    procedure Handler_Syn_A64 (Ctxt : Hull_Context_Acc)
    is
-      ESR : constant Unsigned_32 := Ctxt.Cpu.Esr;
+      ESR : constant Unsigned_32 := Ctxt.Vcpu.Esr;
       EC : constant Unsigned_8 := Unsigned_8 (Shift_Right (ESR, 26));
    begin
       if False then
          Put ("SYN, EC=");
          Put_Hex4 (ESR);
          Put (", PC=");
-         Put_Hex8 (Ctxt.Cpu.PC);
+         Put_Hex8 (Ctxt.Vcpu.PC);
          New_Line;
       end if;
 
@@ -634,21 +664,15 @@ package body Hulls is
    procedure Set_Level
      (Dev : in out Aarch64_Interrupt_Dev; Id : Natural; Level : Boolean)
    is
-      Mask : Unsigned_64;
+      use System.Multiprocessors;
    begin
-      if Id = 0 then
-         Mask := 16#80#;
-      elsif Id = 1 then
-         Mask := 16#40#;
-      else
-         raise Constraint_Error;
-      end if;
+      --  Atomic access to HCR.
+      --  FIXME: could use a lock_free protected object.
+      Dev.Parent.Wait.Set_Interrupt (Id, Level);
 
-      if Level then
-         Dev.Parent.Cpu.Hcr := Dev.Parent.Cpu.Hcr or Mask;
-         Dev.Parent.Wait.Set_Interrupt;
-      else
-         Dev.Parent.Cpu.Hcr := Dev.Parent.Cpu.Hcr and not Mask;
+      if Dev.Parent.Home_CPU /= Current_CPU then
+         --  Ensure the HCR is reloaded.
+         IPIs.Send_Ipi (Dev.Parent.Home_CPU);
       end if;
    end Set_Level;
 
@@ -667,7 +691,7 @@ package body Hulls is
    begin
       --  Mask interrupts so that Trap_Dump has full control of the console
       Asm ("msr DAIFset, #3", Volatile => True);
-      Trap_dump (Regs.Cpu'Unrestricted_Access, Id);
+      Trap_dump (Regs.Vcpu'Unrestricted_Access, Id);
       Asm ("msr DAIFclr, #3", Volatile => True);
    end Dump;
 
@@ -675,9 +699,9 @@ package body Hulls is
    is
    begin
       Put ("CPU PC:");
-      Put_Hex8 (H.Cpu.PC);
+      Put_Hex8 (H.Vcpu.PC);
       Put (" SP:");
-      Put_Hex8 (H.Cpu.Sp);
+      Put_Hex8 (H.Vcpu.Sp);
       New_Line;
    end Dump_Cpu;
 end Hulls;
