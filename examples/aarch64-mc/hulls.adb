@@ -702,6 +702,8 @@ package body Hulls is
       Put_Hex8 (H.Vcpu.PC);
       Put (" SP:");
       Put_Hex8 (H.Vcpu.Sp);
+      Put (" CPU:");
+      Put_Dec (Natural (H.Home_CPU));
       New_Line;
    end Dump_Cpu;
 end Hulls;

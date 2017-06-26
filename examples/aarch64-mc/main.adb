@@ -33,7 +33,9 @@ with Uart;
 with Partitions;
 with Ada.Synchronous_Task_Control; use Ada.Synchronous_Task_Control;
 
-procedure Main is
+procedure Main
+is
+   use Ada.Real_Time;
 begin
    New_Line;
    New_Line;
@@ -41,6 +43,10 @@ begin
    Uart.Init;
 
    Set_True (Partitions.Part1_Suspend);
+
+   delay until Clock + Seconds (2);
+
+   Set_True (Partitions.Part2_Suspend);
 
    delay until Ada.Real_Time.Time_Last;
 end Main;

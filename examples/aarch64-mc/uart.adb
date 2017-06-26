@@ -117,6 +117,13 @@ package body Uart is
    end Put_Dec;
 
    protected body Prot is
+      procedure Send_Char (C : Unsigned_32) is
+      begin
+         if Cur_Client < Nbr_Clients then
+            Clients (Cur_Client).Put (C);
+         end if;
+      end Send_Char;
+
       procedure Handler
       is
          C : Character;
@@ -143,21 +150,23 @@ package body Uart is
                return;
             elsif C = Character'Val (2) then
                --  C-b: send break
-               if Cur_Client < Nbr_Clients then
-                  Clients (Cur_Client).Put (C => Break);
-               end if;
+               Send_Char (Break);
                return;
             elsif C = Character'Val (8) then
                --  C-h: monitor
                System.Machine_Code.Asm ("smc #1", Volatile => True);
+            elsif C = 'n' then
+               Cur_Client := Cur_Client + 1;
+               if Cur_Client = Nbr_Clients then
+                  Cur_Client := 0;
+               end if;
+               return;
             end if;
          end if;
 
          In_Meta := False;
 
-         if Cur_Client < Nbr_Clients then
-            Clients (Cur_Client).Put (C => Character'Pos (C));
-         end if;
+         Send_Char (Character'Pos (C));
       end Handler;
 
       procedure Init is

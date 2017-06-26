@@ -27,20 +27,17 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Hull_Qemu; use Hull_Qemu;
-with Hulls; use Hulls;
 with Ada.Synchronous_Task_Control;
 
 package Partitions is
-
-   Part1_Desc : Hull_Desc;
-   pragma Import (C, Part1_Desc, "__dir_part1");
-
-   Part1 : aliased Hull_Qemu.Hull_Qemu_Type;
-
    Part1_Suspend : Ada.Synchronous_Task_Control.Suspension_Object;
+   Part2_Suspend : Ada.Synchronous_Task_Control.Suspension_Object;
 
    task Part1_Task is
       pragma Cpu (2);
    end Part1_Task;
+
+   task Part2_Task is
+      pragma Cpu (3);
+   end Part2_Task;
 end Partitions;
