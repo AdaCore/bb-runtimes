@@ -67,9 +67,14 @@
 	//  Interrupt handle frame size
 	//  x0-x18 		(19*8 = 152)
 	//  x29-x30 		(16   -> 168)
-	//  spsr, elr, cpacr	(24   -> 192)
-	//  sp, PAD             (16   -> 208)
-#define IFRAME_SIZE 208
+	//  spsr, elr, PAD	(24   -> 192)
+#define IFRAME_SIZE 192
+
+	//  FPU registers context
+	//  vfp_init_flag     (1           -> 0  .. 3)
+	//  ctrl, status      (2*4         -> 4  .. 11)
+	//  Q0 - Q31          (32*16 = 512 -> 16 .. 527)
+#define IFRAME_FPU_SIZE 528
 
 	//  interrupt handler
 	.macro  ihandler_start label, el
@@ -89,9 +94,8 @@
 	stp	x18, x29, [sp, #144]
 	mrs	x4, spsr_\el
 	mrs	x5, elr_\el
-	mrs	x6, cptr_\el
 	stp	x30, x4, [sp, #160]
-	stp	x5, x6, [sp, #176]
+	str	x5, [sp, #176]
 
 	// 2) load stack pointer
 	adrp	x0,interrupt_stack_\el\()_base
@@ -100,11 +104,12 @@
 	and	x1, x1, #3
 	ldr	x2, [x0, x1, lsl #3]	//  Load new stack pointer
 
-	// 3) Create a frame, switch to irq stack
+	// 3) Switch to irq stack and create a new frame.
 	mov	x1, sp
-	stp	x29, x30, [x2, #-32]!
-	str	x1, [x2, #16]
 	mov	sp, x2
+	stp	x29, x5, [sp, #-32]!	//  Create a frame (using elr)
+	mov	x29, sp			//  Set FP (for backtraces)
+	str	x1, [sp, #16]		//  Save old SP
 
 	b	\label\()_cont
 	.size	\label, . - \label
@@ -113,13 +118,19 @@
 	.macro  ihandler_cont label, handler, el
 	.type 	\label\()_cont, @function
 \label\()_cont:
-	//  4) disable fpu
-	mrs	x4, cptr_\el
-	orr	x4, x4, #(1 << 10)
-	msr	cptr_\el, x4
+        //  4) allocate the FPU context on the irq stack
+        sub     sp, sp, #IFRAME_FPU_SIZE /* allocate the context */
 
 	//  5) call handler
-	bl	\handler
+        //  pre-handler: x0: fpu context address
+        mov     x0, sp
+        bl      __gnat_irq_pre_handler
+        str     x0, [sp, #(IFRAME_FPU_SIZE + 24)]   /* save the prev_ctxt */
+        bl      \handler                     /* actually call the handler */
+        ldr     x1, [sp, #(IFRAME_FPU_SIZE + 24)]   /* load the prev_ctxt */
+	mov     x0, sp	                 /* get the irq fpu context */
+        bl      __gnat_irq_post_handler
+        add     sp, sp, #IFRAME_FPU_SIZE /* free the irq fpu context */
 
 	//  6) Switch back to EL2 stack
 	ldr	x1, [sp, #16]
