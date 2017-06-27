@@ -344,6 +344,8 @@ package body System.BB.CPU_Primitives is
                  Board_Support.Multiprocessors.Current_CPU;
       Old    : constant FPU_Context_Access := Running_FPU_Context (CPU_Id);
    begin
+      Disable_FPU;
+      Ctxt.V_Init := False;
       Running_FPU_Context (CPU_Id) := Ctxt;
 
       return Old;

@@ -182,23 +182,16 @@ __fiq_interrupt:
         mov     sp, x2
 
         //  4) allocate the FPU context on the irq stack
-        mov     x7, sp                   /* x7 <- fp context address */
         sub     sp, sp, #IFRAME_FPU_SIZE /* allocate the context */
-        strb    wzr, [x7]                /* ictxt.v_init <- 0 */
-
-        //  5) disable fpu
-        mrs     x4, cpacr_el1
-        bic     x4, x4, #(1 << 20)
-        msr     cpacr_el1, x4
 
         //  6) call handler
         //  pre-handler: x0: fpu context address
-        mov     x0, x7
+        mov     x0, sp
         bl      __gnat_irq_pre_handler
         str     x0, [sp, #-16]!          /* push the prev_ctxt */
         bl      __gnat_irq_handler       /* actually call the handler */
         ldr     x1, [sp], 16             /* pop the prev_ctxt */
-        add     x0, sp, #IFRAME_FPU_SIZE /* get the irq fpu context */
+        mov     x0, sp                   /* get the irq fpu context */
         bl      __gnat_irq_post_handler
         add     sp, sp, #IFRAME_FPU_SIZE /* free the irq fpu context */
 
@@ -207,7 +200,17 @@ __fiq_interrupt:
         ldr     x1, [sp, #16]
         mov     sp, x1
 
-        //  save the irq stack pointer
+        //  save the irq stack pointer:
+        //  We accomodate here the following scenario:
+        //  an irq is interrupted by a higher prio. irq, so the handler of the new irq uses the
+        //  current sp value to execute. When returning from this higher prio irq, we may
+        //  context switch.
+        //  In this case, the new running task can be also interrupted at any moment: we need
+        //  to ensure that the interrupt stack table is updated so that any interruption
+        //  running there starts from the sp value found initially (so as to not temper the
+        //  stack of the original irq.
+        //  Once we resume the original irq handler, we also go through this save phase, so
+        //  properly restore the stack table to its original base value.
         adrp    x0,interrupt_stack_table
         add     x0, x0, #:lo12:interrupt_stack_table
         mrs     x1, mpidr_el1
@@ -215,9 +218,7 @@ __fiq_interrupt:
         str     x7, [x0, x1, lsl #3]  //  Save stack pointer
 
         //  8) switch context if needed
-        str     x7, [sp, #-16]!
         bl      __gnat_context_switch_needed
-        ldr     x7, [sp], #16
         cbz     x0, 1f
 
         //  perform the context switch
