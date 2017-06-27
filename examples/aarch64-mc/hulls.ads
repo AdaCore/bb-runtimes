@@ -123,6 +123,13 @@ private
       Parent : Hull_Context_Acc;
    end record;
 
+   type SIMD_Vector_Type is record
+      D0, D1 : Interfaces.Unsigned_64;
+   end record;
+   for SIMD_Vector_Type'Alignment use 16;
+
+   type SIMD_Registers_Type is array (0 .. 31) of SIMD_Vector_Type;
+
    type Hull_Context_AArch64 is record
       --  EL1 registers
 
@@ -146,6 +153,10 @@ private
       Vtcr : Unsigned_64;                        --  312
       Vttbr : Unsigned_64;                       --  320
       Hcr : Unsigned_64;                         --  328
+
+      VFP : SIMD_Registers_Type;                 --  344 (16*32 = 512)
+      FPSR : Unsigned_32;                        --  856
+      FPCR : Unsigned_32;                        --  860
 
       --  Fully virtualized. Not used by asm code.
       V_MDSCR_EL1 : Unsigned_64;

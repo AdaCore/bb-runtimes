@@ -29,38 +29,6 @@ execute_hull:
 	ldr	x3, [x0, #328]
 	msr	hcr_el2, x3
 
-	//  Mask interrupts (needed as we are setting spsr_el2 and elr_el2).
-	//  They will be unmasked in EL1.
-	msr	DAIFset, #3
-
-	//  SP and PC
-	ldp	x4, x5, [x0, #248]
-	msr	sp_el1, x4
-	msr	elr_el2, x5
-
-	//  Spsr and vbar
-	ldp	x6, x7, [x0, #264]
-	msr	spsr_el2, x6
-	// msr	vbar_el1, x7 // vbar is not saved
-	
-	//  Re-route debug: set MDCR_EL2.TDE
-	mrs	x8, mdcr_el2
-	orr	x8, x8, #(1<<8)
-	msr	mdcr_el2, x8
-
-	//  Enable SS: set MDSCR_EL1.SS(1) and MDSCR_EL1.KDE(13)
-	mrs	x9, mdscr_el1
-	orr	x9, x9, #1
-	orr	x9, x9, #(1 << 13)
-	msr	mdscr_el1, x9
-
-//	smc	#0x99
-
-	//  Load registers
-	ldp	x2, x3, [x0, #16]
-	ldp	x4, x5, [x0, #32]
-	ldp	x6, x7, [x0, #48]
-	ldp	x8, x9, [x0, #64]
 	ldp	x10, x11, [x0, #80]
 	ldp	x12, x13, [x0, #96]
 	ldp	x14, x15, [x0, #112]
@@ -72,6 +40,58 @@ execute_hull:
 	ldp	x26, x27, [x0, #208]
 	ldp	x28, x29, [x0, #224]
 	ldr	x30, [x0, #240]
+
+	ldnp	q0, q1, [x0, #336]
+	ldnp	q2, q3, [x0, #368]
+	ldnp	q4, q5, [x0, #400]
+	ldnp	q6, q7, [x0, #432]
+	ldnp	q8, q9, [x0, #464]
+	ldnp	q10, q11, [x0, #496]
+	ldnp	q12, q13, [x0, #528]
+	ldnp	q14, q15, [x0, #560]
+	ldnp	q16, q17, [x0, #592]
+	ldnp	q18, q19, [x0, #624]
+	ldnp	q20, q21, [x0, #656]
+	ldnp	q22, q23, [x0, #688]
+	ldnp	q24, q25, [x0, #720]
+	ldnp	q26, q27, [x0, #752]
+	ldnp	q28, q29, [x0, #784]
+	ldnp	q30, q31, [x0, #816]
+
+	ldr	w4, [x0, #268]
+	ldr	w5, [x0, #272]
+	msr	fpsr, x4
+	msr	fpcr, x5
+	
+	//  Mask interrupts (needed as we are setting spsr_el2 and elr_el2).
+	//  They will be unmasked in EL1.
+	msr	DAIFset, #3
+
+	//  SP and PC
+	ldp	x4, x5, [x0, #248]
+	msr	sp_el1, x4
+	msr	elr_el2, x5
+
+	//  Spsr
+	ldr	x6, [x0, #264]
+	msr	spsr_el2, x6
+
+	//  Re-route debug: set MDCR_EL2.TDE
+	mrs	x8, mdcr_el2
+	orr	x8, x8, #(1<<8)
+	msr	mdcr_el2, x8
+
+	//  Enable SS: set MDSCR_EL1.SS(1) and MDSCR_EL1.KDE(13)
+	mrs	x9, mdscr_el1
+	orr	x9, x9, #1
+	orr	x9, x9, #(1 << 13)
+	msr	mdscr_el1, x9
+
+	//  Load registers
+	ldp	x2, x3, [x0, #16]
+	ldp	x4, x5, [x0, #32]
+	ldp	x6, x7, [x0, #48]
+	ldp	x8, x9, [x0, #64]
 	ldp	x0, x1, [x0, #0]
 	
 	eret
@@ -116,6 +136,28 @@ exec_cont:
 	//  Enable interrupts
 	msr	DAIFclr, #3
 
+	stnp	q0, q1, [x0, #336]
+	stnp	q2, q3, [x0, #368]
+	stnp	q4, q5, [x0, #400]
+	stnp	q6, q7, [x0, #432]
+	stnp	q8, q9, [x0, #464]
+	stnp	q10, q11, [x0, #496]
+	stnp	q12, q13, [x0, #528]
+	stnp	q14, q15, [x0, #560]
+	stnp	q16, q17, [x0, #592]
+	stnp	q18, q19, [x0, #624]
+	stnp	q20, q21, [x0, #656]
+	stnp	q22, q23, [x0, #688]
+	stnp	q24, q25, [x0, #720]
+	stnp	q26, q27, [x0, #752]
+	stnp	q28, q29, [x0, #784]
+	stnp	q30, q31, [x0, #816]
+
+	mrs	x4, fpsr
+	mrs	x5, fpcr
+	str	w4, [x0, #268]
+	str	w5, [x0, #272]
+
 	//  Restore host vfpu
 	ldp	d8, d9, [sp, #96]
 	ldp	d10, d11, [sp, #112]
@@ -132,6 +174,12 @@ exec_cont:
 
 	ret
 	.size	execute_hull, . - execute_hull
+
+	//  FPU registers context
+	//  vfp_init_flag     (1           -> 0  .. 3)
+	//  ctrl, status      (2*4         -> 4  .. 11)
+	//  Q0 - Q31          (32*16 = 512 -> 16 .. 527)
+#define IFRAME_FPU_SIZE 528
 
 /* Exception table.  */
 	
@@ -213,17 +261,23 @@ irq_handler:
 
 	// 3) Create a frame, switch to irq stack
 	mov	x1, sp
-	stp	x29, x30, [x2, #-32]!
-	str	x1, [x2, #16]
 	mov	sp, x2
+	stp	x29, x30, [sp, #-32]!
+	str	x1, [sp, #16]
 
-	//  4) disable fpu
-	mrs	x4, cptr_el2
-	orr	x4, x4, #(1 << 10)
-	msr	cptr_el2, x4
+        //  4) allocate the FPU context on the irq stack
+        sub     sp, sp, #IFRAME_FPU_SIZE /* allocate the context */
 
 	//  5) call handler
-	bl	__gnat_irq_handler
+        //  pre-handler: x0: fpu context address
+        mov     x0, sp
+        bl      __gnat_irq_pre_handler
+        str     x0, [sp, #(IFRAME_FPU_SIZE + 24)]   /* save the prev_ctxt */
+        bl      __gnat_irq_handler           /* actually call the handler */
+        ldr     x1, [sp, #(IFRAME_FPU_SIZE + 24)]   /* load the prev_ctxt */
+	mov     x0, sp	                 /* get the irq fpu context */
+        bl      __gnat_irq_post_handler
+        add     sp, sp, #IFRAME_FPU_SIZE /* free the irq fpu context */
 
 	//  6) Switch back to EL2 stack
 	ldr	x1, [sp, #16]
@@ -249,10 +303,9 @@ irq_handler:
 	msr	sp_el1, x4
 	msr	elr_el2, x5
 
-	//  Spsr and vbar
-	ldp	x6, x7, [x0, #264]
+	//  Spsr
+	ldr	x6, [x0, #264]
 	msr	spsr_el2, x6
-	// msr	vbar_el1, x7  // vbar is not saved
 
 	//  Load registers
 	ldp	x2, x3, [x0, #16]

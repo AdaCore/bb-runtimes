@@ -297,18 +297,22 @@ package body Hulls is
    begin
       Ctxt.Vcpu :=
         (Xregs => (others => 0),
-         PC => 0,
          Sp => 16#100#,
+         PC => 0,
          Pstate => 16#1c5#,  -- el1h
+
+         Vbar => 16#ffffffff_fffff000#,
+
          Sp_El0 => 0,
+
          Esr => 0,
          Far => 0,
          Hpfar => 0,
-         Vttbr => To_Unsigned_64 (Desc.Mmu_Table),
+
          Vtcr => (TCR_PS_4GB or TCR_TG0_4KB or TCR_SH0_OS
                   or TCR_ORGN0_WBWAC or TCR_IRGN0_WBWAC
                   or TCR_SL0_01 or (33 * TCR_T0SZ)),
-
+         Vttbr => To_Unsigned_64 (Desc.Mmu_Table),
          --  TID2: concerns cache (CTR, CCSIDR, CLIDR, CSSELR)
          --  [TODO: value of CSSELR should be saved for context switch]
          Hcr => (HCR_RW
@@ -316,7 +320,10 @@ package body Hulls is
                  or HCR_TID0 or HCR_TWI
                  or HCR_IMO or HCR_FMO or HCR_VM),
 
-         Vbar => 16#ffffffff_fffff000#,
+         VFP => (others => (0, 0)),
+         FPSR => 0,
+         FPCR => 0,
+
          V_MDSCR_EL1 => 0,
          V_OSLAR_EL1 => 0);
 
