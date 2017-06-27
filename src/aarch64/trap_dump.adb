@@ -348,10 +348,12 @@ package body Trap_Dump is
       end if;
 
       EL := Get_Current_EL;
-      Put ("  Current_EL: ");
+      Put ("  EL: ");
       Put_Hex1 (Unsigned_8 (EL / 4));
-      Put ("    SP: ");
+      Put ("  SP: ");
       Put_Hex8 (To_Unsigned_64 (Regs));
+      Put ("  CPU: ");
+      Put_Hex1 (Unsigned_8 (Get_MPIDR_EL1 and 3) + 1);
       New_Line;
 
       if EL = 3 * 4 then
@@ -393,6 +395,8 @@ package body Trap_Dump is
          New_Line;
          Put ("EL2 SCTLR:");
          Put_Hex4 (Get_SCTLR_EL2);
+         Put (" CPTR:");
+         Put_Hex8 (Get_CPTR_EL2);
          New_Line;
       end if;
 
