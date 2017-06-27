@@ -188,7 +188,7 @@ package body Emu_PL011 is
          case Off is
          when Reg_DR =>
             if (S.CR and (CR_UARTEN or CR_TXE)) = (CR_UARTEN or CR_TXE) then
-               Log (Character'Val (Val and 16#ff#));
+               Tx (Parent.Emu, Val and 16#ff#);
                S.RIS := S.RIS or MASK_TX;
                Check_Interrupts;
             end if;
@@ -216,6 +216,7 @@ package body Emu_PL011 is
       end Write32_Mask;
 
       procedure Init (IT_Dev : Interrupt_Dev_Acc; IT_Id : Natural;
+                      P : PL011_Uart_Dev_Acc;
                       Debug : Debug_Dev_Acc) is
       begin
          S := (Debug => Debug,
@@ -231,6 +232,7 @@ package body Emu_PL011 is
                IMSC => 0,
                IBRD => 16,  -- non 0
                FBRD => 0);
+         Parent := P;
       end Init;
 
       procedure Receive_Cb (C : Unsigned_32) is
@@ -302,19 +304,19 @@ package body Emu_PL011 is
       Dev.Prot.Write32_Mask (Off, Val, Mask);
    end Write32_Mask;
 
-   procedure Put (Dev : in out PL011_Uart_Emu; C : Unsigned_32) is
+   procedure Rx_Cb (Dev : in out PL011_Uart_Emu; C : Unsigned_32) is
    begin
       Dev.Parent.Prot.Receive_Cb (C);
-   end Put;
+   end Rx_Cb;
 
    procedure Init (Dev : access PL011_Uart_Dev;
                    IT_Dev : Interrupt_Dev_Acc; IT_Id : Natural;
                    Debug : Debug_Dev_Acc) is
    begin
-      Dev.Prot.Init (IT_Dev, IT_Id, Debug);
+      Dev.Prot.Init (IT_Dev, IT_Id, PL011_Uart_Dev_Acc (Dev), Debug);
 
-      Dev.Emu.Parent := Dev.all'Unrestricted_Access;
-      Uart.Register_Client (Dev.Emu'Unrestricted_Access);
+      Dev.Emu.Parent := PL011_Uart_Dev_Acc (Dev);
+      Uart.Register_Client (Dev.Emu'Access);
    end Init;
 
    procedure Dump (Dev : in out PL011_Uart_Dev) is

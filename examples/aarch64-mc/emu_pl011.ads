@@ -51,11 +51,11 @@ package Emu_PL011 is
 private
    type PL011_Uart_Dev_Acc is access all PL011_Uart_Dev;
 
-   type PL011_Uart_Emu is new Char_Emu_Type with record
+   type PL011_Uart_Emu is new Uart_Emu_Type with record
       Parent : PL011_Uart_Dev_Acc;
    end record;
 
-   procedure Put (Dev : in out PL011_Uart_Emu; C : Unsigned_32);
+   procedure Rx_Cb (Dev : in out PL011_Uart_Emu; C : Unsigned_32);
    --  Called by emu when a character is received
 
    type Rx_Fifo_Arr is array (0 .. 15) of Unsigned_32;
@@ -91,6 +91,7 @@ private
         (Off : Off_T; Val : Unsigned_32; Mask : Unsigned_32);
 
       procedure Init (IT_Dev : Interrupt_Dev_Acc; IT_Id : Natural;
+                      P : PL011_Uart_Dev_Acc;
                       Debug : Debug_Dev_Acc);
 
       procedure Receive_Cb (C : Unsigned_32);
@@ -98,6 +99,7 @@ private
       procedure Dump;
    private
       S : PL011_State;
+      Parent : PL011_Uart_Dev_Acc;
    end PL011_Prot;
 
    type PL011_Uart_Dev is new IOEmu_Dev32 with record

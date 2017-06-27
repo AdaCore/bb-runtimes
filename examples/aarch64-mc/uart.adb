@@ -38,17 +38,18 @@ with Interfaces.AArch64; use Interfaces.AArch64;
 package body Uart is
    Use_Mini_Uart : constant Boolean := False;
 
-   type Char_Emu_Acc_Arr is array (Natural range <>) of Char_Emu_Acc;
-
+   type Char_Emu_Acc_Arr is array (Natural range <>) of Uart_Emu_Acc;
    protected Prot is
       pragma Interrupt_Priority (System.Interrupt_Priority'Last);
 
       procedure Handler;
       pragma Attach_Handler (Handler, (if Use_Mini_Uart then 41 else 69));
 
+      procedure Tx (Id : Natural; C : Character);
+
       procedure Init;
 
-      procedure Register_Client (Client : Char_Emu_Acc);
+      procedure Register_Client (Client : Uart_Emu_Acc);
    private
       In_Meta : Boolean := False;
       Clients : Char_Emu_Acc_Arr (0 .. 7);
@@ -120,7 +121,7 @@ package body Uart is
       procedure Send_Char (C : Unsigned_32) is
       begin
          if Cur_Client < Nbr_Clients then
-            Clients (Cur_Client).Put (C);
+            Clients (Cur_Client).Rx_Cb (C);
          end if;
       end Send_Char;
 
@@ -169,6 +170,17 @@ package body Uart is
          Send_Char (Character'Pos (C));
       end Handler;
 
+      procedure Tx (Id : Natural; C : Character) is
+      begin
+         if Id = Cur_Client then
+            while not System.Text_IO.Is_Tx_Ready loop
+               null;
+            end loop;
+
+            System.Text_IO.Put (C);
+         end if;
+      end Tx;
+
       procedure Init is
       begin
          --  Enable receive interrupt (note that doc is incorrect, bits 0
@@ -182,12 +194,16 @@ package body Uart is
          end if;
       end Init;
 
-      procedure Register_Client (Client : Char_Emu_Acc) is
+      procedure Register_Client (Client : Uart_Emu_Acc) is
       begin
          if Nbr_Clients = Clients'Last then
+            --  Number of clients exhausted.
             raise Constraint_Error;
          end if;
+
          Clients (Nbr_Clients) := Client;
+         Client.Client_Id := Nbr_Clients;
+
          Nbr_Clients := Nbr_Clients + 1;
       end Register_Client;
    end Prot;
@@ -216,18 +232,16 @@ package body Uart is
       Log_Line;
    end Dump_Status;
 
-   procedure Put (Emu : in out Uart_Emu_Type; C : Unsigned_32)
-   is
-      pragma Unreferenced (Emu);
+   procedure Tx (Uart : in out Uart_Emu_Type'Class; C : Unsigned_32) is
    begin
       if C <= 255 then
-         Log (Character'Val (C));
+         Prot.Tx (Uart.Client_Id, Character'Val (C));
       end if;
-   end Put;
+   end Tx;
 
-   procedure Register_Client (Emu : Char_Emu_Acc) is
+   procedure Register_Client (Uart : Uart_Emu_Acc) is
    begin
-      Prot.Register_Client (Emu);
+      Prot.Register_Client (Uart);
    end Register_Client;
 
 end Uart;

@@ -32,20 +32,19 @@ with Interfaces; use Interfaces;
 package Uart is
    --  A Char_Emu is a client for a char device
    type Char_Emu_Type is interface;
-   procedure Put (Emu : in out Char_Emu_Type; C : Unsigned_32) is abstract;
-
-   type Char_Emu_Acc is access all Char_Emu_Type'Class;
+   procedure Rx_Cb (Emu : in out Char_Emu_Type; C : Unsigned_32) is abstract;
 
    --  Implementation (singleton) of the console (char device)
-   type Uart_Emu_Type is new Char_Emu_Type with null record;
-   procedure Put (Emu : in out Uart_Emu_Type; C : Unsigned_32);
+   type Uart_Emu_Type is abstract new Char_Emu_Type with private;
+   procedure Rx_Cb (Uart : in out Uart_Emu_Type; C : Unsigned_32) is abstract;
+   procedure Tx (Uart : in out Uart_Emu_Type'Class; C : Unsigned_32);
+
+   type Uart_Emu_Acc is access all Uart_Emu_Type'Class;
 
    Break : constant Unsigned_32 := 16#100#;
 
-   Uart_Emu : Uart_Emu_Type;
-
    procedure Init;
-   procedure Register_Client (Emu : Char_Emu_Acc);
+   procedure Register_Client (Uart : Uart_Emu_Acc);
 
    procedure Dump_Status;
 
@@ -56,4 +55,10 @@ package Uart is
    procedure Log_Hex8 (V : Unsigned_64);
    procedure Log_Hex4 (V : Unsigned_32);
    procedure Log_Dec (N : Natural);
+
+private
+   type Uart_Emu_Type is abstract new Char_Emu_Type with record
+      Client_Id : Natural;
+   end record;
+
 end Uart;
