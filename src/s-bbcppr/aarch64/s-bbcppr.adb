@@ -59,6 +59,7 @@ package body System.BB.CPU_Primitives is
    pragma Volatile_Components (FPU_Context_Table);
 
    Default_FPCR : Unsigned_32 := 0;
+   --  FPCR used at start of a thread, extracted from the environmental thread
 
    Current_FPU_Context :  FPU_Context_Table := (others => null);
    --  This variable contains the last thread that used the floating point unit
@@ -66,7 +67,8 @@ package body System.BB.CPU_Primitives is
    --  state must be stored. Null means no task using it.
 
    Running_FPU_Context : FPU_Context_Table := (others => null);
-   --  Points to the currently running thread or interrupt's FPU context.
+   --  Points to the currently running thread or interrupt's FPU context. So
+   --  it points to the FP context to be loaded.
 
    type Context_Switch_Params is record
       Running_Thread_Address : Address;
@@ -139,9 +141,7 @@ package body System.BB.CPU_Primitives is
          Board_Support.Interrupts.Set_Current_Priority (New_Priority);
       end if;
 
-      Disable_FPU;
-
-      --  Update the running FPU context
+      --  Update the running FPU context: switch to the new thread
       Running_FPU_Context (CPU_Id) :=
         First_Thread_Table (CPU_Id).Context.FPU'Access;
 
@@ -291,6 +291,7 @@ package body System.BB.CPU_Primitives is
               Outputs => Unsigned_32'Asm_Output ("=r", Default_FPCR),
               Volatile => True);
       end if;
+
       --  Start with FPU disabled
       Disable_FPU;
    end Initialize_CPU;
@@ -344,8 +345,13 @@ package body System.BB.CPU_Primitives is
                  Board_Support.Multiprocessors.Current_CPU;
       Old    : constant FPU_Context_Access := Running_FPU_Context (CPU_Id);
    begin
+      --  FPU context is not anymore valid
       Disable_FPU;
+
+      --  And the new one (for the interrupt) is not initialized
       Ctxt.V_Init := False;
+
+      --  The FPU is for the interrupt handler
       Running_FPU_Context (CPU_Id) := Ctxt;
 
       return Old;
@@ -362,14 +368,19 @@ package body System.BB.CPU_Primitives is
       CPU_Id  : constant System.Multiprocessors.CPU :=
                   Board_Support.Multiprocessors.Current_CPU;
    begin
-      if Ctxt = Current_FPU_Context (CPU_Id) then
+      if Current_FPU_Context (CPU_Id) = Ctxt then
          --  FPU was used during IRQ handling:
          --  Invalidate the context as we're leaving the IRQ handler, so we
          --  won't have use for it, and it will be poped from the stack
          Current_FPU_Context (CPU_Id) := null;
+
          --  Disable the FPU to provoque a FPU fault when accessed, to save
          --  the context of the last thread that accessed FPU.
          Disable_FPU;
+      elsif Current_FPU_Context (CPU_Id) = Prev_Ctxt then
+         --  The FPU contains the context for the running thread, so FPU
+         --  context is valid.
+         Enable_FPU;
       end if;
 
       --  Leaving IRQ handling: no running IRQ context
@@ -399,6 +410,9 @@ package body System.BB.CPU_Primitives is
       --  Save FP context
 
       if From /= null then
+         --  The current FPU context may belong to no thread (for example if
+         --  an interrupt handler has used the FPU). In that case, there is no
+         --  need to save it.
          Asm ("mrs %0, fpsr",
               Outputs => Unsigned_32'Asm_Output ("=r", From.FPSR),
               Volatile => True);
@@ -461,41 +475,42 @@ package body System.BB.CPU_Primitives is
          Asm ("msr fpcr, %0",
               Inputs => Unsigned_32'Asm_Input ("r", Default_FPCR),
               Volatile => True);
-         Asm ("ucvtf d0, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d1, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d2, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d3, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d4, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d5, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d6, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d7, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d8, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d9, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d10, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d11, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d12, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d13, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d14, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d15, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d16, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d17, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d18, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d19, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d20, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d21, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d22, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d23, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d24, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d25, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d26, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d27, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d28, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d29, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d30, wzr" & ASCII.LF & ASCII.HT &
-              "ucvtf d31, wzr" & ASCII.LF & ASCII.HT,
+         Asm ("eor v0.16B, v0.16B, v0.16B" & ASCII.LF & ASCII.HT &
+              "eor v1.16B, v1.16B, v1.16B" & ASCII.LF & ASCII.HT &
+              "eor v2.16B, v2.16B, v2.16B" & ASCII.LF & ASCII.HT &
+              "eor v3.16B, v3.16B, v3.16B" & ASCII.LF & ASCII.HT &
+              "eor v4.16B, v4.16B, v4.16B" & ASCII.LF & ASCII.HT &
+              "eor v5.16B, v5.16B, v5.16B" & ASCII.LF & ASCII.HT &
+              "eor v6.16B, v6.16B, v6.16B" & ASCII.LF & ASCII.HT &
+              "eor v7.16B, v7.16B, v7.16B" & ASCII.LF & ASCII.HT &
+              "eor v8.16B, v8.16B, v8.16B" & ASCII.LF & ASCII.HT &
+              "eor v9.16B, v9.16B, v9.16B" & ASCII.LF & ASCII.HT &
+              "eor v10.16B, v10.16B, v10.16B" & ASCII.LF & ASCII.HT &
+              "eor v11.16B, v11.16B, v11.16B" & ASCII.LF & ASCII.HT &
+              "eor v12.16B, v12.16B, v12.16B" & ASCII.LF & ASCII.HT &
+              "eor v13.16B, v13.16B, v13.16B" & ASCII.LF & ASCII.HT &
+              "eor v14.16B, v14.16B, v14.16B" & ASCII.LF & ASCII.HT &
+              "eor v15.16B, v15.16B, v15.16B" & ASCII.LF & ASCII.HT &
+              "eor v16.16B, v16.16B, v16.16B" & ASCII.LF & ASCII.HT &
+              "eor v17.16B, v17.16B, v17.16B" & ASCII.LF & ASCII.HT &
+              "eor v18.16B, v18.16B, v18.16B" & ASCII.LF & ASCII.HT &
+              "eor v19.16B, v19.16B, v19.16B" & ASCII.LF & ASCII.HT &
+              "eor v20.16B, v20.16B, v20.16B" & ASCII.LF & ASCII.HT &
+              "eor v21.16B, v21.16B, v21.16B" & ASCII.LF & ASCII.HT &
+              "eor v22.16B, v22.16B, v22.16B" & ASCII.LF & ASCII.HT &
+              "eor v23.16B, v23.16B, v23.16B" & ASCII.LF & ASCII.HT &
+              "eor v24.16B, v24.16B, v24.16B" & ASCII.LF & ASCII.HT &
+              "eor v25.16B, v25.16B, v25.16B" & ASCII.LF & ASCII.HT &
+              "eor v26.16B, v26.16B, v26.16B" & ASCII.LF & ASCII.HT &
+              "eor v27.16B, v27.16B, v27.16B" & ASCII.LF & ASCII.HT &
+              "eor v28.16B, v28.16B, v28.16B" & ASCII.LF & ASCII.HT &
+              "eor v29.16B, v29.16B, v29.16B" & ASCII.LF & ASCII.HT &
+              "eor v30.16B, v30.16B, v30.16B" & ASCII.LF & ASCII.HT &
+              "eor v31.16B, v31.16B, v31.16B",
               Volatile => True);
       end if;
 
+      --  Update pointer to current FPU context
       Current_FPU_Context (CPU_Id) := To;
    end Fpen_Trap;
 
