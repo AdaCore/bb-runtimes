@@ -428,6 +428,17 @@ package body Interfaces.AArch64 is
       return Res;
    end Get_HCR_EL2;
 
+   -----------------
+   -- Set_HCR_EL2 --
+   -----------------
+
+   procedure Set_HCR_EL2 (V : Unsigned_64) is
+   begin
+      Asm ("msr hcr_el2, %0",
+           Inputs => Unsigned_64'Asm_Input ("r", V),
+           Volatile => True);
+   end Set_HCR_EL2;
+
    ----------------
    -- Get_SP_EL2 --
    ----------------

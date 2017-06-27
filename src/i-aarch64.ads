@@ -124,6 +124,7 @@ package Interfaces.AArch64 is
    function Get_HPFAR_EL2 return Unsigned_64 with Inline_Always;
    function Get_SP_EL2 return Unsigned_64 with Inline_Always;
    function Get_HCR_EL2 return Unsigned_64 with Inline_Always;
+   procedure Set_HCR_EL2 (V : Unsigned_64) with Inline_Always;
    function Get_VTCR_EL2 return Unsigned_64 with Inline_Always;
    function Get_VTTBR_EL2 return Unsigned_64 with Inline_Always;
    procedure Set_VTTBR_EL2 (V : Unsigned_64) with Inline_Always;
