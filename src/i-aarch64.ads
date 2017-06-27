@@ -38,19 +38,15 @@ package Interfaces.AArch64 is
 
    --  Counters and timers
 
-   function Get_CPACR_EL1 return Interfaces.Unsigned_64
-     with Inline_Always;
-   procedure Set_CPACR_EL1 (Val : Interfaces.Unsigned_64)
-     with Inline_Always;
+   function Get_CPACR_EL1 return Interfaces.Unsigned_64 with Inline_Always;
+   procedure Set_CPACR_EL1 (Val : Interfaces.Unsigned_64) with Inline_Always;
    --  Low-level access to CPACR_EL1 register
 
    CPACR_FPEN : constant := 16#100000#;
    --  FPU enable bit of CPACR
 
-   function Get_CPTR_EL2 return Interfaces.Unsigned_64
-     with Inline_Always;
-   procedure Set_CPTR_EL2 (Val : Interfaces.Unsigned_64)
-     with Inline_Always;
+   function Get_CPTR_EL2 return Interfaces.Unsigned_64 with Inline_Always;
+   procedure Set_CPTR_EL2 (Val : Interfaces.Unsigned_64) with Inline_Always;
    --  Low-level access to CPTR_EL2 register
 
    CPTR_TFP : constant := 16#400#;
@@ -129,6 +125,8 @@ package Interfaces.AArch64 is
    function Get_VTTBR_EL2 return Unsigned_64 with Inline_Always;
    procedure Set_VTTBR_EL2 (V : Unsigned_64) with Inline_Always;
    function Get_SCTLR_EL2 return Unsigned_32 with Inline_Always;
+   procedure Set_VPIDR_EL2 (V : Unsigned_32) with Inline_Always;
+   procedure Set_VMPIDR_EL2 (V : Unsigned_64) with Inline_Always;
 
    --  EL1 registers
    function Get_ELR_EL1 return Unsigned_64 with Inline_Always;

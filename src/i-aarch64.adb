@@ -467,6 +467,28 @@ package body Interfaces.AArch64 is
       return Res;
    end Get_SCTLR_EL2;
 
+   -------------------
+   -- Set_VPIDR_EL2 --
+   -------------------
+
+   procedure Set_VPIDR_EL2 (V : Unsigned_32) is
+   begin
+      Asm ("msr vpidr_el2, %0",
+           Inputs => Unsigned_32'Asm_Input ("r", V),
+           Volatile => True);
+   end Set_VPIDR_EL2;
+
+   --------------------
+   -- Set_VMPIDR_EL2 --
+   --------------------
+
+   procedure Set_VMPIDR_EL2 (V : Unsigned_64) is
+   begin
+      Asm ("msr vmpidr_el2, %0",
+           Inputs => Unsigned_64'Asm_Input ("r", V),
+           Volatile => True);
+   end Set_VMPIDR_EL2;
+
    -----------------
    -- Get_ELR_EL1 --
    -----------------
