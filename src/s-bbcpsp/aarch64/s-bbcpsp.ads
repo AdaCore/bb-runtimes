@@ -61,10 +61,6 @@ package System.BB.CPU_Specific is
 
    type SIMD_Registers_Type is array (0 .. 31) of SIMD_Vector_Type;
 
-   type FPU_Context_Buffer;
-
-   type FPU_Context_Access is access all FPU_Context_Buffer;
-
    type FPU_Context_Buffer is record
       --  Floating point context
 
@@ -80,6 +76,8 @@ package System.BB.CPU_Specific is
       V      : SIMD_Registers_Type;
       --  General-purpose FPU registers
    end record;
+
+   type FPU_Context_Access is access all FPU_Context_Buffer;
 
    type Context_Buffer is record
       --  Only callee-saved registers need to be saved, as the context switch
