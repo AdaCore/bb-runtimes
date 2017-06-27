@@ -138,9 +138,12 @@ private
       PC : Unsigned_64;      --  From elr_el2    --  256
       Pstate : Unsigned_32;  --  From spsr_el2   --  264
 
-      Vbar : Unsigned_64;                        --  272
-
       --  EL0 registers
+
+      FPSR : Unsigned_32;                        --  268
+      FPCR : Unsigned_32;                        --  272
+
+      --  PAD                                    --  276
 
       Sp_El0 : Unsigned_64;                      --  280
 
@@ -154,9 +157,9 @@ private
       Vttbr : Unsigned_64;                       --  320
       Hcr : Unsigned_64;                         --  328
 
-      VFP : SIMD_Registers_Type;                 --  344 (16*32 = 512)
-      FPSR : Unsigned_32;                        --  856
-      FPCR : Unsigned_32;                        --  860
+      VFP : SIMD_Registers_Type;                 --  336 (16*32 = 512)
+
+      Vbar : Unsigned_64;                        --  848
 
       --  Fully virtualized. Not used by asm code.
       V_MDSCR_EL1 : Unsigned_64;

@@ -340,6 +340,12 @@ package body Hulls is
 
       Set_VTTBR_EL2 (Ctxt.Vcpu.Vttbr);
       TLBI_VMALLS12E1;
+
+      --  Uniprocessor system
+      Set_VMPIDR_EL2 (16#4000_0000#);
+
+      --  Virtual processor ID is the same as the real one
+      Set_VPIDR_EL2 (Get_MPIDR_EL1);
    end Init_Hull;
 
    procedure Create_Hull (Desc : Hull_Desc; Ctxt : Hull_Context_Acc)

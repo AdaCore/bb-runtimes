@@ -201,8 +201,12 @@ package body Uart is
             raise Constraint_Error;
          end if;
 
+         --  Register
          Clients (Nbr_Clients) := Client;
          Client.Client_Id := Nbr_Clients;
+
+         --  Current client is the last one
+         Cur_Client := Nbr_Clients;
 
          Nbr_Clients := Nbr_Clients + 1;
       end Register_Client;
