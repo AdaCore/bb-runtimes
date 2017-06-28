@@ -190,10 +190,8 @@ __fiq_interrupt:
         bl      __gnat_irq_pre_handler
         str     x0, [sp, #-16]!          /* push the prev_ctxt */
         bl      __gnat_irq_handler       /* actually call the handler */
-        ldr     x19, [sp], 16            /* pop the prev_ctxt in x19: saved in
-                                            case of context switch */
         mov     x0, sp                   /* running irq fpu context */
-        mov     x1, x19                  /* previous context */
+        ldr     x1, [sp], 16             /* pop the prev_ctxt */
         bl      __gnat_irq_post_handler
         add     sp, sp, #IFRAME_FPU_SIZE /* free the irq fpu context */
 

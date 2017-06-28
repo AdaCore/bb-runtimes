@@ -241,8 +241,17 @@ package body System.BB.CPU_Primitives is
       Initial_SP : Address;
 
    begin
-      --  We cheat as we don't know the stack size nor the stack base
+      --  Set the task's running FPU context to self
+      Buffer.Running := Buffer.FPU'Access;
+      --  Mark the FPU context as uninitialized
+      Buffer.FPU.V_Init := False;
 
+      if Program_Counter = Null_Address then
+         --  no stack init for the environment task, nor SP/LR/PC/ARG init
+         return;
+      end if;
+
+      --  We cheat as we don't know the stack size nor the stack base
       Initialize_Stack (Stack_Pointer, 0, Initial_SP);
 
       --  Overwrite Stack Pointer and Program Counter with values that have
@@ -253,12 +262,6 @@ package body System.BB.CPU_Primitives is
 
       Buffer.X19 := Unsigned_64 (Program_Counter);
       Buffer.X20 := Unsigned_64 (Argument);
-
-      --  Mark the FPU context as uninitialized
-      Buffer.FPU.V_Init := False;
-
-      --  Set the task's running FPU context to self
-      Buffer.Running := Buffer.FPU'Access;
    end Initialize_Context;
 
    --------------------
