@@ -80,24 +80,25 @@ package System.BB.CPU_Specific is
    type FPU_Context_Access is access all FPU_Context_Buffer;
 
    type Context_Buffer is record
-      --  Only callee-saved registers need to be saved, as the context switch
-      --  is always synchronous.
+   --  Only callee-saved registers need to be saved, as the context switch
+   --  is always synchronous.
 
-      X19    : Interfaces.Unsigned_64;  --  Offset : 0
-      X20    : Interfaces.Unsigned_64;
-      X21    : Interfaces.Unsigned_64;  --  Offset : 16
-      X22    : Interfaces.Unsigned_64;
-      X23    : Interfaces.Unsigned_64;  --  Offset : 32
-      X24    : Interfaces.Unsigned_64;
-      X25    : Interfaces.Unsigned_64;  --  Offset : 48
-      X26    : Interfaces.Unsigned_64;
-      X27    : Interfaces.Unsigned_64;  --  Offset : 64
-      X28    : Interfaces.Unsigned_64;
-      X29    : Interfaces.Unsigned_64;  --  FP, Offset : 80
-      X30    : Interfaces.Unsigned_64;  --  LR
-      SP     : Interfaces.Unsigned_64;  --  Offset : 96
+      X19     : Interfaces.Unsigned_64;  --  Offset : 0
+      X20     : Interfaces.Unsigned_64;
+      X21     : Interfaces.Unsigned_64;  --  Offset : 16
+      X22     : Interfaces.Unsigned_64;
+      X23     : Interfaces.Unsigned_64;  --  Offset : 32
+      X24     : Interfaces.Unsigned_64;
+      X25     : Interfaces.Unsigned_64;  --  Offset : 48
+      X26     : Interfaces.Unsigned_64;
+      X27     : Interfaces.Unsigned_64;  --  Offset : 64
+      X28     : Interfaces.Unsigned_64;
+      X29     : Interfaces.Unsigned_64;  --  FP, Offset : 80
+      X30     : Interfaces.Unsigned_64;  --  LR
+      SP      : Interfaces.Unsigned_64;  --  Offset : 96
 
-      FPU    : aliased FPU_Context_Buffer;
+      FPU     : aliased FPU_Context_Buffer;
+      Running : FPU_Context_Access := null;
    end record;
 
    Stack_Alignment : constant := 16;

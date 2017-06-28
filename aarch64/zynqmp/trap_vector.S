@@ -48,7 +48,6 @@
 .weak   __gnat_irq_handler
 .weak   __gnat_irq_pre_handler
 .weak   __gnat_irq_post_handler
-.weak   __gnat_irq_set_context
 .weak   __gnat_fpen_trap
 .weak   interrupt_stack_table
 
@@ -203,18 +202,20 @@ __fiq_interrupt:
         ldr     x1, [sp, #16]
         mov     sp, x1
 
-        // Save the irq stack pointer:
-        // We accomodate here the following scenario:
-        // an irq is interrupted by a higher prio. irq, so the handler of the
-        // new irq uses the current sp value to execute. When returning from
-        // this higher prio irq, we may context switch.
-        // In this case, the new running task can be also interrupted at any
-        // moment: we need to ensure that the interrupt stack table is updated
-        // so that any interruption running there starts from the sp value
-        // found initially (so as to not temper the stack of the original irq.
-        // Once we resume the original irq handler, we also go through this
-        // save phase, so properly restore the stack table to its original base
-        // value.
+        /* Save the irq stack pointer:
+         *
+         * We accomodate here the following scenario:
+         * an irq is interrupted by a higher prio. irq, so the handler of the
+         * new irq uses the current sp value to execute. When returning from
+         * this higher prio irq, we may context switch.
+         * In this case, the new running task can be also interrupted at any
+         * moment: we need to ensure that the interrupt stack table is updated
+         * so that any interruption running there starts from the sp value
+         * found initially (so as to not temper the stack of the original irq.
+         * Once we resume the original irq handler, we also go through this
+         * save phase, so properly restore the stack table to its original base
+         * value.
+         */
         adrp    x0,interrupt_stack_table
         add     x0, x0, #:lo12:interrupt_stack_table
         mrs     x1, mpidr_el1
@@ -228,11 +229,6 @@ __fiq_interrupt:
         //  perform the context switch
         bl      __gnat_pre_context_switch
         bl      __gnat_context_switch
-
-        // after the context switch, we need to ensure that the proper FPU
-        // context is in use
-        mov     x0, x19 // saved fpu context
-        bl      __gnat_irq_set_context
 
 1:
         //  10) restore registers
