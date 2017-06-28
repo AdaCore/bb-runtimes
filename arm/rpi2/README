@@ -91,49 +91,49 @@ Boot:
 
    0:	ea000008 	b	0x28
    4:	0124f800
-   8:	e3001131 	movw	r1, #305	; 0x131 # HCE, AW, FW, NS
-   c:	ee011f11 	mcr	15, 0, r1, cr1, cr1, {0}
+   8:	e3001131 	movw	r1, #305	; 0x131   # HCE, AW, FW, NS
+   c:	ee011f11 	mcr	15, 0, r1, cr1, cr1, {0}  # SCR
   10:	e30001da 	movw	r0, #474	; 0x1da
   14:	e16ff000 	msr	SPSR_fsxc, r0
   18:	e1b0f00e 	movs	pc, lr
   1c:	00063fff
   20:	00000c42
   24:	4000008c	# Mailbox 3 core 0
-  28:	ee110f10 	mrc	15, 0, r0, cr1, cr0, {0}
-  2c:	e3800004 	orr	r0, r0, #4
-  30:	e3800a01 	orr	r0, r0, #4096	; 0x1000
-  34:	ee010f10 	mcr	15, 0, r0, cr1, cr0, {0}
-  38:	ee110f30 	mrc	15, 0, r0, cr1, cr0, {1}
-  3c:	e3800040 	orr	r0, r0, #64	; 0x40
-  40:	ee010f30 	mcr	15, 0, r0, cr1, cr0, {1}
-  44:	e3a00001 	mov	r0, #1
-  48:	ee0e0f33 	mcr	15, 0, r0, cr14, cr3, {1}
-  4c:	e51f1038 	ldr	r1, [pc, #-56]	; 0x1c
-  50:	ee011f51 	mcr	15, 0, r1, cr1, cr1, {2}
-  54:	e51f1058 	ldr	r1, [pc, #-88]	; 0x4
-  58:	ee0e1f10 	mcr	15, 0, r1, cr14, cr0, {0}
-  5c:	e24f1064 	sub	r1, pc, #100	; 0x64
-  60:	ee0c1f30 	mcr	15, 0, r1, cr12, cr0, {1}
-  64:	ee1ccf10 	mrc	15, 0, ip, cr12, cr0, {0}
+  28:	ee110f10 	mrc	15, 0, r0, cr1, cr0, {0}  # SCTLR
+  2c:	e3800004 	orr	r0, r0, #4                # C (D-cache)
+  30:	e3800a01 	orr	r0, r0, #4096	; 0x1000  # I (I-cache)
+  34:	ee010f10 	mcr	15, 0, r0, cr1, cr0, {0}  # SCTLR
+  38:	ee110f30 	mrc	15, 0, r0, cr1, cr0, {1}  # ACTLR
+  3c:	e3800040 	orr	r0, r0, #64	; 0x40    # SMP
+  40:	ee010f30 	mcr	15, 0, r0, cr1, cr0, {1}  # ACTLR
+  44:	e3a00001 	mov	r0, #1 	   	          # Enable
+  48:	ee0e0f33 	mcr	15, 0, r0, cr14, cr3, {1} # CNTV_CTL
+  4c:	e51f1038 	ldr	r1, [pc, #-56]	; 0x1c    # 0x63fff (all)
+  50:	ee011f51 	mcr	15, 0, r1, cr1, cr1, {2}  # NSACR
+  54:	e51f1058 	ldr	r1, [pc, #-88]	; 0x4     # 0x124f800 (19.2Mhz)
+  58:	ee0e1f10 	mcr	15, 0, r1, cr14, cr0, {0} # CNTFRQ
+  5c:	e24f1064 	sub	r1, pc, #100	; 0x64    # 0
+  60:	ee0c1f30 	mcr	15, 0, r1, cr12, cr0, {1} # MVBAR
+  64:	ee1ccf10 	mrc	15, 0, ip, cr12, cr0, {0} # VBAR
   68:	f57ff06f 	isb	sy
-  6c:	e1600070 	smc	0
-  70:	ee0ccf10 	mcr	15, 0, ip, cr12, cr0, {0}
-  74:	e59f4080 	ldr	r4, [pc, #128]	; 0xfc
-  78:	ee100fb0 	mrc	15, 0, r0, cr0, cr0, {5}
-  7c:	e7e10050 	ubfx	r0, r0, #0, #2
+  6c:	e1600070 	smc	0			  # Switch to Hyp
+  70:	ee0ccf10 	mcr	15, 0, ip, cr12, cr0, {0} # VBAR
+  74:	e59f4080 	ldr	r4, [pc, #128]	; 0xfc	  # entry for cpu0
+  78:	ee100fb0 	mrc	15, 0, r0, cr0, cr0, {5}  # MPIDR
+  7c:	e7e10050 	ubfx	r0, r0, #0, #2            # cpu-id
   80:	e3500000 	cmp	r0, #0
-  84:	0a00000a 	beq	0xb4
+  84:	0a00000a 	beq	0xb4                      # cpu0 -> 0xb4
   88:	e3a05001 	mov	r5, #1
   8c:	e1a05015 	lsl	r5, r5, r0
-  90:	e31500ff 	tst	r5, #255	; 0xff
+  90:	e31500ff 	tst	r5, #255	; 0xff    # bad cpu?
   94:	0a00000a 	beq	0xc4
-  98:	e51f507c 	ldr	r5, [pc, #-124]	; 0x24
+  98:	e51f507c 	ldr	r5, [pc, #-124]	; 0x24	  # Mailbox3 addr
   9c:	e3a03000 	mov	r3, #0
   a0:	e2855040 	add	r5, r5, #64	; 0x40
-  a4:	e7954200 	ldr	r4, [r5, r0, lsl #4]
+  a4:	e7954200 	ldr	r4, [r5, r0, lsl #4]	  # Read MB3
   a8:	e1540003 	cmp	r4, r3
-  ac:	0afffffc 	beq	0xa4
-  b0:	e7854200 	str	r4, [r5, r0, lsl #4]
+  ac:	0afffffc 	beq	0xa4			  # spin-lock on MB3
+  b0:	e7854200 	str	r4, [r5, r0, lsl #4]	  # Ack
   b4:	e3a00000 	mov	r0, #0
   b8:	e51f10a0 	ldr	r1, [pc, #-160]	; 0x20
   bc:	e59f2034 	ldr	r2, [pc, #52]	; 0xf8
