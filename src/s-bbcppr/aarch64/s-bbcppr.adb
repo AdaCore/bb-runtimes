@@ -107,16 +107,19 @@ package body System.BB.CPU_Primitives is
    pragma Export (C, Fpen_Trap, "__gnat_fpen_trap");
    --  FPU enable trap handler
 
-   function Pre_IRQ_Handling
+   function IRQ_Pre_Handler
      (Ctxt : FPU_Context_Access) return FPU_Context_Access;
-   pragma Export (Asm, Pre_IRQ_Handling, "__gnat_irq_pre_handler");
+   pragma Export (Asm, IRQ_Pre_Handler, "__gnat_irq_pre_handler");
    --  Sets the IRQ context as running context and returns the previously
    --  running context
 
-   procedure Post_IRQ_Handling
+   procedure IRQ_Post_Handler
      (Ctxt      : FPU_Context_Access;
       Prev_Ctxt : FPU_Context_Access);
-   pragma Export (Asm, Post_IRQ_Handling, "__gnat_irq_post_handler");
+   pragma Export (Asm, IRQ_Post_Handler, "__gnat_irq_post_handler");
+
+   procedure IRQ_Set_Context (Ctxt : FPU_Context_Access);
+   pragma Export (Asm, IRQ_Set_Context, "__gnat_irq_set_context");
 
    ------------------------
    -- Pre_Context_Switch --
@@ -334,11 +337,11 @@ package body System.BB.CPU_Primitives is
       end case;
    end Enable_FPU;
 
-   ----------------------
-   -- Pre_IRQ_Handling --
-   ----------------------
+   ---------------------
+   -- IRQ_Pre_Handler --
+   ---------------------
 
-   function Pre_IRQ_Handling
+   function IRQ_Pre_Handler
      (Ctxt : FPU_Context_Access) return FPU_Context_Access
    is
       CPU_Id : constant System.Multiprocessors.CPU :=
@@ -355,13 +358,13 @@ package body System.BB.CPU_Primitives is
       Running_FPU_Context (CPU_Id) := Ctxt;
 
       return Old;
-   end Pre_IRQ_Handling;
+   end IRQ_Pre_Handler;
 
-   -----------------------
-   -- Post_IRQ_Handling --
-   -----------------------
+   ----------------------
+   -- IRQ_Post_Handler --
+   ----------------------
 
-   procedure Post_IRQ_Handling
+   procedure IRQ_Post_Handler
      (Ctxt      : FPU_Context_Access;
       Prev_Ctxt : FPU_Context_Access)
    is
@@ -385,7 +388,19 @@ package body System.BB.CPU_Primitives is
 
       --  Leaving IRQ handling: no running IRQ context
       Running_FPU_Context (CPU_Id) := Prev_Ctxt;
-   end Post_IRQ_Handling;
+   end IRQ_Post_Handler;
+
+   ---------------------
+   -- IRQ_Set_Context --
+   ---------------------
+
+   procedure IRQ_Set_Context (Ctxt : FPU_Context_Access)
+   is
+      CPU_Id  : constant System.Multiprocessors.CPU :=
+                  Board_Support.Multiprocessors.Current_CPU;
+   begin
+      Running_FPU_Context (CPU_Id) := Ctxt;
+   end IRQ_Set_Context;
 
    ---------------
    -- Fpen_Trap --
