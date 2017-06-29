@@ -133,39 +133,45 @@ package body Uart is
          C := System.Text_IO.Get;
 
          if C = Character'Val (20) then
-            Log ("EL2 ELR:");
-            Log_Hex8 (Get_ELR_EL2);
-            Log (", SPSR:");
-            Log_Hex4 (Get_SPSR_EL2);
-            Log (", ESR:");
-            Log_Hex4 (Get_ESR_EL2);
-            Log_Line;
-            In_Meta := True;
-            return;
-         end if;
+            --  C-t: escape character
+            if not In_Meta then
+               In_Meta := True;
+               return;
+            else
+               In_Meta := False;
+            end if;
+         elsif In_Meta then
+            In_Meta := False;
 
-         if In_Meta then
             if C = Character'Val (18) then
                --  C-r: reboot
                System.Machine_Reset.Stop;
-               return;
             elsif C = Character'Val (2) then
                --  C-b: send break
-               Send_Char (Break);
-               return;
+               Send_Char (Char_Break);
             elsif C = Character'Val (8) then
                --  C-h: monitor
                System.Machine_Code.Asm ("smc #1", Volatile => True);
             elsif C = 'n' then
+               --  n: next client
                Cur_Client := Cur_Client + 1;
                if Cur_Client = Nbr_Clients then
                   Cur_Client := 0;
                end if;
-               return;
+            elsif C = 'r' then
+               --  r: registers
+               Log ("EL2 ELR:");
+               Log_Hex8 (Get_ELR_EL2);
+               Log (", SPSR:");
+               Log_Hex4 (Get_SPSR_EL2);
+               Log (", ESR:");
+               Log_Hex4 (Get_ESR_EL2);
+               Log_Line;
+            elsif C = 'i' then
+               Send_Char (Char_Info);
             end if;
+            return;
          end if;
-
-         In_Meta := False;
 
          Send_Char (Character'Pos (C));
       end Handler;

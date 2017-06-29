@@ -238,7 +238,7 @@ package body Emu_PL011 is
       procedure Receive_Cb (C : Unsigned_32) is
          Max : Natural;
       begin
-         if C = 9 then
+         if C = Char_Info then
             --  C-i
             Debug (S.Debug.all);
             return;
@@ -255,12 +255,13 @@ package body Emu_PL011 is
                return;
             end if;
             S.Rx_Len := S.Rx_Len + 1;
-            if C = Break then
+            if C = Char_Break then
                S.Rx_Fifo (S.Rx_Len) := 16#400#;
                S.RIS := S.RIS or MASK_BE;
             elsif C < 256 then
                S.Rx_Fifo (S.Rx_Len) := C;
             else
+               --  Unexpected character
                raise Program_Error;
             end if;
             if S.Rx_Len = 1 then

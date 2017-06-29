@@ -41,7 +41,11 @@ package Uart is
 
    type Uart_Emu_Acc is access all Uart_Emu_Type'Class;
 
-   Break : constant Unsigned_32 := 16#100#;
+   Char_Break : constant Unsigned_32 := 16#100#;
+   --  A break on the serial line.
+
+   Char_Info : constant Unsigned_32 := 16#101#;
+   --  Special info.
 
    procedure Init;
    procedure Register_Client (Uart : Uart_Emu_Acc);
