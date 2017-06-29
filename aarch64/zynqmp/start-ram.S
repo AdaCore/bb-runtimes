@@ -43,6 +43,8 @@
 .set    SCNTRS_EN,      0xFF260000      /* Global counter */
 .set    SCNTRS_FREQ,    0xFF260020
 
+#include "start-config.h"
+
 .section .boot,"ax"
 
 .weak   __gnat_initialize_cpu_devices
@@ -119,38 +121,51 @@ __start_el3:
         mov     w3, #0x8
         mul     w3, w3, w7  /* Offset from rvbar: CPU_num * 8 */
         add     w1, w1, w3
-        str     x0, [x1]
+        str     x0, [x1]    /* Store vector_base */
 
-        # Load stack pointer (on 32bit)
-        adrp    x2,system_stack_el3_base
-        add     x2, x2, #:lo12:system_stack_el3_base
-        ldr     w0,[x2, x7, lsl #2]
-        mov     sp,x0
+        # Set the timer frequency (indicator for software)
+        ldr     x0, =99999000
+        msr     cntfrq_el0, x0
 
-        # Enable SMPEN
-        mrs     x0, S3_1_C15_C2_1
-        orr     x0, x0, #0x40
-        msr     S3_1_C15_C2_1, x0
-
-        # SCR_EL3: TWE=0, TWI=0, ST=0, RW(10)=1, SIF=0, HCE(8)=1, SMD=0,
-        #          EA=0, FIQ=0, IRQ=0, NS=1
+        /* SCR_EL3:
+         * NS  = 1  EL0 and EL1 are in Non-secure state
+         * IRQ = 0  do not take exceptions from EL0-2 at EL3
+         * FIQ = 0  same for FIQ
+         * EA  = 0  same for external abort and serror
+         * SMD = 0  SMC instruction enabled at EL1-3
+         * HCE = 1  HVC instruction is enabled at EL1-3
+         * SIF = 0  Secure state instruction from non-secure mem are permitted
+         * RW  = 1  Next lower level is aarch64
+         * ST  = 0  CNTPS_*_EL1 registers accessible only in EL3
+         * TWI = 0  WFI instructions are not trapped
+         * TWE = 0  WFE instructions are not trapped.
+         */
         mov     x0,#0x501
         msr     scr_el3, x0
 
-        # SCTLR_EL3: EE=0, WXN=0, I=0, SA(3)=1, C=0, A(1)=1, M=0
-        mov     x0,#0x6
+        /* SCTLR_EL3:
+         * M   = 0  Disables EL3 MMU
+         * A   = 1  Enables alignment fault checking
+         * C   = 1  Enables data and unified caches
+         * SA  = 0  Disables stack alignment check.
+         * I   = 1  Instruction caches are enabled
+         * WXN = 0  Regions with write permissions are not forced XN.
+         * EE  = 0  Exception endianness: little endian
+         */
+        mov     x0,#0x1006
         msr     sctlr_el3, x0
 
-        # MDCR_EL3: EPMAD=0, EDAD=0, SPME=0, SDD=0, SPD32=0, TDOSA=0, TDA=0,
-        #           TPM=0
+        /* MDCR_EL3: all 0: do not trap debug accesses */
         msr     mdcr_el3, xzr
 
-        # ACTLR_EL3: let it to 0
+        /* ACTLR_EL3: enable control at EL2 */
+        mov     x0,#0x73
+        msr     actlr_el3, x0
 
-        # Enable FPU (don't trap accesses)
+        /* Enable FPU (don't trap accesses) */
         msr     cptr_el3, xzr
 
-        # Running in non-secure mode: all interrupts are group 1
+        /* Running in non-secure mode: all interrupts are group 1 */
         ldr     w2, =GICD_IGROUPR
         mov     w1, #0xFFFFFFFF
         mov     x0, #6
@@ -182,6 +197,11 @@ __start_el2:
         # Enable FPU (don't trap accesses)
         msr     cptr_el2, xzr
 
+        # Enable SMPEN
+        mrs     x0, S3_1_C15_C2_1
+        orr     x0, x0, #0x40
+        msr     S3_1_C15_C2_1, x0
+
         # Make sure the generic timers are initialized
         mrs     x0, cnthctl_el2
         orr     x0, x0, #0x3    /* Enable EL1 access to timers */
@@ -194,6 +214,7 @@ __start_el2:
         msr     vpidr_el2, x0
         msr     vmpidr_el2, x1
 
+.if (RUNTIME_EL == 1)
         # HCR_EL2: RW(1)
         mov     x0,#(1<<31)
         orr     x0, x0, #(1<<29) /* Disable HVC */
@@ -204,11 +225,49 @@ __start_el2:
         msr     spsr_el2, x0
         adr     x0, __start_el1
         msr     elr_el2, x0
-        mrs     x0, vbar_el2
-        msr     vbar_el1, x0
 
         isb
         eret
+.else
+        # HCR_EL2: redirect IRQ/FIQ/ABT to EL2.
+        ldr     x0,=((1<<31) | (1<<12) | (1<<5) | (1<<4) | (1<<3))
+        msr     hcr_el2,x0
+
+        # Load stack pointer (on 32bit)
+        adrp    x2, system_stack_el1_base
+        add     x2, x2, #:lo12:system_stack_el1_base
+        ldr     w0, [x2, x7, lsl #2]
+        mov     sp, x0
+
+        # Enable MMU and cache.
+        tlbi    alle2
+        ldr     x0, =__mmu_l1_000000000
+        msr     ttbr0_el2, x0
+        // TCR_EL2: TB0=0, PS=000 (4GB),
+        //          TG0=00, SH0=11, ORGN0=01, IRGN1=01, T0SZ=32
+        ldr     x0, =((32 << 0) | (1 << 8) | (1 << 10) | (3 << 12) \
+                | (0 << 14))
+        msr     tcr_el2, x0
+        # MAIR_EL2:
+        # 0: b11101110 Outer write-back cacheable, Inner write-back cacheable
+        # others: not used
+        movz    x0,#0x00ee
+        msr     mair_el2,x0
+        isb
+
+        # SCTLR_EL2:
+        # I-Cache enabled
+        # D-Cache enabled
+        # MMU enabled
+        mov     x1, xzr
+        orr     x1, x1, #(1 << 12)      // Set I bit
+        orr     x1, x1, #(1 << 2)       // Set C bit
+        orr     x1, x1, #(1 << 0)       // Set M bit
+        msr     sctlr_el2, x1
+        isb
+
+        b       __start_common
+.endif
 
 __start_el1:
         # Enable FPU
@@ -269,6 +328,7 @@ __start_el1:
         msr     sctlr_el1, x1
         isb
 
+__start_common:
         # CPU 0 starts master, the other are slave cpus
         mrs     x7, mpidr_el1
         and      x7, x7, #3

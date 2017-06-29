@@ -195,7 +195,7 @@ __fiq_interrupt:
         bl      __gnat_irq_post_handler
         add     sp, sp, #IFRAME_FPU_SIZE /* free the irq fpu context */
 
-        //  7) Switch back to EL1 stack
+        //  7) Switch back to the previous stack
         add     x7, sp, #32              /* x7 <- before the frame created @3 */
         ldr     x1, [sp, #16]
         mov     sp, x1

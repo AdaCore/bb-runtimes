@@ -425,10 +425,11 @@ def main():
     global pageshift
 
     arch = None
+    mode = None
 
     try:
         opts, args = getopt.getopt(
-            sys.argv[1:], "h", ["help", "arch="])
+            sys.argv[1:], "h", ["help", "arch=", "el1", "el2"])
     except getopt.GetoptError, e:
         sys.stderr.write("error: " + str(e) + '\n')
         sys.stderr.write("Try --help\n")
@@ -436,11 +437,17 @@ def main():
     for opt, arg in opts:
         if opt == "--arch":
             arch = arg
+        elif opt == "--el1":
+            assert mode is None
+            mode = "el1"
+        elif opt == "--el2":
+            assert mode is None
+            mode = "el2"
         elif opt in ("-h", "--help"):
             usage()
             sys.exit()
         else:
-            sys.abort()
+            sys.exit(2)
 
     if len(args) == 0:
         filename = "memmap.xml"
@@ -454,7 +461,7 @@ def main():
     tree = ET.parse(filename)
     root = tree.getroot()
 
-    mmu = create_mmu_from_xml(root, arch)
+    mmu = create_mmu_from_xml(root, arch, mode)
 
     regions = parse_memmap(mmu, root)
 

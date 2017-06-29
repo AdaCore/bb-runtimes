@@ -120,17 +120,31 @@ class ZynqMP(Aarch64Target):
         return ('RAM', )
 
     @property
-    def sfp_system_ads(self):
-        return 'system-xi-aarch64-sfp.ads'
-
-    @property
-    def full_system_ads(self):
-        return 'system-xi-aarch64-full.ads'
+    def system_ads(self):
+        return {'zfp': self.zfp_system_ads,
+                'ravenscar-sfp': 'system-xi-aarch64-sfp.ads',
+                'ravenscar-mc': 'system-xi-aarch64-sfp.ads',
+                'ravenscar-full': 'system-xi-aarch64-full.ads'}
 
     @property
     def compiler_switches(self):
         # The required compiler switches
         return ('-mlittle-endian', '-mcpu=cortex-a53')
+
+    def amend_rts(self, rts_profile, cfg):
+        super(ZynqMP, self).amend_rts(rts_profile, cfg)
+        if rts_profile == 'ravenscar-mc':
+            cfg.add_sources('arch', {
+                'start-config.h': 'aarch64/zynqmp/start-config-el2.h',
+                'memmap.s': 'aarch64/zynqmp/memmap-el2.s'})
+            cfg.add_sources('gnarl', [
+                'src/s-bbpara/zynqmp-el2/s-bbpara.ads'])
+        else:
+            cfg.add_sources('arch', {
+                'start-config.h': 'aarch64/zynqmp/start-config-el1.h',
+                'memmap.s': 'aarch64/zynqmp/memmap-el1.s'})
+            cfg.add_sources('gnarl', [
+                'src/s-bbpara/zynqmp/s-bbpara.ads'])
 
     def __init__(self):
         super(ZynqMP, self).__init__(
@@ -140,7 +154,6 @@ class ZynqMP(Aarch64Target):
         self.add_linker_script('aarch64/zynqmp/ram.ld', loader=None)
         self.add_sources('crt0', [
             'aarch64/zynqmp/start-ram.S',
-            'aarch64/zynqmp/memmap.S',
             'aarch64/zynqmp/trap_vector.S',
             'src/aarch64/trap_dump.ads',
             'src/aarch64/trap_dump.adb',
@@ -148,7 +161,6 @@ class ZynqMP(Aarch64Target):
             'src/s-macres/zynqmp/s-macres.adb'])
         self.add_sources('gnarl', [
             'src/a-intnam/zynqmp/a-intnam.ads',
-            'src/s-bbpara/zynqmp/s-bbpara.ads',
             'src/s-bbbosu/armv8a/s-bbbosu.adb'])
 
 
