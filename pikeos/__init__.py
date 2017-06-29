@@ -32,13 +32,12 @@ class PikeOS(Target):
             mem_routines=True,
             small_mem=False)
 
-    def amend_zfp(self, conf):
+    def amend_rts(self, rts_profile, conf):
+        super(PikeOS, self).amend_rts(rts_profile, conf)
         conf.rts_xml = readfile('pikeos/runtime.xml')
-
-    def amend_ravenscar_full(self, conf):
-        super(PikeOS, self).amend_ravenscar_full(conf)
-        # Register ZCX frames (for pikeos-cert-app.c)
-        conf.build_flags['c_flags'] += ['-DUSE_ZCX']
+        if rts_profile == 'ravenscar-full':
+            # Register ZCX frames (for pikeos-cert-app.c)
+            conf.build_flags['c_flags'] += ['-DUSE_ZCX']
 
 
 class PikeOS3(PikeOS):
@@ -46,8 +45,8 @@ class PikeOS3(PikeOS):
     def pikeos_version(selfs):
         return 'pikeos3'
 
-    def amend_zfp(self, conf):
-        super(PikeOS3, self).amend_zfp(conf)
+    def amend_rts(self, rts_profile, conf):
+        super(PikeOS3, self).amend_rts(rts_profile, conf)
         # Don't use function/data sections, not supported by linker script
         conf.build_flags['common_flags'] = \
             filter(lambda x: x not in ['-ffunction-sections',
@@ -62,8 +61,8 @@ class PikeOS4(PikeOS):
     def pikeos_version(selfs):
         return 'pikeos4'
 
-    def amend_zfp(self, conf):
-        super(PikeOS4, self).amend_zfp(conf)
+    def amend_rts(self, rts_profile, conf):
+        super(PikeOS4, self).amend_rts(rts_profile, conf)
         conf.rts_xml = conf.rts_xml.replace(
             '@version@', 'pikeos-4.1')
 
@@ -89,8 +88,8 @@ class ArmPikeOS(PikeOS4):
     def full_system_ads(self):
         return 'system-pikeos-arm-ravenscar-full.ads'
 
-    def amend_zfp(self, conf):
-        super(ArmPikeOS, self).amend_zfp(conf)
+    def amend_rts(self, rts_profile, conf):
+        super(ArmPikeOS, self).amend_rts(rts_profile, conf)
         conf.rts_xml = conf.rts_xml.replace(
             '@target@', 'arm/v7hf')
 
@@ -116,8 +115,8 @@ class PpcPikeOS(PikeOS3):
     def full_system_ads(self):
         return 'system-pikeos-ppc-ravenscar-full.ads'
 
-    def amend_zfp(self, conf):
-        super(PpcPikeOS, self).amend_zfp(conf)
+    def amend_rts(self, rts_profile, conf):
+        super(PpcPikeOS, self).amend_rts(rts_profile, conf)
         conf.rts_xml = conf.rts_xml.replace(
             '/include")', '/include", "-DPPC_OEA")').replace(
             '@target@', 'ppc/oea')
@@ -144,7 +143,7 @@ class X86PikeOS(PikeOS3):
     def full_system_ads(self):
         return 'system-pikeos-x86-ravenscar-full.ads'
 
-    def amend_zfp(self, conf):
-        super(X86PikeOS, self).amend_zfp(conf)
+    def amend_rts(self, rts_profile, conf):
+        super(X86PikeOS, self).amend_rts(rts_profile, conf)
         conf.rts_xml = conf.rts_xml.replace(
             '@target@', 'x86/i586')

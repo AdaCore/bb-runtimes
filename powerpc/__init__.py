@@ -89,12 +89,12 @@ class PPC6XXTarget(DFBBTarget):
             mem_routines=True,
             small_mem=False)
 
-    def amend_ravenscar_full(self, conf):
-        super(PPC6XXTarget, self).amend_ravenscar_full(conf)
-        conf.config_files.update(
-            {'link-zcx.spec':
-             readfile('powerpc/prep/link-zcx.spec')})
-        conf.rts_xml = conf.rts_xml.replace(
+    def amend_rts(self, rts_profile, conf):
+        super(PPC6XXTarget, self).amend_rts(rts_profile, conf)
+        if rts_profile == 'ravenscar-full':
+            conf.config_files.update(
+                {'link-zcx.spec': readfile('powerpc/prep/link-zcx.spec')})
+            conf.rts_xml = conf.rts_xml.replace(
                 '"-nostartfiles", "-lgnat", "-lgcc"',
                 '"-nolibc",\n' +
                 '         "-lgnat", "-lgcc", "-lgnat",\n' +

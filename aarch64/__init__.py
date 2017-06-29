@@ -51,12 +51,13 @@ class Aarch64Target(DFBBTarget):
     def full_system_ads(self):
         return 'system-xi-arm-full.ads'
 
-    def amend_ravenscar_full(self, cfg):
-        super(Aarch64Target, self).amend_ravenscar_full(cfg)
-        cfg.rts_xml = cfg.rts_xml.replace(
-            '"-nostartfiles"',
-            ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
-             '        "-nostartfiles"'))
+    def amend_rts(self, rts_profile, cfg):
+        super(Aarch64Target, self).amend_rts(rts_profile, cfg)
+        if rts_profile == 'ravenscar-full':
+            cfg.rts_xml = cfg.rts_xml.replace(
+                '"-nostartfiles"',
+                ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
+                 '        "-nostartfiles"'))
 
 
 class AARCH64QEMU(Aarch64Target):

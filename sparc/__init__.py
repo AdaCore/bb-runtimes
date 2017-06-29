@@ -53,21 +53,18 @@ class LeonTarget(DFBBTarget):
             mem_routines=True,
             small_mem=False)
 
-    def amend_zfp(self, conf):
-        super(LeonTarget, self).amend_zfp(conf)
+    def amend_rts(self, rts_profile, conf):
+        super(LeonTarget, self).amend_rts(rts_profile, conf)
         conf.rts_xml = \
             conf.rts_xml.replace(
                 ' "-nolibc",', '')
-
-    def amend_ravenscar_full(self, conf):
-        super(LeonTarget, self).amend_ravenscar_full(conf)
-        # Use leon-zcx.specs to link with -lc.
-        conf.config_files.update(
-            {'link-zcx.spec':
-             readfile('sparc/leon/leon-zcx.specs')})
-        conf.rts_xml = conf.rts_xml.replace(
-            '"-nostartfiles",',
-            '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec",')
+        if rts_profile == 'ravenscar-full':
+            # Use leon-zcx.specs to link with -lc.
+            conf.config_files.update(
+                {'link-zcx.spec': readfile('sparc/leon/leon-zcx.specs')})
+            conf.rts_xml = conf.rts_xml.replace(
+                '"-nostartfiles",',
+                '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec",')
 
 
 class Leon2(LeonTarget):

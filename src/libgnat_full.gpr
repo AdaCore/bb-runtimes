@@ -3,9 +3,7 @@ with "libgnarl_sources";
 with "target_options";
 with "install";
 
-library project Libgnat_Merged is
-
-   Profile := External ("RTS_Profile");
+library project Libgnat is
 
    for Languages use
      Libgnat_Sources.Gnat_Langs &
@@ -16,8 +14,8 @@ library project Libgnat_Merged is
    for Library_Name use "gnat";
    for Library_Kind use "static";
 
-   for Library_Dir use "../" & Profile & "/adalib";
-   for Object_Dir use "../" & Profile & "/obj";
+   for Library_Dir use "adalib";
+   for Object_Dir use "obj";
 
    for Source_Dirs use
      Libgnat_Sources.Gnat_Dirs &
@@ -34,4 +32,4 @@ library project Libgnat_Merged is
       for Install_Project use "false";
    end Install;
 
-end Libgnat_Merged;
+end Libgnat;

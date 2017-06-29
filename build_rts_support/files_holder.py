@@ -160,7 +160,8 @@ class FilesHolder(object):
         elif srcfile.split('/')[0] == 'hie':
             # BB-specific file in gnat/hie
             bb_file = os.path.join(self.gnatdir, srcfile)
-            assert os.path.exists(bb_file), "Error: source file %s not found in gnat" % bb_file
+            assert os.path.exists(bb_file), \
+                "Error: source file %s not found in gnat" % bb_file
             self._copy(bb_file, dstdir, installed_files)
 
         else:

@@ -135,13 +135,14 @@ def main():
     dest_prjs = None
     dest_srcs = None
     prefix = None
+    experimental = False
 
     try:
         opts, args = getopt.getopt(
             sys.argv[1:], "hvl",
             ["help", "verbose",
              "output=", "output-bsps=", "output-prjs=", "output-srcs=",
-             "prefix=",
+             "prefix=", "experimental",
              "gcc-dir=", "gnat-dir=",
              "link"])
     except getopt.GetoptError, e:
@@ -170,6 +171,8 @@ def main():
             FilesHolder.gnatdir = arg
         elif opt == "--prefix":
             prefix = arg
+        elif opt == "--experimental":
+            experimental = True
         else:
             print "unexpected switch: %s" % opt
             sys.exit(2)
@@ -244,7 +247,7 @@ def main():
 
     # Install the BSPs
     for board in boards:
-        board.install(dest_bsps, prefix)
+        board.install(dest_bsps, prefix, experimental)
 
     # post-processing, install ada_object_path and ada_source_path to be
     # installed in all runtimes by gprinstall

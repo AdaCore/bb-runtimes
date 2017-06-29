@@ -44,8 +44,8 @@ class X86Native(DFBBTarget):
     def zfp_system_ads(self):
         return 'system-xi-x86.ads'
 
-    def amend_zfp(self, cfg):
-        super(X86Native, self).amend_zfp(cfg)
+    def amend_rts(self, rts_profile, cfg):
+        super(X86Native, self).amend_rts(rts_profile, cfg)
         cfg.rts_xml = (
             '<?xml version="1.0" ?>\n'
             '<gprconfig>\n'

@@ -5,14 +5,12 @@ with "install";
 
 project Libgnarl is
 
-   Profile := External ("RTS_Profile");
-
    for Library_Auto_Init use "False";
    for Library_Name use "gnarl";
    for Library_Kind use "static";
 
-   for Library_Dir use "../" & Profile & "/adalib";
-   for Object_Dir use "../" & Profile & "/obj";
+   for Library_Dir use "adalib";
+   for Object_Dir use "obj";
 
    for Languages use
      Libgnarl_Sources.Gnarl_Langs &

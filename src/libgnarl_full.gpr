@@ -1,17 +1,15 @@
 with "target_options";
 with "install";
 
-project Libgnarl_Empty is
-
-   Profile := External ("RTS_Profile");
+project Libgnarl is
 
    for Languages use ("C");
 
    for Library_Auto_Init use "False";
    for Library_Name use "gnarl";
    for Library_Kind use "static";
-   for Library_Dir use "../" & Profile & "/adalib";
-   for Object_Dir use "../" & Profile & "/obj";
+   for Library_Dir use "adalib";
+   for Object_Dir use "obj";
 
    for Source_Files use ("empty.c");
 
@@ -24,4 +22,4 @@ project Libgnarl_Empty is
       for Install_Project use "false";
    end Install;
 
-end Libgnarl_Empty;
+end Libgnarl;
