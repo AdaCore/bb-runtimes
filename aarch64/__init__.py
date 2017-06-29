@@ -193,7 +193,10 @@ class Rpi3(Rpi3Base):
 
         self.add_sources('crt0', [
             'aarch64/rpi3/start-ram.S',
-            'aarch64/rpi3/memmap.s'])
+            'aarch64/rpi3/memmap.s',
+            'src/s-textio/rpi2-mini/s-textio.adb'])
+        self.add_sources('gnarl', [
+            'src/s-bbpara/rpi2/s-bbpara.ads'])
 
 
 class Rpi3Mc(Rpi3Base):
@@ -210,4 +213,7 @@ class Rpi3Mc(Rpi3Base):
             'aarch64/rpi3-mc/traps_el2cur.S',
             'aarch64/rpi3-mc/traps_el2low.S',
             'aarch64/rpi3-mc/traps_common.h',
-            'aarch64/rpi3-mc/memmap.s'])
+            'aarch64/rpi3-mc/memmap.s',
+            'src/s-textio/rpi2-pl011/s-textio.adb'])
+        self.add_sources('gnarl', [
+            'src/s-bbpara/rpi2-hyp/s-bbpara.ads'])
