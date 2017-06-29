@@ -55,10 +55,11 @@ package Hulls is
 
    type Hull_Desc is record
       Mmu_Table : Address;
-      Memmap : Memmap_Arr_Acc;
+      Mmu_Tcr : Unsigned_64;
       Memmap_Nbr : Natural;
-      Files : File_Arr_Acc;
       Files_Nbr : Natural;
+      Memmap : Memmap_Arr_Acc;
+      Files : File_Arr_Acc;
    end record;
    pragma Convention (C, Hull_Desc);
 

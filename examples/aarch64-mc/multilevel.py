@@ -203,12 +203,11 @@ def main():
             print "\t.type __dir_{}, @object".format(k)
             print "__dir_{}:".format(k)
             print "\t.dword {}".format(v.mmu_sym)
-            print "\t.dword __memmap_{}".format(k)
+            print "\t.dword __mmu_{}_tcr".format(k)
             print "\t.word {}".format(len(v.regions))
-            print "\t.word 0"
-            print "\t.dword __files_{}".format(k)
             print "\t.word {}".format(len(v.files))
-            print "\t.word 0"
+            print "\t.dword __memmap_{}".format(k)
+            print "\t.dword __files_{}".format(k)
             print "\t.size __dir_{}, . - __dir_{}".format(k, k)
             print
 

@@ -546,6 +546,7 @@ __mmu_part1_l2_000040000:
 __mmu_part1_l1_000040000:
 	.dword 0
 	.dword __mmu_part1_l2_000040000 + 0x3
+__mmu_part1_tcr = 0x00000061
 // First level: 1 (w/ 2 entries), max VA: 2**31
 	.p2align 12
 __mmu_part2_l2_000040000:
@@ -1065,6 +1066,7 @@ __mmu_part2_l2_000040000:
 __mmu_part2_l1_000040000:
 	.dword 0
 	.dword __mmu_part2_l2_000040000 + 0x3
+__mmu_part2_tcr = 0x00000061
 	.type __memmap_part1, @object
 __memmap_part1:
 	.dword 0x40000000
@@ -1088,12 +1090,11 @@ __files_part1:
 	.type __dir_part1, @object
 __dir_part1:
 	.dword __mmu_part1_l1_000040000
-	.dword __memmap_part1
+	.dword __mmu_part1_tcr
 	.word 1
-	.word 0
-	.dword __files_part1
 	.word 3
-	.word 0
+	.dword __memmap_part1
+	.dword __files_part1
 	.size __dir_part1, . - __dir_part1
 
 	.type __memmap_part2, @object
@@ -1119,11 +1120,10 @@ __files_part2:
 	.type __dir_part2, @object
 __dir_part2:
 	.dword __mmu_part2_l1_000040000
-	.dword __memmap_part2
+	.dword __mmu_part2_tcr
 	.word 1
-	.word 0
-	.dword __files_part2
 	.word 3
-	.word 0
+	.dword __memmap_part2
+	.dword __files_part2
 	.size __dir_part2, . - __dir_part2
 

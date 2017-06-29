@@ -309,9 +309,8 @@ package body Hulls is
          Far => 0,
          Hpfar => 0,
 
-         Vtcr => (TCR_PS_4GB or TCR_TG0_4KB or TCR_SH0_OS
-                  or TCR_ORGN0_WBWAC or TCR_IRGN0_WBWAC
-                  or TCR_SL0_01 or (33 * TCR_T0SZ)),
+         Vtcr => (Desc.Mmu_Tcr or TCR_SH0_OS
+                  or TCR_ORGN0_WBWAC or TCR_IRGN0_WBWAC),
          Vttbr => To_Unsigned_64 (Desc.Mmu_Table),
          --  TID2: concerns cache (CTR, CCSIDR, CLIDR, CSSELR)
          --  [TODO: value of CSSELR should be saved for context switch]

@@ -172,6 +172,8 @@ class aarch64_mmu(Arch):
         self.log2_entries = self.log2_granule - 3   # log2 nbr entries per page
         self.pageshift = self.log2_granule
         self.mode = mode
+        self.tcr = -1
+        self.max_pa = 0xffffffff
         # Translation table (initially empty)
         self.tt = self.aarch64_pgd(self, 0, 48 - self.log2_entries)
 
@@ -248,6 +250,9 @@ class aarch64_mmu(Arch):
             e = self.aarch64_pge(mmu=self, name=name, va=va, pa=pa,
                                  lower=lower, upper=upper, log2_sz=sz)
 
+            while pa > self.max_pa:
+                self.max_pa = (self.max_pa << 1) | 1
+
             self.insert_entry(self.tt, e)
             pa += 1 << sz
             va += 1 << sz
@@ -271,6 +276,33 @@ class aarch64_mmu(Arch):
                 va = (e.va >> nsh) << nsh
                 t.tt[ia] = self.aarch64_pgd(self, va, nsh)
             self.insert_entry(t.tt[ia], e)
+
+    def set_tcr(self, level, va_max):
+        tg = {12: 0, 16: 1, 14: 2}[self.log2_granule]
+        if self.max_pa <= 0xffffffff:
+            ps = 0
+        elif self.max_pa <= 0xfffffffff:
+            ps = 1
+        elif self.max_pa <= 0xffffffffff:
+            ps = 2
+        elif self.max_pa <= 0x3ffffffffff:
+            ps = 3
+        elif self.max_pa <= 0xfffffffffff:
+            ps = 4
+        elif self.max_pa <= 0xffffffffffff:
+            ps = 5
+        elif self.max_pa <= 0xfffffffffffff:
+            ps = 6
+        else:
+            print "max_pa is too large: {:x}".format(self.max_pa)
+
+        self.tcr = (64 - va_max) | (ps << 16) | (tg << 14)
+        if self.mode == "stage2":
+            if self.log2_granule == 12:
+                sl0 = 2 - level
+            else:
+                sl0 = 3 - level
+            self.tcr |= (sl0 << 6)
 
     def generate(self, prefix):
         #  First level
@@ -296,8 +328,11 @@ class aarch64_mmu(Arch):
             va_max -= 1
         print "// First level: {} (w/ {} entries), max VA: 2**{}".format(
             level, sz, va_max)
+        self.set_tcr(level, va_max)
         t.tt = t.tt[0:sz]
-        return t.generate_table(prefix, level)
+        res = t.generate_table(prefix, level)
+        print "{}_tcr = 0x{:08x}".format(prefix, self.tcr)
+        return res
 
 
 def parse_addr(str):
