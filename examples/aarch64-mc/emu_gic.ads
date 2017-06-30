@@ -29,6 +29,7 @@
 
 with IOEmu; use IOEmu;
 with Interfaces; use Interfaces;
+with System;
 
 package Emu_GIC is
    type GIC_Dev is new IOEmu_Dev32 with private;
@@ -43,7 +44,7 @@ package Emu_GIC is
 
    procedure Init (Dev : access GIC_Dev; Cpu : Interrupt_Dev_Acc);
    function Get_Interrupt_Dev (Dev : access GIC_Dev) return Interrupt_Dev_Acc;
-   procedure Dump (Dev : GIC_Dev);
+   procedure Dump (Dev : in out GIC_Dev);
 
 private
    Nbr_Int : constant := 64;
@@ -61,13 +62,8 @@ private
    type State_Array is array (16 .. Nbr_Int - 1) of Boolean;
 
    type GIC_State is record
-      IT : aliased GIC_Interrupt_Dev;
-
       --  The cpu for the interrupt
       Cpu : Interrupt_Dev_Acc;
-
-      --  Callbacks for PPI when they are ack-ed.
-      PPI_Acks : Interrupt_Ack_Cb_Array (16 .. 31);
 
       --  Inputs.
       Lines : State_Array;
@@ -93,7 +89,30 @@ private
       Fiq : Boolean;
    end record;
 
-   type GIC_Dev is new IOEmu_Dev32 with record
+   protected type Prot_Gic is
+      pragma Interrupt_Priority (System.Interrupt_Priority'Last);
+
+      procedure Read32 (Off : Off_T; Res : out Unsigned_32; Ack : out Integer);
+      --  Read a register at offset OFF. ACK is set to the interrupt to be
+      --  acked or -1 if none.
+
+      procedure Write32_Mask
+        (Off : Off_T; Val : Unsigned_32; Mask : Unsigned_32);
+
+      procedure Init (Cpu : Interrupt_Dev_Acc);
+      procedure Dump;
+
+      procedure Set_Level (Id : Natural; Level : Boolean);
+   private
       S : GIC_State;
+   end Prot_Gic;
+
+   type GIC_Dev is new IOEmu_Dev32 with record
+      P : Prot_Gic;
+
+      --  Callbacks for PPI when they are ack-ed.
+      PPI_Acks : Interrupt_Ack_Cb_Array (16 .. 31);
+
+      IT : aliased GIC_Interrupt_Dev;
    end record;
 end Emu_GIC;

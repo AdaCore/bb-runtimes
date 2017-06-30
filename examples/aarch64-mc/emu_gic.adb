@@ -112,12 +112,6 @@ package body Emu_GIC is
    Reg_GICC_IIDR    : constant := 16#1_00fc#;
    Reg_GICC_DIR     : constant := 16#1_1000#;
 
-   procedure Generate_Exceptions (Dev : in out GIC_Dev);
-
-   procedure Compute_Highest_Priority_Pending_Interrupt (Dev : in out GIC_Dev);
-   function Compute_Highest_Priority_Active_Interrupt
-     (Dev : GIC_Dev) return Unsigned_32;
-
    procedure Disp_Reg_Name (Off : Off_T) is
    begin
       case Off is
@@ -199,20 +193,195 @@ package body Emu_GIC is
       end case;
    end Disp_Reg_Name;
 
-   --  Get configuration (level or edge triggered) of interrupt ID.
-   function Get_Icfg (Dev : GIC_Dev; Id : Natural) return Unsigned_32 is
-   begin
-      return Shift_Right (Dev.S.ICFGR (Id / 16), 2 * (Id mod 16)) and 3;
-   end Get_Icfg;
+   protected body Prot_Gic is
+      --  Get configuration (level or edge triggered) of interrupt ID.
+      function Get_Icfg (Id : Natural) return Unsigned_32 is
+      begin
+         return Shift_Right (S.ICFGR (Id / 16), 2 * (Id mod 16)) and 3;
+      end Get_Icfg;
 
-   function Read32 (Dev : in out GIC_Dev; Off : Off_T)
-                    return Unsigned_32
-   is
-      Res : Unsigned_32;
-   begin
-      case Off is
+      function Get_Priority (Id : Natural) return Unsigned_32 is
+      begin
+         return Shift_Left (S.PRIORITY (Id / 4), 8 * (Id mod 4)) and 16#ff#;
+      end Get_Priority;
+
+      procedure Compute_Highest_Priority_Pending_Interrupt
+      is
+         Pend : Unsigned_32;
+         Cur_Mask : Unsigned_32;
+         Id, Cur : Natural;
+         Prio, Cur_Prio : Unsigned_32;
+      begin
+         Id := 1023;
+         Prio := 16#ff#;
+
+         for I in 0 .. (Nbr_Int / 32) - 1 loop
+            Pend := S.PEND (I) and not S.ACTIVE (I);
+            for J in 0 .. 31 loop
+               Cur := I * 32 + J;
+               Cur_Mask := Shift_Left (1, J);
+               if (Pend and Cur_Mask) /= 0 then
+               --  Interrupt is pending (and not active).
+                  Cur_Prio := Get_Priority (Cur);
+                  if Cur_Prio < Prio then
+                     Id := Cur;
+                     Prio := Cur_Prio;
+                  end if;
+                  Pend := Pend and not Cur_Mask;
+                  exit when Pend = 0;
+               end if;
+            end loop;
+         end loop;
+
+         S.HPPIR := Unsigned_32 (Id);
+         S.HPPIR_Prio := Prio;
+      end Compute_Highest_Priority_Pending_Interrupt;
+
+      function Compute_Highest_Priority_Active_Interrupt return Unsigned_32
+      is
+         Active : Unsigned_32;
+         Cur_Mask : Unsigned_32;
+         Cur : Natural;
+         Prio, Cur_Prio : Unsigned_32;
+      begin
+         Prio := 16#ff#;
+
+         for I in 0 .. (Nbr_Int / 32) - 1 loop
+            Active := S.ACTIVE (I);
+            if Active /= 0 then
+               for J in 0 .. 31 loop
+                  Cur := I * 32 + J;
+                  Cur_Mask := Shift_Left (1, J);
+                  if (Active and Cur_Mask) /= 0 then
+                     Cur_Prio := Get_Priority (Cur);
+                     if Cur_Prio < Prio then
+                        Prio := Cur_Prio;
+                     end if;
+                     Active := Active and not Cur_Mask;
+                     exit when Active = 0;
+                  end if;
+               end loop;
+            end if;
+         end loop;
+
+         return Prio;
+      end Compute_Highest_Priority_Active_Interrupt;
+
+      function Get_Gic_Priority_Mask return Unsigned_32 is
+      begin
+         return Shift_Left (16#ff#, Natural (S.BPR)) and 16#ff#;
+      end Get_Gic_Priority_Mask;
+
+      procedure Generate_Exceptions
+      is
+         Irq : Boolean;
+      begin
+         Compute_Highest_Priority_Pending_Interrupt;
+
+         if S.ACTIVE /= (S.ACTIVE'Range => 0) then
+            Irq := True;
+         elsif S.HPPIR_Prio < S.PMR
+           and then (S.DCTLR and 1) = 1
+           and then (S.CCTLR and 1) = 1
+           and then S.HPPIR_Prio < (S.CRPR and Get_Gic_Priority_Mask)
+         then
+            Irq := True;
+         else
+            Irq := False;
+         end if;
+
+         if Irq /= S.Irq then
+            S.Irq := Irq;
+            S.Cpu.Set_Level (0, Irq);
+            if Flag_Debug then
+               if Irq then
+                  Log ("IRQ^");
+               else
+                  Log ("IRQv");
+               end if;
+            end if;
+         end if;
+      end Generate_Exceptions;
+
+      procedure Set_Level (Id : Natural; Level : Boolean) is
+      begin
+         pragma Assert (Id in S.Lines'Range);
+
+         if S.Lines (Id) = Level then
+            return;
+         end if;
+
+         if False then
+            Log ("IT");
+            if Level then
+               Log ('S');
+            else
+               Log ('C');
+            end if;
+            Log_Dec (Id);
+            Log_Line;
+         end if;
+
+         S.Lines (Id) := Level;
+
+         --  ICFGR are defined only for SPI.
+         if Id > 31
+           and then
+             (Shift_Right (S.ICFGR (Id / 16), 2 * (Id mod 16)) and 2) = 2
+         then
+            --  Edge triggered.
+            if not Level then
+               return;
+            end if;
+            S.PEND (Id / 32) := S.PEND (Id / 32) or Shift_Left (1, Id mod 32);
+         else
+            --  Level triggered
+            if Level then
+               S.PEND (Id / 32) :=
+                 S.PEND (Id / 32) or Shift_Left (1, Id mod 32);
+            else
+               S.PEND (Id / 32) :=
+                 S.PEND (Id / 32) and not Shift_Left (1, Id mod 32);
+            end if;
+         end if;
+
+         if (S.DCTLR and 1) = 0 then
+            --  Distributor disabled.
+            return;
+         end if;
+
+         if (S.ENABLE (Id / 32) and Shift_Left (1, Id mod 32)) = 0 then
+            --  Interrupt not enabled
+            return;
+         end if;
+
+         if (S.ACTIVE (Id / 32) and Shift_Left (1, Id mod 32)) = 1 then
+            --  Interrupt already active
+            return;
+         end if;
+
+         if False then
+            Log ('{');
+            if Level then
+               Log ('r');
+            else
+               Log ('f');
+            end if;
+            Log_Hex4 (Unsigned_32 (Id));
+            Log ('}');
+         end if;
+
+         Generate_Exceptions;
+      end Set_Level;
+
+      procedure Read32 (Off : Off_T; Res : out Unsigned_32; Ack : out Integer)
+      is
+      begin
+         Ack := -1;
+
+         case Off is
          when Reg_GICD_CTLR =>
-            Res := Dev.S.DCTLR;
+            Res := S.DCTLR;
          when Reg_GICD_TYPER =>
             --  64 interrupts, 1 cpu, no security extension.
             Res := 2#00000_0_00_000_00000# + Unsigned_32 ((Nbr_Int / 32) - 1);
@@ -243,7 +412,7 @@ package body Emu_GIC is
             Res := 16#00000000#;
          when Reg_GICD_ICFGR2
             | Reg_GICD_ICFGR3 =>
-            Res := Dev.S.ICFGR (Natural (Off - Reg_GICD_ICFGRn) / 4);
+            Res := S.ICFGR (Natural (Off - Reg_GICD_ICFGRn) / 4);
          when Reg_GICD_IPRIORITYR0
             | Reg_GICD_IPRIORITYR1
             | Reg_GICD_IPRIORITYR2
@@ -260,27 +429,27 @@ package body Emu_GIC is
             | Reg_GICD_IPRIORITYR13
             | Reg_GICD_IPRIORITYR14
             | Reg_GICD_IPRIORITYR15 =>
-            Res := Dev.S.PRIORITY (Natural (Off - Reg_GICD_IPRIORITYRn) / 4);
+            Res := S.PRIORITY (Natural (Off - Reg_GICD_IPRIORITYRn) / 4);
          when Reg_GICD_ISACTIVER0
             | Reg_GICD_ISACTIVER1 =>
-            Res := Dev.S.ACTIVE (Natural (Off - Reg_GICD_ISACTIVERn) / 4);
+            Res := S.ACTIVE (Natural (Off - Reg_GICD_ISACTIVERn) / 4);
          when Reg_GICD_ICACTIVER0
             | Reg_GICD_ICACTIVER1 =>
-            Res := Dev.S.ACTIVE (Natural (Off - Reg_GICD_ICACTIVERn) / 4);
+            Res := S.ACTIVE (Natural (Off - Reg_GICD_ICACTIVERn) / 4);
          when Reg_GICD_ISENABLER0
             | Reg_GICD_ISENABLER1 =>
-            Res := Dev.S.ENABLE (Natural (Off - Reg_GICD_ISENABLERn) / 4);
+            Res := S.ENABLE (Natural (Off - Reg_GICD_ISENABLERn) / 4);
          when Reg_GICD_ICENABLER0
             | Reg_GICD_ICENABLER1 =>
-            Res := Dev.S.ENABLE (Natural (Off - Reg_GICD_ICENABLERn) / 4);
+            Res := S.ENABLE (Natural (Off - Reg_GICD_ICENABLERn) / 4);
 
          when Reg_GICC_CTLR =>
-            Res := Dev.S.CCTLR;
+            Res := S.CCTLR;
          when Reg_GICC_PMR =>
-            Res := Dev.S.PMR;
+            Res := S.PMR;
 
          when Reg_GICC_IAR =>
-            Res := Dev.S.HPPIR;
+            Res := S.HPPIR;
             declare
                Id : constant Natural := Natural (Res and 16#3ff#);
             begin
@@ -288,25 +457,25 @@ package body Emu_GIC is
                   --  Acknowledge interrupt.
                   --  interrupt is active.
                   Set_Enable
-                    (Dev.S.ACTIVE (Id / 32), Shift_Left (1, Id mod 32));
+                    (S.ACTIVE (Id / 32), Shift_Left (1, Id mod 32));
                   --  If it is edge-triggered, disable pending bit.
                   if Id < 16 then
                      --  SGI
                      null;
                   elsif Id < 32 then
                      --  PPI
-                     Dev.S.PPI_Acks (Id).Ack;
+                     Ack := Id;
                   else
                      --  SPI
-                     if (Get_Icfg (Dev, Id) and 2) = 2 then
+                     if (Get_Icfg (Id) and 2) = 2 then
                         Set_Disable
-                          (Dev.S.PEND (Id / 32), Shift_Left (1, Id mod 32));
+                          (S.PEND (Id / 32), Shift_Left (1, Id mod 32));
                      end if;
                   end if;
                   --  Change running priority
-                  Dev.S.CRPR := Dev.S.HPPIR_Prio;
+                  S.CRPR := S.HPPIR_Prio;
                   --  Recompute highest pending interrupt.
-                  Compute_Highest_Priority_Pending_Interrupt (Dev);
+                  Compute_Highest_Priority_Pending_Interrupt;
                end if;
             end;
 
@@ -315,38 +484,19 @@ package body Emu_GIC is
             Disp_Reg_Name (Off);
             Log_Line;
             raise Program_Error;
-      end case;
+         end case;
+      end Read32;
 
-      if Flag_Debug then
-         Log ("RGIC: ");
-         Disp_Reg_Name (Off);
-         Log (" -> ");
-         Log_Hex4 (Res);
-         Log_Line;
-      end if;
-
-      return Res;
-   end Read32;
-
-   procedure Write32_Mask
-     (Dev : in out GIC_Dev;
-      Off : Off_T;
-      Val : Unsigned_32;
-      Mask : Unsigned_32)
-   is
-      Idx : Natural;
-   begin
-      if Flag_Debug then
-         Log ("WGIC: ");
-         Disp_Reg_Name (Off);
-         Log (" <- ");
-         Log_Hex4 (Val);
-         Log_Line;
-      end if;
-
-      case Off is
+      procedure Write32_Mask
+        (Off : Off_T;
+         Val : Unsigned_32;
+         Mask : Unsigned_32)
+      is
+         Idx : Natural;
+      begin
+         case Off is
          when Reg_GICD_CTLR =>
-            Update (Dev.S.DCTLR, Val and 16#01#, Mask);
+            Update (S.DCTLR, Val and 16#01#, Mask);
             --  FIXME: update output.
          when Reg_GICD_ITARGETSR0
             | Reg_GICD_ITARGETSR1
@@ -374,7 +524,7 @@ package body Emu_GIC is
          when Reg_GICD_ICFGR2
             | Reg_GICD_ICFGR3 =>
             Idx := Natural (Off - Reg_GICD_ICFGRn) / 4;
-            Update (Dev.S.ICFGR (Idx), Val, Mask);
+            Update (S.ICFGR (Idx), Val, Mask);
             --  Update ?
          when Reg_GICD_IPRIORITYR0
             | Reg_GICD_IPRIORITYR1
@@ -393,35 +543,35 @@ package body Emu_GIC is
             | Reg_GICD_IPRIORITYR14
             | Reg_GICD_IPRIORITYR15 =>
             Idx := Natural (Off - Reg_GICD_IPRIORITYRn) / 4;
-            Update (Dev.S.PRIORITY (Idx), Val, Mask);
-            Generate_Exceptions (Dev);
+            Update (S.PRIORITY (Idx), Val, Mask);
+            Generate_Exceptions;
          when Reg_GICD_ISACTIVER0
             | Reg_GICD_ISACTIVER1 =>
             Idx := Natural (Off - Reg_GICD_ISACTIVERn) / 4;
-            Set_Enable (Dev.S.ACTIVE (Idx), Val);
+            Set_Enable (S.ACTIVE (Idx), Val);
             --  Update
          when Reg_GICD_ICACTIVER0
             | Reg_GICD_ICACTIVER1 =>
             Idx := Natural (Off - Reg_GICD_ICACTIVERn) / 4;
-            Set_Disable (Dev.S.ACTIVE (Idx), Val);
+            Set_Disable (S.ACTIVE (Idx), Val);
             --  Update.
          when Reg_GICD_ISENABLER0
             | Reg_GICD_ISENABLER1 =>
             Idx := Natural (Off - Reg_GICD_ISENABLERn) / 4;
-            Set_Enable (Dev.S.ENABLE (Idx), Val);
-            Generate_Exceptions (Dev);
+            Set_Enable (S.ENABLE (Idx), Val);
+            Generate_Exceptions;
          when Reg_GICD_ICENABLER0
             | Reg_GICD_ICENABLER1 =>
             Idx := Natural (Off - Reg_GICD_ICENABLERn) / 4;
-            Set_Disable (Dev.S.ENABLE (Idx), Val);
-            Generate_Exceptions (Dev);
+            Set_Disable (S.ENABLE (Idx), Val);
+            Generate_Exceptions;
 
          when Reg_GICC_CTLR =>
-            Update (Dev.S.CCTLR, Val and 1, Mask);
-            Generate_Exceptions (Dev);
+            Update (S.CCTLR, Val and 1, Mask);
+            Generate_Exceptions;
          when Reg_GICC_PMR =>
-            Update (Dev.S.PMR, Val and 16#ff#, Mask);
-            Generate_Exceptions (Dev);
+            Update (S.PMR, Val and 16#ff#, Mask);
+            Generate_Exceptions;
 
          when Reg_GICC_EOIR =>
             declare
@@ -434,14 +584,14 @@ package body Emu_GIC is
                end if;
 
                --  Deactivate interrupt
-               Set_Disable (Dev.S.ACTIVE (Id / 32), Shift_Left (1, Id mod 32));
+               Set_Disable (S.ACTIVE (Id / 32), Shift_Left (1, Id mod 32));
 
                --  Set running priority to the highest active interrupt
-               Nprio := Compute_Highest_Priority_Active_Interrupt (Dev);
+               Nprio := Compute_Highest_Priority_Active_Interrupt;
 
-               Dev.S.CRPR := Nprio;
+               S.CRPR := Nprio;
 
-               Generate_Exceptions (Dev);
+               Generate_Exceptions;
             end;
 
          when others =>
@@ -449,277 +599,160 @@ package body Emu_GIC is
             Disp_Reg_Name (Off);
             Log_Line;
             raise Program_Error;
-      end case;
-   end Write32_Mask;
+         end case;
+      end Write32_Mask;
+
+      procedure Init (Cpu : Interrupt_Dev_Acc) is
+      begin
+         S := (Cpu => Cpu,
+               Lines => (others => False),
+               DCTLR => 0,
+               ICFGR => (others => 0),
+               PRIORITY => (others => 0),
+               ACTIVE => (others => 0),
+               ENABLE => (others => 0),
+               PEND => (others => 0),
+
+               CCTLR => 0,
+               PMR => 0,
+               BPR => 0,
+               CRPR => 16#ff#,
+               HPPIR => 16#3ff#,
+               HPPIR_Prio => 16#ff#,
+
+               Irq => False,
+               Fiq => False);
+      end Init;
+
+      procedure Dump is
+      begin
+         Log ("GIC: DCTLR: ");
+         Log_Hex4 (S.DCTLR);
+         Log (" CCTLR: ");
+         Log_Hex4 (S.CCTLR);
+         Log (" PMR: ");
+         Log_Hex4 (S.PMR);
+         Log (" RPR: ");
+         Log_Hex4 (S.CRPR);
+         Log_Line;
+
+         Log ("   PEND:");
+         for I in S.PEND'Range loop
+            Log (' ');
+            Log_Hex4 (S.PEND (I));
+         end loop;
+         Log_Line;
+
+         Log (" ENABLE:");
+         for I in S.ENABLE'Range loop
+            Log (' ');
+            Log_Hex4 (S.ENABLE (I));
+         end loop;
+         Log_Line;
+
+         Log (" ACTIVE:");
+         for I in S.ACTIVE'Range loop
+            Log (' ');
+            Log_Hex4 (S.ACTIVE (I));
+         end loop;
+         Log_Line;
+
+         Log ("  HPPIR: ");
+         Log_Dec (Natural (S.HPPIR));
+         Log (", PRIO: ");
+         Log_Hex4 (S.HPPIR_Prio);
+         Log_Line;
+
+         Log (" Lines: ");
+         for I in S.Lines'Range loop
+            if S.Lines (I) then
+               Log ('1');
+            else
+               Log ('0');
+            end if;
+         end loop;
+         Log_Line;
+      end Dump;
+   end Prot_Gic;
 
    procedure Init (Dev : access GIC_Dev; Cpu : Interrupt_Dev_Acc) is
    begin
-      Dev.S := (Cpu => Cpu,
-                IT => (Parent => GIC_Dev_Acc (Dev)),
-                PPI_Acks => (others => null),
-                Lines => (others => False),
-                DCTLR => 0,
-                ICFGR => (others => 0),
-                PRIORITY => (others => 0),
-                ACTIVE => (others => 0),
-                ENABLE => (others => 0),
-                PEND => (others => 0),
-
-                CCTLR => 0,
-                PMR => 0,
-                  BPR => 0,
-                  CRPR => 16#ff#,
-                  HPPIR => 16#3ff#,
-                  HPPIR_Prio => 16#ff#,
-
-                  Irq => False,
-                  Fiq => False);
+      Dev.IT := (Parent => GIC_Dev_Acc (Dev));
+      Dev.PPI_Acks := (others => null);
+      Dev.P.Init (Cpu);
    end Init;
 
    function Get_Interrupt_Dev (Dev : access GIC_Dev) return Interrupt_Dev_Acc
    is
    begin
-      return Dev.S.IT'Access;
+      return Dev.IT'Access;
    end Get_Interrupt_Dev;
-
-   function Get_Priority (Dev : GIC_Dev; Id : Natural) return Unsigned_32 is
-   begin
-      return Shift_Left (Dev.S.PRIORITY (Id / 4), 8 * (Id mod 4)) and 16#ff#;
-   end Get_Priority;
-
-   procedure Compute_Highest_Priority_Pending_Interrupt (Dev : in out GIC_Dev)
-   is
-      Pend : Unsigned_32;
-      Cur_Mask : Unsigned_32;
-      Id, Cur : Natural;
-      Prio, Cur_Prio : Unsigned_32;
-   begin
-      Id := 1023;
-      Prio := 16#ff#;
-
-      for I in 0 .. (Nbr_Int / 32) - 1 loop
-         Pend := Dev.S.PEND (I) and not Dev.S.ACTIVE (I);
-         for J in 0 .. 31 loop
-            Cur := I * 32 + J;
-            Cur_Mask := Shift_Left (1, J);
-            if (Pend and Cur_Mask) /= 0 then
-               --  Interrupt is pending (and not active).
-               Cur_Prio := Get_Priority (Dev, Cur);
-               if Cur_Prio < Prio then
-                  Id := Cur;
-                  Prio := Cur_Prio;
-               end if;
-               Pend := Pend and not Cur_Mask;
-               exit when Pend = 0;
-            end if;
-         end loop;
-      end loop;
-
-      Dev.S.HPPIR := Unsigned_32 (Id);
-      Dev.S.HPPIR_Prio := Prio;
-   end Compute_Highest_Priority_Pending_Interrupt;
-
-   function Compute_Highest_Priority_Active_Interrupt
-     (Dev : GIC_Dev) return Unsigned_32
-   is
-      Active : Unsigned_32;
-      Cur_Mask : Unsigned_32;
-      Cur : Natural;
-      Prio, Cur_Prio : Unsigned_32;
-   begin
-      Prio := 16#ff#;
-
-      for I in 0 .. (Nbr_Int / 32) - 1 loop
-         Active := Dev.S.ACTIVE (I);
-         if Active /= 0 then
-            for J in 0 .. 31 loop
-               Cur := I * 32 + J;
-               Cur_Mask := Shift_Left (1, J);
-               if (Active and Cur_Mask) /= 0 then
-                  Cur_Prio := Get_Priority (Dev, Cur);
-                  if Cur_Prio < Prio then
-                     Prio := Cur_Prio;
-                  end if;
-                  Active := Active and not Cur_Mask;
-                  exit when Active = 0;
-               end if;
-            end loop;
-         end if;
-      end loop;
-
-      return Prio;
-   end Compute_Highest_Priority_Active_Interrupt;
-
-   function Get_Gic_Priority_Mask (Dev : GIC_Dev) return Unsigned_32 is
-   begin
-      return Shift_Left (16#ff#, Natural (Dev.S.BPR)) and 16#ff#;
-   end Get_Gic_Priority_Mask;
-
-   procedure Generate_Exceptions (Dev : in out GIC_Dev)
-   is
-      Irq : Boolean;
-   begin
-      Compute_Highest_Priority_Pending_Interrupt (Dev);
-
-      if Dev.S.ACTIVE /= (Dev.S.ACTIVE'Range => 0) then
-         Irq := True;
-      elsif Dev.S.HPPIR_Prio < Dev.S.PMR
-        and then (Dev.S.DCTLR and 1) = 1
-        and then (Dev.S.CCTLR and 1) = 1
-        and then
-          Dev.S.HPPIR_Prio < (Dev.S.CRPR and Get_Gic_Priority_Mask (Dev))
-      then
-         Irq := True;
-      else
-         Irq := False;
-      end if;
-
-      if Irq /= Dev.S.Irq then
-         Dev.S.Irq := Irq;
-         Dev.S.Cpu.Set_Level (0, Irq);
-         if Flag_Debug then
-            if Irq then
-               Log ("IRQ^");
-            else
-               Log ("IRQv");
-            end if;
-         end if;
-      end if;
-   end Generate_Exceptions;
 
    procedure Set_Level
      (Dev : in out GIC_Interrupt_Dev; Id : Natural; Level : Boolean)
    is
       D : GIC_Dev renames Dev.Parent.all;
    begin
-      pragma Assert (Id in D.S.Lines'Range);
-
-      if D.S.Lines (Id) = Level then
-         return;
-      end if;
-
-      if False then
-         Log ("IT");
-         if Level then
-            Log ('S');
-         else
-            Log ('C');
-         end if;
-         Log_Dec (Id);
-         Log_Line;
-      end if;
-
-      D.S.Lines (Id) := Level;
-
-      --  ICFGR are defined only for SPI.
-      if Id > 31
-        and then (Shift_Right (D.S.ICFGR (Id / 16), 2 * (Id mod 16)) and 2) = 2
-      then
-         --  Edge triggered.
-         if not Level then
-            return;
-         end if;
-         D.S.PEND (Id / 32) := D.S.PEND (Id / 32) or Shift_Left (1, Id mod 32);
-      else
-         --  Level triggered
-         if Level then
-            D.S.PEND (Id / 32) :=
-              D.S.PEND (Id / 32) or Shift_Left (1, Id mod 32);
-         else
-            D.S.PEND (Id / 32) :=
-              D.S.PEND (Id / 32) and not Shift_Left (1, Id mod 32);
-         end if;
-      end if;
-
-      if (D.S.DCTLR and 1) = 0 then
-         --  Distributor disabled.
-         return;
-      end if;
-
-      if (D.S.ENABLE (Id / 32) and Shift_Left (1, Id mod 32)) = 0 then
-         --  Interrupt not enabled
-         return;
-      end if;
-
-      if (D.S.ACTIVE (Id / 32) and Shift_Left (1, Id mod 32)) = 1 then
-         --  Interrupt already active
-         return;
-      end if;
-
-      if False then
-         Log ('{');
-         if Level then
-            Log ('r');
-         else
-            Log ('f');
-         end if;
-         Log_Hex4 (Unsigned_32 (Id));
-         Log ('}');
-      end if;
-
-      Generate_Exceptions (D);
+      D.P.Set_Level (Id, Level);
    end Set_Level;
 
    procedure Set_Ack_Cb
      (Dev : in out GIC_Interrupt_Dev; Id : Natural; Cb : Interrupt_Ack_Cb_Acc)
    is
+      D : GIC_Dev renames Dev.Parent.all;
    begin
-      if Dev.Parent.S.PPI_Acks (Id) /= null then
+      if D.PPI_Acks (Id) /= null then
          --  Must not be overriden.
          raise Program_Error;
       end if;
 
-      Dev.Parent.S.PPI_Acks (Id) := Cb;
+      D.PPI_Acks (Id) := Cb;
    end Set_Ack_Cb;
 
-   procedure Dump (Dev : GIC_Dev) is
+   procedure Dump (Dev : in out GIC_Dev) is
    begin
-      Log ("GIC: DCTLR: ");
-      Log_Hex4 (Dev.S.DCTLR);
-      Log (" CCTLR: ");
-      Log_Hex4 (Dev.S.CCTLR);
-      Log (" PMR: ");
-      Log_Hex4 (Dev.S.PMR);
-      Log (" RPR: ");
-      Log_Hex4 (Dev.S.CRPR);
-      Log_Line;
-
-      Log ("   PEND:");
-      for I in Dev.S.PEND'Range loop
-         Log (' ');
-         Log_Hex4 (Dev.S.PEND (I));
-      end loop;
-      Log_Line;
-
-      Log (" ENABLE:");
-      for I in Dev.S.ENABLE'Range loop
-         Log (' ');
-         Log_Hex4 (Dev.S.ENABLE (I));
-      end loop;
-      Log_Line;
-
-      Log (" ACTIVE:");
-      for I in Dev.S.ACTIVE'Range loop
-         Log (' ');
-         Log_Hex4 (Dev.S.ACTIVE (I));
-      end loop;
-      Log_Line;
-
-      Log ("  HPPIR: ");
-      Log_Dec (Natural (Dev.S.HPPIR));
-      Log (", PRIO: ");
-      Log_Hex4 (Dev.S.HPPIR_Prio);
-      Log_Line;
-
-      Log (" Lines: ");
-      for I in Dev.S.Lines'Range loop
-         if Dev.S.Lines (I) then
-            Log ('1');
-         else
-            Log ('0');
-         end if;
-      end loop;
-      Log_Line;
+      Dev.P.Dump;
    end Dump;
 
+   function Read32 (Dev : in out GIC_Dev; Off : Off_T)
+                    return Unsigned_32
+   is
+      Res : Unsigned_32;
+      Ack : Integer;
+   begin
+      Dev.P.Read32 (Off, Res, Ack);
+
+      if Flag_Debug then
+         Log ("RGIC: ");
+         Disp_Reg_Name (Off);
+         Log (" -> ");
+         Log_Hex4 (Res);
+         Log_Line;
+      end if;
+
+      if Ack >= 0 then
+         --  Call the ack callback from the outside of the PO, as the callback
+         --  may reenter the PO.
+         Dev.PPI_Acks (Ack).Ack;
+      end if;
+
+      return Res;
+   end Read32;
+
+   procedure Write32_Mask
+     (Dev : in out GIC_Dev;
+      Off : Off_T;
+      Val : Unsigned_32;
+      Mask : Unsigned_32) is
+   begin
+      if Flag_Debug then
+         Log ("WGIC: ");
+         Disp_Reg_Name (Off);
+         Log (" <- ");
+         Log_Hex4 (Val);
+         Log_Line;
+      end if;
+
+      Dev.P.Write32_Mask (Off, Val, Mask);
+   end Write32_Mask;
 end Emu_GIC;
