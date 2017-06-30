@@ -39,9 +39,7 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
-_DEFAULT_STACK_EL3_SIZE = (4 * 1024);
-_DEFAULT_STACK_EL2_SIZE = (4 * 1024);
-_DEFAULT_STACK_EL1_SIZE = (200 * 1024);
+_DEFAULT_STACK_SIZE = (200 * 1024);
 
 ENTRY(__vectors);
 
@@ -143,63 +141,23 @@ SECTIONS
    /* Separate env stack per CPU and EL levels= */
    __stack_start = .;
 
-   __cpu0_stack_el3_start = .;
-   . += DEFINED (__stack_el3_size) ? __stack_el3_size : _DEFAULT_STACK_EL3_SIZE;
-   . = ALIGN(0x10);
-   __cpu0_stack_el3_end = .;
-
-   __cpu1_stack_el3_start = .;
-   . += DEFINED (__stack_el3_size) ? __stack_el3_size : _DEFAULT_STACK_EL3_SIZE;
-   . = ALIGN(0x10);
-   __cpu1_stack_el3_end = .;
-
-   __cpu2_stack_el3_start = .;
-   . += DEFINED (__stack_el3_size) ? __stack_el3_size : _DEFAULT_STACK_EL3_SIZE;
-   . = ALIGN(0x10);
-   __cpu2_stack_el3_end = .;
-
-   __cpu3_stack_el3_start = .;
-   . += DEFINED (__stack_el3_size) ? __stack_el3_size : _DEFAULT_STACK_EL3_SIZE;
-   . = ALIGN(0x10);
-   __cpu3_stack_el3_end = .;
-
-   __cpu0_stack_el2_start = .;
-   . += DEFINED (__stack_el2_size) ? __stack_el2_size : _DEFAULT_STACK_EL2_SIZE;
-   . = ALIGN(0x10);
-   __cpu0_stack_el2_end = .;
-
-   __cpu1_stack_el2_start = .;
-   . += DEFINED (__stack_el2_size) ? __stack_el2_size : _DEFAULT_STACK_EL2_SIZE;
-   . = ALIGN(0x10);
-   __cpu1_stack_el2_end = .;
-
-   __cpu2_stack_el2_start = .;
-   . += DEFINED (__stack_el2_size) ? __stack_el2_size : _DEFAULT_STACK_EL2_SIZE;
-   . = ALIGN(0x10);
-   __cpu2_stack_el2_end = .;
-
-   __cpu3_stack_el2_start = .;
-   . += DEFINED (__stack_el2_size) ? __stack_el2_size : _DEFAULT_STACK_EL2_SIZE;
-   . = ALIGN(0x10);
-   __cpu3_stack_el2_end = .;
-
    __cpu0_stack_start = .;
-   . += DEFINED (__stack_el1_size) ? __stack_el1_size : _DEFAULT_STACK_EL1_SIZE;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
    . = ALIGN(0x10);
    __cpu0_stack_end = .;
 
    __cpu1_stack_start = .;
-   . += DEFINED (__stack_el1_size) ? __stack_el1_size : _DEFAULT_STACK_EL1_SIZE;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
    . = ALIGN(0x10);
    __cpu1_stack_end = .;
 
    __cpu2_stack_start = .;
-   . += DEFINED (__stack_el1_size) ? __stack_el1_size : _DEFAULT_STACK_EL1_SIZE;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
    . = ALIGN(0x10);
    __cpu2_stack_end = .;
 
    __cpu3_stack_start = .;
-   . += DEFINED (__stack_el1_size) ? __stack_el1_size : _DEFAULT_STACK_EL1_SIZE;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
    . = ALIGN(0x10);
    __cpu3_stack_end = .;
 

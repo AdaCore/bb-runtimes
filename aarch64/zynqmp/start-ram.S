@@ -234,8 +234,8 @@ __start_el2:
         msr     hcr_el2,x0
 
         # Load stack pointer (on 32bit)
-        adrp    x2, system_stack_el1_base
-        add     x2, x2, #:lo12:system_stack_el1_base
+        adrp    x2, system_stack_base
+        add     x2, x2, #:lo12:system_stack_base
         ldr     w0, [x2, x7, lsl #2]
         mov     sp, x0
 
@@ -275,8 +275,8 @@ __start_el1:
         msr     cpacr_el1, x0
 
         # Load stack pointer (on 32bit)
-        adrp    x2, system_stack_el1_base
-        add     x2, x2, #:lo12:system_stack_el1_base
+        adrp    x2, system_stack_base
+        add     x2, x2, #:lo12:system_stack_base
         ldr     w0, [x2, x7, lsl #2]
         mov     sp, x0
 
@@ -455,19 +455,7 @@ bss_segment:
         .word   __bss_start
         .word   __bss_dwords
 
-system_stack_el3_base:
-        .word   __cpu0_stack_el3_end
-        .word   __cpu1_stack_el3_end
-        .word   __cpu2_stack_el3_end
-        .word   __cpu3_stack_el3_end
-
-system_stack_el2_base:
-        .word   __cpu0_stack_el2_end
-        .word   __cpu1_stack_el2_end
-        .word   __cpu2_stack_el2_end
-        .word   __cpu3_stack_el2_end
-
-system_stack_el1_base:
+system_stack_base:
         .word   __cpu0_stack_end
         .word   __cpu1_stack_end
         .word   __cpu2_stack_end
@@ -475,4 +463,4 @@ system_stack_el1_base:
 
 .text
 
-#include "memmap.S"
+#include "memmap.s"
