@@ -40,11 +40,7 @@ class CortexARTarget(DFBBTarget):
         return 'system-xi-arm.ads'
 
 
-class Rpi2(CortexARTarget):
-    @property
-    def name(self):
-        return "rpi2"
-
+class Rpi2Base(CortexARTarget):
     @property
     def loaders(self):
         return ('RAM', )
@@ -82,21 +78,49 @@ class Rpi2(CortexARTarget):
         return 'system-xi-arm-full.ads'
 
     def __init__(self):
-        super(Rpi2, self).__init__(
+        super(Rpi2Base, self).__init__(
             mem_routines=True,
             small_mem=False)
 
         self.add_linker_script('arm/rpi2/ram.ld', loader='RAM')
         self.add_sources('crt0', [
             'src/i-raspberry_pi.ads',
-            'arm/rpi2/start-ram.S',
-            'arm/rpi2/memmap.s',
-            'src/s-textio/rpi2-mini/s-textio.adb',
             'src/s-macres/rpi2/s-macres.adb'])
         self.add_sources('gnarl', [
             'src/a-intnam/rpi2/a-intnam.ads',
-            'src/s-bbpara/rpi2/s-bbpara.ads',
             'src/s-bbbosu/rpi2/s-bbbosu.adb'])
+
+
+class Rpi2(Rpi2Base):
+    @property
+    def name(self):
+        return "rpi2"
+
+    def __init__(self):
+        super(Rpi2, self).__init__()
+
+        self.add_sources('crt0', [
+            'arm/rpi2/start-ram.S',
+            'arm/rpi2/memmap.s',
+            'src/s-textio/rpi2-mini/s-textio.adb'])
+        self.add_sources('gnarl', [
+            'src/s-bbpara/rpi2/s-bbpara.ads'])
+
+
+class Rpi2Mc(Rpi2Base):
+    @property
+    def name(self):
+        return "rpi2mc"
+
+    def __init__(self):
+        super(Rpi2Mc, self).__init__()
+
+        self.add_sources('crt0', [
+            'arm/rpi2-mc/start-ram.S',
+            'arm/rpi2-mc/memmap.s',
+            'src/s-textio/rpi2-pl011/s-textio.adb'])
+        self.add_sources('gnarl', [
+            'src/s-bbpara/rpi2/s-bbpara.ads'])
 
 
 class TMS570(CortexARTarget):

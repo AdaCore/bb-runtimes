@@ -17,7 +17,7 @@ from pikeos import ArmPikeOS, PpcPikeOS, X86PikeOS
 from arm.cortexm import Stm32, Sam, SmartFusion2, LM3S
 
 # Cortex-A/R runtimes
-from arm.cortexar import TMS570, Rpi2, Zynq7000
+from arm.cortexar import TMS570, Rpi2, Rpi2Mc, Zynq7000
 
 # Aarch64
 from aarch64 import Rpi3, Rpi3Mc, ZynqMP, AARCH64QEMU
@@ -50,6 +50,8 @@ def build_configs(target):
         t = Zynq7000()
     elif target == 'rpi2':
         t = Rpi2()
+    elif target == 'rpi2mc':
+        t = Rpi2Mc()
     elif target == 'rpi3':
         t = Rpi3()
     elif target == 'rpi3mc':
