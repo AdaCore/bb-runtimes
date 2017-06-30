@@ -2,7 +2,7 @@
 --                                                                          --
 --                               GNAT EXAMPLE                               --
 --                                                                          --
---                        Copyright (C) 2016, AdaCore                       --
+--                     Copyright (C) 2016-2017, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -99,6 +99,67 @@ package body Armv7a is
       return Res;
    end Get_MIDR;
 
+   function Get_HSCTLR return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrc p15, #4, %0, c1, c0, #0",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_HSCTLR;
+
+   function Get_HCPTR return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrc p15, #4, %0, c1, c1, #2",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_HCPTR;
+
+   function Get_HMAIR0 return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrc p15, #4, %0, c10, c2, #0",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_HMAIR0;
+
+   function Get_HMAIR1 return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrc p15, #4, %0, c10, c2, #1",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_HMAIR1;
+
+   function Get_HTCR return Unsigned_32
+   is
+      Res : Unsigned_32;
+   begin
+      Asm ("mrc p15, #4, %0, c2, c0, #2",
+           Outputs => Unsigned_32'Asm_Output ("=r", Res),
+           Volatile => True);
+      return Res;
+   end Get_HTCR;
+
+   function Get_HTTBR return Unsigned_64
+   is
+      Lo, Hi : Unsigned_32;
+   begin
+      Asm ("mrrc p15, 4, %0, %1, c2",
+           Outputs => (Unsigned_32'Asm_Output ("=r", Lo),
+                       Unsigned_32'Asm_Output ("=r", Hi)),
+           Volatile => True);
+      return Shift_Left (Unsigned_64 (Hi), 32) or Unsigned_64 (Lo);
+   end Get_HTTBR;
+
    procedure Proc_Cr is
       CPSR : constant Unsigned_32 := Get_CPSR;
       MIDR : constant Unsigned_32 := Get_MIDR;
@@ -130,12 +191,30 @@ package body Armv7a is
          New_Line;
       end if;
 
+      if (CPSR and 16#1f#) = 2#11010# then
+         --  For hypervisor
+         Put ("HSCTLR: ");
+         Put (Hex4 (Get_HSCTLR));
+         Put (", HCPTR: ");
+         Put (Hex4 (Get_HCPTR));
+         New_Line;
+         Put ("HMAIR0: ");
+         Put (Hex4 (Get_HMAIR0));
+         Put (", HMAIR1: ");
+         Put (Hex4 (Get_HMAIR1));
+         Put (", HTCR: ");
+         Put (Hex4 (Get_HTCR));
+         Put (", HTTBR: ");
+         Put (Hex8 (Get_HTTBR));
+         New_Line;
+      end if;
+
       if (CPSR and 16#1f#) = 2#10110# then
          --  Only for monitor.
-         Put (", SCR: ");
+         Put ("SCR: ");
          Put (Image8 (Get_SCR));
+         New_Line;
       end if;
-      New_Line;
    end Proc_Cr;
 
    procedure Proc_Cpsid is
