@@ -418,6 +418,7 @@ class SourceDirs(SharedFilesHolder):
         # Memory support sources
         self.add_rule('mem', 'Add_Memory_Operations:yes')
         self.add_sources('mem', [
+            'hie/s-memtyp.ads',
             'hie/s-memcom.ads', 'hie/s-memcom.adb',
             'hie/s-memcop.ads', 'hie/s-memcop.adb',
             'hie/s-memmov.ads', 'hie/s-memmov.adb',
