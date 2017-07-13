@@ -41,8 +41,12 @@ with System.BB.CPU_Primitives.Multiprocessors;
 package body System.BB.Board_Support is
    use CPU_Primitives, BB.Interrupts;
 
-   procedure IRQ_Handler (Vector : CPU_Primitives.Vector_Id);
-   --  Low-level interrupt handler
+   procedure IRQ_Handler;
+   pragma Export (Ada, IRQ_Handler, "__gnat_irq_handler");
+
+   procedure FIQ_Handler;
+   pragma Export (Ada, FIQ_Handler, "__gnat_fiq_handler");
+--  Low-level interrupt handler
 
    procedure Initialize_CPU_Devices;
    pragma Export (C, Initialize_CPU_Devices, "__gnat_initialize_cpu_devices");
@@ -228,8 +232,6 @@ package body System.BB.Board_Support is
       ICDIPTR (23) := 16#01_01_01_01#;
 
       Initialize_CPU_Devices;
-
-      Install_Trap_Handler (IRQ_Handler'Address, 5);
    end Initialize_Board;
 
    package body Time is
@@ -312,9 +314,8 @@ package body System.BB.Board_Support is
    -- IRQ_Handler --
    -----------------
 
-   procedure IRQ_Handler (Vector : CPU_Primitives.Vector_Id)
+   procedure IRQ_Handler
    is
-      pragma Unreferenced (Vector);
       Iar : constant Unsigned_32 := ICCIAR;
       Int_Id : constant Unsigned_32 := Iar and 16#3ff#;
    begin
@@ -328,6 +329,16 @@ package body System.BB.Board_Support is
       --  Clear interrupt request
       ICCEOIR := Iar;
    end IRQ_Handler;
+
+   -----------------
+   -- FIQ_Handler --
+   -----------------
+
+   procedure FIQ_Handler is
+   begin
+      --  Not supported
+      raise Program_Error;
+   end FIQ_Handler;
 
    package body Interrupts is
       -------------------------------

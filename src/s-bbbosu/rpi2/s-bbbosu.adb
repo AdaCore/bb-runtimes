@@ -37,7 +37,6 @@
 with Ada.Unchecked_Conversion;
 with System.Machine_Code;
 with System.BB.CPU_Primitives.Multiprocessors;
-with System.BB.Parameters;
 with Interfaces; use Interfaces;
 with Interfaces.Raspberry_Pi;
 
@@ -47,7 +46,10 @@ package body System.BB.Board_Support is
    use System.Multiprocessors;
    use Interfaces.Raspberry_Pi;
 
-   procedure IRQ_Handler (Vector : CPU_Primitives.Vector_Id);
+   procedure IRQ_Handler;
+   pragma Export (Ada, IRQ_Handler, "__gnat_irq_handler");
+   procedure FIQ_Handler;
+   pragma Export (Ada, FIQ_Handler, "__gnat_fiq_handler");
    --  Low-level interrupt handler
 
    procedure Initialize_CPU_Devices;
@@ -124,8 +126,6 @@ package body System.BB.Board_Support is
       end loop;
 
       Initialize_CPU_Devices;
-
-      Install_Trap_Handler (IRQ_Handler'Address, 5);
    end Initialize_Board;
 
    package body Time is
@@ -203,9 +203,8 @@ package body System.BB.Board_Support is
    -- IRQ_Handler --
    -----------------
 
-   procedure IRQ_Handler (Vector : CPU_Primitives.Vector_Id)
+   procedure IRQ_Handler
    is
-      pragma Unreferenced (Vector);
       This_CPU  : constant CPU := Multiprocessors.Current_CPU;
       Src       : constant Unsigned_32 :=
                     Local_Registers.Cores_IRQ_Source (Natural (This_CPU));
@@ -251,6 +250,16 @@ package body System.BB.Board_Support is
          Interrupt_Wrapper (Interrupt_ID (Base));
       end if;
    end IRQ_Handler;
+
+   -----------------
+   -- FIQ_Handler --
+   -----------------
+
+   procedure FIQ_Handler is
+   begin
+      --  Not supported
+      raise Program_Error;
+   end FIQ_Handler;
 
    package body Interrupts is
       -------------------------------

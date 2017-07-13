@@ -17,7 +17,7 @@ class CortexARArch(BSP):
             'src/i-cache/armv7/i-cache.adb'])
         self.add_sources('gnarl', [
             'src/s-bbcpsp/arm/s-bbcpsp.ads',
-            'src/s-bbcppr/old/s-bbcppr.ads',
+            'src/s-bbcppr/new/s-bbcppr.ads',
             'src/s-bbcppr/arm/s-bbcppr.adb',
             'src/s-bbinte/generic/s-bbinte.adb'])
 

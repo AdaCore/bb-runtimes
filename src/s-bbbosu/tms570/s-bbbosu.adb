@@ -34,11 +34,11 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with Interfaces; use Interfaces;
 with System.BB.Parameters;
-with System.BB.CPU_Primitives;
 
 package body System.BB.Board_Support is
-   use CPU_Primitives, BB.Interrupts;
+   use BB.Interrupts;
 
    -------------------------------
    -- Real-Time Interrupt (RTI) --
@@ -83,24 +83,24 @@ package body System.BB.Board_Support is
    --  where requested X is the Interrupt_ID. The software interrupt is
    --  automatically cleared.
 
-   SSIR1 : Word;
+   SSIR1 : Unsigned_32;
    pragma Volatile (SSIR1);
    for SSIR1'Address use 16#FFFF_FFB0#;
    --  Register to generate software interrupts
 
-   SSIR1_Key : constant Word := 16#7500#;
+   SSIR1_Key : constant Unsigned_32 := 16#7500#;
    --  Value to write to SSIR1 to trigger an interrupt
 
-   SSIF : Word;
+   SSIF : Unsigned_32;
    pragma Volatile (SSIF);
    for SSIF'Address use 16#FFFF_FFF8#;
    --  Software interrupt flag register. The bits 0 .. 3 are used for
    --  SSIR1 .. SSIR4 respectively.
 
-   SSIFLAG1 : constant Word := 2**0;
+   SSIFLAG1 : constant Unsigned_32 := 2**0;
    --  Bit in the SSIF register corresponding to SSIR4
 
-   SSIVEC : Word;
+   SSIVEC : Unsigned_32;
    pragma Volatile (SSIVEC);
    for SSIVEC'Address use 16#FFFF_FFF4#;
    --  Reading returns 256 * D + N, where N is the number of the SSIR register
@@ -118,7 +118,9 @@ package body System.BB.Board_Support is
    --  or 0 when no such software interrupt is pending.
 
    procedure Irq_Interrupt_Handler;
+   pragma Export (C, Irq_Interrupt_Handler, "__gnat_irq_handler");
    procedure Fiq_Interrupt_Handler;
+   pragma Export (C, Fiq_Interrupt_Handler, "__gnat_fiq_handler");
    --  Low-level interrupt handlers
 
    --------------------------------------
@@ -155,11 +157,11 @@ package body System.BB.Board_Support is
    procedure Enable_Interrupt_Request (Interrupt : Interrupt_ID);
    --  Enable interrupt requests for the given interrupt
 
-   function Index_To_Interrupt (Index : Word) return Interrupt_ID is
+   function Index_To_Interrupt (Index : Unsigned_32) return Interrupt_ID is
      (case Index is
       when 0 => 0,
       when 1 => Interrupt_ID (1),
-      when Word (Software_Interrupt + 1) => Get_Software_Interrupt,
+      when Unsigned_32 (Software_Interrupt + 1) => Get_Software_Interrupt,
       when others => Interrupt_ID (Index - 1));
    --  The IRQINDEX and FIQINDEX registers return the index into a vector table
    --  that starts with a dummy "phantom" entry, so the VIM Interrupt Channel
@@ -181,7 +183,7 @@ package body System.BB.Board_Support is
    IRQ_Prio  : constant Interrupt_Priority := Interrupt_Priority'First;
    pragma Assert (FIQ_Prio = IRQ_Prio + 1);
 
-   NMI_Ints  : constant Word := 3;
+   NMI_Ints  : constant Unsigned_32 := 3;
    --  Bitmap of unmaskable interrupts, namely interrupt channel 0 and 1
 
    FIQ_Masked : Boolean := False;
@@ -195,12 +197,12 @@ package body System.BB.Board_Support is
 
    --  Local utility functions
 
-   function Shift_Left (W : Word; Amount : Natural) return Word
+   function Shift_Left (W : Unsigned_32; Amount : Natural) return Unsigned_32
       with Import, Convention => Intrinsic;
    --  Efficiently compute W / 2**Amount
 
-   function  Read  (Addr : Address) return Word with Inline;
-   procedure Write (Addr : Address; Val : Word) with Inline;
+   function  Read  (Addr : Address) return Unsigned_32 with Inline;
+   procedure Write (Addr : Address; Val : Unsigned_32) with Inline;
    --  General functions to read/write from/to specific memory locations
 
    ----------------------------
@@ -216,8 +218,8 @@ package body System.BB.Board_Support is
    -- Read --
    ----------
 
-   function Read (Addr : Address) return Word is
-      R : Word;
+   function Read (Addr : Address) return Unsigned_32 is
+      R : Unsigned_32;
       for R'Address use Addr;
       pragma Volatile (R);
    begin
@@ -228,8 +230,8 @@ package body System.BB.Board_Support is
    -- Write --
    -----------
 
-   procedure Write (Addr : Address; Val : Word) is
-      R : Word;
+   procedure Write (Addr : Address; Val : Unsigned_32) is
+      R : Unsigned_32;
       for R'Address use Addr;
       pragma Volatile (R);
    begin
@@ -242,7 +244,7 @@ package body System.BB.Board_Support is
 
    procedure Generate_Software_Interrupt (ID : Interrupt_ID) is
    begin
-      SSIR1 := SSIR1_Key + Word (ID);
+      SSIR1 := SSIR1_Key + Unsigned_32 (ID);
    end Generate_Software_Interrupt;
 
    ----------------------
@@ -269,11 +271,6 @@ package body System.BB.Board_Support is
       Write (RTIINTFLAG, 2**3);
       Write (RTIGCTRL, Read (RTIGCTRL) or 2);      -- Turn timer/counter 1 on
       Write (RTISETINTENA, 2**3);                  -- Enable Interrupts
-
-      --  Install low-level interrupt handler
-
-      Install_Trap_Handler (Irq_Interrupt_Handler'Address, 5);
-      Install_Trap_Handler (Fiq_Interrupt_Handler'Address, 6);
 
       --  Allow the generation of software interrupts
 
@@ -302,7 +299,7 @@ package body System.BB.Board_Support is
 
       begin
          Write (RTIINTFLAG, 2**3); --  Clear any pending alarms
-         Write (RTICOMP3, Word (Alarm));
+         Write (RTICOMP3, Unsigned_32 (Alarm));
          Elapsed := Timer_Interval (Read_Clock) - Now;
 
          if Elapsed >= Ticks and then (Read (RTIINTFLAG) and 2**3) = 0 then
@@ -366,7 +363,7 @@ package body System.BB.Board_Support is
 
    procedure Enable_Interrupt_Request (Interrupt : Interrupt_ID) is
       Regofs : constant Address := Address (Interrupt) / 32 * 4;
-      Regbit : constant Word := Shift_Left (1, Interrupt mod 32);
+      Regbit : constant Unsigned_32 := Shift_Left (1, Interrupt mod 32);
       --  Many VIM registers use 3 words of 32 bits each to serve as a bitmap
       --  for all interrupt channels. Regofs indicates register offset (0..2),
       --  and Regbit indicates the mask required for addressing the bit.

@@ -32,18 +32,16 @@
 --  instruction set. It is not suitable for ARMv7-M targets, which use
 --  Thumb2.
 
-with Ada.Unchecked_Conversion; use Ada;
+with Interfaces; use Interfaces;
+with Ada.Unchecked_Conversion;
 
-with System.Storage_Elements;
 with System.Multiprocessors;
 with System.BB.Threads;
-with System.BB.CPU_Specific;
 with System.BB.Threads.Queues;
 with System.BB.Board_Support;
 with System.Machine_Code; use System.Machine_Code;
 
 package body System.BB.CPU_Primitives is
-   use BB.Parameters;
    use System.BB.Threads;
    use System.BB.Board_Support.Multiprocessors;
    use System.Multiprocessors;
@@ -59,17 +57,6 @@ package body System.BB.CPU_Primitives is
    -----------
    -- Traps --
    -----------
-
-   type Trap_Handler_Ptr is access procedure (Id : Vector_Id);
-   function To_Pointer is new Unchecked_Conversion (Address, Trap_Handler_Ptr);
-
-   type Trap_Handler_Table is array (Vector_Id) of Trap_Handler_Ptr;
-   pragma Suppress_Initialization (Trap_Handler_Table);
-
-   Trap_Handlers  : Trap_Handler_Table;
-
-   procedure GNAT_Error_Handler (Trap : Vector_Id);
-   pragma No_Return (GNAT_Error_Handler);
 
    procedure Undef_Handler;
    pragma Machine_Attribute (Undef_Handler, "interrupt");
@@ -87,25 +74,11 @@ package body System.BB.CPU_Primitives is
    pragma Machine_Attribute (IRQ_Handler, "interrupt");
    pragma Export (Asm, IRQ_Handler, "__gnat_irq_trap");
 
-   ---------------------------
-   -- Context Buffer Layout --
-   ---------------------------
+   procedure Irq_User_Handler;
+   pragma Import (Ada, Irq_User_Handler, "__gnat_irq_handler");
 
-   --  These are the registers that are initialized: program counter, two
-   --  argument registers, program counter, processor state register,
-   --  stack pointer and link register.
-
-   R0       : constant Context_Id :=  0; -- used for first argument
-   R1       : constant Context_Id :=  1; -- saved register
-   PC       : constant Context_Id :=  2; -- use call-clobbered R2 for PC
-   CPSR     : constant Context_Id :=  3; -- use R3 for saving user CPSR
-   SP       : constant Context_Id :=  4; -- stack pointer, aka R13
-   LR       : constant Context_Id :=  5; -- link register, R14
-   S0       : constant Context_Id :=  6; -- S00/S01 aliases to D0
-   S31      : constant Context_Id := 37; -- S30/S31 aliases to D15
-   FPSCR    : constant Context_Id := 38; -- Fpt status/control reg
-
-   pragma Assert (S31 - S0 = 31 and R1 = R0 + 1 and LR = SP + 1);
+   procedure Fiq_User_Handler;
+   pragma Import (Ada, Fiq_User_Handler, "__gnat_fiq_handler");
 
    ----------------------------
    -- Floating Point Context --
@@ -128,7 +101,7 @@ package body System.BB.CPU_Primitives is
    function  Is_FPU_Enabled return Boolean with Inline;
    procedure Set_FPU_Enabled (Enabled : Boolean) with Inline;
    procedure FPU_Context_Switch (To : Thread_Id) with Inline;
-   function Get_SPSR return Word with Inline;
+   function Get_SPSR return Unsigned_32 with Inline;
 
    Current_FPU_Context :  Thread_Table := (others => Null_Thread_Id);
    --  This variable contains the last thread that used the floating point unit
@@ -139,11 +112,11 @@ package body System.BB.CPU_Primitives is
    -- Get_SPSR --
    --------------
 
-   function Get_SPSR return Word is
-      SPSR : Word;
+   function Get_SPSR return Unsigned_32 is
+      SPSR : Unsigned_32;
    begin
       Asm ("mrs %0, SPSR",
-           Outputs  => Word'Asm_Output ("=r", SPSR),
+           Outputs  => Unsigned_32'Asm_Output ("=r", SPSR),
            Volatile => True);
       return SPSR;
    end Get_SPSR;
@@ -154,7 +127,7 @@ package body System.BB.CPU_Primitives is
 
    procedure Dabt_Handler is
    begin
-      Trap_Handlers (Data_Abort_Vector) (Data_Abort_Vector);
+      raise Constraint_Error with "data abort";
    end Dabt_Handler;
 
    -----------------
@@ -167,8 +140,7 @@ package body System.BB.CPU_Primitives is
 
       Set_FPU_Enabled (False);
 
-      Trap_Handlers (Fast_Interrupt_Request_Vector)
-        (Fast_Interrupt_Request_Vector);
+      Fiq_User_Handler;
    end FIQ_Handler;
 
    -----------------
@@ -176,7 +148,7 @@ package body System.BB.CPU_Primitives is
    -----------------
 
    procedure IRQ_Handler is
-      SPSR : Word;
+      SPSR : Unsigned_32;
 
    begin
       --  Force trap if handler uses floating point
@@ -189,7 +161,9 @@ package body System.BB.CPU_Primitives is
 
       SPSR := Get_SPSR;
 
-      Trap_Handlers (Interrupt_Request_Vector) (Interrupt_Request_Vector);
+      --  Call the handler
+
+      Irq_User_Handler;
 
       --  As the System.BB.Interrupts.Interrupt_Wrapper returns to the low
       --  level interrupt handler without checking for required context
@@ -211,7 +185,7 @@ package body System.BB.CPU_Primitives is
       end if;
 
       Asm ("msr   SPSR_cxsf, %0",
-         Inputs   => (Word'Asm_Input ("r", SPSR)),
+         Inputs   => (Unsigned_32'Asm_Input ("r", SPSR)),
          Volatile => True);
    end IRQ_Handler;
 
@@ -226,7 +200,7 @@ package body System.BB.CPU_Primitives is
          --  If the fault is not due to the FPU, it will trigger again.
 
          declare
-            SPSR          : constant Word := Get_SPSR;
+            SPSR          : constant Unsigned_32 := Get_SPSR;
             In_IRQ_Or_FIQ : constant Boolean := (SPSR mod 32) in 17 | 18;
          begin
             Set_FPU_Enabled (True);
@@ -236,8 +210,7 @@ package body System.BB.CPU_Primitives is
          end;
 
       else
-         Trap_Handlers (Undefined_Instruction_Vector)
-           (Undefined_Instruction_Vector);
+         raise Program_Error with "illegal instruction";
       end if;
    end Undef_Handler;
 
@@ -347,8 +320,10 @@ package body System.BB.CPU_Primitives is
       if C /= To then
          if C /= null then
             Asm (Template => "vstm %1, {d0-d15}" & NL & "fmrx %0, fpscr",
-                 Outputs  => (Address'Asm_Output ("=r", C.Context (FPSCR))),
-                 Inputs   => (Address'Asm_Input ("r", C.Context (S0)'Address)),
+                 Outputs  =>
+                   (Unsigned_32'Asm_Output ("=r", C.Context.VFPU.FPSCR)),
+                 Inputs   =>
+                   (Address'Asm_Input ("r", C.Context.VFPU.V'Address)),
                  Clobber  => "memory",
                  Volatile => True);
          end if;
@@ -356,8 +331,8 @@ package body System.BB.CPU_Primitives is
          if To /= null then
             Asm (Template => "vldm %1, {d0-d15}" & NL & "fmxr fpscr, %0",
                  Inputs   =>
-                   (Address'Asm_Input ("r", To.Context (FPSCR)),
-                    Address'Asm_Input ("r", To.Context (S0)'Address)),
+                   (Unsigned_32'Asm_Input ("r", To.Context.VFPU.FPSCR),
+                    Address'Asm_Input ("r", To.Context.VFPU.V'Address)),
                  Clobber  => "memory",
                  Volatile => True);
          end if;
@@ -366,52 +341,20 @@ package body System.BB.CPU_Primitives is
       end if;
    end FPU_Context_Switch;
 
-   -----------------
-   -- Get_Context --
-   -----------------
+   ----------------------
+   -- Initialize_Stack --
+   ----------------------
 
-   function Get_Context
-     (Context : Context_Buffer;
-      Index   : Context_Id) return Word
+   procedure Initialize_Stack
+     (Base          : Address;
+      Size          : Storage_Elements.Storage_Offset;
+      Stack_Pointer : out Address)
    is
+      use System.Storage_Elements;
    begin
-      return Word (Context (Index));
-   end Get_Context;
-
-   ------------------------
-   -- GNAT_Error_Handler --
-   ------------------------
-
-   procedure GNAT_Error_Handler (Trap : Vector_Id) is
-   begin
-      case Trap is
-         when Reset_Vector =>
-            raise Program_Error with "unexpected reset";
-         when Undefined_Instruction_Vector =>
-            raise Program_Error with "illegal instruction";
-         when Supervisor_Call_Vector =>
-            raise Program_Error with "unhandled SVC";
-         when Prefetch_Abort_Vector =>
-            raise Program_Error with "prefetch abort";
-         when Data_Abort_Vector =>
-            raise Constraint_Error with "data abort";
-         when others =>
-            raise Program_Error with "unhandled trap";
-      end case;
-   end GNAT_Error_Handler;
-
-   -----------------
-   -- Set_Context --
-   -----------------
-
-   procedure Set_Context
-     (Context : in out Context_Buffer;
-      Index   : Context_Id;
-      Value   : Word)
-   is
-   begin
-      Context (Index) := Address (Value);
-   end Set_Context;
+      --  Force alignment
+      Stack_Pointer := Base + (Size - (Size mod Stack_Alignment));
+   end Initialize_Stack;
 
    ------------------------
    -- Initialize_Context --
@@ -423,9 +366,9 @@ package body System.BB.CPU_Primitives is
       Argument        : System.Address;
       Stack_Pointer   : System.Address)
    is
-      User_CPSR   : Word;
-      Mask_CPSR   : constant Word := 16#07f0_ffe0#;
-      System_Mode : constant Word := 2#11111#; -- #31
+      User_CPSR   : Unsigned_32;
+      Mask_CPSR   : constant Unsigned_32 := 16#07f0_ffe0#;
+      System_Mode : constant Unsigned_32 := 2#11111#; -- #31
 
    begin
       --  Use a read-modify-write strategy for computing the CPSR for the new
@@ -433,16 +376,16 @@ package body System.BB.CPU_Primitives is
       --  bits, then add in the new mode.
 
       Asm ("mrs %0, CPSR",
-           Outputs  => Word'Asm_Output ("=r", User_CPSR),
+           Outputs  => Unsigned_32'Asm_Output ("=r", User_CPSR),
            Volatile => True);
       User_CPSR := (User_CPSR and Mask_CPSR) + System_Mode;
 
       Buffer.all :=
-        (R0     => Argument,
-         PC     => Program_Counter,
-         CPSR   => Address (User_CPSR),
-         SP     => Stack_Pointer,
-         others => 0);
+        (R0     => Unsigned_32 (Argument),
+         PC     => Unsigned_32 (Program_Counter),
+         CPSR   => User_CPSR,
+         SP     => Unsigned_32 (Stack_Pointer),
+         others => <>);
    end Initialize_Context;
 
    ----------------------------
@@ -450,47 +393,19 @@ package body System.BB.CPU_Primitives is
    ----------------------------
 
    procedure Install_Error_Handlers is
-      EH : constant Address := GNAT_Error_Handler'Address;
-
    begin
-      Install_Trap_Handler (EH, Reset_Vector);
-      Install_Trap_Handler (EH, Undefined_Instruction_Vector, True);
-      Install_Trap_Handler (EH, Supervisor_Call_Vector, True);
-      Install_Trap_Handler (EH, Prefetch_Abort_Vector, True);
-      Install_Trap_Handler (EH, Data_Abort_Vector);
-
-      --  Do not install a handler for the Interrupt_Request_Vector, as
-      --  the Ravenscar run time will handle that one, and may already
-      --  have installed its handler before calling Install_Error_Handlers.
-
-      Install_Trap_Handler (EH, Fast_Interrupt_Request_Vector);
+      null;
    end Install_Error_Handlers;
-
-   --------------------------
-   -- Install_Trap_Handler --
-   --------------------------
-
-   procedure Install_Trap_Handler
-     (Service_Routine : System.Address;
-      Vector          : Vector_Id;
-      Synchronous     : Boolean := False)
-   is
-   begin
-      pragma Assert
-        (Synchronous =
-           (Vector in Undefined_Instruction_Vector .. Prefetch_Abort_Vector));
-      Trap_Handlers (Vector) := To_Pointer (Service_Routine);
-   end Install_Trap_Handler;
 
    --------------------
    -- Is_FPU_Enabled --
    --------------------
 
    function Is_FPU_Enabled return Boolean is
-      R : Word;
+      R : Unsigned_32;
    begin
       Asm ("fmrx   %0, fpexc",
-           Outputs  => Word'Asm_Output ("=r", R),
+           Outputs  => Unsigned_32'Asm_Output ("=r", R),
            Volatile => True);
       return (R and 16#4000_0000#) /= 0;
    end Is_FPU_Enabled;
@@ -537,7 +452,7 @@ package body System.BB.CPU_Primitives is
    procedure Set_FPU_Enabled (Enabled : Boolean) is
    begin
       Asm ("fmxr   fpexc, %0",
-           Inputs    => Word'Asm_Input
+           Inputs    => Unsigned_32'Asm_Input
                           ("r", (if Enabled then 16#4000_0000# else 0)),
            Volatile  => True);
       pragma Assert (Is_FPU_Enabled = Enabled);
