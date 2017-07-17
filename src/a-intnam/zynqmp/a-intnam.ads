@@ -61,7 +61,7 @@ package Ada.Interrupts.Names is
    --  Private Peripheral Interrupts (PPI)
    Virtual_Maintenance_Interrupt      : constant Interrupt_ID := 25;
    Hypervisor_Timer_Interrupt         : constant Interrupt_ID := 26;
-   Virtual_Timer                      : constant Interrupt_ID := 27;
+   Virtual_Timer_Interrupt            : constant Interrupt_ID := 27;
    Legacy_FIQ_Interrupt               : constant Interrupt_ID := 28;
    Secure_Physical_Timer_Interrupt    : constant Interrupt_ID := 29;
    Non_Secure_Physical_Time_Interrupt : constant Interrupt_ID := 30;
