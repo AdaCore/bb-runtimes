@@ -33,15 +33,25 @@
 .globl __start_ram
 .globl __vectors
 
-.globl __fiq_interrupt
-.globl __irq_interrupt
 .globl __serror_interrupt
 .globl __sync_interrupt
+.globl __irq_interrupt
+.globl __fiq_interrupt
 .globl interrupt_stack_table
+.globl __serror_interrupt_low
+.globl __sync_interrupt_low
+.globl __irq_interrupt_low
+.globl __fiq_interrupt_low
+
+#include "start-config.h"
 
 .org 0
 .section .vectors, "a"
 
+/* Below symbols are defined in Ada by the ravenscar runtime. They can be
+ * overriden only in case the ZFP runtime is used
+ */
+.weak   interrupt_stack_table
 .weak   __gnat_context_switch_needed
 .weak   __gnat_pre_context_switch
 .weak   __gnat_context_switch
@@ -49,7 +59,14 @@
 .weak   __gnat_irq_pre_handler
 .weak   __gnat_irq_post_handler
 .weak   __gnat_fpen_trap
-.weak   interrupt_stack_table
+
+/* Below symbols are default implementations that can be overriden by users
+ * in case interrupts from lower EL level is to be supported.
+ */
+.weak __sync_interrupt_low
+.weak __irq_interrupt_low
+.weak __fiq_interrupt_low
+.weak __serror_interrupt_low
 
 //  Interrupt handle frame size
 //  generic registers
@@ -58,7 +75,7 @@
 //  spsr, elr, cpacr  (24   -> 192)
 .set IFRAME_SIZE, 192
 
-//  fpu registers
+//  fpu registers context size:
 //  vfp_init_flag     (1           -> 0  .. 3)
 //  ctrl, status      (2*4         -> 4  .. 11)
 //  Q0 - Q31          (32*16 = 512 -> 16 .. 527)
@@ -76,6 +93,14 @@ __vectors:
         b       __fiq_interrupt
 .org (vbar + 0x380)
         b       __serror_interrupt
+.org (vbar + 0x400)
+        b       __sync_interrupt_low
+.org (vbar + 0x480)
+        b       __irq_interrupt_low
+.org (vbar + 0x500)
+        b       __fiq_interrupt_low
+.org (vbar + 0x580)
+        b       __serror_interrupt_low
 
 
 .text
@@ -95,6 +120,7 @@ __fpu_fault_restore:
         ldp     x0, x1, [sp], #256
         eret
 
+__sync_interrupt_low:
 __sync_interrupt:
         // Save all caller-saved registers (32 * 8 = 256)
         stp     x0, x1, [sp, #-256]!
@@ -111,7 +137,11 @@ __sync_interrupt:
         adr     x30,__fpu_fault_restore
 
         /* Check if the synchronous trap is due to floating point access */
+.if (RUNTIME_EL == 1)
         mrs     x0, esr_el1
+.else
+        mrs     x0, esr_el2
+.endif
         ubfx    x1, x0, #26, #6
         cmp     x1, #0x07
         bne     1f
@@ -129,8 +159,10 @@ __sync_interrupt:
         mov     x1, #5
         b       __trap_dump
 
-__irq_interrupt:
+__irq_interrupt_low:
+__fiq_interrupt_low:
 __fiq_interrupt:
+__irq_interrupt:
         //  1) save caller-saved regs
         sub     sp, sp, #IFRAME_SIZE
         stp     x0, x1, [sp]
@@ -249,6 +281,7 @@ __fiq_interrupt:
         eret
 
 __serror_interrupt:
+__serror_interrupt_low:
         // Save all registers (32 * 8 = 256)
         stp     x0, x1, [sp, #-256]!
         stp     x2, x3, [sp, #16]
