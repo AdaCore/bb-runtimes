@@ -159,7 +159,7 @@ package body Trap_Dump is
       Put ("SPSR:");
       Put_Hex4 (SPSR);
       Put (" (EL:");
-      Put_Hex1 (Unsigned_8 (Shift_Right (SPSR, 2)) and 3);
+      Put_Hex1 (Unsigned_8 (Shift_Right (SPSR, 2) and 3));
       Put (')');
    end Print_SPSR;
 
