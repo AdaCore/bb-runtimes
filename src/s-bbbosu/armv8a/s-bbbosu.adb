@@ -310,8 +310,12 @@ package body System.BB.Board_Support is
       --  split into two parts
       GIC.GICC_BPR := 3;
 
-      --  Disable the CPU-specific interrupts
-      GIC.GICD_ICENABLER (0) := 16#FFFF_FFFF#;
+      --  Enable the CPU-specific interrupts: ravenscar does not allow to
+      --  specify CPUs when registering a handler. This means only the
+      --  CPU1 will be able to receive such interrupt in case a handler is
+      --  used. To allow all CPUs to receive a CPU-specific interrupt, we
+      --  need to have them enabled by default.
+      GIC.GICD_ISENABLER (0) := 16#FFFF_FFFF#;
 
       --  Set the Enable Group1 bit to the GICC CTLR register
       --  The view we have here is a GICv2 version with Security extension,
@@ -324,8 +328,6 @@ package body System.BB.Board_Support is
       --  Set prio of Timer interrupt (banked register)
       GIC.GICD_IPRIORITYR (Alarm_Interrupt_ID) :=
         To_PRI (Interrupt_Priority'Last);
-      --  Enable the interrupt
-      GIC.GICD_ISENABLER (0) := 2 ** Natural (Alarm_Interrupt_ID);
    end Initialize_CPU_Devices;
 
    ----------------------
@@ -516,9 +518,6 @@ package body System.BB.Board_Support is
       procedure Start_Ram
         with Import, External_Name => "__start_ram";
       --  Entry point (in crt0) for a slave cpu
-
---        procedure Poke_Handler (Interrupt : BB.Interrupts.Interrupt_ID);
-      --  Handler for the Poke interrupt
 
       function MPIDR return Unsigned_32 with Inline_Always;
       --  Return current value of the MPIDR register
