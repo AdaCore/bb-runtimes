@@ -41,24 +41,28 @@ package body System.Text_IO is
    Base : constant := 16#FF00_0000#;
    --  UART-1
 
-   CR : Unsigned_32
-     with Address => Base + 16#00#, Import, Volatile;
+   CR   : Unsigned_32 with Address => Base + 16#00#, Import, Volatile;
+   MR   : Unsigned_32 with Address => Base + 16#00#, Import, Volatile;
+   IER  : Unsigned_32 with Address => Base + 16#08#, Import, Volatile;
+   IDR  : Unsigned_32 with Address => Base + 16#0C#, Import, Volatile;
+   ISR  : Unsigned_32 with Address => Base + 16#14#, Import, Volatile;
+   SR   : Unsigned_32 with Address => Base + 16#2c#, Import, Volatile;
+   Fifo : Unsigned_32 with Address => Base + 16#30#, Import, Volatile;
 
+   CR_RX_RST : constant := 16#00000001#;
+   CR_TX_RST : constant := 16#00000002#;
    CR_RX_EN  : constant := 16#00000004#;
    CR_RX_DIS : constant := 16#00000008#;
    CR_TX_EN  : constant := 16#00000010#;
    CR_TX_DIS : constant := 16#00000020#;
    --  CR bits
 
-   Chsr : Unsigned_32
-     with Address => Base + 16#2c#, Import, Volatile;
+   MR_MODE_NORMAL : constant := 0;
+   MR_MODE_MASK   : constant := 16#0000_0300#;
 
    Tx_Full  : constant Unsigned_32 := 2#0001_0000#;
    Rx_Empty : constant Unsigned_32 := 2#0000_0010#;
    --  SR bits
-
-   Fifo : Unsigned_32
-     with Address => Base + 16#30#, Import, Volatile;
 
    ---------
    -- Get --
@@ -74,12 +78,26 @@ package body System.Text_IO is
    ----------------
 
    procedure Initialize is
+      Dead : Character with Unreferenced;
    begin
       Initialized := True;
 
+      --  Reset RX and TX
+      CR := CR or (CR_TX_RST or CR_RX_RST);
+      loop
+         exit when (CR and (CR_TX_RST or CR_RX_RST)) = 0;
+      end loop;
+
+      --  Disable the EN bits while clearing the DIS bits
+      CR := CR and not (CR_TX_DIS or CR_RX_DIS or CR_TX_EN or CR_RX_EN);
       --  Enable RX and TX
-      CR := CR and not (CR_TX_DIS or CR_RX_DIS);
       CR := CR or (CR_TX_EN or CR_RX_EN);
+
+      --  Operating mode: normal
+      MR := (MR and not MR_MODE_MASK) or MR_MODE_NORMAL;
+
+      --  Disable interrupts
+      IDR := 16#3FFF#;
    end Initialize;
 
    -----------------
@@ -88,7 +106,7 @@ package body System.Text_IO is
 
    function Is_Rx_Ready return Boolean is
    begin
-      return (Chsr and Rx_Empty) = 0;
+      return (SR and Rx_Empty) = 0;
    end Is_Rx_Ready;
 
    -----------------
@@ -97,7 +115,7 @@ package body System.Text_IO is
 
    function Is_Tx_Ready return Boolean is
    begin
-      return (Chsr and Tx_Full) = 0;
+      return (SR and Tx_Full) = 0;
    end Is_Tx_Ready;
 
    ---------
