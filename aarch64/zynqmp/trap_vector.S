@@ -175,8 +175,13 @@ __irq_interrupt:
         stp     x14, x15, [sp, #112]
         stp     x16, x17, [sp, #128]
         stp     x18, x29, [sp, #144]
+.if (RUNTIME_EL == 1)
         mrs     x4, spsr_el1
         mrs     x5, elr_el1
+.else
+        mrs     x4, spsr_el2
+        mrs     x5, elr_el2
+.endif
         stp     x30, x4, [sp, #160]
         str     x5, [sp, #176]
 
@@ -264,8 +269,13 @@ __irq_interrupt:
         //  10) restore registers
         ldr     x5, [sp, #176]
         ldp     x30, x4, [sp, #160]
+.if (RUNTIME_EL == 1)
         msr     spsr_el1, x4
         msr     elr_el1, x5
+.else
+        msr     spsr_el2, x4
+        msr     elr_el2, x5
+.endif
         ldp     x18, x29, [sp, #144]
         ldp     x16, x17, [sp, #128]
         ldp     x14, x15, [sp, #112]
