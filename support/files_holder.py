@@ -2,7 +2,7 @@ import os
 import shutil
 import sys
 
-from build_rts_support import fullpath
+from support import fullpath
 
 
 class FilesHolder(object):

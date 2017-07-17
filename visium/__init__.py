@@ -1,5 +1,5 @@
-from build_rts_support import readfile
-from build_rts_support.target import DFBBTarget
+from support import readfile
+from support.target import DFBBTarget
 from native import NativeBSP
 
 

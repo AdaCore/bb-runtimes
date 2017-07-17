@@ -1,6 +1,6 @@
 # BSP support for ARM64
-from build_rts_support.bsp import BSP
-from build_rts_support.target import DFBBTarget
+from support.bsp import BSP
+from support.target import DFBBTarget
 
 
 class Aarch64Arch(BSP):

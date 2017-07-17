@@ -2,7 +2,7 @@ import copy
 import os
 
 from bsp import BSP
-from build_rts_support import readfile
+from support import readfile
 from files_holder import FilesHolder, fullpath
 from rts_sources import RTSOptions
 
@@ -140,7 +140,7 @@ class Target(TargetConfiguration, BSP):
                 rts.rts_vars = \
                     self.rts_options.zfp_scenarios(
                         self._mem_routines, math_lib=False)
-            elif profile == 'ravenscar-full':
+            elif 'full' in profile:
                 rts.rts_vars = \
                     self.rts_options.full_scenarios(
                         mem_routines, math_lib=True, small_mem=small_mem)
@@ -591,7 +591,7 @@ class Target(TargetConfiguration, BSP):
 
             if 'ravenscar' not in rts_name:
                 projects = ('libgnat',)
-            elif rts_name == 'ravenscar-full':
+            elif 'full' in rts_name:
                 projects = ('libgnat_full', 'libgnarl_full')
             else:
                 projects = ('libgnat', 'libgnarl')

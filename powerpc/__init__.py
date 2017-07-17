@@ -1,8 +1,8 @@
 # BSP support for PowerPC/e500v2
-from build_rts_support.bsp import BSP
-from build_rts_support.target import DFBBTarget
+from support.bsp import BSP
+from support.target import DFBBTarget
 
-from build_rts_support import readfile
+from support import readfile
 
 
 class PPCArch(BSP):

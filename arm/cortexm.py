@@ -1,6 +1,6 @@
 # This module contains cortex-m bsp support
-from build_rts_support.bsp import BSP
-from build_rts_support.target import Target
+from support.bsp import BSP
+from support.target import Target
 
 
 class CortexMArch(BSP):

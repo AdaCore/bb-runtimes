@@ -7,7 +7,7 @@
 # Python version starting from 2.6 (yes, it's very old but that's the system
 # python on oldest host).
 
-from build_rts_support.files_holder import FilesHolder
+from support.files_holder import FilesHolder
 
 import os
 import sys

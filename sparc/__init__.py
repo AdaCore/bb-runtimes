@@ -1,7 +1,7 @@
 # BSP support for Sparc/Leon
-from build_rts_support import readfile
-from build_rts_support.bsp import BSP
-from build_rts_support.target import DFBBTarget
+from support import readfile
+from support.bsp import BSP
+from support.target import DFBBTarget
 
 
 class LeonArch(BSP):

@@ -7,8 +7,8 @@
 # Python version starting from 2.6 (yes, it's very old but that's the system
 # python on oldest host).
 
-from build_rts_support.files_holder import FilesHolder
-from build_rts_support.rts_sources import SourceDirs
+from support.files_holder import FilesHolder
+from support.rts_sources import SourceDirs
 
 # PikeOS
 from pikeos import ArmPikeOS, PpcPikeOS, X86PikeOS
