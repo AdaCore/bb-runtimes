@@ -83,6 +83,11 @@ package body System.BB.Board_Support is
    procedure Set_CNTP_CTL (Val : Unsigned_32);
    --  Set CNTP_CTL_EL0 or CNTP_CTL_EL2
 
+   subtype Banked_Interrupt is BB.Interrupts.Interrupt_ID range 0 .. 31;
+   Interrupts_Enabled  : array (Banked_Interrupt) of Boolean :=
+                           (others => False);
+   Interrupts_Priority : array (Banked_Interrupt) of PRI;
+
    ------------
    -- To_PRI --
    ------------
@@ -284,7 +289,9 @@ package body System.BB.Board_Support is
    -- Initialize_CPU_Devices --
    ----------------------------
 
-   procedure Initialize_CPU_Devices is
+   procedure Initialize_CPU_Devices
+   is
+      Int_Mask : Unsigned_32 := 0;
    begin
       --  Timer: using the non-secure physical timer
       --  at init, we disable both the physical and the virtual timers
@@ -310,24 +317,31 @@ package body System.BB.Board_Support is
       --  split into two parts
       GIC.GICC_BPR := 3;
 
-      --  Enable the CPU-specific interrupts: ravenscar does not allow to
-      --  specify CPUs when registering a handler. This means only the
-      --  CPU1 will be able to receive such interrupt in case a handler is
-      --  used. To allow all CPUs to receive a CPU-specific interrupt, we
-      --  need to have them enabled by default.
-      GIC.GICD_ISENABLER (0) := 16#FFFF_FFFF#;
+      --  Disable banked interrupts by default
+      GIC.GICD_ICENABLER (0) := 16#FFFF_FFFF#;
+
+      --  Enable the CPU-specific interrupts that have a handler registered.
+      --
+      --  On CPU0, no interrupt is registered for now so this has no effect.
+      --  On the other CPUs, as interrupts are registered via a call to
+      --  Interrupts.Install_Interrupt_Handler before the CPUs are started,
+      --  the following properly takes care of initializing the interrupt mask
+      --  and priorities for those.
+      for J in Interrupts_Enabled'Range loop
+         if Interrupts_Enabled (J) then
+            Int_Mask := Int_Mask or 2 ** J;
+            GIC.GICD_IPRIORITYR (J) := Interrupts_Priority (J);
+         end if;
+      end loop;
+
+      if Int_Mask /= 0 then
+         GIC.GICD_ISENABLER (0) := Int_Mask;
+      end if;
 
       --  Set the Enable Group1 bit to the GICC CTLR register
       --  The view we have here is a GICv2 version with Security extension,
       --  from a non-secure mode
       GIC.GICC_CTLR := 1;
-
-      --  Set prio of Poke interrupt (banked register)
-      GIC.GICD_IPRIORITYR (0) := To_PRI (Interrupt_Priority'Last);
-
-      --  Set prio of Timer interrupt (banked register)
-      GIC.GICD_IPRIORITYR (Alarm_Interrupt_ID) :=
-        To_PRI (Interrupt_Priority'Last);
    end Initialize_CPU_Devices;
 
    ----------------------
@@ -475,6 +489,15 @@ package body System.BB.Board_Support is
       begin
          GICD_IPRIORITYR (Interrupt) := To_PRI (Prio);
          GICD_ISENABLER (Reg_Num_32 (Interrupt)) := 2 ** (Interrupt mod 32);
+
+         --  Handlers are registered before the CPUs are awaken (only the CPU 0
+         --  executes Install_Interrupt_Handler.
+         --  So we save the registered interrupts to properly initialize the
+         --  other CPUs for banked interrupts.
+         if Interrupt in Banked_Interrupt then
+            Interrupts_Priority (Interrupt) := To_PRI (Prio);
+            Interrupts_Enabled (Interrupt)  := True;
+         end if;
       end Install_Interrupt_Handler;
 
       ---------------------------
