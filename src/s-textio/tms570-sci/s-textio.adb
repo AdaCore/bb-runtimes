@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1992-2013, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2017, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -101,33 +101,37 @@ package body System.Text_IO is
 
    procedure Initialize is
    begin
-      --  Bring out of reset
-      SCIGCR0 := 1;
+      --  Do not reinitialize the SCI, if it is already initialized
+      if (SCIGCR0 and 1) = 0 then
 
-      --  8n1, enable RX and TX, async, idle-line mode, SWnRST, internal clk
-      --  NOTE: SPNU499A (Nov 2012) is incorrect on COMM MODE: Idle line mode
-      --  value is 0.
-      SCIGCR1 := 16#03_00_00_22#;
+         --  Bring out of reset
+         SCIGCR0 := 1;
 
-      --  Baud rate. PLLCLK=180Mhz, VCLK = PLLCLK / 2
-      declare
-         Baud : constant := 115200;
-         VCLK : constant := 90_000_000;
-         P : constant := VCLK / (16 * Baud) - 1;
-         M : constant := (VCLK / Baud) rem 16;
-      begin
-         BRS := P + M * 2**24;
-      end;
+         --  8n1, enable RX and TX, async, idle-line mode, SWnRST, internal clk
+         --  NOTE: SPNU499A (Nov 2012) is incorrect on COMM MODE: Idle line
+         --  mode value is 0.
+         SCIGCR1 := 16#03_00_00_22#;
 
-      --  8 bits
-      SCIFORMAT := 7;
+         --  Baud rate. PLLCLK=180Mhz, VCLK = PLLCLK / 2
+         declare
+            Baud : constant := 115200;
+            VCLK : constant := 90_000_000;
+            P : constant := VCLK / (16 * Baud) - 1;
+            M : constant := (VCLK / Baud) rem 16;
+         begin
+            BRS := P + M * 2**24;
+         end;
 
-      --  Enable Tx and Rx pins, pull-up
-      SCIPIO0 := 2#110#;
-      SCIPIO8 := 2#110#;
+         --  8 bits
+         SCIFORMAT := 7;
 
-      --  Enable SCI
-      SCIGCR1 := SCIGCR1 or 16#80#;
+         --  Enable Tx and Rx pins, pull-up
+         SCIPIO0 := 2#110#;
+         SCIPIO8 := 2#110#;
+
+         --  Enable SCI
+         SCIGCR1 := SCIGCR1 or 16#80#;
+      end if;
 
       Initialized := True;
    end Initialize;
