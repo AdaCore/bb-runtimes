@@ -45,6 +45,10 @@ package body Hulls is
    function To_Unsigned_64 is new Ada.Unchecked_Conversion
      (Source => Address, Target => Unsigned_64);
 
+   -------------------------
+   -- Cache_Sync_By_Range --
+   -------------------------
+
    procedure Cache_Sync_By_Range
      (Start : System.Address;
       Len   : System.Storage_Elements.Storage_Count)
@@ -73,6 +77,10 @@ package body Hulls is
    type Fat_String_Acc is access Fat_String;
    function To_Fat_String_Acc is new Ada.Unchecked_Conversion
      (Address, Fat_String_Acc);
+
+   ---------------
+   -- Copy_File --
+   ---------------
 
    procedure Copy_File
      (F : File_Entry;
@@ -106,6 +114,10 @@ package body Hulls is
       Cache_Sync_By_Range (Dest'Address, F.Len);
    end Copy_File;
 
+   --------------
+   -- Is_Image --
+   --------------
+
    function Is_Image (F : File_Entry; Name : String) return Boolean
    is
 
@@ -123,11 +135,19 @@ package body Hulls is
       return True;
    end Is_Image;
 
+   -----------
+   -- Align --
+   -----------
+
    procedure Align (Addr : in out Storage_Count; Off : Storage_Count) is
    begin
       Addr := Addr + Off - 1;
       Addr := Addr - (Addr mod Off);
    end Align;
+
+   -----------------------
+   -- Set_Debug_Vectors --
+   -----------------------
 
    procedure Set_Debug_Vectors
      (Paddr : Address; Off : in out Storage_Count) is
@@ -144,6 +164,10 @@ package body Hulls is
       Off := Off + 16#800#;
    end Set_Debug_Vectors;
 
+   ---------------
+   -- Read_Be32 --
+   ---------------
+
    function Read_Be32 (Addr : Address) return Unsigned_32
    is
       type Uint8_Word is array (0 .. 3) of Unsigned_8;
@@ -157,6 +181,10 @@ package body Hulls is
       return Res;
    end Read_Be32;
 
+   ----------------
+   -- Write_Be32 --
+   ----------------
+
    procedure Write_Be32 (Addr : Address; V : Unsigned_32)
    is
       type Uint8_Word is array (0 .. 3) of Unsigned_8;
@@ -167,6 +195,10 @@ package body Hulls is
       Mem (2) := Unsigned_8 (Shift_Right (V, 8) and 16#ff#);
       Mem (3) := Unsigned_8 (Shift_Right (V, 0) and 16#ff#);
    end Write_Be32;
+
+   ---------------
+   -- Patch_Dtb --
+   ---------------
 
    procedure Patch_Dtb
      (Paddr : Address;
@@ -209,6 +241,10 @@ package body Hulls is
          S := S + 4;
       end loop;
    end Patch_Dtb;
+
+   ----------------
+   -- Load_Files --
+   ----------------
 
    procedure Load_Files (Desc : Hull_Desc; Ctxt : Hull_Context_Acc) is
       Vaddr : Address;
@@ -292,36 +328,41 @@ package body Hulls is
       end loop;
    end Load_Files;
 
+   ---------------
+   -- Init_Hull --
+   ---------------
+
    procedure Init_Hull (Desc : Hull_Desc; Ctxt : Hull_Context_Acc)
    is
    begin
       Ctxt.Vcpu :=
-        (Xregs => (others => 0),
-         Sp => 16#100#,
-         PC => 0,
-         Pstate => 16#1c5#,  -- el1h
+        (Xregs       => (others => 0),
+         Sp          => 16#100#,
+         PC          => 0,
+         Pstate      => 16#1c5#,  -- el1h
+         Mdscr       => 16#4000#, -- MDSCR.HDE
 
-         Vbar => 16#ffffffff_fffff000#,
+         Vbar        => 16#ffffffff_fffff000#,
 
-         Sp_El0 => 0,
+         Sp_El0      => 0,
 
-         Esr => 0,
-         Far => 0,
-         Hpfar => 0,
+         Esr         => 0,
+         Far         => 0,
+         Hpfar       => 0,
 
-         Vtcr => (Desc.Mmu_Tcr or TCR_SH0_OS
-                  or TCR_ORGN0_WBWAC or TCR_IRGN0_WBWAC),
-         Vttbr => To_Unsigned_64 (Desc.Mmu_Table),
+         Vtcr        => (Desc.Mmu_Tcr or TCR_SH0_OS
+                         or TCR_ORGN0_WBWAC or TCR_IRGN0_WBWAC),
+         Vttbr       => To_Unsigned_64 (Desc.Mmu_Table),
          --  TID2: concerns cache (CTR, CCSIDR, CLIDR, CSSELR)
          --  [TODO: value of CSSELR should be saved for context switch]
-         Hcr => (HCR_RW
-                 or HCR_TACR or HCR_TIDCP or HCR_TSC
-                 or HCR_TID0 or HCR_TWI
-                 or HCR_IMO or HCR_FMO or HCR_VM),
+         Hcr         => (HCR_RW
+                         or HCR_TACR or HCR_TIDCP or HCR_TSC
+                         or HCR_TID0 or HCR_TWI
+                         or HCR_IMO or HCR_FMO or HCR_VM),
 
-         VFP => (others => (0, 0)),
-         FPSR => 0,
-         FPCR => 0,
+         VFP         => (others => (0, 0)),
+         FPSR        => 0,
+         FPCR        => 0,
 
          V_MDSCR_EL1 => 0,
          V_OSLAR_EL1 => 0);
@@ -347,6 +388,10 @@ package body Hulls is
       Set_VPIDR_EL2 (Get_MPIDR_EL1);
    end Init_Hull;
 
+   -----------------
+   -- Create_Hull --
+   -----------------
+
    procedure Create_Hull (Desc : Hull_Desc; Ctxt : Hull_Context_Acc)
    is
    begin
@@ -367,6 +412,10 @@ package body Hulls is
 
    subtype Xreg_Num is Natural range 0 .. 31;
 
+   --------------
+   -- Get_Xreg --
+   --------------
+
    function Get_Xreg
      (Ctxt : Hull_Context_Acc; Num : Xreg_Num)
       return Unsigned_64 is
@@ -378,6 +427,10 @@ package body Hulls is
       end if;
    end Get_Xreg;
 
+   --------------
+   -- Set_Xreg --
+   --------------
+
    procedure Set_Xreg
      (Ctxt : Hull_Context_Acc; Num : Xreg_Num; Val : Unsigned_64) is
    begin
@@ -388,6 +441,10 @@ package body Hulls is
 
       Ctxt.Vcpu.Xregs (Num) := Val;
    end Set_Xreg;
+
+   -----------------
+   -- Handle_Data --
+   -----------------
 
    procedure Handle_Data (Ctxt : Hull_Context_Acc)
    is
@@ -513,6 +570,10 @@ package body Hulls is
       ID_AA64MMFR0_EL1, ID_AA64MMFR1_EL1,
      ID_OSLAR_EL1);
 
+   ---------------------
+   -- Extract_Sys_Reg --
+   ---------------------
+
    function Extract_Sys_Reg (ISS : Unsigned_32) return Sys_Reg_Enum is
    begin
       --  Mask is   Op0 Op2 Op1 CRn  reg   CRm  d
@@ -533,6 +594,10 @@ package body Hulls is
             return Unknown;
       end case;
    end Extract_Sys_Reg;
+
+   --------------------
+   -- Handle_Sys_Reg --
+   --------------------
 
    procedure Handle_Sys_Reg (Ctxt : Hull_Context_Acc)
    is
@@ -602,11 +667,24 @@ package body Hulls is
       Ctxt.Vcpu.PC := Ctxt.Vcpu.PC + 4;
    end Handle_Sys_Reg;
 
+   ---------------
+   -- Wait_Prot --
+   ---------------
+
    protected body Wait_Prot is
+
+      --------------------
+      -- Wait_Interrupt --
+      --------------------
+
       entry Wait_Interrupt when Barrier is
       begin
          Barrier := False;
       end Wait_Interrupt;
+
+      -------------------
+      -- Set_Interrupt --
+      -------------------
 
       procedure Set_Interrupt (Id : Natural; Level : Boolean) is
          Mask : Unsigned_64;
@@ -635,10 +713,18 @@ package body Hulls is
       end Init;
    end Wait_Prot;
 
+   ----------------
+   -- Handle_Wfi --
+   ----------------
+
    procedure Handle_Wfi (Ctxt : Hull_Context_Acc) is
    begin
       Ctxt.Wait.Wait_Interrupt;
    end Handle_Wfi;
+
+   ---------------------
+   -- Handler_Syn_A64 --
+   ---------------------
 
    procedure Handler_Syn_A64 (Ctxt : Hull_Context_Acc)
    is

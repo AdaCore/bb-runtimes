@@ -17,8 +17,9 @@ execute_hull:
 	stp	d12, d13, [sp, #128]
 	stp	d14, d15, [sp, #144]
 
-	//  Save x0 (context parameter)
-	str	x0, [sp, #160]
+	//  Save x0 (context parameter), mdscr_el1
+        mrs     x1, mdscr_el1
+	stp	x0, x1, [sp, #160]
 	
 	//  Load vttbr & vtcr
 	ldp	x1, x2, [x0, #312]
@@ -58,8 +59,8 @@ execute_hull:
 	ldnp	q28, q29, [x0, #784]
 	ldnp	q30, q31, [x0, #816]
 
-	ldr	w4, [x0, #268]
-	ldr	w5, [x0, #272]
+	ldr	w4, [x0, #272]
+	ldr	w5, [x0, #276]
 	msr	fpsr, x4
 	msr	fpcr, x5
 	
@@ -73,7 +74,7 @@ execute_hull:
 	msr	elr_el2, x5
 
 	//  Spsr
-	ldr	x6, [x0, #264]
+	ldr	w6, [x0, #264]
 	msr	spsr_el2, x6
 
 	//  Re-route debug: set MDCR_EL2.TDE
@@ -81,11 +82,9 @@ execute_hull:
 	orr	x8, x8, #(1<<8)
 	msr	mdcr_el2, x8
 
-	//  Enable SS: set MDSCR_EL1.SS(1) and MDSCR_EL1.KDE(13)
-	mrs	x9, mdscr_el1
-	orr	x9, x9, #1
-	orr	x9, x9, #(1 << 13)
-	msr	mdscr_el1, x9
+        //  Mdscr
+        ldr     w6, [x0, #268]
+        msr     mdscr_el1, x6
 
 	//  Load registers
 	ldp	x2, x3, [x0, #16]
@@ -119,12 +118,14 @@ exec_cont:
 	ldr	x2, [sp, #168]
 	stp	x2, x1, [x0, #0]
 	
-	//  Save PC, SP, SPSR
+	//  Save PC, SP, SPSR, MDSCR
 	mrs	x1, sp_el1
 	mrs	x2, elr_el2
 	mrs	x3, spsr_el2
+        mrs     x4, mdscr_el1
 	stp	x1, x2, [x0, #248]
-	str	x3, [x0, #264]
+	str	w3, [x0, #264]
+        str     w4, [x0, #268]
 
 	//  Save ESR, FAR, HPFAR
 	mrs	x4, esr_el2
@@ -155,8 +156,8 @@ exec_cont:
 
 	mrs	x4, fpsr
 	mrs	x5, fpcr
-	str	w4, [x0, #268]
-	str	w5, [x0, #272]
+	str	w4, [x0, #272]
+	str	w5, [x0, #276]
 
 	//  Restore host vfpu
 	ldp	d8, d9, [sp, #96]
@@ -165,6 +166,8 @@ exec_cont:
 	ldp	d14, d15, [sp, #144]
 
 	//  Restore host context
+        ldr     w1, [sp, #168]
+        msr     mdscr_el1, x1
 	ldp	x19, x20, [sp, #16]
 	ldp	x21, x22, [sp, #32]
 	ldp	x23, x24, [sp, #48]

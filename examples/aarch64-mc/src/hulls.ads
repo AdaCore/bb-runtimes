@@ -134,19 +134,17 @@ private
    type Hull_Context_AArch64 is record
       --  EL1 registers
 
-      Xregs : Unsigned_64_Array (0 .. 30);       --    0 .. 247
-      Sp : Unsigned_64;      --  From sp_el1     --  248
-      PC : Unsigned_64;      --  From elr_el2    --  256
-      Pstate : Unsigned_32;  --  From spsr_el2   --  264
+      Xregs  : Unsigned_64_Array (0 .. 30);          --    0 .. 247
+      Sp     : Unsigned_64;      --  From sp_el1     --  248
+      PC     : Unsigned_64;      --  From elr_el2    --  256
+      Pstate : Unsigned_32;      --  From spsr_el2   --  264
+      Mdscr  : Unsigned_32;      --  From mdscr_el1  --  268
 
       --  EL0 registers
 
-      FPSR : Unsigned_32;                        --  268
-      FPCR : Unsigned_32;                        --  272
-
-      --  PAD                                    --  276
-
-      Sp_El0 : Unsigned_64;                      --  280
+      FPSR   : Unsigned_32;                          --  272
+      FPCR   : Unsigned_32;                          --  276
+      Sp_El0 : Unsigned_64;                          --  280
 
       --  EL2 registers
 
