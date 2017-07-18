@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2016, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -47,40 +47,10 @@ package System.BB.Parameters is
    -- Hardware clock --
    --------------------
 
-   Clock_Frequency : constant Natural := 180_000_000;
-   --  Frequency of the CPU clock in Hz. We hard-code this hear to allow static
-   --  computation of the required prescaler.
+   Clock_Frequency : constant Natural := 180_000_000 / 2;
+   --  RTI clock Hz
 
-   RTI_kHz : constant := Clock_Frequency / 2000;
-   --  Period of the unscaled clock in kHz. Assuming the clock frequency is
-   --  an integral number of kHz allows for sufficient precision with typical
-   --  clock frequencies. Account for the implicit 2x clock divider.
-
-   pragma Assert (RTI_kHz in 100 .. 1_000_000, "Invalid RTI_FREQ");
-   --  The system clock frequency has to be between 100 kHz and 1 GHz
-
-   --  Try clock periods of 100 ns, 125 ns, 200 ns, 250 ns, 500 ns, 1 us,
-   --  correspondsing to 10 MHz, 8 MHz, 5 MHz, 4 MHz, 2MHz, 1 MHz frequencies.
-   --  This will get a fast clock, where each period is an integral number
-   --  of nanoseconds, which is important for accurate conversions.
-
-   --  For other input frequencies, try scaling the clock down to about 10 Mhz,
-   --  while leaving Ticks_Per_Second exact.
-
-   --  This will a few minutes before the 32-bit timer will wrap around
-
-   Prescaler : constant :=
-     (if    RTI_kHz mod 10_000 = 0 then RTI_kHz / 10_000  -- 10 MHz,   100 ns
-      elsif RTI_kHz mod  8_000 = 0 then RTI_kHz /  8_000  --  8 MHz,   125 ns
-      elsif RTI_kHz mod  5_000 = 0 then RTI_kHz /  5_000  --  5 MHz,   250 ns
-      elsif RTI_kHz mod  4_000 = 0 then RTI_kHz /  4_000  --  4 MHz,   200 ns
-      elsif RTI_kHz mod  2_000 = 0 then RTI_kHz /  2_000  --  2 MHz,   500 ns
-      elsif RTI_kHz mod  1_000 = 0 then RTI_kHz /  1_000  --  1 MHz, 1_000 ns
-      elsif RTI_kHz >= 100_000 then 10 --   10 MHz .. 50 MHz, 20 ..    100 ns
-      elsif RTI_kHz >=  40_000 then  5 --    8 MHz .. 20 MHz, 50 ..    125 ns
-      else 2);                         --   50 kHz .. 20 Mhz, 50 .. 20_000 ns
-
-   Ticks_Per_Second : constant := (RTI_kHz * 1000) / Prescaler;
+   Ticks_Per_Second : constant := Clock_Frequency;
    --  Number of ticks per second
 
    ----------------

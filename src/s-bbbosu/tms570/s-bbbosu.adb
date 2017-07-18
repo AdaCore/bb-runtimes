@@ -35,7 +35,6 @@
 ------------------------------------------------------------------------------
 
 with Interfaces; use Interfaces;
-with System.BB.Parameters;
 
 package body System.BB.Board_Support is
    use BB.Interrupts;
@@ -46,76 +45,75 @@ package body System.BB.Board_Support is
 
    RTI_Base     : constant Address := 16#FFFF_FC00#;
 
-   RTIGCTRL     : constant Address := RTI_Base + 16#00#;
-   RTICOMPCTRL  : constant Address := RTI_Base + 16#0C#;
+   type RTI_Registers_Type is record
+     GCTRL        : Unsigned_32;
+     TBCTRL       : Unsigned_32;
+     CAPCTRL      : Unsigned_32;
+     COMPCTRL     : Unsigned_32;
 
-   RTIFRC1      : constant Address := RTI_Base + 16#30#;
-   RTIUC1       : constant Address := RTI_Base + 16#34#;
-   RTICPUC1     : constant Address := RTI_Base + 16#38#;
+     FRC0         : Unsigned_32;
+     UC0          : Unsigned_32;
+     CPUC0        : Unsigned_32;
+     Pad_1c       : Unsigned_32;
 
-   RTICOMP3     : constant Address := RTI_Base + 16#68#;
+     CAFRC0       : Unsigned_32;
+     CAUC0        : Unsigned_32;
+     Pad_28       : Unsigned_32;
+     Pad_2c       : Unsigned_32;
 
-   RTISETINTENA : constant Address := RTI_Base + 16#80#;
-   RTIINTFLAG   : constant Address := RTI_Base + 16#88#;
+     FRC1         : Unsigned_32;
+     UC1          : Unsigned_32;
+     CPUC1        : Unsigned_32;
+     Pad_3c       : Unsigned_32;
+
+     --  Offset: 0x40
+     CAFRC1       : Unsigned_32;
+     CAUC1        : Unsigned_32;
+     Pad_48       : Unsigned_32;
+     Pad_4c       : Unsigned_32;
+
+     COMP0        : Unsigned_32;
+     UDCP0        : Unsigned_32;
+     COMP1        : Unsigned_32;
+     UDCP1        : Unsigned_32;
+
+     COMP2        : Unsigned_32;
+     UDCP2        : Unsigned_32;
+     COMP3        : Unsigned_32;
+     UDCP3        : Unsigned_32;
+
+     TBLCOMP      : Unsigned_32;
+     TBHCOMP      : Unsigned_32;
+     Pad_78       : Unsigned_32;
+     Pad_7c       : Unsigned_32;
+
+     --  Offset: 0x80
+     SETINTENA    : Unsigned_32;
+     CLEARINTENA  : Unsigned_32;
+     INTFLAG      : Unsigned_32;
+     Pad_8c       : Unsigned_32;
+
+     DWDCTRL      : Unsigned_32;
+     DWDPRLD      : Unsigned_32;
+     WDSTATUS     : Unsigned_32;
+     WDKEY        : Unsigned_32;
+
+     DWDCNTR      : Unsigned_32;
+     WWDRXNCTRL   : Unsigned_32;
+     WWDSIZECTRL  : Unsigned_32;
+     INTCLRENABLE : Unsigned_32;
+
+     COMP0CLR     : Unsigned_32;
+     COMP1CLR     : Unsigned_32;
+     COMP2CLR     : Unsigned_32;
+     COMP3CLR     : Unsigned_32;
+   end record;
+
+   RTI : RTI_Registers_Type with Volatile, Import, Address => RTI_Base;
 
    RTI_Compare_Interrupt_3 : constant Interrupt_ID := 5;
    --  We use the compare unit 3, so the first counter and the first three
    --  compare units are available for use by the user.
-
-   -------------------------
-   -- Software Interrupts --
-   -------------------------
-
-   --  As result of using a single counter and comparator for alarms, it is
-   --  possible to miss the value to compare against, so the alarm interrupt
-   --  will not be given. For this reason, it is necessary to use a software
-   --  generated interrupt.
-
-   --  The TMS570 has 4 registers, SSIR1 to SSIR4, for generating software
-   --  interrupts. Reading the SSIVEC register yields the highest active
-   --  software interrupt, with its associated data byte, and clears it.
-   --  In order to also allow user handlers for this interrupt and to avoid
-   --  accidentally clearing those, the runtime uses the SSIR1 register. This
-   --  way, the SSIF register tells reliably if the request is ours or not.
-
-   --  The data byte is interpreted as Interrupt_ID to handle. User programs
-   --  can generate arbitrary interrupts by writing the value SSIR1_Key + X,
-   --  where requested X is the Interrupt_ID. The software interrupt is
-   --  automatically cleared.
-
-   SSIR1 : Unsigned_32;
-   pragma Volatile (SSIR1);
-   for SSIR1'Address use 16#FFFF_FFB0#;
-   --  Register to generate software interrupts
-
-   SSIR1_Key : constant Unsigned_32 := 16#7500#;
-   --  Value to write to SSIR1 to trigger an interrupt
-
-   SSIF : Unsigned_32;
-   pragma Volatile (SSIF);
-   for SSIF'Address use 16#FFFF_FFF8#;
-   --  Software interrupt flag register. The bits 0 .. 3 are used for
-   --  SSIR1 .. SSIR4 respectively.
-
-   SSIFLAG1 : constant Unsigned_32 := 2**0;
-   --  Bit in the SSIF register corresponding to SSIR4
-
-   SSIVEC : Unsigned_32;
-   pragma Volatile (SSIVEC);
-   for SSIVEC'Address use 16#FFFF_FFF4#;
-   --  Reading returns 256 * D + N, where N is the number of the SSIR register
-   --  causing the interrupt (1 .. 4) and D is the data byte used. Returns zero
-   --  if no software interrupt is pending.
-
-   Software_Interrupt : constant Interrupt_ID := 21;
-   --  Interrupt ID for software interrupts
-
-   procedure Generate_Software_Interrupt (ID : Interrupt_ID);
-   --  Generate an interrupt request corresponding to the given ID
-
-   function Get_Software_Interrupt return Interrupt_ID;
-   --  Return the Interrupt_ID of the pending SSIR1 software interrupt,
-   --  or 0 when no such software interrupt is pending.
 
    procedure Irq_Interrupt_Handler;
    pragma Export (C, Irq_Interrupt_Handler, "__gnat_irq_handler");
@@ -129,30 +127,46 @@ package body System.BB.Board_Support is
 
    VIM_Base : constant Address := 16#FFFF_FE00#;
 
-   IRQINDEX : constant Address := VIM_Base + 16#00#;
-   FIQINDEX : constant Address := VIM_Base + 16#04#;
+   type Unsigned_32_Array is array (Natural range <>) of Unsigned_32;
 
-   --  The addresses below refer to the first word of a three-word bitmap
-   --  with one bit per interrupt channel.
+   type VIM_Registers_Type is record
+      IRQINDEX    : Unsigned_32;
+      FIQINDEX    : Unsigned_32;
+      Pad_08      : Unsigned_32;
+      Pad_0c      : Unsigned_32;
 
-   FIRQPR0 : constant Address := VIM_Base + 16#10#;
-   --  Register with one bit set for each interrupt that is an FIQ interrupt.
-   --  Interrupt sources 32 and over are not supported as FIQ by this run time.
-   --  These interrupts should be remapped to lower interrupt channels when
-   --  required as FIQ. The FIQ_Ints must always include the bits set by
-   --  NMI_Ints, as the hardware cannot mask these. Initialize_Boards will
-   --  update this register
+      --  Register with one bit set for each interrupt that is an FIQ.
+      --  Interrupt sources 32 and over are not supported as FIQ by this run
+      --  time. These interrupts should be remapped to lower interrupt channels
+      --  when required as FIQ. The FIQ_Ints must always include the bits set
+      --  by NMI_Ints, as the hardware cannot mask these. Initialize_Boards
+      --  will update this register.
+      FIRQPR      : Unsigned_32_Array (0 .. 3);
 
-   REQENASET0 : constant Address := VIM_Base + 16#30#;
-   --  Writing a bit mask to this register enables the corresponding interrupts
+      INTREQ      : Unsigned_32_Array (0 .. 3);
 
-   REQENACLR0 : constant Address := VIM_Base + 16#40#;
-   REQENACLR1 : constant Address := VIM_Base + 16#44#;
-   REQENACLR2 : constant Address := VIM_Base + 16#48#;
-   --  Writing a bit mask to this register clears the corresponding interrupts
+      --  Writing a bit mask to this register enables the interrupts
+      REQENASET   : Unsigned_32_Array (0 .. 3);
 
-   WAKEENASET0 : constant Address := VIM_Base + 16#50#;
-   --  Bit mask allowing corresponding interrupts to wake the processor
+      --  Offset 0x40
+      --  Writing a bit mask to this register clears the interrupts
+      REQENACLR   : Unsigned_32_Array (0 .. 3);
+
+      --  Bit mask allowing corresponding interrupts to wake the processor
+      WAKEENASET  : Unsigned_32_Array (0 .. 3);
+
+      WAKEENACLR  : Unsigned_32_Array (0 .. 3);
+
+      IRQVECREG   : Unsigned_32;
+      FIQVECREG   : Unsigned_32;
+      CAPEVT      : Unsigned_32;
+      Pad_7c      : Unsigned_32;
+
+      --  Offset 0x80
+      CHANCTRL    : Unsigned_32_Array (0 .. 31);
+   end record;
+
+   VIM : VIM_Registers_Type with Volatile, Import, Address => VIM_Base;
 
    procedure Enable_Interrupt_Request (Interrupt : Interrupt_ID);
    --  Enable interrupt requests for the given interrupt
@@ -161,7 +175,6 @@ package body System.BB.Board_Support is
      (case Index is
       when 0 => 0,
       when 1 => Interrupt_ID (1),
-      when Unsigned_32 (Software_Interrupt + 1) => Get_Software_Interrupt,
       when others => Interrupt_ID (Index - 1));
    --  The IRQINDEX and FIQINDEX registers return the index into a vector table
    --  that starts with a dummy "phantom" entry, so the VIM Interrupt Channel
@@ -187,65 +200,13 @@ package body System.BB.Board_Support is
    --  Bitmap of unmaskable interrupts, namely interrupt channel 0 and 1
 
    FIQ_Masked : Boolean := False;
-   --  Reflects wether FIQ interrupts are masked in the VIM or not
+   --  Reflects whether FIQ interrupts are masked in the VIM or not
 
    procedure IRQ_Handler;
    pragma Import (Asm, IRQ_Handler, "__gnat_irq_trap");
 
    procedure FIQ_Handler;
    pragma Import (Asm, FIQ_Handler, "__gnat_fiq_trap");
-
-   --  Local utility functions
-
-   function Shift_Left (W : Unsigned_32; Amount : Natural) return Unsigned_32
-      with Import, Convention => Intrinsic;
-   --  Efficiently compute W / 2**Amount
-
-   function  Read  (Addr : Address) return Unsigned_32 with Inline;
-   procedure Write (Addr : Address; Val : Unsigned_32) with Inline;
-   --  General functions to read/write from/to specific memory locations
-
-   ----------------------------
-   -- Get_Software_Interrupt --
-   ----------------------------
-
-   function Get_Software_Interrupt return Interrupt_ID is
-     (if (SSIF and SSIFLAG1) = 0 then 0 else Interrupt_ID (SSIVEC / 256));
-   --  Return the interrupt for the handler to call. This value is written
-   --  as data byte to the SSIR1 register, and must be a valid Interrupt_ID.
-
-   ----------
-   -- Read --
-   ----------
-
-   function Read (Addr : Address) return Unsigned_32 is
-      R : Unsigned_32;
-      for R'Address use Addr;
-      pragma Volatile (R);
-   begin
-      return R;
-   end Read;
-
-   -----------
-   -- Write --
-   -----------
-
-   procedure Write (Addr : Address; Val : Unsigned_32) is
-      R : Unsigned_32;
-      for R'Address use Addr;
-      pragma Volatile (R);
-   begin
-      R := Val;
-   end Write;
-
-   ---------------------------------
-   -- Generate_Software_Interrupt --
-   ---------------------------------
-
-   procedure Generate_Software_Interrupt (ID : Interrupt_ID) is
-   begin
-      SSIR1 := SSIR1_Key + Unsigned_32 (ID);
-   end Generate_Software_Interrupt;
 
    ----------------------
    -- Initialize_Board --
@@ -255,27 +216,25 @@ package body System.BB.Board_Support is
    begin
       --  Disable all interrupts, except for NMIs
 
-      Write (REQENACLR0, not NMI_Ints);
-      Write (REQENACLR1, not 0);
-      Write (REQENACLR2, not 0);
+      VIM.REQENACLR (0) := not NMI_Ints;
+      VIM.REQENACLR (1) := not 0;
+      VIM.REQENACLR (2) := not 0;
 
       --  Initialize timer
 
       --  The counter needs to be disabled while programming it
 
-      Write (RTIGCTRL, Read (RTIGCTRL) and not 2); -- Turn off timer/counter 1
-      Write (RTICPUC1, Parameters.Prescaler - 1);  -- Program prescaler compare
-      Write (RTIUC1, 0);                           -- Start prescaler at 0
-      Write (RTIFRC1, 0);                          -- Start clock at 0
-      Write (RTICOMPCTRL, 2**12);
-      Write (RTIINTFLAG, 2**3);
-      Write (RTIGCTRL, Read (RTIGCTRL) or 2);      -- Turn timer/counter 1 on
-      Write (RTISETINTENA, 2**3);                  -- Enable Interrupts
+      RTI.GCTRL := 0;                 --  Turn off timers
+      RTI.TBCTRL := 0;                --  Use RTIUC0 to clock counter 0
+      RTI.CPUC1 := 16#ffff_ffff#;     --  Program prescaler compare
+      RTI.UC1 := 0;                   --  Start prescaler at 0
+      RTI.FRC1 := 0;                  --  Start clock at 0
 
-      --  Allow the generation of software interrupts
-
-      Interrupt_Vectors (Software_Interrupt) := IRQ_Handler'Address;
-      Enable_Interrupt_Request (Software_Interrupt);
+      RTI.CPUC0 := 1;                 --  Set minimal prescalar for alarm
+      RTI.COMPCTRL := 0;              --  Use timer 0 for comparators
+      RTI.INTFLAG := 2**3;
+      RTI.GCTRL := 2;                 --  Turn timer/counter 1 on
+      RTI.SETINTENA := 2**3;          --  Enable Interrupts
    end Initialize_Board;
 
    package body Time is
@@ -287,32 +246,41 @@ package body System.BB.Board_Support is
       ------------------------
 
       function Max_Timer_Interval return Timer_Interval is (2**32 - 1);
+      --  In fact values up to 2**33-3 are correctly handled, but the type
+      --  Timer_Interval is limited to 2**32-1.
 
       ---------------
       -- Set_Alarm --
       ---------------
 
       procedure Set_Alarm (Ticks : Timer_Interval) is
-         Now     : constant Timer_Interval := Timer_Interval (Read_Clock);
-         Alarm   : constant Timer_Interval := Now + Ticks;
-         Elapsed : Timer_Interval;
-
       begin
-         Write (RTIINTFLAG, 2**3); --  Clear any pending alarms
-         Write (RTICOMP3, Unsigned_32 (Alarm));
-         Elapsed := Timer_Interval (Read_Clock) - Now;
+         RTI.INTFLAG := 2**3; --  Clear any pending alarms
+         RTI.GCTRL := 2;      --  Turn off timer/counter 0
+         RTI.UC0   := 0;      --  Start at 0
+         RTI.FRC0  := 0;
 
-         if Elapsed >= Ticks and then (Read (RTIINTFLAG) and 2**3) = 0 then
-            Generate_Software_Interrupt (RTI_Compare_Interrupt_3);
-         end if;
+         --  The timer has a pre-scaler that divides the frequence by 2
+         RTI.COMP3 := Unsigned_32 ((Ticks + 1) / 2);
+
+         RTI.GCTRL := 3;      --  Enable timer 0 and 1
       end Set_Alarm;
 
       ----------------
       -- Read_Clock --
       ----------------
 
-      function Read_Clock return BB.Time.Time is
-         (BB.Time.Time (Read (RTIFRC1)));
+      function Read_Clock return BB.Time.Time
+      is
+         Lo, Hi : Unsigned_32;
+      begin
+         --  According to TMS570 manual (RTI 172.1 Counter and Capture Read
+         --  Consistency), the free running counter must be read first.
+         Hi := RTI.FRC1;
+         Lo := RTI.UC1;
+         return BB.Time.Time
+            (Unsigned_64 (Lo) or Shift_Left (Unsigned_64 (Hi), 32));
+      end Read_Clock;
 
       ---------------------------
       -- Clear_Alarm_Interrupt --
@@ -320,7 +288,8 @@ package body System.BB.Board_Support is
 
       procedure Clear_Alarm_Interrupt is
       begin
-         Write (RTIINTFLAG, 2**3);
+         RTI.GCTRL := 2;      --  Turn off timer/counter 0
+         RTI.INTFLAG := 2**3;
       end Clear_Alarm_Interrupt;
 
       ---------------------------
@@ -342,7 +311,7 @@ package body System.BB.Board_Support is
    ---------------------------
 
    procedure Irq_Interrupt_Handler is
-      Id : constant Interrupt_ID := Index_To_Interrupt (Read (IRQINDEX));
+      Id : constant Interrupt_ID := Index_To_Interrupt (VIM.IRQINDEX);
    begin
       Interrupt_Wrapper (Id);
    end Irq_Interrupt_Handler;
@@ -352,7 +321,7 @@ package body System.BB.Board_Support is
    ---------------------------
 
    procedure Fiq_Interrupt_Handler is
-      Id : constant Interrupt_ID := Index_To_Interrupt (Read (FIQINDEX));
+      Id : constant Interrupt_ID := Index_To_Interrupt (VIM.FIQINDEX);
    begin
       Interrupt_Wrapper (Id);
    end Fiq_Interrupt_Handler;
@@ -362,15 +331,15 @@ package body System.BB.Board_Support is
    ------------------------------
 
    procedure Enable_Interrupt_Request (Interrupt : Interrupt_ID) is
-      Regofs : constant Address := Address (Interrupt) / 32 * 4;
-      Regbit : constant Unsigned_32 := Shift_Left (1, Interrupt mod 32);
+      Reg : constant Natural := Interrupt / 32;
+      Bit : constant Unsigned_32 := Shift_Left (1, Interrupt mod 32);
       --  Many VIM registers use 3 words of 32 bits each to serve as a bitmap
       --  for all interrupt channels. Regofs indicates register offset (0..2),
       --  and Regbit indicates the mask required for addressing the bit.
 
    begin
-      Write (REQENASET0 + Regofs, Regbit);
-      Write (WAKEENASET0 + Regofs, Regbit);
+      VIM.REQENASET (Reg) := Bit;
+      VIM.WAKEENASET (Reg) := Bit;
    end Enable_Interrupt_Request;
 
    package body Multiprocessors is separate;
@@ -384,7 +353,7 @@ package body System.BB.Board_Support is
         (Interrupt : Interrupt_ID)
         return System.Any_Priority
       is
-         (if Interrupt <= 31 and then (Read (FIRQPR0) and 2**Interrupt) /= 0
+         (if Interrupt <= 31 and then (VIM.FIRQPR (0) and 2**Interrupt) /= 0
           then FIQ_Prio
          else IRQ_Prio);
 
@@ -399,11 +368,11 @@ package body System.BB.Board_Support is
 
          if (Priority = FIQ_Prio) xor FIQ_Masked then
             if Priority = FIQ_Prio then
-               Write (REQENACLR0, Read (FIRQPR0));
+               VIM.REQENACLR (0) := VIM.FIRQPR (0);
                FIQ_Masked := True;
 
             else
-               Write (REQENASET0, Read (FIRQPR0));
+               VIM.REQENASET (0) := VIM.FIRQPR (0);
                FIQ_Masked := False;
             end if;
          end if;
