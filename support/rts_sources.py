@@ -443,11 +443,11 @@ class SourceDirs(SharedFilesHolder):
             'a-ncelfu.ads',
             'a-ngcefu.ads', 'a-ngcefu.adb',
             'a-ngcoty.ads', {'a-ngcoty.adb': 'a-ngcoty-ada.adb'},
-            {'a-ngelfu.ads': 'hie/a-ngelfu-ada.ads',
-             'a-ngelfu.adb': 'hie/a-ngelfu-ada.adb'},
+            {'a-ngelfu.ads': 'a-ngelfu-ada.ads',
+             'a-ngelfu.adb': 'a-ngelfu-ada.adb'},
             'a-nlcefu.ads',
             'a-nlcoty.ads',
-            {'a-nlelfu.ads': 'hie/a-nlelfu-ada.ads'},
+            {'a-nlelfu.ads': 'a-nlelfu-ada.ads'},
             'a-nllcef.ads',
             'a-nllcty.ads',
             'a-nllefu.ads',
@@ -455,22 +455,22 @@ class SourceDirs(SharedFilesHolder):
             'a-nscoty.ads',
             'a-nselfu.ads',
             'a-nucoty.ads',
-            {'a-nuelfu.ads': 'hie/a-nuelfu-ada.ads'},
+            {'a-nuelfu.ads': 'a-nuelfu-ada.ads'},
             {'a-numaux.ads': 'a-numaux-ada.ads'},
             'a-numeri.ads',
             's-exnllf.ads', 's-exnllf.adb',
-            {'s-gcmain.ads': 'hie/s-gcmain-ada.ads',
-             's-gcmain.adb': 'hie/s-gcmain-ada.adb'},
+            {'s-gcmain.ads': 's-gcmain-ada.ads',
+             's-gcmain.adb': 's-gcmain-ada.adb'},
             's-gearop.ads', 's-gearop.adb',
-            {'s-libdou.ads': 'hie/s-libdou-ada.ads',
-             's-libdou.adb': 'hie/s-libdou-ada.adb'},
-            {'s-libm.ads': 'hie/s-libm-ada.ads',
-             's-libm.adb': 'hie/s-libm-ada.adb'},
-            {'s-libpre.ads': 'hie/s-libpre-ada.ads'},
-            {'s-libsin.ads': 'hie/s-libsin-ada.ads',
-             's-libsin.adb': 'hie/s-libsin-ada.adb'},
-            {'s-lidosq.ads': 'hie/s-lidosq-ada.ads'},
-            {'s-lisisq.ads': 'hie/s-lisisq-ada.ads'}])
+            {'s-libdou.ads': 's-libdou-ada.ads',
+             's-libdou.adb': 's-libdou-ada.adb'},
+            {'s-libm.ads': 's-libm-ada.ads',
+             's-libm.adb': 's-libm-ada.adb'},
+            {'s-libpre.ads': 's-libpre-ada.ads'},
+            {'s-libsin.ads': 's-libsin-ada.ads',
+             's-libsin.adb': 's-libsin-ada.adb'},
+            {'s-lidosq.ads': 's-lidosq-ada.ads'},
+            {'s-lisisq.ads': 's-lisisq-ada.ads'}])
 
         self.add_rule('math/full',
                       ['RTS_Profile:ravenscar-full',
@@ -483,23 +483,23 @@ class SourceDirs(SharedFilesHolder):
         if self._is_bb:
             self.add_rule('math/softsp', 'Add_Math_Lib:softfloat,hardfloat_dp')
             self.add_sources('math/softsp', {
-                's-lisisq.adb': 'hie/s-lisisq-ada.adb'})
+                's-lisisq.adb': 's-lisisq-ada.adb'})
             self.add_rule('math/softdp', 'Add_Math_Lib:softfloat,hardfloat_sp')
             self.add_sources('math/softdp', {
-                's-lidosq.adb': 'hie/s-lidosq-ada.adb'})
+                's-lidosq.adb': 's-lidosq-ada.adb'})
 
             self.add_rule('math/hardsp',
                           'Add_Math_Lib:hardfloat,hardfloat_sp')
             self.add_sources('math/hardsp', {
-                's-lisisq.adb': 'hie/s-lisisq-fpu.adb'})
+                's-lisisq.adb': 's-lisisq-fpu.adb'})
             self.add_rule('math/harddp', 'Add_Math_Lib:hardfloat,hardfloat_dp')
             self.add_sources('math/harddp', {
-                's-lidosq.adb': 'hie/s-lidosq-fpu.adb'})
+                's-lidosq.adb': 's-lidosq-fpu.adb'})
         else:
             # PikeOS
             self.add_sources('math', {
-                's-lisisq.adb': 'hie/s-lisisq-fpu.adb',
-                's-lidosq.adb': 'hie/s-lidosq-fpu.adb'})
+                's-lisisq.adb': 's-lisisq-fpu.adb',
+                's-lidosq.adb': 's-lidosq-fpu.adb'})
 
         # Finally, the ZFP & SFP-specific libgnat files
         self.add_rule('zfp', 'RTS_Profile:zfp,ravenscar-sfp')
@@ -962,8 +962,8 @@ class SourceDirs(SharedFilesHolder):
         self.add_rule('full/zcx-dw2', [
             'RTS_Profile:ravenscar-full', 'CPU_Family:!arm'])
         self.add_sources('full/zcx-dw2', [
-            {'s-excmac.ads': 'hie/s-excmac-gcc.ads',
-             's-excmac.adb': 'hie/s-excmac-gcc.adb'},
+            {'s-excmac.ads': 's-excmac-gcc.ads',
+             's-excmac.adb': 's-excmac-gcc.adb'},
             'libgcc/unwind-dw2-fde.h'])
         if self._is_bb:
             self.add_sources('full/zcx-dw2', 'hie/unwind-dw2-fde-bb.c')
