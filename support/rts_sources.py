@@ -199,7 +199,7 @@ class SourceDirs(SharedFilesHolder):
             has_empty = False
             for val in self.scenario[key]:
                 if len(current[key][val]) == 1 and \
-                                len(current[key][val]['__dirs__']) == 0:
+                        len(current[key][val]['__dirs__']) == 0:
                     has_empty = True
                 else:
                     ret += blank + '   when "%s" =>\n' % val
@@ -532,12 +532,15 @@ class SourceDirs(SharedFilesHolder):
         # libgnarl sources common to sfp/full
         self.add_rule('gnarl/common', None)
         self.add_sources('gnarl/common', [
-            'a-interr.ads', {'a-interr.adb': 'hie/a-interr-raven.adb'},
+            'libgnarl/a-interr.ads',
+            {'a-interr.adb': 'hie/a-interr-raven.adb'},
             'hie/a-reatim.ads', 'hie/a-reatim.adb',
-            'a-retide.ads', {'a-retide.adb': 'hie/a-retide-raven.adb'},
+            'libgnarl/a-retide.ads',
+            {'a-retide.adb': 'hie/a-retide-raven.adb'},
             {'a-sytaco.ads': 'hie/a-sytaco-xi.ads',
              'a-sytaco.adb': 'hie/a-sytaco-xi.adb'},
-            'a-taside.ads', {'a-taside.adb': 'hie/a-taside-raven.adb'},
+            'libgnarl/a-taside.ads',
+            {'a-taside.adb': 'hie/a-taside-raven.adb'},
             'hie/a-taster.ads', 'hie/a-taster.adb',
             {'s-interr.ads': 'hie/s-interr-raven.ads'},
             's-mufalo.ads', 's-mufalo.adb',
@@ -546,14 +549,14 @@ class SourceDirs(SharedFilesHolder):
             {'s-taprob.ads': 'hie/s-taprob-raven.ads',
              's-taprob.adb': 'hie/s-taprob-raven.adb'},
             'hie/s-taprop.ads',
-            's-tarest.ads', 'hie/s-tarest.adb',
+            'libgnarl/s-tarest.ads', 'hie/s-tarest.adb',
             {'s-tasdeb.ads': 'hie/s-tasdeb-xi.ads',
              's-tasdeb.adb': 'hie/s-tasdeb-raven.adb'},
-            's-tasinf.ads', 's-tasinf.adb',
+            'libgnarl/s-tasinf.ads', 'libgnarl/s-tasinf.adb',
             'hie/s-taskin.adb',
             'hie/s-taspri.ads',
-            's-tasres.ads',
-            's-tpobmu.ads'])
+            'libgnarl/s-tasres.ads',
+            'libgnarl/s-tpobmu.ads'])
         if self._is_bb:
             # BB case
             self.add_sources('gnarl/common', [
@@ -583,7 +586,7 @@ class SourceDirs(SharedFilesHolder):
                 {'s-multip.ads': 'hie/s-multip-raven-default.ads',
                  's-multip.adb': 'hie/s-multip-raven-default.adb'},
                 'hie/s-taprop/pikeos/s-taprop.adb',
-                's-tpobmu.adb'])
+                'libgnarl/s-tpobmu.adb'])
             self.add_rule('gnarl/pikeos3', 'Pikeos_Version:pikeos3')
             self.add_sources('gnarl/pikeos3', [
                 'hie/pikeos3/s-interr.adb',
@@ -1071,10 +1074,10 @@ class SourceDirs(SharedFilesHolder):
 
         # Tasking extensions: multiple entries
         self.add_sources('gnarl/full/extended', [
-            'a-synbar.adb', 'a-synbar.ads',
-            'g-boubuf.adb', 'g-boubuf.ads',
-            'g-boumai.ads',
-            'g-semaph.adb', 'g-semaph.ads',
+            'libgnarl/a-synbar.adb', 'libgnarl/a-synbar.ads',
+            'libgnarl/g-boubuf.adb', 'libgnarl/g-boubuf.ads',
+            'libgnarl/g-boumai.ads',
+            'libgnarl/g-semaph.adb', 'libgnarl/g-semaph.ads',
             'hie/s-tpoben.ads', 'hie/s-tpoben.adb',
             'hie/s-tasque.ads', 'hie/s-tasque.adb',
             'hie/s-tpobop.ads', 'hie/s-tpobop.adb'])
