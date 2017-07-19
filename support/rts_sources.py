@@ -367,7 +367,7 @@ class SourceDirs(SharedFilesHolder):
             'ada.ads',
             {'g-io.ads': 'g-io-zfp.ads'},
             {'g-io.adb': 'g-io-zfp.adb'},
-            'hie/g-io-put.adb',
+            {'g-io-put.adb': 'hie/g-io-put-bb.adb'},
             'g-souinf.ads',
             'gnat.ads',
             'i-cexten.ads',
