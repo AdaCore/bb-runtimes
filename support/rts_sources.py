@@ -365,8 +365,8 @@ class SourceDirs(SharedFilesHolder):
             'a-unccon.ads',
             'a-uncdea.ads',
             'ada.ads',
-            {'g-io.ads': 'g-io-zfp.ads'},
-            {'g-io.adb': 'g-io-zfp.adb'},
+            {'g-io.ads': 'hie/g-io-zfp.ads'},
+            {'g-io.adb': 'hie/g-io-zfp.adb'},
             {'g-io-put.adb': 'hie/g-io-put-bb.adb'},
             'g-souinf.ads',
             'gnat.ads',
@@ -382,8 +382,8 @@ class SourceDirs(SharedFilesHolder):
             's-imguns.ads', 's-imguns.adb',
             's-maccod.ads',
             'hie/s-macres.ads',
-            {'s-secsta.ads': 's-secsta-zfp.ads'},
-            {'s-secsta.adb': 's-secsta-zfp.adb'},
+            {'s-secsta.ads': 'hie/s-secsta-zfp.ads'},
+            {'s-secsta.adb': 'hie/s-secsta-zfp.adb'},
             's-stoele.ads', 's-stoele.adb',
             'hie/s-textio.ads',
             's-unstyp.ads',
@@ -443,11 +443,11 @@ class SourceDirs(SharedFilesHolder):
             'a-ncelfu.ads',
             'a-ngcefu.ads', 'a-ngcefu.adb',
             'a-ngcoty.ads', {'a-ngcoty.adb': 'a-ngcoty-ada.adb'},
-            {'a-ngelfu.ads': 'a-ngelfu-ada.ads',
-             'a-ngelfu.adb': 'a-ngelfu-ada.adb'},
+            {'a-ngelfu.ads': 'hie/a-ngelfu-ada.ads',
+             'a-ngelfu.adb': 'hie/a-ngelfu-ada.adb'},
             'a-nlcefu.ads',
             'a-nlcoty.ads',
-            {'a-nlelfu.ads': 'a-nlelfu-ada.ads'},
+            {'a-nlelfu.ads': 'hie/a-nlelfu-ada.ads'},
             'a-nllcef.ads',
             'a-nllcty.ads',
             'a-nllefu.ads',
@@ -455,21 +455,22 @@ class SourceDirs(SharedFilesHolder):
             'a-nscoty.ads',
             'a-nselfu.ads',
             'a-nucoty.ads',
-            {'a-nuelfu.ads': 'a-nuelfu-ada.ads'},
+            {'a-nuelfu.ads': 'hie/a-nuelfu-ada.ads'},
             {'a-numaux.ads': 'a-numaux-ada.ads'},
             'a-numeri.ads',
             's-exnllf.ads', 's-exnllf.adb',
-            {'s-gcmain.ads': 's-gcmain-ada.ads',
-             's-gcmain.adb': 's-gcmain-ada.adb'},
+            {'s-gcmain.ads': 'hie/s-gcmain-ada.ads',
+             's-gcmain.adb': 'hie/s-gcmain-ada.adb'},
             's-gearop.ads', 's-gearop.adb',
-            {'s-libdou.ads': 's-libdou-ada.ads',
-             's-libdou.adb': 's-libdou-ada.adb'},
-            {'s-libm.ads': 's-libm-ada.ads', 's-libm.adb': 's-libm-ada.adb'},
-            {'s-libpre.ads': 's-libpre-ada.ads'},
-            {'s-libsin.ads': 's-libsin-ada.ads',
-             's-libsin.adb': 's-libsin-ada.adb'},
-            {'s-lidosq.ads': 's-lidosq-ada.ads'},
-            {'s-lisisq.ads': 's-lisisq-ada.ads'}])
+            {'s-libdou.ads': 'hie/s-libdou-ada.ads',
+             's-libdou.adb': 'hie/s-libdou-ada.adb'},
+            {'s-libm.ads': 'hie/s-libm-ada.ads',
+             's-libm.adb': 'hie/s-libm-ada.adb'},
+            {'s-libpre.ads': 'hie/s-libpre-ada.ads'},
+            {'s-libsin.ads': 'hie/s-libsin-ada.ads',
+             's-libsin.adb': 'hie/s-libsin-ada.adb'},
+            {'s-lidosq.ads': 'hie/s-lidosq-ada.ads'},
+            {'s-lisisq.ads': 'hie/s-lisisq-ada.ads'}])
 
         self.add_rule('math/full',
                       ['RTS_Profile:ravenscar-full',
@@ -482,23 +483,23 @@ class SourceDirs(SharedFilesHolder):
         if self._is_bb:
             self.add_rule('math/softsp', 'Add_Math_Lib:softfloat,hardfloat_dp')
             self.add_sources('math/softsp', {
-                's-lisisq.adb': 's-lisisq-ada.adb'})
+                's-lisisq.adb': 'hie/s-lisisq-ada.adb'})
             self.add_rule('math/softdp', 'Add_Math_Lib:softfloat,hardfloat_sp')
             self.add_sources('math/softdp', {
-                's-lidosq.adb': 's-lidosq-ada.adb'})
+                's-lidosq.adb': 'hie/s-lidosq-ada.adb'})
 
             self.add_rule('math/hardsp',
                           'Add_Math_Lib:hardfloat,hardfloat_sp')
             self.add_sources('math/hardsp', {
-                's-lisisq.adb': 's-lisisq-fpu.adb'})
+                's-lisisq.adb': 'hie/s-lisisq-fpu.adb'})
             self.add_rule('math/harddp', 'Add_Math_Lib:hardfloat,hardfloat_dp')
             self.add_sources('math/harddp', {
-                's-lidosq.adb': 's-lidosq-fpu.adb'})
+                's-lidosq.adb': 'hie/s-lidosq-fpu.adb'})
         else:
             # PikeOS
             self.add_sources('math', {
-                's-lisisq.adb': 's-lisisq-fpu.adb',
-                's-lidosq.adb': 's-lidosq-fpu.adb'})
+                's-lisisq.adb': 'hie/s-lisisq-fpu.adb',
+                's-lidosq.adb': 'hie/s-lidosq-fpu.adb'})
 
         # Finally, the ZFP & SFP-specific libgnat files
         self.add_rule('zfp', 'RTS_Profile:zfp,ravenscar-sfp')
@@ -506,12 +507,12 @@ class SourceDirs(SharedFilesHolder):
             'hie/a-elchha/zfp/a-elchha.ads',
             'hie/a-elchha/zfp/a-elchha.adb',
             'hie/s-sssita.ads', 'hie/s-sssita.adb',
-            {'a-except.ads': 'a-except-zfp.ads',
-             'a-except.adb': 'a-except-zfp.adb',
-             'a-tags.ads': 'a-tags-hie.ads',
-             'a-tags.adb': 'a-tags-hie.adb',
-             'i-c.ads': 'i-c-hie.ads',
-             's-assert.adb': 's-assert-xi.adb'}])
+            {'a-except.ads': 'hie/a-except-zfp.ads',
+             'a-except.adb': 'hie/a-except-zfp.adb',
+             'a-tags.ads': 'hie/a-tags-hie.ads',
+             'a-tags.adb': 'hie/a-tags-hie.adb',
+             'i-c.ads': 'hie/i-c-hie.ads',
+             's-assert.adb': 'hie/s-assert-xi.adb'}])
         if self._is_bb:
             self.add_sources('zfp', [
                 'hie/s-memory/zfp/s-memory.ads',
@@ -531,23 +532,23 @@ class SourceDirs(SharedFilesHolder):
         # libgnarl sources common to sfp/full
         self.add_rule('gnarl/common', None)
         self.add_sources('gnarl/common', [
-            'a-interr.ads', {'a-interr.adb': 'a-interr-raven.adb'},
+            'a-interr.ads', {'a-interr.adb': 'hie/a-interr-raven.adb'},
             'hie/a-reatim.ads', 'hie/a-reatim.adb',
-            'a-retide.ads', {'a-retide.adb': 'a-retide-raven.adb'},
-            {'a-sytaco.ads': 'a-sytaco-xi.ads',
-             'a-sytaco.adb': 'a-sytaco-xi.adb'},
-            'a-taside.ads', {'a-taside.adb': 'a-taside-raven.adb'},
+            'a-retide.ads', {'a-retide.adb': 'hie/a-retide-raven.adb'},
+            {'a-sytaco.ads': 'hie/a-sytaco-xi.ads',
+             'a-sytaco.adb': 'hie/a-sytaco-xi.adb'},
+            'a-taside.ads', {'a-taside.adb': 'hie/a-taside-raven.adb'},
             'hie/a-taster.ads', 'hie/a-taster.adb',
-            {'s-interr.ads': 's-interr-raven.ads'},
+            {'s-interr.ads': 'hie/s-interr-raven.ads'},
             's-mufalo.ads', 's-mufalo.adb',
             's-musplo.ads',
             'hie/s-parame.adb',
-            {'s-taprob.ads': 's-taprob-raven.ads',
-             's-taprob.adb': 's-taprob-raven.adb'},
+            {'s-taprob.ads': 'hie/s-taprob-raven.ads',
+             's-taprob.adb': 'hie/s-taprob-raven.adb'},
             'hie/s-taprop.ads',
             's-tarest.ads', 'hie/s-tarest.adb',
-            {'s-tasdeb.ads': 's-tasdeb-xi.ads',
-             's-tasdeb.adb': 's-tasdeb-raven.adb'},
+            {'s-tasdeb.ads': 'hie/s-tasdeb-xi.ads',
+             's-tasdeb.adb': 'hie/s-tasdeb-raven.adb'},
             's-tasinf.ads', 's-tasinf.adb',
             'hie/s-taskin.adb',
             'hie/s-taspri.ads',
@@ -579,8 +580,8 @@ class SourceDirs(SharedFilesHolder):
                 'text_io.ads',
                 'hie/a-textio.ads',
                 'hie/a-textio/pikeos/a-textio.adb',
-                {'s-multip.ads': 's-multip-raven-default.ads',
-                 's-multip.adb': 's-multip-raven-default.adb'},
+                {'s-multip.ads': 'hie/s-multip-raven-default.ads',
+                 's-multip.adb': 'hie/s-multip-raven-default.adb'},
                 'hie/s-taprop/pikeos/s-taprop.adb',
                 's-tpobmu.adb'])
             self.add_rule('gnarl/pikeos3', 'Pikeos_Version:pikeos3')
@@ -649,7 +650,7 @@ class SourceDirs(SharedFilesHolder):
             'a-decima.ads', 'a-decima.adb',
             'a-einuoc.ads', 'a-einuoc.adb',
             'a-elchha.ads', 'hie/a-elchha/full/a-elchha.adb',
-            {'a-excach.adb': 'a-excach-cert.adb'},
+            {'a-excach.adb': 'hie/a-excach-cert.adb'},
             'a-except.ads', 'a-except.adb',
             'a-excpol.adb',
             'a-exctra.ads', 'a-exctra.adb',
@@ -901,7 +902,7 @@ class SourceDirs(SharedFilesHolder):
             's-strhas.ads', 's-strhas.adb',
             's-string.ads', 's-string.adb',
             's-tasloc.ads', 's-tasloc.adb',
-            {'s-traceb.ads': 's-traceb-cert.ads'},
+            {'s-traceb.ads': 'hie/s-traceb-cert.ads'},
             's-traent.ads', 's-traent.adb',
             's-trasym.ads', 's-trasym.adb',
             's-utf_32.ads', 's-utf_32.adb',
@@ -961,8 +962,8 @@ class SourceDirs(SharedFilesHolder):
         self.add_rule('full/zcx-dw2', [
             'RTS_Profile:ravenscar-full', 'CPU_Family:!arm'])
         self.add_sources('full/zcx-dw2', [
-            {'s-excmac.ads': 's-excmac-gcc.ads',
-             's-excmac.adb': 's-excmac-gcc.adb'},
+            {'s-excmac.ads': 'hie/s-excmac-gcc.ads',
+             's-excmac.adb': 'hie/s-excmac-gcc.adb'},
             'libgcc/unwind-dw2-fde.h'])
         if self._is_bb:
             self.add_sources('full/zcx-dw2', 'hie/unwind-dw2-fde-bb.c')
@@ -982,7 +983,7 @@ class SourceDirs(SharedFilesHolder):
         self.add_rule('full/zcx-x86',
                       ['RTS_Profile:ravenscar-full', 'CPU_Family:x86'])
         self.add_sources('full/zcx-x86', {
-            's-traceb.adb': 's-traceb-vx653-sim.adb'})
+            's-traceb.adb': 'hie/s-traceb-vx653-sim.adb'})
 
         # Containers
         self.add_rule('containers', 'RTS_Profile:ravenscar-full')
@@ -1055,8 +1056,8 @@ class SourceDirs(SharedFilesHolder):
         self.add_rule('gnarl/full', 'RTS_Profile:ravenscar-full')
         self.add_sources('gnarl/full', [
             'hie/s-taskin/full/s-taskin.ads',
-            {'s-tposen.adb': 's-tposen-xi-full.adb',
-             's-tposen.ads': 's-tposen-xi-full.ads'}])
+            {'s-tposen.adb': 'hie/s-tposen-xi-full.adb',
+             's-tposen.ads': 'hie/s-tposen-xi-full.ads'}])
 
         if self._is_bb:
             self.add_sources('gnarl/full', [
