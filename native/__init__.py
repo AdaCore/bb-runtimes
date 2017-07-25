@@ -14,8 +14,8 @@ class NativeBSP(BSP):
     def __init__(self):
         super(NativeBSP, self).__init__()
         self.add_sources('crt0', [
-            'src/s-macres/native/s-macres.adb',
-            'src/s-textio/stdio/s-textio.adb'])
+            'src/s-macres__native.adb',
+            'src/s-textio__stdio.adb'])
 
 
 class X86Native(DFBBTarget):

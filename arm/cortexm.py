@@ -11,15 +11,15 @@ class CortexMArch(BSP):
     def __init__(self):
         super(CortexMArch, self).__init__()
         self.add_sources('arch', [
-            'src/s-macres/cortexm3/s-macres.adb',
+            'src/s-macres__cortexm3.adb',
             'arm/src/breakpoint_handler-cortexm.S'])
         self.add_sources('gnarl', [
-            'src/s-bbbosu/armv7m/s-bbbosu.adb',
-            'src/s-bbcpsp/cortexm/s-bbcpsp.ads',
-            'src/s-bbcppr/old/s-bbcppr.ads',
-            'src/s-bbcppr/armv7m/s-bbcppr.adb',
-            'src/s-bbinte/generic/s-bbinte.adb',
-            'src/s-bbsumu/generic/s-bbsumu.adb'])
+            'src/s-bbbosu__armv7m.adb',
+            'src/s-bbcpsp__cortexm.ads',
+            'src/s-bbcppr__old.ads',
+            'src/s-bbcppr__armv7m.adb',
+            'src/s-bbinte__generic.adb',
+            'src/s-bbsumu__generic.adb'])
 
 
 class CortexMTarget(Target):
@@ -111,7 +111,7 @@ class LM3S(CortexMTarget):
             'arm/lm3s/start-ram.S',
             'arm/lm3s/setup_pll.adb',
             'arm/lm3s/setup_pll.ads',
-            'src/s-textio/lm3s/s-textio.adb'])
+            'src/s-textio__lm3s.adb'])
 
 
 class SamCommonBSP(BSP):
@@ -139,7 +139,7 @@ class SamCommonBSP(BSP):
             'arm/sam/start-ram.S',
             'arm/sam/setup_pll.ads'])
         self.add_sources('gnarl', [
-            'src/s-bbpara/sam4s/s-bbpara.ads'])
+            'src/s-bbpara__sam4s.ads'])
 
 
 class Sam(CortexMTarget):
@@ -187,7 +187,7 @@ class Sam(CortexMTarget):
             'arm/sam/%s/svd/i-sam-efc.ads' % self.name,
             'arm/sam/%s/svd/i-sam-pmc.ads' % self.name,
             'arm/sam/%s/svd/i-sam-sysc.ads' % self.name,
-            'src/s-textio/sam4s/s-textio.adb'])
+            'src/s-textio__sam4s.adb'])
         # FIXME: s-textio.adb is invalid for the g55
 
         # ravenscar support
@@ -256,7 +256,7 @@ class SmartFusion2(CortexMTarget):
             'arm/smartfusion2/s-sf2gpi.adb',
             'arm/smartfusion2/svd/handler.S',
             'arm/smartfusion2/svd/a-intnam.ads',
-            'src/s-bbpara/smartfusion2/s-bbpara.ads'])
+            'src/s-bbpara__smartfusion2.ads'])
 
 
 class Stm32CommonBSP(BSP):
@@ -284,7 +284,7 @@ class Stm32CommonBSP(BSP):
         self.add_linker_script('arm/stm32/common-ROM.ld', loader='ROM')
 
         self.add_sources('crt0', [
-            'src/s-bbpara/stm32f4/s-bbpara.ads',
+            'src/s-bbpara__stm32f4.ads',
             'arm/stm32/s-stm32.ads',
             'arm/stm32/start-rom.S',
             'arm/stm32/start-ram.S',

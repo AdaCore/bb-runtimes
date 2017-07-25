@@ -12,14 +12,14 @@ class Aarch64Arch(BSP):
         super(Aarch64Arch, self).__init__()
         self.add_sources('arch', [
             'src/i-aarch64.ads', 'src/i-aarch64.adb',
-            'src/i-cache/i-cache.ads',
-            'src/i-cache/aarch64/i-cache.adb'])
+            'src/i-cache.ads',
+            'src/i-cache__aarch64.adb'])
         self.add_sources('gnarl', [
-            'src/s-bbcpsp/aarch64/s-bbcpsp.ads',
-            'src/s-bbcppr/new/s-bbcppr.ads',
-            'src/s-bbcppr/aarch64/s-bbcppr.adb',
+            'src/s-bbcpsp__aarch64.ads',
+            'src/s-bbcppr__new.ads',
+            'src/s-bbcppr__aarch64.adb',
             'aarch64/context_switch.S',
-            'src/s-bbinte/generic/s-bbinte.adb'])
+            'src/s-bbinte__generic.adb'])
 
 
 class Aarch64Target(DFBBTarget):
@@ -98,8 +98,8 @@ class AARCH64QEMU(Aarch64Target):
         self.add_sources('crt0', [
             'aarch64/qemu/start-ram.S',
             'aarch64/qemu/start-part.S',
-            'src/s-textio/zynq/s-textio.adb',
-            'src/s-macres/zynq/s-macres.adb'])
+            'src/s-textio__zynq.adb',
+            'src/s-macres__zynq.adb'])
 
 
 class ZynqMP(Aarch64Target):
@@ -138,13 +138,13 @@ class ZynqMP(Aarch64Target):
                 'start-config.h': 'aarch64/zynqmp/start-config-el2.h',
                 'memmap.s': 'aarch64/zynqmp/memmap-el2.s'})
             cfg.add_sources('gnarl', [
-                'src/s-bbpara/zynqmp-el2/s-bbpara.ads'])
+                'src/s-bbpara__zynqmp-el2.ads'])
         else:
             cfg.add_sources('arch', {
                 'start-config.h': 'aarch64/zynqmp/start-config-el1.h',
                 'memmap.s': 'aarch64/zynqmp/memmap-el1.s'})
             cfg.add_sources('gnarl', [
-                'src/s-bbpara/zynqmp/s-bbpara.ads'])
+                'src/s-bbpara__zynqmp.ads'])
 
     def __init__(self):
         super(ZynqMP, self).__init__(
@@ -155,13 +155,13 @@ class ZynqMP(Aarch64Target):
         self.add_sources('crt0', [
             'aarch64/zynqmp/start-ram.S',
             'aarch64/zynqmp/trap_vector.S',
-            'src/aarch64/trap_dump.ads',
-            'src/aarch64/trap_dump.adb',
-            'src/s-textio/zynqmp/s-textio.adb',
-            'src/s-macres/zynqmp/s-macres.adb'])
+            'src/trap_dump__aarch64.ads',
+            'src/trap_dump__aarch64.adb',
+            'src/s-textio__zynqmp.adb',
+            'src/s-macres__zynqmp.adb'])
         self.add_sources('gnarl', [
-            'src/a-intnam/zynqmp/a-intnam.ads',
-            'src/s-bbbosu/armv8a/s-bbbosu.adb'])
+            'src/a-intnam__zynqmp.ads',
+            'src/s-bbbosu__armv8a.adb'])
 
 
 class Rpi3Base(Aarch64Target):
@@ -186,14 +186,14 @@ class Rpi3Base(Aarch64Target):
         self.add_linker_script('aarch64/rpi3/ram.ld', loader='RAM')
         self.add_sources('crt0', [
             'src/i-raspberry_pi.ads',
-            'src/aarch64/trap_dump.ads',
-            'src/aarch64/trap_dump.adb',
-            'src/s-textio/rpi2-mini/s-textio.adb',
-            'src/s-macres/rpi2/s-macres.adb'])
+            'src/trap_dump__aarch64.ads',
+            'src/trap_dump__aarch64.adb',
+            'src/s-textio__rpi2-mini.adb',
+            'src/s-macres__rpi2.adb'])
         self.add_sources('gnarl', [
-            'src/a-intnam/rpi2/a-intnam.ads',
-            'src/s-bbpara/rpi2/s-bbpara.ads',
-            'src/s-bbbosu/rpi3/s-bbbosu.adb'])
+            'src/a-intnam__rpi2.ads',
+            'src/s-bbpara__rpi2.ads',
+            'src/s-bbbosu__rpi3.adb'])
 
 
 class Rpi3(Rpi3Base):
@@ -207,9 +207,9 @@ class Rpi3(Rpi3Base):
         self.add_sources('crt0', [
             'aarch64/rpi3/start-ram.S',
             'aarch64/rpi3/memmap.s',
-            'src/s-textio/rpi2-mini/s-textio.adb'])
+            'src/s-textio__rpi2-mini.adb'])
         self.add_sources('gnarl', [
-            'src/s-bbpara/rpi2/s-bbpara.ads'])
+            'src/s-bbpara__rpi2.ads'])
 
 
 class Rpi3Mc(Rpi3Base):
@@ -227,6 +227,6 @@ class Rpi3Mc(Rpi3Base):
             'aarch64/rpi3-mc/traps_el2low.S',
             'aarch64/rpi3-mc/traps_common.h',
             'aarch64/rpi3-mc/memmap.s',
-            'src/s-textio/rpi2-pl011/s-textio.adb'])
+            'src/s-textio__rpi2-pl011.adb'])
         self.add_sources('gnarl', [
-            'src/s-bbpara/rpi2-hyp/s-bbpara.ads'])
+            'src/s-bbpara__rpi2-hyp.ads'])

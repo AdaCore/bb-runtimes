@@ -13,9 +13,9 @@ class PPCArch(BSP):
     def __init__(self):
         super(PPCArch, self).__init__()
         self.add_sources('gnarl', [
-            'src/s-bbcppr/new/s-bbcppr.ads',
-            'src/s-bbcppr/ppc/s-bbcppr.adb',
-            'src/s-bbinte/ppc/s-bbinte.adb'])
+            'src/s-bbcppr__new.ads',
+            'src/s-bbcppr__ppc.adb',
+            'src/s-bbinte__ppc.adb'])
 
 
 class PPC6XXArch(PPCArch):
@@ -25,8 +25,8 @@ class PPC6XXArch(PPCArch):
             'powerpc/6xx/context_switch.S',
             'powerpc/6xx/handler.S'])
         self.add_sources('gnarl-ppc6xx', [
-            'src/s-bbcpsp/6xx/s-bbcpsp.ads',
-            'src/s-bbcpsp/6xx/s-bbcpsp.adb'])
+            'src/s-bbcpsp__6xx.ads',
+            'src/s-bbcpsp__6xx.adb'])
 
 
 class PPCSPEArch(PPCArch):
@@ -36,8 +36,8 @@ class PPCSPEArch(PPCArch):
             'powerpc/spe/handler.S',
             'powerpc/spe/context_switch.S'])
         self.add_sources('gnarl-spe', [
-            'src/s-bbcpsp/spe/s-bbcpsp.ads',
-            'src/s-bbcpsp/spe/s-bbcpsp.adb'])
+            'src/s-bbcpsp__spe.ads',
+            'src/s-bbcpsp__spe.adb'])
 
 
 class PPC6XXTarget(DFBBTarget):
@@ -118,14 +118,14 @@ class MPC8349e(PPC6XXTarget):
         self.add_sources('crt0', [
             'powerpc/mpc8349/start-ram.S',
             'powerpc/mpc8349/setup.S',
-            'src/s-macres/8349e/s-macres.adb',
-            'src/s-bbbopa/8349e/s-bbbopa.ads',
-            'src/s-textio/p2020/s-textio.adb'])
+            'src/s-macres__8349e.adb',
+            'src/s-bbbopa__8349e.ads',
+            'src/s-textio__p2020.adb'])
         self.add_sources('gnarl', [
-            'src/s-bbbosu/8349e/s-bbbosu.adb',
-            'src/s-bbpara/ppc/s-bbpara.ads',
-            'src/s-bbsuti/ppc/s-bbsuti.adb',
-            'src/a-intnam/8349e/a-intnam.ads'])
+            'src/s-bbbosu__8349e.adb',
+            'src/s-bbpara__ppc.ads',
+            'src/s-bbsuti__ppc.adb',
+            'src/a-intnam__8349e.ads'])
 
 
 class MPC8641(PPC6XXTarget):
@@ -156,15 +156,15 @@ class MPC8641(PPC6XXTarget):
             'powerpc/mpc8641/start-rom.S',
             'powerpc/mpc8641/setup.S'])
         self.add_sources('crt0', [
-            'src/s-macres/p2020/s-macres.adb',
-            'src/s-bbbopa/8641d/s-bbbopa.ads',
-            'src/s-textio/p2020/s-textio.adb'])
+            'src/s-macres__p2020.adb',
+            'src/s-bbbopa__8641d.ads',
+            'src/s-textio__p2020.adb'])
         self.add_sources('gnarl', [
-            'src/s-bbbosu/ppc-openpic/s-bbbosu.adb',
-            'src/s-bbsuti/ppc/s-bbsuti.adb',
-            'src/s-bbsumu/8641d/s-bbsumu.adb',
-            'src/s-bbpara/8641d/s-bbpara.ads',
-            'src/a-intnam/ppc-openpic/a-intnam.ads'])
+            'src/s-bbbosu__ppc-openpic.adb',
+            'src/s-bbsuti__ppc.adb',
+            'src/s-bbsumu__8641d.adb',
+            'src/s-bbpara__8641d.ads',
+            'src/a-intnam__ppc-openpic.ads'])
 
 
 class PPCSPETarget(PPC6XXTarget):
@@ -203,8 +203,8 @@ class P5634(PPCSPETarget):
         self.add_linker_script('powerpc/mpc5634/5634.ld', loader=None)
         self.add_sources('crt0', [
             'powerpc/mpc5634/start.S',
-            'src/s-macres/p55/s-macres.adb',
-            'src/s-textio/p55/s-textio.adb'])
+            'src/s-macres__p55.adb',
+            'src/s-textio__p55.adb'])
 
 
 class P2020(PPCSPETarget):
@@ -226,15 +226,15 @@ class P2020(PPCSPETarget):
         self.add_sources('crt0', [
             'powerpc/p2020/start-ram.S',
             'powerpc/p2020/setup.S',
-            'src/s-macres/p2020/s-macres.adb',
-            'src/s-bbbopa/p2020/s-bbbopa.ads',
-            'src/s-textio/p2020/s-textio.adb'])
+            'src/s-macres__p2020.adb',
+            'src/s-bbbopa__p2020.ads',
+            'src/s-textio__p2020.adb'])
         self.add_sources('gnarl', [
-            'src/s-bbsumu/generic/s-bbsumu.adb',
-            'src/s-bbbosu/ppc-openpic/s-bbbosu.adb',
-            'src/s-bbsuti/ppc/s-bbsuti.adb',
-            'src/s-bbpara/ppc/s-bbpara.ads',
-            'src/a-intnam/ppc-openpic/a-intnam.ads'])
+            'src/s-bbsumu__generic.adb',
+            'src/s-bbbosu__ppc-openpic.adb',
+            'src/s-bbsuti__ppc.adb',
+            'src/s-bbpara__ppc.ads',
+            'src/a-intnam__ppc-openpic.ads'])
 
 
 class P5566(PPCSPETarget):
@@ -265,12 +265,12 @@ class P5566(PPCSPETarget):
             'powerpc/p5566/start-flash.S',
             'powerpc/p5566/setup.S',
             'powerpc/p5566/setup-pll.S',
-            'src/s-macres/p55/s-macres.adb',
-            'src/s-textio/p55/s-textio.adb'])
+            'src/s-macres__p55.adb',
+            'src/s-textio__p55.adb'])
         self.add_sources('gnarl', [
-            'src/s-bbsumu/generic/s-bbsumu.adb',
-            'src/s-bbbopa/p55/s-bbbopa.ads',
-            'src/s-bbsuti/ppc/s-bbsuti.adb',
-            'src/s-bbbosu/p55/s-bbbosu.adb',
-            'src/s-bbpara/p55/s-bbpara.ads',
-            'src/a-intnam/p55/a-intnam.ads'])
+            'src/s-bbsumu__generic.adb',
+            'src/s-bbbopa__p55.ads',
+            'src/s-bbsuti__ppc.adb',
+            'src/s-bbbosu__p55.adb',
+            'src/s-bbpara__p55.ads',
+            'src/a-intnam__p55.ads'])
