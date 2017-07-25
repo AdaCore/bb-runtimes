@@ -163,7 +163,7 @@ class FilesHolder(object):
             self._copy(os.path.join(self.gnatdir, srcfile),
                        dstdir, installed_files)
 
-        elif srcfile.split('/')[0] in ('hie', 'libgnarl'):
+        elif srcfile.split('/')[0] in ('hie', 'libgnarl', 'libgnat'):
             # BB-specific file in gnat/hie
             bb_file = os.path.join(self.gnatdir, srcfile)
             assert os.path.exists(bb_file), \
