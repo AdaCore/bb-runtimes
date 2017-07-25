@@ -223,7 +223,7 @@ def main():
 
     if gen_rts_srcs:
         target = boards[0].target
-        is_pikeos = 'pikeos' in target
+        is_pikeos = target is not None and 'pikeos' in target
 
         # determining what runtime sources we need:
         # - 'pikeos': all profiles, and a specific rts sources organisation
