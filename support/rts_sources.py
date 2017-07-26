@@ -443,12 +443,12 @@ class SourceDirs(SharedFilesHolder):
             'libgnat/a-ncelfu.ads',
             'libgnat/a-ngcefu.ads', 'libgnat/a-ngcefu.adb',
             'libgnat/a-ngcoty.ads',
-            {'a-ngcoty.adb': 'a-ngcoty-ada.adb'},
-            {'a-ngelfu.ads': 'a-ngelfu-ada.ads',
-             'a-ngelfu.adb': 'a-ngelfu-ada.adb'},
+            {'a-ngcoty.adb': 'hie/a-ngcoty-ada.adb'},
+            {'a-ngelfu.ads': 'hie/a-ngelfu-ada.ads',
+             'a-ngelfu.adb': 'hie/a-ngelfu-ada.adb'},
             'libgnat/a-nlcefu.ads',
             'libgnat/a-nlcoty.ads',
-            {'a-nlelfu.ads': 'a-nlelfu-ada.ads'},
+            {'a-nlelfu.ads': 'hie/a-nlelfu-ada.ads'},
             'libgnat/a-nllcef.ads',
             'libgnat/a-nllcty.ads',
             'libgnat/a-nllefu.ads',
@@ -456,22 +456,22 @@ class SourceDirs(SharedFilesHolder):
             'libgnat/a-nscoty.ads',
             'libgnat/a-nselfu.ads',
             'libgnat/a-nucoty.ads',
-            {'a-nuelfu.ads': 'a-nuelfu-ada.ads'},
-            {'a-numaux.ads': 'a-numaux-ada.ads'},
+            {'a-nuelfu.ads': 'hie/a-nuelfu-ada.ads'},
+            {'a-numaux.ads': 'hie/a-numaux-ada.ads'},
             'libgnat/a-numeri.ads',
             'libgnat/s-exnllf.ads', 'libgnat/s-exnllf.adb',
-            {'s-gcmain.ads': 's-gcmain-ada.ads',
-             's-gcmain.adb': 's-gcmain-ada.adb'},
+            {'s-gcmain.ads': 'hie/s-gcmain-ada.ads',
+             's-gcmain.adb': 'hie/s-gcmain-ada.adb'},
             'libgnat/s-gearop.ads', 'libgnat/s-gearop.adb',
-            {'s-libdou.ads': 's-libdou-ada.ads',
-             's-libdou.adb': 's-libdou-ada.adb'},
-            {'s-libm.ads': 's-libm-ada.ads',
-             's-libm.adb': 's-libm-ada.adb'},
-            {'s-libpre.ads': 's-libpre-ada.ads'},
-            {'s-libsin.ads': 's-libsin-ada.ads',
-             's-libsin.adb': 's-libsin-ada.adb'},
-            {'s-lidosq.ads': 's-lidosq-ada.ads'},
-            {'s-lisisq.ads': 's-lisisq-ada.ads'}])
+            {'s-libdou.ads': 'hie/s-libdou-ada.ads',
+             's-libdou.adb': 'hie/s-libdou-ada.adb'},
+            {'s-libm.ads': 'hie/s-libm-ada.ads',
+             's-libm.adb': 'hie/s-libm-ada.adb'},
+            {'s-libpre.ads': 'hie/s-libpre-ada.ads'},
+            {'s-libsin.ads': 'hie/s-libsin-ada.ads',
+             's-libsin.adb': 'hie/s-libsin-ada.adb'},
+            {'s-lidosq.ads': 'hie/s-lidosq-ada.ads'},
+            {'s-lisisq.ads': 'hie/s-lisisq-ada.ads'}])
 
         self.add_rule('math/full',
                       ['RTS_Profile:ravenscar-full',
@@ -484,10 +484,10 @@ class SourceDirs(SharedFilesHolder):
         if self._is_bb:
             self.add_rule('math/softsp', 'Add_Math_Lib:softfloat,hardfloat_dp')
             self.add_sources('math/softsp', {
-                's-lisisq.adb': 's-lisisq-ada.adb'})
+                's-lisisq.adb': 'hie/s-lisisq-ada.adb'})
             self.add_rule('math/softdp', 'Add_Math_Lib:softfloat,hardfloat_sp')
             self.add_sources('math/softdp', {
-                's-lidosq.adb': 's-lidosq-ada.adb'})
+                's-lidosq.adb': 'hie/s-lidosq-ada.adb'})
 
             self.add_rule('math/hardsp',
                           'Add_Math_Lib:hardfloat,hardfloat_sp')
