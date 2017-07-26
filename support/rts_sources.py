@@ -365,9 +365,8 @@ class SourceDirs(SharedFilesHolder):
             'libgnat/a-unccon.ads',
             'libgnat/a-uncdea.ads',
             'libgnat/ada.ads',
-            {'g-io.ads': 'hie/g-io-zfp.ads'},
-            {'g-io.adb': 'hie/g-io-zfp.adb'},
-            {'g-io-put.adb': 'hie/g-io-put-bb.adb'},
+            'hie/g-io__zfp.ads', 'hie/g-io__zfp.adb',
+            'hie/g-io-put__bb.adb',
             'libgnat/g-souinf.ads',
             'libgnat/gnat.ads',
             'libgnat/i-cexten.ads',
@@ -382,8 +381,7 @@ class SourceDirs(SharedFilesHolder):
             'libgnat/s-imguns.ads', 'libgnat/s-imguns.adb',
             'libgnat/s-maccod.ads',
             'hie/s-macres.ads',
-            {'s-secsta.ads': 'hie/s-secsta-zfp.ads'},
-            {'s-secsta.adb': 'hie/s-secsta-zfp.adb'},
+            'hie/s-secsta__zfp.ads', 'hie/s-secsta__zfp.adb',
             'libgnat/s-stoele.ads', 'libgnat/s-stoele.adb',
             'hie/s-textio.ads',
             'libgnat/s-unstyp.ads',
@@ -399,12 +397,12 @@ class SourceDirs(SharedFilesHolder):
             self.add_rule('system_io', 'Use_Semihosting_IO:no')
             self.add_rule('semihost', 'Use_Semihosting_IO:yes')
             self.add_sources('system_io', [
-                'hie/a-textio/bb/a-textio.adb'])
+                'hie/a-textio__bb.adb'])
             self.add_sources('semihost', [
                 'hie/s-semiho.ads',
                 'hie/s-semiho.adb',
-                'hie/semihosting/s-textio.adb',
-                'hie/a-textio/semihosting/a-textio.adb'])
+                'hie/s-textio__semihosting.adb',
+                'hie/a-textio__semihosting.adb'])
 
         # FPU support sources
         self.add_rule('fpu', 'Has_FPU:yes')
@@ -443,12 +441,11 @@ class SourceDirs(SharedFilesHolder):
             'libgnat/a-ncelfu.ads',
             'libgnat/a-ngcefu.ads', 'libgnat/a-ngcefu.adb',
             'libgnat/a-ngcoty.ads',
-            {'a-ngcoty.adb': 'hie/a-ngcoty-ada.adb'},
-            {'a-ngelfu.ads': 'hie/a-ngelfu-ada.ads',
-             'a-ngelfu.adb': 'hie/a-ngelfu-ada.adb'},
+            'hie/a-ngcoty__ada.adb',
+            'hie/a-ngelfu__ada.ads', 'hie/a-ngelfu__ada.adb',
             'libgnat/a-nlcefu.ads',
             'libgnat/a-nlcoty.ads',
-            {'a-nlelfu.ads': 'hie/a-nlelfu-ada.ads'},
+            'hie/a-nlelfu__ada.ads',
             'libgnat/a-nllcef.ads',
             'libgnat/a-nllcty.ads',
             'libgnat/a-nllefu.ads',
@@ -456,22 +453,18 @@ class SourceDirs(SharedFilesHolder):
             'libgnat/a-nscoty.ads',
             'libgnat/a-nselfu.ads',
             'libgnat/a-nucoty.ads',
-            {'a-nuelfu.ads': 'hie/a-nuelfu-ada.ads'},
-            {'a-numaux.ads': 'hie/a-numaux-ada.ads'},
+            'hie/a-nuelfu__ada.ads',
+            'hie/a-numaux__ada.ads',
             'libgnat/a-numeri.ads',
             'libgnat/s-exnllf.ads', 'libgnat/s-exnllf.adb',
-            {'s-gcmain.ads': 'hie/s-gcmain-ada.ads',
-             's-gcmain.adb': 'hie/s-gcmain-ada.adb'},
+            'hie/s-gcmain__ada.ads', 'hie/s-gcmain__ada.adb',
             'libgnat/s-gearop.ads', 'libgnat/s-gearop.adb',
-            {'s-libdou.ads': 'hie/s-libdou-ada.ads',
-             's-libdou.adb': 'hie/s-libdou-ada.adb'},
-            {'s-libm.ads': 'hie/s-libm-ada.ads',
-             's-libm.adb': 'hie/s-libm-ada.adb'},
-            {'s-libpre.ads': 'hie/s-libpre-ada.ads'},
-            {'s-libsin.ads': 'hie/s-libsin-ada.ads',
-             's-libsin.adb': 'hie/s-libsin-ada.adb'},
-            {'s-lidosq.ads': 'hie/s-lidosq-ada.ads'},
-            {'s-lisisq.ads': 'hie/s-lisisq-ada.ads'}])
+            'hie/s-libdou__ada.ads', 'hie/s-libdou__ada.adb',
+            'hie/s-libm__ada.ads', 'hie/s-libm__ada.adb',
+            'hie/s-libpre__ada.ads',
+            'hie/s-libsin__ada.ads', 'hie/s-libsin__ada.adb',
+            'hie/s-lidosq__ada.ads',
+            'hie/s-lisisq__ada.ads'])
 
         self.add_rule('math/full',
                       ['RTS_Profile:ravenscar-full',
@@ -483,50 +476,47 @@ class SourceDirs(SharedFilesHolder):
 
         if self._is_bb:
             self.add_rule('math/softsp', 'Add_Math_Lib:softfloat,hardfloat_dp')
-            self.add_sources('math/softsp', {
-                's-lisisq.adb': 'hie/s-lisisq-ada.adb'})
+            self.add_sources('math/softsp', [
+                'hie/s-lisisq__ada.adb'])
             self.add_rule('math/softdp', 'Add_Math_Lib:softfloat,hardfloat_sp')
-            self.add_sources('math/softdp', {
-                's-lidosq.adb': 'hie/s-lidosq-ada.adb'})
+            self.add_sources('math/softdp', [
+                'hie/s-lidosq__ada.adb'])
 
             self.add_rule('math/hardsp',
                           'Add_Math_Lib:hardfloat,hardfloat_sp')
-            self.add_sources('math/hardsp', {
-                's-lisisq.adb': 'hie/s-lisisq-fpu.adb'})
+            self.add_sources('math/hardsp', [
+                'hie/s-lisisq__fpu.adb'])
             self.add_rule('math/harddp', 'Add_Math_Lib:hardfloat,hardfloat_dp')
-            self.add_sources('math/harddp', {
-                's-lidosq.adb': 'hie/s-lidosq-fpu.adb'})
+            self.add_sources('math/harddp', [
+                'hie/s-lidosq__fpu.adb'])
         else:
             # PikeOS
-            self.add_sources('math', {
-                's-lisisq.adb': 'hie/s-lisisq-fpu.adb',
-                's-lidosq.adb': 'hie/s-lidosq-fpu.adb'})
+            self.add_sources('math', [
+                'hie/s-lisisq__fpu.adb',
+                'hie/s-lidosq__fpu.adb'])
 
         # Finally, the ZFP & SFP-specific libgnat files
         self.add_rule('zfp', 'RTS_Profile:zfp,ravenscar-sfp')
         self.add_sources('zfp', [
-            'hie/a-elchha/zfp/a-elchha.ads',
-            'hie/a-elchha/zfp/a-elchha.adb',
+            'hie/a-elchha__zfp.ads',
+            'hie/a-elchha__zfp.adb',
             'hie/s-sssita.ads', 'hie/s-sssita.adb',
-            {'a-except.ads': 'hie/a-except-zfp.ads',
-             'a-except.adb': 'hie/a-except-zfp.adb',
-             'a-tags.ads': 'hie/a-tags-hie.ads',
-             'a-tags.adb': 'hie/a-tags-hie.adb',
-             'i-c.ads': 'hie/i-c-hie.ads',
-             's-assert.adb': 'hie/s-assert-xi.adb'}])
+            'hie/a-except__zfp.ads', 'hie/a-except__zfp.adb',
+            'hie/a-tags__hie.ads', 'hie/a-tags__hie.adb',
+            'hie/i-c__hie.ads', 'hie/s-assert__xi.adb'])
         if self._is_bb:
             self.add_sources('zfp', [
-                'hie/s-memory/zfp/s-memory.ads',
-                'hie/s-memory/zfp/s-memory.adb'])
+                'hie/s-memory__zfp.ads',
+                'hie/s-memory__zfp.adb'])
         else:
             self.add_rule('zfp-io', 'RTS_Profile:zfp')
             self.add_sources('zfp-io', [
                 'libgnat/text_io.ads',
                 'hie/a-textio.ads',
-                'hie/a-textio/bb/a-textio.adb'])
+                'hie/a-textio__bb.adb'])
             self.add_sources('zfp', [
-                'hie/s-memory/zfp/s-memory.ads',
-                'hie/s-memory/raven-min/s-memory.adb'])
+                'hie/s-memory__zfp.ads',
+                'hie/s-memory__raven-min.adb'])
 
     def init_sfp(self):
         """ravenscar-sfp files"""
@@ -534,25 +524,22 @@ class SourceDirs(SharedFilesHolder):
         self.add_rule('gnarl/common', None)
         self.add_sources('gnarl/common', [
             'libgnarl/a-interr.ads',
-            {'a-interr.adb': 'hie/a-interr-raven.adb'},
+            'hie/a-interr__raven.adb',
             'hie/a-reatim.ads', 'hie/a-reatim.adb',
             'libgnarl/a-retide.ads',
-            {'a-retide.adb': 'hie/a-retide-raven.adb'},
-            {'a-sytaco.ads': 'hie/a-sytaco-xi.ads',
-             'a-sytaco.adb': 'hie/a-sytaco-xi.adb'},
+            'hie/a-retide__raven.adb',
+            'hie/a-sytaco__xi.ads', 'hie/a-sytaco__xi.adb',
             'libgnarl/a-taside.ads',
-            {'a-taside.adb': 'hie/a-taside-raven.adb'},
+            'hie/a-taside__raven.adb',
             'hie/a-taster.ads', 'hie/a-taster.adb',
-            {'s-interr.ads': 'hie/s-interr-raven.ads'},
+            'hie/s-interr__raven.ads',
             'hie/s-mufalo.ads', 'hie/s-mufalo.adb',
             'hie/s-musplo.ads',
             'hie/s-parame.adb',
-            {'s-taprob.ads': 'hie/s-taprob-raven.ads',
-             's-taprob.adb': 'hie/s-taprob-raven.adb'},
+            'hie/s-taprob__raven.ads', 'hie/s-taprob__raven.adb',
             'hie/s-taprop.ads',
             'libgnarl/s-tarest.ads', 'hie/s-tarest.adb',
-            {'s-tasdeb.ads': 'hie/s-tasdeb-xi.ads',
-             's-tasdeb.adb': 'hie/s-tasdeb-raven.adb'},
+            'hie/s-tasdeb__xi.ads', 'hie/s-tasdeb__raven.adb',
             'libgnarl/s-tasinf.ads', 'libgnarl/s-tasinf.adb',
             'hie/s-taskin.adb',
             'hie/s-taspri.ads',
@@ -575,7 +562,7 @@ class SourceDirs(SharedFilesHolder):
                 'hie/s-bcprmu.ads', 'hie/s-bcprmu.adb',
                 'hie/s-interr.adb',
                 'hie/s-multip.ads', 'hie/s-multip.adb',
-                'hie/s-taprop/bb/s-taprop.adb',
+                'hie/s-taprop__bb.adb',
                 'hie/s-tpobmu.adb',
                 'hie/s-osinte.ads'])
         else:
@@ -583,43 +570,43 @@ class SourceDirs(SharedFilesHolder):
             self.add_sources('gnarl/common', [
                 'libgnat/text_io.ads',
                 'hie/a-textio.ads',
-                'hie/a-textio/pikeos/a-textio.adb',
-                {'s-multip.ads': 'hie/s-multip-raven-default.ads',
-                 's-multip.adb': 'hie/s-multip-raven-default.adb'},
-                'hie/s-taprop/pikeos/s-taprop.adb',
+                'hie/a-textio__pikeos.adb',
+                'hie/s-multip__raven-default.ads',
+                'hie/s-multip__raven-default.adb',
+                'hie/s-taprop__pikeos.adb',
                 'libgnarl/s-tpobmu.adb'])
             self.add_rule('gnarl/pikeos3', 'Pikeos_Version:pikeos3')
             self.add_sources('gnarl/pikeos3', [
-                'hie/pikeos3/s-interr.adb',
-                'hie/pikeos3/s-osinte.ads',
-                'hie/pikeos3/s-osinte.adb'])
+                'hie/s-interr__pikeos3.adb',
+                'hie/s-osinte__pikeos3.ads',
+                'hie/s-osinte__pikeos3.adb'])
             self.add_rule('gnarl/pikeos4', 'Pikeos_Version:pikeos4')
             self.add_sources('gnarl/pikeos4', [
-                'hie/pikeos4/s-interr.adb',
-                'hie/pikeos4/s-osinte.ads',
-                'hie/pikeos4/s-osinte.adb'])
+                'hie/s-interr__pikeos4.adb',
+                'hie/s-osinte__pikeos4.ads',
+                'hie/s-osinte__pikeos4.adb'])
 
         # SFP-specific files
         self.add_rule('gnarl/sfp', 'RTS_Profile:ravenscar-sfp')
         self.add_sources('gnarl/sfp', [
-            'hie/s-taskin/raven/s-taskin.ads',
-            'hie/s-tposen/raven/s-tposen.adb',
-            'hie/s-tposen/raven/s-tposen.ads'])
+            'hie/s-taskin__raven.ads',
+            'hie/s-tposen__raven.adb',
+            'hie/s-tposen__raven.ads'])
 
         # timer support
         self.add_rule('gnarl/timer32', 'Timer:timer32')
         self.add_sources('gnarl/timer32', [
-            'hie/s-bbtime/32bit/s-bbtime.adb'])
+            'hie/s-bbtime__32bit.adb'])
         self.add_rule('gnarl/timer64', 'Timer:timer64')
         self.add_sources('gnarl/timer64', [
-            'hie/s-bbtime/64bit/s-bbtime.adb'])
+            'hie/s-bbtime__64bit.adb'])
 
         # spinlock support (leon workaround)
         if self._is_bb:
             self.add_rule('gnarl/spinlock-leon', 'CPU_Family:leon')
             self.add_rule('gnarl/spinlock-gcc', 'CPU_Family:!leon')
             self.add_sources('gnarl/spinlock-gcc', 'hie/s-musplo.adb')
-            self.add_sources('gnarl/spinlock-leon', 'hie/leon/s-musplo.adb')
+            self.add_sources('gnarl/spinlock-leon', 'hie/s-musplo__leon.adb')
         else:
             self.add_sources('gnarl/common', 'hie/s-musplo.adb')
 
@@ -628,13 +615,13 @@ class SourceDirs(SharedFilesHolder):
             self.add_rule('gnarl/mem-small', 'Memory_Profile:small')
             self.add_rule('gnarl/mem-large', 'Memory_Profile:large')
             self.add_sources('gnarl/mem-small', [
-                'hie/s-parame/small/s-parame.ads'])
+                'hie/s-parame__small.ads'])
             self.add_sources('gnarl/mem-large', [
-                'hie/s-parame/large/s-parame.ads'])
+                'hie/s-parame__large.ads'])
         else:
             # PikeOS:
             self.add_sources('gnarl/common', [
-                'hie/s-parame/large/s-parame.ads'])
+                'hie/s-parame__large.ads'])
 
     def init_full(self):
         """ravenscar-full files"""
@@ -653,8 +640,8 @@ class SourceDirs(SharedFilesHolder):
             'libgnat/a-chzla9.ads',
             'libgnat/a-decima.ads', 'libgnat/a-decima.adb',
             'libgnat/a-einuoc.ads', 'libgnat/a-einuoc.adb',
-            'libgnat/a-elchha.ads', 'hie/a-elchha/full/a-elchha.adb',
-            {'a-excach.adb': 'hie/a-excach-cert.adb'},
+            'libgnat/a-elchha.ads', 'hie/a-elchha__full.adb',
+            'hie/a-excach__cert.adb',
             'libgnat/a-except.ads', 'libgnat/a-except.adb',
             'libgnat/a-excpol.adb',
             'libgnat/a-exctra.ads', 'libgnat/a-exctra.adb',
@@ -825,7 +812,7 @@ class SourceDirs(SharedFilesHolder):
             'libgnat/s-imgwch.ads', 'libgnat/s-imgwch.adb',
             'libgnat/s-imgwiu.ads', 'libgnat/s-imgwiu.adb',
             'hie/s-init.ads',
-            'hie/s-init/bb/s-init.adb',
+            'hie/s-init__bb.adb',
             'libgnat/s-io.ads', 'hie/s-io.adb',
             'libgnat/s-mantis.ads', 'libgnat/s-mantis.adb',
             'libgnat/s-mastop.ads', 'libgnat/s-mastop.adb',
@@ -908,7 +895,7 @@ class SourceDirs(SharedFilesHolder):
             'libgnat/s-strhas.ads', 'libgnat/s-strhas.adb',
             'libgnat/s-string.ads', 'libgnat/s-string.adb',
             'libgnat/s-tasloc.ads', 'libgnat/s-tasloc.adb',
-            {'s-traceb.ads': 'hie/s-traceb-cert.ads'},
+            'hie/s-traceb__cert.ads',
             'libgnat/s-traent.ads', 'libgnat/s-traent.adb',
             'libgnat/s-trasym.ads', 'libgnat/s-trasym.adb',
             'libgnat/s-utf_32.ads', 'libgnat/s-utf_32.adb',
@@ -949,14 +936,14 @@ class SourceDirs(SharedFilesHolder):
             self.add_sources('full', 'hie/adaint-xi.c')
             self.add_sources('full', [
                 'libgnat/s-memory.ads',
-                'hie/s-memory/xi/s-memory.adb'])
+                'hie/s-memory__xi.adb'])
         else:
             # PikeOS
             self.add_sources('full', [
-                'hie/s-memory/pikeos/s-memory.ads',
-                'hie/s-memory/pikeos/s-memory.adb'])
+                'hie/s-memory__pikeos.ads',
+                'hie/s-memory__pikeos.adb'])
             self.update_pairs('full', {
-                's-init.adb': 'hie/s-init/pikeos/s-init.adb'})
+                's-init.adb': 'hie/s-init__pikeos.adb'})
 
         # Zero-cost-exception support
         self.add_rule('full/zcx-arm', [
@@ -964,7 +951,7 @@ class SourceDirs(SharedFilesHolder):
         self.add_sources('full/zcx-arm', [
             {'s-excmac.adb': 'libgnat/s-excmac-arm.adb',
              's-excmac.ads': 'libgnat/s-excmac-arm.ads'},
-            'hie/s-traceb/armeabi/s-traceb.adb'])
+            'hie/s-traceb__armeabi.adb'])
         self.add_rule('full/zcx-dw2', [
             'RTS_Profile:ravenscar-full', 'CPU_Family:!arm'])
         self.add_sources('full/zcx-dw2', [
@@ -977,19 +964,19 @@ class SourceDirs(SharedFilesHolder):
         self.add_rule('full/zcx-aarch64',
                       ['RTS_Profile:ravenscar-full', 'CPU_Family:aarch64'])
         self.add_sources('full/zcx-aarch64', [
-            'hie/s-traceb/dwarf/s-traceb.adb'])
+            'hie/s-traceb__dwarf.adb'])
         self.add_rule('full/zcx-ppc',
                       ['RTS_Profile:ravenscar-full', 'CPU_Family:powerpc'])
         self.add_sources('full/zcx-ppc', [
-            'hie/s-traceb/ppc/s-traceb.adb'])
+            'hie/s-traceb__ppc.adb'])
         self.add_rule('full/zcx-leon',
                       ['RTS_Profile:ravenscar-full', 'CPU_Family:leon'])
         self.add_sources('full/zcx-leon', [
-            'hie/s-traceb/sparc/s-traceb.adb'])
+            'hie/s-traceb__sparc.adb'])
         self.add_rule('full/zcx-x86',
                       ['RTS_Profile:ravenscar-full', 'CPU_Family:x86'])
-        self.add_sources('full/zcx-x86', {
-            's-traceb.adb': 'hie/s-traceb-vx653-sim.adb'})
+        self.add_sources('full/zcx-x86', [
+            'hie/s-traceb__vx653-sim.adb'])
 
         # Containers
         self.add_rule('containers', 'RTS_Profile:ravenscar-full')
@@ -1061,9 +1048,8 @@ class SourceDirs(SharedFilesHolder):
         # GNARL files for the full runtime
         self.add_rule('gnarl/full', 'RTS_Profile:ravenscar-full')
         self.add_sources('gnarl/full', [
-            'hie/s-taskin/full/s-taskin.ads',
-            {'s-tposen.adb': 'hie/s-tposen-xi-full.adb',
-             's-tposen.ads': 'hie/s-tposen-xi-full.ads'}])
+            'hie/s-taskin__full.ads',
+            'hie/s-tposen__xi-full.adb', 'hie/s-tposen__xi-full.ads'])
 
         if self._is_bb:
             self.add_sources('gnarl/full', [
