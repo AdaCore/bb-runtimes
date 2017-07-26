@@ -11,14 +11,14 @@ class Aarch64Arch(BSP):
     def __init__(self):
         super(Aarch64Arch, self).__init__()
         self.add_sources('arch', {
-            'i-cache.ads': 'i-cache.ads',
-            'i-cache.adb': 'i-cache-aarch64.adb'})
+            'i-cache.ads': 'src/i-cache.ads',
+            'i-cache.adb': 'src/i-cache-aarch64.adb'})
         self.add_sources('gnarl', [
-            {'s-bbcpsp.ads': 's-bbcpsp-aarch64.ads',
-             's-bbcppr.ads': 's-bbcppr-ppc.ads',
-             's-bbcppr.adb': 's-bbcppr-aarch64.adb'},
+            {'s-bbcpsp.ads': 'src/s-bbcpsp-aarch64.ads',
+             's-bbcppr.ads': 'src/s-bbcppr-ppc.ads',
+             's-bbcppr.adb': 'src/s-bbcppr-aarch64.adb'},
             'aarch64/context_switch.S',
-            's-bbinte.adb'])
+            'src/s-bbinte.adb'])
 
 
 class Aarch64Target(DFBBTarget):
@@ -127,14 +127,14 @@ class Rpi3(Aarch64Target):
 
         self.add_linker_script('aarch64/rpi3/ram.ld', loader='RAM')
         self.add_sources('crt0', [
-            'i-raspberry_pi.ads',
+            'src/i-raspberry_pi.ads',
             'aarch64/rpi3/start-ram.S',
             'aarch64/rpi3/memmap.s',
             'aarch64/rpi3/trap_dump.ads',
             'aarch64/rpi3/trap_dump.adb',
-            {'s-textio.adb': 's-textio-rpi2.adb',
-             's-macres.adb': 's-macres-rpi2.adb'}])
+            {'s-textio.adb': 'src/s-textio-rpi2.adb',
+             's-macres.adb': 'src/s-macres-rpi2.adb'}])
         self.add_sources('gnarl', {
             'a-intnam.ads': 'arm/rpi2/a-intnam.ads',
-            's-bbpara.ads': 's-bbpara-rpi2.ads',
-            's-bbbosu.adb': 's-bbbosu-rpi3.adb'})
+            's-bbpara.ads': 'src/s-bbpara-rpi2.ads',
+            's-bbbosu.adb': 'src/s-bbbosu-rpi3.adb'})

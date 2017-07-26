@@ -11,15 +11,15 @@ class CortexMArch(BSP):
     def __init__(self):
         super(CortexMArch, self).__init__()
         self.add_sources('arch', {
-            's-macres.adb': 's-macres-cortexm3.adb',
+            's-macres.adb': 'src/s-macres-cortexm3.adb',
             'breakpoint_handler.S': 'arm/src/breakpoint_handler-cortexm.S'})
         self.add_sources('gnarl', {
-            's-bbcppr.adb': 's-bbcppr-armv7m.adb',
-            's-bbbosu.adb': 's-bbbosu-armv7m.adb'})
+            's-bbcppr.adb': 'src/s-bbcppr-armv7m.adb',
+            's-bbbosu.adb': 'src/s-bbbosu-armv7m.adb'})
         self.add_sources('gnarl', [
-            's-bbcppr.ads',
-            's-bbinte.adb',
-            's-bbsumu.adb'])
+            'src/s-bbcppr.ads',
+            'src/s-bbinte.adb',
+            'src/s-bbsumu.adb'])
 
 
 class CortexMTarget(Target):
@@ -134,12 +134,12 @@ class SamCommonBSP(BSP):
         self.add_linker_script('arm/sam/common-ROM.ld', loader='ROM')
 
         self.add_sources('crt0', [
-            's-sam4s.ads',
+            'src/s-sam4s.ads',
             'arm/sam/start-rom.S',
             'arm/sam/start-ram.S',
             'arm/sam/setup_pll.ads'])
         self.add_sources('gnarl', {
-            's-bbpara.ads': 's-bbpara-sam4s.ads'})
+            's-bbpara.ads': 'src/s-bbpara-sam4s.ads'})
 
 
 class Sam(CortexMTarget):
@@ -187,7 +187,7 @@ class Sam(CortexMTarget):
             'arm/sam/%s/svd/i-sam-efc.ads' % self.name,
             'arm/sam/%s/svd/i-sam-pmc.ads' % self.name,
             'arm/sam/%s/svd/i-sam-sysc.ads' % self.name,
-            {'s-textio.adb': 's-textio-sam4s.adb'}])
+            {'s-textio.adb': 'src/s-textio-sam4s.adb'}])
         # FIXME: s-textio.adb is invalid for the g55
 
         # ravenscar support
@@ -284,8 +284,8 @@ class Stm32CommonBSP(BSP):
         self.add_linker_script('arm/stm32/common-ROM.ld', loader='ROM')
 
         self.add_sources('crt0', [
-            {'s-bbpara.ads': 's-bbpara-stm32f4.ads'},
-            's-stm32.ads',
+            {'s-bbpara.ads': 'src/s-bbpara-stm32f4.ads'},
+            'src/s-stm32.ads',
             'arm/stm32/start-rom.S',
             'arm/stm32/start-ram.S',
             'arm/stm32/start-common.S',
@@ -376,24 +376,24 @@ class Stm32(CortexMTarget):
 
         if self.board == 'stm32f4':
             self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f40x.adb'})
+                's-stm32.adb': 'src/s-stm32-f40x.adb'})
         elif self.board == 'stm32f429disco':
             self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f4x9x.adb'})
+                's-stm32.adb': 'src/s-stm32-f4x9x.adb'})
         elif self.board == 'openmv2':
             self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f4x9x.adb'})
+                's-stm32.adb': 'src/s-stm32-f4x9x.adb'})
             self.update_pair(
                 's-bbbopa.ads', 'arm/stm32/%s/s-bbbopa-openmv2.ads' % self.mcu)
         elif self.board == 'stm32f469disco':
             self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f4x9x.adb'})
+                's-stm32.adb': 'src/s-stm32-f4x9x.adb'})
         elif self.board == 'stm32f746disco':
             self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f7x.adb'})
+                's-stm32.adb': 'src/s-stm32-f7x.adb'})
         elif self.board == 'stm32f769disco':
             self.add_sources('crt0', {
-                's-stm32.adb': 's-stm32-f7x.adb'})
+                's-stm32.adb': 'src/s-stm32-f7x.adb'})
 
         # ravenscar support
         self.add_sources('gnarl', [

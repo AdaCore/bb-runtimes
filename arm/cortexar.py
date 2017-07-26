@@ -11,15 +11,15 @@ class CortexARArch(BSP):
     def __init__(self):
         super(CortexARArch, self).__init__()
         self.add_sources('arch', [
-            'i-arm_v7ar.ads',
-            'i-arm_v7ar.adb',
-            {'i-cache.ads': 'i-cache.ads',
-             'i-cache.adb': 'i-cache-armv7.adb'}])
+            'src/i-arm_v7ar.ads',
+            'src/i-arm_v7ar.adb',
+            'src/i-cache.ads',
+            {'i-cache.adb': 'src/i-cache-armv7.adb'}])
         self.add_sources('gnarl', [
-            {'s-bbcpsp.ads': 's-bbcpsp-arm.ads',
-             's-bbcppr.adb': 's-bbcppr-arm.adb'},
-            's-bbcppr.ads',
-            's-bbinte.adb'])
+            {'s-bbcpsp.ads': 'src/s-bbcpsp-arm.ads',
+             's-bbcppr.adb': 'src/s-bbcppr-arm.adb'},
+            'src/s-bbcppr.ads',
+            'src/s-bbinte.adb'])
 
 
 class CortexARTarget(DFBBTarget):
@@ -88,15 +88,15 @@ class Rpi2(CortexARTarget):
 
         self.add_linker_script('arm/rpi2/ram.ld', loader='RAM')
         self.add_sources('crt0', [
-            'i-raspberry_pi.ads',
+            'src/i-raspberry_pi.ads',
             'arm/rpi2/start-ram.S',
             'arm/rpi2/memmap.s',
-            {'s-textio.adb': 's-textio-rpi2.adb',
-             's-macres.adb': 's-macres-rpi2.adb'}])
+            {'s-textio.adb': 'src/s-textio-rpi2.adb',
+             's-macres.adb': 'src/s-macres-rpi2.adb'}])
         self.add_sources('gnarl', {
             'a-intnam.ads': 'arm/rpi2/a-intnam.ads',
-            's-bbpara.ads': 's-bbpara-rpi2.ads',
-            's-bbbosu.adb': 's-bbbosu-rpi2.adb'})
+            's-bbpara.ads': 'src/s-bbpara-rpi2.ads',
+            's-bbbosu.adb': 'src/s-bbbosu-rpi2.adb'})
 
 
 class TMS570(CortexARTarget):
