@@ -492,15 +492,15 @@ class SourceDirs(SharedFilesHolder):
             self.add_rule('math/hardsp',
                           'Add_Math_Lib:hardfloat,hardfloat_sp')
             self.add_sources('math/hardsp', {
-                's-lisisq.adb': 's-lisisq-fpu.adb'})
+                's-lisisq.adb': 'hie/s-lisisq-fpu.adb'})
             self.add_rule('math/harddp', 'Add_Math_Lib:hardfloat,hardfloat_dp')
             self.add_sources('math/harddp', {
-                's-lidosq.adb': 's-lidosq-fpu.adb'})
+                's-lidosq.adb': 'hie/s-lidosq-fpu.adb'})
         else:
             # PikeOS
             self.add_sources('math', {
-                's-lisisq.adb': 's-lisisq-fpu.adb',
-                's-lidosq.adb': 's-lidosq-fpu.adb'})
+                's-lisisq.adb': 'hie/s-lisisq-fpu.adb',
+                's-lidosq.adb': 'hie/s-lidosq-fpu.adb'})
 
         # Finally, the ZFP & SFP-specific libgnat files
         self.add_rule('zfp', 'RTS_Profile:zfp,ravenscar-sfp')
