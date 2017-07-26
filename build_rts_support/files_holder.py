@@ -32,6 +32,11 @@ class FilesHolder(object):
 
     def add_source(self, dir, dst, src):
         base = os.path.basename(dst)
+        if '__' in base:
+            # filename with variant: remove the variant part
+            base, ext = base.split(".")
+            base, variant = base.split("__")
+            base = "%s.%s" % (base, ext)
         self.dirs[dir][base] = src
         if dir not in self.c_srcs:
             if dst.endswith('.c') or dst.endswith('.h'):

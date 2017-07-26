@@ -14,10 +14,10 @@ class CortexARArch(BSP):
             'src/i-arm_v7ar.ads',
             'src/i-arm_v7ar.adb',
             'src/i-cache.ads',
-            {'i-cache.adb': 'src/i-cache-armv7.adb'}])
+            'src/i-cache__armv7.adb'])
         self.add_sources('gnarl', [
-            {'s-bbcpsp.ads': 'src/s-bbcpsp-arm.ads',
-             's-bbcppr.adb': 'src/s-bbcppr-arm.adb'},
+            'src/s-bbcpsp__arm.ads',
+            'src/s-bbcppr__arm.adb',
             'src/s-bbcppr.ads',
             'src/s-bbinte.adb'])
 
@@ -91,12 +91,12 @@ class Rpi2(CortexARTarget):
             'src/i-raspberry_pi.ads',
             'arm/rpi2/start-ram.S',
             'arm/rpi2/memmap.s',
-            {'s-textio.adb': 'src/s-textio-rpi2.adb',
-             's-macres.adb': 'src/s-macres-rpi2.adb'}])
-        self.add_sources('gnarl', {
-            'a-intnam.ads': 'arm/rpi2/a-intnam.ads',
-            's-bbpara.ads': 'src/s-bbpara-rpi2.ads',
-            's-bbbosu.adb': 'src/s-bbbosu-rpi2.adb'})
+            'src/s-textio__rpi2.adb',
+            'src/s-macres__rpi2.adb'])
+        self.add_sources('gnarl', [
+            'src/a-intnam__rpi2.ads',
+            'src/s-bbpara__rpi2.ads',
+            'src/s-bbbosu__rpi2.adb'])
 
 
 class TMS570(CortexARTarget):
@@ -145,13 +145,13 @@ class TMS570(CortexARTarget):
             'arm/tms570/crt0.S',
             'arm/tms570/start-ram.S',
             'arm/tms570/start-rom.S',
-            {'s-textio.adb': 's-textio-tms570.adb',
-             's-macres.adb': 's-macres-tms570.adb'}])
-        self.add_sources('gnarl', {
-            'a-intnam.ads': 'a-intnam-xi-tms570.ads',
-            's-bbpara.ads': 's-bbpara-tms570.ads',
-            's-bbbosu.adb': 's-bbbosu-tms570.adb'})
-        self.add_sources('gnarl', 's-bbsumu.adb')
+            'src/s-textio__tms570.adb',
+            'src/s-macres__tms570.adb'])
+        self.add_sources('gnarl', [
+            'src/a-intnam__tms570.ads',
+            'src/s-bbpara__tms570.ads',
+            'src/s-bbbosu__tms570.adb'])
+        self.add_sources('gnarl', 'src/s-bbsumu.adb')
 
 
 class Zynq7000(CortexARTarget):
@@ -203,9 +203,9 @@ class Zynq7000(CortexARTarget):
         self.add_sources('crt0', [
             'arm/zynq/start-ram.S',
             'arm/zynq/memmap.inc',
-            {'s-textio.adb': 's-textio-zynq.adb',
-             's-macres.adb': 's-macres-zynq.adb'}])
-        self.add_sources('gnarl', {
-            'a-intnam.ads': 'a-intnam-xi-zynq.ads',
-            's-bbpara.ads': 's-bbpara-cortexa9.ads',
-            's-bbbosu.adb': 's-bbbosu-cortexa9.adb'})
+            'src/s-textio__zynq.adb',
+            'src/s-macres__zynq.adb'])
+        self.add_sources('gnarl', [
+            'src/a-intnam__zynq.ads',
+            'src/s-bbpara__cortexa9.ads',
+            'src/s-bbbosu__cortexa9.adb'])
