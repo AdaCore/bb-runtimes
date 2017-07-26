@@ -544,8 +544,8 @@ class SourceDirs(SharedFilesHolder):
             {'a-taside.adb': 'hie/a-taside-raven.adb'},
             'hie/a-taster.ads', 'hie/a-taster.adb',
             {'s-interr.ads': 'hie/s-interr-raven.ads'},
-            's-mufalo.ads', 's-mufalo.adb',
-            's-musplo.ads',
+            'hie/s-mufalo.ads', 'hie/s-mufalo.adb',
+            'hie/s-musplo.ads',
             'hie/s-parame.adb',
             {'s-taprob.ads': 'hie/s-taprob-raven.ads',
              's-taprob.adb': 'hie/s-taprob-raven.adb'},
@@ -618,10 +618,10 @@ class SourceDirs(SharedFilesHolder):
         if self._is_bb:
             self.add_rule('gnarl/spinlock-leon', 'CPU_Family:leon')
             self.add_rule('gnarl/spinlock-gcc', 'CPU_Family:!leon')
-            self.add_sources('gnarl/spinlock-gcc', 's-musplo.adb')
+            self.add_sources('gnarl/spinlock-gcc', 'hie/s-musplo.adb')
             self.add_sources('gnarl/spinlock-leon', 'hie/leon/s-musplo.adb')
         else:
-            self.add_sources('gnarl/common', 's-musplo.adb')
+            self.add_sources('gnarl/common', 'hie/s-musplo.adb')
 
         # memory profile
         if self._is_bb:
