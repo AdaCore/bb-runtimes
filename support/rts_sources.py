@@ -795,8 +795,7 @@ class SourceDirs(SharedFilesHolder):
             'libgnat/s-expuns.ads', 'libgnat/s-expuns.adb',
             'libgnat/s-finmas.ads', 'libgnat/s-finmas.adb',
             'libgnat/s-finroo.ads', 'libgnat/s-finroo.adb',
-            'libgnat/s-flocon.ads',
-            {'s-flocon.adb': 'libgnat/s-flocon-none.adb'},
+            'libgnat/s-flocon.ads', 'libgnat/s-flocon__none.adb',
             'libgnat/s-fore.ads', 'libgnat/s-fore.adb',
             'libgnat/s-geveop.ads', 'libgnat/s-geveop.adb',
             'libgnat/s-htable.ads', 'libgnat/s-htable.adb',
@@ -949,14 +948,14 @@ class SourceDirs(SharedFilesHolder):
         self.add_rule('full/zcx-arm', [
             'RTS_Profile:ravenscar-full', 'CPU_Family:arm'])
         self.add_sources('full/zcx-arm', [
-            {'s-excmac.adb': 'libgnat/s-excmac-arm.adb',
-             's-excmac.ads': 'libgnat/s-excmac-arm.ads'},
+            'libgnat/s-excmac__arm.adb',
+            'libgnat/s-excmac__arm.ads',
             'hie/s-traceb__armeabi.adb'])
         self.add_rule('full/zcx-dw2', [
             'RTS_Profile:ravenscar-full', 'CPU_Family:!arm'])
         self.add_sources('full/zcx-dw2', [
-            {'s-excmac.ads': 'libgnat/s-excmac-gcc.ads',
-             's-excmac.adb': 'libgnat/s-excmac-gcc.adb'},
+            'libgnat/s-excmac__gcc.ads',
+            'libgnat/s-excmac__gcc.adb',
             'libgcc/unwind-dw2-fde.h'])
         if self._is_bb:
             self.add_sources('full/zcx-dw2', 'hie/unwind-dw2-fde-bb.c')
@@ -1041,9 +1040,9 @@ class SourceDirs(SharedFilesHolder):
             'libgnat/a-iteint.ads',
             'libgnat/s-atocou.adb', 'libgnat/s-atocou.ads'])
         self.update_pairs('containers', {
-            'a-coinho.adb': 'libgnat/a-coinho-shared.adb',
-            'a-coinho.ads': 'libgnat/a-coinho-shared.ads',
-            's-atocou.adb': 'libgnat/s-atocou-builtin.adb'})
+            'a-coinho.adb': 'libgnat/a-coinho__shared.adb',
+            'a-coinho.ads': 'libgnat/a-coinho__shared.ads',
+            's-atocou.adb': 'libgnat/s-atocou__builtin.adb'})
 
         # GNARL files for the full runtime
         self.add_rule('gnarl/full', 'RTS_Profile:ravenscar-full')
