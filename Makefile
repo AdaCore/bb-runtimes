@@ -76,6 +76,16 @@ ifeq ($(TARGET),$(filter $(TARGET),i686-pc-mingw32 x86-windows))
     TARGETS=x86-windows
 endif
 
+ifeq ($(TARGET),$(filter $(TARGET),x86_64-pc-linux-gnu x86_64-linux))
+    TGT=x86_64-pc-linux-gnu
+    TARGETS=x86_64-linux
+endif
+
+ifeq ($(TARGET),$(filter $(TARGET),x86_64-pc-mingw32 x86_64-windows))
+    TGT=x86_64-pc-mingw32
+    TARGETS=x86_64-windows
+endif
+
 ifeq ($(TARGET),$(filter $(TARGET),arm-sysgo-pikeos arm-pikeos))
     TGT=arm-sysgo-pikeos
     TARGETS=arm-pikeos
