@@ -1,31 +1,71 @@
-Leon3 runtime
--------------
+Leon3 Runtimes
+--------------
 
-The runtime was built and tested on an UT699 compatible board using
-a 40Mhz clock. You need to change the parameters if your system is different.
+Runtimes Supported
 
-All the parameters are set in s-bbbopa.ads.
-You need to specify:
+   ZFP
+   Ravenscar-SFP
+   Ravenscar-Full
 
-- the clock frequency (used for delays).  An incorrect value won't result in
-  a crash but will change the second definition of the runtime.
+Targets Supported
 
-- whether or not extended interrupts are present, and if they are, their
-  priorities.
+   The runtime was built and tested on an UT699 compatible board using
+   a 40MHz clock.    
 
-- the address of the interrupt controler. It is used for timers interrupts
-  and for user interrupt handlers
+System Clocks
 
-- the address of the timers unit.  The runtime uses timer 1 and timer 2 for
-  the clock and for the delays.  The interrupt number of timer 1 is also
-  specified.
+   See package System.BB.Board_Parameters (s-bbbopa.ads) for the clock 
+   frequency declaration. The value of the minimum prescaler is declared
+   there as well.
 
-- the address of the uart used by the console (and Ada.Text_IO).
+   The runtime uses timer 1 and timer 2 for the clock and for the delays. 
+   The address of the timers unit is specified in package 
+   System.BB.Board_Parameters (s-bbbopa.ads). 
 
-- The number of CPUs.  Runtime is SMP if there are at least 2 CPUs.
+   In an SMP configuration the first CPU handles all clock interrupts.
+   See the package body of System.BB.Board_Support (s-bbbosu.adb).
 
-Finally the package Ada.Interrupts.Names declares a name for each interrupt.
-You may need to change it if your board is different.
+Startup Code
 
-Interrupts are not unmasked when attached, so user has to manually
-unmask them.  This will also specify which CPU the interrupt is delivered to.
+   There is one assembly language file for the startup code, hw_init.S,
+   located in the bsp directory. It defines the symbol "__gnat_hw_initialize"
+   but otherwise does nothing. User specific hardware initialization can be
+   performed before elaboration of Ada code via this file.
+
+   The assembly file crt0.S contains the trap table and start up code for
+   the multitasking executive.
+
+   The number of CPUs is specified in package System.BB.Board_Parameters 
+   (s-bbbopa.ads). The runtime is SMP if there are at least two CPUs. 
+   Configuration of the CPUs is done in the body of package 
+   System.BB.Board_Support (s-bbbosu.adb). 
+
+Interrupts
+
+   The package Ada.Interrupts.Names (a-intnam.ads) defines the interrupt names
+   and may need to be changed for your board.
+
+   The address of the interrupt controler used for timers interrupts and 
+   for user interrupt handlers is specified in package 
+   System.BB.Board_Parameters (s-bbbopa.ads). 
+
+   See the package body of System.BB.Board_Support (s-bbbosu.adb) for 
+   board configuration for interrupts. 
+
+   Interrupts are not unmasked when attached, so the user has to manually
+   unmask them. This will also specify which CPU the interrupt is 
+   delivered to.
+
+Memory Layout
+
+   The memory layout is controlled by the leon.ld linker script. The script
+   to be applied can be overridden with the LDSCRIPT scenario variable. 
+
+Resources Used
+
+   The runtime libraries provide a minimal version of package Ada.Text_IO 
+   supporting character- and string-based input and output routines. The 
+   bodies of the Ada.Text_IO routines call through to a device-specific I/O 
+   package named System.Text_IO. See the package body in the file 
+   s-textio.adb. The address of the uart used by the console (and Ada.Text_IO)
+   is specified in package System.BB.Board_Parameters (s-bbbopa.ads).
