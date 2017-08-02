@@ -37,7 +37,7 @@ class Aarch64Target(DFBBTarget):
 
     @property
     def zfp_system_ads(self):
-        return 'system-xi-aarch64.ads'
+        return 'system-xi-arm.ads'
 
     @property
     def sfp_system_ads(self):
@@ -118,9 +118,9 @@ class ZynqMP(Aarch64Target):
     @property
     def system_ads(self):
         return {'zfp': self.zfp_system_ads,
-                'ravenscar-sfp': 'system-xi-aarch64-sfp.ads',
-                'ravenscar-mc': 'system-xi-aarch64-sfp.ads',
-                'ravenscar-full': 'system-xi-aarch64-full.ads'}
+                'ravenscar-sfp': 'system-xi-arm-gic-sfp.ads',
+                'ravenscar-mc': 'system-xi-arm-gic-sfp.ads',
+                'ravenscar-full': 'system-xi-arm-gic-full.ads'}
 
     @property
     def compiler_switches(self):

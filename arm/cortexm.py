@@ -36,10 +36,6 @@ class CortexMTarget(Target):
         return False
 
     @property
-    def has_newlib(self):
-        return True
-
-    @property
     def has_single_precision_fpu(self):
         return True
 

@@ -32,10 +32,6 @@ class CortexARTarget(DFBBTarget):
         return CortexARArch
 
     @property
-    def has_newlib(self):
-        return True
-
-    @property
     def zfp_system_ads(self):
         return 'system-xi-arm.ads'
 
@@ -213,11 +209,16 @@ class Zynq7000(CortexARTarget):
 
     @property
     def sfp_system_ads(self):
-        return 'system-xi-cortexa-sfp.ads'
+        return 'system-xi-arm-gic-sfp.ads'
 
     @property
     def full_system_ads(self):
-        return 'system-xi-cortexa-full.ads'
+        return 'system-xi-arm-gic-full.ads'
+
+    def amend_rts(self, rts_profile, conf):
+        super(Zynq7000, self).amend_rts(rts_profile, conf)
+        if 'ravenscar' in rts_profile:
+            conf.build_flags['common_flags'] += ['-fomit-frame-pointer']
 
     def __init__(self):
         super(Zynq7000, self).__init__(

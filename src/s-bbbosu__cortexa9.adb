@@ -101,7 +101,7 @@ package body System.BB.Board_Support is
       if P not in Interrupt_Priority then
          return 255;
       else
-         return PRI (Interrupt_Priority'Last - P + 1) * 16;
+         return PRI (Interrupt_Priority'Last - P) * 16;
       end if;
    end To_PRI;
 
@@ -117,7 +117,7 @@ package body System.BB.Board_Support is
       if P = 0 then
          return Interrupt_Priority'Last;
       else
-         return Interrupt_Priority'Last - Any_Priority'Base (P / 16) + 1;
+         return Interrupt_Priority'Last - Any_Priority'Base (P / 16);
       end if;
    end To_Priority;
 
