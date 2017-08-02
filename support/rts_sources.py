@@ -145,10 +145,7 @@ class RTSOptions(object):
             # PikeOS provides its own C library
             # ravenscar-full requires C memory operations, either via newlib
             # or via our own implementation in Ada
-            if self.config.has_newlib:
-                ret['Add_C_Support'] = "newlib"
-            else:
-                ret['Add_C_Support'] = "ada_clib"
+            ret['Add_C_Support'] = "newlib"
 
         return ret
 

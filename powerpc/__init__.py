@@ -54,10 +54,6 @@ class PPC6XXTarget(DFBBTarget):
         return True
 
     @property
-    def has_newlib(self):
-        return False
-
-    @property
     def has_fpu(self):
         # Add fpu support
         return True

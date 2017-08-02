@@ -33,10 +33,6 @@ class LeonArch(BSP):
 
 class LeonTarget(DFBBTarget):
     @property
-    def has_newlib(self):
-        return True
-
-    @property
     def zfp_system_ads(self):
         return 'system-xi-sparc.ads'
 

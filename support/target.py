@@ -49,12 +49,6 @@ class TargetConfiguration(object):
         raise Exception("not implemented")
 
     @property
-    def has_newlib(self):
-        if self.is_pikeos:
-            return False
-        raise Exception("not implemented")
-
-    @property
     def bspclass(self):
         raise Exception("not implemented")
 
@@ -305,10 +299,7 @@ class Target(TargetConfiguration, BSP):
         if rts.rts_vars['RTS_Profile'] != "ravenscar-full":
             ret += ', "-nolibc"'
         else:
-            ret += ', "-lgnat"'
-            if self.has_newlib:
-                ret += ', "-lc", "-lgnat"'
-            ret += ', "-lgcc"'
+            ret += ', "-lgnat", "-lc", "-lgnat", "-lgcc"'
 
         if len(self.ld_scripts) > 0:
             ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld"'
@@ -626,7 +617,3 @@ class DFBBTarget(Target):
     @property
     def has_timer_64(self):
         return False
-
-    @property
-    def has_newlib(self):
-        return True

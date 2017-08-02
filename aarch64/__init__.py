@@ -32,10 +32,6 @@ class Aarch64Target(DFBBTarget):
         return Aarch64Arch
 
     @property
-    def has_newlib(self):
-        return True
-
-    @property
     def has_timer_64(self):
         return True
 
