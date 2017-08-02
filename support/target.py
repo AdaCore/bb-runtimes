@@ -505,6 +505,12 @@ class Target(TargetConfiguration, BSP):
                 for srcname, pair in l.items():
                     self._copy_pair(srcname, pair, full)
 
+            # user-defined sources
+            rts_gnat.append('user_srcs')
+            path = os.path.join(base_rts, 'user_srcs')
+            if not os.path.exists(path):
+                os.mkdir(path)
+
             # Generate ada_source_path, used for the rts bootstrap
             with open(os.path.join(base_rts, 'ada_source_path'), 'w') as fp:
                 for d in sorted(rts_gnat + rts_gnarl):
