@@ -52,11 +52,6 @@ pragma Restrictions (No_Finalization);
 pragma Profile (Ravenscar);
 --  This is a Ravenscar run time
 
-pragma Discard_Names;
---  Disable explicitly the generation of names associated with entities in
---  order to reduce the amount of storage used. These names are not used anyway
---  (attributes such as 'Image and 'Value are not supported in this run time).
-
 package System is
    pragma Pure;
    --  Note that we take advantage of the implementation permission to make
