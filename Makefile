@@ -12,6 +12,9 @@ DEBUG=
 # The target to build
 TARGET=
 
+# Whether to just build BSPs
+BSPS=
+
 # Sources of GNAT and GCC
 GNAT=$(SRC_DIR)/../gnat
 GCC=$(SRC_DIR)/../gcc
@@ -119,7 +122,7 @@ ifneq ($(PREFIX),)
 endif
 
 BUILD_RTS_FLAGS=
-GPRBUILD_FLAGS:=-j$(JOBS) -v
+GPRBUILD_FLAGS:=-j$(JOBS) -v -s
 
 ifneq ($(DEBUG),)
   GPRBUILD_FLAGS:=$(GPRBUILD_FLAGS) -XBUILD=Debug
@@ -129,9 +132,13 @@ ifneq ($(LINK),)
   BUILD_RTS_FLAGS:=$(BUILD_RTS_FLAGS) --link
 endif
 
+ifneq ($(BSPS),)
+  BUILD_RTS_FLAGS:=$(BUILD_RTS_FLAGS) --bsps-only
+endif
+
 GPRBUILD:=GPR_PROJECT_PATH=obj/$(TGT)/lib/gnat gprbuild $(GPRBUILD_FLAGS)
 GPRINSTALL:=GPR_PROJECT_PATH=obj/$(TGT)/lib/gnat gprinstall \
-              --prefix=$(GCC_PREFIX)
+              --prefix=$(GCC_PREFIX) -f
 BUILD_RTS:=./build-rts.py --experimental $(BUILD_RTS_FLAGS)
 
 
@@ -169,13 +176,13 @@ default:
 	@echo "  make <board>.zfpinstall"
 	@echo "                    Install the board's zfp rts in gcc"
 
-.PHONY: force
-
-obj/$(TGT): force
+obj/$(TGT):
 	mkdir -p obj && rm -rf obj/$(TGT)
 	set -x; $(BUILD_RTS) --output=obj/$(TGT) --gnat-dir=$(GNAT_SOURCES) --gcc-dir=$(GCC_SOURCES) $(TARGETS)
 
-srcs: obj/$(TGT)
+srcs:
+	rm -rf obj/$(TGT)
+	$(MAKE) obj/$(TGT)
 
 all: obj/$(TGT)
 	for f in obj/$(TGT)/BSPs/*.gpr; do \
