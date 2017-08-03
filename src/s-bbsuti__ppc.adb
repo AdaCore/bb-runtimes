@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2016, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -124,21 +124,27 @@ package body Time is
    -- Set_Alarm --
    ---------------
 
-   procedure Set_Alarm (Ticks : Timer_Interval) is
+   procedure Set_Alarm (Ticks : BB.Time.Time)
+   is
+      use BB.Time;
+      Now  : constant BB.Time.Time := Read_Clock;
+      Diff : constant Unsigned_64 :=
+        (if Ticks > Now then Unsigned_64 (Ticks - Now) else 1);
+      Val  : Unsigned_32;
    begin
+      if Diff >= 2 ** 31 then
+         Val := 16#7FFF_FFFF#;
+         --  The maximum value that can be set in the DEC register. MSB must
+         --  not be set to avoid a useless interrupt (PowerPC triggers an
+         --  interrupt when the MSB switches from 0 to 1).
+      else
+         Val := Unsigned_32 (Diff);
+      end if;
+
       Asm ("mtdec %0",
-        Inputs => Timer_Interval'Asm_Input ("r", Ticks),
-        Volatile => True);
+           Inputs => Unsigned_32'Asm_Input ("r", Val),
+           Volatile => True);
    end Set_Alarm;
-
-   ------------------------
-   -- Max_Timer_Interval --
-   ------------------------
-
-   function Max_Timer_Interval return Timer_Interval is (16#7FFF_FFFF#);
-   --  The maximum value that can be set in the DEC register. MSB must not
-   --  be set to avoid a useless interrupt (PowerPC triggers an interrupt
-   --  when the MSB switches from 0 to 1).
 
    ---------------------------
    -- Clear_Alarm_Interrupt --

@@ -55,10 +55,12 @@ package body System.BB.Board_Support is
    pragma Export (C, Initialize_CPU_Devices, "__gnat_initialize_cpu_devices");
    --  Per CPU device initialization
 
-   procedure Set_CNTP_TVAL (Val : Unsigned_32);
-   --  Set CNTP_TVAL_EL0 or CNTP_TVAL_EL2
+   procedure Set_CNTP_CVAL (Val : Unsigned_64)
+     with Inline_Always;
+   --  Set CNTP_CVAL_EL0 or CNTHP_CVAL_EL2
 
-   procedure Set_CNTP_CTL (Val : Unsigned_32);
+   procedure Set_CNTP_CTL (Val : Unsigned_32)
+     with Inline_Always;
    --  Set CNTP_CTL_EL0 or CNTP_CTL_EL2
 
    ------------------
@@ -76,18 +78,18 @@ package body System.BB.Board_Support is
    end Set_CNTP_CTL;
 
    -------------------
-   -- Set_CNTP_TVAL --
+   -- Set_CNTP_CVAL --
    -------------------
 
-   procedure Set_CNTP_TVAL (Val : Unsigned_32) is
+   procedure Set_CNTP_CVAL (Val : Unsigned_64) is
    begin
       case Runtime_EL is
          when 1 =>
-            Set_CNTP_TVAL_EL0 (Val);
+            Set_CNTP_CVAL_EL0 (Val);
          when 2 =>
-            Set_CNTHP_TVAL_EL2 (Val);
+            Set_CNTHP_CVAL_EL2 (Val);
       end case;
-   end Set_CNTP_TVAL;
+   end Set_CNTP_CVAL;
 
    ----------------------------
    -- Initialize_CPU_Devices --
@@ -145,22 +147,14 @@ package body System.BB.Board_Support is
                              (case Runtime_EL is when 1 => 1, when 2 => 2);
       --  Non-secure counter (CNTPNSIRQ)
 
-      ------------------------
-      -- Max_Timer_Interval --
-      ------------------------
-
-      function Max_Timer_Interval return Timer_Interval is (2**31 - 1);
-      --  Negative values in CNTP_TVAL triggers interrupts, so use the most
-      --  positive value.
-
       ---------------
       -- Set_Alarm --
       ---------------
 
-      procedure Set_Alarm (Ticks : Timer_Interval) is
+      procedure Set_Alarm (Ticks : BB.Time.Time) is
       begin
-         --  Set CNTP_TVAL_EL
-         Set_CNTP_TVAL (Unsigned_32 (Ticks));
+         --  Set CNTP_CVAL_EL
+         Set_CNTP_CVAL (Unsigned_64 (Ticks));
 
          --  Set CNTP_CTL (enable and unmask)
          Set_CNTP_CTL (1);

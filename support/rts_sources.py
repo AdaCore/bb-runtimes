@@ -548,7 +548,6 @@ class SourceDirs(SharedFilesHolder):
                 'hie/a-exetim.ads', 'hie/a-exetim.adb',
                 'hie/a-extiin.ads', 'hie/a-extiin.adb',
                 'hie/a-rttiev.ads', 'hie/a-rttiev.adb',
-                'hie/s-bbbosu.ads',
                 'hie/s-bbexti.ads', 'hie/s-bbexti.adb',
                 'hie/s-bbinte.ads',
                 'hie/s-bbprot.ads', 'hie/s-bbprot.adb',
@@ -596,10 +595,12 @@ class SourceDirs(SharedFilesHolder):
         # timer support
         self.add_rule('gnarl/timer32', 'Timer:timer32')
         self.add_sources('gnarl/timer32', [
-            'hie/s-bbtime__32bit.adb'])
+            'hie/s-bbbosu__timer-32.ads',
+            'hie/s-bbtime__timer-32.adb'])
         self.add_rule('gnarl/timer64', 'Timer:timer64')
         self.add_sources('gnarl/timer64', [
-            'hie/s-bbtime__64bit.adb'])
+            'hie/s-bbbosu__timer-64.ads',
+            'hie/s-bbtime__timer-64.adb'])
 
         # spinlock support (leon workaround)
         if self._is_bb:

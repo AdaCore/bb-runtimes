@@ -32,6 +32,10 @@ class CortexARTarget(DFBBTarget):
         return CortexARArch
 
     @property
+    def has_timer_64(self):
+        return True
+
+    @property
     def zfp_system_ads(self):
         return 'system-xi-arm.ads'
 
@@ -56,10 +60,6 @@ class Rpi2Base(CortexARTarget):
     @property
     def fpu(self):
         return 'vfpv4'
-
-    @property
-    def has_timer_64(self):
-        return True
 
     @property
     def compiler_switches(self):
@@ -198,10 +198,6 @@ class Zynq7000(CortexARTarget):
     @property
     def fpu(self):
         return 'vfpv3'
-
-    @property
-    def has_timer_64(self):
-        return True
 
     @property
     def compiler_switches(self):

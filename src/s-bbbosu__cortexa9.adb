@@ -58,25 +58,20 @@ package body System.BB.Board_Support is
    -- Timer --
    -----------
 
-   Private_Timer_Base : constant := MPCore_Base + 16#600#;
-
-   Private_Timer_Load_Register : Unsigned_32
-     with Import, Volatile, Address => Private_Timer_Base + 16#00#;
-   Private_Timer_Counter_Register : Unsigned_32
-     with Import, Volatile, Address => Private_Timer_Base + 16#04#;
-   Private_Timer_Control_Register : Unsigned_32
-     with Import, Volatile, Address => Private_Timer_Base + 16#08#;
-   Private_Timer_Interrupt_Status_Register : Unsigned_32
-     with Import, Volatile, Address => Private_Timer_Base + 16#0c#;
-
    Global_Timer_Base : constant := MPCore_Base + 16#200#;
 
-   Global_Timer_Counter0 : Unsigned_32
+   Global_Timer_Counter0         : Unsigned_32
      with Import, Volatile, Address => Global_Timer_Base + 16#00#;
-   Global_Timer_Counter1 : Unsigned_32
+   Global_Timer_Counter1         : Unsigned_32
      with Import, Volatile, Address => Global_Timer_Base + 16#04#;
-   Global_Timer_Control : Unsigned_32
+   Global_Timer_Control          : Unsigned_32
      with Import, Volatile, Address => Global_Timer_Base + 16#08#;
+   Global_Timer_Interrupt_Status : Unsigned_32
+     with Import, Volatile, Address => Global_Timer_Base + 16#0C#;
+   Global_Timer_Comparator0      : Unsigned_32
+     with Import, Volatile, Address => Global_Timer_Base + 16#10#;
+   Global_Timer_Comparator1      : Unsigned_32
+     with Import, Volatile, Address => Global_Timer_Base + 16#14#;
 
    ----------------
    -- Interrupts --
@@ -150,9 +145,11 @@ package body System.BB.Board_Support is
 
    procedure Initialize_CPU_Devices is
    begin
-      --  Disable private timer
-      Private_Timer_Control_Register := 0;
-      Private_Timer_Interrupt_Status_Register := 1;
+      --  Make sure the Global timer IRQ is cleared
+      Global_Timer_Interrupt_Status := 1;
+      --  Then enable (prescaler = 0).
+      --  Bits 1-3 are bancked per core
+      Global_Timer_Control := 16#00_0_1#;
 
       --  Disable all SGI interrupts (banked register)
       ICDICER (0) := 16#ffff_ffff#;
@@ -161,10 +158,13 @@ package body System.BB.Board_Support is
       ICDDCR := 3;
 
       --  Enable private timer (banked register)
-      ICDISER (0) := 2**29;
+      ICDISER (0) := 2**27;
 
       --  Set prio of Poke (banked register)
       ICDIPR (0) := To_PRI (Interrupt_Priority'Last);
+
+      --  Set prio of timer (banked register);
+      ICDIPR (27) := To_PRI (Interrupt_Priority'Last);
    end Initialize_CPU_Devices;
 
    ----------------------
@@ -178,9 +178,6 @@ package body System.BB.Board_Support is
       Global_Timer_Control := 0;
       Global_Timer_Counter0 := 0;
       Global_Timer_Counter1 := 0;
-
-      --  Then enable (prescaler = 0)
-      Global_Timer_Control := 16#00_0_1#;
 
       --  Initialize SPI of the mpcore.
 
@@ -236,29 +233,39 @@ package body System.BB.Board_Support is
 
    package body Time is
 
-      Alarm_Interrupt_ID : constant BB.Interrupts.Interrupt_ID := 29;
-
-      ------------------------
-      -- Max_Timer_Interval --
-      ------------------------
-
-      function Max_Timer_Interval return Timer_Interval is (2**32 - 1);
+      Alarm_Interrupt_ID : constant BB.Interrupts.Interrupt_ID := 27;
+      --  Use the global timer interrupt
 
       ---------------
       -- Set_Alarm --
       ---------------
 
-      procedure Set_Alarm (Ticks : Timer_Interval) is
+      procedure Set_Alarm (Ticks : BB.Time.Time)
+      is
+         use BB.Time;
+         Lo : constant Unsigned_32 := Unsigned_32 (Ticks and 16#FFFF_FFFF#);
+         Hi : constant Unsigned_32 :=
+                Unsigned_32 (Shift_Right (Unsigned_64 (Ticks), 32));
       begin
-         --  Set counter. Quoting the Cortex-A9 mpcore r4p1 trm:
-         --  4.2.2 Private Timer Counter
-         --  Writing to the Timer Counter Register or Timer Load Register
-         --  forces the Timer Counter Register to decrement from the newly
-         --  written value.
-         Private_Timer_Counter_Register := Unsigned_32 (Ticks);
+         if Ticks = BB.Time.Time'Last then
+            Clear_Alarm_Interrupt;
 
-         --  Enable timer and IRQ
-         Private_Timer_Control_Register := 2#101#;
+         else
+            --  Set comparator using the 64-bit private timer comparator.
+            --  See Cortex-A9 Technical Reference Manual §4.3.
+            --  Requires revision >= r2p0, otherwise no exception is raised for
+            --  past counter values.
+
+            --  Clear the comp_enable bit
+            Global_Timer_Control := Global_Timer_Control and not 2#010#;
+
+            --  Write Lo/Hi comparator values
+            Global_Timer_Comparator0 := Lo;
+            Global_Timer_Comparator1 := Hi;
+
+            --  Enable timer and IRQ
+            Global_Timer_Control := 2#111#;
+         end if;
       end Set_Alarm;
 
       ----------------
@@ -305,8 +312,8 @@ package body System.BB.Board_Support is
 
       procedure Clear_Alarm_Interrupt is
       begin
-         Private_Timer_Interrupt_Status_Register := 1;
-         Private_Timer_Control_Register := 0;
+         Global_Timer_Control := 2#001#;
+         Global_Timer_Interrupt_Status := 1;
       end Clear_Alarm_Interrupt;
    end Time;
 
@@ -368,7 +375,9 @@ package body System.BB.Board_Support is
       -- Set_Current_Priority --
       --------------------------
 
-      procedure Set_Current_Priority (Priority : Integer) is
+      procedure Set_Current_Priority (Priority : Integer)
+      is
+         use System.Machine_Code;
       begin
          ICCPMR := Unsigned_32 (To_PRI (Priority));
       end Set_Current_Priority;

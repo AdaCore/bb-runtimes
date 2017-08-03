@@ -77,8 +77,8 @@ package body System.BB.Board_Support is
    --  Return the PRI mask for the given Ada priority. Note that the zero
    --  value here means no mask, so no interrupts are masked.
 
-   procedure Set_CNTP_TVAL (Val : Unsigned_32);
-   --  Set CNTP_TVAL_EL0 or CNTP_TVAL_EL2
+   procedure Set_CNTP_CVAL (Val : Unsigned_64);
+   --  Set CNTP_CVAL_EL0 or CNTHP_CVAL_EL2
 
    procedure Set_CNTP_CTL (Val : Unsigned_32);
    --  Set CNTP_CTL_EL0 or CNTP_CTL_EL2
@@ -118,18 +118,18 @@ package body System.BB.Board_Support is
    end Set_CNTP_CTL;
 
    -------------------
-   -- Set_CNTP_TVAL --
+   -- Set_CNTP_CVAL --
    -------------------
 
-   procedure Set_CNTP_TVAL (Val : Unsigned_32) is
+   procedure Set_CNTP_CVAL (Val : Unsigned_64) is
    begin
       case Runtime_EL is
          when 1 =>
-            Set_CNTP_TVAL_EL0 (Val);
+            Set_CNTP_CVAL_EL0 (Val);
          when 2 =>
-            Set_CNTHP_TVAL_EL2 (Val);
+            Set_CNTHP_CVAL_EL2 (Val);
       end case;
-   end Set_CNTP_TVAL;
+   end Set_CNTP_CVAL;
 
    package GIC is
       --  This is support package for the GIC400 interrupt controller
@@ -297,8 +297,8 @@ package body System.BB.Board_Support is
       --  at init, we disable both the physical and the virtual timers
       --  the pysical timer is awaken when we need it.
 
-      --  Disable CNTP and mask.
-      Set_CNTP_CTL (2);
+      --  Disable CNTP signals and mask its IRQ.
+      Set_CNTP_CTL (2#10#);
 
       --  Disable CNTV and mask.
       Set_CNTV_CTL_EL0 (2);
@@ -382,25 +382,23 @@ package body System.BB.Board_Support is
 
    package body Time is
 
-      ------------------------
-      -- Max_Timer_Interval --
-      ------------------------
-
-      function Max_Timer_Interval return Timer_Interval is (2**31 - 1);
-      --  Negative values in CNTP_TVAL triggers interrupts, so use the most
-      --  positive value.
-
       ---------------
       -- Set_Alarm --
       ---------------
 
-      procedure Set_Alarm (Ticks : Timer_Interval) is
+      procedure Set_Alarm (Ticks : BB.Time.Time)
+      is
+         use type BB.Time.Time;
       begin
-         --  Set CNTP_TVAL_EL
-         Set_CNTP_TVAL (Unsigned_32 (Ticks));
+         if Ticks = BB.Time.Time'Last then
+            Clear_Alarm_Interrupt;
+         else
+            --  Set Timer comparator value
+            Set_CNTP_CVAL (Unsigned_64 (Ticks));
 
-         --  Set CNTP_CTL (enable and unmask)
-         Set_CNTP_CTL (1);
+            --  Set CNTP_CTL (enable and unmask)
+            Set_CNTP_CTL (2#01#);
+         end if;
       end Set_Alarm;
 
       ----------------
@@ -434,8 +432,8 @@ package body System.BB.Board_Support is
 
       procedure Clear_Alarm_Interrupt is
       begin
-         --  Disable and mask
-         Set_CNTP_CTL (2);
+         --  mask the IRQ and disable signals
+         Set_CNTP_CTL (2#10#);
       end Clear_Alarm_Interrupt;
    end Time;
 

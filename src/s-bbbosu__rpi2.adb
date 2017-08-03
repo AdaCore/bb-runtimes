@@ -133,23 +133,21 @@ package body System.BB.Board_Support is
       Alarm_Interrupt_ID : constant BB.Interrupts.Interrupt_ID := 1;
       --  Non-secure counter (CNTPNSIRQ)
 
-      ------------------------
-      -- Max_Timer_Interval --
-      ------------------------
-
-      function Max_Timer_Interval return Timer_Interval is (2**31 - 1);
-      --  Negative values in CNTP_TVAL triggers interrupts, so use the most
-      --  positive value.
-
       ---------------
       -- Set_Alarm --
       ---------------
 
-      procedure Set_Alarm (Ticks : Timer_Interval) is
+      procedure Set_Alarm (Ticks : BB.Time.Time)
+      is
+         use type BB.Time.Time;
+         Lo : constant Unsigned_32 := Unsigned_32 (Ticks and 16#FFFF_FFFF#);
+         Hi : constant Unsigned_32 :=
+                Unsigned_32 (Shift_Right (Unsigned_64 (Ticks), 32));
       begin
-         --  Set CNTP_TVAL
-         Asm ("mcr p15,#0,%0,c14,c2,#0",
-              Inputs => Unsigned_32'Asm_Input ("r", Unsigned_32 (Ticks)),
+         --  Set CNTP_CVAL
+         Asm ("mcrr p15,#2,%0,%1,c14",
+              Inputs => (Unsigned_32'Asm_Input ("r", Lo),
+                         Unsigned_32'Asm_Input ("r", Hi)),
               Volatile => True);
 
          --  Set CNTP_CTL (enable and unmask)

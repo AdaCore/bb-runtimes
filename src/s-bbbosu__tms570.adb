@@ -241,27 +241,34 @@ package body System.BB.Board_Support is
       Alarm_Interrupt_ID : constant Interrupt_ID := RTI_Compare_Interrupt_3;
       --  Interrupt for the alarm
 
-      ------------------------
-      -- Max_Timer_Interval --
-      ------------------------
-
-      function Max_Timer_Interval return Timer_Interval is (2**32 - 1);
-      --  In fact values up to 2**33-3 are correctly handled, but the type
-      --  Timer_Interval is limited to 2**32-1.
-
       ---------------
       -- Set_Alarm --
       ---------------
 
-      procedure Set_Alarm (Ticks : Timer_Interval) is
+      procedure Set_Alarm (Ticks : BB.Time.Time)
+      is
+         use BB.Time;
+         Now      : constant BB.Time.Time := Read_Clock;
+         Diff     : constant Unsigned_64  :=
+                      (if Now < Ticks then Unsigned_64 (Ticks - Now) else 1);
+
       begin
          RTI.INTFLAG := 2**3; --  Clear any pending alarms
          RTI.GCTRL := 2;      --  Turn off timer/counter 0
          RTI.UC0   := 0;      --  Start at 0
          RTI.FRC0  := 0;
 
-         --  The timer has a pre-scaler that divides the frequence by 2
-         RTI.COMP3 := Unsigned_32 ((Ticks + 1) / 2);
+         if Diff < 2 ** 33 then
+            --  Set prescaler to minimum value
+            RTI.CPUC0 := 1;
+            RTI.COMP3 := Unsigned_32 ((Diff + 1) / 2);
+         else
+            --  Raise an alarm around the target time: it'll be too early but
+            --  s-bbtime will then re-set it with a value allowing us to use
+            --  the fine grain timeout
+            RTI.CPUC0 := 16#FFFF_FFFF#;
+            RTI.COMP3 := Unsigned_32 (Shift_Right (Diff, 32));
+         end if;
 
          RTI.GCTRL := 3;      --  Enable timer 0 and 1
       end Set_Alarm;
@@ -274,7 +281,7 @@ package body System.BB.Board_Support is
       is
          Lo, Hi : Unsigned_32;
       begin
-         --  According to TMS570 manual (RTI 172.1 Counter and Capture Read
+         --  According to TMS570 manual (RTI 17.2.1 Counter and Capture Read
          --  Consistency), the free running counter must be read first.
          Hi := RTI.FRC1;
          Lo := RTI.UC1;
@@ -361,7 +368,8 @@ package body System.BB.Board_Support is
       -- Set_Current_Priority --
       --------------------------
 
-      procedure Set_Current_Priority (Priority : Integer) is
+      procedure Set_Current_Priority (Priority : Integer)
+      is
       begin
          --  On the TMS570, FIQs cannot be masked by the processor. So, we need
          --  to disable them at the controller when required.
