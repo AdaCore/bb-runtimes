@@ -68,6 +68,12 @@ package Interfaces.AArch64 is
      with Inline_Always;
    --  Set the CNTP_TVAL register
 
+   procedure Set_CNTP_CVAL_EL0 (Val : Interfaces.Unsigned_64)
+     with Inline_Always;
+   procedure Set_CNTHP_CVAL_EL2 (Val : Interfaces.Unsigned_64)
+     with Inline_Always;
+   --  Set the CNTP_CVAL register
+
    function Get_CNTPCT_EL0 return Interfaces.Unsigned_64
      with Inline_Always;
    --  Get the CNTPCT register

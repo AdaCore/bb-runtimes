@@ -139,6 +139,28 @@ package body Interfaces.AArch64 is
            Volatile => True);
    end Set_CNTHP_TVAL_EL2;
 
+   -----------------------
+   -- Set_CNTP_CVAL_EL0 --
+   -----------------------
+
+   procedure Set_CNTP_CVAL_EL0 (Val : Unsigned_64) is
+   begin
+      Asm ("msr cntp_cval_el0, %0",
+           Inputs => Unsigned_64'Asm_Input ("r", Val),
+           Volatile => True);
+   end Set_CNTP_CVAL_EL0;
+
+   -----------------------
+   -- Set_CNTHP_CVAL_EL2 --
+   -----------------------
+
+   procedure Set_CNTHP_CVAL_EL2 (Val : Unsigned_64) is
+   begin
+      Asm ("msr cnthp_cval_el2, %0",
+           Inputs => Unsigned_64'Asm_Input ("r", Val),
+           Volatile => True);
+   end Set_CNTHP_CVAL_EL2;
+
    --------------------
    -- Get_CNTPCT_EL0 --
    --------------------
