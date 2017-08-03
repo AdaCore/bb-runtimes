@@ -377,9 +377,11 @@ package body System.BB.Board_Support is
       -- Power_Down --
       ----------------
 
-      procedure Power_Down is
+      procedure Power_Down
+      is
+         use System.Machine_Code;
       begin
-         null;
+         Asm ("wfi", Volatile => True);
       end Power_Down;
    end Interrupts;
 

@@ -73,6 +73,11 @@ package System.BB.Parameters is
    --    5   (at 16#0014#) IRQ Trap (asynchronous)
    --    6   (at 16#0018#) FIQ Trap (asynchronous)
 
+   Interrupt_Unmask_Priority : constant System.Interrupt_Priority :=
+                                 System.Interrupt_Priority'First;
+   --  The priority under which we unmask interrupts.
+   --  Useful when we use FIQ to simulate priorities on ARM.
+
    ------------------------
    -- Context Management --
    ------------------------

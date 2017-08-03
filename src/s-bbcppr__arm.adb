@@ -39,6 +39,7 @@ with System.Multiprocessors;
 with System.BB.Threads;
 with System.BB.Threads.Queues;
 with System.BB.Board_Support;
+with System.BB.Parameters;
 with System.Machine_Code; use System.Machine_Code;
 
 package body System.BB.CPU_Primitives is
@@ -427,7 +428,7 @@ package body System.BB.CPU_Primitives is
    begin
       Board_Support.Interrupts.Set_Current_Priority (Level);
 
-      if Level < System.Interrupt_Priority'First then
+      if Level < System.BB.Parameters.Interrupt_Unmask_Priority then
          Asm ("cpsie i", Volatile => True);
       end if;
    end Enable_Interrupts;
