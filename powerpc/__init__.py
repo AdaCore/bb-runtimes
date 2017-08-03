@@ -91,6 +91,10 @@ class PPC6XXTarget(DFBBTarget):
             conf.config_files.update(
                 {'link-zcx.spec': readfile('powerpc/prep/link-zcx.spec')})
             conf.rts_xml = conf.rts_xml.replace(
+                '"-nostartfiles"',
+                ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
+                 '        "-nostartfiles"'))
+            conf.rts_xml = conf.rts_xml.replace(
                 '"-nostartfiles", "-lgnat", "-lgcc"',
                 '"-nolibc",\n' +
                 '         "-lgnat", "-lgcc", "-lgnat",\n' +
