@@ -20,7 +20,7 @@ from arm.cortexm import Stm32, Sam, SmartFusion2, LM3S
 from arm.cortexar import TMS570, Rpi2, Rpi2Mc, Zynq7000
 
 # Aarch64
-from aarch64 import Rpi3, Rpi3Mc, ZynqMP, AARCH64QEMU
+from aarch64 import Rpi3, Rpi3Mc, ZynqMP
 
 # leon
 from sparc import Leon2, Leon3, Leon4
@@ -56,8 +56,6 @@ def build_configs(target):
         t = Rpi3()
     elif target == 'rpi3mc':
         t = Rpi3Mc()
-    elif target == 'aarch64-qemu':
-        t = AARCH64QEMU()
     elif target == 'zynqmp':
         t = ZynqMP()
     elif target.startswith('sam'):

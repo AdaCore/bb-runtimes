@@ -56,48 +56,6 @@ class Aarch64Target(DFBBTarget):
                  '        "-nostartfiles"'))
 
 
-class AARCH64QEMU(Aarch64Target):
-    @property
-    def name(self):
-        return "qemu"
-
-    @property
-    def parent(self):
-        return Aarch64Arch
-
-    @property
-    def loaders(self):
-        return ('RAM', 'MCPART')
-
-    @property
-    def sfp_system_ads(self):
-        # Only zfp support for now. To be removed when ravenscar-sfp is in
-        return None
-
-    @property
-    def full_system_ads(self):
-        # Only zfp support for now. To be removed when ravenscar-sfp is in
-        return None
-
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ('-mlittle-endian', '-mcpu=cortex-a53')
-
-    def __init__(self):
-        super(AARCH64QEMU, self).__init__(
-            mem_routines=True,
-            small_mem=False)
-
-        self.add_linker_script('aarch64/qemu/ram.ld', loader='RAM')
-        self.add_linker_script('aarch64/qemu/mcpart.ld', loader='MCPART')
-        self.add_sources('crt0', [
-            'aarch64/qemu/start-ram.S',
-            'aarch64/qemu/start-part.S',
-            'src/s-textio__zynq.adb',
-            'src/s-macres__zynq.adb'])
-
-
 class ZynqMP(Aarch64Target):
     @property
     def name(self):

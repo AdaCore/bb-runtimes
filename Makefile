@@ -42,7 +42,7 @@ endif
 
 ifeq ($(TARGET),$(filter $(TARGET),aarch64-elf aarch64))
     TGT=aarch64-elf
-    TARGETS=aarch64-qemu rpi3 zynqmp
+    TARGETS=rpi3 zynqmp
 endif
 
 ifeq ($(TARGET),$(filter $(TARGET),arm-eabi arm-elf arm))
