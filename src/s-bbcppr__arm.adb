@@ -66,17 +66,22 @@ package body System.BB.CPU_Primitives is
    pragma Machine_Attribute (Dabt_Handler, "interrupt");
    pragma Export (Asm, Dabt_Handler, "__gnat_dabt_trap");
 
-   generic
-      with procedure User_Handler;
-   procedure Common_Handler;
-   pragma Machine_Attribute (Common_Handler, "interrupt");
-   --  Code common to the low-level IRQ and FIQ handlers.
-
    procedure Irq_User_Handler;
    pragma Import (Ada, Irq_User_Handler, "__gnat_irq_handler");
 
    procedure Fiq_User_Handler;
    pragma Import (Ada, Fiq_User_Handler, "__gnat_fiq_handler");
+
+   procedure Common_Handler (Is_FIQ : Boolean)
+     with Inline_Always;
+
+   procedure FIQ_Handler;
+   pragma Machine_Attribute (FIQ_Handler, "interrupt");
+   pragma Export (Asm, FIQ_Handler, "__gnat_fiq_trap");
+
+   procedure IRQ_Handler;
+   pragma Machine_Attribute (IRQ_Handler, "interrupt");
+   pragma Export (Asm, IRQ_Handler, "__gnat_irq_trap");
 
    ----------------------------
    -- Floating Point Context --
@@ -131,11 +136,31 @@ package body System.BB.CPU_Primitives is
       raise Constraint_Error with "data abort";
    end Dabt_Handler;
 
+   -----------------
+   -- IRQ_Handler --
+   -----------------
+
+   procedure IRQ_Handler
+   is
+   begin
+      Common_Handler (False);
+   end IRQ_Handler;
+
+   -----------------
+   -- FIQ_Handler --
+   -----------------
+
+   procedure FIQ_Handler
+   is
+   begin
+      Common_Handler (True);
+   end FIQ_Handler;
+
    --------------------
    -- Common_Handler --
    --------------------
 
-   procedure Common_Handler
+   procedure Common_Handler (Is_FIQ : Boolean)
    is
       use System.BB.Threads.Queues;
       SPSR     : Unsigned_32;
@@ -162,8 +187,11 @@ package body System.BB.CPU_Primitives is
       SPSR := Get_SPSR;
 
       --  Call the handler
-
-      User_Handler;
+      if Is_FIQ then
+         Fiq_User_Handler;
+      else
+         Irq_User_Handler;
+      end if;
 
       --  Check FPU usage in handler
       if Current_FPU_Context (CPU_Id) = IRQ_Ctxt'Unchecked_Access then
@@ -203,12 +231,6 @@ package body System.BB.CPU_Primitives is
          Inputs   => (Unsigned_32'Asm_Input ("r", SPSR)),
          Volatile => True);
    end Common_Handler;
-
-   procedure FIQ_Handler is new Common_Handler (Fiq_User_Handler);
-   pragma Export (Asm, FIQ_Handler, "__gnat_fiq_trap");
-
-   procedure IRQ_Handler is new Common_Handler (Irq_User_Handler);
-   pragma Export (Asm, IRQ_Handler, "__gnat_irq_trap");
 
    -------------------
    -- Undef_Handler --
