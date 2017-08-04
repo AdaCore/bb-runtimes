@@ -584,6 +584,9 @@ class SourceDirs(SharedFilesHolder):
                 'hie/s-osinte__pikeos4.adb'])
 
         # SFP-specific files
+        self.add_rule('sfp', 'RTS_Profile:ravenscar-sfp')
+        self.add_sources('sfp', [
+            'libgnat/s-imenne.ads', 'libgnat/s-imenne.adb'])
         self.add_rule('gnarl/sfp', 'RTS_Profile:ravenscar-sfp')
         self.add_sources('gnarl/sfp', [
             'hie/s-taskin__raven.ads',
