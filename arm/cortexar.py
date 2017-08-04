@@ -35,6 +35,14 @@ class CortexARTarget(DFBBTarget):
     def zfp_system_ads(self):
         return 'system-xi-arm.ads'
 
+    def amend_rts(self, rts_profile, conf):
+        super(CortexARTarget, self).amend_rts(rts_profile, conf)
+        # s-bbcppr.adb uses the r7 register during context switching: this
+        # is not compatible with the use of frame pointers that is emited at
+        # -O0 by gcc. Let's disable fp even at -O0.
+        if 'ravenscar' in rts_profile:
+            conf.build_flags['common_flags'] += ['-fomit-frame-pointer']
+
 
 class Rpi2Base(CortexARTarget):
     @property
@@ -214,11 +222,6 @@ class Zynq7000(CortexARTarget):
     @property
     def full_system_ads(self):
         return 'system-xi-arm-gic-full.ads'
-
-    def amend_rts(self, rts_profile, conf):
-        super(Zynq7000, self).amend_rts(rts_profile, conf)
-        if 'ravenscar' in rts_profile:
-            conf.build_flags['common_flags'] += ['-fomit-frame-pointer']
 
     def __init__(self):
         super(Zynq7000, self).__init__(

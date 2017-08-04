@@ -33,7 +33,6 @@
 --  Thumb2.
 
 with Interfaces; use Interfaces;
-with Ada.Unchecked_Conversion;
 
 with System.Multiprocessors;
 with System.BB.Threads;
@@ -67,13 +66,11 @@ package body System.BB.CPU_Primitives is
    pragma Machine_Attribute (Dabt_Handler, "interrupt");
    pragma Export (Asm, Dabt_Handler, "__gnat_dabt_trap");
 
-   procedure FIQ_Handler;
-   pragma Machine_Attribute (FIQ_Handler, "interrupt");
-   pragma Export (Asm, FIQ_Handler, "__gnat_fiq_trap");
-
-   procedure IRQ_Handler;
-   pragma Machine_Attribute (IRQ_Handler, "interrupt");
-   pragma Export (Asm, IRQ_Handler, "__gnat_irq_trap");
+   generic
+      with procedure User_Handler;
+   procedure Common_Handler;
+   pragma Machine_Attribute (Common_Handler, "interrupt");
+   --  Code common to the low-level IRQ and FIQ handlers.
 
    procedure Irq_User_Handler;
    pragma Import (Ada, Irq_User_Handler, "__gnat_irq_handler");
@@ -96,15 +93,18 @@ package body System.BB.CPU_Primitives is
    --  rather incur the trap at the user level than leaving interrupt masked
    --  longer than absolutely necessary.
 
-   type Thread_Table is array (System.Multiprocessors.CPU) of Thread_Id;
-   pragma Volatile_Components (Thread_Table);
+   type FPU_Context_Table is
+     array (System.Multiprocessors.CPU) of VFPU_Context_Access;
+   pragma Volatile_Components (FPU_Context_Table);
 
    function  Is_FPU_Enabled return Boolean with Inline;
    procedure Set_FPU_Enabled (Enabled : Boolean) with Inline;
-   procedure FPU_Context_Switch (To : Thread_Id) with Inline;
+   procedure FPU_Context_Switch (To : VFPU_Context_Access) with Inline;
    function Get_SPSR return Unsigned_32 with Inline;
 
-   Current_FPU_Context :  Thread_Table := (others => Null_Thread_Id);
+   Default_FPSCR       : Unsigned_32 := 0;
+
+   Current_FPU_Context : FPU_Context_Table := (others => null);
    --  This variable contains the last thread that used the floating point unit
    --  for each CPU. Hence, it points to the place where the floating point
    --  state must be stored. Null means no task using it.
@@ -131,30 +131,29 @@ package body System.BB.CPU_Primitives is
       raise Constraint_Error with "data abort";
    end Dabt_Handler;
 
-   -----------------
-   -- FIQ_Handler --
-   -----------------
+   --------------------
+   -- Common_Handler --
+   --------------------
 
-   procedure FIQ_Handler is
-   begin
-      --  Force trap if handler uses floating point
-
-      Set_FPU_Enabled (False);
-
-      Fiq_User_Handler;
-   end FIQ_Handler;
-
-   -----------------
-   -- IRQ_Handler --
-   -----------------
-
-   procedure IRQ_Handler is
-      SPSR : Unsigned_32;
+   procedure Common_Handler
+   is
+      use System.BB.Threads.Queues;
+      SPSR     : Unsigned_32;
+      CPU_Id   : constant System.Multiprocessors.CPU :=
+                   Board_Support.Multiprocessors.Current_CPU;
+      IRQ_Ctxt : aliased VFPU_Context_Buffer;
+      Old_Ctxt : constant VFPU_Context_Access :=
+                   Running_Thread_Table (CPU_Id).Context.Running;
 
    begin
       --  Force trap if handler uses floating point
 
       Set_FPU_Enabled (False);
+
+      --  Prepare the IRQ handler FPU context
+      IRQ_Ctxt.V_Init := False;
+      Running_Thread_Table (CPU_Id).Context.Running :=
+        IRQ_Ctxt'Unchecked_Access;
 
       --  If we are going to do context switches or otherwise allow IRQ's
       --  from within the interrupt handler, the SPSR register needs to
@@ -164,7 +163,22 @@ package body System.BB.CPU_Primitives is
 
       --  Call the handler
 
-      Irq_User_Handler;
+      User_Handler;
+
+      --  Check FPU usage in handler
+      if Current_FPU_Context (CPU_Id) = IRQ_Ctxt'Unchecked_Access then
+         --  FPU was used.
+         --  Invalidate the current FPU context as we're leaving the IRQ
+         --  handler.
+         Current_FPU_Context (CPU_Id) := null;
+         Set_FPU_Enabled (False);
+
+      elsif Current_FPU_Context (CPU_Id) = Old_Ctxt then
+         --  We're back to the last thread that used FPU.
+         Set_FPU_Enabled (True);
+      end if;
+
+      Running_Thread_Table (CPU_Id).Context.Running := Old_Ctxt;
 
       --  As the System.BB.Interrupts.Interrupt_Wrapper returns to the low
       --  level interrupt handler without checking for required context
@@ -188,7 +202,13 @@ package body System.BB.CPU_Primitives is
       Asm ("msr   SPSR_cxsf, %0",
          Inputs   => (Unsigned_32'Asm_Input ("r", SPSR)),
          Volatile => True);
-   end IRQ_Handler;
+   end Common_Handler;
+
+   procedure FIQ_Handler is new Common_Handler (Fiq_User_Handler);
+   pragma Export (Asm, FIQ_Handler, "__gnat_fiq_trap");
+
+   procedure IRQ_Handler is new Common_Handler (Irq_User_Handler);
+   pragma Export (Asm, IRQ_Handler, "__gnat_irq_trap");
 
    -------------------
    -- Undef_Handler --
@@ -200,15 +220,9 @@ package body System.BB.CPU_Primitives is
          --  If FPU is not enabled, do an FPU context switch first and resume.
          --  If the fault is not due to the FPU, it will trigger again.
 
-         declare
-            SPSR          : constant Unsigned_32 := Get_SPSR;
-            In_IRQ_Or_FIQ : constant Boolean := (SPSR mod 32) in 17 | 18;
-         begin
-            Set_FPU_Enabled (True);
-            FPU_Context_Switch
-              (if In_IRQ_Or_FIQ then null
-              else Queues.Running_Thread_Table (Current_CPU));
-         end;
+         Set_FPU_Enabled (True);
+         FPU_Context_Switch
+           (Queues.Running_Thread_Table (Current_CPU).Context.Running);
 
       else
          raise Program_Error with "illegal instruction";
@@ -230,13 +244,22 @@ package body System.BB.CPU_Primitives is
       --  Whenever switching to a new context, disable the FPU, so we don't
       --  have to worry about its state. It is much more efficient to lazily
       --  switch the FPU when it is actually used.
+      --  The only exception is when we're switching back to the last thread
+      --  that used the FPU registers: in this case, we can leave the FPU
+      --  enabled to minimize the number of FPU traps.
 
       --  When calling this routine from modes other than user or system,
       --  the caller is responsible for saving the (banked) SPSR register.
       --  This register is only visible in banked modes, so can't be saved
       --  here.
 
-      Set_FPU_Enabled (False);
+      if Current_FPU_Context (CPU_Id) /=
+        First_Thread_Table (CPU_Id).Context.Running
+      then
+         Set_FPU_Enabled (False);
+      else
+         Set_FPU_Enabled (True);
+      end if;
 
       --  Called with interrupts disabled
 
@@ -313,27 +336,28 @@ package body System.BB.CPU_Primitives is
    -- FPU_Context_Switch --
    ------------------------
 
-   procedure FPU_Context_Switch (To : Thread_Id) is
+   procedure FPU_Context_Switch (To : VFPU_Context_Access) is
       CPU_Id : constant System.Multiprocessors.CPU := Current_CPU;
-      C : constant Thread_Id := Current_FPU_Context (CPU_Id);
+      C : constant VFPU_Context_Access := Current_FPU_Context (CPU_Id);
 
    begin
       if C /= To then
          if C /= null then
             Asm (Template => "vstm %1, {d0-d15}" & NL & "fmrx %0, fpscr",
                  Outputs  =>
-                   (Unsigned_32'Asm_Output ("=r", C.Context.VFPU.FPSCR)),
+                   (Unsigned_32'Asm_Output ("=r", C.FPSCR)),
                  Inputs   =>
-                   (Address'Asm_Input ("r", C.Context.VFPU.V'Address)),
+                   (Address'Asm_Input ("r", C.V'Address)),
                  Clobber  => "memory",
                  Volatile => True);
+            C.V_Init := True;
          end if;
 
          if To /= null then
             Asm (Template => "vldm %1, {d0-d15}" & NL & "fmxr fpscr, %0",
                  Inputs   =>
-                   (Unsigned_32'Asm_Input ("r", To.Context.VFPU.FPSCR),
-                    Address'Asm_Input ("r", To.Context.VFPU.V'Address)),
+                   (Unsigned_32'Asm_Input ("r", To.FPSCR),
+                    Address'Asm_Input ("r", To.V'Address)),
                  Clobber  => "memory",
                  Volatile => True);
          end if;
@@ -386,7 +410,11 @@ package body System.BB.CPU_Primitives is
          PC     => Unsigned_32 (Program_Counter),
          CPSR   => User_CPSR,
          SP     => Unsigned_32 (Stack_Pointer),
+         VFPU   => (V_Init => False,
+                    FPSCR  => Default_FPSCR,
+                    V      => (others => 0)),
          others => <>);
+      Buffer.Running := Buffer.VFPU'Access;
    end Initialize_Context;
 
    ----------------------------
@@ -437,8 +465,19 @@ package body System.BB.CPU_Primitives is
    -- Initialize_CPU --
    --------------------
 
-   procedure Initialize_CPU is
+   procedure Initialize_CPU
+   is
+      CPU_Id : constant System.Multiprocessors.CPU_Range :=
+                 Board_Support.Multiprocessors.Current_CPU;
    begin
+      if CPU_Id = 1 then
+         --  Retrieve the value of the FPSCR register: will be used as default
+         --  initialisation values for FPU contexts
+         Asm ("fmrx %0, fpscr",
+              Outputs  => Unsigned_32'Asm_Output ("=r", Default_FPSCR),
+              Volatile => True);
+      end if;
+
       --  We start with not allowing floating point. This way there never will
       --  be overhead saving unused floating point registers, We'll also be
       --  able to tell if floating point instructions were ever used.
