@@ -93,12 +93,7 @@ class PPC6XXTarget(DFBBTarget):
             conf.rts_xml = conf.rts_xml.replace(
                 '"-nostartfiles"',
                 ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
-                 '        "-nostartfiles"'))
-            conf.rts_xml = conf.rts_xml.replace(
-                '"-nostartfiles", "-lgnat", "-lgcc"',
-                '"-nolibc",\n' +
-                '         "-lgnat", "-lgcc", "-lgnat",\n' +
-                '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
+                 '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"'))
 
 
 class MPC8349e(PPC6XXTarget):
