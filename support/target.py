@@ -352,7 +352,7 @@ class Target(TargetConfiguration, BSP):
 
             indent -= 3
             blank = indent * ' '
-            ret += '%send case;' % blank
+            ret += '%send case;\n' % blank
 
         ret += ('   end Linker;\n'
                 ']]>\n'
