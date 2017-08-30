@@ -33,7 +33,6 @@
 
 with Ada.Unchecked_Conversion; use Ada;
 
-with System.Storage_Elements;
 with System.Multiprocessors;
 with System.BB.Board_Support;
 with System.BB.Threads;
@@ -41,16 +40,10 @@ with System.BB.Threads.Queues;
 with System.Machine_Code; use System.Machine_Code;
 
 package body System.BB.CPU_Primitives is
-   use Parameters;
-   use Threads;
-   use Queues;
    use Board_Support;
-   use Time;
-   use System.Multiprocessors;
-
-   package SSE renames System.Storage_Elements;
-   use type SSE.Integer_Address;
-   use type SSE.Storage_Offset;
+   use Board_Support.Time;
+   use Parameters;
+   use Threads.Queues;
 
    NL : constant String := ASCII.LF & ASCII.HT;
    --  New line separator in Asm templates

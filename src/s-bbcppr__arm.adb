@@ -48,7 +48,6 @@ package body System.BB.CPU_Primitives is
    use System.BB.CPU_Specific;
 
    package SSE renames System.Storage_Elements;
-   use type SSE.Integer_Address;
    use type SSE.Storage_Offset;
 
    NL : constant String := ASCII.LF & ASCII.HT;

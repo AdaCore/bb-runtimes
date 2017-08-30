@@ -44,7 +44,7 @@ with Interfaces;                 use Interfaces;
 with Interfaces.AArch64;
 
 package body System.BB.Board_Support is
-   use CPU_Primitives, BB.Interrupts, AArch64, Parameters;
+   use BB.Interrupts, AArch64, Parameters;
    use System.Machine_Code;
    use System.Multiprocessors;
 

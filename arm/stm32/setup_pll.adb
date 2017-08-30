@@ -35,7 +35,6 @@ with Ada.Unchecked_Conversion;
 
 with Interfaces.STM32;           use Interfaces, Interfaces.STM32;
 with Interfaces.STM32.FLASH;     use Interfaces.STM32.FLASH;
-with Interfaces.STM32.PWR;       use Interfaces.STM32.PWR;
 with Interfaces.STM32.RCC;       use Interfaces.STM32.RCC;
 
 with System.BB.Parameters;       use System.BB.Parameters;

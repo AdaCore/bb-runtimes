@@ -252,7 +252,6 @@ package body System.BB.Interrupts is
    ---------------------------
 
    procedure Initialize_Interrupts is
-      use type System.Storage_Elements.Storage_Offset;
    begin
       for Proc in CPU loop
 

@@ -39,7 +39,7 @@ with System.Machine_Code;
 with System.BB.CPU_Primitives.Multiprocessors;
 
 package body System.BB.Board_Support is
-   use CPU_Primitives, BB.Interrupts;
+   use BB.Interrupts;
 
    procedure IRQ_Handler;
    pragma Export (Ada, IRQ_Handler, "__gnat_irq_handler");
@@ -375,9 +375,7 @@ package body System.BB.Board_Support is
       -- Set_Current_Priority --
       --------------------------
 
-      procedure Set_Current_Priority (Priority : Integer)
-      is
-         use System.Machine_Code;
+      procedure Set_Current_Priority (Priority : Integer) is
       begin
          ICCPMR := Unsigned_32 (To_PRI (Priority));
       end Set_Current_Priority;
@@ -386,8 +384,7 @@ package body System.BB.Board_Support is
       -- Power_Down --
       ----------------
 
-      procedure Power_Down
-      is
+      procedure Power_Down is
          use System.Machine_Code;
       begin
          Asm ("wfi", Volatile => True);
