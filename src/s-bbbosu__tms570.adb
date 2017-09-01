@@ -171,18 +171,6 @@ package body System.BB.Board_Support is
    procedure Enable_Interrupt_Request (Interrupt : Interrupt_ID);
    --  Enable interrupt requests for the given interrupt
 
-   function Index_To_Interrupt (Index : Unsigned_32) return Interrupt_ID is
-     (case Index is
-      when 0 => 0,
-      when 1 => Interrupt_ID (1),
-      when others => Interrupt_ID (Index - 1));
-   --  The IRQINDEX and FIQINDEX registers return the index into a vector table
-   --  that starts with a dummy "phantom" entry, so the VIM Interrupt Channel
-   --  is generally 1 less. While we the mapping from channel to Interrupt_ID
-   --  is generally direct, we map Channel 0 to Interrupt_ID (1), to avoid
-   --  confusion with No_Interrupt. This works out fine since VIM channel 1
-   --  is reserved.
-
    ------------------------
    -- Interrupt_Handlers --
    ------------------------
@@ -258,7 +246,7 @@ package body System.BB.Board_Support is
          RTI.UC0   := 0;      --  Start at 0
          RTI.FRC0  := 0;
 
-         if Diff < 2 ** 33 then
+         if Diff < (2 ** 33 - 1) then
             --  Set prescaler to minimum value
             RTI.CPUC0 := 1;
             RTI.COMP3 := Unsigned_32 ((Diff + 1) / 2);
@@ -317,20 +305,32 @@ package body System.BB.Board_Support is
    -- Irq_Interrupt_Handler --
    ---------------------------
 
-   procedure Irq_Interrupt_Handler is
-      Id : constant Interrupt_ID := Index_To_Interrupt (VIM.IRQINDEX);
+   procedure Irq_Interrupt_Handler
+   is
+      Id : constant Unsigned_32 := VIM.IRQINDEX and 16#FF#;
    begin
-      Interrupt_Wrapper (Id);
+      if Id = 0 then
+         --  Spurious interrupt
+         return;
+      end if;
+
+      Interrupt_Wrapper (Interrupt_ID (Id - 1));
    end Irq_Interrupt_Handler;
 
    ---------------------------
    -- Fiq_Interrupt_Handler --
    ---------------------------
 
-   procedure Fiq_Interrupt_Handler is
-      Id : constant Interrupt_ID := Index_To_Interrupt (VIM.FIQINDEX);
+   procedure Fiq_Interrupt_Handler
+   is
+      Id : constant Unsigned_32 := VIM.FIQINDEX and 16#FF#;
    begin
-      Interrupt_Wrapper (Id);
+      if Id = 0 then
+         --  Spurious interrupt
+         return;
+      end if;
+
+      Interrupt_Wrapper (Interrupt_ID (Id - 1));
    end Fiq_Interrupt_Handler;
 
    ------------------------------
