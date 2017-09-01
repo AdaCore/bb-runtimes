@@ -148,17 +148,17 @@ package STM32F4.Reset_Clock_Control is
    PPRE2_DIV16    : constant Word := 16#E000#; -- APB2 is HCLK / 16
 
    --  MCO1 clock selector
-   MCO1SEL_HSI    : constant Word := 0 * 2**21; -- HSI clock on MC01 pin
-   MCO1SEL_LSE    : constant Word := 1 * 2**21; -- LSE clock on MC01 pin
-   MCO1SEL_HSE    : constant Word := 2 * 2**21; -- HSE clock on MC01 pin
-   MCO1SEL_PLL    : constant Word := 3 * 2**21; -- PLL clock on MC01 pin
+   MCO1SEL_HSI    : constant Word := 0 * 2**21; -- HSI clock on MCO1 pin
+   MCO1SEL_LSE    : constant Word := 1 * 2**21; -- LSE clock on MCO1 pin
+   MCO1SEL_HSE    : constant Word := 2 * 2**21; -- HSE clock on MCO1 pin
+   MCO1SEL_PLL    : constant Word := 3 * 2**21; -- PLL clock on MCO1 pin
 
    --  MCO1 prescaler
-   MCO1PRE_DIV1   : constant Word := 0 * 2**24; -- MC01 divides by 1
-   MCO1PRE_DIV2   : constant Word := 4 * 2**24; -- MC01 divides by 2
-   MCO1PRE_DIV3   : constant Word := 5 * 2**24; -- MC01 divides by 3
-   MCO1PRE_DIV4   : constant Word := 6 * 2**24; -- MC01 divides by 4
-   MCO1PRE_DIV5   : constant Word := 7 * 2**24; -- MC01 divides by 5
+   MCO1PRE_DIV1   : constant Word := 0 * 2**24; -- MCO1 divides by 1
+   MCO1PRE_DIV2   : constant Word := 4 * 2**24; -- MCO1 divides by 2
+   MCO1PRE_DIV3   : constant Word := 5 * 2**24; -- MCO1 divides by 3
+   MCO1PRE_DIV4   : constant Word := 6 * 2**24; -- MCO1 divides by 4
+   MCO1PRE_DIV5   : constant Word := 7 * 2**24; -- MCO1 divides by 5
 
    --  MCO2 clock selector
    MCO2SEL_SYSCLK : constant Word := 0 * 2**30; -- SYSCLK clock on MCO2 pin
