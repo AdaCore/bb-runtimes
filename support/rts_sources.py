@@ -492,7 +492,7 @@ class SourceDirs(SharedFilesHolder):
                 'hie/s-lisisq__fpu.adb',
                 'hie/s-lidosq__fpu.adb'])
 
-        # Finally, the ZFP & SFP-specific libgnat files
+        # ZFP & SFP-specific libgnat files
         self.add_rule('zfp', 'RTS_Profile:zfp,ravenscar-sfp')
         self.add_sources('zfp', [
             'hie/a-elchha__zfp.ads',
@@ -515,6 +515,12 @@ class SourceDirs(SharedFilesHolder):
                 'hie/s-memory__zfp.ads',
                 'hie/s-memory__raven-min.adb'])
 
+        # ZFP only libgnat files
+        self.add_rule('zfp-parame', 'RTS_Profile:zfp')
+        self.add_sources('zfp-parame', [
+            'hie/s-parame__zfp.ads',
+            'hie/s-parame__zfp.adb'])
+
     def init_sfp(self):
         """ravenscar-sfp files"""
         # libgnarl sources common to sfp/full
@@ -532,7 +538,6 @@ class SourceDirs(SharedFilesHolder):
             'hie/s-interr__raven.ads',
             'hie/s-mufalo.ads', 'hie/s-mufalo.adb',
             'hie/s-musplo.ads',
-            'hie/s-parame.adb',
             'hie/s-taprob__raven.ads', 'hie/s-taprob__raven.adb',
             'hie/s-taprop.ads',
             'libgnarl/s-tarest.ads', 'hie/s-tarest.adb',
@@ -613,16 +618,23 @@ class SourceDirs(SharedFilesHolder):
 
         # memory profile
         if self._is_bb:
-            self.add_rule('gnarl/mem-small', 'Memory_Profile:small')
-            self.add_rule('gnarl/mem-large', 'Memory_Profile:large')
-            self.add_sources('gnarl/mem-small', [
+            self.add_rule('gnat/mem-small', 'Memory_Profile:small')
+            self.add_sources('gnat/mem-small', [
                 'hie/s-parame__small.ads'])
-            self.add_sources('gnarl/mem-large', [
+            self.add_sources('gnat/mem-large', [
+                'hie/s-parame.adb'])
+            self.add_rule('gnat/mem-large', 'Memory_Profile:large')
+            self.add_sources('gnat/mem-large', [
                 'hie/s-parame__large.ads'])
+            self.add_sources('gnat/mem-small', [
+                'hie/s-parame.adb'])
         else:
             # PikeOS:
-            self.add_sources('gnarl/common', [
+            self.add_rule('gnat/common', None)
+            self.add_sources('gnat/common', [
                 'hie/s-parame__large.ads'])
+            self.add_sources('gnat/common', [
+                'hie/s-parame.adb'])
 
     def init_full(self):
         """ravenscar-full files"""
