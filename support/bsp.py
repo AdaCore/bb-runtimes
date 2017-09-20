@@ -83,8 +83,32 @@ class BSP(FilesHolder):
         If loader is None, then the script is applicable whatever the current
         loader used.
         """
-        assert isinstance(script, basestring), "invalid parameter"
-        base = os.path.basename(script)
+        if isinstance(script, dict):
+            if len(script) > 1:
+                # Dictionary with more than 1 value
+                for key in script:
+                    self.add_linker_script({key: script[key]}, loader)
+
+                return
+            else:
+                # simple target pair
+                key = script.keys()[0]
+                base = os.path.basename(key)
+                assert base == key, \
+                    "invalid parameter: %s is not a basename" % key
+                script = script[key]
+        else:
+            if isinstance(script, basestring):
+                # simple filename
+                base = os.path.basename(script)
+            else:
+                # list of scripts
+                assert isinstance(script, list), \
+                  "invalid parameter: need a basestring, a dict or a list"
+                for val in script:
+                    self.add_linker_script(val, loader)
+
+                return
 
         for val in self.ld_scripts:
             assert val['name'] != base, \
