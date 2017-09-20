@@ -74,48 +74,13 @@ __DYNAMIC  =  0;
  * +--------------------------------+ <- high memory
  */
 
-/*
- * User modifiable values:
- *
- * _FLASH_SIZE                size of FLASH memory
- *
- * _SRAM_SIZE                 size of SRAM
- *
- * _SDRAM_SIZE                size of SDRAM
- *
- * __stack_size               size of the stack to be used by the main
- *                            procedure (environment task)
- *
- */
+/* common stack parameters used by all loaders */
+INCLUDE common-stack.ld
 
-_FLASH_SIZE = 3M;
-_SRAM_SIZE = 256K;
-_SDRAM_SIZE = 8M;
-_DEFAULT_STACK_SIZE = (20 * 1024);
-
-_SRAM_START = 0x00000000;
-_SRAM_END = _SRAM_START + _SRAM_SIZE;
-
-_FLASH_START = 0x08000000;
-_FLASH_END = _FLASH_START + _FLASH_SIZE;
-
-_SDRAM_START = 0x60000000;
-_SDRAM_END = _SDRAM_START + _SDRAM_SIZE;
-
-_SVC_STACK_SIZE   =  256;
-_UNDEF_STACK_SIZE =  256;
-_ABORT_STACK_SIZE =  256;
-_IRQ_STACK_SIZE   = 1024;
-_FIQ_STACK_SIZE   =  256;
+/* board memory regions definition */
+INCLUDE tms570.ld
 
 ENTRY(start_probe);
-
-MEMORY
-{
-  flash (rx)  : ORIGIN = 0x08000000, LENGTH = 3M
-  SRAM (rwx) : ORIGIN = 0x00000000, LENGTH = 256K
-  SDRAM (rwx) : ORIGIN = 0x6000000, LENGTH = 8M
-}
 
 SECTIONS
 {
@@ -123,16 +88,16 @@ SECTIONS
   {
     KEEP (*(.traps))
     *(.text .text.* .gnu.linkonce.t*)
-  } > SRAM
+  } > LORAM
 
   .rodata :
   {
     *(.rodata .rodata.* .gnu.linkonce.r*)
-  } > SRAM
+  } > LORAM
 
-  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > SRAM
+  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > LORAM
   PROVIDE_HIDDEN (__exidx_start = .);
-  .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > SRAM
+  .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > LORAM
   PROVIDE_HIDDEN (__exidx_end = .);
 
   .data : {
@@ -144,7 +109,7 @@ SECTIONS
        truncated and the initial data for the last block are lost). */
 
     . = ALIGN(0x4);
-  } > SRAM
+  } > LORAM
 
   .bss (NOLOAD): {
    . = ALIGN(0x8);
@@ -196,7 +161,7 @@ SECTIONS
    __stack_end = .;
 
    _end = .;
-  } > SRAM
+  } > LORAM
 
    __bss_words = (__bss_end - __bss_start) >> 2;
 
@@ -226,14 +191,3 @@ SECTIONS
   .gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
   /DISCARD/ : { *(.note.GNU-stack) *(.gnu_debuglink) *(.gnu.lto_*) }
 }
-
-/* Set the values that define the memory map */
-
-__rom_start = _FLASH_START;
-__rom_size = _FLASH_SIZE;
-
-__ram_start = _SRAM_START;
-__ram_size = _SRAM_SIZE;
-
-__heap_start = _end;
-__heap_end = _SRAM_END;

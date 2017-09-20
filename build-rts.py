@@ -67,7 +67,11 @@ def build_configs(target):
     elif target == 'openmv2':
         t = Stm32(target)
     elif target == 'tms570':
-        t = TMS570()
+        # by default, the TMS570LS3137 HDK board
+        t = TMS570('tms570ls31')
+    elif target == 'a6mc':
+        # alias for the LaunchPad TMS570LC43x board
+        t = TMS570('tms570lc43')
     elif target == 'lm3s':
         t = LM3S()
     elif target == 'leon2' or target == 'leon':

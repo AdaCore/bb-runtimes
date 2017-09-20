@@ -38,9 +38,8 @@
 
 --  This is the TMS570 (ARMv7) version of this package
 
-pragma Restrictions (No_Elaboration_Code);
-
 package System.BB.Parameters is
+   pragma No_Elaboration_Code_All;
    pragma Pure;
 
    --------------------

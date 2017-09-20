@@ -34,19 +34,15 @@
  *                                                                          *
  ****************************************************************************/
 
-/* This is a ARM specific version of this file */
+/* This is a TMS570 specific version of this file */
 
-/* This script replaces ld's default linker script, providing the
-   appropriate memory map and output format. */
+/* This linker script defines the FLASH and RAM regions for the TMS570LC43x.
+   This also defines the default values for stack size and trap stack size */
 
-INCLUDE common-stack.ld
+_DEFAULT_STACK_SIZE = (20 * 1024);
 
-/* board memory regions definition */
-INCLUDE tms570.ld
-
-ENTRY(start_ram);
-
-REGION_ALIAS("REGION_CODE", SRAM)
-REGION_ALIAS("REGION_DATA", SRAM)
-
-INCLUDE common.ld
+_SVC_STACK_SIZE   =  256;
+_UNDEF_STACK_SIZE =  256;
+_ABORT_STACK_SIZE =  256;
+_IRQ_STACK_SIZE   = 1024;
+_FIQ_STACK_SIZE   =  256;

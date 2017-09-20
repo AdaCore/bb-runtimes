@@ -39,23 +39,15 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
-_DEFAULT_STACK_SIZE = (20 * 1024);
+INCLUDE common-stack.ld
 
-_SVC_STACK_SIZE   =  256;
-_UNDEF_STACK_SIZE =  256;
-_ABORT_STACK_SIZE =  256;
-_IRQ_STACK_SIZE   = 1024;
-_FIQ_STACK_SIZE   =  256;
+/* board memory regions definition */
+INCLUDE tms570.ld
 
 ENTRY(start_ram);
 
-MEMORY
-{
-  SRAM (rwx) : ORIGIN = 0x00000000, LENGTH = 256K
-}
-
-REGION_ALIAS("REGION_CODE", SRAM)
-REGION_ALIAS("REGION_DATA", SRAM)
+REGION_ALIAS("REGION_CODE", LORAM)
+REGION_ALIAS("REGION_DATA", LORAM)
 
 SEARCH_DIR(.)
 __DYNAMIC  =  0;
@@ -153,7 +145,7 @@ SECTIONS
    . = MAX(., __irq_stack_start + _IRQ_STACK_SIZE);
    . = ALIGN(0x8);
    __irq_stack_end = .;
- 
+
    __interrupt_stack_end = .;
 
    __stack_start = .;
@@ -201,4 +193,3 @@ SECTIONS
   .gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
   /DISCARD/ : { *(.note.GNU-stack) *(.gnu_debuglink) *(.gnu.lto_*) }
 }
-

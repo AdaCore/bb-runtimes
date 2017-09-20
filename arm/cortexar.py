@@ -130,7 +130,10 @@ class Rpi2Mc(Rpi2Base):
 class TMS570(CortexARTarget):
     @property
     def name(self):
-        return "tms570"
+        if self.variant == 'tms570ls31':
+            return 'tms570'
+        else:
+            return 'a6mc'
 
     @property
     def loaders(self):
@@ -154,13 +157,18 @@ class TMS570(CortexARTarget):
     def full_system_ads(self):
         return 'system-xi-arm-full.ads'
 
-    def __init__(self):
+    def __init__(self, variant='tms570ls31'):
+        self.variant = variant
         super(TMS570, self).__init__(
             mem_routines=True,
             small_mem=True)
 
-        self.add_linker_script('arm/tms570/common.ld')
-        self.add_linker_script('arm/tms570/tms570.ld', loader='PROBE')
+        self.add_linker_script([
+            'arm/tms570/common.ld',
+            'arm/tms570/common-stack.ld',
+            {'tms570.ld': 'arm/tms570/%s.ld' % self.variant},
+        ])
+        self.add_linker_script('arm/tms570/probe.ld', loader='PROBE')
         self.add_linker_script('arm/tms570/flash.ld', loader='FLASH')
         self.add_linker_script('arm/tms570/monitor.ld', loader='MONITOR')
         self.add_linker_script('arm/tms570/hiram.ld', loader='HIRAM')
@@ -177,7 +185,7 @@ class TMS570(CortexARTarget):
             'src/s-macres__tms570.adb'])
         self.add_sources('gnarl', [
             'src/a-intnam__tms570.ads',
-            'src/s-bbpara__tms570.ads',
+            'src/s-bbpara__%s.ads' % self.variant,
             'src/s-bbbosu__tms570.adb',
             'src/s-bbsumu__generic.adb'])
 

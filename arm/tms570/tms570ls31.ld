@@ -34,19 +34,16 @@
  *                                                                          *
  ****************************************************************************/
 
-/* This is a ARM specific version of this file */
+/* This is a TMS570 specific version of this file */
 
-/* This script replaces ld's default linker script, providing the
-   appropriate memory map and output format. */
+/* This linker script defines the FLASH and RAM regions for the TMS570LS31
+   This also defines the default values for stack size and trap stack size */
 
-INCLUDE common-stack.ld
-
-/* board memory regions definition */
-INCLUDE tms570.ld
-
-ENTRY(start_ram);
-
-REGION_ALIAS("REGION_CODE", SRAM)
-REGION_ALIAS("REGION_DATA", SRAM)
-
-INCLUDE common.ld
+MEMORY
+{
+  FLASH (rx)  : ORIGIN = 0x00000000, LENGTH = 3M
+  BOOT  (rx)  : ORIGIN = 0x00008000, LENGTH = 3M - 32K
+  SRAM  (rwx) : ORIGIN = 0x08000000, LENGTH = 256K
+  /* SRAM area mapped at 0x0 */
+  LORAM (rwx) : ORIGIN = 0x00000000, LENGTH = 256K
+}

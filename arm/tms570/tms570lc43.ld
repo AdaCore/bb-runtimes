@@ -1,3 +1,4 @@
+
 /****************************************************************************
  *                                                                          *
  *                         GNAT COMPILER COMPONENTS                         *
@@ -34,19 +35,19 @@
  *                                                                          *
  ****************************************************************************/
 
-/* This is a ARM specific version of this file */
+/* This is a TMS570 specific version of this file */
 
-/* This script replaces ld's default linker script, providing the
-   appropriate memory map and output format. */
+/* This linker script defines the FLASH and RAM regions for the TMS570LC43x.
+   This also defines the default values for stack size and trap stack size */
 
-INCLUDE common-stack.ld
-
-/* board memory regions definition */
-INCLUDE tms570.ld
-
-ENTRY(start_ram);
-
-REGION_ALIAS("REGION_CODE", SRAM)
-REGION_ALIAS("REGION_DATA", SRAM)
-
-INCLUDE common.ld
+MEMORY
+{
+  /* Default flash mapping */
+  FLASH (rx)  : ORIGIN = 0x00000000, LENGTH = 4M
+  /* Flash with initial 32K reserved for a boot loader */
+  BOOT  (rx)  : ORIGIN = 0x00008000, LENGTH = 4M - 32K
+  /* Default SRAM area */
+  SRAM  (rwx) : ORIGIN = 0x08000000, LENGTH = 512K
+  /* SRAM area mapped at 0x0 */
+  LORAM (rwx) : ORIGIN = 0x00000000, LENGTH = 512K
+}

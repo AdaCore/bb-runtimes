@@ -39,22 +39,12 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
-_DEFAULT_STACK_SIZE = (20 * 1024);
+INCLUDE common-stack.ld
 
-_SVC_STACK_SIZE   =  256;
-_UNDEF_STACK_SIZE =  256;
-_ABORT_STACK_SIZE =  256;
-_IRQ_STACK_SIZE   = 1024;
-_FIQ_STACK_SIZE   =  256;
+/* board memory regions definition */
+INCLUDE tms570.ld
 
 ENTRY(start_flash);
-
-MEMORY
-{
-  FLASH (rx)  : ORIGIN = 0x00000000, LENGTH = 3M
-  SRAM (rwx)  : ORIGIN = 0x08000000, LENGTH = 256K
-  SDRAM (rwx) : ORIGIN = 0x06000000, LENGTH = 8M
-}
 
 REGION_ALIAS("REGION_CODE", FLASH)
 REGION_ALIAS("REGION_DATA", SRAM)
