@@ -34,7 +34,8 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Interfaces; use Interfaces;
+with Interfaces;          use Interfaces;
+with System.Machine_Code; use System.Machine_Code;
 
 package body System.BB.Board_Support is
    use BB.Interrupts;
@@ -200,7 +201,9 @@ package body System.BB.Board_Support is
    -- Initialize_Board --
    ----------------------
 
-   procedure Initialize_Board is
+   procedure Initialize_Board
+   is
+      Dead : Unsigned_32 with Unreferenced;
    begin
       --  Disable all interrupts, except for NMIs
 
@@ -212,17 +215,18 @@ package body System.BB.Board_Support is
 
       --  The counter needs to be disabled while programming it
 
-      RTI.GCTRL := 0;                 --  Turn off timers
-      RTI.TBCTRL := 0;                --  Use RTIUC0 to clock counter 0
-      RTI.CPUC1 := 16#ffff_ffff#;     --  Program prescaler compare
-      RTI.UC1 := 0;                   --  Start prescaler at 0
-      RTI.FRC1 := 0;                  --  Start clock at 0
+      RTI.GCTRL       := 0;             --  Turn off timers
+      RTI.TBCTRL      := 0;             --  Use RTIUC0 to clock counter 0
+      RTI.CPUC1       := 16#ffff_ffff#; --  Program prescaler compare
+      RTI.UC1         := 0;             --  Start prescaler at 0
+      RTI.FRC1        := 0;             --  Start clock at 0
 
-      RTI.CPUC0 := 1;                 --  Set minimal prescalar for alarm
-      RTI.COMPCTRL := 0;              --  Use timer 0 for comparators
-      RTI.INTFLAG := 2**3;
-      RTI.GCTRL := 2;                 --  Turn timer/counter 1 on
-      RTI.SETINTENA := 2**3;          --  Enable Interrupts
+      RTI.CPUC0       := 1;             --  Set minimal prescalar for alarm
+      RTI.COMPCTRL    := 0;             --  Use timer 0 for comparators
+      RTI.INTFLAG     := 16#0000_700f#; --  Clear all pending interrupts
+      RTI.CLEARINTENA := 16#0007_0f0f#; --  Disable all interrupts
+      RTI.SETINTENA   := 2**3;          --  Enable Interrupt for comparator 3
+      RTI.GCTRL       := 2;             --  Turn timer/counter 1 on
    end Initialize_Board;
 
    package body Time is
@@ -237,23 +241,26 @@ package body System.BB.Board_Support is
       is
          use BB.Time;
          Now      : constant BB.Time.Time := Read_Clock;
-         Diff     : constant Unsigned_64  :=
-                      (if Now < Ticks then Unsigned_64 (Ticks - Now) else 1);
-
+         Diff     : constant Unsigned_64  := (if Now < Ticks
+                                              then Unsigned_64 (Ticks - Now)
+                                              else 1);
       begin
+         if Ticks = BB.Time.Time'Last then
+            Clear_Alarm_Interrupt;
+         end if;
+
          RTI.INTFLAG := 2**3; --  Clear any pending alarms
-         RTI.GCTRL := 2;      --  Turn off timer/counter 0
-         RTI.UC0   := 0;      --  Start at 0
-         RTI.FRC0  := 0;
+         RTI.GCTRL   := 2;    --  Turn off timer/counter 0
+         RTI.UC0     := 0;    --  Start at 0
+         RTI.FRC0    := 0;
 
          if Diff < (2 ** 33 - 1) then
-            --  Set prescaler to minimum value
-            RTI.CPUC0 := 1;
+            RTI.CPUC0 := 1; --  Minimal prescaler: RTICLK / 2
             RTI.COMP3 := Unsigned_32 ((Diff + 1) / 2);
          else
             --  Raise an alarm around the target time: it'll be too early but
-            --  s-bbtime will then re-set it with a value allowing us to use
-            --  the fine grain timeout
+            --  s-bbtime will then re-set it and this time allowing a fine
+            --  grain delay
             RTI.CPUC0 := 16#FFFF_FFFF#;
             RTI.COMP3 := Unsigned_32 (Shift_Right (Diff, 32));
          end if;
@@ -274,7 +281,7 @@ package body System.BB.Board_Support is
          Hi := RTI.FRC1;
          Lo := RTI.UC1;
          return BB.Time.Time
-            (Unsigned_64 (Lo) or Shift_Left (Unsigned_64 (Hi), 32));
+           (Unsigned_64 (Lo) or Shift_Left (Unsigned_64 (Hi), 32));
       end Read_Clock;
 
       ---------------------------
@@ -421,7 +428,7 @@ package body System.BB.Board_Support is
 
       procedure Power_Down is
       begin
-         null;
+         Asm ("wfi", Volatile => True);
       end Power_Down;
    end Interrupts;
 end System.BB.Board_Support;
