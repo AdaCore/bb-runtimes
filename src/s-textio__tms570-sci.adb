@@ -31,7 +31,8 @@
 
 --  Minimal version of Text_IO body for use on TMS570LS31x, using SCI/LIN
 
-with Interfaces; use Interfaces;
+with Interfaces;           use Interfaces;
+with System.BB.Parameters; use System.BB.Parameters;
 
 package body System.Text_IO is
 
@@ -112,10 +113,9 @@ package body System.Text_IO is
          --  mode value is 0.
          SCIGCR1 := 16#03_00_00_22#;
 
-         --  Baud rate. PLLCLK=180Mhz, VCLK = PLLCLK / 2
+         --  Baud rate. VCLK = RTI1CLK
          declare
             Baud : constant := 115200;
-            VCLK : constant := 90_000_000;
             P : constant := VCLK / (16 * Baud) - 1;
             M : constant := (VCLK / Baud) rem 16;
          begin

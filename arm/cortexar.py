@@ -137,7 +137,7 @@ class TMS570(CortexARTarget):
 
     @property
     def loaders(self):
-        return ('PROBE', 'FLASH', 'MONITOR', 'HIRAM', 'LORAM')
+        return ('LORAM', 'FLASH', 'MONITOR', 'HIRAM')
 
     @property
     def compiler_switches(self):
@@ -157,6 +157,11 @@ class TMS570(CortexARTarget):
     def full_system_ads(self):
         return 'system-xi-arm-full.ads'
 
+    @property
+    def debug_text_io(self):
+        "Whether to use the SCI or Debug interface text I/O"
+        return True
+
     def __init__(self, variant='tms570ls31'):
         self.variant = variant
         super(TMS570, self).__init__(
@@ -168,7 +173,6 @@ class TMS570(CortexARTarget):
             'arm/tms570/common-stack.ld',
             {'tms570.ld': 'arm/tms570/%s.ld' % self.variant},
         ])
-        self.add_linker_script('arm/tms570/probe.ld', loader='PROBE')
         self.add_linker_script('arm/tms570/flash.ld', loader='FLASH')
         self.add_linker_script('arm/tms570/monitor.ld', loader='MONITOR')
         self.add_linker_script('arm/tms570/hiram.ld', loader='HIRAM')
@@ -177,12 +181,13 @@ class TMS570(CortexARTarget):
                                loader=['FLASH', 'MONITOR', 'HIRAM', 'LORAM'])
 
         self.add_sources('crt0', [
-            'arm/tms570/sys_startup.S',
             'arm/tms570/crt0.S',
-            'arm/tms570/start-ram.S',
-            'arm/tms570/start-rom.S',
-            'src/s-textio__tms570.adb',
+            'arm/tms570/system_%s.c' % self.variant,
             'src/s-macres__tms570.adb'])
+        if self.debug_text_io:
+            self.add_sources('crt0', 'src/s-textio__tms570.adb')
+        else:
+            self.add_sources('crt0', 'src/s-textio__tms570-sci.adb')
         self.add_sources('gnarl', [
             'src/a-intnam__tms570.ads',
             'src/s-bbpara__%s.ads' % self.variant,

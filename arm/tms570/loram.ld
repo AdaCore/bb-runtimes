@@ -44,7 +44,9 @@ INCLUDE common-stack.ld
 /* board memory regions definition */
 INCLUDE tms570.ld
 
-ENTRY(start_ram);
+ENTRY(__gnat_init);
+
+__gnat_ram_at_0 = 1;
 
 REGION_ALIAS("REGION_CODE", LORAM)
 REGION_ALIAS("REGION_DATA", LORAM)
@@ -105,6 +107,7 @@ SECTIONS
   .data :
   {
     __data_start = .;
+    __data_load = .;
     *(.data .data.* .gnu.linkonce.d*)
     . = ALIGN(0x4);
     __data_end = .;

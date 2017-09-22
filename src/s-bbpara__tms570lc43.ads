@@ -46,11 +46,21 @@ package System.BB.Parameters is
    -- Hardware clock --
    --------------------
 
-   Clock_Frequency : constant Natural := 150_000_000 / 2;
-   --  RTI clock Hz
+   --  see system_tms570lc43.c for clock setup
 
-   Ticks_Per_Second : constant := Clock_Frequency;
-   --  Number of ticks per second
+   Clock_Frequency : constant Natural := 300_000_000;
+   --  GCLK clock Hz: used by the Cortex-R cores
+
+   HCLK             : constant := Clock_Frequency / 2;
+   --  Main clock used by the high-speed system modules
+
+   VCLK             : constant := HCLK / 2;
+   --  used by some system modules, peripheral modules accessed via the
+   --  Peripheral Central Resource controller
+
+   Ticks_Per_Second : constant := VCLK;
+   --  RTICLK, with VCLK used as source, and divider set to 1
+   --  75MHz here.
 
    ----------------
    -- Interrupts --

@@ -47,7 +47,9 @@ _ABORT_STACK_SIZE =  256;
 _IRQ_STACK_SIZE   = 0;
 _FIQ_STACK_SIZE   =  0;
 
-ENTRY(start_flash);
+ENTRY(__gnat_init);
+
+__gnat_ram_at_0 = o;
 
 MEMORY
 {
