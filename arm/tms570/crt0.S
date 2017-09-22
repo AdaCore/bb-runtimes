@@ -135,10 +135,6 @@ _skip_r4_errata:
            power-up, while in case of CPU reset we only need to apply
            CPU initialisation */
 
-        /* Setup clocks, peripherals */
-        /* See the corresponding system_<board>.c file */
-        bl      __gnat_system_init
-
         /*************************************/
         /* 3.1. POWER-ON or DEBUG Reset case */
         /*************************************/
@@ -151,6 +147,10 @@ _skip_r4_errata:
         beq     _check_reset_cpu
 
         str	r1, [r2] /* Clear the reset flag */
+
+        /* Setup clocks, peripherals */
+        /* See the corresponding system_<board>.c file */
+        bl      __gnat_system_init
 
         /* Allows the CPU to signal any single-bit or double-bit errors
            detected by its ECC logic for accesses to program flash or data
@@ -169,7 +169,7 @@ _skip_r4_errata:
         /* Enable CPU ECC checking for ATCM (flash accesses) */
         bl      __gnat_enable_ram_ecc
 
-        b       _end_board_init
+        b       _setup_mpu
 
         /*************************************/
         /* 3.2. CPU Reset case               */
@@ -178,19 +178,25 @@ _skip_r4_errata:
 _check_reset_cpu:
         movw    r1, #0x20       @ CPURST
         tst     r3, r1
-        beq     2f @ r3 and r1 == 0?
+        beq     _check_reset_end @ r3 and r1 == 0?
 
         str	r1, [r2] /* Clear the reset flag */
+
+        /* Setup clocks, peripherals */
+        /* See the corresponding system_<board>.c file */
+        bl      __gnat_system_init
 
         bl      __gnat_enable_event_bus_export
 
         /*************************************/
         /* 3.3. Finally, setup MPU and cache */
         /*************************************/
+_setup_mpu:
         bl      __gnat_mpu_enable
         bl      __gnat_cache_enable
 
-_end_board_init:
+_check_reset_end:
+
         /*********************************************/
         /* 4. Memory sections init                   */
         /*********************************************/
