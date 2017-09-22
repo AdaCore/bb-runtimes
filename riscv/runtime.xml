@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+
+<gprconfig>
+  <configuration>
+   <config>
+  package Compiler is
+     Common_Required_Switches := ();
+
+     for Leading_Required_Switches ("Ada") use
+        Compiler'Leading_Required_Switches ("Ada") &amp;
+        Common_Required_Switches;
+
+     for Leading_Required_Switches ("C") use
+        Compiler'Leading_Required_Switches ("C") &amp;
+        Common_Required_Switches;
+  end Compiler;
+
+   </config>
+  </configuration>
+</gprconfig>

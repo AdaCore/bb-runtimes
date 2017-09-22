@@ -28,6 +28,9 @@ from sparc import Leon2, Leon3, Leon4
 # powerpc
 from powerpc import MPC8641, MPC8349e, P2020, P5566, P5634
 
+# riscv
+from riscv import Spike
+
 # visium
 from visium import Visium
 
@@ -92,6 +95,8 @@ def build_configs(target):
         t = P5634()
     elif target == 'mcm':
         t = Visium()
+    elif target == 'spike':
+        t = Spike()
     elif target == 'x86-linux':
         t = X86Native()
     elif target == 'x86-windows':
