@@ -49,7 +49,8 @@ _FIQ_STACK_SIZE   =  0;
 
 ENTRY(__gnat_init);
 
-__gnat_ram_at_0 = o;
+/* In this mode, the memory map is the default one */
+__gnat_ram_at_0 = 0;
 
 MEMORY
 {

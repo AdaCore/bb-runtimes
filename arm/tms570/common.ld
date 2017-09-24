@@ -42,6 +42,17 @@
 SEARCH_DIR(.)
 __DYNAMIC  =  0;
 
+/* Stack sizes */
+_DEFAULT_STACK_SIZE = (20 * 1024);
+
+_SVC_STACK_SIZE   =  256;
+_UNDEF_STACK_SIZE =  256;
+_ABORT_STACK_SIZE =  256;
+_IRQ_STACK_SIZE   = 1024;
+_FIQ_STACK_SIZE   =  256;
+
+ENTRY(__gnat_init);
+
 /*
  * The memory map looks like this:
  * +--------------------------------+ <- low memory
@@ -80,17 +91,17 @@ SECTIONS
   {
     KEEP (*(.traps))
     *(.text .text.* .gnu.linkonce.t*)
-  }  > REGION_CODE
+  } > REGION_CODE
 
-  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > REGION_CODE
+  .ARM.extab : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > REGION_CODE
   PROVIDE_HIDDEN (__exidx_start = .);
-  .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > REGION_CODE
+  .ARM.exidx : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > REGION_CODE
   PROVIDE_HIDDEN (__exidx_end = .);
 
   .rodata :
   {
     *(.rodata .rodata.* .gnu.linkonce.r*)
-  }  > REGION_CODE
+  } > REGION_CODE
 
   .data : AT (ALIGN (ADDR (.rodata) + SIZEOF(.rodata), ALIGNOF (.data)))
   {
@@ -120,19 +131,19 @@ SECTIONS
     __abort_stack_start = .;
     __abort_stack_end = ALIGN(__abort_stack_start + _ABORT_STACK_SIZE, 0x8);
 
-    __undef_stack_start = __abort_stack_end;
+    __undef_stack_start = .;
     __undef_stack_end = ALIGN(__undef_stack_start + _UNDEF_STACK_SIZE, 0x8);
 
-    __svc_stack_start = __undef_stack_end;
+    __svc_stack_start = .;
     __svc_stack_end = ALIGN(__svc_stack_start + _SVC_STACK_SIZE, 0x8);
 
-    __fiq_stack_start = __svc_stack_end;
+    __fiq_stack_start = .;
     __fiq_stack_end = ALIGN(__fiq_stack_start + _FIQ_STACK_SIZE, 0x8);
 
     /* Use the largest of .interrupt_stacks or the default trap stack sizes.
        This allows use with either ZFP or Ravenscar run times. */
 
-    __irq_stack_start = __fiq_stack_end;
+    __irq_stack_start = .;
     *(.interrupt_stacks)
     . = MAX(., __irq_stack_start + _IRQ_STACK_SIZE);
     . = ALIGN(0x8);

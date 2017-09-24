@@ -116,8 +116,8 @@ package body System.Text_IO is
          --  Baud rate. VCLK = RTI1CLK
          declare
             Baud : constant := 115200;
-            P : constant := VCLK / (16 * Baud) - 1;
-            M : constant := (VCLK / Baud) rem 16;
+            P : constant := VCLK_Frequency / (16 * Baud) - 1;
+            M : constant := (VCLK_Frequency / Baud) rem 16;
          begin
             BRS := P + M * 2**24;
          end;

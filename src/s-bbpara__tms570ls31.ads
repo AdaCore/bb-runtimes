@@ -48,20 +48,23 @@ package System.BB.Parameters is
 
    --  see system_tms570ls31.c for clock setup
 
-   Clock_Frequency : constant := 180_000_000;
+   Clock_Frequency  : constant := 180_000_000;
    --  GCLK clock Hz: used by the Cortex-R cores
 
-   HCLK            : constant := Clock_Frequency;
+   HCLK_Frequency   : constant := Clock_Frequency;
    --  Main clock used by the high-speed system modules
    --  synchronous with system clock
 
-   VCLK            : constant := HCLK / 2;
+   VCLK_Frequency   : constant := HCLK_Frequency / 2;
    --  used by some system modules, peripheral modules accessed via the
    --  Peripheral Central Resource controller
    --  VCLK: 90 MHz
 
-   Ticks_Per_Second : constant := VCLK / 2;
-   --  RTICLK, set to VCLK / 2: 45 MHz.
+   Ticks_Per_Second : constant := Clock_Frequency / 8;
+   --  RTICLK, with PRE1 used as source, and divider set to 2 ** 3
+   --  RTICLK source can come from VCLK, or from the PLL1 with a divider.
+   --  Here we use the latter.
+   --  RTICLK Value = 45 MHz.
 
    ----------------
    -- Interrupts --

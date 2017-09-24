@@ -44,8 +44,7 @@ INCLUDE common-stack.ld
 /* board memory regions definition */
 INCLUDE tms570.ld
 
-ENTRY(__gnat_init);
-
+/* Normal memory map at startup */
 __gnat_ram_at_0 = 0;
 
 REGION_ALIAS("REGION_CODE", SRAM)

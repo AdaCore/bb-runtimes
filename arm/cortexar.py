@@ -137,7 +137,7 @@ class TMS570(CortexARTarget):
 
     @property
     def loaders(self):
-        return ('LORAM', 'FLASH', 'MONITOR', 'HIRAM')
+        return ('LORAM', 'FLASH', 'HIRAM', 'USER')
 
     @property
     def compiler_switches(self):
@@ -170,15 +170,13 @@ class TMS570(CortexARTarget):
 
         self.add_linker_script([
             'arm/tms570/common.ld',
-            'arm/tms570/common-stack.ld',
             {'tms570.ld': 'arm/tms570/%s.ld' % self.variant},
         ])
         self.add_linker_script('arm/tms570/flash.ld', loader='FLASH')
-        self.add_linker_script('arm/tms570/monitor.ld', loader='MONITOR')
         self.add_linker_script('arm/tms570/hiram.ld', loader='HIRAM')
         self.add_linker_script('arm/tms570/loram.ld', loader='LORAM')
         self.add_linker_switch('-Wl,-z,max-page-size=0x1000',
-                               loader=['FLASH', 'MONITOR', 'HIRAM', 'LORAM'])
+                               loader=['FLASH', 'HIRAM', 'LORAM'])
 
         self.add_sources('crt0', [
             'arm/tms570/crt0.S',

@@ -503,11 +503,9 @@ static void mapClocks(void)
                            | (uint32)((uint32)1U << 0U);
 
     /** - Setup RTICLK1 and RTICLK2 clocks */
-    /* RTICLKn = VCLK / 1 */
-    systemREG1->RCLKSRC = (uint32)((uint32)(1U - 1U) << 24U)
-                        | (uint32)((uint32)SYS_VCLK << 16U)
-                        | (uint32)((uint32)(1U - 1U) << 8U)
-                        | (uint32)((uint32)SYS_VCLK << 0U);
+    /* RTICLKn = PLL / 8 */
+    systemREG1->RCLKSRC = (uint32)((uint32)3U << 8U)
+                        | (uint32)((uint32)SYS_PLL1 << 0U);
 
     /** - Setup asynchronous peripheral clock sources for AVCLK1 and AVCLK2 */
     systemREG1->VCLKASRC = (uint32)((uint32)SYS_VCLK << 8U)
