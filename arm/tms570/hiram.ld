@@ -39,8 +39,6 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
-INCLUDE common-stack.ld
-
 /* board memory regions definition */
 INCLUDE tms570.ld
 
