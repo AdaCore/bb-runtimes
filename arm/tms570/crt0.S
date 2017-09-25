@@ -250,12 +250,12 @@ FEDACCTRL1_INITVAL:     .word 0x000a060A
         .globl  __exit
         .type   __exit, %function
 __exit:
-	/* Write 0x8000 to SYSECR (16#FFFF_FFE0#) */
+        /* Insert a hardware breakpoint to notify debuggers */
+        bkpt    0
+	/* Actual reset: write 0x8000 to SYSECR (16#FFFF_FFE0#) */
         mov	r2, #0x8000
 	mvn	r3, #0
         str	r2, [r3, #-31]
-        /* Insert a hardware breakpoint */
-        bkpt    0
 	b	__exit
         .size   __exit, . - __exit
 
