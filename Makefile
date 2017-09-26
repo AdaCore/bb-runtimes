@@ -225,7 +225,8 @@ install: all
 
 %.install: %.build
 	for f in obj/$(TGT)/BSPs/*_$*.gpr; do \
-	  $(GPRINSTALL) -P $$f; \
+	  $(GPRINSTALL) --uninstall -P $$f; \
+	  $(GPRINSTALL) -p -f -P $$f; \
 	done
 
 %.fullinstall: %.fullbuild
