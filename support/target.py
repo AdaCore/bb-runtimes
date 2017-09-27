@@ -187,7 +187,7 @@ class Target(TargetConfiguration, BSP):
         ret += '   Install_Dir           := ' \
                'external ("PREFIX", Default_Prefix);\n'
         ret += '\n'
-        for val in rts:
+        for val in sorted(rts.keys()):
             ret += '   for external ("%s") use "%s";\n' % (val, rts[val])
         ret += '\n'
         ret += '   for external ("INSTALL_PREFIX") use Install_Dir;\n'
