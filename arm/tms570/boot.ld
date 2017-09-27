@@ -39,6 +39,21 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
+/* The BOOT loader allows booting from flash an Ada application using a
+ * bootloader also located in the flash.
+ * The initial 32k of flash are reserved for the bootloader, the following
+ * is used by the Ada application.
+ */
+
+/* board memory regions definition */
+INCLUDE tms570.ld
+
+/* Normal memory map at startup */
+__gnat_ram_at_0 = 0;
+
+REGION_ALIAS("REGION_CODE", BOOT)
+REGION_ALIAS("REGION_DATA", SRAM)
+
 SEARCH_DIR(.)
 __DYNAMIC  =  0;
 
@@ -89,8 +104,8 @@ SECTIONS
 {
   .text :
   {
-    KEEP (*(.traps))
-    *(.text .text.* .gnu.linkonce.t*)
+    KEEP (*(.traps_vector))
+    *(*.traps .text .text.* .gnu.linkonce.t*)
   } > REGION_CODE =0xff
 
   .ARM.extab : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > REGION_CODE =0xff

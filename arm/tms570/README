@@ -35,7 +35,9 @@ System Clocks
 
 Startup Code
 
-   Various loaders can be used to start the runtime: FLASH, LORAM, HIRAM, USER.
+   Various loaders can be used to start the runtime:
+
+     FLASH, LORAM, HIRAM, LORAM_16M, BOOT, USER.
 
    The loaders are selected by setting the LOADER environment variable or
    by setting it explicitely when calling gprbuild. For example:
@@ -82,6 +84,25 @@ Startup Code
    Executes from the actual RAM located at 0x8000000. In order to work properly
    the exception vector in the Flash at 0x0 needs to redirect the trap handlers
    to the Ada runtime when used with a ravenscar runtime.
+
+   LORAM_16M:
+   ----------
+   To be used with gnatemulator.
+
+   Defines the RAM region as a 16 MB region at 0x0.
+   This loader reserves a 1MB region for host communication at the end of the
+   RAM area.
+
+   BOOT:
+   -----
+   Meant to be used with a bootloader.
+
+   The code is located in Flash and leaves a 32k space for a bootloader.
+   This requires that the trap vector of the bootloader properly redirect
+   the traps to the runtime.
+
+   This loader defines the Ada runtime traps as a vector of addresses located
+   at 0x8000.
 
    USER:
    -----

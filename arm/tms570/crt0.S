@@ -6,7 +6,7 @@
  *                                                                          *
  *                               Assembly File                              *
  *                                                                          *
- *                      Copyright (C) 2011-2012 AdaCore                     *
+ *                      Copyright (C) 2011-2017 AdaCore                     *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -35,17 +35,30 @@
 
 /* Startup code */
 
+        .section .traps_vector
+
+/*0*/	.word	__gnat_init
+/*4*/	.word	__gnat_undef_trap	/* Undefined instruction trap */
+/*8*/	.word	__gnat_svc_trap		/* Supervisor call trap */
+/*c*/	.word	__gnat_pabt_trap	/* prefetch abort trap	*/
+/*10*/	.word	__gnat_dabt_trap	/* data abort trap */
+/*14*/	.word	0
+/*18*/	.word	__gnat_irq_trap
+/*1c*/	.word	__gnat_fiq_trap
+
 	.section .traps
+
+        .weak	__gnat_undef_trap	/* Undefined instruction trap */
+	.weak	__gnat_svc_trap		/* Supervisor call trap */
+	.weak	__gnat_pabt_trap	/* prefetch abort trap	*/
+	.weak	__gnat_dabt_trap	/* data abort trap */
+	.weak	__gnat_irq_trap 	/* IRQ trap */
+	.weak	__gnat_fiq_trap	        /* FIQ trap */
 
 	/* The following provide default definitions for trap vectors that
 	loop back to the trap address, so the system will stop in a safe
 	state. The Ravenscar runtimes now can install their handlers by simply
 	exporting the relevant symbols. */
-
-	.weak	__gnat_undef_trap	/* Undefined instruction trap */
-	.weak	__gnat_svc_trap		/* Supervisor call trap */
-	.weak	__gnat_pabt_trap	/* prefetch abort trap	*/
-	.weak	__gnat_dabt_trap	/* data abort trap */
 
 /* 0 */	b	__gnat_init
 __gnat_undef_trap:	/* 4 */
@@ -59,7 +72,6 @@ __gnat_dabt_trap:	/* 10 */
 	nop		/* 14 */
 	ldr	pc,[pc,#-0x1b0] /* IRQ, jump to IRQVECREG, 16#ffff_fe70# */
 	ldr	pc,[pc,#-0x1b0] /* FIQ, jump to FIQVECREG, 16#ffff_fe74# */
-
 
         .text
 

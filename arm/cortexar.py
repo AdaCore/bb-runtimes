@@ -142,7 +142,7 @@ class TMS570(CortexARTarget):
 
     @property
     def loaders(self):
-        return ('LORAM', 'FLASH', 'HIRAM', 'USER')
+        return ('LORAM', 'FLASH', 'HIRAM', 'LORAM_16M', 'BOOT', 'USER')
 
     @property
     def cpu(self):
@@ -201,8 +201,11 @@ class TMS570(CortexARTarget):
         self.add_linker_script('arm/tms570/flash.ld', loader='FLASH')
         self.add_linker_script('arm/tms570/hiram.ld', loader='HIRAM')
         self.add_linker_script('arm/tms570/loram.ld', loader='LORAM')
+        self.add_linker_script('arm/tms570/loram_16m.ld', loader='LORAM_16M')
+        self.add_linker_script('arm/tms570/boot.ld', loader='BOOT')
         self.add_linker_switch('-Wl,-z,max-page-size=0x1000',
-                               loader=['FLASH', 'HIRAM', 'LORAM'])
+                               loader=['FLASH', 'HIRAM', 'LORAM',
+                                       'LORAM_16M', 'BOOT'])
 
         self.add_sources('crt0', [
             'arm/tms570/crt0.S',
