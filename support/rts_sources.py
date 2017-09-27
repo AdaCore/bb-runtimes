@@ -40,6 +40,24 @@ class RTSOptions(object):
         'Add_Math_Lib': [
             'no', 'softfloat', 'hardfloat',
             'hardfloat_dp', 'hardfloat_sp'],
+        'Add_Arith64': ['no', 'yes'],
+        # 'Image:
+        'Add_Image_Enum': ['no', 'yes'],
+        'Add_Image_Int': ['no', 'yes'],
+        'Add_Image_LL_Int': ['no', 'yes'],
+        'Add_Image_Based_Int': ['no', 'yes'],
+        'Add_Image_LL_Based_Int': ['no', 'yes'],
+        'Add_Image_Decimal': ['no', 'yes'],
+        'Add_Image_LL_Decimal': ['no', 'yes'],
+        'Add_Image_Float': ['no', 'yes'],
+        'Add_Image_Char': ['no', 'yes'],
+        'Add_Image_Wide_Char': ['no', 'yes'],
+        # Exponentiation:
+        'Add_Exponent_Int': ['no', 'yes'],
+        'Add_Exponent_LL_Int': ['no', 'yes'],
+        'Add_Exponent_Modular': ['no', 'yes'],
+        'Add_Exponent_LL_Float': ['no', 'yes'],
+
         'Add_Memory_Operations': ['no', 'yes'],
         'Add_C_Support': ['no', 'ada_clib', 'newlib'],
         'Use_Semihosting_IO': ['no', 'yes']}
@@ -84,6 +102,21 @@ class RTSOptions(object):
             ret['Add_Math_Lib'] = 'no'
 
         ret['Add_C_Support'] = "no"
+        ret['Add_Arith64'] = "no"
+        ret['Add_Exponent_Int'] = "no"
+        ret['Add_Exponent_LL_Int'] = "no"
+        ret['Add_Exponent_Modular'] = "no"
+        ret['Add_Exponent_LL_Float'] = "no"
+        ret['Add_Image_Enum'] = "no"
+        ret['Add_Image_Decimal'] = "no"
+        ret['Add_Image_LL_Decimal'] = "no"
+        ret['Add_Image_Float'] = "no"
+        ret['Add_Image_Int'] = "no"
+        ret['Add_Image_LL_Int'] = "no"
+        ret['Add_Image_Based_Int'] = "no"
+        ret['Add_Image_LL_Based_Int'] = "no"
+        ret['Add_Image_Char'] = "no"
+        ret['Add_Image_Wide_Char'] = "no"
 
         if self.config.use_semihosting_io:
             ret['Use_Semihosting_IO'] = 'yes'
@@ -96,6 +129,8 @@ class RTSOptions(object):
         """Returns the list of directories contained in a base SFP runtime"""
         ret = self.zfp_scenarios(mem_routines, math_lib)
         ret['RTS_Profile'] = 'ravenscar-sfp'
+
+        ret['Add_Image_Enum'] = 'yes'
 
         if self.config.target is not None:
             cpu = self.config.target.split('-')[0]
@@ -140,6 +175,20 @@ class RTSOptions(object):
 
         # override the RTS value
         ret['RTS_Profile'] = 'ravenscar-full'
+        ret['Add_Arith64'] = "yes"
+        ret['Add_Exponent_Int'] = "yes"
+        ret['Add_Exponent_LL_Int'] = "yes"
+        ret['Add_Exponent_Modular'] = "yes"
+        ret['Add_Exponent_LL_Float'] = "yes"
+        ret['Add_Image_Int'] = "yes"
+        ret['Add_Image_LL_Int'] = "yes"
+        ret['Add_Image_Based_Int'] = "yes"
+        ret['Add_Image_LL_Based_Int'] = "yes"
+        ret['Add_Image_Decimal'] = "yes"
+        ret['Add_Image_LL_Decimal'] = "yes"
+        ret['Add_Image_Float'] = "yes"
+        ret['Add_Image_Char'] = "yes"
+        ret['Add_Image_Wide_Char'] = "yes"
 
         if not self.config.is_pikeos:
             # PikeOS provides its own C library
@@ -432,6 +481,70 @@ class SourceDirs(SharedFilesHolder):
         self.add_sources('newlib', [
             'hie/newlib-bb.c'])
 
+        # Exponentiation support
+        self.add_rule('exponent/int', 'Add_Exponent_Int:yes')
+        self.add_rule('exponent/int_ll', 'Add_Exponent_LL_Int:yes')
+        self.add_rule('exponent/mod', 'Add_Exponent_Modular:yes')
+        self.add_rule('exponent/float_ll', 'Add_Exponent_LL_Float:yes')
+        self.add_sources('exponent/int', [
+            'libgnat/s-exnint.ads', 'libgnat/s-exnint.adb',
+            'libgnat/s-expint.ads', 'libgnat/s-expint.adb',
+            'libgnat/s-expuns.ads', 'libgnat/s-expuns.adb'])
+        self.add_sources('exponent/int_ll', [
+            'libgnat/s-exnlli.ads', 'libgnat/s-exnlli.adb',
+            'libgnat/s-explli.ads', 'libgnat/s-explli.adb',
+            'libgnat/s-expllu.ads', 'libgnat/s-expllu.adb'])
+        self.add_sources('exponent/mod', [
+            'libgnat/s-expmod.ads', 'libgnat/s-expmod.adb'])
+        self.add_sources('exponent/float_ll', [
+            'libgnat/s-exnllf.ads', 'libgnat/s-exnllf.adb'])
+
+        # 64-bit arithmetic support
+        self.add_rule('arith64', 'Add_Arith64:yes')
+        self.add_sources('arith64', [
+            'libgnat/s-arit64.ads', 'libgnat/s-arit64.adb'])
+
+        # 'Image support
+        # those extends the base 'Image support present in the zfp by default
+        self.add_rule('image/enum', 'Add_Image_Enum:yes')
+        self.add_rule('image/decimal', 'Add_Image_Decimal:yes')
+        self.add_rule('image/decimal_ll', 'Add_Image_LL_Decimal:yes')
+        self.add_rule('image/float', 'Add_Image_Float:yes')
+        self.add_rule('image/int', 'Add_Image_Int:yes')
+        self.add_rule('image/int_ll', 'Add_Image_LL_Int:yes')
+        self.add_rule('image/based_int', 'Add_Image_Based_Int:yes')
+        self.add_rule('image/based_int_ll', 'Add_Image_LL_Based_Int:yes')
+        self.add_rule('image/char', 'Add_Image_Char:yes')
+        self.add_rule('image/wide_char', 'Add_Image_Wide_Char:yes')
+
+        self.add_sources('image/enum', [
+            'libgnat/s-imenne.ads', 'libgnat/s-imenne.adb'])
+
+        self.add_sources('image/decimal', [
+            'libgnat/s-imgdec.adb', 'libgnat/s-imgdec.ads'])
+        self.add_sources('image/decimal_ll', [
+            'libgnat/s-imglld.ads', 'libgnat/s-imglld.adb'])
+
+        self.add_sources('image/float', [
+            'libgnat/s-imgrea.ads', 'libgnat/s-imgrea.adb',
+            'libgnat/s-flocon.ads', 'libgnat/s-flocon__none.adb',
+            'libgnat/s-powtab.ads'])
+
+        self.add_sources('image/int', [
+            'libgnat/s-imgwiu.ads', 'libgnat/s-imgwiu.adb'])
+        self.add_sources('image/int_ll', [
+            'libgnat/s-imgllw.ads', 'libgnat/s-imgllw.adb'])
+
+        self.add_sources('image/based_int', [
+            'libgnat/s-imgbiu.ads', 'libgnat/s-imgbiu.adb'])
+        self.add_sources('image/based_int_ll', [
+            'libgnat/s-imgllb.ads', 'libgnat/s-imgllb.adb'])
+
+        self.add_sources('image/char', [
+            'libgnat/s-imgcha.adb', 'libgnat/s-imgcha.ads'])
+        self.add_sources('image/wide_char', [
+            'libgnat/s-imgwch.ads', 'libgnat/s-imgwch.adb'])
+
         # Math support
         self.add_rule('math', 'Add_Math_Lib:!no')
         self.add_sources('math', [
@@ -453,7 +566,6 @@ class SourceDirs(SharedFilesHolder):
             'hie/a-nuelfu__ada.ads',
             'hie/a-numaux__ada.ads',
             'libgnat/a-numeri.ads',
-            'libgnat/s-exnllf.ads', 'libgnat/s-exnllf.adb',
             'hie/s-gcmain__ada.ads', 'hie/s-gcmain__ada.adb',
             'libgnat/s-gearop.ads', 'libgnat/s-gearop.adb',
             'hie/s-libdou__ada.ads', 'hie/s-libdou__ada.adb',
@@ -588,9 +700,6 @@ class SourceDirs(SharedFilesHolder):
                 'hie/s-osinte__pikeos4.adb'])
 
         # SFP-specific files
-        self.add_rule('sfp', 'RTS_Profile:ravenscar-sfp')
-        self.add_sources('sfp', [
-            'libgnat/s-imenne.ads', 'libgnat/s-imenne.adb'])
         self.add_rule('gnarl/sfp', 'RTS_Profile:ravenscar-sfp')
         self.add_sources('gnarl/sfp', [
             'hie/s-taskin__raven.ads',
@@ -638,7 +747,6 @@ class SourceDirs(SharedFilesHolder):
 
     def init_full(self):
         """ravenscar-full files"""
-
         # libgnat files for the full profile
         self.add_rule('full', 'RTS_Profile:ravenscar-full')
         self.add_sources('full', [
@@ -780,7 +888,6 @@ class SourceDirs(SharedFilesHolder):
             'raise.h',
             'libgnat/s-addima.ads', 'libgnat/s-addima.adb',
             'libgnat/s-addope.ads', 'libgnat/s-addope.adb',
-            'libgnat/s-arit64.ads', 'libgnat/s-arit64.adb',
             'libgnat/s-assert.adb',
             'libgnat/s-bitops.ads', 'libgnat/s-bitops.adb',
             'libgnat/s-boarop.ads',
@@ -799,30 +906,11 @@ class SourceDirs(SharedFilesHolder):
             'libgnat/s-excdeb.ads', 'libgnat/s-excdeb.adb',
             'libgnat/s-except.ads', 'libgnat/s-except.adb',
             'libgnat/s-exctab.ads', 'libgnat/s-exctab.adb',
-            'libgnat/s-exnint.ads', 'libgnat/s-exnint.adb',
-            'libgnat/s-exnlli.ads', 'libgnat/s-exnlli.adb',
-            'libgnat/s-expint.ads', 'libgnat/s-expint.adb',
-            'libgnat/s-explli.ads', 'libgnat/s-explli.adb',
-            'libgnat/s-expllu.ads', 'libgnat/s-expllu.adb',
-            'libgnat/s-expmod.ads', 'libgnat/s-expmod.adb',
-            'libgnat/s-expuns.ads', 'libgnat/s-expuns.adb',
             'libgnat/s-finmas.ads', 'libgnat/s-finmas.adb',
             'libgnat/s-finroo.ads', 'libgnat/s-finroo.adb',
-            'libgnat/s-flocon.ads', 'libgnat/s-flocon__none.adb',
             'libgnat/s-fore.ads', 'libgnat/s-fore.adb',
             'libgnat/s-geveop.ads', 'libgnat/s-geveop.adb',
             'libgnat/s-htable.ads', 'libgnat/s-htable.adb',
-            'libgnat/s-imenne.ads', 'libgnat/s-imenne.adb',
-            'libgnat/s-imgbiu.ads', 'libgnat/s-imgbiu.adb',
-            'libgnat/s-imgcha.adb', 'libgnat/s-imgcha.ads',
-            'libgnat/s-imgdec.adb', 'libgnat/s-imgdec.ads',
-            'libgnat/s-imgenu.ads', 'libgnat/s-imgenu.adb',
-            'libgnat/s-imgllb.ads', 'libgnat/s-imgllb.adb',
-            'libgnat/s-imglld.ads', 'libgnat/s-imglld.adb',
-            'libgnat/s-imgllw.ads', 'libgnat/s-imgllw.adb',
-            'libgnat/s-imgrea.ads', 'libgnat/s-imgrea.adb',
-            'libgnat/s-imgwch.ads', 'libgnat/s-imgwch.adb',
-            'libgnat/s-imgwiu.ads', 'libgnat/s-imgwiu.adb',
             'hie/s-init.ads',
             'hie/s-init__bb.adb',
             'libgnat/s-io.ads', 'hie/s-io.adb',
@@ -888,7 +976,6 @@ class SourceDirs(SharedFilesHolder):
             'libgnat/s-pooglo.ads', 'libgnat/s-pooglo.adb',
             'libgnat/s-pooloc.ads', 'libgnat/s-pooloc.adb',
             'libgnat/s-poosiz.ads', 'libgnat/s-poosiz.adb',
-            'libgnat/s-powtab.ads',
             'libgnat/s-rannum.ads', 'libgnat/s-rannum.adb',
             'libgnat/s-ransee.ads', 'hie/s-ransee.adb',
             'libgnat/s-regexp.ads', 'libgnat/s-regexp.adb',

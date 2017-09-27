@@ -131,18 +131,30 @@ class TMS570(CortexARTarget):
     @property
     def name(self):
         if self.variant == 'tms570ls31':
-            return 'tms570'
+            base = 'tms570'
         else:
-            return 'a6mc'
+            base = 'a6mc'
+
+        if self.uart_io:
+            return "%s_sci" % base
+        else:
+            return base
 
     @property
     def loaders(self):
         return ('LORAM', 'FLASH', 'HIRAM', 'USER')
 
     @property
+    def cpu(self):
+        if self.variant == 'tms570ls31':
+            return 'cortex-r4f'
+        else:
+            return 'cortex-r5'
+
+    @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mbig-endian', '-mhard-float', '-mcpu=cortex-r4',
+        return ('-mbig-endian', '-mhard-float', '-mcpu=%s' % self.cpu,
                 '-mfpu=vfpv3-d16', '-marm')
 
     @property
@@ -150,20 +162,34 @@ class TMS570(CortexARTarget):
         return 'arm/tms570/README'
 
     @property
-    def sfp_system_ads(self):
-        return 'system-xi-arm-sfp.ads'
+    def system_ads(self):
+        return {'zfp': self.zfp_system_ads,
+                'ravenscar-sfp': 'system-xi-arm-sfp.ads',
+                'ravenscar-esfp': 'system-xi-arm-sfp.ads',
+                'ravenscar-full': 'system-xi-arm-full.ads'}
 
-    @property
-    def full_system_ads(self):
-        return 'system-xi-arm-full.ads'
+    def amend_rts(self, rts_profile, cfg):
+        if rts_profile == 'ravenscar-esfp':
+            super(TMS570, self).amend_rts('ravenscar-sfp', cfg)
+            cfg.rts_vars['Add_Arith64'] = "yes"
 
-    @property
-    def debug_text_io(self):
-        "Whether to use the SCI or Debug interface text I/O"
-        return True
+            cfg.rts_vars['Add_Exponent_Int'] = "yes"
+            cfg.rts_vars['Add_Exponent_LL_Int'] = "yes"
+            cfg.rts_vars['Add_Exponent_LL_Float'] = "yes"
 
-    def __init__(self, variant='tms570ls31'):
+            cfg.rts_vars['Add_Image_Enum'] = "yes"
+            cfg.rts_vars['Add_Image_Decimal'] = "yes"
+            cfg.rts_vars['Add_Image_LL_Decimal'] = "yes"
+            cfg.rts_vars['Add_Image_Float'] = "yes"
+
+            # cfg.rts_vars['Add_Image_Int'] = "yes"
+            # cfg.rts_vars['Add_Image_LL_Int'] = "yes"
+        else:
+            super(TMS570, self).amend_rts(rts_profile, cfg)
+
+    def __init__(self, variant='tms570ls31', uart_io=False):
         self.variant = variant
+        self.uart_io = uart_io
         super(TMS570, self).__init__(
             mem_routines=True,
             small_mem=True)
@@ -182,10 +208,10 @@ class TMS570(CortexARTarget):
             'arm/tms570/crt0.S',
             'arm/tms570/system_%s.c' % self.variant,
             'src/s-macres__tms570.adb'])
-        if self.debug_text_io:
-            self.add_sources('crt0', 'src/s-textio__tms570.adb')
-        else:
+        if self.uart_io:
             self.add_sources('crt0', 'src/s-textio__tms570-sci.adb')
+        else:
+            self.add_sources('crt0', 'src/s-textio__tms570.adb')
         self.add_sources('gnarl', [
             'src/a-intnam__tms570.ads',
             'src/s-bbpara__%s.ads' % self.variant,
