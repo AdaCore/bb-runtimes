@@ -26,7 +26,7 @@
 ------------------------------------------------------------------------------
 
 with System;
-with Interfaces;               use Interfaces;
+with Interfaces;                      use Interfaces;
 with Ada.Unchecked_Conversion;
 
 with Interfaces.SF2;                  use Interfaces.SF2;
@@ -50,7 +50,6 @@ package body System.SF2.UART is
       Baud_Rate   : MSS_UART_Baud_Rate;
       Status      : out Boolean)
    is
-      use type System.Address;
       BR_Value     : constant Unsigned_32 :=
                        MSS_UART_Baud_Rate'Enum_Rep (Baud_Rate);
       Clocks       : constant System_Clocks := Get_System_Clocks;
@@ -112,7 +111,6 @@ package body System.SF2.UART is
       Line_Config : MSS_UART_Line_Configuration;
       Status      : out Boolean)
    is
-      use type System.Address;
    begin
       --  Reset the peripheral
       if This'Address = MMUART_0_Base then

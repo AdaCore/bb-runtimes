@@ -41,7 +41,7 @@ with Interfaces; use Interfaces;
 with Interfaces.Raspberry_Pi;
 
 package body System.BB.Board_Support is
-   use CPU_Primitives, BB.Interrupts;
+   use BB.Interrupts;
    use System.Machine_Code;
    use System.Multiprocessors;
    use Interfaces.Raspberry_Pi;
