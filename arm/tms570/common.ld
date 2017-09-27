@@ -91,17 +91,18 @@ SECTIONS
   {
     KEEP (*(.traps))
     *(.text .text.* .gnu.linkonce.t*)
-  } > REGION_CODE
+  } > REGION_CODE =0xff
 
-  .ARM.extab : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > REGION_CODE
+  .ARM.extab : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > REGION_CODE =0xff
   PROVIDE_HIDDEN (__exidx_start = .);
-  .ARM.exidx : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > REGION_CODE
+  .ARM.exidx : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > REGION_CODE =0xff
   PROVIDE_HIDDEN (__exidx_end = .);
 
   .rodata :
   {
     *(.rodata .rodata.* .gnu.linkonce.r*)
-  } > REGION_CODE
+    . = ALIGN(0x8);
+  } > REGION_CODE =0xff
 
   .data : AT (ALIGN (ADDR (.rodata) + SIZEOF(.rodata), ALIGNOF (.data)))
   {
@@ -110,7 +111,7 @@ SECTIONS
     *(.data .data.* .gnu.linkonce.d*)
     . = ALIGN(0x4);
     __data_end = .;
-  } > REGION_DATA
+  } > REGION_DATA =0xff
   __data_words = (__data_end - __data_start) >> 2;
 
   .bss (NOLOAD):
