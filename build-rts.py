@@ -85,9 +85,13 @@ def build_configs(target):
     elif target == 'leon2' or target == 'leon':
         t = Leon2()
     elif target == 'leon3':
-        t = Leon3()
+        t = Leon3(smp=False)
+    elif target == 'leon3-smp':
+        t = Leon3(smp=True)
     elif target == 'leon4':
-        t = Leon4()
+        t = Leon4(smp=False)
+    elif target == 'leon4-smp':
+        t = Leon4(smp=True)
     elif target == 'mpc8641':
         t = MPC8641()
     elif target == '8349e':

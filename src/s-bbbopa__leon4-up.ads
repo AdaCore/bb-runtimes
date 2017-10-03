@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---                      Copyright (C) 2016, AdaCore                         --
+--                    Copyright (C) 2016-2017, AdaCore                      --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -82,7 +82,7 @@ package System.BB.Board_Parameters is
    -- CPUS --
    ----------
 
-   Max_Number_Of_CPUs : constant := 2;
+   Max_Number_Of_CPUs : constant := 1;
    --  Maximum number of CPUs
 
 end System.BB.Board_Parameters;

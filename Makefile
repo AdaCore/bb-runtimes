@@ -62,7 +62,7 @@ endif
 
 ifeq ($(TARGET),$(filter $(TARGET),leon3-elf leon3))
    TGT=leon3-elf
-    TARGETS=leon3
+   TARGETS=leon3 leon3-smp
 endif
 
 ifeq ($(TARGET),$(filter $(TARGET),visium-elf visium))

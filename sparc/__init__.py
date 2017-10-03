@@ -99,7 +99,10 @@ class Leon2(LeonTarget):
 class Leon3(LeonTarget):
     @property
     def name(self):
-        return "leon3"
+        if self.smp:
+            return "leon3-smp"
+        else:
+            return "leon3"
 
     @property
     def target(self):
@@ -108,6 +111,14 @@ class Leon3(LeonTarget):
     @property
     def parent(self):
         return LeonArch
+
+    @property
+    def zfp_system_ads(self):
+        if self.smp:
+            # zfp runtime makes no sense in the context of SMP variant
+            return None
+        else:
+            return 'system-xi-sparc.ads'
 
     @property
     def need_fix_ut699(self):
@@ -136,13 +147,14 @@ class Leon3(LeonTarget):
     def readme_file(self):
         return 'sparc/leon3/README'
 
-    def __init__(self):
+    def __init__(self, smp):
+        self.smp = smp
         super(Leon3, self).__init__()
 
         self.add_linker_script('sparc/leon3/leon.ld', loader=None)
         self.add_sources('crt0', [
             'src/s-textio__leon3.adb',
-            'src/s-bbbopa__leon3.ads'])
+            'src/s-bbbopa__leon3-%s.ads' % ('smp' if smp else 'up', )])
         self.add_sources('gnat', [
             'src/i-leon3.ads',
             'src/i-leon3-uart.ads',
@@ -158,8 +170,14 @@ class Leon3(LeonTarget):
 class Leon4(Leon3):
     @property
     def name(self):
-        return "leon4"
+        if self.smp:
+            return "leon4-smp"
+        else:
+            return "leon4"
 
-    def __init__(self):
-        super(Leon4, self).__init__()
-        self.update_pair('s-bbbopa.ads', 'src/s-bbbopa__leon4.ads')
+    def __init__(self, smp):
+        super(Leon4, self).__init__(smp)
+        if smp:
+            self.update_pair('s-bbbopa.ads', 'src/s-bbbopa__leon4-smp.ads')
+        else:
+            self.update_pair('s-bbbopa.ads', 'src/s-bbbopa__leon4-up.ads')
