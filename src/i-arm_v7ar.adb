@@ -33,7 +33,6 @@ with System.Machine_Code; use System.Machine_Code;
 
 package body Interfaces.ARM_V7AR is
    use System;
-   use System.Storage_Elements;
 
    package body CP15 is
 
@@ -51,6 +50,168 @@ package body Interfaces.ARM_V7AR is
          return Res;
       end Get_CLIDR;
 
+      ----------------
+      -- Get_CCSIDR --
+      ----------------
+
+      function Get_CCSIDR return Unsigned_32 is
+         Res : Unsigned_32;
+      begin
+         Asm ("mrc p15,#1,%0,c0,c0,#0",
+              Outputs => Unsigned_32'Asm_Output ("=r", Res),
+              Volatile => True);
+         return Res;
+      end Get_CCSIDR;
+
+      ----------------
+      -- Set_CSSELR --
+      ----------------
+
+      procedure Set_CSSELR (V : Unsigned_32) is
+      begin
+         Asm ("mcr p15,#2,%0,c0,c0,#0",
+              Inputs => Unsigned_32'Asm_Input ("r", V),
+              Volatile => True);
+      end Set_CSSELR;
+
+      ---------------
+      -- Get_SCTLR --
+      ---------------
+
+      function Get_SCTLR return Unsigned_32 is
+         Res : Unsigned_32;
+      begin
+         Asm ("mrc p15,#0,%0,c1,c0,#0",
+              Outputs => Unsigned_32'Asm_Output ("=r", Res),
+              Volatile => True);
+         return Res;
+      end Get_SCTLR;
+
+      ---------------
+      -- Set_SCTLR --
+      ---------------
+
+      procedure Set_SCTLR (V : Unsigned_32) is
+      begin
+         Asm ("mcr p15,#0,%0,c1,c0,#0",
+              Inputs => Unsigned_32'Asm_Input ("r", V),
+              Volatile => True);
+      end Set_SCTLR;
+
+      ---------------
+      -- Get_ACTLR --
+      ---------------
+
+      function Get_ACTLR return Unsigned_32 is
+         Res : Unsigned_32;
+      begin
+         Asm ("mrc p15,#0,%0,c1,c0,#1",
+              Outputs => Unsigned_32'Asm_Output ("=r", Res),
+              Volatile => True);
+         return Res;
+      end Get_ACTLR;
+
+      ---------------
+      -- Set_ACTLR --
+      ---------------
+
+      procedure Set_ACTLR (V : Unsigned_32) is
+      begin
+         Asm ("mcr p15,#0,%0,c1,c0,#1",
+              Inputs => Unsigned_32'Asm_Input ("r", V),
+              Volatile => True);
+      end Set_ACTLR;
+
+      ---------------------------------
+      -- Get_MPU_Region_Base_Address --
+      ---------------------------------
+
+      function Get_MPU_Region_Base_Address return Unsigned_32
+      is
+         Res : Unsigned_32;
+      begin
+         Asm ("mrc p15,#0,%0,c6,c1,#0",
+              Outputs => Unsigned_32'Asm_Output ("=r", Res),
+              Volatile => True);
+         return Res;
+      end Get_MPU_Region_Base_Address;
+
+      ---------------------------------
+      -- Set_MPU_Region_Base_Address --
+      ---------------------------------
+
+      procedure Set_MPU_Region_Base_Address (V : Unsigned_32)
+      is
+      begin
+         Asm ("mcr p15,#0,%0,c6,c1,#0",
+              Inputs => Unsigned_32'Asm_Input ("r", V),
+              Volatile => True);
+      end Set_MPU_Region_Base_Address;
+
+      ------------------------------------
+      -- Get_MPU_Region_Size_And_Enable --
+      ------------------------------------
+
+      function Get_MPU_Region_Size_And_Enable return Unsigned_32
+      is
+         Res : Unsigned_32;
+      begin
+         Asm ("mrc p15,#0,%0,c6,c1,#2",
+              Outputs => Unsigned_32'Asm_Output ("=r", Res),
+              Volatile => True);
+         return Res;
+      end Get_MPU_Region_Size_And_Enable;
+
+      ------------------------------------
+      -- Set_MPU_Region_Size_And_Enable --
+      ------------------------------------
+
+      procedure Set_MPU_Region_Size_And_Enable (V : Unsigned_32)
+      is
+      begin
+         Asm ("mcr p15,#0,%0,c6,c1,#2",
+              Inputs => Unsigned_32'Asm_Input ("r", V),
+              Volatile => True);
+      end Set_MPU_Region_Size_And_Enable;
+
+      -----------------------------------
+      -- Get_MPU_Region_Access_Control --
+      -----------------------------------
+
+      function Get_MPU_Region_Access_Control return Unsigned_32
+      is
+         Res : Unsigned_32;
+      begin
+         Asm ("mrc p15,#0,%0,c6,c1,#4",
+              Outputs => Unsigned_32'Asm_Output ("=r", Res),
+              Volatile => True);
+         return Res;
+      end Get_MPU_Region_Access_Control;
+
+      -----------------------------------
+      -- Set_MPU_Region_Access_Control --
+      -----------------------------------
+
+      procedure Set_MPU_Region_Access_Control (V : Unsigned_32)
+      is
+      begin
+         Asm ("mcr p15,#0,%0,c6,c1,#4",
+              Inputs => Unsigned_32'Asm_Input ("r", V),
+              Volatile => True);
+      end Set_MPU_Region_Access_Control;
+
+      ---------------------------
+      -- Set_MPU_Region_Number --
+      ---------------------------
+
+      procedure Set_MPU_Region_Number (V : Unsigned_32)
+      is
+      begin
+         Asm ("mcr p15,#0,%0,c6,c2,#0",
+              Inputs => Unsigned_32'Asm_Input ("r", V),
+              Volatile => True);
+      end Set_MPU_Region_Number;
+
       --------------
       -- DCCIMVAC --
       --------------
@@ -62,37 +223,32 @@ package body Interfaces.ARM_V7AR is
               Volatile => True);
       end DCCIMVAC;
 
-      function Get_SCTLR return Unsigned_32 is
+      --------------
+      -- Get_PMCR --
+      --------------
+
+      function Get_PMCR return Unsigned_32
+      is
          Res : Unsigned_32;
       begin
-         Asm ("mrc p15,#0,%0,c1,c0,#0",
+         Asm ("mrc p15,#0,%0,c9,c12,#0",
               Outputs => Unsigned_32'Asm_Output ("=r", Res),
               Volatile => True);
          return Res;
-      end Get_SCTLR;
+      end Get_PMCR;
 
-      procedure Set_SCTLR (V : Unsigned_32) is
+      --------------
+      -- Set_PMCR --
+      --------------
+
+      procedure Set_PMCR (V : Unsigned_32)
+      is
       begin
-         Asm ("mcr p15,#0,%0,c1,c0,#0",
+         Asm ("mcr p15,#0,%0,c9,c12,#0",
               Inputs => Unsigned_32'Asm_Input ("r", V),
               Volatile => True);
-      end Set_SCTLR;
+      end Set_PMCR;
 
-      function Get_CCSIDR return Unsigned_32 is
-         Res : Unsigned_32;
-      begin
-         Asm ("mrc p15,#1,%0,c0,c0,#0",
-              Outputs => Unsigned_32'Asm_Output ("=r", Res),
-              Volatile => True);
-         return Res;
-      end Get_CCSIDR;
-
-      procedure Set_CSSELR (V : Unsigned_32) is
-      begin
-         Asm ("mcr p15,#2,%0,c0,c0,#0",
-              Inputs => Unsigned_32'Asm_Input ("r", V),
-              Volatile => True);
-      end Set_CSSELR;
    end CP15;
 
    package body Barriers is
@@ -106,6 +262,15 @@ package body Interfaces.ARM_V7AR is
       end DSB;
 
       ---------
+      -- DMB --
+      ---------
+
+      procedure DMB is
+      begin
+         Asm ("dmb", Volatile => True);
+      end DMB;
+
+      ---------
       -- ISB --
       ---------
 
@@ -116,28 +281,25 @@ package body Interfaces.ARM_V7AR is
    end Barriers;
 
    package body Cache is
-      ---------------------------
-      -- Dcache_Flush_By_Range --
-      ---------------------------
 
-      procedure Dcache_Flush_By_Range (Start : Address; Len : Storage_Count)
+      -----------------------
+      -- Invalidate_DCache --
+      -----------------------
+
+      procedure Invalidate_DCache
       is
-         Line_Size : constant := 16;
-         Line_Off : Storage_Count;
-         Off : Storage_Count;
-         Addr : Address;
       begin
-         Line_Off := Start mod Line_Size;
-         Addr := Start - Line_Off;
-         Off := 0;
-         loop
-            CP15.DCCIMVAC (Addr);
-            Off := Off + Line_Size;
-            exit when Off > Len + Line_Off;
-            Addr := Addr + Line_Size;
-         end loop;
+         Asm ("mcr p15,#0,%0,c15,c5,#0",
+              Inputs => Unsigned_32'Asm_Input ("r", 0),
+              Volatile => True);
+      end Invalidate_DCache;
 
-         Barriers.DSB;
-      end Dcache_Flush_By_Range;
+      procedure Invalidate_ICache
+      is
+      begin
+         Asm ("mcr p15,#0,%0,c7,c5,#0",
+              Inputs => Unsigned_32'Asm_Input ("r", 0),
+              Volatile => True);
+      end Invalidate_ICache;
    end Cache;
 end Interfaces.ARM_V7AR;

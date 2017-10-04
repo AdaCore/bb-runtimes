@@ -46,7 +46,8 @@ INCLUDE tms570.ld
    This is achieved by setting BMCCR1.MEMSW to 0x5 prior to loading the
    application.
  */
-__gnat_ram_at_0 = 1;
+__gnat_ram_start = ORIGIN(LORAM);
+__gnat_ram_end   = ORIGIN(LORAM) + LENGTH(LORAM);
 
 REGION_ALIAS("REGION_CODE", LORAM)
 REGION_ALIAS("REGION_DATA", LORAM)

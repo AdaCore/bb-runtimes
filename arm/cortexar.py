@@ -196,8 +196,7 @@ class TMS570(CortexARTarget):
 
         self.add_linker_script([
             'arm/tms570/common.ld',
-            {'tms570.ld': 'arm/tms570/%s.ld' % self.variant},
-        ])
+            {'tms570.ld': 'arm/tms570/%s.ld' % self.variant}])
         self.add_linker_script('arm/tms570/flash.ld', loader='FLASH')
         self.add_linker_script('arm/tms570/hiram.ld', loader='HIRAM')
         self.add_linker_script('arm/tms570/loram.ld', loader='LORAM')
@@ -210,11 +209,17 @@ class TMS570(CortexARTarget):
         self.add_sources('crt0', [
             'arm/tms570/crt0.S',
             'arm/tms570/system_%s.c' % self.variant,
+            'arm/tms570/board_init.ads', 'arm/tms570/board_init.adb',
             'src/s-macres__tms570.adb'])
+        if self.cpu == 'cortex-r4f':
+            self.add_sources('crt0', 'arm/tms570/cortex-r4.S')
+        else:
+            self.add_sources('crt0', 'arm/tms570/cortex-r5.S')
         if self.uart_io:
             self.add_sources('crt0', 'src/s-textio__tms570-sci.adb')
         else:
             self.add_sources('crt0', 'src/s-textio__tms570.adb')
+
         self.add_sources('gnarl', [
             'src/a-intnam__tms570.ads',
             'src/s-bbpara__%s.ads' % self.variant,

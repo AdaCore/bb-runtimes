@@ -43,7 +43,8 @@
 INCLUDE tms570.ld
 
 /* Normal memory map at startup */
-__gnat_ram_at_0 = 0;
+__gnat_ram_start = ORIGIN(SRAM);
+__gnat_ram_end   = ORIGIN(SRAM) + LENGTH(SRAM);
 
 REGION_ALIAS("REGION_CODE", FLASH)
 REGION_ALIAS("REGION_DATA", SRAM)

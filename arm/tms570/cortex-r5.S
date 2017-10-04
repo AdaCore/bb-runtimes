@@ -1,14 +1,12 @@
 /****************************************************************************
  *                                                                          *
- *                         GNAT COMPILER COMPONENTS                         *
+ *               GNU ADA RUN-TIME LIBRARY (GNARL) COMPONENTS                *
  *                                                                          *
- *                                  A R M                                   *
+ *                                  C R T 0                                 *
  *                                                                          *
- *                            Linker Script File                            *
+ *                               Assembly File                              *
  *                                                                          *
- *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
- *             Copyright (C) 2003-2006 The European Space Agency            *
- *                   Copyright (C) 2003-2017 AdaCore                        *
+ *                      Copyright (C) 2011-2017 AdaCore                     *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -18,8 +16,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License *
  * for  more details.  You should have  received  a copy of the GNU General *
  * Public License  distributed with GNAT;  see file COPYING.  If not, write *
- * to  the  Free Software Foundation,  51  Franklin  Street,  Fifth  Floor, *
- * Boston, MA 02110-1301, USA.                                              *
+ * to  the Free Software Foundation,  59 Temple Place - Suite 330,  Boston, *
+ * MA 02111-1307, USA.                                                      *
  *                                                                          *
  * As a  special  exception,  if you  link  this file  with other  files to *
  * produce an executable,  this file does not by itself cause the resulting *
@@ -27,30 +25,24 @@
  * ion does not  however invalidate  any other reasons  why the  executable *
  * file might be covered by the  GNU Public License.                        *
  *                                                                          *
- * GNARL was developed by the GNARL team at Florida State University.       *
- * Extensive contributions were provided by Ada Core Technologies, Inc.     *
- * The  executive  was developed  by the  Real-Time  Systems  Group  at the *
- * Technical University of Madrid.                                          *
- *                                                                          *
  ****************************************************************************/
 
-/* This is a ARM specific version of this file */
+/* This file is specific to the Hercules ARM Cortex-R5 Microcontrollers,
+   such as the TMS570. */
 
-/* This script replaces ld's default linker script, providing the
-   appropriate memory map and output format. */
+        .text
 
-/* board memory regions definition */
-MEMORY
-{
-  SDRAM (rwx) : ORIGIN = 0x00000000, LENGTH = 15M
-}
+        /*********************************************************************
+         * __cpu_errata:                                                     *
+         *                                                                   *
+         * Installs workaround for known CPU hardware bugs.                  *
+         * This is the Cortex-R5 version of this routine                     *
+         *********************************************************************/
+        .globl  __cpu_errata
+        .type   __cpu_errata, %function
+__cpu_errata:
+        bx      lr
 
-__gnat_ram_start = ORIGIN(SDRAM);
-__gnat_ram_end   = ORIGIN(SDRAM) + 16M;
-
-REGION_ALIAS("REGION_CODE", SDRAM)
-REGION_ALIAS("REGION_DATA", SDRAM)
-
-EVSF_Exchange_Area = ORIGIN(SDRAM) + LENGTH(SDRAM);
-
-INCLUDE common.ld
+DEVID:                  .word 0xfffffff0
+DEVID_REVA:             .word 0x802aad05
+	.size __cpu_errata, . - __cpu_errata
