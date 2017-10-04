@@ -6,7 +6,7 @@
 --                                                                          --
 --                                   S p e c                                --
 --                                                                          --
---                         Copyright (C) 2016, AdaCore                      --
+--                      Copyright (C) 2016-2017, AdaCore                    --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -34,6 +34,26 @@ with System; use System;
 
 package body Interfaces.Cache is
    use System.Storage_Elements;
+
+   procedure Dcache_Invalidate_By_Range (Start : Address; Len : Storage_Count)
+   is
+      Line_Size : constant := 16;
+      Line_Off : Storage_Count;
+      Off : Storage_Count;
+      Addr : Address;
+   begin
+      Line_Off := Start mod Line_Size;
+      Addr := Start - Line_Off;
+      Off := 0;
+      loop
+         CP15.DCIMVAC (Addr);
+         Off := Off + Line_Size;
+         exit when Off > Len + Line_Off;
+         Addr := Addr + Line_Size;
+      end loop;
+
+      Barriers.DSB;
+   end Dcache_Invalidate_By_Range;
 
    procedure Dcache_Flush_By_Range (Start : Address; Len : Storage_Count)
    is

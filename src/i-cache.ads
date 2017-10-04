@@ -6,7 +6,7 @@
 --                                                                          --
 --                                   S p e c                                --
 --                                                                          --
---                         Copyright (C) 2016, AdaCore                      --
+--                      Copyright (C) 2016-2017, AdaCore                    --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -39,6 +39,10 @@ package Interfaces.Cache is
    --  Not yet ready as Storage_Elements doesn't have the pragma
 
    pragma Preelaborate;
+
+   procedure Dcache_Invalidate_By_Range
+     (Start : System.Address;
+      Len   : System.Storage_Elements.Storage_Count);
 
    procedure Dcache_Flush_By_Range
      (Start : System.Address;

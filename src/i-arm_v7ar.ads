@@ -47,7 +47,11 @@ package Interfaces.ARM_V7AR is
 
       procedure DCCIMVAC (Mva : System.Address)
         with Inline_Always;
-      --  Data cache clean and invalidate by va
+      --  Data cache clean and invalidate to PoC by va
+
+      procedure DCIMVAC (Mva : System.Address)
+        with Inline_Always;
+      --  Data cache invalidate to PoC by va
 
       function Get_SCTLR return Unsigned_32
         with Inline_Always;

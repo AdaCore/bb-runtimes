@@ -212,6 +212,17 @@ package body Interfaces.ARM_V7AR is
               Volatile => True);
       end Set_MPU_Region_Number;
 
+      -------------
+      -- DCIMVAC --
+      -------------
+
+      procedure DCIMVAC (Mva : Address) is
+      begin
+         Asm ("mcr p15,#0,%0,c7,c6,#1",
+              Inputs => Address'Asm_Input ("r", Mva),
+              Volatile => True);
+      end DCIMVAC;
+
       --------------
       -- DCCIMVAC --
       --------------
