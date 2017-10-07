@@ -38,6 +38,14 @@
         .globl  __cpu_errata
         .type   __cpu_errata, %function
 __cpu_errata:
+        /* Cortex-R4 errata workarounds: check the cpu version */
+        mrc     p15, #0, r0, c0, c0, #0 /* MIDR */
+        mov     r1, #0xFFF0             /* Primary part num. mask */
+        and     r0, r0, r1
+        mov     r1, #0xC140             /* Cortex-r4 identifier */
+        cmp     r0, r1
+        bxne    lr /* skip if cortex-r5 */
+
         push {lr}
         /* Errata DEVICE#140 (TMS570LS Rev A silicon) */
         ldr r0, DEVID
