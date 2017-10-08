@@ -78,6 +78,9 @@ package Interfaces.ARM_V7AR is
 
       --  c6 functions
 
+      function Get_MPUIR return Unsigned_32
+        with Inline_Always;
+
       function Get_MPU_Region_Base_Address return Unsigned_32
         with Inline_Always;
 
