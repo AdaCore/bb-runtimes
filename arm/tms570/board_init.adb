@@ -33,34 +33,34 @@ package body Board_Init is
 
    --  MPU table constants
    pragma Warnings (Off, "*is not referenced");
-   Size_32B   : constant Unsigned_32 := 2#00100_0#;
-   Size_64B   : constant Unsigned_32 := 2#00101_0#;
-   Size_126B  : constant Unsigned_32 := 2#00110_0#;
-   Size_256B  : constant Unsigned_32 := 2#00111_0#;
-   Size_512B  : constant Unsigned_32 := 2#01000_0#;
-   Size_1kB   : constant Unsigned_32 := 2#01001_0#;
-   Size_2kB   : constant Unsigned_32 := 2#01010_0#;
-   Size_4kB   : constant Unsigned_32 := 2#01011_0#;
-   Size_8kB   : constant Unsigned_32 := 2#01100_0#;
-   Size_16kB  : constant Unsigned_32 := 2#01101_0#;
-   Size_32kB  : constant Unsigned_32 := 2#01110_0#;
-   Size_64kB  : constant Unsigned_32 := 2#01111_0#;
-   Size_128kB : constant Unsigned_32 := 2#10000_0#;
-   Size_256kB : constant Unsigned_32 := 2#10001_0#;
-   Size_512kB : constant Unsigned_32 := 2#10010_0#;
-   Size_1MB   : constant Unsigned_32 := 2#10011_0#;
-   Size_2MB   : constant Unsigned_32 := 2#10100_0#;
-   Size_4MB   : constant Unsigned_32 := 2#10101_0#;
-   Size_8MB   : constant Unsigned_32 := 2#10110_0#;
-   Size_16MB  : constant Unsigned_32 := 2#10111_0#;
-   Size_32MB  : constant Unsigned_32 := 2#11000_0#;
-   Size_64MB  : constant Unsigned_32 := 2#11001_0#;
-   Size_128MB : constant Unsigned_32 := 2#11010_0#;
-   Size_256MB : constant Unsigned_32 := 2#11011_0#;
-   Size_512MB : constant Unsigned_32 := 2#11100_0#;
-   Size_1GB   : constant Unsigned_32 := 2#11101_0#;
-   Size_2GB   : constant Unsigned_32 := 2#11110_0#;
-   Size_4GB   : constant Unsigned_32 := 2#11111_0#;
+   Size_32B   : constant Unsigned_32 := 2#00100_0#; --  0x04 << 1
+   Size_64B   : constant Unsigned_32 := 2#00101_0#; --  0x05 << 1
+   Size_126B  : constant Unsigned_32 := 2#00110_0#; --  0x06 << 1
+   Size_256B  : constant Unsigned_32 := 2#00111_0#; --  0x07 << 1
+   Size_512B  : constant Unsigned_32 := 2#01000_0#; --  0x08 << 1
+   Size_1kB   : constant Unsigned_32 := 2#01001_0#; --  0x09 << 1
+   Size_2kB   : constant Unsigned_32 := 2#01010_0#; --  0x0A << 1
+   Size_4kB   : constant Unsigned_32 := 2#01011_0#; --  0x0B << 1
+   Size_8kB   : constant Unsigned_32 := 2#01100_0#; --  0x0C << 1
+   Size_16kB  : constant Unsigned_32 := 2#01101_0#; --  0x0D << 1
+   Size_32kB  : constant Unsigned_32 := 2#01110_0#; --  0x0E << 1
+   Size_64kB  : constant Unsigned_32 := 2#01111_0#; --  0x0F << 1
+   Size_128kB : constant Unsigned_32 := 2#10000_0#; --  0x10 << 1
+   Size_256kB : constant Unsigned_32 := 2#10001_0#; --  0x11 << 1
+   Size_512kB : constant Unsigned_32 := 2#10010_0#; --  0x12 << 1
+   Size_1MB   : constant Unsigned_32 := 2#10011_0#; --  0x13 << 1
+   Size_2MB   : constant Unsigned_32 := 2#10100_0#; --  0x14 << 1
+   Size_4MB   : constant Unsigned_32 := 2#10101_0#; --  0x15 << 1
+   Size_8MB   : constant Unsigned_32 := 2#10110_0#; --  0x16 << 1
+   Size_16MB  : constant Unsigned_32 := 2#10111_0#; --  0x17 << 1
+   Size_32MB  : constant Unsigned_32 := 2#11000_0#; --  0x18 << 1
+   Size_64MB  : constant Unsigned_32 := 2#11001_0#; --  0x19 << 1
+   Size_128MB : constant Unsigned_32 := 2#11010_0#; --  0x1A << 1
+   Size_256MB : constant Unsigned_32 := 2#11011_0#; --  0x1B << 1
+   Size_512MB : constant Unsigned_32 := 2#11100_0#; --  0x1C << 1
+   Size_1GB   : constant Unsigned_32 := 2#11101_0#; --  0x1D << 1
+   Size_2GB   : constant Unsigned_32 := 2#11110_0#; --  0x1E << 1
+   Size_4GB   : constant Unsigned_32 := 2#11111_0#; --  0x1F << 1
 
    XN         : constant Unsigned_32 := 16#1000#;
    AP_NA_NA   : constant Unsigned_32 := 16#000#;
@@ -70,18 +70,15 @@ package body Board_Init is
    AP_RO_NA   : constant Unsigned_32 := 16#500#;
    AP_RO_RO   : constant Unsigned_32 := 16#600#;
 
-   STRONGLY_ORDERED : constant Unsigned_32 := 16#00#;
-   SHAREABLE_DEVICE : constant Unsigned_32 := 16#01#;
-   WT_NO_WA         : constant Unsigned_32 := 16#02#;
-   WB_NO_WA         : constant Unsigned_32 := 16#03#;
-   NO_CACHE         : constant Unsigned_32 := 16#08#;
-   WB_WA            : constant Unsigned_32 := 16#0B#;
-   NON_SHAREABLE    : constant Unsigned_32 := 16#10#;
+   STRONGLY_ORDERED : constant Unsigned_32 := 16#00#; --  TEX: 0, C: 0, B: 0
+   SHAREABLE_DEVICE : constant Unsigned_32 := 16#01#; --  TEX: 0, C: 0, B: 1
+   WT_NO_WA         : constant Unsigned_32 := 16#02#; --  TEX: 0, C: 1, B: 0
+   WB_NO_WA         : constant Unsigned_32 := 16#03#; --  TEX: 0, C: 1, B: 1
+   NO_CACHE         : constant Unsigned_32 := 16#08#; --  TEX: 1, C: 0, B: 0
+   WB_WA            : constant Unsigned_32 := 16#0B#; --  TEX: 1, C: 1, B: 1
+   NON_SHAREABLE    : constant Unsigned_32 := 16#10#; --  TEX: 2, C: 0, B: 0
    SHARED           : constant Unsigned_32 := 16#04#;
    pragma Warnings (On, "*is not referenced");
-
-   function SRAM_At_0 return Boolean;
-   pragma Import (Asm, SRAM_At_0, "__gnat_sram_at_0");
 
    procedure System_Init;
    pragma Import (C, System_Init, "__gnat_system_init");
@@ -112,6 +109,150 @@ package body Board_Init is
       --  Set the X bit of the PMCR sys register
       CP15.Set_PMCR (CP15.Get_PMCR or 16#10#);
    end Enable_Event_Bus_Export;
+
+   ---------------
+   -- Setup_MPU --
+   ---------------
+
+   procedure Setup_MPU
+   is
+      function SRAM_At_0 return Boolean;
+      pragma Import (Asm, SRAM_At_0, "__gnat_sram_at_0");
+      --  Whether the SRAM is mapped at 16#0000_0000# or 16#0800_0000#
+
+      function Get_SRAM_Size return Unsigned_32;
+      pragma Import (Asm, Get_SRAM_Size, "__gnat_sram_size");
+      --  Amount of SRAM memory available on the MCU
+
+      SCTLR   : Unsigned_32;
+      MPUIR   : Unsigned_32;
+      Num_Rgn : Unsigned_32;
+      Policy  : constant Unsigned_32 := NO_CACHE;
+
+   begin
+      --  First disable the MPU
+      SCTLR := CP15.Get_SCTLR;
+      if (SCTLR and 1) = 1 then
+         SCTLR := SCTLR and 16#FFFF_FFFE#; --  Clear the MPU Enable bit
+         Barriers.DSB;
+         CP15.Set_SCTLR (SCTLR);
+         Barriers.ISB;
+      end if;
+
+      --  Disable background region for MPU
+      SCTLR := CP15.Get_SCTLR;
+      SCTLR := SCTLR and (not (2 ** 17));
+      CP15.Set_SCTLR (SCTLR);
+
+      --  Now will the MPU table
+
+      MPUIR := CP15.Get_MPUIR;
+      Num_Rgn := Shift_Right (MPUIR and 16#FF00#, 8);
+
+      --  Region 1: background region
+      CP15.Set_MPU_Region_Number (0);
+      CP15.Set_MPU_Region_Base_Address    (16#0000_0000#);
+      CP15.Set_MPU_Region_Size_And_Enable
+        (Shift_Left (16#FF#, 8) or Size_4GB or 1);
+      CP15.Set_MPU_Region_Access_Control  (XN or AP_NA_NA or Policy);
+
+      --  Region 2: FLASH @ 0x0, or SRAM @ 0x0 if mem swapped
+      CP15.Set_MPU_Region_Number (1);
+      CP15.Set_MPU_Region_Base_Address (16#0000_0000#);
+
+      if SRAM_At_0 then
+         declare
+            Size : constant Unsigned_32 := Get_SRAM_Size;
+            Sz   : Unsigned_32;
+         begin
+            --  Supported configurations: 256kB SRAM, 512kB SRAM, or 16MB RAM
+            --  at address 0x0.
+            if Size <= 256 * 1024 then
+               Sz := Size_256kB;
+            elsif Size <= 512 * 1024 then
+               Sz := Size_512kB;
+            else
+               Sz := Size_16MB;
+            end if;
+
+            CP15.Set_MPU_Region_Size_And_Enable (Sz or 1);
+         end;
+
+         CP15.Set_MPU_Region_Access_Control  (AP_RW_RW or Policy);
+      else
+         CP15.Set_MPU_Region_Size_And_Enable (Size_4MB or 1);
+         CP15.Set_MPU_Region_Access_Control  (AP_RO_RO or Policy);
+      end if;
+
+      --  Region 3: SRAM @ 0x0800_0000 or FLASH is mem swapped
+      CP15.Set_MPU_Region_Number (2);
+      CP15.Set_MPU_Region_Base_Address (16#0800_0000#);
+      if SRAM_At_0 then
+         --  FLASH Region
+         --  Only 512kB of FLASH is accessible in this case
+         CP15.Set_MPU_Region_Size_And_Enable (Size_512kB or 1);
+         CP15.Set_MPU_Region_Access_Control  (AP_RO_RO or Policy);
+      else
+         CP15.Set_MPU_Region_Size_And_Enable (Size_512kB or 1);
+         CP15.Set_MPU_Region_Access_Control  (AP_RW_RW or Policy);
+      end if;
+
+      --  Region 4: Async RAM
+      CP15.Set_MPU_Region_Number (3);
+      CP15.Set_MPU_Region_Base_Address    (16#6000_0000#);
+      CP15.Set_MPU_Region_Size_And_Enable (Size_64MB or 1);
+      CP15.Set_MPU_Region_Access_Control  (AP_RW_RW or STRONGLY_ORDERED);
+
+      --  Region 5: SDRAM
+      CP15.Set_MPU_Region_Number (4);
+      CP15.Set_MPU_Region_Base_Address    (16#8000_0000#);
+      CP15.Set_MPU_Region_Size_And_Enable (Size_128MB or 1);
+      CP15.Set_MPU_Region_Access_Control  (AP_RW_RW or Policy or SHARED);
+
+      --  Region 6: 6MB Flash OTP, ECC, EEPROM Bank
+      CP15.Set_MPU_Region_Number (5);
+      CP15.Set_MPU_Region_Base_Address    (16#F000_0000#);
+      --  Disable sub-regions 7 and 8
+      CP15.Set_MPU_Region_Size_And_Enable (16#C000# or Size_8MB or 1);
+      CP15.Set_MPU_Region_Access_Control  (XN or AP_RW_RW or NO_CACHE);
+
+      --  Region 7: 16MB peripheral segment 2
+      CP15.Set_MPU_Region_Number (6);
+      CP15.Set_MPU_Region_Base_Address    (16#F000_0000#);
+      CP15.Set_MPU_Region_Size_And_Enable (Size_16MB or 1);
+      CP15.Set_MPU_Region_Access_Control  (XN or AP_RW_RW or NON_SHAREABLE);
+
+      --  Region 8: 512B accessible CRC module
+      CP15.Set_MPU_Region_Number (7);
+      CP15.Set_MPU_Region_Base_Address    (16#FE00_0000#);
+      CP15.Set_MPU_Region_Size_And_Enable (Size_512B or 1);
+      CP15.Set_MPU_Region_Access_Control  (XN or AP_RW_RW or NON_SHAREABLE);
+
+      --  Region 9: 16MB peripheral segment 3, including sys regs
+      CP15.Set_MPU_Region_Number (8);
+      CP15.Set_MPU_Region_Base_Address    (16#FF00_0000#);
+      CP15.Set_MPU_Region_Size_And_Enable (Size_16MB or 1);
+      CP15.Set_MPU_Region_Access_Control  (XN or AP_RW_RW or NON_SHAREABLE);
+
+      --  Disable the unused regions
+      for J in 9 .. Num_Rgn loop
+         CP15.Set_MPU_Region_Number (J);
+         CP15.Set_MPU_Region_Base_Address    (16#0000_0000#);
+         CP15.Set_MPU_Region_Size_And_Enable (Size_32B or 0);
+         CP15.Set_MPU_Region_Access_Control  (XN);
+      end loop;
+
+      --  Enable background region for MPU
+      SCTLR := CP15.Get_SCTLR;
+      SCTLR := SCTLR or (2 ** 17);
+      CP15.Set_SCTLR (SCTLR);
+
+      --  Enable the MPU
+      SCTLR := CP15.Get_SCTLR;
+      SCTLR := SCTLR or 1;
+      CP15.Set_SCTLR (SCTLR);
+      Barriers.ISB;
+   end Setup_MPU;
 
    ----------------
    -- Enable_ECC --
@@ -162,139 +303,6 @@ package body Board_Init is
       Barriers.ISB;
    end Enable_ECC;
 
-   ---------------
-   -- Setup_MPU --
-   ---------------
-
-   procedure Setup_MPU
-   is
-      SCTLR : Unsigned_32;
-
-   begin
-      --  First disable the MPU
-      SCTLR := CP15.Get_SCTLR;
-      if (SCTLR and 1) = 1 then
-         SCTLR := SCTLR and 16#FFFF_FFFE#; --  Clear the MPU Enable bit
-         Barriers.DSB;
-         CP15.Set_SCTLR (SCTLR);
-         Barriers.ISB;
-      end if;
-
-      --  Disable background region for MPU
-      SCTLR := CP15.Get_SCTLR;
-      SCTLR := SCTLR and (not (2 ** 17));
-      CP15.Set_SCTLR (SCTLR);
-
-      --  Now will the MPU table
-
-      --  Region 1: background region
-      CP15.Set_MPU_Region_Number (0);
-      CP15.Set_MPU_Region_Base_Address    (16#0000_0000#);
-      CP15.Set_MPU_Region_Size_And_Enable
-        (Shift_Left (16#FF#, 8) or Size_4GB or 1);
-      CP15.Set_MPU_Region_Access_Control  (XN or AP_NA_NA or WT_NO_WA);
-
-      --  Region 2: FLASH @ 0x0, or SRAM @ 0x0 if mem swapped
-      CP15.Set_MPU_Region_Number (1);
-      CP15.Set_MPU_Region_Base_Address (16#0000_0000#);
-
-      if SRAM_At_0 then
-         declare
-            function Get_SRAM_Size return Unsigned_32;
-            pragma Import (Asm, Get_SRAM_Size, "__gnat_sram_size");
-
-            Size : constant Unsigned_32 := Get_SRAM_Size;
-            Sz   : Unsigned_32;
-         begin
-            --  Supported configurations: 256kB SRAM, 512kB SRAM, or 16MB RAM
-            --  at address 0x0.
-            if Size <= 256 * 1024 then
-               Sz := Size_256kB;
-            elsif Size <= 512 * 1024 then
-               Sz := Size_512kB;
-            else
-               Sz := Size_16MB;
-            end if;
-
-            CP15.Set_MPU_Region_Size_And_Enable (Sz or 1);
-         end;
-
-         CP15.Set_MPU_Region_Access_Control  (AP_RW_RW or WT_NO_WA);
-      else
-         CP15.Set_MPU_Region_Size_And_Enable (Size_4MB or 1);
-         CP15.Set_MPU_Region_Access_Control  (AP_RO_RO or WT_NO_WA);
-      end if;
-
-      --  Region 3: SRAM @ 0x0800_0000 or FLASH is mem swapped
-      CP15.Set_MPU_Region_Number (2);
-      CP15.Set_MPU_Region_Base_Address (16#0800_0000#);
-      if SRAM_At_0 then
-         --  FLASH Region
-         --  Only 512kB of FLASH is accessible in this case
-         CP15.Set_MPU_Region_Size_And_Enable (Size_512kB or 1);
-         CP15.Set_MPU_Region_Access_Control  (AP_RO_RO or WT_NO_WA);
-      else
-         CP15.Set_MPU_Region_Size_And_Enable (Size_512kB or 1);
-         CP15.Set_MPU_Region_Access_Control  (AP_RW_RW or WT_NO_WA);
-      end if;
-
-      --  Region 4: Async RAM
-      CP15.Set_MPU_Region_Number (3);
-      CP15.Set_MPU_Region_Base_Address    (16#6000_0000#);
-      CP15.Set_MPU_Region_Size_And_Enable (Size_64MB or 1);
-      CP15.Set_MPU_Region_Access_Control  (AP_RW_RW or STRONGLY_ORDERED);
-
-      --  Region 5: SDRAM
-      CP15.Set_MPU_Region_Number (4);
-      CP15.Set_MPU_Region_Base_Address    (16#8000_0000#);
-      CP15.Set_MPU_Region_Size_And_Enable (Size_128MB or 1);
-      CP15.Set_MPU_Region_Access_Control  (AP_RW_RW or WT_NO_WA or SHARED);
-
-      --  Region 6: 6MB Flash OTP, ECC, EEPROM Bank
-      CP15.Set_MPU_Region_Number (5);
-      CP15.Set_MPU_Region_Base_Address    (16#F000_0000#);
-      --  Disable sub-regions 7 and 8
-      CP15.Set_MPU_Region_Size_And_Enable (16#C000# or Size_8MB or 1);
-      CP15.Set_MPU_Region_Access_Control  (XN or AP_RW_RW or NO_CACHE);
-
-      --  Region 7: 16MB peripheral segment 2
-      CP15.Set_MPU_Region_Number (6);
-      CP15.Set_MPU_Region_Base_Address    (16#F000_0000#);
-      CP15.Set_MPU_Region_Size_And_Enable (Size_16MB or 1);
-      CP15.Set_MPU_Region_Access_Control  (XN or AP_RW_RW or NON_SHAREABLE);
-
-      --  Region 8: 512B accessible CRC module
-      CP15.Set_MPU_Region_Number (7);
-      CP15.Set_MPU_Region_Base_Address    (16#FE00_0000#);
-      CP15.Set_MPU_Region_Size_And_Enable (Size_512B or 1);
-      CP15.Set_MPU_Region_Access_Control  (XN or AP_RW_RW or NON_SHAREABLE);
-
-      --  Region 9: 16MB peripheral segment 3, including sys regs
-      CP15.Set_MPU_Region_Number (7);
-      CP15.Set_MPU_Region_Base_Address    (16#FF00_0000#);
-      CP15.Set_MPU_Region_Size_And_Enable (Size_16MB or 1);
-      CP15.Set_MPU_Region_Access_Control  (XN or AP_RW_RW or NON_SHAREABLE);
-
-      --  Disable the unused regions
-      for J in Unsigned_32 (8) .. 15 loop
-         CP15.Set_MPU_Region_Number (J);
-         CP15.Set_MPU_Region_Base_Address    (16#0000_0000#);
-         CP15.Set_MPU_Region_Size_And_Enable (Size_32B or 0);
-         CP15.Set_MPU_Region_Access_Control  (XN);
-      end loop;
-
-      --  Enable background region for MPU
-      SCTLR := CP15.Get_SCTLR;
-      SCTLR := SCTLR or (2 ** 17);
-      CP15.Set_SCTLR (SCTLR);
-
-      --  Enable the MPU
-      SCTLR := CP15.Get_SCTLR;
-      SCTLR := SCTLR or 1;
-      CP15.Set_SCTLR (SCTLR);
-      Barriers.ISB;
-   end Setup_MPU;
-
    ------------------
    -- Enable_Cache --
    ------------------
@@ -313,7 +321,9 @@ package body Board_Init is
       SCTLR := SCTLR or (2 ** 2) or (2 ** 12); --  resp D and I bits
       Barriers.DSB;
       Cache.Invalidate_DCache;
+      Barriers.DSB;
       Cache.Invalidate_ICache;
+      Barriers.DSB;
       CP15.Set_SCTLR (SCTLR);
       Barriers.ISB;
    end Enable_Cache;
@@ -328,7 +338,12 @@ package body Board_Init is
         with Volatile, Import, Address => System'To_Address (16#FFFF_FFe4#);
    begin
       --  Check reset condition at startup
-      if (SYSESR and 16#8800#) /= 0 then
+      if SYSESR = 0 then
+         --  Reset condition is 0: the boot has already been taken care of, so
+         --  let's just return.
+         return;
+
+      elsif (SYSESR and 16#8800#) /= 0 then
          --  Power-on reset or Debug reset:
 
          --  do a full system init first
@@ -352,7 +367,6 @@ package body Board_Init is
          --  not changed after a CPU reset
 
          SYSESR := 16#20#;
-
       end if;
 
       Setup_MPU;

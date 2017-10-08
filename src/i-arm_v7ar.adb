@@ -122,6 +122,20 @@ package body Interfaces.ARM_V7AR is
               Volatile => True);
       end Set_ACTLR;
 
+      ---------------
+      -- Get_MPUIR --
+      ---------------
+
+      function Get_MPUIR return Unsigned_32
+      is
+         Res : Unsigned_32;
+      begin
+         Asm ("mrc p15,#0,%0,c0,c0,#4",
+              Outputs => Unsigned_32'Asm_Output ("=r", Res),
+              Volatile => True);
+         return Res;
+      end Get_MPUIR;
+
       ---------------------------------
       -- Get_MPU_Region_Base_Address --
       ---------------------------------
