@@ -291,7 +291,7 @@ class Target(TargetConfiguration, BSP):
         blank = indent * ' '
         ret += blank + \
             'for Required_Switches use Linker\'Required_Switches &\n'
-        ret += blank + '  ("-L${RUNTIME_DIR(ada)}/adalib",\n'
+        ret += blank + '  ("-Wl,-L${RUNTIME_DIR(ada)}/adalib",\n'
         indent = 9
         blank = indent * ' '
 
@@ -299,7 +299,7 @@ class Target(TargetConfiguration, BSP):
         if rts.rts_vars['RTS_Profile'] != "ravenscar-full":
             ret += ', "-nolibc"'
         else:
-            ret += ', "-lgnat", "-lc", "-lgnat", "-lgcc"'
+            ret += (', "-Wl,-u,abort", "-lgnat", "-lc", "-lgnat"')
 
         if len(self.ld_scripts) > 0:
             ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld"'
