@@ -133,11 +133,12 @@ __gnat_init:
         /* 4. Board initialisation                   */
         /*********************************************/
 
-        /* See init.adb */
+        /* See board_init.adb */
         bl __gnat_board_init
 
 	/* Call the main routine */
  	bl      main
+
         /* reboot the board if main would return */
         bl      __exit
 
@@ -163,41 +164,6 @@ __exit:
 	b	__exit
         .size   __exit, . - __exit
 
-
-        /*********************************************************************
-         * __gnat_sram_at_0                                                  *
-         *                                                                   *
-         * tell is the SRAM is mapped at 0x0                                 *
-         * This is indicated by the linker script symbol __gnat_ram_start    *
-         *********************************************************************/
-        .globl __gnat_sram_at_0
-        .type  __gnat_sram_at_0, %function
-__gnat_sram_at_0:
-        ldr    r0, =__gnat_ram_start
-        cmp    r0, #0
-        beq    1f
-        mov    r0, #0
-        bx     lr
-1:
-        mov    r0, #1
-        bx     lr
-        .size  __gnat_sram_at_0, . - __gnat_sram_at_0
-
-        /*********************************************************************
-         * __gnat_sram_size                                                  *
-         *                                                                   *
-         * tells the RAM size                                                *
-         * This is indicated by the linker script symbol __gnat_ram_start    *
-         * and __gnat_ram_end                                                *
-         *********************************************************************/
-        .globl __gnat_sram_size
-        .type  __gnat_sram_size, %function
-__gnat_sram_size:
-        ldr     r0, =__gnat_ram_start
-        ldr     r1, =__gnat_ram_end
-        sub     r0, r1, r0
-        bx     lr
-        .size  __gnat_sram_size, . - __gnat_sram_size
 
         /*********************************************************************
          * __gnat_init_cpu                                                   *
@@ -317,51 +283,3 @@ fiqSp:          .word __fiq_stack_end
 irqSp:          .word __irq_stack_end
 userSp:         .word __stack_end
         .size   __gnat_init_cpu, . - __gnat_init_cpu
-
-
-        /*********************************************************************
-         * _esmCcmErrorsClear_:                                              *
-         *                                                                   *
-         * Clear ESM Group2 Channel 2 error in ESMSR2 and Compare error in   *
-         * CCMSR register.                                                   *
-         *********************************************************************/
-_esmCcmErrorsClear_:
-        ldr   r0, ESMSR1_REG     // load the ESMSR1 status register address
-        ldr   r2, ESMSR1_ERR_CLR
-        str       r2, [r0]       // clear the ESMSR1 register
-
-        ldr   r0, ESMSR2_REG     // load the ESMSR2 status register address
-        ldr   r2, ESMSR2_ERR_CLR
-        str       r2, [r0]       // clear the ESMSR2 register
-
-        ldr   r0, ESMSSR2_REG    // load the ESMSSR2 status register address
-        ldr   r2, ESMSSR2_ERR_CLR
-        str       r2, [r0]       // clear the ESMSSR2 register
-
-        ldr   r0, ESMKEY_REG     // load the ESMKEY register address
-        mov       r2, #0x5
-        str       r2, [r0]       // clear the ESMKEY register
-
-        ldr   r0, VIM_INTREQ     // load the INTREQ register address
-        ldr   r2, VIM_INT_CLR
-        str       r2, [r0]       // clear the INTREQ register
-
-        ldr   r0, CCMR4_STAT_REG // load the CCMR4 status register address
-        ldr   r2, CCMR4_ERR_CLR
-        str       r2, [r0]       // clear the CCMR4 status register
-        bx    lr
-
-ESMSR1_REG:      .word  0xFFFFF518
-ESMSR2_REG:      .word  0xFFFFF51C
-ESMSR3_REG:      .word  0xFFFFF520
-ESMKEY_REG:      .word  0xFFFFF538
-ESMSSR2_REG:     .word  0xFFFFF53C
-CCMR4_STAT_REG:  .word  0xFFFFF600
-ERR_CLR_WRD:     .word  0xFFFFFFFF
-CCMR4_ERR_CLR:   .word  0x00010000
-ESMSR1_ERR_CLR:  .word  0x80000000
-ESMSR2_ERR_CLR:  .word  0x00000004
-ESMSSR2_ERR_CLR: .word  0x00000004
-VIM_INT_CLR:     .word  0x00000001
-VIM_INTREQ:      .word  0xFFFFFE20
-        .size _esmCcmErrorsClear_, . - _esmCcmErrorsClear_

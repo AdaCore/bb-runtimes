@@ -25,9 +25,10 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Interfaces;          use Interfaces;
-with Interfaces.ARM_V7AR; use Interfaces.ARM_V7AR;
-with System;
+with Ada.Unchecked_Conversion;
+with Interfaces;              use Interfaces;
+with Interfaces.ARM_V7AR;     use Interfaces.ARM_V7AR;
+with System;                  use System;
 
 package body Board_Init is
 
@@ -116,13 +117,20 @@ package body Board_Init is
 
    procedure Setup_MPU
    is
-      function SRAM_At_0 return Boolean;
-      pragma Import (Asm, SRAM_At_0, "__gnat_sram_at_0");
-      --  Whether the SRAM is mapped at 16#0000_0000# or 16#0800_0000#
+      SRAM_Start : Character;
+      pragma Import (Asm, SRAM_Start, "__gnat_ram_start");
+      SRAM_End : Character;
+      pragma Import (Asm, SRAM_End, "__gnat_ram_end");
 
-      function Get_SRAM_Size return Unsigned_32;
-      pragma Import (Asm, Get_SRAM_Size, "__gnat_sram_size");
-      --  Amount of SRAM memory available on the MCU
+      function As_Int is new Ada.Unchecked_Conversion
+        (System.Address, Unsigned_32);
+
+      SRAM_At_0 : constant Boolean := SRAM_Start'Address = System.Null_Address;
+
+      SRAM_Size : constant Unsigned_32 :=
+                    As_Int (SRAM_End'Address) - As_Int (SRAM_Start'Address);
+      --  Cannot use System.Storage_Elements.Storage_Count here as
+      --  System.Storage_Elements does not declare No_Elaboration_Code_All
 
       SCTLR   : Unsigned_32;
       MPUIR   : Unsigned_32;
@@ -162,14 +170,13 @@ package body Board_Init is
 
       if SRAM_At_0 then
          declare
-            Size : constant Unsigned_32 := Get_SRAM_Size;
             Sz   : Unsigned_32;
          begin
             --  Supported configurations: 256kB SRAM, 512kB SRAM, or 16MB RAM
             --  at address 0x0.
-            if Size <= 256 * 1024 then
+            if SRAM_Size <= 256 * 1024 then
                Sz := Size_256kB;
-            elsif Size <= 512 * 1024 then
+            elsif SRAM_Size <= 512 * 1024 then
                Sz := Size_512kB;
             else
                Sz := Size_16MB;
@@ -179,6 +186,7 @@ package body Board_Init is
          end;
 
          CP15.Set_MPU_Region_Access_Control  (AP_RW_RW or Policy);
+
       else
          CP15.Set_MPU_Region_Size_And_Enable (Size_4MB or 1);
          CP15.Set_MPU_Region_Access_Control  (AP_RO_RO or Policy);
@@ -187,13 +195,27 @@ package body Board_Init is
       --  Region 3: SRAM @ 0x0800_0000 or FLASH is mem swapped
       CP15.Set_MPU_Region_Number (2);
       CP15.Set_MPU_Region_Base_Address (16#0800_0000#);
+
       if SRAM_At_0 then
          --  FLASH Region
          --  Only 512kB of FLASH is accessible in this case
          CP15.Set_MPU_Region_Size_And_Enable (Size_512kB or 1);
          CP15.Set_MPU_Region_Access_Control  (AP_RO_RO or Policy);
+
       else
-         CP15.Set_MPU_Region_Size_And_Enable (Size_512kB or 1);
+         declare
+            Sz   : Unsigned_32;
+         begin
+            --  Supported configurations: 256kB or 512kB SRAM.
+            if SRAM_Size <= 256 * 1024 then
+               Sz := Size_256kB;
+            else
+               Sz := Size_512kB;
+            end if;
+
+            CP15.Set_MPU_Region_Size_And_Enable (Sz or 1);
+         end;
+
          CP15.Set_MPU_Region_Access_Control  (AP_RW_RW or Policy);
       end if;
 

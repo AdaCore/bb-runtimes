@@ -13,7 +13,7 @@ abstract project Target_Options is
      COMFLAGS := ("{common_flags}");
 
      --  Per language flags (COMFLAGS will be added later)
-     ADAFLAGS := ("-gnatg", "-nostdinc");
+     ADAFLAGS := ("-gnatg", "-nostdinc", "-fno-delete-null-pointer-checks");
      ASMFLAGS := ("{asm_flags}");
      CFLAGS := ("{c_flags}", "-Werror", "-Wall");
      case Build is
