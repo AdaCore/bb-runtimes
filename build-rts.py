@@ -234,7 +234,11 @@ def main():
 
     # figure out the target, if just one target is used
     target = boards[0].target
+    if target is None:
+        target = "native"
     for board in boards:
+        if board.target is None and target == "native":
+            continue
         if board.target != target:
             target = None
 
