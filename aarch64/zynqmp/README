@@ -27,6 +27,8 @@ Resources used by the runtime:
 Memory mapping:
 ---------------
 
+.. code-block:: xml
+
   <!-- DDR, 2GB -->
   <region access="rwx---" cache="wb"
 	  virt="0x00000000" size="0x80000000" name="ram"/>

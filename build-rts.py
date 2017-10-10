@@ -9,6 +9,7 @@
 
 from support.files_holder import FilesHolder
 from support.rts_sources import SourceDirs
+from support.docgen import docgen
 
 # PikeOS
 from pikeos import ArmPikeOS, PpcPikeOS, X86PikeOS
@@ -126,6 +127,7 @@ def usage():
     print "Options are:"
     print " -v --verbose      be verbose"
     print " --bsps-only       generate only the BSPs"
+    print " --gen-doc         generate the runtime documentation"
     print " --output=DIR      where to generate the source tree"
     print " --prefix=DIR      where built rts will be installed."
     print " --gcc-dir=DIR     gcc source directory"
@@ -157,11 +159,12 @@ def main():
     prefix = None
     experimental = False
     gen_rts_srcs = True
+    gen_doc = False
 
     try:
         opts, args = getopt.getopt(
             sys.argv[1:], "hvl",
-            ["help", "verbose", "bsps-only",
+            ["help", "verbose", "bsps-only", "gen-doc",
              "output=", "output-bsps=", "output-prjs=", "output-srcs=",
              "prefix=", "experimental",
              "gcc-dir=", "gnat-dir=",
@@ -195,6 +198,8 @@ def main():
             prefix = arg
         elif opt == "--bsps-only":
             gen_rts_srcs = False
+        elif opt == "--gen-doc":
+            gen_doc = True
         elif opt == "--experimental":
             experimental = True
         else:
@@ -227,6 +232,17 @@ def main():
     for board in boards:
         board.install(dest_bsps, prefix, experimental)
 
+    # figure out the target, if just one target is used
+    target = boards[0].target
+    for board in boards:
+        if board.target != target:
+            target = None
+
+    # README file generation
+    if gen_doc:
+        doc_dir = os.path.join(dest, 'doc')
+        docgen(boards, target, doc_dir)
+
     # post-processing, install ada_object_path and ada_source_path to be
     # installed in all runtimes by gprinstall
     bsp_support = os.path.join(dest_bsps, 'support')
@@ -238,7 +254,8 @@ def main():
             fp.write('adalib\n')
 
     if gen_rts_srcs:
-        target = boards[0].target
+        assert target is not None, \
+            "cannot generate rts sources for mixed cross compilers"
         is_pikeos = target is not None and 'pikeos' in target
 
         # determining what runtime sources we need:
@@ -253,9 +270,6 @@ def main():
             rts_profile = 'zfp'
 
         for board in boards:
-            assert board.target == target, \
-                "cannot generate rts sources for mixed targets: %s <> %s" % (
-                    target, board.target)
             if not is_pikeos and board.full_system_ads is not None:
                 rts_profile = 'ravenscar-full'
             elif rts_profile == 'zfp' and board.sfp_system_ads is not None:

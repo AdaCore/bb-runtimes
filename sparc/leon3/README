@@ -1,71 +1,79 @@
 Leon3 Runtimes
---------------
+==============
 
 Runtimes Supported
+------------------
 
-   ZFP
-   Ravenscar-SFP
-   Ravenscar-Full
+* ZFP
+* Ravenscar-SFP (UP & SMP variants)
+* Ravenscar-Full (UP & SMP variants)
 
 Targets Supported
+-----------------
 
-   The runtime was built and tested on an UT699 compatible board using
-   a 40MHz clock.    
+The runtime was built and tested on an UT699 compatible board using
+a 40MHz clock.
 
 System Clocks
+-------------
 
-   See package System.BB.Board_Parameters (s-bbbopa.ads) for the clock 
-   frequency declaration. The value of the minimum prescaler is declared
-   there as well.
+See package System.BB.Board_Parameters (`s-bbbopa.ads`) for the clock
+frequency declaration. The value of the minimum prescaler is declared
+there as well.
 
-   The runtime uses timer 1 and timer 2 for the clock and for the delays. 
-   The address of the timers unit is specified in package 
-   System.BB.Board_Parameters (s-bbbopa.ads). 
+The runtime uses timer 1 and timer 2 for the clock and for the delays.
+The address of the timers unit is specified in package
+System.BB.Board_Parameters (`s-bbbopa.ads`).
 
-   In an SMP configuration the first CPU handles all clock interrupts.
-   See the package body of System.BB.Board_Support (s-bbbosu.adb).
+In an SMP configuration the first CPU handles all clock interrupts.
+See the package body of System.BB.Board_Support (`s-bbbosu.adb`).
 
 Startup Code
+------------
 
-   There is one assembly language file for the startup code, hw_init.S,
-   located in the bsp directory. It defines the symbol "__gnat_hw_initialize"
-   but otherwise does nothing. User specific hardware initialization can be
-   performed before elaboration of Ada code via this file.
+There is one assembly language file for the startup code, `hw_init.S`,
+located in the bsp directory. It defines the symbol "__gnat_hw_initialize"
+but otherwise does nothing. User specific hardware initialization can be
+performed before elaboration of Ada code via this file.
 
-   The assembly file crt0.S contains the trap table and start up code for
-   the multitasking executive.
+The assembly file crt0.S contains the trap table and start up code for
+the multitasking executive.
 
-   The number of CPUs is specified in package System.BB.Board_Parameters 
-   (s-bbbopa.ads). The runtime is SMP if there are at least two CPUs. 
-   Configuration of the CPUs is done in the body of package 
-   System.BB.Board_Support (s-bbbosu.adb). 
+The number of CPUs is specified in package System.BB.Board_Parameters
+(`s-bbbopa.ads`).
+
+Configuration of the CPUs is done in the body of package
+System.BB.Board_Support (`s-bbbosu.adb`).
 
 Interrupts
+----------
 
-   The package Ada.Interrupts.Names (a-intnam.ads) defines the interrupt names
-   and may need to be changed for your board.
+The package Ada.Interrupts.Names (`a-intnam.ads`) defines the interrupt names
+and may need to be changed for your board.
 
-   The address of the interrupt controler used for timers interrupts and 
-   for user interrupt handlers is specified in package 
-   System.BB.Board_Parameters (s-bbbopa.ads). 
+The address of the interrupt controler used for timers interrupts and
+for user interrupt handlers is specified in package
+System.BB.Board_Parameters (`s-bbbopa.ads`).
 
-   See the package body of System.BB.Board_Support (s-bbbosu.adb) for 
-   board configuration for interrupts. 
+See the package body of System.BB.Board_Support (`s-bbbosu.adb`) for
+board configuration for interrupts.
 
-   Interrupts are not unmasked when attached, so the user has to manually
-   unmask them. This will also specify which CPU the interrupt is 
-   delivered to.
+Interrupts are not unmasked when attached, so the user has to manually
+unmask them. This will also specify which CPU the interrupt is
+delivered to.
 
 Memory Layout
+-------------
 
-   The memory layout is controlled by the leon.ld linker script. The script
-   to be applied can be overridden with the LDSCRIPT scenario variable. 
+The memory layout is controlled by the `leon.ld` linker script. The script
+to be applied can be overridden with the LDSCRIPT scenario variable.
 
 Resources Used
+--------------
 
-   The runtime libraries provide a minimal version of package Ada.Text_IO 
-   supporting character- and string-based input and output routines. The 
-   bodies of the Ada.Text_IO routines call through to a device-specific I/O 
-   package named System.Text_IO. See the package body in the file 
-   s-textio.adb. The address of the uart used by the console (and Ada.Text_IO)
-   is specified in package System.BB.Board_Parameters (s-bbbopa.ads).
+The runtime libraries provide a minimal version of package Ada.Text_IO
+supporting character- and string-based input and output routines. The
+bodies of the Ada.Text_IO routines call through to a device-specific I/O
+package named System.Text_IO. See the package body in the file
+s-textio.adb. The address of the uart used by the console (and Ada.Text_IO)
+is specified in package System.BB.Board_Parameters (`s-bbbopa.ads`).

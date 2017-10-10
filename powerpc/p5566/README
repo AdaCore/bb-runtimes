@@ -1,92 +1,99 @@
-PowerPC Runtimes
--------------
+MPC5566 Runtimes
+================
 
 Runtimes Supported
+------------------
 
-   ZFP
-   Ravenscar-SFP
-   Ravenscar-Full
+* ZFP
+* Ravenscar-SFP
+* Ravenscar-Full
 
 Targets Supported
+-----------------
 
-   NXP MPC5566 Power Architecture e200z6 core (but upwards-compatible with 
-   the e500 series) 
+NXP MPC5566 Power Architecture e200z6 core (but upwards-compatible with
+the e500 series)
 
 System Clocks
+-------------
 
-   See package System.BB.Board_Parameters (s-bbbopa.ads) in the gnat 
-   directory for the clock frequency declaration. 
+See package System.BB.Board_Parameters (`s-bbbopa.ads`) in the gnat
+directory for the clock frequency declaration.
 
 Startup Code
+------------
 
-   There are three assembly language files for the startup code, one each 
-   for executing from RAM, BAM (the boot assist module), or FLASH. These 
-   are start-ram.S, start-bam.S, and start-flash.S respectively. 
-   
-   Selection of the startup code is controlled indirectly by a scenario 
-   variable named "Loader." This scenario variable is declared in an xml 
-   file (runtime.xml) read by gprbuild automatically and used to specify 
-   linker switches and scripts. These linker scripts select the startup 
-   code by specifying the entry point using the names defined in the 
-   assembly files. 
+There are three assembly language files for the startup code, one each
+for executing from RAM, BAM (the boot assist module), or FLASH. These
+are `start-ram.S`, `start-bam.S`, and `start-flash.S` respectively.
 
-   The assembly file setup.S is called by these three assembly files above 
-   to enable the SPE and the overflow, division by zero, and invalid 
-   exceptions. 
+Selection of the startup code is controlled indirectly by a scenario
+variable named "Loader." This scenario variable is declared in an xml
+file (runtime.xml) read by gprbuild automatically and used to specify
+linker switches and scripts. These linker scripts select the startup
+code by specifying the entry point using the names defined in the
+assembly files.
 
-   Another assembly file, setup_pll.S, is called by start-bam.S and 
-   start-flash.S to configure the PLL. 
+The assembly file `setup.S` is called by these three assembly files above
+to enable the SPE and the overflow, division by zero, and invalid
+exceptions.
 
-   Note that the body of package System.Machine_Reset is in 
-   gnat/s-macres.adb. 
+Another assembly file, `setup_pll.S`, is called by `start-bam.S` and
+`start-flash.S` to configure the PLL.
+
+Note that the body of package System.Machine_Reset is in
+`gnat/s-macres.adb`.
 
 Interrupts
+----------
 
-   The package Ada.Interrupts.Names is located in the gnat directory 
-   (gnat/a-intnam.ads). 
+The package Ada.Interrupts.Names is located in the gnat directory
+(`gnat/a-intnam.ads`).
 
-   See the package body for System.BB.Board_Support (s-bbbosu.adb) in the 
-   gnat directory for board configuration for interrupts. 
+See the package body for System.BB.Board_Support (`s-bbbosu.adb`) in the
+gnat directory for board configuration for interrupts.
 
-   See package System.BB.Parameters (gnat/s-bbpara.ads) for the number of 
-   interrupts defined. The runtime supports at most 128 interrupts external 
-   interrupts and 8 non external. If you have more interrupts, you need to 
-   change the values used in the declaration of subtype Interrupt_Range in 
-   that package. 
+See package System.BB.Parameters (`gnat/s-bbpara.ads`) for the number of
+interrupts defined. The runtime supports at most 128 interrupts external
+interrupts and 8 non external. If you have more interrupts, you need to
+change the values used in the declaration of subtype Interrupt_Range in
+that package.
 
 Memory Layout
+-------------
 
-   The memory layout is controlled by the scenario variable named "Loader" 
-   described above that specifies linker switches and scripts. These 
-   scripts, located in the ld/ directory, specify the layout corresponding 
-   to the scenario value, as follows: 
+The memory layout is controlled by the scenario variable named "Loader"
+described above that specifies linker switches and scripts. These
+scripts, located in the ld/ directory, specify the layout corresponding
+to the scenario value, as follows:
 
-   EXTRAM : ram.ld
-   BAM    : bam.ld
-   FLASH  : flash.ld
+* EXTRAM : `ram.ld`
+* BAM    : `bam.ld`
+* FLASH  : `flash.ld`
 
-   The default is EXTRAM.
+The default is EXTRAM.
 
 Resources Used
+--------------
 
-   The Ravenscar runtime libraries use the time base and decrementer core 
-   registers to implement Ada semantics for time, i.e., delay statements 
-   and package Ada.Real_Time. See the package body for 
-   System.BB.Board_Support in the file gnat/s-bbsuti.adb. Note that these 
-   registers are 32-bits wide, so although the underlying time base value 
-   is 64-bits, the value must be read in two separate instructions, that 
-   is, non-atomically, and then combined. This results in the possibility 
-   of a race condition in which the upper half changes after being read, 
-   apart from when the lower half is read. To deal with that race condition 
-   a loop is used, but note that this requires multiple reads of the two 
-   registers. See function Read_Clock in that package for the loop. 
+The Ravenscar runtime libraries use the time base and decrementer core
+registers to implement Ada semantics for time, i.e., delay statements
+and package Ada.Real_Time. See the package body for
+System.BB.Board_Support in the file `gnat/s-bbsuti.adb`. Note that these
+registers are 32-bits wide, so although the underlying time base value
+is 64-bits, the value must be read in two separate instructions, that
+is, non-atomically, and then combined. This results in the possibility
+of a race condition in which the upper half changes after being read,
+apart from when the lower half is read. To deal with that race condition
+a loop is used, but note that this requires multiple reads of the two
+registers. See function Read_Clock in that package for the loop.
 
-   The runtime libraries provide a minimal version of package Ada.Text_IO 
-   supporting character- and string-based input and output routines. The 
-   bodies of the Ada.Text_IO routines call through to a device-specific I/O 
-   package named System.Text_IO. See the package body in the file 
-   s-textio.adb in the gnat directory. The default console is available via 
-   the enhanced serial communication interface (eSCI) module A, with line 
-   configuration (baud rate etc.) set to one start bit, eight data bits, no 
-   parity and one stop bit, and a baud rate equal to the system clock 
-   frequency divided by 1250. 
+The runtime libraries provide a minimal version of package Ada.Text_IO
+supporting character- and string-based input and output routines. The
+bodies of the Ada.Text_IO routines call through to a device-specific I/O
+package named System.Text_IO. See the package body in the file
+s-textio.adb in the gnat directory. The default console is available via
+the enhanced serial communication interface (eSCI) module A, with line
+configuration (baud rate etc.) set to one start bit, eight data bits, no
+parity and one stop bit, and a baud rate equal to the system clock
+frequency divided by 1250.

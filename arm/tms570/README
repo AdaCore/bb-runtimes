@@ -1,64 +1,84 @@
 ARM TMS570 Runtimes
--------------------
+===================
 
 Runtimes Supported
+------------------
 
-   ZFP
-   Ravenscar-SFP
-   Ravenscar-Full
+* ZFP
+* Ravenscar-SFP
+* Ravenscar-Full
 
 Targets Supported
+-----------------
 
-   Hercules TMS570LS31x (Cortex-R4F)
-   Hercules TMS570LC43x (Cortex-R5)
+* Hercules TMS570LS31x (Cortex-R4F)
+* Hercules TMS570LC43x (Cortex-R5)
 
 Resources Used
+--------------
 
-   The Ravenscar runtime libraries use RTI_Compare_Interrupt_3 interrupt to
-   implement Ada semantics for time, i.e., delay statements and package
-   Ada.Real_Time. See the package body for System.BB.Board_Support in the file
-   s-bbbosu.adb.
+Timers:
+,,,,,,,
 
-   The runtime libraries provide a minimal version of package Ada.Text_IO
-   supporting character- and string-based input and output routines. The bodies
-   of the Ada.Text_IO routines call through to a device-specific I/O package
-   named System.Text_IO. See the package body in s-textio.adb. I/O goes through
-   the ARM Debug Control Channel (DCC) to the JTAG connector.
+The Ravenscar runtime libraries use RTI_Compare_Interrupt_3 interrupt to
+implement Ada semantics for time, i.e., delay statements and package
+Ada.Real_Time. See the package body for System.BB.Board_Support in the file
+s-bbbosu.adb.
+
+Both RTIUC0 and RTIUC1 are used for timing support
+
+I/O:
+,,,,
+
+Debug output:
+  The runtime libraries provide a minimal version of package Ada.Text_IO
+  supporting character- and string-based input and output routines. The bodies
+  of the Ada.Text_IO routines call through to a device-specific I/O package
+  named System.Text_IO. See the package body in s-textio.adb. I/O goes through
+  the ARM Debug Control Channel (DCC) to the JTAG connector.
+
+SCI output:
+  Alternatively, the runtime can be built with SCI output support. See the
+  tms570_sci BSP for UART output. In this case, the SCI/LIN2 peripheral is used
+  and is configured for 115200 baud rate, one stop bit, no parity.
 
 System Clocks
+-------------
+
+.. code-block:: none
 
    TMS570LS31: PLL = 180MHz, VCLK = 90MHz, RTICLK = 45MHz
    TMS570LC43: PLL = 300MHz, HCLK = 150MHz, VCLK = 75MHz, RTICLK = 37.5MHz
 
-   See package System.BB.Parameters (s-bbpara.ads) in the gnat directory for
-   the clock frequency.
+The clocks are configured via the system_<board>.c files.
 
 Startup Code
+------------
 
-   Various loaders can be used to start the runtime:
+Various loaders can be used to start the runtime:
 
-     FLASH, LORAM, HIRAM, LORAM_16M, BOOT, USER.
+  FLASH, LORAM, HIRAM, LORAM_16M, BOOT, USER.
 
-   The loaders are selected by setting the LOADER environment variable or
-   by setting it explicitely when calling gprbuild. For example:
+The loaders are selected by setting the LOADER environment variable or
+by setting it explicitely when calling gprbuild. For example:
 
-   gprbuild --target=arm-elf --RTS=ravenscar-sfp-tms570 -XLOADER=FLASH -P proj
+``gprbuild --target=arm-elf --RTS=ravenscar-sfp-tms570 -XLOADER=FLASH -P proj``
 
-   FLASH:
-   ------
-   The FLASH loader is used to execute a standalone Ada application from the
-   embedded flash.
+FLASH:
+  The FLASH loader is used to execute a standalone Ada application from the
+  embedded flash.
 
-   It performs the system initialisation, defines the exception vector, and
-   then runs the application.
+  It performs the system initialisation, defines the exception vector, and
+  then runs the application.
 
-   LORAM:
-   ------
-   Executes from a SRAM located at 0x0.
+LORAM:
+  Executes from a SRAM located at 0x0.
 
-   The FLASH and the SRAM regions have to be swapped first, by setting the
-   BMMCR1 register (16#FFFF_FFC4#) to 16#5#. This can be done for example
-   during testing, by using a gdb script:
+  The FLASH and the SRAM regions have to be swapped first, by setting the
+  BMMCR1 register (16#FFFF_FFC4#) to 16#5#. This can be done for example
+  during testing, by using a gdb script:
+
+  .. code-block:: none
 
      define tms570_loram
        set lang c
@@ -68,69 +88,71 @@ Startup Code
        set lang auto
      end
 
-   and then from within gdb:
+  and then from within gdb:
+
+  .. code-block:: none
 
      (gdb) target remote :55000
      (gdb) tms570_loram
      (gdb) load
 
-   This can also be used for running code with an emulator such as gnatemulator.
+  This can also be used for running code with an emulator such as gnatemulator.
 
-   The runtime is similar to the FLASH runtime, in that it is standalone
-   and properly defines the exception vector at 0x0.
+  The runtime is similar to the FLASH runtime, in that it is standalone
+  and properly defines the exception vector at 0x0.
 
-   HIRAM:
-   ------
-   Executes from the actual RAM located at 0x8000000. In order to work properly
-   the exception vector in the Flash at 0x0 needs to redirect the trap handlers
-   to the Ada runtime when used with a ravenscar runtime.
+HIRAM:
+  Executes from the actual RAM located at 0x8000000. In order to work properly
+  the exception vector in the Flash at 0x0 needs to redirect the trap handlers
+  to the Ada runtime when used with a ravenscar runtime.
 
-   LORAM_16M:
-   ----------
-   To be used with gnatemulator.
+LORAM_16M:
+  To be used with gnatemulator.
 
-   Defines the RAM region as a 16 MB region at 0x0.
-   This loader reserves a 1MB region for host communication at the end of the
-   RAM area.
+  Defines the RAM region as a 16 MB region at 0x0.
+  This loader reserves a 1MB region for host communication at the end of the
+  RAM area.
 
-   BOOT:
-   -----
-   Meant to be used with a bootloader.
+BOOT:
+  Meant to be used with a bootloader.
 
-   The code is located in Flash and leaves a 32k space for a bootloader.
-   This requires that the trap vector of the bootloader properly redirect
-   the traps to the runtime.
+  The code is located in Flash and leaves a 32k space for a bootloader.
+  This requires that the trap vector of the bootloader properly redirect
+  the traps to the runtime.
 
-   This loader defines the Ada runtime traps as a vector of addresses located
-   at 0x8000.
+  This loader defines the Ada runtime traps as a vector of addresses located
+  at 0x8000.
 
-   USER:
-   -----
-   Allows the use of a custom linker script: no linker script from the runtime
-   is used in this context, giving full control on section location, entry
-   points.
+USER:
+  Allows the use of a custom linker script: no linker script from the runtime
+  is used in this context, giving full control on section location, entry
+  points.
 
 Interrupts
+----------
 
-   The ravenscar TMS570 runtimes support two levels of interrupt priorities.
-   Depending on the priority chosen, they are mapped to IRQs (lowest priority)
-   or FIQs (highest priorities).
+The ravenscar TMS570 runtimes support two levels of interrupt priorities.
+Depending on the priority chosen, they are mapped to IRQs (lowest priority)
+or FIQs (highest priorities).
 
-   Tasks at IRQ priority level are authorized, but not at FIQ priority.
-   Use of floating points or SIMD instructions are authorized in interrupt
-   handlers in general.
+Tasks at IRQ priority level are authorized, but not at FIQ priority.
+Use of floating points or SIMD instructions are authorized in interrupt
+handlers in general.
 
 Memory Layout
+-------------
 
-   The memory layout depends on the loader used to build the application.
+The memory layout depends on the loader used to build the application.
 
-   Refer to the "Startup Code" section for more details on the various
-   loaders.
+Refer to the "Startup Code" section for more details on the various
+loaders.
 
-   The general principle however is the following: two categories of memory
-   layout are used. A RAM layout, where the application is fully loaded in
-   the SRAM of the board, and the ROM layout, where the application is flashed
-   on board and use the SRAM for data, bss and heap.
+The general principle however is the following: two categories of memory
+layout are used. A RAM layout, where the application is fully loaded in
+the SRAM of the board, and the ROM layout, where the application is flashed
+on board and use the SRAM for data, bss and heap.
+
+.. code-block:: none
 
    +--------------------------------+ <- low memory or flash
    | .traps                         |
@@ -165,4 +187,4 @@ Memory Layout
    |                                |
    +--------------------------------+ <- high memory
 
-   The stack size is defined by the script common.ld
+The stack size is defined by the script common.ld

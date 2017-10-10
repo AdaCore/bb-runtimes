@@ -1,81 +1,96 @@
-Zynq Runtimes
--------------
+ARM Zynq7000 Runtimes
+=====================
 
 Runtimes Supported
+------------------
 
-   ZFP
-   Ravenscar-SFP
-   Ravenscar-Full
+* ZFP
+* Ravenscar-SFP
+* Ravenscar-Full
 
 Targets Supported
+-----------------
 
-   Xilinx ZC702 REV 1.0, dual-core Cortex-A9
+* Xilinx ZC702 REV 1.0, dual-core Cortex-A9
 
-   The two main documents are:
+The two main documents are:
 
-      [TRM] ug585-Zynq-7000-TRM.pdf (The technical Reference Manual)
-      [EBD] ug850-zc702-eval-bd.pdf (Evaluation Board User Guide)
+[TRM]
+  ug585-Zynq-7000-TRM.pdf (The technical Reference Manual)
+[EBD]
+ ug850-zc702-eval-bd.pdf (Evaluation Board User Guide)
 
 System Clocks
+-------------
 
-   See package System.BB.Parameters (s-bbpara.ads) in the gnat directory 
-   for the clock frequency declaration. According to [EBD], PS_CLK is set 
-   to 33.333333 Mhz. 
+See package System.BB.Parameters (s-bbpara.ads) in the gnat directory
+for the clock frequency declaration. According to [EBD], PS_CLK is set
+to 33.333333 Mhz.
 
 Startup Code
+------------
 
-There is one assembly language files for the startup code: start-ram.S. 
+There is one assembly language files for the startup code: start-ram.S.
 
-   For the ZFP runtime the crt0.S file is used to initialize the vector 
-   table. For the ravenscar-* runtimes, the code in package 
-   System.BB.CPU_Primitives (gnat/s-bbcppr.adb) then installs GNAT-specific 
-   handlers that raise exceptions for the traps. 
+For the ZFP runtime the crt0.S file is used to initialize the vector
+table. For the ravenscar-* runtimes, the code in package
+System.BB.CPU_Primitives (gnat/s-bbcppr.adb) then installs GNAT-specific
+handlers that raise exceptions for the traps.
 
-   Booting
+Booting
+-------
 
-      The simplest way is to use u-boot (in flash) and then download via
-      ethernet:
-      > set ipaddr x.x.x.x
-      > nfs 0x10000000 y.y.y.y:/path/to/file
-      > bootelf 0x10000000
+The simplest way is to use u-boot (in flash) and then download via
+ethernet:
 
-      U-Boot settings:
+.. code-block:: none
 
-         ARM_PLL: PLL_FDIV=40
-         DDR_PLL: PLL_FDIV=32 (1066Mhz)
-         IO_PLL:  PLL_FDIV=30
+   > set ipaddr x.x.x.x
+   > nfs 0x10000000 y.y.y.y:/path/to/file
+   > bootelf 0x10000000
 
-         ARM_CLK: DIVISOR=2, SRCSEL=ARM_PLL   -> 666.6 Mhz
-         DDR_CLK: 2XCLK_DIVISOR=3, 3XCLK_DIVISOR=2
-         DCI_CLK: DIVISOR1=3, DIVISOR0=35
-         APER_CLK: DMA,USB0,USB1,GEM0,SDIO0,CAN0,I2C0,I2C1,UART1,GPIO,LQSPI,SMC
-         SDIO_CLK: DIVISOR=20, SRCSEL=IO_PLL, CLKACT0=EN (50Mhz)
-         UART_CLK: DIVISOR=20, SRCSEL=IO_PLL, CLKACT1=EN (50Mhz)
+U-Boot settings:
+
+.. code-block:: none
+
+  ARM_PLL: PLL_FDIV=40
+  DDR_PLL: PLL_FDIV=32 (1066Mhz)
+  IO_PLL:  PLL_FDIV=30
+
+  ARM_CLK: DIVISOR=2, SRCSEL=ARM_PLL   -> 666.6 Mhz
+  DDR_CLK: 2XCLK_DIVISOR=3, 3XCLK_DIVISOR=2
+  DCI_CLK: DIVISOR1=3, DIVISOR0=35
+  APER_CLK: DMA,USB0,USB1,GEM0,SDIO0,CAN0,I2C0,I2C1,UART1,GPIO,LQSPI,SMC
+  SDIO_CLK: DIVISOR=20, SRCSEL=IO_PLL, CLKACT0=EN (50Mhz)
+  UART_CLK: DIVISOR=20, SRCSEL=IO_PLL, CLKACT1=EN (50Mhz)
 
 Interrupts
+----------
 
-   The package Ada.Interrupts.Names is located in the gnat directory 
-   (a-intnam.ads). 
+The package Ada.Interrupts.Names is located in the gnat directory
+(a-intnam.ads).
 
-   See the package body for System.BB.Board_Support (s-bbbosu.adb) in the 
-   gnat directory for board configuration for interrupts. 
+See the package body for System.BB.Board_Support (s-bbbosu.adb) in the
+gnat directory for board configuration for interrupts.
 
 Memory Layout
+-------------
 
-   See memmap.xml for the memory map used. There is also one linker script, 
-   ram.ld. 
+See memmap.xml for the memory map used. There is also one linker script,
+ram.ld.
 
 Resources Used
+--------------
 
-   The Ravenscar runtime libraries use CPU_Private_Timer_Interrupt 
-   interrupt to implement Ada semantics for time, i.e., delay statements 
-   and package Ada.Real_Time. See the package body for 
-   System.BB.Board_Support in the file s-bbbosu.adb. 
+The Ravenscar runtime libraries use CPU_Private_Timer_Interrupt
+interrupt to implement Ada semantics for time, i.e., delay statements
+and package Ada.Real_Time. See the package body for
+System.BB.Board_Support in the file s-bbbosu.adb.
 
-   The runtime libraries provide a minimal version of package Ada.Text_IO 
-   supporting character- and string-based input and output routines. The 
-   bodies of the Ada.Text_IO routines call through to a device-specific I/O 
-   package named System.Text_IO. See the file s-textio.adb in the gnat 
-   directory. The default console is available via USB, 115200 Baud 8N1 
-   from UART-1. (Baud_rate_gen=20Mhz/86 baud_rate=20Mhz/86/(4+1)=116279). 
-   You can change the baud rate etc. in that package. 
+The runtime libraries provide a minimal version of package Ada.Text_IO
+supporting character- and string-based input and output routines. The
+bodies of the Ada.Text_IO routines call through to a device-specific I/O
+package named System.Text_IO. See the file s-textio.adb in the gnat
+directory. The default console is available via USB, 115200 Baud 8N1
+from UART-1. (Baud_rate_gen=20Mhz/86 baud_rate=20Mhz/86/(4+1)=116279).
+You can change the baud rate etc. in that package.

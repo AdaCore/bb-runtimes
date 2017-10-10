@@ -1,56 +1,67 @@
 ARM LM3S Runtimes
--------------------
+=================
 
 Runtimes Supported
+------------------
 
-   ZFP
+* ZFP
 
 Targets Supported
+-----------------
 
-   Texas Instruments Stellaris LM3S811 ARM Cortex-M3
+* Texas Instruments Stellaris LM3S811 ARM Cortex-M3
 
 System Clocks
+-------------
 
-   Clocks Configuration
+Clocks Configuration
+,,,,,,,,,,,,,,,,,,,,
 
-   The system clock source is the main phase-locked loop (PLL) and is 
-   configured by the Ada code in procedure Setup_PLL. The clock is configured 
-   there for 50MHz, the maximum per the TI datasheet. The procedure Setup_PLL 
-   is called by the startup routines written in assembly language, described 
-   below. 
+The system clock source is the main phase-locked loop (PLL) and is
+configured by the Ada code in procedure Setup_PLL. The clock is configured
+there for 50MHz, the maximum per the TI datasheet. The procedure Setup_PLL
+is called by the startup routines written in assembly language, described
+below.
 
 Startup Code
+------------
 
-   There are two assembly language files for the startup code, one each for 
-   executing from RAM or ROM. These are start-ram.S and start-rom.S 
-   respectively. 
+There are two assembly language files for the startup code, one each for
+executing from RAM or ROM. These are start-ram.S and start-rom.S
+respectively.
 
 Interrupts
+----------
 
-   Not Applicable.
+Not Applicable.
 
 Memory Layout
+-------------
 
-   The memory layout is controlled by linker scripts selected by a scenario 
-   variable named "Loader". This scenario variable is declared in an xml file 
-   (runtime.xml) read by gprbuild automatically and used to define linker 
-   switches. These switches specify the linker script corresponding to the 
-   scenario value, as follows: 
+The memory layout is controlled by linker scripts selected by a scenario
+variable named "Loader". This scenario variable is declared in an xml file
+(runtime.xml) read by gprbuild automatically and used to define linker
+switches. These switches specify the linker script corresponding to the
+scenario value, as follows:
 
-   ROM  : lm3s-rom.ld
-   RAM  : lm3s-ram.ld
-   USER : not defined
+ROM  :
+  lm3s-rom.ld
+RAM  :
+  lm3s-ram.ld
+USER :
+  not defined
 
-   The default is ROM.
+The default is ROM.
 
-   You can modify these scripts as required. Alternatively, these scripts can 
-   be overridden at link time using the LDSCRIPT environment variable. 
+You can modify these scripts as required. Alternatively, these scripts can
+be overridden at link time using the LDSCRIPT environment variable.
 
 Resources Used
+--------------
 
-   The runtime library provides a minimal version of package Ada.Text_IO 
-   supporting character- and string-based input and output routines. The bodies 
-   of the Ada.Text_IO routines call through to a device-specific I/O package 
-   named System.Text_IO. See gnat/s-textio.adb for the implementation. I/O goes 
-   through UART0. You can change the baud rate etc. in that package. By default 
-   the settings are 115_200, no start bits, eight data bits, one stop bit. 
+The runtime library provides a minimal version of package Ada.Text_IO
+supporting character- and string-based input and output routines. The bodies
+of the Ada.Text_IO routines call through to a device-specific I/O package
+named System.Text_IO. See gnat/s-textio.adb for the implementation. I/O goes
+through UART0. You can change the baud rate etc. in that package. By default
+the settings are 115_200, no start bits, eight data bits, one stop bit.

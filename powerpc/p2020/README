@@ -1,74 +1,81 @@
-PowerPC Runtimes
--------------
+P2020 Runtimes
+==============
 
 Runtimes Supported
+------------------
 
-   ZFP
-   Ravenscar-SFP
-   Ravenscar-Full
+* ZFP
+* Ravenscar-SFP
+* Ravenscar-Full
 
 Targets Supported
+-----------------
 
-   NXP QorIQ P2020 Dual-Core Power Architecture e500v2 Core
+NXP QorIQ P2020 Dual-Core Power Architecture e500v2 Core
 
 System Clocks
+-------------
 
-   See package System.BB.Board_Parameters (s-bbbopa.ads) in the gnat 
-   directory for the clock frequency declaration. 
+See package System.BB.Board_Parameters (`s-bbbopa.ads`) in the gnat
+directory for the clock frequency declaration.
 
 Startup Code
+------------
 
-   There is one assembly language file for the startup code, start-ram.S. 
-   Note that there is a conditional variable that can be used if the IVPR 
-   (Interrupt Vector Prefix Register) needs to be saved. 
+There is one assembly language file for the startup code, `start-ram.S`.
+Note that there is a conditional variable that can be used if the IVPR
+(Interrupt Vector Prefix Register) needs to be saved.
 
-   There is a second assembly file, setup.S, that defines a branchpoint 
-   called by start-ram.S to: 
+There is a second assembly file, setup.S, that defines a branchpoint
+called by start-ram.S to:
 
-      * enable the SPE, the overflow, division by zero, and invalid exceptions,
+* enable the SPE, the overflow, division by zero, and invalid exceptions,
 
-      * load r13 and r2 with the SDA (Small Data Area) and SDA2 (Small Constant
-        Area) base addresses, respectively, per the EABI,
+* load r13 and r2 with the SDA (Small Data Area) and SDA2 (Small Constant
+  Area) base addresses, respectively, per the EABI,
 
-      * clear the segments sbss2, sbss, and bss. 
+* clear the segments sbss2, sbss, and bss.
 
 Interrupts
+----------
 
-   The package Ada.Interrupts.Names is located in the gnat directory 
-   (a-intnam.ads). 
+The package Ada.Interrupts.Names is located in the gnat directory
+(`a-intnam.ads`).
 
-   See the package body for System.BB.Board_Support (s-bbbosu.adb) in the 
-   gnat directory for board configuration for interrupts. 
+See the package body for System.BB.Board_Support (`s-bbbosu.adb`) in the
+gnat directory for board configuration for interrupts.
 
-   See package System.BB.Parameters (gnat/s-bbpara.ads) for the number of 
-   interrupts defined. The runtime supports at most 128 interrupts external 
-   interrupts and 8 non external. If you have more interrupts, you need to 
-   change the values used in the declaration of subtype Interrupt_Range in 
-   that package. 
+See package System.BB.Parameters (`gnat/s-bbpara.ads`) for the number of
+interrupts defined. The runtime supports at most 128 interrupts external
+interrupts and 8 non external. If you have more interrupts, you need to
+change the values used in the declaration of subtype Interrupt_Range in
+that package.
 
 Memory Layout
+-------------
 
-   The memory layout is controlled by the p2020.ld linker script located in 
-   the ld/ directory. The script to be applied can be overridden with the 
-   LDSCRIPT scenario variable. 
+The memory layout is controlled by the `p2020.ld` linker script located in
+the `ld/` directory. The script to be applied can be overridden with the
+LDSCRIPT scenario variable.
 
 Resources Used
+--------------
 
-    The Ravenscar runtime libraries use the time base and decrementer core 
-   registers to implement Ada semantics for time, i.e., delay statements 
-   and package Ada.Real_Time. See the body for System.BB.Board_Support in 
-   the file gnat/s-bbsuti.adb. Note that these registers are 32-bits wide, 
-   so although the underlying time base value is 64-bits, the value must be 
-   read in two separate instructions, that is, non-atomically, and then 
-   combined. This results in the possibility of a race condition in which 
-   the upper half changes after being read, apart from when the lower half 
-   is read. To deal with that race condition a loop is used, but note that 
-   this requires multiple reads of the two registers. See function 
-   Read_Clock in that package for the loop. 
+The Ravenscar runtime libraries use the time base and decrementer core
+registers to implement Ada semantics for time, i.e., delay statements
+and package Ada.Real_Time. See the body for System.BB.Board_Support in
+the file `gnat/s-bbsuti.adb`. Note that these registers are 32-bits wide,
+so although the underlying time base value is 64-bits, the value must be
+read in two separate instructions, that is, non-atomically, and then
+combined. This results in the possibility of a race condition in which
+the upper half changes after being read, apart from when the lower half
+is read. To deal with that race condition a loop is used, but note that
+this requires multiple reads of the two registers. See function
+Read_Clock in that package for the loop.
 
-   The runtime libraries provide a minimal version of package Ada.Text_IO 
-   supporting character- and string-based input and output routines. The 
-   bodies of the Ada.Text_IO routines call through to a device-specific I/O 
-   package named System.Text_IO. See the package body in the file 
-   s-textio.adb in the gnat directory. The default console is available via 
-   UART0, with line configuration (baud rate etc.) set by the boot-loader. 
+The runtime libraries provide a minimal version of package Ada.Text_IO
+supporting character- and string-based input and output routines. The
+bodies of the Ada.Text_IO routines call through to a device-specific I/O
+package named System.Text_IO. See the package body in the file
+`s-textio.adb` in the gnat directory. The default console is available via
+UART0, with line configuration (baud rate etc.) set by the boot-loader.
