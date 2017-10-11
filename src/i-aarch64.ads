@@ -29,8 +29,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with System; use System;
-with Interfaces;
+with System;
 
 package Interfaces.AArch64 is
    pragma Preelaborate;
@@ -158,13 +157,13 @@ package Interfaces.AArch64 is
 
    --  Cache control
 
-   procedure DC_CVAU (Addr : Address) with Inline_Always;
+   procedure DC_CVAU (Addr : System.Address) with Inline_Always;
    --  Clean D-cache by virtual address to point of unification
 
-   procedure DC_CVAC (Addr : Address) with Inline_Always;
+   procedure DC_CVAC (Addr : System.Address) with Inline_Always;
    --  Clean D-cache by virtual address to point of coherence
 
-   procedure IC_IVAU (Addr : Address) with Inline_Always;
+   procedure IC_IVAU (Addr : System.Address) with Inline_Always;
    --  Invalidate I-cache by virtual address
 
    --  Barriers

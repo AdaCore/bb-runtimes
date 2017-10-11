@@ -29,6 +29,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with System;               use System;
 with System.Machine_Code;  use System.Machine_Code;
 with Interfaces;           use Interfaces;
 
