@@ -348,6 +348,8 @@ class Stm32(CortexMTarget):
             self.mcu = 'stm32f469x'
         elif self.board == 'stm32f746disco':
             self.mcu = 'stm32f7x'
+        elif self.board == 'stm32756geval':
+            self.mcu = 'stm32f7x'
         elif self.board == 'stm32f769disco':
             self.mcu = 'stm32f7x9'
         else:
@@ -387,6 +389,12 @@ class Stm32(CortexMTarget):
         elif self.board == 'stm32f746disco':
             self.add_sources('crt0', [
                 'arm/stm32/stm32f7x/s-stm32.adb'])
+        elif self.board == 'stm32756geval':
+            self.add_sources('crt0', [
+                'arm/stm32/stm32f7x/s-stm32.adb'])
+            self.update_pair(
+                's-bbbopa.ads',
+                'arm/stm32/%s/s-bbbopa-stm32756geval.ads' % self.mcu)
         elif self.board == 'stm32f769disco':
             self.add_sources('crt0', [
                 'arm/stm32/stm32f7x/s-stm32.adb'])
