@@ -62,19 +62,20 @@ package System.BB.CPU_Specific is
    type SIMD_Registers_Type is array (0 .. 31) of SIMD_Vector_Type;
 
    type FPU_Context_Buffer is record
-      --  Floating point context
+      --  Floating point context: all registers need to be saved, as FPU
+      --  context switch is asynchronous.
 
-      V_Init : Boolean;
-      --  Set to true when the structure contains an actually saved context
-
-      FPSR   : Interfaces.Unsigned_32;
+      FPSR   : Interfaces.Unsigned_32;  --  Offset: 104
       --  Status register
 
-      FPCR   : Interfaces.Unsigned_32;
+      FPCR   : Interfaces.Unsigned_32;  --  Offset: 108
       --  Control register
 
-      V      : SIMD_Registers_Type;
+      V      : SIMD_Registers_Type;     --  Offset: 112
       --  General-purpose FPU registers
+
+      V_Init : Boolean;                 --  Offset: 624
+      --  Set to true when the structure contains an actually saved context
    end record;
 
    type FPU_Context_Access is access all FPU_Context_Buffer;
