@@ -299,7 +299,9 @@ class Target(TargetConfiguration, BSP):
         if rts.rts_vars['RTS_Profile'] != "ravenscar-full":
             ret += ', "-nolibc"'
         else:
-            ret += (', "-Wl,-u,abort", "-lgnat", "-lc", "-lgnat"')
+            # libgnat depends on libc for malloc stuff
+            # libc and libgcc depends on libgnat for syscalls and abort
+            ret += (', "-lgnat", "-lc", "-lgcc", "-lgnat"')
 
         if len(self.ld_scripts) > 0:
             ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld"'
