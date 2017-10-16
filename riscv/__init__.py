@@ -1,17 +1,16 @@
-from support.target import DFBBTarget
-from native import NativeBSP
 from support import readfile
-
-# For now, we assume we have a full newlib at hand so can behave
-# essentially as in the native case. In particular, we inherit the
-# NativeBSP behavior for IOs and provide a noop runtime.xml, free of
-# options controlling the libc linkage for example.
+from support.target import DFBBTarget
+from support.bsp import BSP
 
 
-class RiscVBSP(NativeBSP):
+class RiscVBSP(BSP):
     @property
     def name(self):
         return 'riscv'
+
+    @property
+    def add_linker_section(self):
+        return False
 
 
 class RiscV64(DFBBTarget):
@@ -26,9 +25,6 @@ class RiscV64(DFBBTarget):
     @property
     def parent(self):
         return RiscVBSP
-
-    def amend_rts(self, rts_profile, conf):
-        conf.rts_xml = readfile('riscv/runtime.xml')
 
     @property
     def zfp_system_ads(self):
@@ -45,5 +41,25 @@ class Spike(RiscV64):
     def name(self):
         return 'spike'
 
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ["-mcmodel=medany"]
+
+    @property
+    def loaders(self):
+        return ['RAM']
+
+    def amend_rts(self, rts_profile, conf):
+        conf.rts_xml = readfile('riscv/spike/runtime.xml')
+
     def __init__(self):
         super(Spike, self).__init__()
+        self.add_linker_script('riscv/spike/common-RAM.ld', loader='')
+        self.add_linker_script('riscv/spike/memory-map.ld', loader='')
+        self.add_sources('crt0',
+                         ['riscv/start-ram.S',
+                          'riscv/src/riscv_host_target_interface.ads',
+                          'riscv/src/riscv_host_target_interface.adb',
+                          'src/s-macres__riscv-htif.adb',
+                          'src/s-textio__riscv-htif.adb'])
