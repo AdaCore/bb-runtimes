@@ -182,6 +182,8 @@ class TMS570(CortexARTarget):
             cfg.rts_vars['Add_Image_LL_Decimal'] = "yes"
             cfg.rts_vars['Add_Image_Float'] = "yes"
 
+            cfg.rts_vars['Add_Math_Lib'] = "hardfloat_sp"
+
             # cfg.rts_vars['Add_Image_Int'] = "yes"
             # cfg.rts_vars['Add_Image_LL_Int'] = "yes"
         else:

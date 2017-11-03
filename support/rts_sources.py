@@ -548,21 +548,10 @@ class SourceDirs(SharedFilesHolder):
         # Math support
         self.add_rule('math', 'Add_Math_Lib:!no')
         self.add_sources('math', [
-            'libgnat/a-ncelfu.ads',
-            'libgnat/a-ngcefu.ads', 'libgnat/a-ngcefu.adb',
-            'libgnat/a-ngcoty.ads',
-            'hie/a-ngcoty__ada.adb',
             'hie/a-ngelfu__ada.ads', 'hie/a-ngelfu__ada.adb',
-            'libgnat/a-nlcefu.ads',
-            'libgnat/a-nlcoty.ads',
             'hie/a-nlelfu__ada.ads',
-            'libgnat/a-nllcef.ads',
-            'libgnat/a-nllcty.ads',
             'libgnat/a-nllefu.ads',
-            'libgnat/a-nscefu.ads',
-            'libgnat/a-nscoty.ads',
             'libgnat/a-nselfu.ads',
-            'libgnat/a-nucoty.ads',
             'hie/a-nuelfu__ada.ads',
             'hie/a-numaux__ada.ads',
             'libgnat/a-numeri.ads',
@@ -574,6 +563,22 @@ class SourceDirs(SharedFilesHolder):
             'hie/s-libsin__ada.ads', 'hie/s-libsin__ada.adb',
             'hie/s-lidosq__ada.ads',
             'hie/s-lisisq__ada.ads'])
+
+        self.add_rule('math-complex',
+                      ['RTS_Profile:ravenscar-full',  # ??? Add a scenario var
+                       'Add_Math_Lib:!no'])
+        self.add_sources('math-complex', [
+            'libgnat/a-ncelfu.ads',
+            'libgnat/a-ngcefu.ads', 'libgnat/a-ngcefu.adb',
+            'libgnat/a-ngcoty.ads',
+            'hie/a-ngcoty__ada.adb',
+            'libgnat/a-nlcefu.ads',
+            'libgnat/a-nlcoty.ads',
+            'libgnat/a-nllcef.ads',
+            'libgnat/a-nllcty.ads',
+            'libgnat/a-nscefu.ads',
+            'libgnat/a-nscoty.ads',
+            'libgnat/a-nucoty.ads'])
 
         self.add_rule('math/full',
                       ['RTS_Profile:ravenscar-full',
