@@ -55,6 +55,10 @@ abstract project Target_Options is
      for Switches ("s-assert.adb") use ALL_ADAFLAGS & ("-g");
      for Switches ("a-tags.adb") use ALL_ADAFLAGS & ("-g");
      for Switches ("raise-gcc.c") use ALL_CFLAGS & ("-fexceptions");
+
+     for Switches ("system.ads") use ALL_ADAFLAGS &
+       ("-gnatet=" & Project'Object_Dir & "/../target_properties");
+
   end Compiler;
 
 end Target_Options;
