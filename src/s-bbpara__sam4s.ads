@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2016, AdaCore                     --
+--                     Copyright (C) 2003-2017, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -52,6 +52,17 @@ package System.BB.Parameters is
 
    Has_FPU : constant Boolean := MCU_Parameters.Has_FPU;
    --  Set to true if core has a FPU
+
+   Has_VTOR : constant Boolean := True;
+   --  Set to true if core has a Vector Table Offset Register (VTOR).
+   --  VTOR is implemented in Cortex-M0+, Cortex-M4 and above.
+
+   Has_OS_Extensions : constant Boolean := True;
+   --  Set to true if core has armv6-m OS extensions (PendSV, MSP, PSP,
+   --  etc...). The OS extensions are optional for the Cortex-M1.
+
+   Is_ARMv6m : constant Boolean := False;
+   --  Set to true if core is an armv6-m (Cortex-M0, Cortex-M0+, Cortex-M1)
 
    ----------------
    -- Interrupts --

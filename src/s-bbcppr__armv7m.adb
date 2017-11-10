@@ -50,6 +50,17 @@ package body System.BB.CPU_Primitives is
    NL : constant String := ASCII.LF & ASCII.HT;
    --  New line separator in Asm templates
 
+   Has_VTOR : constant Boolean := System.BB.Parameters.Has_VTOR;
+   --  Set True iff the Vector Table Offset Register (VTOR) can be used
+   --  (armv7-m architecture or Cortex-M0+).
+
+   Has_OS_Extensions : constant Boolean :=
+     System.BB.Parameters.Has_OS_Extensions;
+   --  Set True iff the core implements the armv6-m OS extensions
+
+   Is_ARMv6m : constant Boolean := System.BB.Parameters.Is_ARMv6m;
+   --  Set True iff the core implements the armv6-m architecture
+
    -----------
    -- Traps --
    -----------
@@ -107,7 +118,7 @@ package body System.BB.CPU_Primitives is
    -- Context Switching --
    -----------------------
 
-   --  This port uses the ARMv7-M hardware for saving volatile context for
+   --  This port uses the ARMv6/7-M hardware for saving volatile context for
    --  interrupts, see the Hardware_Context type below for details. Any
    --  non-volatile registers will be preserved by the interrupt handler in
    --  the same way as it happens for ordinary procedure calls.
@@ -160,25 +171,31 @@ package body System.BB.CPU_Primitives is
       --  Table containing a pointer to the top of the stack for each processor
 
    begin
-      --  Switch the stack pointer to SP_process (PSP)
 
-      Asm ("mrs r0, MSP" & NL &
-           "msr PSP, r0" & NL &
-           "mrs r0, CONTROL" & NL &
-           "orr r0,r0,2" & NL &
-           "msr CONTROL,r0",
-           Clobber => "r0",
-           Volatile => True);
+      if Has_OS_Extensions then
+         --  Switch the stack pointer to SP_process (PSP)
 
-      --  Initialize SP_main (MSP)
+         Asm ("mrs r0, MSP" & NL &
+                "msr PSP, r0" & NL &
+                "mrs r0, CONTROL" & NL &
+                "movs r1, #2" & NL &
+                "orr r0,r0,r1" & NL &
+                "msr CONTROL,r0" & NL &
+                "mrs r0, CONTROL",
+              Clobber => "r0,r1",
+              Volatile => True);
 
-      Asm ("msr MSP, %0",
-           Inputs => Address'Asm_Input ("r", Interrupt_Stack_Table (1)),
-           Volatile => True);
+         --  Initialize SP_main (MSP)
 
-      --  Initialize vector table
+         Asm ("msr MSP, %0",
+              Inputs => Address'Asm_Input ("r", Interrupt_Stack_Table (1)),
+              Volatile => True);
+      end if;
 
-      VTOR := System_Vectors'Address;
+      if Has_VTOR then
+         --  Initialize vector table
+         VTOR := System_Vectors'Address;
+      end if;
 
       --  Set configuration: stack is 8 byte aligned, trap on divide by 0,
       --  no trap on unaligned access, can enter thread mode from any level.
@@ -196,11 +213,14 @@ package body System.BB.CPU_Primitives is
       SHPR2 := 0;
       SHPR3 := 16#00_FF_00_00#;
 
-      --  Write the required key (16#05FA#) and desired PRIGROUP value. We
-      --  configure this to 3, to have 16 group priorities
+      if not Is_ARMv6m then
 
-      AIRCR := 16#05FA_0300#;
-      pragma Assert (AIRCR = 16#FA05_0300#); --  Key value is swapped
+         --  Write the required key (16#05FA#) and desired PRIGROUP value. We
+         --  configure this to 3, to have 16 group priorities
+
+         AIRCR := 16#05FA_0300#;
+         pragma Assert (AIRCR = 16#FA05_0300#); --  Key value is swapped
+      end if;
 
       --  Enable usage, bus and memory management fault
 
@@ -212,6 +232,7 @@ package body System.BB.CPU_Primitives is
       --  Unmask Fault
 
       Asm ("cpsie f", Volatile => True);
+
    end Initialize_CPU;
 
    --------------------
@@ -228,7 +249,6 @@ package body System.BB.CPU_Primitives is
 
       --  Memory must be clobbered, as task switching causes a task to signal,
       --  which means its memory changes must be visible to all other tasks.
-
       Asm ("", Volatile => True, Clobber => "memory");
    end Context_Switch;
 
@@ -280,17 +300,24 @@ package body System.BB.CPU_Primitives is
       --  The interrupt handler may have scheduled a new task, so we need to
       --  check whether a context switch is needed.
 
-      if Context_Switch_Needed then
+      if Has_OS_Extensions then
+         if Context_Switch_Needed then
 
-         --  Perform a context switch because the currently executing thread is
-         --  no longer the one with the highest priority.
+            --  Perform a context switch because the currently executing thread
+            --  is no longer the one with the highest priority.
 
-         --  No need to update execution time. Already done in the wrapper.
+            --  No need to update execution time. Already done in the wrapper.
 
-         --  Note that the following context switch is not immediate, but
-         --  will only take effect after interrupts are enabled.
+            --  Note that the following context switch is not immediate, but
+            --  will only take effect after interrupts are enabled.
 
-         Context_Switch;
+            Context_Switch;
+         end if;
+      else
+         --  When OS extensions are not available, the context switch will be
+         --  handled in the lower level trap handler:
+         --  __gnat_irq_trap_without_os_extensions
+         null;
       end if;
 
       --  Restore interrupt masking of interrupted thread
@@ -395,8 +422,11 @@ package body System.BB.CPU_Primitives is
       Install_Trap_Handler (EH, Hard_Fault_Vector);
       Install_Trap_Handler (EH, Bus_Fault_Vector);
       Install_Trap_Handler (EH, Usage_Fault_Vector);
-      Install_Trap_Handler (EH, Pend_SV_Vector);
-      Install_Trap_Handler (EH, SV_Call_Vector);
+
+      if Has_OS_Extensions then
+         Install_Trap_Handler (EH, Pend_SV_Vector);
+         Install_Trap_Handler (EH, SV_Call_Vector);
+      end if;
    end Install_Error_Handlers;
 
    --------------------------
@@ -428,10 +458,16 @@ package body System.BB.CPU_Primitives is
 
    procedure Enable_Interrupts (Level : Integer) is
    begin
-      --  Set the BASEPRI according to the specified level. PRIMASK is still
-      --  set, so the change does not take effect until the next Asm.
+      if not Is_ARMv6m then
+         --  BASEPRI is not available in the armv6-m architecture, it was
+         --  introduced in armv7-m. There's only one level of trap.
 
-      Board_Support.Interrupts.Set_Current_Priority (Level);
+         --  Set the BASEPRI according to the specified level. PRIMASK is still
+         --  set, so the change does not take effect until the next Asm.
+
+         Board_Support.Interrupts.Set_Current_Priority (Level);
+
+      end if;
 
       --  The following enables interrupts and will cause any pending
       --  interrupts to take effect. The barriers and their placing are

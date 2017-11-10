@@ -81,6 +81,17 @@ package System.BB.Parameters is
    Has_FPU : constant Boolean := True;
    --  Set to true if core has a FPU
 
+   Has_VTOR : constant Boolean := True;
+   --  Set to true if core has a Vector Table Offset Register (VTOR).
+   --  VTOR is implemented in Cortex-M0+, Cortex-M4 and above.
+
+   Has_OS_Extensions : constant Boolean := True;
+   --  Set to true if core has armv6-m OS extensions (PendSV, MSP, PSP,
+   --  etc...). The OS extensions are optional for the Cortex-M1.
+
+   Is_ARMv6m : constant Boolean := False;
+   --  Set to true if core is an armv6-m (Cortex-M0, Cortex-M0+, Cortex-M1)
+
    ----------------
    -- Interrupts --
    ----------------
