@@ -19,7 +19,9 @@ class CortexMArch(BSP):
             'src/s-bbcppr__old.ads',
             'src/s-bbcppr__armv7m.adb',
             'src/s-bbinte__generic.adb',
-            'src/s-bbsumu__generic.adb'])
+            'src/s-bbsumu__generic.adb',
+            'src/s-bcpcst__armvXm.ads',
+            'src/s-bcpcst__pendsv.adb'])
 
 
 class CortexMTarget(Target):

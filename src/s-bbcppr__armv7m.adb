@@ -38,18 +38,17 @@ with System.BB.Board_Support;
 with System.BB.Threads;
 with System.BB.Threads.Queues;
 with System.Machine_Code; use System.Machine_Code;
+with System.BB.CPU_Primitives.Context_Switch_Trigger;
 
 package body System.BB.CPU_Primitives is
    use Board_Support;
    use Board_Support.Time;
+   use System.BB.CPU_Primitives.Context_Switch_Trigger;
    use Parameters;
    use Threads.Queues;
 
    NL : constant String := ASCII.LF & ASCII.HT;
    --  New line separator in Asm templates
-
-   No_Floating_Point : constant Boolean := not System.BB.Parameters.Has_FPU;
-   --  Set True iff the FPU should not be used
 
    -----------
    -- Traps --
@@ -95,12 +94,6 @@ package body System.BB.CPU_Primitives is
    procedure SV_Call_Handler;
    pragma Export (Asm, SV_Call_Handler, "__gnat_sv_call_trap");
 
-   procedure Pend_SV_Handler;
-   pragma Machine_Attribute (Pend_SV_Handler, "naked");
-   pragma Export (Asm, Pend_SV_Handler, "__gnat_pend_sv_trap");
-   --  This assembly routine needs to save and restore registers without
-   --  interference. The "naked" machine attribute communicates this to GCC.
-
    procedure Sys_Tick_Handler;
    pragma Export (Asm, Sys_Tick_Handler, "__gnat_sys_tick_trap");
 
@@ -131,10 +124,6 @@ package body System.BB.CPU_Primitives is
       R0, R1, R2, R3   : Word;
       R12, LR, PC, PSR : Word;
    end record;
-
-   ICSR : Word with Volatile, Address   => 16#E000_ED04#; -- Int. Control/State
-
-   ICSR_Pend_SV_Set : constant Word := 2**28;
 
    VTOR : Address with Volatile, Address => 16#E000_ED08#; -- Vec. Table Offset
 
@@ -217,6 +206,9 @@ package body System.BB.CPU_Primitives is
 
       SHCSR := SHCSR or 16#7_0000#;
 
+      --  Call context switch hardware initialization
+      Initialize_Context_Switch;
+
       --  Unmask Fault
 
       Asm ("cpsie f", Volatile => True);
@@ -232,14 +224,7 @@ package body System.BB.CPU_Primitives is
 
       pragma Assert (PRIMASK = 1);
 
-      --  Make deferred supervisor call pending
-
-      ICSR := ICSR_Pend_SV_Set;
-
-      --  The context switch better be pending, as otherwise it means
-      --  interrupts were not disabled.
-
-      pragma Assert ((ICSR and ICSR_Pend_SV_Set) /= 0);
+      Trigger_Context_Switch;
 
       --  Memory must be clobbered, as task switching causes a task to signal,
       --  which means its memory changes must be visible to all other tasks.
@@ -312,65 +297,6 @@ package body System.BB.CPU_Primitives is
 
       Enable_Interrupts (Running_Thread.Active_Priority);
    end Interrupt_Request_Handler;
-
-   ---------------------
-   -- Pend_SV_Handler --
-   ---------------------
-
-   procedure Pend_SV_Handler is
-   begin
-      --  At most one instance of this handler can run at a time, and
-      --  interrupts will preserve all state, so interrupts can be left
-      --  enabled. Note the invariant that at all times the active context is
-      --  in the ("__gnat_running_thread_table"). Only this handler may update
-      --  that variable.
-
-      Asm
-        (Template =>
-         "movw r2, #:lower16:__gnat_running_thread_table" & NL &
-         "movt r2, #:upper16:__gnat_running_thread_table" & NL &
-         "mrs  r12, PSP "       & NL & -- Retrieve current PSP
-         "ldr  r3, [r2]"        & NL & -- Load address of running context
-
-         --  If floating point is enabled, we may have to save the non-volatile
-         --  floating point registers, and save bit 4 of the LR register, as
-         --  this will indicate whether the floating point context was saved
-         --  or not.
-
-         (if No_Floating_Point then "" -- No FP context to save
-          else
-            "tst  lr, #16"            & NL &  -- if FPCA flag was set,
-            "itte  eq"                & NL &  -- then
-            "vstmdbeq r12!,{s16-s31}" & NL &  --   save FP context below PSP
-            "addeq  r12, #1"          & NL &  --   save flag in bit 0 of PSP
-            "subne  lr, #16"          & NL) & -- else set FPCA flag in LR
-
-         --  Swap R4-R11 and PSP (stored in R12)
-
-         "stm  r3, {r4-r12}"        & NL & -- Save context
-         "movw r3, #:lower16:first_thread_table" & NL &
-         "movt r3, #:upper16:first_thread_table" & NL &
-         "ldr  r3, [r3]"            & NL & -- Load address of new context
-         "str  r3, [r2]"            & NL & -- Update value of Pend_SV_Context
-         "ldm  r3, {r4-r12}"        & NL & -- Load context and new PSP
-
-         --  If floating point is enabled, check bit 0 of PSP to see if we
-         --  need to restore the floating point context.
-
-         (if No_Floating_Point then ""     -- No FP context to restore
-          else
-            "tst  r12, #1"            & NL &  -- if FPCA was set,
-            "itte  ne"                & NL &  -- then
-            "subne r12, #1"           & NL &  --   remove flag from PSP
-            "vldmiane r12!,{s16-s31}" & NL &  --   Restore FP context
-            "addeq lr, #16"           & NL) & -- else clear FPCA flag in LR
-
-         --  Finally, update PSP and perform the exception return
-
-         "msr  PSP, r12" & NL &        -- Update PSP
-         "bx   lr",                    -- return to caller
-         Volatile => True);
-   end Pend_SV_Handler;
 
    ---------------------
    -- SV_Call_Handler --
