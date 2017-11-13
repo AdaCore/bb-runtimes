@@ -1,0 +1,11 @@
+project Hello is
+   for Target use "arm-eabi";
+   for Runtime ("Ada") use "ravenscar-sfp-m1agl";
+   
+   for Source_Dirs use ("src");
+   for Object_Dir use "obj";
+   for Exec_Dir	 use ".";
+   for Create_Missing_Dirs use "True";
+
+   for Main use ("main.adb");
+end Hello;

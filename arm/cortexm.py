@@ -24,6 +24,64 @@ class CortexMArch(BSP):
             'src/s-bcpcst__pendsv.adb'])
 
 
+class Armv6MArch(BSP):
+    @property
+    def name(self):
+        return "armv6-m"
+
+    def __init__(self):
+        super(Armv6MArch, self).__init__()
+        self.add_sources('arch', [
+            'src/s-macres__cortexm3.adb',
+            'arm/src/breakpoint_handler-cortexm.S'])
+        self.add_sources('gnarl', [
+            'src/s-bbcpsp__cortexm.ads',
+            'src/s-bbcppr__old.ads',
+            'src/s-bbcppr__armv7m.adb',
+            'src/s-bbinte__generic.adb',
+            'src/s-bbsumu__generic.adb',
+            'src/s-bcpcst__armvXm.ads'])
+
+
+class Armv6MTarget(Target):
+    @property
+    def target(self):
+        return "arm-eabi"
+
+    @property
+    def parent(self):
+        return Armv6MArch
+
+    @property
+    def has_timer_64(self):
+        return False
+
+    @property
+    def has_single_precision_fpu(self):
+        return False
+
+    @property
+    def has_double_precision_fpu(self):
+        return False
+
+    @property
+    def zfp_system_ads(self):
+        return 'system-xi-arm.ads'
+
+    @property
+    def sfp_system_ads(self):
+        return 'system-xi-cortexm4-sfp.ads'
+
+    @property
+    def full_system_ads(self):
+        return 'system-xi-cortexm4-full.ads'
+
+    def __init__(self):
+        super(Armv6MTarget, self).__init__(
+            mem_routines=True,
+            small_mem=True)
+
+
 class CortexMTarget(Target):
     @property
     def target(self):
@@ -255,6 +313,73 @@ class SmartFusion2(CortexMTarget):
             'arm/smartfusion2/svd/handler.S',
             'arm/smartfusion2/svd/a-intnam.ads',
             'src/s-bbpara__smartfusion2.ads'])
+
+
+class M1AGL(Armv6MTarget):
+    @property
+    def name(self):
+        return 'm1agl'
+
+    @property
+    def loaders(self):
+        return (['ROM', 'RAM'])
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+                '-mcpu=cortex-m1')
+
+    @property
+    def has_single_precision_fpu(self):
+        return False
+
+    @property
+    def has_fpu(self):
+        return False
+
+    @property
+    def use_semihosting_io(self):
+        return False
+
+    @property
+    def zfp_system_ads(self):
+        return 'system-xi-arm.ads'
+
+    @property
+    def sfp_system_ads(self):
+        return 'system-xi-m1agl-sfp.ads'
+
+    @property
+    def full_system_ads(self):
+        # no ravenscar-full rts
+        return None
+
+    def __init__(self):
+        super(M1AGL, self).__init__()
+
+        self.add_linker_script('arm/igloo/m1agl/common-ROM.ld', loader='ROM')
+        self.add_linker_script('arm/igloo/m1agl/common-RAM.ld', loader='RAM')
+        self.add_linker_script('arm/igloo/m1agl/memory-map.ld',
+                               loader=['ROM', 'RAM'])
+
+        self.add_sources('crt0', [
+            'arm/igloo/m1agl/start-rom.S',
+            'arm/igloo/m1agl/start-ram.S',
+            'arm/igloo/m1agl/s-bbbopa.ads',
+            'arm/igloo/m1agl/s-bbmcpa.ads',
+            'arm/igloo/m1agl/s-textio.adb',
+            'arm/src/armv6m_irq_trap_without_os_extensions.S'])
+
+        self.add_sources('gnarl', [
+            'arm/igloo/m1agl/a-intnam.ads',
+            'arm/igloo/m1agl/svd/i-m1agl.ads',
+            'arm/igloo/m1agl/svd/i-m1agl-coretimer.ads',
+            'arm/igloo/m1agl/svd/i-m1agl-coreinterrupt.ads',
+            'arm/igloo/m1agl/svd/i-m1agl-coreuartapb.ads',
+            'src/s-bbpara__m1agl.ads',
+            'src/s-bbbosu__m1agl.adb',
+            'src/s-bcpcst__m1agl.adb'])
 
 
 class Stm32CommonBSP(BSP):

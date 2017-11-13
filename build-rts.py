@@ -15,7 +15,7 @@ from support.docgen import docgen
 from pikeos import ArmPikeOS, PpcPikeOS, X86PikeOS
 
 # Cortex-M runtimes
-from arm.cortexm import Stm32, Sam, SmartFusion2, LM3S
+from arm.cortexm import Stm32, Sam, SmartFusion2, LM3S, M1AGL
 
 # Cortex-A/R runtimes
 from arm.cortexar import TMS570, Rpi2, Rpi2Mc, Zynq7000
@@ -83,6 +83,8 @@ def build_configs(target):
         t = TMS570('tms570lc43', uart_io=True)
     elif target == 'lm3s':
         t = LM3S()
+    elif target == 'm1agl':
+        t = M1AGL()
     elif target == 'leon2' or target == 'leon':
         t = Leon2()
     elif target == 'leon3':
