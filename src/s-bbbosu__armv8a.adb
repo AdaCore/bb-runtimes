@@ -277,6 +277,28 @@ package body System.BB.Board_Support is
 
    end APU;
 
+   package Spin_Locks is
+      --  We can't use System.Multiprocessors.Spin_Locks here to implement
+      --  barriers as Board_Support is used before Runtime elaboration while
+      --  System.Multiprocessors.Spin_Locks contains elaboration code.
+      --  We thus need to re-implement it partially.
+      type Spin_Lock is limited private;
+
+      procedure Initialize
+        (Slock  : in out Spin_Lock;
+         Locked : Boolean);
+
+      procedure Lock (Slock : in out Spin_Lock) with Inline_Always;
+      procedure Unlock (Slock : in out Spin_Lock) with Inline_Always;
+
+   private
+      type Atomic_Flag is mod 2**8 with Atomic;
+
+      type Spin_Lock is limited record
+         Flag : aliased Atomic_Flag;
+      end record;
+   end Spin_Locks;
+
    procedure IRQ_Handler;
    pragma Export (C, IRQ_Handler, "__gnat_irq_handler");
    --  Low-level interrupt handler
@@ -285,6 +307,67 @@ package body System.BB.Board_Support is
    pragma Export (C, Initialize_CPU_Devices, "__gnat_initialize_cpu_devices");
    --  Per CPU device initialization
 
+   Initialized_CPUs : Natural := 0;
+   --  Number of initialized CPUs. We start the user code only when all CPUs
+   --  are ready.
+
+   package body Spin_Locks
+   is
+
+      ----------------
+      -- Initialize --
+      ----------------
+
+      procedure Initialize
+        (Slock  : in out Spin_Lock;
+         Locked : Boolean)
+      is
+      begin
+         if Locked then
+            Slock.Flag := 1;
+         else
+            Slock.Flag := 0;
+         end if;
+      end Initialize;
+
+      ----------
+      -- Lock --
+      ----------
+
+      procedure Lock (Slock : in out Spin_Lock)
+      is
+         function Lock_Test_And_Set
+           (Ptr   : access Atomic_Flag;
+            Value : Atomic_Flag)
+            return Atomic_Flag;
+         pragma Import (Intrinsic, Lock_Test_And_Set,
+                        "__sync_lock_test_and_set_1");
+      begin
+         loop
+            exit when Lock_Test_And_Set (Slock.Flag'Access, 1) = 0;
+         end loop;
+      end Lock;
+
+      ------------
+      -- Unlock --
+      ------------
+
+      procedure Unlock (Slock : in out Spin_Lock) is
+         procedure Lock_Release (Ptr : access Atomic_Flag);
+         pragma Import (Intrinsic, Lock_Release,
+                        "__sync_lock_release_1");
+      begin
+         Lock_Release (Slock.Flag'Access);
+      end Unlock;
+
+   end Spin_Locks;
+
+   Lock             : Spin_Locks.Spin_Lock;
+   --  Protects the Initialized_CPUs variable.
+
+   Barrier          : Spin_Locks.Spin_Lock;
+   --  Barrier used to start all CPUs at once.
+
    ----------------------------
    -- Initialize_CPU_Devices --
    ----------------------------
@@ -292,6 +375,7 @@ package body System.BB.Board_Support is
    procedure Initialize_CPU_Devices
    is
       Int_Mask : Unsigned_32 := 0;
+      Wait     : Boolean;
    begin
       --  Timer: using the non-secure physical timer
       --  at init, we disable both the physical and the virtual timers
@@ -342,6 +426,38 @@ package body System.BB.Board_Support is
       --  The view we have here is a GICv2 version with Security extension,
       --  from a non-secure mode
       GIC.GICC_CTLR := 1;
+
+      --  Synchronization barrier handling, used to make sure that all CPUs on
+      --  an SMP system start running the user code at once.
+      if System.BB.Parameters.Multiprocessor
+        and then Multiprocessors.Current_CPU > 1
+      then
+         --  The first CPU do not block here: it needs to return from this
+         --  subprogram to elaborate the runtime, and then call
+         --  Multiprocessors.Start_All_CPUs.
+         --  It'll wait there for the global barrier.
+         --  All other CPUs need to wait here for the barrier to be lifted.
+
+         --  Protect incrementation of Initialized_CPUs
+         Spin_Locks.Lock (Lock);
+         Initialized_CPUs := Initialized_CPUs + 1;
+
+         --  If not all CPUs are initialized, then wait on the Barrier lock
+         Wait := Initialized_CPUs < System.BB.Parameters.Max_Number_Of_CPUs;
+
+         Spin_Locks.Unlock (Lock);
+
+         if Wait then
+            --  Try to take the barrier: it'll wait for all CPUs to be ready
+            Spin_Locks.Lock (Barrier);
+         end if;
+
+         --  Once the barrier is taken, immediately release it so that the
+         --  other CPUs can take it as well.
+         --  This also means that if we're currently running on the last CPU to
+         --  start, we'll start unlocking the previous CPUs.
+         Spin_Locks.Unlock (Barrier);
+      end if;
    end Initialize_CPU_Devices;
 
    ----------------------
@@ -658,8 +774,24 @@ package body System.BB.Board_Support is
 
       procedure Start_All_CPUs is
       begin
+         --  Note: this gets never called in the Uniprocessor case.
          BB.Interrupts.Attach_Handler
            (Poke_Handler'Access, Poke_Interrupt, Interrupt_Priority'Last);
+
+         --  With SMP systems, we implement a barrier to synchronize all CPUs
+         --  at startup
+         if System.BB.Parameters.Multiprocessor then
+            --  Starting CPU is up and running
+            Initialized_CPUs := Initialized_CPUs + 1;
+
+            --  Initialize the spin locks that protects the Initialized_CPUs
+            --  variable
+            Spin_Locks.Initialize (Lock, Locked => False);
+
+            --  Barrier will lock all CPUs at startup waiting for each of them
+            --  to initialize before proceeding with the user application
+            Spin_Locks.Initialize (Barrier, Locked => True);
+         end if;
 
          --  Disable warnings for non-SMP case
          pragma Warnings (Off, "loop range is null*");
@@ -669,6 +801,10 @@ package body System.BB.Board_Support is
          end loop;
 
          pragma Warnings (On, "loop range is null*");
+
+         --  Wait for all CPUs to actually start
+         Spin_Locks.Lock (Barrier);
+         Spin_Locks.Unlock (Barrier);
       end Start_All_CPUs;
 
       ------------------
