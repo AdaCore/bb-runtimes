@@ -23,6 +23,7 @@ class Visium(DFBBTarget):
         return VisiumBSP
 
     def amend_rts(self, rts_profile, conf):
+        conf.rts_vars['Has_libc'] = 'yes'
         conf.rts_xml = readfile('visium/mcm/runtime.xml')
         conf.build_flags['common_flags'] += ['-muser-mode']
 

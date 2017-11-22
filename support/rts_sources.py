@@ -34,6 +34,7 @@ class RTSOptions(object):
         'RTS_Profile': ['zfp', 'ravenscar-sfp', 'ravenscar-full'],
         'CPU_Family': ['arm', 'aarch64', 'leon', 'powerpc', 'x86'],
         'Has_FPU': ['no', 'yes'],
+        'Has_libc': ['no', 'yes'],
         'Memory_Profile': ['small', 'large'],
         'Timer': ['timer32', 'timer64'],
         'Pikeos_Version': ['pikeos3', 'pikeos4'],
@@ -74,6 +75,8 @@ class RTSOptions(object):
             ret['Has_FPU'] = 'yes'
         else:
             ret['Has_FPU'] = 'no'
+
+        ret['Has_libc'] = 'no'
 
         if mem_routines:
             ret['Add_Memory_Operations'] = 'yes'
@@ -195,6 +198,7 @@ class RTSOptions(object):
             # ravenscar-full requires C memory operations, either via newlib
             # or via our own implementation in Ada
             ret['Add_C_Support'] = "newlib"
+            ret['Has_libc'] = 'yes'
 
         return ret
 
@@ -619,9 +623,19 @@ class SourceDirs(SharedFilesHolder):
             'hie/a-tags__hie.ads', 'hie/a-tags__hie.adb',
             'hie/i-c__hie.ads', 'hie/s-assert__xi.adb'])
         if self._is_bb:
+            self.add_rule('alloc_c', ['RTS_Profile:zfp', 'Has_libc:yes'])
+            self.add_rule('alloc_notask', ['RTS_Profile:zfp', 'Has_libc:no'])
+            self.add_rule('alloc_tasking', 'RTS_Profile:ravenscar-sfp')
+
             self.add_sources('zfp', [
-                'hie/s-memory__zfp.ads',
+                'hie/s-memory__zfp.ads'])
+            self.add_sources('alloc_c', [
+                'hie/s-memory__libc.adb'])
+            self.add_sources('alloc_notask', [
                 'hie/s-memory__zfp.adb'])
+            self.add_sources('alloc_tasking', [
+                'hie/s-memory__raven-min.adb'])
+
         else:
             self.add_rule('zfp-io', 'RTS_Profile:zfp')
             self.add_sources('zfp-io', [
