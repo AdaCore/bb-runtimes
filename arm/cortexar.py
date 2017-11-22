@@ -133,7 +133,7 @@ class TMS570(CortexARTarget):
         if self.variant == 'tms570ls31':
             base = 'tms570'
         else:
-            base = 'a6mc'
+            base = 'tms570lc'
 
         if self.uart_io:
             return "%s_sci" % base

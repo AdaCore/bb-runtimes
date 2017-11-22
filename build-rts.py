@@ -76,10 +76,10 @@ def build_configs(target):
     elif target == 'tms570_sci':
         # by default, the TMS570LS3137 HDK board
         t = TMS570('tms570ls31', uart_io=True)
-    elif target == 'a6mc':
-        # alias for the LaunchPad TMS570LC43x board
+    elif target == 'tms570lc':
+        # alias for the TMS570LC43x HDK board
         t = TMS570('tms570lc43')
-    elif target == 'a6mc_sci':
+    elif target == 'tms570lc_sci':
         t = TMS570('tms570lc43', uart_io=True)
     elif target == 'lm3s':
         t = LM3S()
