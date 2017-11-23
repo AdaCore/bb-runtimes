@@ -33,6 +33,7 @@ class RTSOptions(object):
     scenario = {
         'RTS_Profile': ['zfp', 'ravenscar-sfp', 'ravenscar-full'],
         'CPU_Family': ['arm', 'aarch64', 'leon', 'powerpc', 'x86'],
+        'Address_Size': ['32-bit', '64-bit'],
         'Has_FPU': ['no', 'yes'],
         'Has_libc': ['no', 'yes'],
         'Memory_Profile': ['small', 'large'],
@@ -78,6 +79,11 @@ class RTSOptions(object):
             ret['Has_FPU'] = 'no'
 
         ret['Has_libc'] = 'no'
+
+        if self.config.address_64bit:
+            ret['Address_Size'] = '64-bit'
+        else:
+            ret['Address_Size'] = '32-bit'
 
         if mem_routines:
             ret['Add_Memory_Operations'] = 'yes'
@@ -628,6 +634,10 @@ class SourceDirs(SharedFilesHolder):
             self.add_rule('alloc_c', ['RTS_Profile:zfp', 'Has_libc:yes'])
             self.add_rule('alloc_notask', ['RTS_Profile:zfp', 'Has_libc:no'])
             self.add_rule('alloc_tasking', 'RTS_Profile:ravenscar-sfp')
+            self.add_rule('alloc_32bit', [
+                'RTS_Profile:ravenscar-sfp', 'Address_Size:32-bit'])
+            self.add_rule('alloc_64bit', [
+                'RTS_Profile:ravenscar-sfp', 'Address_Size:64-bit'])
 
             self.add_sources('zfp', [
                 'hie/s-memory__zfp.ads'])
@@ -636,7 +646,11 @@ class SourceDirs(SharedFilesHolder):
             self.add_sources('alloc_notask', [
                 'hie/s-memory__zfp.adb'])
             self.add_sources('alloc_tasking', [
-                'hie/s-memory__raven-min.adb'])
+                'hie/s-memory__raven.adb'])
+            self.add_sources('alloc_32bit', [
+                'hie/s-memmul__raven-32.adb'])
+            self.add_sources('alloc_64bit', [
+                'hie/s-memmul__raven-64.adb'])
 
         else:
             self.add_rule('zfp-io', 'RTS_Profile:zfp')

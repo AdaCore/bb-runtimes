@@ -28,6 +28,10 @@ class TargetConfiguration(object):
         return False
 
     @property
+    def address_64bit(self):
+        return False
+
+    @property
     def has_fpu(self):
         return self.is_pikeos or \
             self.has_single_precision_fpu or self.has_double_precision_fpu

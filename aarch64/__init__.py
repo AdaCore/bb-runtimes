@@ -8,6 +8,10 @@ class Aarch64Arch(BSP):
     def name(self):
         return "aarch64"
 
+    @property
+    def address_64bit(self):
+        return True
+
     def __init__(self):
         super(Aarch64Arch, self).__init__()
         self.add_sources('arch', [
