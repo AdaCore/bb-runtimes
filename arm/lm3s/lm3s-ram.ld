@@ -100,6 +100,8 @@ SECTIONS
    __stack_end = .;
 
    _end = .;
+    __heap_start = .;
+    __heap_end = ORIGIN(sram) + LENGTH(sram);
   } > sram
 
   __bss_words = (__bss_end - __bss_start) >> 2;
