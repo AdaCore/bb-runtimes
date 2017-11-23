@@ -46,6 +46,7 @@ class X86Native(DFBBTarget):
 
     def amend_rts(self, rts_profile, cfg):
         super(X86Native, self).amend_rts(rts_profile, cfg)
+        cfg.rts_vars['Has_libc'] = 'yes'
         cfg.rts_xml = (
             '<?xml version="1.0" ?>\n'
             '<gprconfig>\n'
