@@ -7,11 +7,16 @@ _DEFAULT_STACK_SIZE = 64 * 1024;
 
 MEMORY
 {
-  extsram (RWXA) : ORIGIN = 0x02000000, LENGTH = 512K
+  /* To be adjusted: this corresponds to the P2020 RDB */
+  sdram (RWXA) : ORIGIN = 0x0, LENGTH = 1024M
 }
 
 SECTIONS
 {
+  /* Start at 32 MB to leave room for the bootloader */
+  . = 0x02000000;
+
+  . = ALIGN (1024);
   .text           :
   {
     __text = .;
@@ -119,7 +124,7 @@ SECTIONS
   }
 
   __heap_start = _end;
-  __heap_end = ORIGIN(extsram) + LENGTH(extsram);
+  __heap_end = ORIGIN(sdram) + LENGTH(sdram);
 
   .comment       0 : { *(.comment) }
 
