@@ -646,7 +646,7 @@ class SourceDirs(SharedFilesHolder):
                 'hie/a-textio__bb.adb'])
             self.add_sources('zfp', [
                 'hie/s-memory__zfp.ads',
-                'hie/s-memory__raven-min.adb'])
+                'hie/s-memory__raven.adb'])
 
         # ZFP only libgnat files
         self.add_rule('zfp-parame', 'RTS_Profile:zfp')
