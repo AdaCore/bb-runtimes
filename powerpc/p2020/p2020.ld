@@ -8,15 +8,12 @@ _DEFAULT_STACK_SIZE = 64 * 1024;
 MEMORY
 {
   /* To be adjusted: this corresponds to the P2020 RDB */
-  sdram (RWXA) : ORIGIN = 0x0, LENGTH = 1024M
+  /* Start at 32 MB to leave room for the bootloader */
+  sdram (RWXA) : ORIGIN = 0x02000000, LENGTH = 1024M - 32M
 }
 
 SECTIONS
 {
-  /* Start at 32 MB to leave room for the bootloader */
-  . = 0x02000000;
-
-  . = ALIGN (1024);
   .text           :
   {
     __text = .;
