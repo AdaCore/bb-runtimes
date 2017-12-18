@@ -40,6 +40,7 @@ class RTSOptions(object):
         'Add_Math_Lib': [
             'no', 'softfloat', 'hardfloat',
             'hardfloat_dp', 'hardfloat_sp'],
+        'Add_Complex_Type_Support': ['no', 'yes'],
         'Add_Arith64': ['no', 'yes'],
         # 'Image:
         'Add_Image_Enum': ['no', 'yes'],
@@ -100,7 +101,7 @@ class RTSOptions(object):
                 ret['Add_Math_Lib'] = 'hardfloat'
         else:
             ret['Add_Math_Lib'] = 'no'
-
+        ret['Add_Complex_Type_Support'] = 'no'
         ret['Add_C_Support'] = "no"
         ret['Add_Arith64'] = "no"
         ret['Add_Exponent_Int'] = "no"
@@ -176,6 +177,7 @@ class RTSOptions(object):
         # override the RTS value
         ret['RTS_Profile'] = 'ravenscar-full'
         ret['Add_Arith64'] = "yes"
+        ret['Add_Complex_Type_Support'] = 'yes'
         ret['Add_Exponent_Int'] = "yes"
         ret['Add_Exponent_LL_Int'] = "yes"
         ret['Add_Exponent_Modular'] = "yes"
@@ -565,7 +567,7 @@ class SourceDirs(SharedFilesHolder):
             'hie/s-lisisq__ada.ads'])
 
         self.add_rule('math-complex',
-                      ['RTS_Profile:ravenscar-full',  # ??? Add a scenario var
+                      ['Add_Complex_Type_Support:yes',
                        'Add_Math_Lib:!no'])
         self.add_sources('math-complex', [
             'libgnat/a-ncelfu.ads',
