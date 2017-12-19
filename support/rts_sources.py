@@ -637,8 +637,7 @@ class SourceDirs(SharedFilesHolder):
         # ZFP only libgnat files
         self.add_rule('zfp-parame', 'RTS_Profile:zfp')
         self.add_sources('zfp-parame', [
-            'hie/s-parame__zfp.ads',
-            'hie/s-parame__zfp.adb'])
+            'hie/s-parame__zfp.ads'])
 
     def init_sfp(self):
         """ravenscar-sfp files"""
