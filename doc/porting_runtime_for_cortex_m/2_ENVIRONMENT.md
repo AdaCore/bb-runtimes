@@ -7,15 +7,15 @@ To follow this tutorial, you will need
  1. at least one of the boards.
  2. the [stlink tools](https://github.com/texane/stlink)
  3. a GNAT compiler for ARM that can be downloaded from the GNAT
-    [libre site](https://libre.adacore.com)
- 4. the GNAT runtimes BSPs from the AdaCore
+    [Ada Community site](https://www.adacore.com/community)
+ 4. the GNAT run-times' BSPs from the AdaCore
     [github repository](https://github.com/AdaCore/bb-runtimes)
  5. [svd2ada](https://github.com/AdaCore/svd2ada)
- 6. a SVD description file for you MCU
+ 6. a SVD description file for your MCU
 
-*install the GNAT compiler:*
+*Install the GNAT compiler:*
 
-On linux:
+On Linux:
 
 ```
    $ tar zxvf <gnat_package>.tgz
@@ -25,18 +25,18 @@ On linux:
    $ export PATH=<install path>/bin:$PATH
 ```
 
-On windows, run the installer, and make sure to check that the compiler is
+On Windows, run the installer, and make sure to check that the compiler is
 properly added to the PATH.
 
-*build/install the stlink tools*
+*Build/install the stlink tools*
 
 Follow the instructions from the stlink repository, or install a pre-built
-version of the tools.
+version of the tools. 
 
-Note that on Windows, a version of stlink comes pre-installed with the GPS
-IDE, so this step can be skipped in this case.
+Note that on Windows, a version of stlink comes pre-installed with the ARM
+ELF compiler, so this step can be skipped in that case.
 
-*clone the bb-runtimes repository*
+*Clone the bb-runtimes repository*
 
 Make sure you have git installed, then
 
@@ -44,7 +44,7 @@ Make sure you have git installed, then
    git clone https://github.com/AdaCore/bb-runtimes
 ```
 
-*build svd2ada*
+*Build svd2ada*
 
 SVD2Ada is a tool that uses
 [CMSIS-SVD](https://arm-software.github.io/CMSIS_5/SVD/html/index.html)
@@ -63,7 +63,8 @@ so always check the generated bindings when implementing a peripheral driver.
 
 ## bb-runtimes repository organisation
 
-The bb-runtimes repository is used to generate the projects used to build and install the run-times.
+The bb-runtimes repository is used to generate the projects used to build and
+install the run-time libraries.
 
 The files of interest in this repository are:
 ```
@@ -86,26 +87,26 @@ The files of interest in this repository are:
 └── build-rts.py
 ```
 
-build-rts.py is the main script that will generate the runtime BSPs project directory.
+build-rts.py is the main script that will generate the run-time BSPs project directory.
 
 The actual BSP sources are split into two main locations: the src directory and the target-specific directories.
 
 The sources in src come in general with many variants, that are denoted via a double underscore in their name. Once installed via build-rts.py the variant part is automatically removed from the file name.
 
-For example: `s-bbbosu__armv7m.adb` is installed as `s-bbbosu.adb` in the runtime.
+For example: `s-bbbosu__armv7m.adb` is installed as `s-bbbosu.adb` in the run-time.
 
 The sources in the target-specific directories (such as `arm/stm32/stm32f40x`) are low-level startup code and linker scripts. The startup code includes the clock configuration.
 
-### check your installation
+### Check your installation
 
-To check your installation, we'll re-generate the stm32f4 runtime:
+To check your installation, we'll re-generate the stm32f4 run-time:
 
 ```
 $ cd bb-runtimes
 $ mkdir build
 $ ./build-rts.py --bsps-only --output=build --prefix=arm-eabi/lib/gnat --link stm32f4
 ```
-This generates the proper project tree that will be used to actually build and install the runtimes for the stm32f4.
+This generates the proper project tree that will be used to actually build and install the run-times for the stm32f4.
 
 At this stage, you should have
 ```
@@ -147,19 +148,19 @@ build
 ```
 
 **Important note:** in the call to build-rts.py:
-* *--bsps-only* will generate only the necessary tree structure for building the runtimes using a mix of sources from bb-runtimes and from the compiler itself. Without this switch, you would need both the original gnat repository (not publicly available), and the gcc sources.
-* *--link* is creating symbolic links in the generated tree, as this is useful when developing a new runtime. **This won't work on Windows** as symbolic links are not supported on this platform.
-* *--prefix=arm-eabi/lib/gnat* this prefix is relative to the final installation directory. When the runtime is installed in the GNAT installation directory, then gprbuild will be able to find the new runtime by its simple name.
+* *--bsps-only* will generate only the necessary tree structure for building the run-times using a mix of sources from bb-runtimes and from the compiler itself. Without this switch, you would need both the original gnat repository (not publicly available), and the gcc sources.
+* *--link* is creating symbolic links in the generated tree, as this is useful when developing a new run-time. **This won't work on Windows** as symbolic links are not supported on this platform.
+* *--prefix=arm-eabi/lib/gnat* this prefix is relative to the final installation directory. When the run-time is installed in the GNAT installation directory, then gprbuild will be able to find the new run-time by its simple name.
 
 
-Now let's build and install a runtime:
+Now let's build and install a run-time:
 
 ```
 $ gprbuild -P build/BSPs/ravenscar_sfp_stm32f4.gpr
 $ gprinstall -f -p -P build/BSPs/ravenscar_sfp_stm32f4.gpr --prefix=./runtimes
 ```
 
-The runtimes directory should have been created at this stage, and contain the runtime:
+The run-times directory should have been created at this stage, and contain the run-time library:
 
 ```
 runtimes/
@@ -179,23 +180,23 @@ runtimes/
         └── manifests
 ```
 
-Note that the prefix given to gprinstall can be set to the GNAT installation directory, to ease developing applications that use the newly generated runtime.
+Note that the prefix given to gprinstall can be set to the GNAT installation directory, to ease developing applications that use the newly generated run-time.
 
-So for example if gnat is installed in `/opt/gnat`, then doing `gprinstall -f -p -P<rtsproject> --prefix=/opt/gnat` will allow you to later on use your runtime by just specifying `gprbuild --RTS=ravenscar-sfp-mystm32`.
+So for example if gnat is installed in `/opt/gnat`, then doing `gprinstall -f -p -P<rtsproject> --prefix=/opt/gnat` will allow you to later on use your run-time by just specifying `gprbuild --RTS=ravenscar-sfp-mystm32`.
 
-To use the runtimes installed in other directories, the you'd have to specify the full path to the runtime explicitely: `gprbuild --RTS=/full/path/to/ravenscar-sfp-mystm32`
+To use the run-times installed in other directories, the you'd have to specify the full path to the run-time explicitely: `gprbuild --RTS=/full/path/to/ravenscar-sfp-mystm32`
 
-## creating the sources for the new runtime
+## creating the sources for the new run-time
 
-Now is the time to create a new runtime, based on the 'stm32f4' runtimes that come pre-installed with GNAT for ARM.
+Now is the time to create a new run-time, based on the 'stm32f4' run-times that come pre-installed with GNAT for ARM.
 
-We'll name it 'mystm32' runtime for the purpose of this tutorial.
+We'll name it 'mystm32' run-time for the purpose of this tutorial.
 
 So first, let's copy the arm/stm32/stm32f40x directory as arm/stm32/mystm32.
 
 `cp -r arm/stm32/stm32f40x arm/stm32/mystm32`
 
-Now we'll need to edit the arm/cortexm.py file to add support for generating a runtime for 'mystm32':
+Now we'll need to edit the arm/cortexm.py file to add support for generating a run-time for 'mystm32':
 
 ```
 diff --git a/arm/cortexm.py b/arm/cortexm.py
@@ -221,7 +222,7 @@ index 307ec13..412b795 100644
              assert False, "Unknown stm32 board: %s" % self.board
 ```
 
-This modification is specific to the STM32. To port the runtime for other targets, please read the class responsible for generating the BSP and adapt as necessary.
+This modification is specific to the STM32. To port the run-time for other targets, please read the class responsible for generating the BSP and adapt as necessary.
 
 You will finally need to modify the build-rts.py script:
 
@@ -234,9 +235,9 @@ You will finally need to modify the build-rts.py script:
          t = Stm32(target)
 ```
 
-### generating your custom runtime
+### generating your custom run-time
 
-You should now be ready to generate your own runtime:
+You should now be ready to generate your own run-time:
 
 ```
 $ ./build-rts.py --bsps-only --output=build --prefix=arm-eabi/lib/gnat --link mystm32

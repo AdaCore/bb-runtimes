@@ -1,28 +1,12 @@
 # Presentation of this tutorial
+ 
+This tutorial shows how to adapt and configure a Ravenscar
+run-time library (Full or SFP) for a MCU/board that is not
+already supported by your GNAT compiler.
 
-So where to start? First, we need to understand what is MCU-specific, and what
-is board-specific:
-
- * Instructions, architecture are MCU specific. GCC is configured to
-   produce code that is compatible with a specific architecture. This
-   also takes into account specific floating point instructions when they
-   are supported by the hardware.  Initialization of an MCU is specific
-   to a family (All STM32F4 share the same code, the F7 will need
-   adjustments).
- * The interrupts are MCU-specific, but their number and assignments
-   vary from one minor version to another depending on the features
-   provided by the MCU.
- * Memory mapping is also MCU-specific. However there are differences
-   in the amount of available memory depending on the exact version of
-   the MCU (e.g. this is not a property of the MCU family). This
-   concerns the in-MCU memory (the SRAM), not the potential external
-   SDRAM memory that depends on the board.
-In this document, we'll try to show how to adapt and configure a ravenscar
-run-time (Full or SFP) to a MCU/board when the specific MCU or board does not
-come predefined with your GNAT compiler.
-
-To do so, I will use GNAT GPL for ARM ELF and 3 boards of the same family: the
-STM32F429I-Discovery, the STM32F469I-Discovery, and the STM32F746G-Discovery.
+To do so, we will use GNAT GPL for ARM ELF and 3 boards of the same family: the
+STM32F429I-Discovery, the STM32F469I-Discovery, and the STM32F746G-Discovery
+from STMicroeletronics.
 
 These boards are interesting because:
 
