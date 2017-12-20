@@ -160,7 +160,7 @@ $ gprbuild -P build/BSPs/ravenscar_sfp_stm32f4.gpr
 $ gprinstall -f -p -P build/BSPs/ravenscar_sfp_stm32f4.gpr --prefix=./runtimes
 ```
 
-The run-times directory should have been created at this stage, and contain the run-time library:
+The runtimes directory should have been created at this stage, and contain the run-time library:
 
 ```
 runtimes/
