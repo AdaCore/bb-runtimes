@@ -43,7 +43,7 @@
 .set    SCNTRS_EN,      0xFF260000      /* Global counter */
 .set    SCNTRS_FREQ,    0xFF260020
 
-#include "start-config.h"
+#include "start-config.S"
 
 .section .boot,"ax"
 
@@ -463,4 +463,4 @@ system_stack_base:
 
 .text
 
-#include "memmap.s"
+#include "memmap.S"

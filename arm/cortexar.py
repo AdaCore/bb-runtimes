@@ -105,7 +105,7 @@ class Rpi2(Rpi2Base):
 
         self.add_sources('crt0', [
             'arm/rpi2/start-ram.S',
-            'arm/rpi2/memmap.s',
+            'arm/rpi2/memmap.S',
             'src/s-textio__rpi2-mini.adb'])
         self.add_sources('gnarl', [
             'src/s-bbpara__rpi2.ads'])
@@ -121,7 +121,7 @@ class Rpi2Mc(Rpi2Base):
 
         self.add_sources('crt0', [
             'arm/rpi2-mc/start-ram.S',
-            'arm/rpi2-mc/memmap.s',
+            'arm/rpi2-mc/memmap.S',
             'src/s-textio__rpi2-pl011.adb'])
         self.add_sources('gnarl', [
             'src/s-bbpara__rpi2.ads'])
@@ -273,7 +273,7 @@ class Zynq7000(CortexARTarget):
         self.add_linker_script('arm/zynq/ram.ld', loader='RAM')
         self.add_sources('crt0', [
             'arm/zynq/start-ram.S',
-            'arm/zynq/memmap.inc',
+            'arm/zynq/memmap.S',
             'src/s-textio__zynq.adb',
             'src/s-macres__zynq.adb'])
         self.add_sources('gnarl', [

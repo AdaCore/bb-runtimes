@@ -164,7 +164,7 @@ __start_slave_cpu:
 	/*  Enable MMU, I-Cache and D-Cache.  */
 	movw	r2,#0x1005		@ D-cache, I-cache, MMU
 	mcr	p15,4,r2,c1,c0,0	@ write hsctlr
-	
+
 	/* Synchronization barriers.  */
 	dsb				@ Allows MMU to start
 	isb				@ Flushes pre-fetch buffer
@@ -225,4 +225,4 @@ mmu_tcr:
  memmap.py --arch=arm-long --el2 /memmap.xml > memmap.s
 */
 
-#include "memmap.s"
+#include "memmap.S"

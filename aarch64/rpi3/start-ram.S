@@ -126,7 +126,7 @@ __start_el2:
 	add	x0,x0,#:lo12:__vectors
 	msr	vbar_el2, x0
 	msr	vbar_el1, x0
-	
+
 	// Switch to el1h, set AIF
 	mov	x0, #(0x1c0 + 5)
 	msr	spsr_el2, x0
@@ -147,7 +147,7 @@ __start_el1:
 	adrp	x0,__vectors
 	add	x0,x0,#:lo12:__vectors
 	msr	vbar_el1, x0
-	
+
 	/* Enable SIMD.  */
 	mov	x0, #(1 << 20)
 	msr	cpacr_el1, x0
@@ -468,4 +468,4 @@ __trap_syn_elx:
 	.weak	__gnat_initialize_slave
 	.weak	__gnat_fpen_trap
 
-#include "memmap.s"
+#include "memmap.S"

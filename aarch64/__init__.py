@@ -89,14 +89,14 @@ class ZynqMP(Aarch64Target):
         super(ZynqMP, self).amend_rts(rts_profile, cfg)
         if rts_profile == 'ravenscar-mc':
             cfg.add_sources('arch', {
-                'start-config.h': 'aarch64/zynqmp/start-config-el2.h',
-                'memmap.s': 'aarch64/zynqmp/memmap-el2.s'})
+                'start-config.S': 'aarch64/zynqmp/start-config-el2.S',
+                'memmap.S': 'aarch64/zynqmp/memmap-el2.S'})
             cfg.add_sources('gnarl', [
                 'src/s-bbpara__zynqmp-el2.ads'])
         else:
             cfg.add_sources('arch', {
-                'start-config.h': 'aarch64/zynqmp/start-config-el1.h',
-                'memmap.s': 'aarch64/zynqmp/memmap-el1.s'})
+                'start-config.S': 'aarch64/zynqmp/start-config-el1.S',
+                'memmap.S': 'aarch64/zynqmp/memmap-el1.S'})
             cfg.add_sources('gnarl', [
                 'src/s-bbpara__zynqmp.ads'])
 
@@ -160,7 +160,7 @@ class Rpi3(Rpi3Base):
 
         self.add_sources('crt0', [
             'aarch64/rpi3/start-ram.S',
-            'aarch64/rpi3/memmap.s',
+            'aarch64/rpi3/memmap.S',
             'src/s-textio__rpi2-mini.adb'])
         self.add_sources('gnarl', [
             'src/s-bbpara__rpi2.ads'])
@@ -180,7 +180,7 @@ class Rpi3Mc(Rpi3Base):
             'aarch64/rpi3-mc/traps_el2cur.S',
             'aarch64/rpi3-mc/traps_el2low.S',
             'aarch64/rpi3-mc/traps_common.h',
-            'aarch64/rpi3-mc/memmap.s',
+            'aarch64/rpi3-mc/memmap.S',
             'src/s-textio__rpi2-pl011.adb'])
         self.add_sources('gnarl', [
             'src/s-bbpara__rpi2-hyp.ads'])

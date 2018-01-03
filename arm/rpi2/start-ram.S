@@ -272,5 +272,4 @@ irq_stack_size:
 
 	.p2align 14
 __tt0:
-	#include	"memmap.s"
-
+	#include	"memmap.S"
