@@ -2,8 +2,8 @@ import copy
 import os
 
 from bsp import BSP
-from support import readfile
-from files_holder import FilesHolder, fullpath
+from support import readfile, datapath
+from files_holder import FilesHolder
 from rts_sources import RTSOptions
 
 
@@ -433,7 +433,9 @@ class Target(TargetConfiguration, BSP):
             gnat_dirs.append(rel)
             if 'C' not in gnat_langs and self.has_c(d):
                 gnat_langs.append('C')
-            if 'Asm_Cpp' not in gnat_langs and self.has_asm(d):
+            if 'Asm' not in gnat_langs and self.has_asm(d):
+                gnat_langs.append('Asm')
+            if 'Asm_Cpp' not in gnat_langs and self.has_asm_cpp(d):
                 gnat_langs.append('Asm_Cpp')
 
         for d in bsp_gnarl:
@@ -442,7 +444,9 @@ class Target(TargetConfiguration, BSP):
             gnarl_dirs.append(rel)
             if 'C' not in gnarl_langs and self.has_c(d):
                 gnarl_langs.append('C')
-            if 'Asm_Cpp' not in gnarl_langs and self.has_asm(d):
+            if 'Asm' not in gnarl_langs and self.has_asm(d):
+                gnarl_langs.append('Asm')
+            if 'Asm_Cpp' not in gnarl_langs and self.has_asm_cpp(d):
                 gnarl_langs.append('Asm_Cpp')
 
         # Now install the rts-specific sources
@@ -486,8 +490,11 @@ class Target(TargetConfiguration, BSP):
                     if 'C' not in rts_gnarl_langs and \
                        dirname in rts_obj.c_srcs:
                         rts_gnarl_langs.append('C')
-                    if 'Asm_Cpp' not in rts_gnarl_langs and \
+                    if 'Asm' not in rts_gnarl_langs and \
                        dirname in rts_obj.asm_srcs:
+                        rts_gnarl_langs.append('Asm')
+                    if 'Asm_Cpp' not in rts_gnarl_langs and \
+                       dirname in rts_obj.asm_cpp_srcs:
                         rts_gnarl_langs.append('Asm_Cpp')
                 else:
                     if dirname not in gnat_dirs:
@@ -495,8 +502,11 @@ class Target(TargetConfiguration, BSP):
                     if 'C' not in rts_gnat_langs and \
                        dirname in rts_obj.c_srcs:
                         rts_gnat_langs.append('C')
-                    if 'Asm_Cpp' not in rts_gnat_langs and \
+                    if 'Asm' not in rts_gnat_langs and \
                        dirname in rts_obj.asm_srcs:
+                        rts_gnat_langs.append('Asm')
+                    if 'Asm_Cpp' not in rts_gnat_langs and \
+                       dirname in rts_obj.asm_cpp_srcs:
                         rts_gnat_langs.append('Asm_Cpp')
 
                 full = os.path.join(base_rts, dirname)
@@ -553,7 +563,7 @@ class Target(TargetConfiguration, BSP):
             build_flags = {
                 'link_sources': link_sources,
                 'rts_files': '",\n         "'.join(inst_files)}
-            cnt = readfile(fullpath('src/install.gpr'))
+            cnt = readfile(datapath('install.gpr'))
             # Format
             cnt = cnt.format(**build_flags)
             # Write
@@ -564,7 +574,7 @@ class Target(TargetConfiguration, BSP):
             build_flags = {}
             for f in ['common_flags', 'asm_flags', 'c_flags']:
                 build_flags[f] = '",\n        "'.join(rts_obj.build_flags[f])
-            cnt = readfile(fullpath('src/target_options.gpr'))
+            cnt = readfile(datapath('target_options.gpr'))
             # Format
             cnt = cnt.format(**build_flags)
             # Write
@@ -596,7 +606,7 @@ class Target(TargetConfiguration, BSP):
                 projects = ('libgnat', 'libgnarl')
 
             for fname in projects:
-                cnt = readfile(fullpath('src/%s.gpr' % fname))
+                cnt = readfile(datapath('%s.gpr' % fname))
                 # Format
                 cnt = cnt.format(**prj_values)
                 # Write

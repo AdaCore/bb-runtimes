@@ -235,7 +235,9 @@ class SourceDirs(SharedFilesHolder):
             for d in current['__dirs__']:
                 if 'C' not in langs and d in self.c_srcs:
                     langs.append('C')
-                if 'Asm_Cpp' not in langs and d in self.asm_srcs:
+                if 'Asm' not in langs and d in self.asm_srcs:
+                    langs.append('Asm')
+                if 'Asm_Cpp' not in langs and d in self.asm_cpp_srcs:
                     langs.append('Asm_Cpp')
             if len(langs) > 0:
                 ret += blank + '%s_Langs := %s_Langs & ("%s");\n' % (

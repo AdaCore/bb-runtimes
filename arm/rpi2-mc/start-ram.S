@@ -225,4 +225,4 @@ mmu_tcr:
  memmap.py --arch=arm-long --el2 /memmap.xml > memmap.s
 */
 
-#include "memmap.S"
+#include "memmap.s"

@@ -43,7 +43,7 @@
 .globl __irq_interrupt_low
 .globl __fiq_interrupt_low
 
-#include "start-config.S"
+#include "start-config.inc"
 
 .org 0
 .section .vectors, "a"

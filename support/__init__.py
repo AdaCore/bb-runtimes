@@ -3,6 +3,8 @@ import os
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
+DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+
 
 def fullpath(filename):
     """Returns the full path of filename.
@@ -16,6 +18,10 @@ def fullpath(filename):
         return os.path.abspath(
             os.path.join(os.path.dirname(os.path.dirname(__file__)),
                          filename))
+
+
+def datapath(filename):
+    return os.path.join(DATA_DIR, filename)
 
 
 def readfile(filename):

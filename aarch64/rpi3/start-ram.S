@@ -468,4 +468,4 @@ __trap_syn_elx:
 	.weak	__gnat_initialize_slave
 	.weak	__gnat_fpen_trap
 
-#include "memmap.S"
+#include "memmap.inc"

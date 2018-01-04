@@ -36,7 +36,7 @@
 	.global __start_ram
 
 	.section .traps
-	#include	"memmap.S"
+	#include	"memmap.s"
 
 	/* The following provide default definitions for trap vectors that
 	loop back to the trap address, so the system will stop in a safe

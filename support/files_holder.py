@@ -19,6 +19,7 @@ class FilesHolder(object):
         self.dirs = {}
         self.c_srcs = []
         self.asm_srcs = []
+        self.asm_cpp_srcs = []
 
         # Read manifest file (if exists)
         manifest_file = os.path.join(self.gnatdir, "MANIFEST.GNAT")
@@ -43,9 +44,11 @@ class FilesHolder(object):
             if dst.endswith('.c') or dst.endswith('.h'):
                 self.c_srcs.append(dir)
         if dir not in self.asm_srcs:
-            if dst.endswith('.s') or dst.endswith('.S') \
-               or dst.endswith('.inc'):
+            if dst.endswith('.s'):
                 self.asm_srcs.append(dir)
+        if dir not in self.asm_cpp_srcs:
+            if dst.endswith('.S') or dst.endswith('.inc'):
+                self.asm_cpp_srcs.append(dir)
 
     def add_sources(self, dir, sources):
         if dir not in self.dirs:

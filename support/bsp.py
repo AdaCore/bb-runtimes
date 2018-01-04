@@ -58,6 +58,13 @@ class BSP(FilesHolder):
         else:
             return self._parent.has_c(dir)
 
+    def has_asm_cpp(self, dir):
+        if dir.startswith(self.rel_path):
+            d = dir.replace(self.rel_path + 'src/', '')
+            return d in self.asm_cpp_srcs
+        else:
+            return self._parent.has_asm_cpp(dir)
+
     def has_asm(self, dir):
         if dir.startswith(self.rel_path):
             d = dir.replace(self.rel_path + 'src/', '')
