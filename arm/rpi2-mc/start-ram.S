@@ -222,7 +222,7 @@ mmu_tcr:
 	.weak	__gnat_initialize_cpu_devices
 
 /* Generate memmap with:
- memmap.py --arch=arm-long --el2 /memmap.xml > memmap.s
+ memmap.py --arch=arm-long --el2 /memmap.xml > memmap.S
 */
 
-#include "memmap.s"
+#include "memmap.S"

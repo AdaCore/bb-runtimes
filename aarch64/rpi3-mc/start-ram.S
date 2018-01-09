@@ -226,4 +226,4 @@ interrupt_stack_el2_base:
 	.weak	__gnat_initialize_cpu_devices
 	.weak	__gnat_initialize_slave
 
-#include "memmap.inc"
+#include "memmap.S"

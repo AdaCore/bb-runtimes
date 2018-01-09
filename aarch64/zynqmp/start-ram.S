@@ -44,7 +44,7 @@
 .set    SCNTRS_FREQ,    0xFF260020
 
 #include "start-config.inc"
-#include "memmap.s"
+#include "memmap.S"
 
 .section .boot,"ax"
 
