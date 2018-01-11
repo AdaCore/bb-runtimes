@@ -1,6 +1,6 @@
-from support import readfile
-from support.target import DFBBTarget
 from native import NativeBSP
+from support import readfile
+from support.bsp_sources.target import DFBBTarget
 
 
 class VisiumBSP(NativeBSP):

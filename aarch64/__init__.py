@@ -1,9 +1,9 @@
 # BSP support for ARM64
-from support.bsp import BSP
-from support.target import DFBBTarget
+from support.bsp_sources.archsupport import ArchSupport
+from support.bsp_sources.target import DFBBTarget
 
 
-class Aarch64Arch(BSP):
+class Aarch64Arch(ArchSupport):
     @property
     def name(self):
         return "aarch64"

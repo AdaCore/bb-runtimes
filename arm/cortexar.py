@@ -1,9 +1,9 @@
 # BSP support for Cortex-A/R
-from support.bsp import BSP
-from support.target import DFBBTarget
+from support.bsp_sources.archsupport import ArchSupport
+from support.bsp_sources.target import DFBBTarget
 
 
-class CortexARArch(BSP):
+class CortexARArch(ArchSupport):
     @property
     def name(self):
         return "cortex-ar"

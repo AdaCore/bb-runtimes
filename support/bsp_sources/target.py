@@ -2,7 +2,7 @@ import copy
 import os
 
 from support import readfile, datapath
-from support.bsp import BSP
+from support.bsp_sources.archsupport import ArchSupport
 from support.files_holder import FilesHolder
 from support.rts_sources.profiles import RTSProfiles
 
@@ -111,7 +111,7 @@ class TargetConfiguration(object):
         return None
 
 
-class Target(TargetConfiguration, BSP):
+class Target(TargetConfiguration, ArchSupport):
     """Handles the creation of runtimes for a particular target"""
     @property
     def rel_path(self):
@@ -124,7 +124,7 @@ class Target(TargetConfiguration, BSP):
         The build_flags dictionnary is used to set attributes of
         runtime_build.gpr"""
         TargetConfiguration.__init__(self)
-        BSP.__init__(self)
+        ArchSupport.__init__(self)
         self.config_files = {}
         self.runtimes = {}
         self.rts_options = RTSProfiles(self)

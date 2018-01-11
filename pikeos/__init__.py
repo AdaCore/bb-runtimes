@@ -1,11 +1,10 @@
 # BSP support for PowerPC/e500v2
-from support.bsp import BSP
-from support.target import Target
-
 from support import readfile
+from support.bsp_sources.archsupport import ArchSupport
+from support.bsp_sources.target import Target
 
 
-class PikeOSBSP(BSP):
+class PikeOSBSP(ArchSupport):
     @property
     def name(self):
         return 'pikeos'

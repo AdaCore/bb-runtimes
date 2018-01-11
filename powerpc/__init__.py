@@ -1,11 +1,10 @@
 # BSP support for PowerPC/e500v2
-from support.bsp import BSP
-from support.target import DFBBTarget
-
 from support import readfile
+from support.bsp_sources.archsupport import ArchSupport
+from support.bsp_sources.target import DFBBTarget
 
 
-class PPCArch(BSP):
+class PPCArch(ArchSupport):
     @property
     def name(self):
         return "powerpc"

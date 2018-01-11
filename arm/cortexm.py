@@ -1,9 +1,9 @@
 # This module contains cortex-m bsp support
-from support.bsp import BSP
-from support.target import Target
+from support.bsp_sources.archsupport import ArchSupport
+from support.bsp_sources.target import Target
 
 
-class CortexMArch(BSP):
+class CortexMArch(ArchSupport):
     @property
     def name(self):
         return "cortex-m"
@@ -24,7 +24,7 @@ class CortexMArch(BSP):
             'src/s-bcpcst__pendsv.adb'])
 
 
-class Armv6MArch(BSP):
+class Armv6MArch(ArchSupport):
     @property
     def name(self):
         return "armv6-m"
@@ -168,7 +168,7 @@ class LM3S(CortexMTarget):
             'src/s-textio__lm3s.adb'])
 
 
-class SamCommonBSP(BSP):
+class SamCommonBSP(ArchSupport):
     @property
     def name(self):
         return 'sam'
@@ -380,7 +380,7 @@ class M1AGL(Armv6MTarget):
             'src/s-bcpcst__m1agl.adb'])
 
 
-class Stm32CommonBSP(BSP):
+class Stm32CommonBSP(ArchSupport):
     """Holds sources common to all stm32 boards"""
     @property
     def name(self):

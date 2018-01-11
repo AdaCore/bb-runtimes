@@ -1,10 +1,10 @@
 # BSP support for Sparc/Leon
 from support import readfile
-from support.bsp import BSP
-from support.target import DFBBTarget
+from support.bsp_sources.archsupport import ArchSupport
+from support.bsp_sources.target import DFBBTarget
 
 
-class LeonArch(BSP):
+class LeonArch(ArchSupport):
     @property
     def name(self):
         return "leon"
