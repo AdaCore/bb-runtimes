@@ -2,8 +2,8 @@ import copy
 import os
 
 from support import readfile, datapath
-from support.bsp_sources.archsupport import ArchSupport
 from support.files_holder import FilesHolder
+from support.bsp_sources.archsupport import ArchSupport
 from support.rts_sources.profiles import RTSProfiles
 
 
@@ -16,7 +16,13 @@ class TargetConfiguration(object):
         raise Exception("not implemented")
 
     @property
+    def system_ads(self):
+        """a dictionary of runtime profiles and their associated system.ads"""
+        raise Exception("not implemented")
+
+    @property
     def target(self):
+        """target name, as expected by gprbuild"""
         raise Exception("not implemented")
 
     @property
@@ -24,20 +30,22 @@ class TargetConfiguration(object):
         return self.target is not None and 'pikeos' in self.target
 
     @property
-    def is_native(self):
-        return False
-
-    @property
     def has_fpu(self):
+        """Whether the hardware provides a FPU.
+
+        By default, set to True on PikeOS, or if has_*_precision_fpu is set.
+        """
         return self.is_pikeos or \
             self.has_single_precision_fpu or self.has_double_precision_fpu
 
     @property
     def has_single_precision_fpu(self):
+        """Whether the single precision floats are supported in FPU"""
         return self.has_double_precision_fpu
 
     @property
     def has_double_precision_fpu(self):
+        """Whether the double precision floats are supported in FPU"""
         raise Exception("not implemented")
 
     @property
@@ -47,10 +55,14 @@ class TargetConfiguration(object):
 
     @property
     def use_semihosting_io(self):
+        """ARM specific: whether to use a serial text io or the semihosting"""
         return False
 
     @property
     def has_timer_64(self):
+        """True if the hardware provide a 64-bit timer. Else 32-bit timer is
+        assumed.
+        """
         raise Exception("not implemented")
 
     def has_libc(self, profile):
@@ -65,15 +77,6 @@ class TargetConfiguration(object):
             return False
 
     @property
-    def bspclass(self):
-        raise Exception("not implemented")
-
-    @property
-    def add_linker_section(self):
-        """Whether runtime.xml contains a linker section"""
-        return True
-
-    @property
     def compiler_switches(self):
         """Switches to be used when compiling. Common to Ada, C, ASM"""
         return ()
@@ -83,43 +86,18 @@ class TargetConfiguration(object):
         """Switches to be used when compiling C code."""
         return ()
 
-    @property
-    def system_ads(self):
-        """a dictionary of runtime profiles and their associated system.ads"""
-        ret = {}
-        if self.zfp_system_ads is not None:
-            ret['zfp'] = self.zfp_system_ads
-        if self.sfp_system_ads is not None:
-            ret['ravenscar-sfp'] = self.sfp_system_ads
-        if self.full_system_ads is not None:
-            ret['ravenscar-full'] = self.full_system_ads
-        return ret
-
-    @property
-    def zfp_system_ads(self):
-        """The system.ads file to use for a zfp runtime"""
-        return None
-
-    @property
-    def sfp_system_ads(self):
-        """The system.ads file to use for a ravenscar-sfp runtime"""
-        return None
-
-    @property
-    def full_system_ads(self):
-        """The system.ads file to use for a ravenscar-full runtime"""
-        return None
-
 
 class Target(TargetConfiguration, ArchSupport):
     """Handles the creation of runtimes for a particular target"""
     @property
     def rel_path(self):
-        return self._parent.rel_path + self.name + '/'
+        if self._parent is not None:
+            return self._parent.rel_path + self.name + '/'
+        else:
+            return self.name + '/'
 
     def __init__(self):
         """Initialize the target
-        :param mem_routines: True for adding memory functions (memcpy..)
 
         The build_flags dictionnary is used to set attributes of
         runtime_build.gpr"""
@@ -141,27 +119,28 @@ class Target(TargetConfiguration, ArchSupport):
             self.config_files.update({'README': readfile(readme)})
 
         for profile in self.system_ads:
+            # Set the scenario variable values for the base profile
             rts = FilesHolder()
             self.runtimes[profile] = rts
             if 'ravenscar' not in profile:
-                rts.rts_vars = \
-                    self.rts_options.zfp_scenarios(math_lib=False)
+                rts.rts_vars = self.rts_options.zfp_scenarios(math_lib=False)
             elif 'full' in profile:
-                rts.rts_vars = \
-                    self.rts_options.full_scenarios(math_lib=True)
+                rts.rts_vars = self.rts_options.full_scenarios(math_lib=True)
             else:
-                rts.rts_vars = \
-                    self.rts_options.sfp_scenarios(math_lib=False)
+                rts.rts_vars = self.rts_options.sfp_scenarios(math_lib=False)
             rts.add_sources('arch', {
                 'system.ads': 'src/system/%s' % self.system_ads[profile]})
             rts.build_flags = copy.deepcopy(self.build_flags)
             rts.config_files = {}
 
+            # Update the runtimes objects according to target specifications
+            self.amend_rts(profile, rts)
+
         assert len(self.runtimes) > 0, "No runtime defined"
 
-    def amend_rts(self, rts_profile, cfg):
+    def amend_rts(self, rts_profile, rts):
         """to be overriden by the actual target to refine the runtime"""
-        cfg.rts_xml = self.runtime_xml(cfg)
+        pass
 
     #########################
     # dump_rts_project_file #
@@ -227,10 +206,10 @@ class Target(TargetConfiguration, ArchSupport):
             fp.write(ret)
 
     ###############
-    # runtime_xml #
+    # runtime.xml #
     ###############
 
-    def runtime_xml(self, rts):
+    def dump_runtime_xml(self, rts_name, rts):
         " Dumps the runtime.xml file that gives the configuration to gprbuild"
         ret = '<?xml version="1.0" ?>\n\n'
         ret += '<gprconfig>\n'
@@ -274,13 +253,6 @@ class Target(TargetConfiguration, ArchSupport):
                 ret += 'C_Required_Switches'
             ret += ';\n'
         ret += '   end Compiler;\n\n'
-
-        if not self.add_linker_section:
-            ret += ']]>\n'
-            ret += '    </config>\n'
-            ret += '  </configuration>\n'
-            ret += '</gprconfig>\n'
-            return ret
 
         switches = []
         if len(self.ld_scripts) == 1 and self.loaders is None:
@@ -544,9 +516,8 @@ class Target(TargetConfiguration, ArchSupport):
             for name, content in self.config_files.iteritems():
                 with open(os.path.join(base_rts, name), 'w') as fp:
                     fp.write(content)
-            if rts_obj.rts_xml is not None:
-                with open(os.path.join(base_rts, 'runtime.xml'), 'w') as fp:
-                    fp.write(rts_obj.rts_xml)
+            with open(os.path.join(base_rts, 'runtime.xml'), 'w') as fp:
+                fp.write(self.dump_runtime_xml(rts_name, rts_obj))
 
             # and now install the rts project with the proper scenario values
             self.dump_rts_project_file(

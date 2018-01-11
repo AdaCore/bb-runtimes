@@ -17,24 +17,38 @@ class PPCArch(ArchSupport):
             'src/s-bbinte__ppc.adb'])
 
 
-class PPC6XXArch(PPCArch):
+class PPC6XXArch(ArchSupport):
+    @property
+    def parent(self):
+        return PPCArch
+
+    @property
+    def name(self):
+        return '6xx'
+
     def __init__(self):
         super(PPC6XXArch, self).__init__()
-        self.add_sources('gnarl-ppc6xx', [
+        self.add_sources('gnarl', [
             'powerpc/6xx/context_switch.S',
-            'powerpc/6xx/handler.S'])
-        self.add_sources('gnarl-ppc6xx', [
+            'powerpc/6xx/handler.S',
             'src/s-bbcpsp__6xx.ads',
             'src/s-bbcpsp__6xx.adb'])
 
 
-class PPCSPEArch(PPCArch):
+class PPCSPEArch(ArchSupport):
+    @property
+    def parent(self):
+        return PPCArch
+
+    @property
+    def name(self):
+        return 'spe'
+
     def __init__(self):
         super(PPCSPEArch, self).__init__()
-        self.add_sources('gnarl-spe', [
+        self.add_sources('gnarl', [
+            'powerpc/spe/context_switch.S',
             'powerpc/spe/handler.S',
-            'powerpc/spe/context_switch.S'])
-        self.add_sources('gnarl-spe', [
             'src/s-bbcpsp__spe.ads',
             'src/s-bbcpsp__spe.adb'])
 
@@ -68,26 +82,27 @@ class PPC6XXTarget(DFBBTarget):
         return False
 
     @property
-    def zfp_system_ads(self):
-        return 'system-xi-ppc.ads'
+    def system_ads(self):
+        return {
+            'zfp': 'system-xi-ppc.ads',
+            'ravenscar-sfp': 'system-xi-ppc-sfp.ads',
+            'ravenscar-full': 'system-xi-ppc-full.ads'
+        }
 
-    @property
-    def sfp_system_ads(self):
-        return 'system-xi-ppc-sfp.ads'
-
-    @property
-    def full_system_ads(self):
-        return 'system-xi-ppc-full.ads'
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(PPC6XXTarget, self).dump_runtime_xml(rts_name, rts)
+        if rts_name == 'ravenscar-full':
+            cnt = cnt.replace(
+                '"-nostartfiles"',
+                ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
+                 '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"'))
+        return cnt
 
     def amend_rts(self, rts_profile, conf):
         super(PPC6XXTarget, self).amend_rts(rts_profile, conf)
         if rts_profile == 'ravenscar-full':
             conf.config_files.update(
                 {'link-zcx.spec': readfile('powerpc/prep/link-zcx.spec')})
-            conf.rts_xml = conf.rts_xml.replace(
-                '"-nostartfiles"',
-                ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
-                 '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"'))
 
 
 class MPC8349e(PPC6XXTarget):
@@ -166,16 +181,12 @@ class PPCSPETarget(PPC6XXTarget):
         return 'powerpc-eabispe'
 
     @property
-    def zfp_system_ads(self):
-        return 'system-xi-e500v2.ads'
-
-    @property
-    def sfp_system_ads(self):
-        return 'system-xi-e500v2-sfp.ads'
-
-    @property
-    def full_system_ads(self):
-        return 'system-xi-e500v2-full.ads'
+    def system_ads(self):
+        return {
+            'zfp': 'system-xi-e500v2.ads',
+            'ravenscar-sfp': 'system-xi-e500v2-sfp.ads',
+            'ravenscar-full': 'system-xi-e500v2-full.ads'
+        }
 
 
 class P5634(PPCSPETarget):

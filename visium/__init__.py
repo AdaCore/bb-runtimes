@@ -1,12 +1,5 @@
-from native import NativeBSP
 from support import readfile
 from support.bsp_sources.target import DFBBTarget
-
-
-class VisiumBSP(NativeBSP):
-    @property
-    def name(self):
-        return 'visium'
 
 
 class Visium(DFBBTarget):
@@ -18,22 +11,25 @@ class Visium(DFBBTarget):
     def target(self):
         return 'visium-elf'
 
-    @property
-    def parent(self):
-        return VisiumBSP
-
     def has_libc(self, profile):
         return True
-
-    def amend_rts(self, rts_profile, conf):
-        conf.rts_vars['Has_libc'] = 'yes'
-        conf.rts_xml = readfile('visium/mcm/runtime.xml')
-        conf.build_flags['common_flags'] += ['-muser-mode']
 
     @property
     def has_small_memory(self):
         return True
 
+    def __init__(self):
+        super(Visium, self).__init__()
+        self.add_sources('crt0', [
+            'src/s-macres__native.adb',
+            'src/s-textio__stdio.adb'])
+
+    def dump_runtime_xml(self, rts_name, rts):
+        return readfile('visium/mcm/runtime.xml')
+
+    def amend_rts(self, rts_profile, conf):
+        conf.build_flags['common_flags'] += ['-muser-mode']
+
     @property
-    def zfp_system_ads(self):
-        return 'system-xi-visium.ads'
+    def system_ads(self):
+        return {'zfp': 'system-xi-visium.ads'}

@@ -35,10 +35,6 @@ class CortexARTarget(DFBBTarget):
     def has_timer_64(self):
         return True
 
-    @property
-    def zfp_system_ads(self):
-        return 'system-xi-arm.ads'
-
     def amend_rts(self, rts_profile, conf):
         super(CortexARTarget, self).amend_rts(rts_profile, conf)
         # s-bbcppr.adb uses the r7 register during context switching: this
@@ -74,12 +70,10 @@ class Rpi2Base(CortexARTarget):
         return 'arm/rpi2/README'
 
     @property
-    def sfp_system_ads(self):
-        return 'system-xi-arm-sfp.ads'
-
-    @property
-    def full_system_ads(self):
-        return 'system-xi-arm-full.ads'
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads',
+                'ravenscar-sfp': 'system-xi-arm-sfp.ads',
+                'ravenscar-full': 'system-xi-arm-full.ads'}
 
     def __init__(self):
         super(Rpi2Base, self).__init__()
@@ -165,7 +159,7 @@ class TMS570(CortexARTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': self.zfp_system_ads,
+        return {'zfp': 'system-xi-arm.ads',
                 'ravenscar-sfp': 'system-xi-arm-sfp.ads',
                 'ravenscar-esfp': 'system-xi-arm-sfp.ads',
                 'ravenscar-full': 'system-xi-arm-full.ads'}
@@ -259,12 +253,10 @@ class Zynq7000(CortexARTarget):
         return 'arm/zynq/README'
 
     @property
-    def sfp_system_ads(self):
-        return 'system-xi-arm-gic-sfp.ads'
-
-    @property
-    def full_system_ads(self):
-        return 'system-xi-arm-gic-full.ads'
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads',
+                'ravenscar-sfp': 'system-xi-arm-gic-sfp.ads',
+                'ravenscar-full': 'system-xi-arm-gic-full.ads'}
 
     def __init__(self):
         super(Zynq7000, self).__init__()

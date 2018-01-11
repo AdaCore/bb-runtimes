@@ -36,24 +36,21 @@ class Aarch64Target(DFBBTarget):
         return True
 
     @property
-    def zfp_system_ads(self):
-        return 'system-xi-arm.ads'
+    def system_ads(self):
+        return {
+            'zfp': 'system-xi-arm.ads',
+            'ravenscar-sfp': 'system-xi-arm-sfp.ads',
+            'ravenscar-full': 'system-xi-arm-full.ads'
+        }
 
-    @property
-    def sfp_system_ads(self):
-        return 'system-xi-arm-sfp.ads'
-
-    @property
-    def full_system_ads(self):
-        return 'system-xi-arm-full.ads'
-
-    def amend_rts(self, rts_profile, cfg):
-        super(Aarch64Target, self).amend_rts(rts_profile, cfg)
-        if rts_profile == 'ravenscar-full':
-            cfg.rts_xml = cfg.rts_xml.replace(
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(Aarch64Target, self).dump_runtime_xml(rts_name, rts)
+        if rts_name == 'ravenscar-full':
+            cnt = cnt.replace(
                 '"-nostartfiles"',
                 ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
                  '        "-nostartfiles"'))
+        return cnt
 
 
 class ZynqMP(Aarch64Target):
@@ -75,7 +72,7 @@ class ZynqMP(Aarch64Target):
 
     @property
     def system_ads(self):
-        return {'zfp': self.zfp_system_ads,
+        return {'zfp': 'system-xi-arm.ads',
                 'ravenscar-sfp': 'system-xi-arm-gic-sfp.ads',
                 'ravenscar-mc': 'system-xi-arm-gic-sfp.ads',
                 'ravenscar-full': 'system-xi-arm-gic-full.ads'}
@@ -103,7 +100,7 @@ class ZynqMP(Aarch64Target):
     def __init__(self):
         super(ZynqMP, self).__init__()
 
-        self.add_linker_script('aarch64/zynqmp/ram.ld', loader=None)
+        self.add_linker_script('aarch64/zynqmp/ram.ld', loader='RAM')
         self.add_sources('crt0', [
             'aarch64/zynqmp/start-ram.S',
             'aarch64/zynqmp/trap_vector.S',

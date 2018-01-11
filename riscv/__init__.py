@@ -1,16 +1,5 @@
 from support import readfile
-from support.bsp_sources.archsupport import ArchSupport
 from support.bsp_sources.target import DFBBTarget
-
-
-class RiscVBSP(ArchSupport):
-    @property
-    def name(self):
-        return 'riscv'
-
-    @property
-    def add_linker_section(self):
-        return False
 
 
 class RiscV64(DFBBTarget):
@@ -23,12 +12,8 @@ class RiscV64(DFBBTarget):
         return 'riscv64-elf'
 
     @property
-    def parent(self):
-        return RiscVBSP
-
-    @property
-    def zfp_system_ads(self):
-        return 'system-xi-riscv64.ads'
+    def system_ads(self):
+        return {'zfp': 'system-xi-riscv64.ads'}
 
 
 class Spike(RiscV64):
@@ -45,8 +30,8 @@ class Spike(RiscV64):
     def loaders(self):
         return ['RAM']
 
-    def amend_rts(self, rts_profile, conf):
-        conf.rts_xml = readfile('riscv/spike/runtime.xml')
+    def dump_runtime_xml(self, rts_name, rts):
+        return readfile('riscv/spike/runtime.xml')
 
     def __init__(self):
         super(Spike, self).__init__()

@@ -14,27 +14,6 @@ class CortexMArch(ArchSupport):
             'src/s-macres__cortexm3.adb',
             'arm/src/breakpoint_handler-cortexm.S'])
         self.add_sources('gnarl', [
-            'src/s-bbbosu__armv7m.adb',
-            'src/s-bbcpsp__cortexm.ads',
-            'src/s-bbcppr__old.ads',
-            'src/s-bbcppr__armv7m.adb',
-            'src/s-bbinte__generic.adb',
-            'src/s-bbsumu__generic.adb',
-            'src/s-bcpcst__armvXm.ads',
-            'src/s-bcpcst__pendsv.adb'])
-
-
-class Armv6MArch(ArchSupport):
-    @property
-    def name(self):
-        return "armv6-m"
-
-    def __init__(self):
-        super(Armv6MArch, self).__init__()
-        self.add_sources('arch', [
-            'src/s-macres__cortexm3.adb',
-            'arm/src/breakpoint_handler-cortexm.S'])
-        self.add_sources('gnarl', [
             'src/s-bbcpsp__cortexm.ads',
             'src/s-bbcppr__old.ads',
             'src/s-bbcppr__armv7m.adb',
@@ -43,45 +22,23 @@ class Armv6MArch(ArchSupport):
             'src/s-bcpcst__armvXm.ads'])
 
 
-class Armv6MTarget(Target):
+class ArmV7MArch(ArchSupport):
     @property
-    def target(self):
-        return "arm-eabi"
+    def name(self):
+        return "armv7-m"
 
     @property
     def parent(self):
-        return Armv6MArch
+        return CortexMArch
 
-    @property
-    def has_timer_64(self):
-        return False
-
-    @property
-    def has_single_precision_fpu(self):
-        return False
-
-    @property
-    def has_double_precision_fpu(self):
-        return False
-
-    @property
-    def has_small_memory(self):
-        return True
-
-    @property
-    def zfp_system_ads(self):
-        return 'system-xi-arm.ads'
-
-    @property
-    def sfp_system_ads(self):
-        return 'system-xi-cortexm4-sfp.ads'
-
-    @property
-    def full_system_ads(self):
-        return 'system-xi-cortexm4-full.ads'
+    def __init__(self):
+        super(ArmV7MArch, self).__init__()
+        self.add_sources('gnarl', [
+            'src/s-bbbosu__armv7m.adb',
+            'src/s-bcpcst__pendsv.adb'])
 
 
-class CortexMTarget(Target):
+class ArmV6MTarget(Target):
     @property
     def target(self):
         return "arm-eabi"
@@ -96,7 +53,7 @@ class CortexMTarget(Target):
 
     @property
     def has_single_precision_fpu(self):
-        return True
+        return False
 
     @property
     def has_double_precision_fpu(self):
@@ -106,20 +63,30 @@ class CortexMTarget(Target):
     def has_small_memory(self):
         return True
 
+    def __init__(self):
+        super(ArmV6MTarget, self).__init__()
+
+
+class ArmV7MTarget(ArmV6MTarget):
     @property
-    def zfp_system_ads(self):
-        return 'system-xi-arm.ads'
+    def parent(self):
+        return ArmV7MArch
 
     @property
-    def sfp_system_ads(self):
-        return 'system-xi-cortexm4-sfp.ads'
+    def has_single_precision_fpu(self):
+        return True
 
     @property
-    def full_system_ads(self):
-        return 'system-xi-cortexm4-full.ads'
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads',
+                'ravenscar-sfp': 'system-xi-cortexm4-sfp.ads',
+                'ravenscar-full': 'system-xi-cortexm4-full.ads'}
+
+    def __init__(self):
+        super(ArmV7MTarget, self).__init__()
 
 
-class LM3S(CortexMTarget):
+class LM3S(ArmV7MTarget):
     @property
     def name(self):
         return 'lm3s'
@@ -148,12 +115,10 @@ class LM3S(CortexMTarget):
         return 'arm/lm3s/README'
 
     @property
-    def sfp_system_ads(self):
-        return None
-
-    @property
-    def full_system_ads(self):
-        return None
+    def system_ads(self):
+        # Only zfp supported here
+        ret = super(LM3S, self).system_ads
+        return {'zfp': ret['zfp']}
 
     def __init__(self):
         super(LM3S, self).__init__()
@@ -168,21 +133,21 @@ class LM3S(CortexMTarget):
             'src/s-textio__lm3s.adb'])
 
 
-class SamCommonBSP(ArchSupport):
+class SamCommonArchSupport(ArchSupport):
     @property
     def name(self):
         return 'sam'
 
     @property
     def parent(self):
-        return CortexMArch
+        return ArmV7MArch
 
     @property
     def loaders(self):
         return ('ROM', 'SAMBA', 'USER')
 
     def __init__(self):
-        super(SamCommonBSP, self).__init__()
+        super(SamCommonArchSupport, self).__init__()
 
         self.add_linker_script('arm/sam/common-SAMBA.ld', loader='SAMBA')
         self.add_linker_script('arm/sam/common-ROM.ld', loader='ROM')
@@ -196,14 +161,14 @@ class SamCommonBSP(ArchSupport):
             'src/s-bbpara__sam4s.ads'])
 
 
-class Sam(CortexMTarget):
+class Sam(ArmV7MTarget):
     @property
     def name(self):
         return self.board
 
     @property
     def parent(self):
-        return SamCommonBSP
+        return SamCommonArchSupport
 
     @property
     def has_single_precision_fpu(self):
@@ -213,9 +178,11 @@ class Sam(CortexMTarget):
             return True
 
     @property
-    def full_system_ads(self):
+    def system_ads(self):
         # No runtime full
-        return None
+        ret = super(Sam, self).system_ads
+        return {'zfp': ret['zfp'],
+                'ravenscar-sfp': ret['ravenscar-sfp']}
 
     @property
     def compiler_switches(self):
@@ -252,7 +219,7 @@ class Sam(CortexMTarget):
             'arm/sam/%s/svd/a-intnam.ads' % self.name])
 
 
-class SmartFusion2(CortexMTarget):
+class SmartFusion2(ArmV7MTarget):
     @property
     def name(self):
         return 'smartfusion2'
@@ -277,14 +244,10 @@ class SmartFusion2(CortexMTarget):
         return True
 
     @property
-    def zfp_system_ads(self):
-        # no zfp rts
-        return None
-
-    @property
-    def full_system_ads(self):
-        # no ravenscar-full rts
-        return None
+    def system_ads(self):
+        # no zfp nor ravenscar-full rts
+        ret = super(SmartFusion2, self).system_ads
+        return {'ravenscar-sfp': ret['ravenscar-sfp']}
 
     def __init__(self):
         super(SmartFusion2, self).__init__()
@@ -313,7 +276,7 @@ class SmartFusion2(CortexMTarget):
             'src/s-bbpara__smartfusion2.ads'])
 
 
-class M1AGL(Armv6MTarget):
+class M1AGL(ArmV6MTarget):
     @property
     def name(self):
         return 'm1agl'
@@ -329,29 +292,9 @@ class M1AGL(Armv6MTarget):
                 '-mcpu=cortex-m1')
 
     @property
-    def has_single_precision_fpu(self):
-        return False
-
-    @property
-    def has_fpu(self):
-        return False
-
-    @property
-    def use_semihosting_io(self):
-        return False
-
-    @property
-    def zfp_system_ads(self):
-        return 'system-xi-arm.ads'
-
-    @property
-    def sfp_system_ads(self):
-        return 'system-xi-m1agl-sfp.ads'
-
-    @property
-    def full_system_ads(self):
-        # no ravenscar-full rts
-        return None
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads',
+                'ravenscar-sfp': 'system-xi-m1agl-sfp.ads'}
 
     def __init__(self):
         super(M1AGL, self).__init__()
@@ -380,7 +323,7 @@ class M1AGL(Armv6MTarget):
             'src/s-bcpcst__m1agl.adb'])
 
 
-class Stm32CommonBSP(ArchSupport):
+class Stm32CommonArchSupport(ArchSupport):
     """Holds sources common to all stm32 boards"""
     @property
     def name(self):
@@ -388,7 +331,7 @@ class Stm32CommonBSP(ArchSupport):
 
     @property
     def parent(self):
-        return CortexMArch
+        return ArmV7MArch
 
     @property
     def loaders(self):
@@ -399,7 +342,7 @@ class Stm32CommonBSP(ArchSupport):
         return 'arm/stm32/README'
 
     def __init__(self):
-        super(Stm32CommonBSP, self).__init__()
+        super(Stm32CommonArchSupport, self).__init__()
 
         self.add_linker_script('arm/stm32/common-RAM.ld', loader='RAM')
         self.add_linker_script('arm/stm32/common-ROM.ld', loader='ROM')
@@ -414,7 +357,7 @@ class Stm32CommonBSP(ArchSupport):
             'arm/stm32/setup_pll.ads'])
 
 
-class Stm32(CortexMTarget):
+class Stm32(ArmV7MTarget):
     """Generic handling of stm32 boards"""
     @property
     def name(self):
@@ -422,7 +365,7 @@ class Stm32(CortexMTarget):
 
     @property
     def parent(self):
-        return Stm32CommonBSP
+        return Stm32CommonArchSupport
 
     @property
     def use_semihosting_io(self):
