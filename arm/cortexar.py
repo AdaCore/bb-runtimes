@@ -82,9 +82,7 @@ class Rpi2Base(CortexARTarget):
         return 'system-xi-arm-full.ads'
 
     def __init__(self):
-        super(Rpi2Base, self).__init__(
-            mem_routines=True,
-            small_mem=False)
+        super(Rpi2Base, self).__init__()
 
         self.add_linker_script('arm/rpi2/ram.ld', loader='RAM')
         self.add_sources('crt0', [
@@ -141,6 +139,10 @@ class TMS570(CortexARTarget):
             return base
 
     @property
+    def has_small_memory(self):
+        return True
+
+    @property
     def loaders(self):
         return ('LORAM', 'FLASH', 'HIRAM', 'LORAM_16M', 'BOOT', 'USER')
 
@@ -192,9 +194,7 @@ class TMS570(CortexARTarget):
     def __init__(self, variant='tms570ls31', uart_io=False):
         self.variant = variant
         self.uart_io = uart_io
-        super(TMS570, self).__init__(
-            mem_routines=True,
-            small_mem=True)
+        super(TMS570, self).__init__()
 
         self.add_linker_script([
             'arm/tms570/common.ld',
@@ -267,9 +267,7 @@ class Zynq7000(CortexARTarget):
         return 'system-xi-arm-gic-full.ads'
 
     def __init__(self):
-        super(Zynq7000, self).__init__(
-            mem_routines=True,
-            small_mem=False)
+        super(Zynq7000, self).__init__()
         self.add_linker_script('arm/zynq/ram.ld', loader='RAM')
         self.add_sources('crt0', [
             'arm/zynq/start-ram.S',

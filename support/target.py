@@ -1,10 +1,10 @@
 import copy
 import os
 
-from bsp import BSP
 from support import readfile, datapath
-from files_holder import FilesHolder
-from rts_sources import RTSOptions
+from support.bsp import BSP
+from support.files_holder import FilesHolder
+from support.rts_sources.profiles import RTSProfiles
 
 
 class TargetConfiguration(object):
@@ -41,12 +41,28 @@ class TargetConfiguration(object):
         raise Exception("not implemented")
 
     @property
+    def has_small_memory(self):
+        """Set to True on targets with limited RAM"""
+        return False
+
+    @property
     def use_semihosting_io(self):
         return False
 
     @property
     def has_timer_64(self):
         raise Exception("not implemented")
+
+    def has_libc(self, profile):
+        """Whether libc is available and used on the target"""
+        if profile == 'ravenscar-full':
+            # By default, we provide the newlib with the ravenscar-full
+            # runtimes
+            return True
+        else:
+            # Otherwise, we don't assume any libc is available on zfp or
+            # ravenscar-sfp profiles
+            return False
 
     @property
     def bspclass(self):
@@ -101,20 +117,17 @@ class Target(TargetConfiguration, BSP):
     def rel_path(self):
         return self._parent.rel_path + self.name + '/'
 
-    def __init__(self, mem_routines, small_mem):
+    def __init__(self):
         """Initialize the target
         :param mem_routines: True for adding memory functions (memcpy..)
-        :param small_mem: True when targetting a board with minimal memory
 
         The build_flags dictionnary is used to set attributes of
         runtime_build.gpr"""
         TargetConfiguration.__init__(self)
         BSP.__init__(self)
-        self._mem_routines = mem_routines
-        self._small_mem = small_mem
         self.config_files = {}
         self.runtimes = {}
-        self.rts_options = RTSOptions(self)
+        self.rts_options = RTSProfiles(self)
 
         self.build_flags = {'source_dirs': None,
                             'common_flags': ['-fcallgraph-info=su,da',
@@ -132,18 +145,13 @@ class Target(TargetConfiguration, BSP):
             self.runtimes[profile] = rts
             if 'ravenscar' not in profile:
                 rts.rts_vars = \
-                    self.rts_options.zfp_scenarios(
-                        self._mem_routines, math_lib=False)
+                    self.rts_options.zfp_scenarios(math_lib=False)
             elif 'full' in profile:
                 rts.rts_vars = \
-                    self.rts_options.full_scenarios(
-                        mem_routines, math_lib=True, small_mem=small_mem)
+                    self.rts_options.full_scenarios(math_lib=True)
             else:
                 rts.rts_vars = \
-                    self.rts_options.sfp_scenarios(
-                        self._mem_routines,
-                        math_lib=False,
-                        small_mem=self._small_mem)
+                    self.rts_options.sfp_scenarios(math_lib=False)
             rts.add_sources('arch', {
                 'system.ads': 'src/system/%s' % self.system_ads[profile]})
             rts.build_flags = copy.deepcopy(self.build_flags)

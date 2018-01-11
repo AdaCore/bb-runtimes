@@ -8,7 +8,7 @@
 # python on oldest host).
 
 from support.files_holder import FilesHolder
-from support.rts_sources import SourceDirs
+from support.rts_sources import SourceTree
 from support.docgen import docgen
 
 # PikeOS
@@ -215,7 +215,6 @@ def main():
         sys.exit(2)
 
     boards = []
-    rts_profile = 'zfp'
 
     for arg in args:
         board = build_configs(arg)
@@ -271,15 +270,19 @@ def main():
         # - 'zfp': just zfp support
 
         if is_pikeos:
-            rts_profile = 'pikeos'
+            rts_profile = 'ravenscar-full'
         else:
             rts_profile = 'zfp'
 
-        for board in boards:
-            if not is_pikeos and board.full_system_ads is not None:
-                rts_profile = 'ravenscar-full'
-            elif rts_profile == 'zfp' and board.sfp_system_ads is not None:
-                rts_profile = 'ravenscar-sfp'
+            for board in boards:
+                if 'ravenscar-full' in board.system_ads:
+                    # install everything
+                    rts_profile = 'ravenscar-full'
+                    break
+                else:
+                    for rts in board.system_ads:
+                        if 'ravenscar-' in rts:
+                            rts_profile = 'ravenscar-sfp'
 
         # Compute rts sources subdirectories
 
@@ -293,23 +296,12 @@ def main():
             os.makedirs(dest_srcs)
 
         # Install the shared runtime sources
-        SourceDirs.dest_sources = dest_srcs
-        SourceDirs.dest_prjs = dest_prjs
+        SourceTree.dest_sources = dest_srcs
+        SourceTree.dest_prjs = dest_prjs
 
         # create the rts sources object. This uses a slightly different set
         # on pikeos.
-        rts_srcs = SourceDirs(is_bb=rts_profile != 'pikeos')
-
-        # setup the rts profiles to be supported by the rts sources directory
-        if rts_profile in ('pikeos', 'ravenscar-full'):
-            rts_srcs.init_zfp()
-            rts_srcs.init_sfp()
-            rts_srcs.init_full()
-        elif rts_profile == 'ravenscar-sfp':
-            rts_srcs.init_zfp()
-            rts_srcs.init_sfp()
-        elif rts_profile == 'zfp':
-            rts_srcs.init_zfp()
+        rts_srcs = SourceTree(is_bb=not is_pikeos, profile=rts_profile)
         rts_srcs.install()
 
 

@@ -80,11 +80,6 @@ class PPC6XXTarget(DFBBTarget):
     def full_system_ads(self):
         return 'system-xi-ppc-full.ads'
 
-    def __init__(self):
-        super(PPC6XXTarget, self).__init__(
-            mem_routines=True,
-            small_mem=False)
-
     def amend_rts(self, rts_profile, conf):
         super(PPC6XXTarget, self).amend_rts(rts_profile, conf)
         if rts_profile == 'ravenscar-full':

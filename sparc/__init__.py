@@ -44,11 +44,6 @@ class LeonTarget(DFBBTarget):
     def full_system_ads(self):
         return 'system-xi-sparc-full.ads'
 
-    def __init__(self):
-        super(LeonTarget, self).__init__(
-            mem_routines=True,
-            small_mem=False)
-
     def amend_rts(self, rts_profile, conf):
         super(LeonTarget, self).amend_rts(rts_profile, conf)
         conf.rts_xml = \

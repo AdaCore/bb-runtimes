@@ -21,7 +21,7 @@ class NativeBSP(BSP):
 class X86Native(DFBBTarget):
     @property
     def name(self):
-        return 'x86'
+        return 'x86-native'
 
     @property
     def target(self):
@@ -35,10 +35,8 @@ class X86Native(DFBBTarget):
     def is_native(self):
         return True
 
-    def __init__(self):
-        super(X86Native, self).__init__(
-            mem_routines=False,
-            small_mem=False)
+    def has_libc(self, profile):
+        return True
 
     @property
     def zfp_system_ads(self):
@@ -58,7 +56,7 @@ class X86Native(DFBBTarget):
 class X8664Native(X86Native):
     @property
     def name(self):
-        return 'x86_64'
+        return 'x86_64-native'
 
     @property
     def zfp_system_ads(self):

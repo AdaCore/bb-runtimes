@@ -27,11 +27,6 @@ class PikeOS(Target):
     def parent(self):
         return PikeOSBSP
 
-    def __init__(self):
-        super(PikeOS, self).__init__(
-            mem_routines=True,
-            small_mem=False)
-
     def amend_rts(self, rts_profile, conf):
         super(PikeOS, self).amend_rts(rts_profile, conf)
         conf.rts_xml = readfile('pikeos/runtime.xml')

@@ -65,6 +65,10 @@ class Armv6MTarget(Target):
         return False
 
     @property
+    def has_small_memory(self):
+        return True
+
+    @property
     def zfp_system_ads(self):
         return 'system-xi-arm.ads'
 
@@ -75,11 +79,6 @@ class Armv6MTarget(Target):
     @property
     def full_system_ads(self):
         return 'system-xi-cortexm4-full.ads'
-
-    def __init__(self):
-        super(Armv6MTarget, self).__init__(
-            mem_routines=True,
-            small_mem=True)
 
 
 class CortexMTarget(Target):
@@ -104,6 +103,10 @@ class CortexMTarget(Target):
         return False
 
     @property
+    def has_small_memory(self):
+        return True
+
+    @property
     def zfp_system_ads(self):
         return 'system-xi-arm.ads'
 
@@ -114,11 +117,6 @@ class CortexMTarget(Target):
     @property
     def full_system_ads(self):
         return 'system-xi-cortexm4-full.ads'
-
-    def __init__(self):
-        super(CortexMTarget, self).__init__(
-            mem_routines=True,
-            small_mem=True)
 
 
 class LM3S(CortexMTarget):

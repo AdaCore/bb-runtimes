@@ -101,9 +101,7 @@ class ZynqMP(Aarch64Target):
                 'src/s-bbpara__zynqmp.ads'])
 
     def __init__(self):
-        super(ZynqMP, self).__init__(
-            mem_routines=True,
-            small_mem=False)
+        super(ZynqMP, self).__init__()
 
         self.add_linker_script('aarch64/zynqmp/ram.ld', loader=None)
         self.add_sources('crt0', [
@@ -133,9 +131,7 @@ class Rpi3Base(Aarch64Target):
         return 'arm/rpi2/README'
 
     def __init__(self):
-        super(Rpi3Base, self).__init__(
-            mem_routines=True,
-            small_mem=False)
+        super(Rpi3Base, self).__init__()
 
         self.add_linker_script('aarch64/rpi3/ram.ld', loader='RAM')
         self.add_sources('crt0', [
