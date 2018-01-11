@@ -35,24 +35,24 @@ TARGETS=none
 
 ifeq ($(TARGET),$(filter $(TARGET),powerpc-elf ppc-elf ppc))
     TGT=powerpc-elf
-    TARGETS=mpc8641 8349e
+    TARGETS=mpc8641
 endif
 
 ifeq ($(TARGET),$(filter $(TARGET),powerpc-eabispe p55-elf p55))
     TGT=powerpc-eabispe
-    TARGETS=p2020 p5566 mpc5634
+    TARGETS=p2020 p5566
 endif
 
 ifeq ($(TARGET),$(filter $(TARGET),aarch64-elf aarch64))
     TGT=aarch64-elf
-    TARGETS=rpi3 zynqmp
+    TARGETS=rpi3 rpi3mc zynqmp
 endif
 
 ifeq ($(TARGET),$(filter $(TARGET),arm-eabi arm-elf arm))
     TGT=arm-eabi
-    TARGETS=zynq7000 rpi2 sam4s samg55 smartfusion2 openmv2 stm32f4 \
+    TARGETS=zynq7000 rpi2 rpi2mc sam4s samg55 smartfusion2 openmv2 stm32f4 \
        stm32f429disco stm32f469disco stm32f746disco stm32756geval \
-       stm32f769disco tms570 tms570_sci tms570lc tms570lc_sci lm3s
+       stm32f769disco tms570 tms570_sci tms570lc tms570lc_sci lm3s m1agl
 endif
 
 ifeq ($(TARGET),$(filter $(TARGET),leon-elf leon2-elf leon leon2))
@@ -68,6 +68,11 @@ endif
 ifeq ($(TARGET),$(filter $(TARGET),visium-elf visium))
     TGT=visium-elf
     TARGETS=mcm
+endif
+
+ifeq ($(TARGET),$(filter $(TARGET),riscv-elf riscv))
+    TGT=riscv-elf
+    TARGETS=spike
 endif
 
 ifeq ($(TARGET),$(filter $(TARGET),i686-pc-linux-gnu x86-linux))
