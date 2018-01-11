@@ -8,6 +8,7 @@
 # python on oldest host).
 
 from support.files_holder import FilesHolder
+from support.bsp_sources.installer import Installer
 from support.rts_sources import SourceTree
 from support.docgen import docgen
 
@@ -231,7 +232,8 @@ def main():
 
     # Install the BSPs
     for board in boards:
-        board.install(dest_bsps, prefix, experimental)
+        install = Installer(board)
+        install.install(dest_bsps, prefix, experimental)
 
     # figure out the target, if just one target is used
     target = boards[0].target
