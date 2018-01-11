@@ -10,6 +10,9 @@ class FilesHolder(object):
     gnatdir = "../gnat"
     gccdir = "../gcc"
 
+    # Gnat MANIFEST file
+    manifest = None
+
     # Display actions
     verbose = False
 
@@ -22,32 +25,33 @@ class FilesHolder(object):
         self.asm_cpp_srcs = []
 
         # Read manifest file (if exists)
-        manifest_file = os.path.join(self.gnatdir, "MANIFEST.GNAT")
-        self.manifest = []
-        if os.path.isfile(manifest_file):
-            f = open(manifest_file, 'r')
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('--'):
-                    self.manifest.append(line)
+        if FilesHolder.manifest is None:
+            manifest_file = os.path.join(self.gnatdir, "MANIFEST.GNAT")
+            FilesHolder.manifest = []
+            if os.path.isfile(manifest_file):
+                f = open(manifest_file, 'r')
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('--'):
+                        FilesHolder.manifest.append(line)
 
     def add_source(self, dir, dst, src):
         base = os.path.basename(dst)
+        _, ext = base.split('.')
         if '__' in base:
             # File with variant:
             # remove the variant part from the destination file name
-            _, ext = base.split('.')
             base, _ = base.split('__')
             base = "%s.%s" % (base, ext)
         self.dirs[dir][base] = src
         if dir not in self.c_srcs:
-            if dst.endswith('.c') or dst.endswith('.h'):
+            if ext in ('c', 'h'):
                 self.c_srcs.append(dir)
         if dir not in self.asm_srcs:
-            if dst.endswith('.s'):
+            if ext == 's':
                 self.asm_srcs.append(dir)
         if dir not in self.asm_cpp_srcs:
-            if dst.endswith('.S') or dst.endswith('.inc'):
+            if ext in ('S', 'inc'):
                 self.asm_cpp_srcs.append(dir)
 
     def add_sources(self, dir, sources):
@@ -160,8 +164,8 @@ class FilesHolder(object):
 
         if '/' not in srcfile:
             # Files without path elements are in gnat
-            assert self.manifest, "Error: MANIFEST file not found"
-            assert srcfile in self.manifest, \
+            assert FilesHolder.manifest, "Error: MANIFEST file not found"
+            assert srcfile in FilesHolder.manifest, \
                 "Error: source file %s not in MANIFEST" % srcfile
             self._copy(os.path.join(self.gnatdir, srcfile),
                        dstdir, installed_files)
