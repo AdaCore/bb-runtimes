@@ -106,6 +106,11 @@ class PpcPikeOS(PikeOS):
             'ravenscar-full': 'system-pikeos-ppc-ravenscar-full.ads'
         }
 
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(PpcPikeOS, self).dump_runtime_xml(rts_name, rts)
+        cnt = cnt.replace('/include")', '/include", "-DPPC_OEA")')
+        return cnt
+
 
 class X86PikeOS(PikeOS):
     @property
