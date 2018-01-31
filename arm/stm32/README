@@ -62,7 +62,7 @@ The specific startup code is selected by the linker scripts' references to
 the unique symbols defined in the assembly files, via the entry point
 definitions.
 
-For the ZFP runtime these start-*.S file is used to initialize the vector
+For the ZFP runtime these start-\*.S file is used to initialize the vector
 table.
 
 For the Ravenscar runtimes, the vector table is initialized by code in
