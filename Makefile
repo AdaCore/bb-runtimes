@@ -145,7 +145,7 @@ endif
 GPRBUILD:=GPR_PROJECT_PATH=obj/$(TGT)/lib/gnat gprbuild $(GPRBUILD_FLAGS)
 GPRINSTALL:=GPR_PROJECT_PATH=obj/$(TGT)/lib/gnat gprinstall \
               --prefix=$(GCC_PREFIX) -f -p
-BUILD_RTS:=./build-rts.py --gen-doc --experimental $(BUILD_RTS_FLAGS)
+BUILD_RTS:=./build-rts.py --experimental $(BUILD_RTS_FLAGS)
 
 
 default:

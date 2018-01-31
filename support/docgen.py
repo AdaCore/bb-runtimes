@@ -1,8 +1,6 @@
 import shutil
 import os
 import os.path
-import re
-import datetime
 from files_holder import FilesHolder
 
 from . import fullpath
@@ -14,29 +12,6 @@ def docgen(boards, target, dest):
 
     # Check gnat version number and variant if possible
     gnatdir = fullpath(FilesHolder.gnatdir)
-    if os.path.exists(gnatdir):
-        gnatvsn = os.path.join(gnatdir, 'gnatvsn.ads')
-        if not os.path.exists(gnatvsn):
-            gnatvsn = None
-    today = datetime.date.today()
-    gnat_version = "%4i.%2i%2i" % (today.year, today.month, today.day)
-    gnat_variant = "GPL"
-    if gnatvsn is not None:
-        with open(gnatvsn, 'r') as fp:
-            cnt = fp.read()
-        for line in cnt.splitlines():
-            line = line.strip()
-            match = re.match(
-                r'Gnat_Static_Version_String.*"([0-9.w]*) .*', line)
-            if match is not None:
-                gnat_version = match.group(1)
-            elif line.startswith('Build_Type'):
-                if 'Gnatpro' in line:
-                    gnat_variant = 'Pro'
-                elif 'FSF' in line:
-                    gnat_variant = 'FSF'
-                else:
-                    gnat_variant = 'GPL'
 
     # Copy support files
     PWD = os.path.dirname(__file__)
@@ -47,17 +22,13 @@ def docgen(boards, target, dest):
     conf = os.path.join(src, 'conf.py')
     with open(conf, 'r') as fp:
         cnt = fp.read()
-    if target is not None:
-        cnt = cnt.replace('@target@', 'for %s' % target)
-    else:
-        cnt = cnt.replace(' @target@', '')
-    cnt = cnt.replace(
-        '@gnat_variant@', gnat_variant).replace(
-        '@gnat_version@', gnat_version).replace(
-        '@year@', '%4i' % today.year)
+    cnt = cnt.replace('@target@', target)
     conf = os.path.join(dest, 'conf.py')
     with open(conf, 'w') as fp:
         fp.write(cnt)
+    gnatvsn = os.path.join(gnatdir, 'gnatvsn.ads')
+    if os.path.exists(gnatvsn):
+        shutil.copy(gnatvsn, dest)
 
     readmes = {}
     files = {}
@@ -74,27 +45,34 @@ def docgen(boards, target, dest):
 
     overall_readme = os.path.join(dest, "index.rst")
     with open(overall_readme, "w") as fp:
-        title = "GNAT %s Bare Metal Runtimes documentation" % gnat_variant
+        title = "GNAT for %s run-times documentation" % target
         fp.write("%s\n" % ("=" * len(title)))
         fp.write("%s\n" % title)
         fp.write("%s\n\n" % ("=" * len(title)))
-        fp.write(".. contents:: Table of Contents\n")
-        fp.write("   :depth: 2\n\n")
+        fp.write(".. only:: not latex\n\n")
+        fp.write("   .. only:: PRO\n\n")
+        fp.write("      *GNAT Pro Edition*\n\n")
+        fp.write("   .. only:: GPL\n\n")
+        fp.write("      *GNAT GPL Edition*\n\n")
+        fp.write("   | Version |version|\n")
+        fp.write("   | Date: |today|\n\n")
+        fp.write("   .. contents:: Table of Contents\n")
+        fp.write("      :depth: 2\n\n")
 
         # List of runtimes:
 
         if target is not None:
-            title = "Runtimes available with the %s compiler" % target
+            title = "Run-times available with the %s compiler" % target
         else:
-            title = "Runtimes available in this package"
+            title = "Run-times available in this package"
         fp.write("%s\n" % title)
         fp.write("%s\n\n" % ("=" * len(title)))
         if target is not None:
             fp.write(("The %s compiler comes with"
-                      " the following runtimes:\n\n") % target)
+                      " the following run-times:\n\n") % target)
         else:
             fp.write(("This package adds support for"
-                      " the following runtimes:\n\n"))
+                      " the following run-times:\n\n"))
         for board in sorted(runtimes.keys()):
             fp.write("* %s" % board)
             if board in readmes.keys():

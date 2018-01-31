@@ -221,21 +221,7 @@ def main():
         board = build_configs(arg)
         boards.append(board)
 
-    dest = os.path.abspath(dest)
-    # default paths in case not specified from the command-line:
-    if dest_bsps is None:
-        dest_bsps = os.path.join(dest, 'BSPs')
-    if not os.path.exists(dest):
-        os.makedirs(dest)
-    if not os.path.exists(dest_bsps):
-        os.makedirs(dest_bsps)
-
-    # Install the BSPs
-    for board in boards:
-        install = Installer(board)
-        install.install(dest_bsps, prefix, experimental)
-
-    # figure out the target, if just one target is used
+    # figure out the target
     target = boards[0].target
     if target is None:
         target = "native"
@@ -245,10 +231,27 @@ def main():
         if board.target != target:
             target = None
 
+    dest = os.path.abspath(dest)
+    if not os.path.exists(dest):
+        os.makedirs(dest)
+
     # README file generation
     if gen_doc:
         doc_dir = os.path.join(dest, 'doc')
         docgen(boards, target, doc_dir)
+        # and do nothing else
+        return
+
+    # default paths in case not specified from the command-line:
+    if dest_bsps is None:
+        dest_bsps = os.path.join(dest, 'BSPs')
+    if not os.path.exists(dest_bsps):
+        os.makedirs(dest_bsps)
+
+    # Install the BSPs
+    for board in boards:
+        install = Installer(board)
+        install.install(dest_bsps, prefix, experimental)
 
     # post-processing, install ada_object_path and ada_source_path to be
     # installed in all runtimes by gprinstall
