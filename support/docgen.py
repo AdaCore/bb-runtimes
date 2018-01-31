@@ -6,7 +6,7 @@ from files_holder import FilesHolder
 from . import fullpath
 
 
-def docgen(boards, target, dest):
+def docgen(boards, target, dest, experimental_rts):
     if not os.path.exists(dest):
         os.makedirs(dest)
 
@@ -41,7 +41,9 @@ def docgen(boards, target, dest):
         if board.name not in runtimes:
             runtimes[board.name] = []
         for profile in board.runtimes:
-            runtimes[board.name].append(profile)
+            if experimental_rts or profile in (
+                    'zfp', 'ravenscar-sfp', 'ravenscar-full'):
+                runtimes[board.name].append(profile)
 
     overall_readme = os.path.join(dest, "index.rst")
     with open(overall_readme, "w") as fp:
@@ -76,12 +78,12 @@ def docgen(boards, target, dest):
         for board in sorted(runtimes.keys()):
             fp.write("* %s" % board)
             if board in readmes.keys():
-                target = files[readmes[board]]
-                fp.write(" (see :ref:`%s`)" % target)
+                ref = files[readmes[board]]
+                fp.write(" (see :ref:`%s`)" % ref)
             fp.write("\n\n")
             for rts in sorted(runtimes[board]):
                 fp.write('  - %s\n' % rts)
-            fp.write("\n")
+            fp.write("\n\n")
 
         # General description of runtime location, usage, and rebuild procedure
 

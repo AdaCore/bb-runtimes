@@ -1,3 +1,5 @@
+# Style_Check:Python_Fragment
+
 import os
 import re
 import sys
@@ -75,29 +77,40 @@ html_static_path = ['_static']
 if os.path.isfile('gnat.sty'):
     latex_additional_files = ['gnat.sty']
 
-copyright_macros = {
-    'date': time.strftime("%b %d, %Y"),
-    'edition': 'GNAT %s Edition' % 'Pro' if get_gnat_build_type() == 'PRO'
-               else 'GPL',
-    'name': u'GNU Ada',
-    'tool': u'GNAT',
-    'version': version,
-    'build_type': get_gnat_build_type()}
+latex_documents = [
+    (master_doc, 'gnat_runtimes.tex', project, u'AdaCore', 'howto')]
 
 try:
     import latex_elements
 
-    latex_elements = {
-        'preamble': '\\usepackage{gnat}\n' +
-        latex_elements.TOC_DEPTH +
-        latex_elements.PAGE_BLANK +
-        latex_elements.TOC_CMD +
-        latex_elements.LATEX_HYPHEN +
-        latex_elements.doc_settings(project,
-                                    get_gnat_version()),
-        'tableofcontents': latex_elements.TOC % copyright_macros}
+    copyright_macros = {
+        'date': time.strftime("%b %d, %Y"),
+        'edition': 'GNAT %s Edition' % (
+            'Pro' if get_gnat_build_type() == 'PRO'
+            else 'GPL'),
+        'name': u'GNU Ada',
+        'tool': u'GNAT',
+        'version': version,
+        'build_type': get_gnat_build_type()}
+
+    # Experimenting with the two forms of LateX documents available in Sphinx
+    # that is 'manual' and 'howto'.
+    if latex_documents[0][4] == 'manual':
+        latex_elements = {
+            'preamble': '\\usepackage{gnat}\n' +
+            latex_elements.TOC_DEPTH +
+            latex_elements.PAGE_BLANK +
+            latex_elements.TOC_CMD +
+            latex_elements.LATEX_HYPHEN +
+            latex_elements.doc_settings(project,
+                                        get_gnat_version()),
+            'tableofcontents': latex_elements.TOC % copyright_macros}
+    else:
+        latex_elements = {
+            'preamble': '\\usepackage{gnat}\n' +
+            latex_elements.TOC_DEPTH +
+            latex_elements.PAGE_BLANK +
+            latex_elements.doc_settings(project,
+                                        get_gnat_version())}
 except Exception:
     pass
-
-latex_documents = [
-    (master_doc, 'gnat_runtimes.tex', project, u'AdaCore', 'manual')]

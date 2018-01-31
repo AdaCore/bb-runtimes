@@ -238,7 +238,7 @@ def main():
     # README file generation
     if gen_doc:
         doc_dir = os.path.join(dest, 'doc')
-        docgen(boards, target, doc_dir)
+        docgen(boards, target, doc_dir, experimental)
         # and do nothing else
         return
 
