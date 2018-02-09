@@ -7,7 +7,7 @@
 --                                 S p e c                                  --
 --                          (Sparc/32 ELF Version)                          --
 --                                                                          --
---          Copyright (C) 1992-2017, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2018, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -33,8 +33,6 @@
 -- Extensive contributions were provided by Ada Core Technologies Inc.      --
 --                                                                          --
 ------------------------------------------------------------------------------
-
---  This is a Ravenscar bare board version of this package for SPARC targets
 
 pragma Restrictions (No_Exception_Propagation);
 --  Only local exception handling is supported in this profile
