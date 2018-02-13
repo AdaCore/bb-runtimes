@@ -51,6 +51,6 @@ __gnat_ram_end   = ORIGIN(SDRAM) + 16M;
 REGION_ALIAS("REGION_CODE", SDRAM)
 REGION_ALIAS("REGION_DATA", SDRAM)
 
-EVSF_Exchange_Area = ORIGIN(SDRAM) + LENGTH(SDRAM);
+Host_Communication_Area = ORIGIN(SDRAM) + LENGTH(SDRAM);
 
 INCLUDE common.ld
