@@ -100,6 +100,10 @@ class PPC6XXTarget(DFBBTarget):
 
     def amend_rts(self, rts_profile, conf):
         super(PPC6XXTarget, self).amend_rts(rts_profile, conf)
+        # kill shrink-wrap-separate when building the runtime as this prevents
+        # the frame to be properly built and thus prevents gdb from unwinding
+        # the runtime (see R220-013).
+        conf.build_flags['common_flags'] += ['-fno-shrink-wrap-separate']
         if rts_profile == 'ravenscar-full':
             conf.config_files.update(
                 {'link-zcx.spec': readfile('powerpc/prep/link-zcx.spec')})
