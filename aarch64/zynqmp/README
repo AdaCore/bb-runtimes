@@ -5,7 +5,7 @@ Main characteristics:
 ---------------------
 
 This runtime supports the running on the quad cortex-A53 SMP APU block of the
-UltraScale+ MPSoC.
+UltraScale+ MPSoC. It is targeting the Avnet UltraZed board.
 
 - boot from Exception Level 3-1: the boot process is configuring the various
   EL down to 1 in 64-bit mode. The runtime mode used is EL1 non-secure.
@@ -49,3 +49,103 @@ Boot:
 -----
 
 For now, only boot from RAM is supported, with the entry point set to 0x00000.
+
+Getting Started with Xilinx tools and GNAT
+------------------------------------------
+
+To run an Ada application using the Xilinx tools, you'll need
+
+* Xilinx Software Developent Kit (XSDK) 2017.4 or later
+* Gnatbench plugin for Eclipse CDT
+* The GNAT compiler for aarch64-elf
+* the Xilinx zynqmp emulator (part of XSDK)
+
+Preparation
+,,,,,,,,,,,
+
+Before running XSDK, make sure that GNAT is installed and accessible from
+your environment.
+
+To test: from your command line, type:
+
+  $ gprconfig --show-targets
+
+This should at least list aarch64-elf.
+
+Gnatbench installation
+,,,,,,,,,,,,,,,,,,,,,,
+
+
+Open XSDK,
+
+* Click on the menu item Help->Install new software
+* Click on "Add", select "Archive", select the gnatbench zip file
+* Click on "OK"
+* Select AdaCore Plugins for Eclipse/CDT
+* Click on Next and finish the installation
+
+Restart xsdk before proceding to the next step
+
+Create an Ada Project
+,,,,,,,,,,,,,,,,,,,,,
+
+Click on the menu File -> Other, and select Ada -> Ada Project
+
+In the dialog:
+
+**Project name**:
+  hello, use default location (click Next)
+**Project unit name**:
+  Hello, Single Project
+**Main Program Settings**:
+  Hello, Generate the file as a Hello World application
+**Directories settings**:
+  leave default
+**Ada Builder settings**:
+  click on Scan, select aarch64-elf, make sure no other
+  toolchain is selected. Click on Finish.
+
+Open the `Hello.gpr` project file, in package Builder use
+
+.. code-block:: ada
+
+   package Builder is
+      for Default_Switches ("ada") use ("-g");
+      for Executable ("hello.adb") use "hello.elf";
+   end Builder;
+
+Right-click on the project hello, choose "Build main" -> "hello.adb".
+
+Create a Run configuration
+,,,,,,,,,,,,,,,,,,,,,,,,,,
+
+At this point, the Ada application should be built. To go further, you'll
+need a Hardware Platform Specification for your board.
+
+In this getting started guide, I'll use the ZCU102_hw_platform that is a
+pre-defined specification.
+
+Now click on the Menu "Run" -> "Run Configurations"
+
+Select Xilinx C/C++ application (System Debugger on QEMU), and press the "New" button.
+
+* Target setup:
+
+  * Debug Type: "Standalone Application Debug"
+  * Connection: "QEMU"
+  * Hardware Platform: "ZCU102_hw_platform"
+
+* Application:
+
+  * Download checked for psu_cortexa53_0
+  * Application: click on Browse and navigate to the obj directory of your
+    Ada project. Select hello.elf.
+  * (optional): check Stop at program entry.
+
+Click Apply, then Run.
+
+Make sure XSDK switches to the Debug view.
+
+This should launch QEMU, upload the application on the target, and stop at
+the entry point. Clicking on the 'Resume' button will display "Hello World!"
+from the Emulator Console, and reset the simulator.
