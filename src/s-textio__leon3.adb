@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1992-2016, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2018, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -72,7 +72,9 @@ package body System.Text_IO is
    function Is_Tx_Ready return Boolean is
       UART_Status_Aux : constant UART_Status_Register := UART_Status;
    begin
-      return not UART_Status_Aux.Transmitter_FIFO_Full;
+      return UART_Status_Aux.Transmitter_FIFO_Empty or
+        (UART_Control.FIFO_Available and not
+         UART_Status_Aux.Transmitter_FIFO_Full);
    end Is_Tx_Ready;
 
    ---------
