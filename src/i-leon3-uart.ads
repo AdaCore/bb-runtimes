@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2006 The European Space Agency            --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -119,11 +119,13 @@ package Interfaces.Leon3.Uart is
       Reserved_2                        : Boolean;
       Receiver_FIFO_Interrupt_Enable    : Boolean;
       Transmitter_FIFO_Interrupt_Enable : Boolean;
-      Reserved_3                        : Reserved_21;
+      Reserved_3                        : Reserved_20;
+      FIFO_Available                    : Boolean;
    end record;
 
    for UART_Control_Register use record
-      Reserved_3                        at 0 range Bit31 .. Bit11;
+      FIFO_Available                    at 0 range Bit31 .. Bit31;
+      Reserved_3                        at 0 range Bit30 .. Bit11;
       Receiver_FIFO_Interrupt_Enable    at 0 range Bit10 .. Bit10;
       Transmitter_FIFO_Interrupt_Enable at 0 range Bit09 .. Bit09;
       Reserved_2                        at 0 range Bit08 .. Bit08;
