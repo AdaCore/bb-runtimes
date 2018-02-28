@@ -86,7 +86,7 @@ __DYNAMIC  =  0;
  *
  * _RAM_SIZE                  size of RAM
  *
- * _STACK_SIZE                size of the stack to be used by the main
+ * _DEFAULT_STACK_SIZE        size of the stack to be used by the main
  *                            procedure (environment task)
  *
  * These symbols are only used in assembler code, so they only need to
@@ -102,7 +102,7 @@ _RAM_END = _RAM_START + _RAM_SIZE;
 _PROM_START = 0x00000000;
 _PROM_END = _PROM_START + _PROM_SIZE;
 
-_STACK_SIZE = (40 * 1024);
+_DEFAULT_STACK_SIZE = (40 * 1024);
 
 /*
  *  Base address of the on-CPU peripherals
@@ -204,7 +204,7 @@ SECTIONS
 
    /* Reserve the space for the stack to be used by the environment task */
 
-   . += _STACK_SIZE;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
 
    /* Pointer to the top of the stack to be used by the main procedure (the
       environment task. */
