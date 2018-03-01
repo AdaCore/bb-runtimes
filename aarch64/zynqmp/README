@@ -5,7 +5,7 @@ Main characteristics:
 ---------------------
 
 This runtime supports the running on the quad cortex-A53 SMP APU block of the
-UltraScale+ MPSoC. It is targeting the Avnet UltraZed board.
+UltraScale+ MPSoC. It targets the Avnet UltraZed board.
 
 - boot from Exception Level 3-1: the boot process is configuring the various
   EL down to 1 in 64-bit mode. The runtime mode used is EL1 non-secure.
@@ -17,56 +17,61 @@ UltraScale+ MPSoC. It is targeting the Avnet UltraZed board.
   supported, in tasks and in interrupt handlers.
 
 
-Getting Started with Xilinx Tools and GNAT
+Getting Started with the UltraZed and GNAT
 ------------------------------------------
 
-To run an Ada application using the Xilinx Tools, you'll need
+This guide will demonstrate how to run an Ada application on the Avnet
+UltraZed. The process for other UltraScale+ boards is largely similar, except
+you will have to provide a Hardware Platform Specification and a BSP tailored
+for your board.
+
+To begin, you will need to obtain and install from Xilinx:
 
 * Xilinx Software Developent Kit (XSDK) 2017.4 or later
+
+and from GNAT Tracker:
+
 * Gnatbench plugin for Eclipse CDT
-* The GNAT compiler for aarch64-elf
-* the Xilinx zynqmp emulator (part of XSDK)
+* GNAT for aarch64-elf
+
 
 Preparation
 ,,,,,,,,,,,
 
-**GNAT Installation:**
+**GNAT installation:**
 
 Before running XSDK, make sure that GNAT is installed and accessible from
-your environment (PATH).
-
-To test: from your command line, type:
+your environment (PATH). To test, type from your command line:
 
   $ gprconfig --show-targets
 
-This should at minimum list aarch64-elf.
+The list should include aarch64-elf.
 
-**Board-specific projects:**
+**Hardware Platform Specification:**
 
-You will also need a Hardware Platform Specification project for your board.
+As the UltraScale+ MPSoC is a configurable MPSoC, it requires a Hardware
+Platform Specification. For the Avnet UltraZed, visit their website and
+obtain the *Board Definition Files for Vivado 2017.2 and later* and follow
+the included tutorial. For this guide, the Hardware Platform Specification is
+called "design_1_wrapper_hw_platform_0" specification.
 
-Generation of the hardware specification is out of scope of this guide, please refer
-to Xilinx documentation or Avnet UltraZed tutorials to do so.
-
-Below, I will use the "design_1_wrapper_hw_platform_0" specification, that is the result
-of the UltraZed Vivado tutorial.
-
-You will also need a corresponding bsp (standalone BSP). I used "standalone bsp" as project
-name. No extra library is needed.
+Open XSDK and create a standalone BSP from the *File -> New -> Board Support
+Package*. While this BSP is not strictly needed to build the application, it
+provides XSDK the information how to run or debug the application. Use
+"standalone bsp" as the project name and do not include any extra libraries.
 
 Gnatbench Installation
 ,,,,,,,,,,,,,,,,,,,,,,
 
+With XSDK open:
 
-Open XSDK, then:
-
-* Click on the menu item Help->Install new software
+* Click on the menu item *Help->Install New Software*
 * Click on "Add", select "Archive", select the gnatbench zip file
 * Click on "OK"
 * Select AdaCore Plugins for Eclipse/CDT
 * Click on Next and finish the installation
 
-Restart xsdk before proceding to the next step.
+Restart XSDK before proceding to the next step.
 
 Create an Ada Project
 ,,,,,,,,,,,,,,,,,,,,,
@@ -90,20 +95,19 @@ In the dialog:
 Click on Finish.
 
 Right click on the project, select "Properties". In the "Project References"
-section, add a dependency over "standalone_bsp". This is not strictly needed
-to build the application, but will tell XSDK how to run or debug the
-application. Close the dialog.
+section, add a dependency over "standalone_bsp". Close the dialog.
 
 Right-click on the project hello, choose "Build main" -> "hello.adb".
 
-Create a Run/Debug Configuration
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Run/Debug the Application
+,,,,,,,,,,,,,,,,,,,,,,,,,
 
-**Debugging on QEMU**
+**Emulator-based Debugging**
 
 Click on the Menu "Debug" > "Debug Configurations"
 
-Select Xilinx C/C++ application (System Debugger on QEMU), and press the "New" button.
+Select Xilinx C/C++ application (System Debugger on QEMU), and press the "New"
+button.
 
 * Target setup:
 
@@ -116,7 +120,7 @@ Select Xilinx C/C++ application (System Debugger on QEMU), and press the "New" b
   * Project Name: click on Browse, select `hello`
   * Application: click on Search, select `hello`
   * Download checked for psu_cortexa53_0
-  * (optional): check Stop at program entry.
+  * (optional): check Stop at program entry
 
 Click Apply, then Debug.
 
@@ -124,10 +128,13 @@ This should launch QEMU and switch to the Debug perspective, and stop at
 the entry point (or at main). Clicking on the 'Resume' button will display
 "Hello World!" from the Emulator Console, and reset the simulator.
 
-**On-board Debug**
+**On-board Debugging**
 
-Set your board to startup in JTAG mode, connect the JTAG module to your host, connect the
-UART to your host and open a terminal (115200 bauds).
+To begin:
+
+   * set the board to start in JTAG mode
+   * connect the JTAG module to your host
+   * connect the UART to your host and open a terminal (115200 bauds)
 
 Now click on the Menu "Debug" -> "Debug Configurations"
 
@@ -147,19 +154,20 @@ Select Xilinx C/C++ application (System Debugger), and press the "New" button.
   * Application: select `hello`
   * Download checked for "psu_cortexa53_0"
   * Check "Reset processor"
-  * (optional): check Stop at program entry if you need to debug the crt0.
+  * (optional) check Stop at program entry if you need to debug the crt0
 
 Click Apply, then Debug.
 
-The debug view should open automatically, and the Cortex-A53 #0 should stop at main, with
-the main entry point of the hello world example being displayed. Hitting continue will
-output "Hello World!" via the UART.
+The debug view should open automatically and the Cortex-A53 #0 should stop at
+`main`. The main entry point of the hello world example will be displayed.
+Press the continue button and the output "Hello World!" should print on your
+serial console.
 
 Resources used by the runtime:
 ------------------------------
 
-- the GIC is configured to redirect the exceptions to the Ada runtime
-- the Software generated interrupt 0 is reserved by the runtime and should not
+- The GIC is configured to redirect the exceptions to the Ada runtime.
+- The Software generated interrupt 0 is reserved by the runtime and should not
   be used by user code.
 - The UART0 is used as standard input/output by the runtime.
 
@@ -187,4 +195,5 @@ Memory mapping:
 Boot:
 -----
 
-For now, only boot from RAM is supported, with the entry point set to 0x00000.
+Only booting from RAM is currently supported, with the entry point set to
+0x00000.
