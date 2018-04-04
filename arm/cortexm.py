@@ -323,6 +323,74 @@ class M1AGL(ArmV6MTarget):
             'src/s-bcpcst__m1agl.adb'])
 
 
+class NRF51(ArmV6MTarget):
+    @property
+    def name(self):
+        return 'nRF51'
+
+    @property
+    def loaders(self):
+        return (['ROM'])
+
+    @property
+    def has_fpu(self):
+        return True
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+                '-mcpu=cortex-m0')
+
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads',
+                'ravenscar-sfp': 'system-xi-armv6m-sfp.ads',
+                'ravenscar-full': 'system-xi-armv6m-full.ads'}
+
+    def __init__(self):
+        super(NRF51, self).__init__()
+
+        self.add_linker_script('arm/nordic/nrf51/common-ROM.ld', loader='ROM')
+
+        self.add_sources('crt0', [
+            'src/s-bbarat.ads',
+            'src/s-bbarat.adb',
+            'arm/nordic/nrf51/svd/i-nrf51.ads',
+            'arm/nordic/nrf51/svd/i-nrf51-clock.ads',
+            'arm/nordic/nrf51/svd/i-nrf51-rtc.ads',
+            'arm/nordic/nrf51/svd/i-nrf51-uart.ads',
+            'arm/nordic/nrf51/svd/handler.S',
+            'arm/nordic/nrf51/start-rom.S',
+            'arm/nordic/nrf51/s-bbmcpa.ads'])
+
+        self.add_sources('gnarl', [
+            'arm/nordic/nrf51/svd/a-intnam.ads',
+            'src/s-bbpara__nrf51.ads',
+            'src/s-bbbosu__nrf51.adb',
+            'src/s-bcpcst__pendsv.adb'])
+
+
+class Microbit(NRF51):
+    @property
+    def name(self):
+        return 'microbit'
+
+    @property
+    def use_semihosting_io(self):
+        return False
+
+    def __init__(self):
+        super(Microbit, self).__init__()
+
+        self.add_linker_script('arm/nordic/nrf51/memory-map_nRF51822xxAA.ld',
+                               loader='ROM')
+
+        self.add_sources('crt0',
+                         ['arm/nordic/nrf51/s-bbbopa__microbit.ads',
+                          'src/s-textio__microbit.adb'])
+
+
 class Stm32CommonArchSupport(ArchSupport):
     """Holds sources common to all stm32 boards"""
     @property
