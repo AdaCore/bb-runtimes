@@ -28,6 +28,8 @@ scenarii = {
     'Has_FPU': ['no', 'yes'],
     # Whether we rely on libc being available
     'Has_libc': ['no', 'yes'],
+    # Whether an implementation of compare and swap is available
+    'Has_Compare_And_Swap': ['yes', 'no'],
     # RAM profile
     'Memory_Profile': ['small', 'large'],
     # 32-bit or 64-bit timers available on the hardware
@@ -442,16 +444,24 @@ sources = {
     },
 
     # Memory operations:
-    'zfp/alloc_c': {
+    'alloc/c': {
         'conditions': ['Has_libc:yes', 'RTS_Profile:!ravenscar-full'],
         'bb_srcs': ['hie/s-memory__libc.adb']
     },
-    'zfp/alloc_notask': {
+    'alloc/no-tasking': {
         'conditions': ['Has_libc:no', 'RTS_Profile:zfp'],
         'srcs': ['hie/s-memory__zfp.adb']
     },
-    'zfp/alloc_tasking': {
-        'conditions': ['Has_libc:no', 'RTS_Profile:ravenscar-sfp'],
+    'alloc/no-cas': {
+        'conditions': ['Has_libc:no',
+                       'RTS_Profile:ravenscar-sfp',
+                       'Has_Compare_And_Swap:no'],
+        'srcs': ['hie/s-memory__zfp.adb']
+    },
+    'alloc/tasking': {
+        'conditions': ['Has_libc:no',
+                       'RTS_Profile:ravenscar-sfp',
+                       'Has_Compare_And_Swap:yes'],
         'srcs': ['hie/s-memory__raven.adb']
     },
     'mem': {

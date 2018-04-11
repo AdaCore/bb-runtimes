@@ -30,6 +30,9 @@ class RTSProfiles(object):
         else:
             ret['Has_libc'] = 'no'
 
+        # By default, all targets support a Compare_And_Swap instruction
+        ret['Has_Compare_And_Swap'] = 'yes'
+
         if math_lib:
             if self.config.has_single_precision_fpu:
                 if self.config.has_double_precision_fpu:

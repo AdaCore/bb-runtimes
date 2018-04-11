@@ -124,9 +124,18 @@ class Leon3(LeonTarget):
 
     @property
     def compiler_switches(self):
+        ret = ()
+        if not self.smp:
+            # see R409-022: -mcpu=leon3 makes gcc generate CASA instruction
+            # when expanding compare_and_swap_4 intrinsic, which is invalid
+            # SPARCv8 insn on most leon3.
+            ret += ('-mcpu=leon',)
+        else:
+            ret += ('-mcpu=leon3',)
+
         if self.need_fix_ut699:
-            return ('-mfix-ut699',)
-        return ()
+            ret += ('-mfix-ut699',)
+        return ret
 
     @property
     def has_single_precision_fpu(self):
@@ -136,6 +145,12 @@ class Leon3(LeonTarget):
     @property
     def readme_file(self):
         return 'sparc/leon3/README'
+
+    def amend_rts(self, rts_profile, conf):
+        super(Leon3, self).amend_rts(rts_profile, conf)
+        if not self.smp:
+            # see R409-022
+            conf.rts_vars['Has_Compare_And_Swap'] = "no"
 
     def __init__(self, smp):
         self.smp = smp

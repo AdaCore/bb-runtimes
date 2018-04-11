@@ -77,3 +77,13 @@ bodies of the Ada.Text_IO routines call through to a device-specific I/O
 package named System.Text_IO. See the package body in the file
 s-textio.adb. The address of the uart used by the console (and Ada.Text_IO)
 is specified in package System.BB.Board_Parameters (`s-bbbopa.ads`).
+
+Limitations
+-----------
+
+The uni-processor variant of the ravenscar-sfp runtime does not support
+re-entrant calls to malloc, due to the lack of hardware support for atomic
+compare-and-swap instructions.
+
+It is thus advised to call malloc from only one task (this can be the
+environment task).
