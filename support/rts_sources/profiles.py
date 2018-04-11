@@ -5,15 +5,44 @@
 # BSP to actually create a runtime project.
 
 import sys
+from support.rts_sources import Rule
+from support.rts_sources.sources import sources
 
 
 class RTSProfiles(object):
     """Defines the scenarii in the shared rts projects"""
 
     def __init__(self, config):
+        """class used to generate the base RTS profiles to be used by BSPs as a
+        basis for the various runtimes.
+
+        :type config: an instance of
+        :type sourcetree: an instance of rts_sources.ProjectTree
+        """
         # config is a bsp_sources.Target object that defines the properties
         # that are necessary to configure the runtime sources.
         self.config = config
+
+    def check_deps(self, scenarii):
+        while True:
+            modified = False
+            for d, content in sources.items():
+                matches = False
+                if 'requires' not in content:
+                    continue
+                if 'conditions' not in content:
+                    matches = True
+                else:
+                    rule = Rule(content['conditions'])
+                    if rule.matches(scenarii):
+                        matches = True
+                if matches:
+                    dep = Rule(content['requires'])
+                    if not dep.matches(scenarii):
+                        modified = True
+                        scenarii.update(dep.corresponding_scenario())
+            if not modified:
+                break
 
     def zfp_scenarios(self, math_lib, profile='zfp'):
         """Returns the list of directories contained in a base ZFP runtime"""
@@ -30,9 +59,6 @@ class RTSProfiles(object):
         else:
             ret['Has_libc'] = 'no'
 
-        # By default, all targets support a Compare_And_Swap instruction
-        ret['Has_Compare_And_Swap'] = 'yes'
-
         if math_lib:
             if self.config.has_single_precision_fpu:
                 if self.config.has_double_precision_fpu:
@@ -48,25 +74,6 @@ class RTSProfiles(object):
                 else:
                     # No hardware support
                     ret['Add_Math_Lib'] = 'softfloat'
-        else:
-            ret['Add_Math_Lib'] = 'no'
-        ret['Add_Complex_Type_Support'] = 'no'
-        ret['Add_C_Integration'] = "no"
-        ret['Add_Arith64'] = "no"
-        ret['Add_Exponent_Int'] = "no"
-        ret['Add_Exponent_LL_Int'] = "no"
-        ret['Add_Exponent_Modular'] = "no"
-        ret['Add_Exponent_LL_Float'] = "no"
-        ret['Add_Image_Enum'] = "no"
-        ret['Add_Image_Decimal'] = "no"
-        ret['Add_Image_LL_Decimal'] = "no"
-        ret['Add_Image_Float'] = "no"
-        ret['Add_Image_Int'] = "no"
-        ret['Add_Image_LL_Int'] = "no"
-        ret['Add_Image_Based_Int'] = "no"
-        ret['Add_Image_LL_Based_Int'] = "no"
-        ret['Add_Image_Char'] = "no"
-        ret['Add_Image_Wide_Char'] = "no"
 
         if self.config.use_semihosting_io:
             ret['Text_IO'] = 'semihosting'
@@ -138,6 +145,18 @@ class RTSProfiles(object):
         ret['Add_Image_Float'] = "yes"
         ret['Add_Image_Char'] = "yes"
         ret['Add_Image_Wide_Char'] = "yes"
+        ret['Add_Pack'] = "yes"
+        ret['Add_Value_Bool'] = "yes"
+        ret['Add_Value_Enum'] = "yes"
+        ret['Add_Value_Decimal'] = "yes"
+        ret['Add_Value_LL_Decimal'] = "yes"
+        ret['Add_Value_Float'] = "yes"
+        ret['Add_Value_Int'] = "yes"
+        ret['Add_Value_LL_Int'] = "yes"
+        ret['Add_Value_Based_Int'] = "yes"
+        ret['Add_Value_LL_Based_Int'] = "yes"
+        ret['Add_Value_Char'] = "yes"
+        ret['Add_Value_Wide_Char'] = "yes"
 
         if not self.config.is_pikeos:
             # PikeOS provides its own C library

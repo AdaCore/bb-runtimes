@@ -7,10 +7,145 @@
 # python on oldest host).
 
 from support.files_holder import FilesHolder
-from sources import scenarii, sources
+from support.rts_sources.sources import all_scenarii, sources
 
 import os
 from copy import deepcopy
+
+
+class Rule(object):
+    # Collect some statistics on scenario variable usage, to better generate
+    # the project file (most used scenario at the top-level of nested case
+    # statements)
+    __used_scenarii = {}
+
+    def __init__(self, rules, scenarii=all_scenarii, as_new_rule=False):
+        """Create a new scenario variable condition rule.
+
+        scenarii: check the rules against a list of scenario variables and
+            accepted values. If None then no check is performed.
+        as_new_rule: set to True if it's a rule added to the project file. This
+            increases the initial counter of used scenario variables"""
+        self._scenarii = {}
+
+        if rules is None or len(rules) == 0:
+            return
+
+        for rule in rules:
+            assert ':' in rule, "Syntax error: wrong rule '%s'" % rule
+
+            var, value = rule.split(':')
+            var = var.strip()
+            value = value.strip()
+
+            assert len(var) != 0, "Syntax error: wrong rule '%s'" % rule
+            assert len(value) != 0, "Syntax error: wrong rule '%s'" % rule
+            assert var in scenarii, "Unknown scenario variable %s" % var
+
+            # make sure to record all scenario variables that are actually
+            # useful
+            cases = [s.strip() for s in value.split(',')]
+
+            if cases[0][0] == '!':
+                negate = True
+                n_cases = []
+                for case in cases:
+                    assert case.startswith('!'), \
+                        ('negation needs to apply '
+                         'to every item in the list: %s' % rule)
+                    n_cases.append(case[1:])
+                cases = n_cases
+            else:
+                negate = False
+
+            assert var not in self._scenarii, \
+                "duplicated scenario variable in %s" % str(rules)
+
+            self._scenarii[var] = []
+
+            if negate:
+                self._scenarii[var] = scenarii[var][:]
+            else:
+                self._scenarii[var] = []
+
+            # parse the rule
+            for case in cases:
+                # filter out values that are not expected
+                if scenarii is None or case in scenarii[var]:
+                    if negate:
+                        self._scenarii[var].remove(case)
+                    else:
+                        self._scenarii[var].append(case)
+
+            # ensure the possible values is not empty
+            if len(self._scenarii[var]) == 0:
+                # clear everything: it's a rule that can never match
+                self._scenarii = {}
+                break
+
+        if as_new_rule:
+            # Update the list of used scenario variables
+            for sv in self._scenarii.keys():
+                if sv not in Rule.__used_scenarii:
+                    Rule.__used_scenarii[sv] = 1
+                else:
+                    Rule.__used_scenarii[sv] += 1
+
+    @property
+    def is_empty(self):
+        return len(self._scenarii) == 0
+
+    @property
+    def used_scenarii(self):
+        return self._scenarii.keys()
+
+    def has_scenario(self, var):
+        return var in self._scenarii.keys()
+
+    @staticmethod
+    def count_scenario(var):
+        if var in Rule.__used_scenarii:
+            return Rule.__used_scenarii[var]
+        else:
+            return 0
+
+    def matches(self, variables, exact=False):
+        """Considering a set of variables, returns true if the rules match"""
+        for var in self._scenarii:
+            if var not in variables:
+                return False
+            if variables[var] not in self._scenarii[var]:
+                # not an expected value
+                return False
+        if exact:
+            for var in variables:
+                if var not in self._scenarii:
+                    # some extra variable is defined. We wanted a full match so
+                    # let's skip
+                    return False
+        return True
+
+    def partial_match(self, variables):
+        """If all variables match the rule (but not necessarily all the rules),
+         then return True"""
+        for var in variables:
+            if var not in self._scenarii:
+                # some extra variable is defined. We wanted a full match so
+                # let's skip
+                return False
+            if variables[var] not in self._scenarii[var]:
+                return False
+        return True
+
+    def corresponding_scenario(self):
+        ret = {}
+        for var in self._scenarii:
+            assert len(self._scenarii[var]) == 1,\
+                ("Cannot generate automatically a dependency,"
+                 " when several choices are possible: %s:%s" % (
+                    var, str(self._scenarii[var])))
+            ret[var] = self._scenarii[var][0]
+        return ret
 
 
 # Definitions of shared source files.
@@ -31,9 +166,11 @@ class SourceTree(FilesHolder):
         """
         super(SourceTree, self).__init__()
         self._is_bb = is_bb
-        self.scenarii = deepcopy(scenarii)
+        self.scenarii = deepcopy(all_scenarii)
         self.lib_scenarii = {'gnat': [], 'gnarl': []}
         self.rules = {'gnat': {}, 'gnarl': {}}
+        self.deps = {}
+        SourceTree.__singleton = self
 
         if profile != 'ravenscar-full':
             if profile == 'zfp':
@@ -67,7 +204,19 @@ class SourceTree(FilesHolder):
                     self.add_rule(key, None)
                 else:
                     self.add_rule(key, values['conditions'])
+                if 'requires' in values:
+                    self.deps[key] = Rule(
+                        values['requires'], self.scenarii, False)
                 self.add_sources(key, srcs)
+        # Sort the scenario variables from most used to less used
+        self.lib_scenarii['gnat'] = sorted(
+            self.lib_scenarii['gnat'],
+            key=lambda x: Rule.count_scenario(x),
+            reverse=True)
+        self.lib_scenarii['gnarl'] = sorted(
+            self.lib_scenarii['gnarl'],
+            key=lambda x: Rule.count_scenario(x),
+            reverse=True)
 
     def update_pairs(self, dir, pairs):
         # overload the parent method: this one allows updating pairs in a
@@ -81,130 +230,45 @@ class SourceTree(FilesHolder):
                 self.dirs[dir][k] = v
         return True
 
-    def add_rule(self, dir, rules):
+    def add_rule(self, directory, rules):
         """parses the rules defined in 'rules', applicable to the folder 'dir'
 
-        This stores the rules internally for further processing
+        This stores the rules internally for further processing.
+
+        :type directory: string
+        :type rules: list or None
         """
         if isinstance(rules, basestring):
-            self.add_rule(dir, [rules])
-            return
+            rules = [rules]
 
-        if dir.split('/')[0] == 'gnarl':
+        if directory.split('/')[0] == 'gnarl':
             collection = self.rules['gnarl']
-            scenarii = self.lib_scenarii['gnarl']
+            used_scenarii = self.lib_scenarii['gnarl']
         else:
             collection = self.rules['gnat']
-            scenarii = self.lib_scenarii['gnat']
-        self.__add_rule(collection, dir, rules, scenarii)
+            used_scenarii = self.lib_scenarii['gnat']
+        assert directory not in collection, \
+            "directory %s defined twice" % directory
 
-    def __add_rule(self, collection, dir, rules, used_scenarii):
-        """actually adds a directory selection rule based on scenario variables
+        # add the rule object to the current set of rules
+        rule = Rule(rules, scenarii=self.scenarii, as_new_rule=True)
+        collection[directory] = rule
 
-        collection: dictionary holding the rules
-        dir: the selected directory
-        rules: the string to parse
-        used_scenarii: a list of scenario variables actually used.
-
-        The tricky part here is that in order to generate a user-readable
-        project file, we're reverting the logic here: the rts sources are
-        declared with applicable rules, while in the generated project we
-        start from the scenario variables to include the directories.
-
-        As an example:
-        'full': 'RTS_Profile:ravenscar-full'
-        'containers': 'RTS_Profile:ravenscar-full'
-
-        will generate:
-        case RTS_Profile is
-           when "ravenscar_full" =>
-              GNAT_Dirs := GNAT_Dirs & ("full", "containers");
-
-        To allow the magic, we use the following structure for the
-        collection variable:
-
-        { '__dirs__': ['list', 'of', 'always', 'used', 'dirs'],
-          'scenario1': {
-              'value1': {
-                '__dirs__': ['applicable', 'dirs', 'when', 'scenario1=value1']
-                'scenario1.1': {
-                   # dirs that require a specific value for scenario 1 & 2
-                   '__dirs__': ...
-              },
-              'value2': {
-                 # similar to above
-              },
-            },
-          'scenario2': ...
-        }
-        """
-        # Check if the directory is always used
-        if rules is None or len(rules) == 0:
-            if '__dirs__' not in collection:
-                collection['__dirs__'] = []
-            collection['__dirs__'].append(dir)
-            return
-
-        # check for an already existing rule in collection
-        found = False
-        for r in rules:
-            # Separate scenario variable and the cases where this rule applies
-            var, cases = r.split(':')
-            assert var in self.scenarii, "Unknown scenario variable: %s" % var
-
-            if var in collection:
-                found = True
-                rule = r
-                break
-        if not found:
-            # no rule at collection's top-level, so we select the first rule
-            rule = rules[0]
-
-        var, cases = rule.split(':')
-        rules = rules[:]
-        rules.remove(rule)
-
-        # make sure to record all scenario variables that are actually useful
-        if var not in used_scenarii:
-            used_scenarii.append(var)
-        cases = cases.split(',')
-
-        # Make sure that the scenario variable is in the collection of rules
-        if var not in collection:
-            collection[var] = {}
-            for case in self.scenarii[var]:
-                collection[var][case] = {'__dirs__': []}
-
-        # parse the rule
-        for case in cases:
-            negate = False
-            if case.startswith('!'):
-                negate = True
-                case = case[1:]
-            if negate:
-                for other_case in self.scenarii[var]:
-                    if case != other_case:
-                        if other_case not in collection[var]:
-                            collection[var][other_case] = {}
-                        self.__add_rule(
-                            collection[var][other_case],
-                            dir, rules, used_scenarii)
-            elif case in self.scenarii[var]:
-                if case not in collection[var]:
-                    collection[var][case] = {}
-                self.__add_rule(collection[var][case],
-                                dir, rules, used_scenarii)
+        # and make sure to update the list of used scenario variables
+        for sc in rule.used_scenarii:
+            if sc not in used_scenarii:
+                used_scenarii.append(sc)
 
     def install(self):
-        # Dump the shared rts sources project file
+        """Dump the shared rts sources project file"""
         self.dump_project_files()
 
         # now install the rts sources
         if not os.path.exists(self.dest_sources):
             os.makedirs(self.dest_sources)
         dirs = []
-        self.__gather_used_dirs(self.rules['gnat'], dirs)
-        self.__gather_used_dirs(self.rules['gnarl'], dirs)
+        dirs += self.rules['gnat'].keys()
+        dirs += self.rules['gnarl'].keys()
         for d in dirs:
             installed = []
             self.__install_dir(d, installed)
@@ -224,20 +288,25 @@ class SourceTree(FilesHolder):
 
             for name in sorted(self.lib_scenarii[lib]):
                 values = self.scenarii[name]
-                ret += '   type %s_Type is ("%s", "undefined");\n' % (
+                ret += '   type %s_Type is ("%s");\n' % (
                     name, '", "'.join(values))
-                ret += '   %s : %s_Type := external ("%s", "undefined");\n' % (
-                    name, name, name)
+                ret += '   %s : %s_Type := external ("%s", "%s");\n' % (
+                    name, name, name, values[0])
                 ret += '\n'
 
-            ret += self.__dump_scenario(lib_camelcase, self.rules[lib], 1)
+            ret += self.__dump_scenario(
+                lib_camelcase,
+                deepcopy(self.lib_scenarii[lib]),
+                deepcopy(self.rules[lib]),
+                {},
+                1)
             ret += "end Lib%s_Sources;\n" % lib
 
             fname = os.path.join(self.dest_prjs, 'lib%s_sources.gpr' % lib)
             with open(fname, 'w') as fp:
                 fp.write(ret)
 
-    def __dump_scenario(self, var, current, indent):
+    def __dump_scenario(self, libname, scenarii, dirs, env, indent):
         """Recursively dumps a case statement on scenario variables.
 
         This adds the directories defined when a scenario variable is set to
@@ -246,15 +315,25 @@ class SourceTree(FilesHolder):
         blank = ' ' * (3 * indent)
         ret = ''
         relpath = os.path.relpath(self.dest_sources, self.dest_prjs)
-        if len(current['__dirs__']) > 0:
-            ret += blank + '%s_Dirs := %s_Dirs &\n' % (var, var)
+
+        if len(dirs) == 0:
+            return ''
+
+        # First dump all directories that match the environment
+        matched = []
+        for d, rule in dirs.items():
+            if rule.matches(env, exact=True):
+                matched.append(d)
+
+        if len(matched) > 0:
+            ret += blank + '%s_Dirs := %s_Dirs &\n' % (libname, libname)
             strings = ['Project\'Project_dir & "%s/%s"' % (relpath, d)
-                       for d in current['__dirs__']]
+                       for d in sorted(matched)]
             ret += blank + '  ('
             ret += (',\n' + blank + '   ').join(strings)
             ret += ');\n'
             langs = []
-            for d in sorted(current['__dirs__']):
+            for d in sorted(matched):
                 if 'C' not in langs and d in self.c_srcs:
                     langs.append('C')
                 if 'Asm' not in langs and d in self.asm_srcs:
@@ -263,40 +342,71 @@ class SourceTree(FilesHolder):
                     langs.append('Asm_Cpp')
             if len(langs) > 0:
                 ret += blank + '%s_Langs := %s_Langs & ("%s");\n' % (
-                    var, var, '", "'.join(langs))
+                    libname, libname, '", "'.join(langs))
 
-        if len(current) == 1:
+        if len(scenarii) == 0:
             return ret
 
-        for key in sorted(current.keys()):
-            if key == '__dirs__':
-                continue
-            ret += blank + 'case %s is\n' % key
-            has_empty = False
-            for val in sorted(self.scenarii[key]):
-                if len(current[key][val]) == 1 and \
-                        len(current[key][val]['__dirs__']) == 0:
-                    has_empty = True
-                else:
-                    ret += blank + '   when "%s" =>\n' % val
-                    ret += self.__dump_scenario(
-                        var, current[key][val], indent + 2)
-            if has_empty:
-                ret += blank + '   when others =>\n'
-            else:
-                ret += blank + '   when "undefined" =>\n'
-            ret += blank + 'end case;\n\n'
-        return ret
+        # now prune all dirs that cannot match anymore, due to the current
+        # environment
+        pruned = {}
+        for d, rule in dirs.items():
+            if not rule.partial_match(env):
+                pruned[d] = rule
+        for d in matched:
+            pruned[d] = dirs[d]
+        for d in pruned:
+            del(dirs[d])
 
-    def __gather_used_dirs(self, src_prj, dirs):
-        for name in src_prj:
-            if name == '__dirs__':
-                for d in src_prj[name]:
-                    if d not in dirs:
-                        dirs.append(d)
-            else:
-                for val in src_prj[name]:
-                    self.__gather_used_dirs(src_prj[name][val], dirs)
+        if len(dirs) == 0:
+            # restore the pruned items
+            for d, rule in pruned.items():
+                dirs[d] = rule
+
+            return ret
+
+        # Now look at the next scenario variable to see if some new directory
+        # matches one of the values
+        for j in range(0, len(scenarii)):
+            next_var = scenarii[j]
+            used = False
+            for d, rule in dirs.items():
+                if rule.has_scenario(next_var):
+                    used = True
+            if not used:
+                continue
+            has_case = False
+            has_missed_case = False
+
+            for value in self.scenarii[next_var]:
+                env[next_var] = value
+                subret = self.__dump_scenario(
+                    libname, scenarii[j + 1:], dirs, env, indent + 2)
+                if subret == '':
+                    has_missed_case = True
+                    continue
+                if not has_case:
+                    # start a new case statement
+                    has_case = True
+                    ret += '\n'
+                    ret += blank + 'case %s is\n' % next_var
+                else:
+                    ret += '\n'
+                ret += blank + '   when "%s" =>\n' % value
+                ret += subret
+            if has_case:
+                if has_missed_case:
+                    ret += '\n' + blank + '   when others =>\n'
+                ret += blank + 'end case;\n'
+
+            # remove variable from env, before moving to the next one
+            del(env[next_var])
+
+        # restore the pruned items
+        for d, rule in pruned.items():
+            dirs[d] = rule
+
+        return ret
 
     def __install_dir(self, dirname, installed_files):
         if dirname not in self.dirs:

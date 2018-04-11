@@ -104,6 +104,7 @@ class Target(TargetConfiguration, ArchSupport):
         ArchSupport.__init__(self)
         self.config_files = {}
         self.runtimes = {}
+
         self.rts_options = RTSProfiles(self)
 
         self.build_flags = {'source_dirs': None,
@@ -134,6 +135,8 @@ class Target(TargetConfiguration, ArchSupport):
 
             # Update the runtimes objects according to target specifications
             self.amend_rts(profile, rts)
+            # Check that dependencies are met
+            self.rts_options.check_deps(rts.rts_vars)
 
         assert len(self.runtimes) > 0, "No runtime defined"
 
