@@ -139,8 +139,12 @@ sources = {
             'hie/s-memory__zfp.ads']
     },
 
-    'zfp-parame': {
-        'conditions': ['RTS_Profile:zfp'],
+    'zfp-parame-mem-small': {
+        'conditions': ['RTS_Profile:zfp', 'Memory_Profile:small'],
+        'bb_srcs': ['hie/s-parame__zfp_small.ads']
+    },
+    'zfp-parame-mem-large': {
+        'conditions': ['RTS_Profile:zfp', 'Memory_Profile:large'],
         'bb_srcs': ['hie/s-parame__zfp.ads']
     },
 
