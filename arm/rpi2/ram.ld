@@ -107,9 +107,12 @@ SECTIONS
   } > REGION_CODE
 
   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > REGION_CODE
-  PROVIDE_HIDDEN (__exidx_start = .);
-  .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > REGION_CODE
-  PROVIDE_HIDDEN (__exidx_end = .);
+  .ARM.exidx   : 
+  {
+    PROVIDE_HIDDEN (__exidx_start = .);
+    *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+    PROVIDE_HIDDEN (__exidx_end = .);
+  } > REGION_CODE
 
   .data :
   {

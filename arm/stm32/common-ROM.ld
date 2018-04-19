@@ -56,9 +56,12 @@ SECTIONS
   } > flash
 
   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > flash
-  PROVIDE_HIDDEN (__exidx_start = .);
-  .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > flash
-  PROVIDE_HIDDEN (__exidx_end = .);
+  .ARM.exidx   : 
+  {
+    PROVIDE_HIDDEN (__exidx_start = .);
+    *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+    PROVIDE_HIDDEN (__exidx_end = .);
+  } > flash
 
   .rodata :
   {
