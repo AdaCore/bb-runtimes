@@ -7,7 +7,7 @@
 --                                 S p e c                                  --
 --                          (PikeOS ARM Version)                            --
 --                                                                          --
---          Copyright (C) 1992-2017, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2018, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -183,7 +183,7 @@ private
       ("-u__p4_start" & ASCII.NUL & "-e__p4_start" & ASCII.NUL &
        "-u_p4_entry" & ASCII.NUL &
        "-nostdlib" & ASCII.NUL &
-       "-T../scripts/app-ld-script" & ASCII.NUL &
+       "-T../ld/arm-app.ld" & ASCII.NUL &
        "-lvm" & ASCII.NUL & "-lp4" & ASCII.NUL & "-lstand" & ASCII.NUL &
        "-lgcc");
 

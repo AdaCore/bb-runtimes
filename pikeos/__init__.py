@@ -62,7 +62,7 @@ class ArmPikeOS(PikeOS):
 
     @property
     def target(self):
-        return 'arm-pikeos'
+        return 'arm-sysgo-pikeos'
 
     @property
     def pikeos_version(self):
@@ -79,6 +79,10 @@ class ArmPikeOS(PikeOS):
             'ravenscar-sfp': 'system-pikeos-arm-ravenscar-sfp.ads',
             'ravenscar-full': 'system-pikeos-arm-ravenscar-full.ads'
         }
+
+    def __init__(self):
+        super(ArmPikeOS, self).__init__()
+        self.add_linker_script('pikeos/arm-app.ld')
 
 
 class PpcPikeOS(PikeOS):
