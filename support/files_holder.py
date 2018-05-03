@@ -18,6 +18,20 @@ class FilesHolder(object):
 
     link = False
 
+    _gcc_version = None
+
+    @staticmethod
+    def gcc_version():
+        if FilesHolder._gcc_version is None:
+            base_ver = os.path.join(FilesHolder.gccdir, 'gcc', 'BASE-VER')
+            with open(base_ver, 'r') as fp:
+                for line in fp:
+                    line = line.strip()
+                    if len(line) > 0:
+                        FilesHolder._gcc_version = line
+                        break
+        return FilesHolder._gcc_version
+
     def __init__(self):
         self.dirs = {}
         self.c_srcs = []

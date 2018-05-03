@@ -1,5 +1,6 @@
 from target import Target
 from support import readfile, datapath
+from support.files_holder import FilesHolder
 
 import os
 
@@ -170,8 +171,11 @@ class Installer(object):
                 else:
                     install_prefix = prefix + '/'
             elif self.tgt.target is not None:
-                install_prefix = \
-                    self.tgt.target + '/lib/gnat/'
+                if self.tgt.is_pikeos:
+                    install_prefix = 'lib/gcc/%s/%s/' % (
+                        self.tgt.target, FilesHolder.gcc_version())
+                else:
+                    install_prefix = self.tgt.target + '/lib/gnat/'
             else:
                 install_prefix = 'lib/gnat/'
             if self.tgt.is_pikeos or self.tgt.target is None:
