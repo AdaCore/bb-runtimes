@@ -67,7 +67,7 @@ class HiFive1(RiscV32):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return []
+        return ['-march=rv32imac', '-mabi=ilp32']
 
     @property
     def has_small_memory(self):
@@ -77,13 +77,12 @@ class HiFive1(RiscV32):
     def loaders(self):
         return ['ROM']
 
-    def dump_runtime_xml(self, rts_name, rts):
-        return readfile('riscv/sifive/hifive1/runtime.xml')
-
     def __init__(self):
         super(HiFive1, self).__init__()
-        self.add_linker_script('riscv/sifive/hifive1/common-ROM.ld', loader='')
-        self.add_linker_script('riscv/sifive/hifive1/memory-map.ld', loader='')
+        self.add_linker_script('riscv/sifive/hifive1/common-ROM.ld',
+                               loader='ROM')
+        self.add_linker_script('riscv/sifive/hifive1/memory-map.ld',
+                               loader='ROM')
         self.add_sources('crt0', ['riscv/sifive/fe310/start-rom.S',
                                   'riscv/sifive/fe310/svd/i-fe310.ads',
                                   'riscv/sifive/fe310/svd/i-fe310-uart.ads',
