@@ -545,3 +545,159 @@ class Stm32(ArmV7MTarget):
         self.add_sources('gnarl', [
             'arm/stm32/%s/svd/handler.S' % self.mcu,
             'arm/stm32/%s/svd/a-intnam.ads' % self.mcu])
+
+
+class CortexM0(ArmV6MTarget):
+    @property
+    def name(self):
+        return 'cortex-m0'
+
+    @property
+    def has_fpu(self):
+        return True
+
+    @property
+    def use_semihosting_io(self):
+        return True
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+                '-mcpu=cortex-m0')
+
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads'}
+
+
+class CortexM0P(CortexM0):
+    @property
+    def name(self):
+        return 'cortex-m0p'
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+                '-mcpu=cortex-m0plus')
+
+
+class CortexM1(ArmV6MTarget):
+    @property
+    def name(self):
+        return 'cortex-m1'
+
+    @property
+    def has_fpu(self):
+        return True
+
+    @property
+    def use_semihosting_io(self):
+        return True
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+                '-mcpu=cortex-m1')
+
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads'}
+
+
+class CortexM3(ArmV7MTarget):
+    @property
+    def name(self):
+        return 'cortex-m3'
+
+    @property
+    def has_fpu(self):
+        return True
+
+    @property
+    def use_semihosting_io(self):
+        return True
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+                '-mcpu=cortex-m3')
+
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads'}
+
+
+class CortexM4(ArmV7MTarget):
+    @property
+    def name(self):
+        return 'cortex-m4'
+
+    @property
+    def has_fpu(self):
+        return True
+
+    @property
+    def use_semihosting_io(self):
+        return True
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+                '-mcpu=cortex-m4')
+
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads'}
+
+
+class CortexM4F(CortexM4):
+    @property
+    def name(self):
+        return 'cortex-m4f'
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mthumb', '-mhard-float',
+                '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16')
+
+
+class CortexM7F(ArmV7MTarget):
+    @property
+    def name(self):
+        return 'cortex-m7f'
+
+    @property
+    def has_fpu(self):
+        return True
+
+    @property
+    def use_semihosting_io(self):
+        return True
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mthumb', '-mhard-float',
+                '-mcpu=cortex-m7', '-mfpu=fpv5-sp-d16')
+
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads'}
+
+
+class CortexM7DF(CortexM7F):
+    @property
+    def name(self):
+        return 'cortex-m7df'
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mthumb', '-mhard-float',
+                '-mcpu=cortex-m7', '-mfpu=fpv5-d16')

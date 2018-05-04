@@ -17,7 +17,9 @@ from support.docgen import docgen
 from pikeos import ArmPikeOS
 
 # Cortex-M runtimes
-from arm.cortexm import Stm32, Sam, SmartFusion2, LM3S, M1AGL, Microbit
+from arm.cortexm import Stm32, Sam, SmartFusion2, LM3S, M1AGL, Microbit, \
+     CortexM0, CortexM0P, CortexM1, CortexM3, CortexM4, CortexM4F, \
+     CortexM7F, CortexM7DF
 
 # Cortex-A/R runtimes
 from arm.cortexar import TMS570, Rpi2, Rpi2Mc, Zynq7000
@@ -85,6 +87,22 @@ def build_configs(target):
         t = M1AGL()
     elif target == 'microbit':
         t = Microbit()
+    elif target == 'cortex-m0':
+        t = CortexM0()
+    elif target == 'cortex-m0p':
+        t = CortexM0P()
+    elif target == 'cortex-m1':
+        t = CortexM1()
+    elif target == 'cortex-m3':
+        t = CortexM3()
+    elif target == 'cortex-m4':
+        t = CortexM4()
+    elif target == 'cortex-m4f':
+        t = CortexM4F()
+    elif target == 'cortex-m7f':
+        t = CortexM7F()
+    elif target == 'cortex-m7df':
+        t = CortexM7DF()
     elif target == 'leon2' or target == 'leon':
         t = Leon2()
     elif target == 'leon3':
