@@ -13,7 +13,7 @@ from support.rts_sources import SourceTree
 from support.docgen import docgen
 
 # PikeOS
-from pikeos import ArmPikeOS, PpcPikeOS, X86PikeOS
+from pikeos import ArmPikeOS
 
 # Cortex-M runtimes
 from arm.cortexm import Stm32, Sam, SmartFusion2, LM3S, M1AGL, Microbit
@@ -47,10 +47,6 @@ import sys
 def build_configs(target):
     if target == 'arm-pikeos':
         t = ArmPikeOS()
-    elif target == 'ppc-pikeos':
-        t = PpcPikeOS()
-    elif target == 'x86-pikeos':
-        t = X86PikeOS()
     elif target == 'zynq7000':
         t = Zynq7000()
     elif target == 'rpi2':

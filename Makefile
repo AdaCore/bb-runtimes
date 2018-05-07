@@ -100,16 +100,6 @@ ifeq ($(TARGET),$(filter $(TARGET),arm-sysgo-pikeos arm-pikeos))
     TARGETS=arm-pikeos
 endif
 
-ifeq ($(TARGET),$(filter $(TARGET),powerpc-sysgo-pikeos ppc-pikeos))
-    TGT=powerpc-sysgo-pikeos
-    TARGETS=ppc-pikeos
-endif
-
-ifeq ($(TARGET),$(filter $(TARGET),i586-sysgo-pikeos x86-pikeos))
-    TGT=i586-sysgo-pikeos
-    TARGETS=x86-pikeos
-endif
-
 ifeq ($(TARGETS), none)
   ifeq ($(TARGET),)
     $(error Error: TARGET is not defined)
