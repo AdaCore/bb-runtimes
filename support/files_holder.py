@@ -176,26 +176,32 @@ class FilesHolder(object):
             print "No source file for %s" % dst
             sys.exit(2)
 
+        # Full path to the source file
+        src = None
+
         if '/' not in srcfile:
             # Files without path elements are in gnat
             assert FilesHolder.manifest, "Error: MANIFEST file not found"
             assert srcfile in FilesHolder.manifest, \
                 "Error: source file %s not in MANIFEST" % srcfile
-            self._copy(os.path.join(self.gnatdir, srcfile),
-                       dstdir, installed_files)
+            src = os.path.join(self.gnatdir, srcfile)
 
         elif srcfile.split('/')[0] in ('hie', 'libgnarl', 'libgnat'):
             # BB-specific file in gnat/hie
-            bb_file = os.path.join(self.gnatdir, srcfile)
-            assert os.path.exists(bb_file), \
-                "Error: source file %s not found in gnat" % bb_file
-            self._copy(bb_file, dstdir, installed_files)
+            src = os.path.join(self.gnatdir, srcfile)
+            assert os.path.exists(src), \
+                "Error: source file %s not found in gnat" % srcfile
 
         else:
-            for d in ('.', self.gccdir):
-                src = os.path.join(fullpath(d), srcfile)
-                if os.path.exists(src):
-                    self._copy(src, dstdir, installed_files)
-                    return
+            # Look into the current repository
+            src = fullpath(srcfile)
+
+            if not os.path.exists(src):
+                # Look into gcc
+                src = os.path.join(self.gccdir, srcfile)
+
+        if src is None or not os.path.exists(src):
             print "Cannot find source dir for %s" % srcfile
             sys.exit(2)
+
+        self._copy(src, dstdir, installed_files)

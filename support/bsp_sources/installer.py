@@ -75,14 +75,7 @@ class Installer(object):
         with open(prj, 'w') as fp:
             fp.write(ret)
 
-    def install(self, destination, prefix, experimental):
-        if not experimental:
-            # remove all runtimes that are not zfp/ravenscar-sfp/ravenscar-full
-            keys = self.tgt.runtimes.keys()
-            for k in keys:
-                if k not in ('zfp', 'ravenscar-sfp', 'ravenscar-full'):
-                    del(self.tgt.runtimes[k])
-
+    def install(self, destination, prefix):
         # Build target directories
         destination = os.path.abspath(destination)
         if not os.path.exists(destination):

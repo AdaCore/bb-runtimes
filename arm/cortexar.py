@@ -138,7 +138,7 @@ class TMS570(CortexARTarget):
 
     @property
     def loaders(self):
-        return ('LORAM', 'FLASH', 'HIRAM', 'LORAM_16M', 'BOOT', 'USER')
+        return ('LORAM', 'FLASH', 'HIRAM', 'USER')
 
     @property
     def cpu(self):
@@ -161,29 +161,7 @@ class TMS570(CortexARTarget):
     def system_ads(self):
         return {'zfp': 'system-xi-arm.ads',
                 'ravenscar-sfp': 'system-xi-arm-sfp.ads',
-                'ravenscar-esfp': 'system-xi-arm-sfp.ads',
                 'ravenscar-full': 'system-xi-arm-full.ads'}
-
-    def amend_rts(self, rts_profile, cfg):
-        if rts_profile == 'ravenscar-esfp':
-            super(TMS570, self).amend_rts('ravenscar-sfp', cfg)
-            cfg.rts_vars['Add_Arith64'] = "yes"
-
-            cfg.rts_vars['Add_Exponent_Int'] = "yes"
-            cfg.rts_vars['Add_Exponent_LL_Int'] = "yes"
-            cfg.rts_vars['Add_Exponent_LL_Float'] = "yes"
-
-            cfg.rts_vars['Add_Image_Enum'] = "yes"
-            cfg.rts_vars['Add_Image_Decimal'] = "yes"
-            cfg.rts_vars['Add_Image_LL_Decimal'] = "yes"
-            cfg.rts_vars['Add_Image_Float'] = "yes"
-
-            cfg.rts_vars['Add_Math_Lib'] = "hardfloat"
-
-            # cfg.rts_vars['Add_Image_Int'] = "yes"
-            # cfg.rts_vars['Add_Image_LL_Int'] = "yes"
-        else:
-            super(TMS570, self).amend_rts(rts_profile, cfg)
 
     def __init__(self, variant='tms570ls31', uart_io=False):
         self.variant = variant
@@ -196,8 +174,6 @@ class TMS570(CortexARTarget):
         self.add_linker_script('arm/tms570/flash.ld', loader='FLASH')
         self.add_linker_script('arm/tms570/hiram.ld', loader='HIRAM')
         self.add_linker_script('arm/tms570/loram.ld', loader='LORAM')
-        self.add_linker_script('arm/tms570/loram_16m.ld', loader='LORAM_16M')
-        self.add_linker_script('arm/tms570/boot.ld', loader='BOOT')
         self.add_linker_switch('-Wl,-z,max-page-size=0x1000',
                                loader=['FLASH', 'HIRAM', 'LORAM',
                                        'LORAM_16M', 'BOOT'])

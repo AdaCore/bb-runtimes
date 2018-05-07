@@ -160,7 +160,6 @@ def main():
     dest_prjs = None
     dest_srcs = None
     prefix = None
-    experimental = False
     gen_rts_srcs = True
     gen_doc = False
 
@@ -169,9 +168,7 @@ def main():
             sys.argv[1:], "hvl",
             ["help", "verbose", "bsps-only", "gen-doc",
              "output=", "output-bsps=", "output-prjs=", "output-srcs=",
-             "prefix=", "experimental",
-             "gcc-dir=", "gnat-dir=",
-             "link"])
+             "prefix=", "gcc-dir=", "gnat-dir=", "link"])
     except getopt.GetoptError, e:
         print "error: " + str(e)
         print ""
@@ -203,8 +200,6 @@ def main():
             gen_rts_srcs = False
         elif opt == "--gen-doc":
             gen_doc = True
-        elif opt == "--experimental":
-            experimental = True
         else:
             print "unexpected switch: %s" % opt
             sys.exit(2)
@@ -238,7 +233,7 @@ def main():
     # README file generation
     if gen_doc:
         doc_dir = os.path.join(dest, 'doc')
-        docgen(boards, target, doc_dir, experimental)
+        docgen(boards, target, doc_dir)
         # and do nothing else
         return
 
@@ -251,7 +246,7 @@ def main():
     # Install the BSPs
     for board in boards:
         install = Installer(board)
-        install.install(dest_bsps, prefix, experimental)
+        install.install(dest_bsps, prefix)
 
     # post-processing, install ada_object_path and ada_source_path to be
     # installed in all runtimes by gprinstall

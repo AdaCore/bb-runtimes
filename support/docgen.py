@@ -6,7 +6,7 @@ from files_holder import FilesHolder
 from . import fullpath
 
 
-def docgen(boards, target, dest, experimental_rts):
+def docgen(boards, target, dest):
     if not os.path.exists(dest):
         os.makedirs(dest)
 
@@ -39,11 +39,7 @@ def docgen(boards, target, dest, experimental_rts):
                 files[board.readme_file] = board.name
             readmes[board.name] = board.readme_file
         if board.name not in runtimes:
-            runtimes[board.name] = []
-        for profile in board.runtimes:
-            if experimental_rts or profile in (
-                    'zfp', 'ravenscar-sfp', 'ravenscar-full'):
-                runtimes[board.name].append(profile)
+            runtimes[board.name] = board.runtimes[:]
 
     overall_readme = os.path.join(dest, "index.rst")
     with open(overall_readme, "w") as fp:
