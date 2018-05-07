@@ -146,6 +146,7 @@ class RTSProfiles(object):
         ret['Add_Image_Char'] = "yes"
         ret['Add_Image_Wide_Char'] = "yes"
         ret['Add_Pack'] = "yes"
+        ret['Add_Streams'] = "yes"
         ret['Add_Value_Bool'] = "yes"
         ret['Add_Value_Enum'] = "yes"
         ret['Add_Value_Decimal'] = "yes"
