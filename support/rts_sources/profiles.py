@@ -6,7 +6,7 @@
 
 import sys
 from support.rts_sources import Rule
-from support.rts_sources.sources import sources
+from support.rts_sources.sources import all_scenarii, sources
 
 
 class RTSProfiles(object):
@@ -33,11 +33,11 @@ class RTSProfiles(object):
                 if 'conditions' not in content:
                     matches = True
                 else:
-                    rule = Rule(content['conditions'])
+                    rule = Rule(content['conditions'], all_scenarii)
                     if rule.matches(scenarii):
                         matches = True
                 if matches:
-                    dep = Rule(content['requires'])
+                    dep = Rule(content['requires'], all_scenarii)
                     if not dep.matches(scenarii):
                         modified = True
                         scenarii.update(dep.corresponding_scenario())

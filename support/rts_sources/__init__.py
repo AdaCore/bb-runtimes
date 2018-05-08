@@ -7,7 +7,6 @@
 # python on oldest host).
 
 from support.files_holder import FilesHolder
-from support.rts_sources.sources import all_scenarii, sources
 
 import os
 from copy import deepcopy
@@ -19,7 +18,7 @@ class Rule(object):
     # statements)
     __used_scenarii = {}
 
-    def __init__(self, rules, scenarii=all_scenarii, as_new_rule=False):
+    def __init__(self, rules, scenarii, as_new_rule=False):
         """Create a new scenario variable condition rule.
 
         scenarii: check the rules against a list of scenario variables and
@@ -154,7 +153,7 @@ class SourceTree(FilesHolder):
     dest_sources = None
     dest_prjs = None
 
-    def __init__(self, is_bb, profile):
+    def __init__(self, is_bb, profile, rts_sources, rts_scenarii):
         """This initializes the framework to generate the runtime source tree.
 
         is_bb: whether we're generating a bare metal hierarchy or a PikeOS one
@@ -166,7 +165,7 @@ class SourceTree(FilesHolder):
         """
         super(SourceTree, self).__init__()
         self._is_bb = is_bb
-        self.scenarii = deepcopy(all_scenarii)
+        self.scenarii = deepcopy(rts_scenarii)
         self.lib_scenarii = {'gnat': [], 'gnarl': []}
         self.rules = {'gnat': {}, 'gnarl': {}}
         self.deps = {}
@@ -178,7 +177,7 @@ class SourceTree(FilesHolder):
             else:
                 self.scenarii['RTS_Profile'] = ['zfp', 'ravenscar-sfp']
 
-        for key, values in sources.iteritems():
+        for key, values in rts_sources.iteritems():
             # filter out folders that are not used by the selected profiles
             if profile == 'zfp':
                 if 'gnarl' in key.split('/'):

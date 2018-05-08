@@ -10,6 +10,7 @@
 from support.files_holder import FilesHolder
 from support.bsp_sources.installer import Installer
 from support.rts_sources import SourceTree
+from support.rts_sources.sources import all_scenarii, sources
 from support.docgen import docgen
 
 # PikeOS
@@ -301,7 +302,9 @@ def main():
 
         # create the rts sources object. This uses a slightly different set
         # on pikeos.
-        rts_srcs = SourceTree(is_bb=not is_pikeos, profile=rts_profile)
+        rts_srcs = SourceTree(
+            is_bb=not is_pikeos, profile=rts_profile,
+            rts_sources=sources, rts_scenarii=all_scenarii)
         rts_srcs.install()
 
 
