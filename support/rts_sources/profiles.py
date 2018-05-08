@@ -6,11 +6,11 @@
 
 import sys
 from support.rts_sources import Rule
-from support.rts_sources.sources import all_scenarii, sources
+from support.rts_sources.sources import all_scenarios, sources
 
 
 class RTSProfiles(object):
-    """Defines the scenarii in the shared rts projects"""
+    """Defines the scenarios in the shared rts projects"""
 
     def __init__(self, config):
         """class used to generate the base RTS profiles to be used by BSPs as a
@@ -23,7 +23,7 @@ class RTSProfiles(object):
         # that are necessary to configure the runtime sources.
         self.config = config
 
-    def check_deps(self, scenarii):
+    def check_deps(self, scenarios):
         while True:
             modified = False
             for d, content in sources.items():
@@ -33,14 +33,14 @@ class RTSProfiles(object):
                 if 'conditions' not in content:
                     matches = True
                 else:
-                    rule = Rule(content['conditions'], all_scenarii)
-                    if rule.matches(scenarii):
+                    rule = Rule(content['conditions'], all_scenarios)
+                    if rule.matches(scenarios):
                         matches = True
                 if matches:
-                    dep = Rule(content['requires'], all_scenarii)
-                    if not dep.matches(scenarii):
+                    dep = Rule(content['requires'], all_scenarios)
+                    if not dep.matches(scenarios):
                         modified = True
-                        scenarii.update(dep.corresponding_scenario())
+                        scenarios.update(dep.corresponding_scenario())
             if not modified:
                 break
 

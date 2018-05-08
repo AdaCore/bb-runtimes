@@ -23,7 +23,7 @@
 # optional features enabled via a "no" or "yes" value, always set 'no' as the
 # first option to disable the feature by default (zfp and ravenscar-sfp cases).
 
-all_scenarii = {
+all_scenarios = {
     # Main profile
     'RTS_Profile': ['zfp', 'ravenscar-sfp', 'ravenscar-full'],
     # CPU architecture

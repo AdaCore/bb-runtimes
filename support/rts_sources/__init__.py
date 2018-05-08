@@ -16,16 +16,16 @@ class Rule(object):
     # Collect some statistics on scenario variable usage, to better generate
     # the project file (most used scenario at the top-level of nested case
     # statements)
-    __used_scenarii = {}
+    __used_scenarios = {}
 
-    def __init__(self, rules, scenarii, as_new_rule=False):
+    def __init__(self, rules, scenarios, as_new_rule=False):
         """Create a new scenario variable condition rule.
 
-        scenarii: check the rules against a list of scenario variables and
+        scenarios: check the rules against a list of scenario variables and
             accepted values. If None then no check is performed.
         as_new_rule: set to True if it's a rule added to the project file. This
             increases the initial counter of used scenario variables"""
-        self._scenarii = {}
+        self._scenarios = {}
 
         if rules is None or len(rules) == 0:
             return
@@ -39,7 +39,7 @@ class Rule(object):
 
             assert len(var) != 0, "Syntax error: wrong rule '%s'" % rule
             assert len(value) != 0, "Syntax error: wrong rule '%s'" % rule
-            assert var in scenarii, "Unknown scenario variable %s" % var
+            assert var in scenarios, "Unknown scenario variable %s" % var
 
             # make sure to record all scenario variables that are actually
             # useful
@@ -57,68 +57,68 @@ class Rule(object):
             else:
                 negate = False
 
-            assert var not in self._scenarii, \
+            assert var not in self._scenarios, \
                 "duplicated scenario variable in %s" % str(rules)
 
-            self._scenarii[var] = []
+            self._scenarios[var] = []
 
             if negate:
-                self._scenarii[var] = scenarii[var][:]
+                self._scenarios[var] = scenarios[var][:]
             else:
-                self._scenarii[var] = []
+                self._scenarios[var] = []
 
             # parse the rule
             for case in cases:
                 # filter out values that are not expected
-                if scenarii is None or case in scenarii[var]:
+                if scenarios is None or case in scenarios[var]:
                     if negate:
-                        self._scenarii[var].remove(case)
+                        self._scenarios[var].remove(case)
                     else:
-                        self._scenarii[var].append(case)
+                        self._scenarios[var].append(case)
 
             # ensure the possible values is not empty
-            if len(self._scenarii[var]) == 0:
+            if len(self._scenarios[var]) == 0:
                 # clear everything: it's a rule that can never match
-                self._scenarii = {}
+                self._scenarios = {}
                 break
 
         if as_new_rule:
             # Update the list of used scenario variables
-            for sv in self._scenarii.keys():
-                if sv not in Rule.__used_scenarii:
-                    Rule.__used_scenarii[sv] = 1
+            for sv in self._scenarios.keys():
+                if sv not in Rule.__used_scenarios:
+                    Rule.__used_scenarios[sv] = 1
                 else:
-                    Rule.__used_scenarii[sv] += 1
+                    Rule.__used_scenarios[sv] += 1
 
     @property
     def is_empty(self):
-        return len(self._scenarii) == 0
+        return len(self._scenarios) == 0
 
     @property
-    def used_scenarii(self):
-        return self._scenarii.keys()
+    def used_scenarios(self):
+        return self._scenarios.keys()
 
     def has_scenario(self, var):
-        return var in self._scenarii.keys()
+        return var in self._scenarios.keys()
 
     @staticmethod
     def count_scenario(var):
-        if var in Rule.__used_scenarii:
-            return Rule.__used_scenarii[var]
+        if var in Rule.__used_scenarios:
+            return Rule.__used_scenarios[var]
         else:
             return 0
 
     def matches(self, variables, exact=False):
         """Considering a set of variables, returns true if the rules match"""
-        for var in self._scenarii:
+        for var in self._scenarios:
             if var not in variables:
                 return False
-            if variables[var] not in self._scenarii[var]:
+            if variables[var] not in self._scenarios[var]:
                 # not an expected value
                 return False
         if exact:
             for var in variables:
-                if var not in self._scenarii:
+                if var not in self._scenarios:
                     # some extra variable is defined. We wanted a full match so
                     # let's skip
                     return False
@@ -128,22 +128,22 @@ class Rule(object):
         """If all variables match the rule (but not necessarily all the rules),
          then return True"""
         for var in variables:
-            if var not in self._scenarii:
+            if var not in self._scenarios:
                 # some extra variable is defined. We wanted a full match so
                 # let's skip
                 return False
-            if variables[var] not in self._scenarii[var]:
+            if variables[var] not in self._scenarios[var]:
                 return False
         return True
 
     def corresponding_scenario(self):
         ret = {}
-        for var in self._scenarii:
-            assert len(self._scenarii[var]) == 1,\
+        for var in self._scenarios:
+            assert len(self._scenarios[var]) == 1,\
                 ("Cannot generate automatically a dependency,"
                  " when several choices are possible: %s:%s" % (
-                    var, str(self._scenarii[var])))
-            ret[var] = self._scenarii[var][0]
+                    var, str(self._scenarios[var])))
+            ret[var] = self._scenarios[var][0]
         return ret
 
 
@@ -153,7 +153,7 @@ class SourceTree(FilesHolder):
     dest_sources = None
     dest_prjs = None
 
-    def __init__(self, is_bb, profile, rts_sources, rts_scenarii):
+    def __init__(self, is_bb, profile, rts_sources, rts_scenarios):
         """This initializes the framework to generate the runtime source tree.
 
         is_bb: whether we're generating a bare metal hierarchy or a PikeOS one
@@ -165,17 +165,17 @@ class SourceTree(FilesHolder):
         """
         super(SourceTree, self).__init__()
         self._is_bb = is_bb
-        self.scenarii = deepcopy(rts_scenarii)
-        self.lib_scenarii = {'gnat': [], 'gnarl': []}
+        self.scenarios = deepcopy(rts_scenarios)
+        self.lib_scenarios = {'gnat': [], 'gnarl': []}
         self.rules = {'gnat': {}, 'gnarl': {}}
         self.deps = {}
         SourceTree.__singleton = self
 
         if profile != 'ravenscar-full':
             if profile == 'zfp':
-                self.scenarii['RTS_Profile'] = ['zfp']
+                self.scenarios['RTS_Profile'] = ['zfp']
             else:
-                self.scenarii['RTS_Profile'] = ['zfp', 'ravenscar-sfp']
+                self.scenarios['RTS_Profile'] = ['zfp', 'ravenscar-sfp']
 
         for key, values in rts_sources.iteritems():
             # filter out folders that are not used by the selected profiles
@@ -205,15 +205,15 @@ class SourceTree(FilesHolder):
                     self.add_rule(key, values['conditions'])
                 if 'requires' in values:
                     self.deps[key] = Rule(
-                        values['requires'], self.scenarii, False)
+                        values['requires'], self.scenarios, False)
                 self.add_sources(key, srcs)
         # Sort the scenario variables from most used to less used
-        self.lib_scenarii['gnat'] = sorted(
-            self.lib_scenarii['gnat'],
+        self.lib_scenarios['gnat'] = sorted(
+            self.lib_scenarios['gnat'],
             key=lambda x: Rule.count_scenario(x),
             reverse=True)
-        self.lib_scenarii['gnarl'] = sorted(
-            self.lib_scenarii['gnarl'],
+        self.lib_scenarios['gnarl'] = sorted(
+            self.lib_scenarios['gnarl'],
             key=lambda x: Rule.count_scenario(x),
             reverse=True)
 
@@ -242,21 +242,21 @@ class SourceTree(FilesHolder):
 
         if directory.split('/')[0] == 'gnarl':
             collection = self.rules['gnarl']
-            used_scenarii = self.lib_scenarii['gnarl']
+            used_scenarios = self.lib_scenarios['gnarl']
         else:
             collection = self.rules['gnat']
-            used_scenarii = self.lib_scenarii['gnat']
+            used_scenarios = self.lib_scenarios['gnat']
         assert directory not in collection, \
             "directory %s defined twice" % directory
 
         # add the rule object to the current set of rules
-        rule = Rule(rules, scenarii=self.scenarii, as_new_rule=True)
+        rule = Rule(rules, scenarios=self.scenarios, as_new_rule=True)
         collection[directory] = rule
 
         # and make sure to update the list of used scenario variables
-        for sc in rule.used_scenarii:
-            if sc not in used_scenarii:
-                used_scenarii.append(sc)
+        for sc in rule.used_scenarios:
+            if sc not in used_scenarios:
+                used_scenarios.append(sc)
 
     def install(self):
         """Dump the shared rts sources project file"""
@@ -285,8 +285,8 @@ class SourceTree(FilesHolder):
             ret += '   %s_Langs := ("Ada");\n' % lib_camelcase
             ret += '    \n'
 
-            for name in sorted(self.lib_scenarii[lib]):
-                values = self.scenarii[name]
+            for name in sorted(self.lib_scenarios[lib]):
+                values = self.scenarios[name]
                 ret += '   type %s_Type is ("%s");\n' % (
                     name, '", "'.join(values))
                 ret += '   %s : %s_Type := external ("%s", "%s");\n' % (
@@ -295,7 +295,7 @@ class SourceTree(FilesHolder):
 
             ret += self.__dump_scenario(
                 lib_camelcase,
-                deepcopy(self.lib_scenarii[lib]),
+                deepcopy(self.lib_scenarios[lib]),
                 deepcopy(self.rules[lib]),
                 {},
                 1)
@@ -305,7 +305,7 @@ class SourceTree(FilesHolder):
             with open(fname, 'w') as fp:
                 fp.write(ret)
 
-    def __dump_scenario(self, libname, scenarii, dirs, env, indent):
+    def __dump_scenario(self, libname, scenarios, dirs, env, indent):
         """Recursively dumps a case statement on scenario variables.
 
         This adds the directories defined when a scenario variable is set to
@@ -343,7 +343,7 @@ class SourceTree(FilesHolder):
                 ret += blank + '%s_Langs := %s_Langs & ("%s");\n' % (
                     libname, libname, '", "'.join(langs))
 
-        if len(scenarii) == 0:
+        if len(scenarios) == 0:
             return ret
 
         # now prune all dirs that cannot match anymore, due to the current
@@ -366,8 +366,8 @@ class SourceTree(FilesHolder):
 
         # Now look at the next scenario variable to see if some new directory
         # matches one of the values
-        for j in range(0, len(scenarii)):
-            next_var = scenarii[j]
+        for j in range(0, len(scenarios)):
+            next_var = scenarios[j]
             used = False
             for d, rule in dirs.items():
                 if rule.has_scenario(next_var):
@@ -377,10 +377,10 @@ class SourceTree(FilesHolder):
             has_case = False
             has_missed_case = False
 
-            for value in self.scenarii[next_var]:
+            for value in self.scenarios[next_var]:
                 env[next_var] = value
                 subret = self.__dump_scenario(
-                    libname, scenarii[j + 1:], dirs, env, indent + 2)
+                    libname, scenarios[j + 1:], dirs, env, indent + 2)
                 if subret == '':
                     has_missed_case = True
                     continue
