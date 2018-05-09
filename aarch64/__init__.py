@@ -74,7 +74,6 @@ class ZynqMP(Aarch64Target):
     def system_ads(self):
         return {'zfp': 'system-xi-arm.ads',
                 'ravenscar-sfp': 'system-xi-arm-gic-sfp.ads',
-                'ravenscar-mc': 'system-xi-arm-gic-sfp.ads',
                 'ravenscar-full': 'system-xi-arm-gic-full.ads'}
 
     @property
@@ -84,18 +83,11 @@ class ZynqMP(Aarch64Target):
 
     def amend_rts(self, rts_profile, cfg):
         super(ZynqMP, self).amend_rts(rts_profile, cfg)
-        if rts_profile == 'ravenscar-mc':
-            cfg.add_sources('arch', {
-                'start-config.inc': 'aarch64/zynqmp/start-config-el2.inc',
-                'memmap.S': 'aarch64/zynqmp/memmap-el2.S'})
-            cfg.add_sources('gnarl', [
-                'src/s-bbpara__zynqmp-el2.ads'])
-        else:
-            cfg.add_sources('arch', {
-                'start-config.inc': 'aarch64/zynqmp/start-config-el1.inc',
-                'memmap.S': 'aarch64/zynqmp/memmap-el1.S'})
-            cfg.add_sources('gnarl', [
-                'src/s-bbpara__zynqmp.ads'])
+        cfg.add_sources('arch', {
+            'start-config.inc': 'aarch64/zynqmp/start-config-el1.inc',
+            'memmap.S': 'aarch64/zynqmp/memmap-el1.S'})
+        cfg.add_sources('gnarl', [
+            'src/s-bbpara__zynqmp.ads'])
 
     def __init__(self):
         super(ZynqMP, self).__init__()
