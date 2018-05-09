@@ -26,6 +26,7 @@ class Rule(object):
         as_new_rule: set to True if it's a rule added to the project file. This
             increases the initial counter of used scenario variables"""
         self._scenarios = {}
+        self.invalid = False
 
         if rules is None or len(rules) == 0:
             return
@@ -80,6 +81,7 @@ class Rule(object):
             if len(self._scenarios[var]) == 0:
                 # clear everything: it's a rule that can never match
                 self._scenarios = {}
+                self.invalid = True
                 break
 
         if as_new_rule:
@@ -110,6 +112,8 @@ class Rule(object):
 
     def matches(self, variables, exact=False):
         """Considering a set of variables, returns true if the rules match"""
+        if self.invalid:
+            return False
         for var in self._scenarios:
             if var not in variables:
                 return False
@@ -251,6 +255,7 @@ class SourceTree(FilesHolder):
 
         # add the rule object to the current set of rules
         rule = Rule(rules, scenarios=self.scenarios, as_new_rule=True)
+
         collection[directory] = rule
 
         # and make sure to update the list of used scenario variables
