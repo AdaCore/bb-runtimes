@@ -167,15 +167,6 @@ sources = {
             'hie/s-memory__zfp.ads']
     },
 
-    'zfp-parame-mem-small': {
-        'conditions': ['RTS_Profile:zfp', 'Memory_Profile:small'],
-        'bb_srcs': ['hie/s-parame__zfp_small.ads']
-    },
-    'zfp-parame-mem-large': {
-        'conditions': ['RTS_Profile:zfp', 'Memory_Profile:large'],
-        'bb_srcs': ['hie/s-parame__zfp.ads']
-    },
-
     'full': {
         'conditions': ['RTS_Profile:ravenscar-full'],
         'srcs': [
@@ -990,14 +981,23 @@ sources = {
     },
 
     # memory profile
-    'gnat/mem-small': {
+    'gnat/parameters/small': {
         'conditions': ['RTS_Profile:!zfp', 'Memory_Profile:small'],
         'bb_srcs': ['hie/s-parame__small.ads',
                     'hie/s-parame.adb']
     },
-    'gnat/mem-large': {
+    'gnat/parameters/large': {
         'conditions': ['RTS_Profile:!zfp', 'Memory_Profile:large'],
         'bb_srcs': ['hie/s-parame__large.ads',
                     'hie/s-parame.adb']
     },
+    'gnat/parameters/zfp-small': {
+        'conditions': ['RTS_Profile:zfp', 'Memory_Profile:small'],
+        'bb_srcs': ['hie/s-parame__zfp_small.ads']
+    },
+    'gnat/parameters/zfp-large': {
+        'conditions': ['RTS_Profile:zfp', 'Memory_Profile:large'],
+        'bb_srcs': ['hie/s-parame__zfp.ads']
+    },
+
 }
