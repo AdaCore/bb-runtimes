@@ -62,9 +62,6 @@ SECTIONS
     __rom_end = .;
   } > flash
 
-  . = ALIGN(0x4);
-
-  __data_load = __rom_end;
   .data :
   {
     __data_start = .;
@@ -88,7 +85,16 @@ SECTIONS
   } > ram  AT > flash
 
   __data_end = .;
+
+  /* Size of all data sections (.data, .srodata, .sdata) in number of 32bit
+   * words.
+   */
   __data_words = (__data_end - __data_start) >> 2;
+
+  /* Base address of all data sections in ROM. The startup code copies these
+   * sections from __data_load (in ROM) to __data_start (in RAM).
+   */
+  __data_load = LOADADDR(.data);
 
   .bss (NOLOAD): {
    . = ALIGN(0x8);
