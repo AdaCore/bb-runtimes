@@ -1,4 +1,4 @@
-from support.target import DFBBTarget
+from support.bsp_sources.target import DFBBTarget
 from native import NativeBSP
 from support import readfile
 
@@ -27,8 +27,8 @@ class RiscV64(DFBBTarget):
     def parent(self):
         return RiscVBSP
 
-    def amend_rts(self, rts_profile, conf):
-        conf.rts_xml = readfile('riscv/runtime.xml')
+    def dump_runtime_xml(self, rts_name, rts):
+        return readfile('riscv/spike/runtime.xml')
 
     @property
     def zfp_system_ads(self):

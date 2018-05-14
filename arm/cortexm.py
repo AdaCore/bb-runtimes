@@ -1,9 +1,9 @@
 # This module contains cortex-m bsp support
-from support.bsp import BSP
-from support.target import Target
+from support.bsp_sources.archsupport import ArchSupport
+from support.bsp_sources.target import Target
 
 
-class CortexMArch(BSP):
+class CortexMArch(ArchSupport):
     @property
     def name(self):
         return "cortex-m"
@@ -110,7 +110,7 @@ class LM3S(CortexMTarget):
             'src/s-textio__lm3s.adb'])
 
 
-class SamCommonBSP(BSP):
+class SamCommonBSP(ArchSupport):
     @property
     def name(self):
         return 'sam'
@@ -255,7 +255,7 @@ class SmartFusion2(CortexMTarget):
             'src/s-bbpara__smartfusion2.ads'])
 
 
-class Stm32CommonBSP(BSP):
+class Stm32CommonBSP(ArchSupport):
     """Holds sources common to all stm32 boards"""
     @property
     def name(self):

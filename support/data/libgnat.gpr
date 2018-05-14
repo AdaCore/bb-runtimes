@@ -1,5 +1,4 @@
 with "libgnat_sources";
-with "libgnarl_sources";
 with "target_options";
 with "install";
 
@@ -7,8 +6,7 @@ library project Libgnat is
 
    for Languages use
      Libgnat_Sources.Gnat_Langs &
-     Libgnarl_Sources.Gnarl_Langs &
-     ("{all_langs}");
+     ("{gnat_langs}");
 
    for Library_Auto_Init use "False";
    for Library_Name use "gnat";
@@ -19,9 +17,9 @@ library project Libgnat is
 
    for Source_Dirs use
      Libgnat_Sources.Gnat_Dirs &
-     Libgnarl_Sources.Gnarl_Dirs &
-     ({gnat_source_dirs}) &
-     ({gnarl_source_dirs});
+     ({gnat_source_dirs});
+
+   package Naming renames Target_Options.Naming;
 
    package Compiler renames Target_Options.Compiler;
 

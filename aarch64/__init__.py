@@ -1,9 +1,9 @@
 # BSP support for ARM64
-from support.bsp import BSP
-from support.target import DFBBTarget
+from support.bsp_sources.archsupport import ArchSupport
+from support.bsp_sources.target import DFBBTarget
 
 
-class Aarch64Arch(BSP):
+class Aarch64Arch(ArchSupport):
     @property
     def name(self):
         return "aarch64"
@@ -47,13 +47,14 @@ class Aarch64Target(DFBBTarget):
     def full_system_ads(self):
         return 'system-xi-arm-full.ads'
 
-    def amend_rts(self, rts_profile, cfg):
-        super(Aarch64Target, self).amend_rts(rts_profile, cfg)
-        if rts_profile == 'ravenscar-full':
-            cfg.rts_xml = cfg.rts_xml.replace(
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(Aarch64Target, self).dump_runtime_xml(rts_name, rts)
+        if rts_name == 'ravenscar-full':
+            cnt = cnt.replace(
                 '"-nostartfiles"',
                 ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
                  '        "-nostartfiles"'))
+        return cnt
 
 
 class ZynqMP(Aarch64Target):
@@ -77,7 +78,6 @@ class ZynqMP(Aarch64Target):
     def system_ads(self):
         return {'zfp': self.zfp_system_ads,
                 'ravenscar-sfp': 'system-xi-arm-gic-sfp.ads',
-                'ravenscar-mc': 'system-xi-arm-gic-sfp.ads',
                 'ravenscar-full': 'system-xi-arm-gic-full.ads'}
 
     @property
@@ -87,18 +87,11 @@ class ZynqMP(Aarch64Target):
 
     def amend_rts(self, rts_profile, cfg):
         super(ZynqMP, self).amend_rts(rts_profile, cfg)
-        if rts_profile == 'ravenscar-mc':
-            cfg.add_sources('arch', {
-                'start-config.h': 'aarch64/zynqmp/start-config-el2.h',
-                'memmap.s': 'aarch64/zynqmp/memmap-el2.s'})
-            cfg.add_sources('gnarl', [
-                'src/s-bbpara__zynqmp-el2.ads'])
-        else:
-            cfg.add_sources('arch', {
-                'start-config.h': 'aarch64/zynqmp/start-config-el1.h',
-                'memmap.s': 'aarch64/zynqmp/memmap-el1.s'})
-            cfg.add_sources('gnarl', [
-                'src/s-bbpara__zynqmp.ads'])
+        cfg.add_sources('arch', {
+            'start-config.h': 'aarch64/zynqmp/start-config-el1.h',
+            'memmap.s': 'aarch64/zynqmp/memmap-el1.s'})
+        cfg.add_sources('gnarl', [
+            'src/s-bbpara__zynqmp.ads'])
 
     def __init__(self):
         super(ZynqMP, self).__init__(

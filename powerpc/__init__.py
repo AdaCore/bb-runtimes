@@ -1,11 +1,11 @@
 # BSP support for PowerPC/e500v2
-from support.bsp import BSP
-from support.target import DFBBTarget
+from support.bsp_sources.archsupport import ArchSupport
+from support.bsp_sources.target import DFBBTarget
 
 from support import readfile
 
 
-class PPCArch(BSP):
+class PPCArch(ArchSupport):
     @property
     def name(self):
         return "powerpc"
@@ -85,15 +85,20 @@ class PPC6XXTarget(DFBBTarget):
             mem_routines=True,
             small_mem=False)
 
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(PPC6XXTarget, self).dump_runtime_xml(rts_name, rts)
+        if rts_name == 'ravenscar-full':
+            cnt = cnt.replace(
+                '"-nostartfiles"',
+                ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
+                 '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"'))
+        return cnt
+
     def amend_rts(self, rts_profile, conf):
         super(PPC6XXTarget, self).amend_rts(rts_profile, conf)
         if rts_profile == 'ravenscar-full':
             conf.config_files.update(
                 {'link-zcx.spec': readfile('powerpc/prep/link-zcx.spec')})
-            conf.rts_xml = conf.rts_xml.replace(
-                '"-nostartfiles"',
-                ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
-                 '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"'))
 
 
 class MPC8349e(PPC6XXTarget):

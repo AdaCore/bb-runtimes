@@ -1,5 +1,5 @@
 from support import readfile
-from support.target import DFBBTarget
+from support.bsp_sources.target import DFBBTarget
 from native import NativeBSP
 
 
@@ -22,8 +22,10 @@ class Visium(DFBBTarget):
     def parent(self):
         return VisiumBSP
 
+    def dump_runtime_xml(self, rts_name, rts):
+        return readfile('visium/mcm/runtime.xml')
+
     def amend_rts(self, rts_profile, conf):
-        conf.rts_xml = readfile('visium/mcm/runtime.xml')
         conf.build_flags['common_flags'] += ['-muser-mode']
 
     @property

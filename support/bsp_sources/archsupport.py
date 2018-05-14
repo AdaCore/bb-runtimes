@@ -1,10 +1,10 @@
 import copy
 import os
 
-from files_holder import FilesHolder
+from support.files_holder import FilesHolder
 
 
-class BSP(FilesHolder):
+class ArchSupport(FilesHolder):
     """Handles the startup files and linker scripts"""
 
     @property
@@ -47,9 +47,18 @@ class BSP(FilesHolder):
     def c_switches(self):
         return None
 
-    @property
-    def add_linker_section(self):
-        return True
+    def __init__(self):
+        super(ArchSupport, self).__init__()
+        if self.parent is None:
+            self._parent = None
+            self.ld_scripts = []
+            self.ld_switches = []
+        else:
+            self._parent = self.parent()
+            self.ld_scripts = copy.deepcopy(self._parent.ld_scripts)
+            self.ld_switches = copy.deepcopy(self._parent.ld_switches)
+        self.source_dirs = []
+        self.gnarl_dirs = []
 
     def has_c(self, dir):
         if dir.startswith(self.rel_path):
@@ -57,6 +66,13 @@ class BSP(FilesHolder):
             return d in self.c_srcs
         else:
             return self._parent.has_c(dir)
+
+    def has_asm_cpp(self, dir):
+        if dir.startswith(self.rel_path):
+            d = dir.replace(self.rel_path + 'src/', '')
+            return d in self.asm_cpp_srcs
+        else:
+            return self._parent.has_asm_cpp(dir)
 
     def has_asm(self, dir):
         if dir.startswith(self.rel_path):
@@ -66,7 +82,7 @@ class BSP(FilesHolder):
             return self._parent.has_asm(dir)
 
     def add_sources(self, dir, sources):
-        super(BSP, self).add_sources(dir, sources)
+        super(ArchSupport, self).add_sources(dir, sources)
         if 'gnarl' in dir:
             if dir not in self.gnarl_dirs:
                 self.gnarl_dirs.append(dir)
@@ -129,19 +145,6 @@ class BSP(FilesHolder):
         self.ld_switches.append({
             'switch': switch,
             'loader': loader})
-
-    def __init__(self):
-        super(BSP, self).__init__()
-        if self.parent is None:
-            self._parent = None
-            self.ld_scripts = []
-            self.ld_switches = []
-        else:
-            self._parent = self.parent()
-            self.ld_scripts = copy.deepcopy(self._parent.ld_scripts)
-            self.ld_switches = copy.deepcopy(self._parent.ld_switches)
-        self.source_dirs = []
-        self.gnarl_dirs = []
 
     def install_ld_scripts(self, destination, files, installed_files):
         for val in self.ld_scripts:

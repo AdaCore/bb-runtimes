@@ -8,7 +8,9 @@
 # python on oldest host).
 
 from support.files_holder import FilesHolder
-from support.rts_sources import SourceDirs
+from support.bsp_sources.installer import Installer
+from support.rts_sources import SourceTree
+from support.rts_sources.sources import rts_scenarios, rts_sources
 
 # PikeOS
 from pikeos import ArmPikeOS, PpcPikeOS, X86PikeOS
@@ -126,6 +128,7 @@ def usage():
     print "Options are:"
     print " -v --verbose      be verbose"
     print " --bsps-only       generate only the BSPs"
+    print " --gen-doc         generate the runtime documentation"
     print " --output=DIR      where to generate the source tree"
     print " --prefix=DIR      where built rts will be installed."
     print " --gcc-dir=DIR     gcc source directory"
@@ -155,7 +158,6 @@ def main():
     dest_prjs = None
     dest_srcs = None
     prefix = None
-    experimental = False
     gen_rts_srcs = True
 
     try:
@@ -163,9 +165,7 @@ def main():
             sys.argv[1:], "hvl",
             ["help", "verbose", "bsps-only",
              "output=", "output-bsps=", "output-prjs=", "output-srcs=",
-             "prefix=", "experimental",
-             "gcc-dir=", "gnat-dir=",
-             "link"])
+             "prefix=", "gcc-dir=", "gnat-dir=", "link"])
     except getopt.GetoptError, e:
         print "error: " + str(e)
         print ""
@@ -195,8 +195,6 @@ def main():
             prefix = arg
         elif opt == "--bsps-only":
             gen_rts_srcs = False
-        elif opt == "--experimental":
-            experimental = True
         else:
             print "unexpected switch: %s" % opt
             sys.exit(2)
@@ -208,24 +206,35 @@ def main():
         sys.exit(2)
 
     boards = []
-    rts_profile = 'zfp'
 
     for arg in args:
         board = build_configs(arg)
         boards.append(board)
 
+    # figure out the target
+    target = boards[0].target
+    if target is None:
+        target = "native"
+    for board in boards:
+        if board.target is None and target == "native":
+            continue
+        if board.target != target:
+            target = None
+
     dest = os.path.abspath(dest)
+    if not os.path.exists(dest):
+        os.makedirs(dest)
+
     # default paths in case not specified from the command-line:
     if dest_bsps is None:
         dest_bsps = os.path.join(dest, 'BSPs')
-    if not os.path.exists(dest):
-        os.makedirs(dest)
     if not os.path.exists(dest_bsps):
         os.makedirs(dest_bsps)
 
     # Install the BSPs
     for board in boards:
-        board.install(dest_bsps, prefix, experimental)
+        install = Installer(board)
+        install.install(dest_bsps, prefix)
 
     # post-processing, install ada_object_path and ada_source_path to be
     # installed in all runtimes by gprinstall
@@ -238,7 +247,8 @@ def main():
             fp.write('adalib\n')
 
     if gen_rts_srcs:
-        target = boards[0].target
+        assert target is not None, \
+            "cannot generate rts sources for mixed cross compilers"
         is_pikeos = target is not None and 'pikeos' in target
 
         # determining what runtime sources we need:
@@ -248,18 +258,19 @@ def main():
         # - 'zfp': just zfp support
 
         if is_pikeos:
-            rts_profile = 'pikeos'
+            rts_profile = 'ravenscar-full'
         else:
             rts_profile = 'zfp'
 
-        for board in boards:
-            assert board.target == target, \
-                "cannot generate rts sources for mixed targets: %s <> %s" % (
-                    target, board.target)
-            if not is_pikeos and board.full_system_ads is not None:
-                rts_profile = 'ravenscar-full'
-            elif rts_profile == 'zfp' and board.sfp_system_ads is not None:
-                rts_profile = 'ravenscar-sfp'
+            for board in boards:
+                if 'ravenscar-full' in board.system_ads:
+                    # install everything
+                    rts_profile = 'ravenscar-full'
+                    break
+                else:
+                    for rts in board.system_ads:
+                        if 'ravenscar-' in rts:
+                            rts_profile = 'ravenscar-sfp'
 
         # Compute rts sources subdirectories
 
@@ -273,23 +284,14 @@ def main():
             os.makedirs(dest_srcs)
 
         # Install the shared runtime sources
-        SourceDirs.dest_sources = dest_srcs
-        SourceDirs.dest_prjs = dest_prjs
+        SourceTree.dest_sources = dest_srcs
+        SourceTree.dest_prjs = dest_prjs
 
         # create the rts sources object. This uses a slightly different set
         # on pikeos.
-        rts_srcs = SourceDirs(is_bb=rts_profile != 'pikeos')
-
-        # setup the rts profiles to be supported by the rts sources directory
-        if rts_profile in ('pikeos', 'ravenscar-full'):
-            rts_srcs.init_zfp()
-            rts_srcs.init_sfp()
-            rts_srcs.init_full()
-        elif rts_profile == 'ravenscar-sfp':
-            rts_srcs.init_zfp()
-            rts_srcs.init_sfp()
-        elif rts_profile == 'zfp':
-            rts_srcs.init_zfp()
+        rts_srcs = SourceTree(
+            is_bb=not is_pikeos, profile=rts_profile,
+            rts_sources=rts_sources, rts_scenarios=rts_scenarios)
         rts_srcs.install()
 
 

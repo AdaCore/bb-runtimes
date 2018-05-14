@@ -10,42 +10,63 @@ class FilesHolder(object):
     gnatdir = "../gnat"
     gccdir = "../gcc"
 
+    # Gnat MANIFEST file
+    manifest = None
+
     # Display actions
     verbose = False
 
     link = False
 
+    _gcc_version = None
+
+    @staticmethod
+    def gcc_version():
+        if FilesHolder._gcc_version is None:
+            base_ver = os.path.join(FilesHolder.gccdir, 'gcc', 'BASE-VER')
+            with open(base_ver, 'r') as fp:
+                for line in fp:
+                    line = line.strip()
+                    if len(line) > 0:
+                        FilesHolder._gcc_version = line
+                        break
+        return FilesHolder._gcc_version
+
     def __init__(self):
         self.dirs = {}
         self.c_srcs = []
         self.asm_srcs = []
+        self.asm_cpp_srcs = []
 
         # Read manifest file (if exists)
-        manifest_file = os.path.join(self.gnatdir, "MANIFEST.GNAT")
-        self.manifest = []
-        if os.path.isfile(manifest_file):
-            f = open(manifest_file, 'r')
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('--'):
-                    self.manifest.append(line)
+        if FilesHolder.manifest is None:
+            manifest_file = os.path.join(self.gnatdir, "MANIFEST.GNAT")
+            FilesHolder.manifest = []
+            if os.path.isfile(manifest_file):
+                f = open(manifest_file, 'r')
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('--'):
+                        FilesHolder.manifest.append(line)
 
     def add_source(self, dir, dst, src):
         base = os.path.basename(dst)
+        _, ext = base.split('.')
         if '__' in base:
             # File with variant:
             # remove the variant part from the destination file name
-            _, ext = base.split('.')
             base, _ = base.split('__')
             base = "%s.%s" % (base, ext)
         self.dirs[dir][base] = src
         if dir not in self.c_srcs:
-            if dst.endswith('.c') or dst.endswith('.h'):
+            if ext in ('c', 'h'):
                 self.c_srcs.append(dir)
         if dir not in self.asm_srcs:
-            if dst.endswith('.s') or dst.endswith('.S') \
-               or dst.endswith('.inc'):
+            if ext == 's':
                 self.asm_srcs.append(dir)
+        if dir not in self.asm_cpp_srcs:
+            if ext in ('S', 'inc'):
+                self.asm_cpp_srcs.append(dir)
 
     def add_sources(self, dir, sources):
         if dir not in self.dirs:
@@ -155,26 +176,32 @@ class FilesHolder(object):
             print "No source file for %s" % dst
             sys.exit(2)
 
+        # Full path to the source file
+        src = None
+
         if '/' not in srcfile:
             # Files without path elements are in gnat
-            assert self.manifest, "Error: MANIFEST file not found"
-            assert srcfile in self.manifest, \
+            assert FilesHolder.manifest, "Error: MANIFEST file not found"
+            assert srcfile in FilesHolder.manifest, \
                 "Error: source file %s not in MANIFEST" % srcfile
-            self._copy(os.path.join(self.gnatdir, srcfile),
-                       dstdir, installed_files)
+            src = os.path.join(self.gnatdir, srcfile)
 
         elif srcfile.split('/')[0] in ('hie', 'libgnarl', 'libgnat'):
             # BB-specific file in gnat/hie
-            bb_file = os.path.join(self.gnatdir, srcfile)
-            assert os.path.exists(bb_file), \
-                "Error: source file %s not found in gnat" % bb_file
-            self._copy(bb_file, dstdir, installed_files)
+            src = os.path.join(self.gnatdir, srcfile)
+            assert os.path.exists(src), \
+                "Error: source file %s not found in gnat" % srcfile
 
         else:
-            for d in ('.', self.gccdir):
-                src = os.path.join(fullpath(d), srcfile)
-                if os.path.exists(src):
-                    self._copy(src, dstdir, installed_files)
-                    return
+            # Look into the current repository
+            src = fullpath(srcfile)
+
+            if not os.path.exists(src):
+                # Look into gcc
+                src = os.path.join(self.gccdir, srcfile)
+
+        if src is None or not os.path.exists(src):
             print "Cannot find source dir for %s" % srcfile
             sys.exit(2)
+
+        self._copy(src, dstdir, installed_files)

@@ -1,8 +1,8 @@
-from support.bsp import BSP
-from support.target import DFBBTarget
+from support.bsp_sources.archsupport import ArchSupport
+from support.bsp_sources.target import DFBBTarget
 
 
-class NativeBSP(BSP):
+class NativeBSP(ArchSupport):
     @property
     def name(self):
         return 'native'
@@ -44,14 +44,12 @@ class X86Native(DFBBTarget):
     def zfp_system_ads(self):
         return 'system-xi-x86.ads'
 
-    def amend_rts(self, rts_profile, cfg):
-        super(X86Native, self).amend_rts(rts_profile, cfg)
-        cfg.rts_xml = (
-            '<?xml version="1.0" ?>\n'
-            '<gprconfig>\n'
-            '  <configuration>\n'
-            '  </configuration>\n'
-            '</gprconfig>\n')
+    def dump_runtime_xml(self, rts_name, rts):
+        return ('<?xml version="1.0" ?>\n'
+                '<gprconfig>\n'
+                '  <configuration>\n'
+                '  </configuration>\n'
+                '</gprconfig>\n')
 
 
 class X8664Native(X86Native):

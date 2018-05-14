@@ -1,10 +1,10 @@
 # BSP support for Sparc/Leon
 from support import readfile
-from support.bsp import BSP
-from support.target import DFBBTarget
+from support.bsp_sources.archsupport import ArchSupport
+from support.bsp_sources.target import DFBBTarget
 
 
-class LeonArch(BSP):
+class LeonArch(ArchSupport):
     @property
     def name(self):
         return "leon"
@@ -51,16 +51,19 @@ class LeonTarget(DFBBTarget):
 
     def amend_rts(self, rts_profile, conf):
         super(LeonTarget, self).amend_rts(rts_profile, conf)
-        conf.rts_xml = \
-            conf.rts_xml.replace(
-                ' "-nolibc",', '')
         if rts_profile == 'ravenscar-full':
             # Use leon-zcx.specs to link with -lc.
             conf.config_files.update(
                 {'link-zcx.spec': readfile('sparc/leon/leon-zcx.specs')})
-            conf.rts_xml = conf.rts_xml.replace(
+
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(LeonTarget, self).dump_runtime_xml(rts_name, rts)
+        cnt = cnt.replace(' "-nolibc",', '')
+        if rts_name == 'ravenscar-full':
+            cnt = cnt.replace(
                 '"-nostartfiles",',
                 '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec",')
+        return cnt
 
 
 class Leon2(LeonTarget):

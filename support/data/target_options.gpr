@@ -8,6 +8,10 @@ abstract project Target_Options is
   type Build_Type is ("Production", "Debug", "Assert", "Gnatcov");
   Build : Build_Type := external ("BUILD", "Production");
 
+  package Naming is
+     for Spec_Suffix ("Asm_CPP") use ".inc";
+  end Naming;
+
   package Compiler is
      --  COMFLAGS here is common flags (used for C and Ada).
      COMFLAGS := ("{common_flags}");
