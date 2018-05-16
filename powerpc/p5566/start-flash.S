@@ -101,10 +101,10 @@ _start_flash:
 	mtspr	L1CSR0,%r10
 	# Wait until operation is completed
 1:	mfspr	%r10,L1CSR0
-	andi.	%cr7,%r10,2
+	andi.	%r7,%r10,2
 	bne	%cr7,1b
 	# Attempt again if operation was aborted
-	andi.	%cr7,%r10,4
+	andi.	%r7,%r10,4
 	bne	%cr7,0b
 	# Enable cache
 	lis	%r10,0x0011 # Copy back + Enable parity checking
