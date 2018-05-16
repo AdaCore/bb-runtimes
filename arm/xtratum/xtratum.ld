@@ -94,9 +94,11 @@ SECTIONS
   }
 
   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) }
-  PROVIDE_HIDDEN (__exidx_start = .);
-  .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) }
-  PROVIDE_HIDDEN (__exidx_end = .);
+  .ARM.exidx   : {
+    PROVIDE_HIDDEN (__exidx_start = .);
+    *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+    PROVIDE_HIDDEN (__exidx_end = .);
+  }
 
   .xmImageHdr ALIGN (8) :
   {

@@ -98,6 +98,10 @@ class ArmPikeOS(PikeOS4):
     def full_system_ads(self):
         return 'system-pikeos-arm-ravenscar-full.ads'
 
+    def __init__(self):
+        super(ArmPikeOS, self).__init__()
+        self.add_linker_script('pikeos/arm-app.ld')
+
 
 class PpcPikeOS(PikeOS3):
     @property
