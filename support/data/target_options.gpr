@@ -23,7 +23,7 @@ abstract project Target_Options is
      case Build is
         when "Production" =>
 	   --  Optimize
-           COMFLAGS := COMFLAGS & ("-O2");
+           COMFLAGS := ("-O2") & COMFLAGS;
            ADAFLAGS := ADAFLAGS & ("-gnatp", "-gnatn2");
         when "Debug" =>
 	   --  Disable optimization and add debug symbols
