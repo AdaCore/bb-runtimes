@@ -174,9 +174,7 @@ class TMS570(CortexARTarget):
         self.add_linker_script('arm/tms570/flash.ld', loader='FLASH')
         self.add_linker_script('arm/tms570/hiram.ld', loader='HIRAM')
         self.add_linker_script('arm/tms570/loram.ld', loader='LORAM')
-        self.add_linker_switch('-Wl,-z,max-page-size=0x1000',
-                               loader=['FLASH', 'HIRAM', 'LORAM',
-                                       'LORAM_16M', 'BOOT'])
+        self.add_linker_switch('-Wl,-z,max-page-size=0x1000', loader=None)
 
         self.add_sources('crt0', [
             'arm/tms570/crt0.S',
