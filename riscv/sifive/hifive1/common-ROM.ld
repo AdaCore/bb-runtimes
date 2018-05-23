@@ -68,7 +68,7 @@ SECTIONS
     *(.data .data.* .gnu.linkonce.d*)
   } > ram AT > flash
 
-  .srodata :
+  .srodata ALIGN(4) : ALIGN(4) /* Align both virtual and load addresses */
   {
     PROVIDE( __global_pointer = . + 0x800 );
     *(.srodata.cst16)
@@ -78,7 +78,7 @@ SECTIONS
     *(.srodata .srodata.*)
   } > ram  AT > flash
 
-  .sdata :
+  .sdata ALIGN(4) : ALIGN(4) /* Align both virtual and load addresses */
   {
     *(.sdata .sdata.*)
     *(.gnu.linkonce.s.*)
