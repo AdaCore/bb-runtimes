@@ -95,7 +95,7 @@ SECTIONS
 
   .ARM.extab : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > REGION_CODE =0xff
   .ARM.exidx :
-  { 
+  {
     PROVIDE_HIDDEN (__exidx_start = .);
     *(.ARM.exidx* .gnu.linkonce.armexidx.*)
     PROVIDE_HIDDEN (__exidx_end = .);
@@ -134,16 +134,20 @@ SECTIONS
     __interrupt_stack_start = .;
 
     __abort_stack_start = .;
-    __abort_stack_end = ALIGN(__abort_stack_start + _ABORT_STACK_SIZE, 0x8);
+    . = ALIGN(__abort_stack_start + _ABORT_STACK_SIZE, 0x8);
+    __abort_stack_end = .;
 
     __undef_stack_start = .;
-    __undef_stack_end = ALIGN(__undef_stack_start + _UNDEF_STACK_SIZE, 0x8);
+    . = ALIGN(__undef_stack_start + _UNDEF_STACK_SIZE, 0x8);
+    __undef_stack_end = .;
 
     __svc_stack_start = .;
-    __svc_stack_end = ALIGN(__svc_stack_start + _SVC_STACK_SIZE, 0x8);
+    . = ALIGN(__svc_stack_start + _SVC_STACK_SIZE, 0x8);
+    __svc_stack_end = .;
 
     __fiq_stack_start = .;
-    __fiq_stack_end = ALIGN(__fiq_stack_start + _FIQ_STACK_SIZE, 0x8);
+    . = ALIGN(__fiq_stack_start + _FIQ_STACK_SIZE, 0x8);
+    __fiq_stack_end = .;
 
     /* Use the largest of .interrupt_stacks or the default trap stack sizes.
        This allows use with either ZFP or Ravenscar run times. */
