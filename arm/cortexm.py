@@ -390,12 +390,6 @@ class Microbit(NRF51):
                          ['arm/nordic/nrf51/s-bbbopa__microbit.ads',
                           'src/s-textio__microbit.adb'])
 
-    def amend_rts(self, rts_profile, conf):
-        super(Microbit, self).amend_rts(rts_profile, conf)
-        # A backend issue requires s-bbthqu.adb to be compiled with -O1
-        if rts_profile == 'ravenscar-sfp':
-            conf.build_flags['common_flags'] += ['-O1']
-
 
 class Stm32CommonArchSupport(ArchSupport):
     """Holds sources common to all stm32 boards"""
