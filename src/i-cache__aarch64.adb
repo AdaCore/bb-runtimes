@@ -6,7 +6,7 @@
 --                                                                          --
 --                                   S p e c                                --
 --                                                                          --
---                      Copyright (C) 2016-2017, AdaCore                    --
+--                      Copyright (C) 2016-2018, AdaCore                    --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -40,12 +40,20 @@ package body Interfaces.Cache is
    procedure DSB;
    --  Binding of aarch64 instructions
 
+   --------------
+   -- DC_CIVAC --
+   --------------
+
    procedure DC_CIVAC (Addr : Address) is
    begin
       Asm ("dc civac, %0",
            Inputs => Address'Asm_Input ("r", Addr),
            Volatile => True);
    end DC_CIVAC;
+
+   -------------
+   -- DC_IVAC --
+   -------------
 
    procedure DC_IVAC (Addr : Address) is
    begin
@@ -54,23 +62,37 @@ package body Interfaces.Cache is
            Volatile => True);
    end DC_IVAC;
 
+   ---------
+   -- DSB --
+   ---------
+
    procedure DSB is
    begin
       Asm ("dsb ish", Volatile => True);
    end DSB;
 
+   --------------------------------
+   -- Dcache_Invalidate_By_Range --
+   --------------------------------
+
    procedure Dcache_Invalidate_By_Range
      (Start : System.Address;
       Len   : System.Storage_Elements.Storage_Count)
    is
-      Line_Size : constant := 16;
-      Line_Off : Storage_Count;
-      Off : Storage_Count;
-      Addr : Address;
+      Line_Size : constant := 64;
+      Line_Off  : Storage_Count;
+      Off       : Storage_Count;
+      Addr      : Address;
    begin
+      if Len = 0 then
+         return;
+      end if;
+
+      --  Align Start address on a cache line
       Line_Off := Start mod Line_Size;
       Addr := Start - Line_Off;
       Off := 0;
+
       loop
          DC_IVAC (Addr);
          Off := Off + Line_Size;
@@ -81,18 +103,27 @@ package body Interfaces.Cache is
       DSB;
    end Dcache_Invalidate_By_Range;
 
+   ---------------------------
+   -- Dcache_Flush_By_Range --
+   ---------------------------
+
    procedure Dcache_Flush_By_Range
      (Start : System.Address;
       Len   : System.Storage_Elements.Storage_Count)
    is
-      Line_Size : constant := 16;
-      Line_Off : Storage_Count;
-      Off : Storage_Count;
-      Addr : Address;
+      Line_Size : constant := 64;
+      Line_Off  : Storage_Count;
+      Off       : Storage_Count;
+      Addr      : Address;
    begin
+      if Len = 0 then
+         return;
+      end if;
+
       Line_Off := Start mod Line_Size;
       Addr := Start - Line_Off;
       Off := 0;
+
       loop
          DC_CIVAC (Addr);
          Off := Off + Line_Size;
