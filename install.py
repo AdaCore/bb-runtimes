@@ -162,6 +162,7 @@ def build(archs, prefix):
             print "OK"
         print ""
 
+
 ALL_BSP = ['stm32f4', 'stm32f429disco', 'stm32f469disco', 'stm32f746disco',
            'stm32756geval', 'stm32f769disco', 'samg55', 'sam4s', 'openmv2',
            'rpi3', 'rpi2']
@@ -188,7 +189,7 @@ def main():
         elif opt == '--prefix':
             prefix = os.path.abspath(arg)
 
-    returncode = run_program(['./build-rts.py', '--bsps-only',
+    returncode = run_program(['./build_rts.py', '--bsps-only',
                               '--output=.'] + ALL_BSP)
     if returncode:
         print 'Build error (gprinstall returned {}):\n{}'.format(
@@ -196,6 +197,7 @@ def main():
         return
 
     build(archs, prefix)
+
 
 if __name__ == '__main__':
     main()
