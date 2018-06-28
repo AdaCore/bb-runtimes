@@ -189,7 +189,7 @@ def main():
         elif opt == '--prefix':
             prefix = os.path.abspath(arg)
 
-    returncode = run_program(['./build_rts.py', '--bsps-only',
+    returncode = run_program([sys.executable, './build_rts.py', '--bsps-only',
                               '--output=.'] + ALL_BSP)
     if returncode:
         print 'Build error (gprinstall returned {}):\n{}'.format(
