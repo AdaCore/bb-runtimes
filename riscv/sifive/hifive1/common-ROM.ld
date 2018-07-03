@@ -70,7 +70,7 @@ SECTIONS
 
   .srodata ALIGN(4) : ALIGN(4) /* Align both virtual and load addresses */
   {
-    PROVIDE( __global_pointer = . + 0x800 );
+    PROVIDE( __global_pointer$ = . + 0x800 );
     *(.srodata.cst16)
     *(.srodata.cst8)
     *(.srodata.cst4)
