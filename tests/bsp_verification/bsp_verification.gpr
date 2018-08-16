@@ -1,0 +1,46 @@
+project BSP_Verification is
+
+   type Build_Type is ("Production", "Debug");
+
+   App_BUILD : Build_Type := external ("APP_BUILD", "Debug");
+
+   for Main use ("bsp_verifier.adb");
+
+   for Runtime ("Ada") use "ravenscar-sfp-stm32f4";
+
+   for Target use "arm-eabi";
+
+   for Languages use ("Ada");
+
+   for Source_Dirs use ("src\**");
+
+   for Object_Dir use "obj/" & App_BUILD;
+
+   for Create_Missing_Dirs use "True";
+
+   App_Switches := "";
+
+   package Compiler is
+
+      for Local_Configuration_Pragmas use "gnat.adc";
+
+      case App_BUILD is
+         when "Production" =>
+              App_Switches := ("-g", "-O3", "-gnatp", "-gnatn");
+         when "Debug" =>
+              App_Switches := ("-g", "-O0", "-gnata", "-fcallgraph-info=su");
+      end case;
+
+      for Default_Switches ("ada") use Compiler'Default_Switches ("Ada") &
+        App_Switches &
+        ("-gnatwa", "-gnatQ", "-gnatw.X", "-gnaty", "-gnatyO", "-gnatyM120",
+         "-ffunction-sections", "-fdata-sections");
+   end Compiler;
+
+   package IDE is
+      for Connection_Tool use "st-util";
+      for Program_Host use "localhost:4242";
+      for Communication_Protocol use "remote";
+   end IDE;
+
+end BSP_Verification;
