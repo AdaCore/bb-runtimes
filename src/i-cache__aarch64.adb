@@ -29,25 +29,39 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Unchecked_Conversion;
 with System.Machine_Code; use System.Machine_Code;
 use System;
 
 package body Interfaces.Cache is
    use System.Storage_Elements;
 
-   procedure DC_CIVAC (Addr : Address);
-   procedure DC_IVAC (Addr : Address);
-   procedure DSB;
-   --  Binding of aarch64 instructions
+   --  Binding of aarch64 instructions:
+
+   procedure DC_CIVAC (Addr : Unsigned_64) with Inline_Always;
+   procedure DC_IVAC (Addr : Unsigned_64) with Inline_Always;
+   procedure DSB with Inline_Always;
+
+   procedure Set_CSSELR_EL1 (Val : Unsigned_32) with Inline_Always;
+
+   --  Utility
+
+   function To_U64 is new Ada.Unchecked_Conversion
+     (Address, Unsigned_64);
+
+   --  Intermediate subprograms
+
+   procedure DCache_Invalidate_Line (Addr : Unsigned_64) with Inline_Always;
+   procedure DCache_Flush_Line (Addr : Unsigned_64) with Inline_Always;
 
    --------------
    -- DC_CIVAC --
    --------------
 
-   procedure DC_CIVAC (Addr : Address) is
+   procedure DC_CIVAC (Addr : Unsigned_64) is
    begin
       Asm ("dc civac, %0",
-           Inputs => Address'Asm_Input ("r", Addr),
+           Inputs => Unsigned_64'Asm_Input ("r", Addr),
            Volatile => True);
    end DC_CIVAC;
 
@@ -55,10 +69,10 @@ package body Interfaces.Cache is
    -- DC_IVAC --
    -------------
 
-   procedure DC_IVAC (Addr : Address) is
+   procedure DC_IVAC (Addr : Unsigned_64) is
    begin
       Asm ("dc ivac, %0",
-           Inputs => Address'Asm_Input ("r", Addr),
+           Inputs => Unsigned_64'Asm_Input ("r", Addr),
            Volatile => True);
    end DC_IVAC;
 
@@ -68,39 +82,95 @@ package body Interfaces.Cache is
 
    procedure DSB is
    begin
-      Asm ("dsb ish", Volatile => True);
+      Asm ("dsb sy", Volatile => True);
    end DSB;
+
+   --------------------
+   -- Set_CSSELR_EL1 --
+   --------------------
+
+   procedure Set_CSSELR_EL1 (Val : Unsigned_32) is
+   begin
+      Asm ("msr csselr_el1, %0",
+           Inputs   => Unsigned_32'Asm_Input ("r", Val),
+           Volatile => True);
+   end Set_CSSELR_EL1;
+
+   ----------------------------
+   -- DCache_Invalidate_Line --
+   ----------------------------
+
+   procedure DCache_Invalidate_Line (Addr : Unsigned_64)
+   is
+   begin
+      --  Select L1 D-cache
+      Set_CSSELR_EL1 (0);
+      DC_IVAC (Addr);
+      DSB;
+      --  Select L2 D-cache
+      Set_CSSELR_EL1 (2);
+      DC_IVAC (Addr);
+      DSB;
+   end DCache_Invalidate_Line;
+
+   -----------------------
+   -- DCache_Flush_Line --
+   -----------------------
+
+   procedure DCache_Flush_Line (Addr : Unsigned_64)
+   is
+   begin
+      --  Select L1 D-cache
+      Set_CSSELR_EL1 (0);
+      DC_CIVAC (Addr);
+      DSB;
+      --  Select L2 D-cache
+      Set_CSSELR_EL1 (2);
+      DC_CIVAC (Addr);
+      DSB;
+   end DCache_Flush_Line;
 
    --------------------------------
    -- Dcache_Invalidate_By_Range --
    --------------------------------
 
    procedure Dcache_Invalidate_By_Range
-     (Start : System.Address;
-      Len   : System.Storage_Elements.Storage_Count)
+     (Start  : System.Address;
+      Len    : System.Storage_Elements.Storage_Count)
    is
-      Line_Size : constant := 64;
-      Line_Off  : Storage_Count;
-      Off       : Storage_Count;
-      Addr      : Address;
+      Cache_Line : constant := 64;
+      Start_Addr : constant Unsigned_64 := To_U64 (Start);
+      Tmp_Addr   : Unsigned_64 := Start_Addr and (not (Cache_Line - 1));
+      --  Start address aligned on a cache line
+      End_Addr   : constant Unsigned_64 := To_U64 (Start + Len);
+      Tmp_End    : constant Unsigned_64 := End_Addr and (not (Cache_Line - 1));
+      --  End address aligned on a cache line
+
    begin
       if Len = 0 then
          return;
       end if;
 
-      --  Align Start address on a cache line
-      Line_Off := Start mod Line_Size;
-      Addr := Start - Line_Off;
-      Off := 0;
+      --  Mask IRQs/FIQs during cache maintenance
+      Asm ("msr DAIFSet, #3", Volatile => True);
 
-      loop
-         DC_IVAC (Addr);
-         Off := Off + Line_Size;
-         exit when Off > Len + Line_Off;
-         Addr := Addr + Line_Size;
+      --  If the cache lines span outside the range, flush instead of
+      --  invalidate, else we could lose neighbouring data
+      if Tmp_Addr /= To_U64 (Start) then
+         DCache_Flush_Line (Tmp_Addr);
+         Tmp_Addr := Tmp_Addr + Cache_Line;
+      end if;
+      if Tmp_End /= End_Addr and then End_Addr > Tmp_Addr then
+         DCache_Flush_Line (Tmp_End);
+      end if;
+
+      while Tmp_Addr < Tmp_End loop
+         DCache_Invalidate_Line (Tmp_Addr);
+         Tmp_Addr := Tmp_Addr + Cache_Line;
       end loop;
 
-      DSB;
+      --  Unmask interrupts
+      Asm ("msr DAIFClr, #3", Volatile => True);
    end Dcache_Invalidate_By_Range;
 
    ---------------------------
@@ -111,26 +181,29 @@ package body Interfaces.Cache is
      (Start : System.Address;
       Len   : System.Storage_Elements.Storage_Count)
    is
-      Line_Size : constant := 64;
-      Line_Off  : Storage_Count;
-      Off       : Storage_Count;
-      Addr      : Address;
+      Cache_Line : constant := 64;
+      Tmp_Addr   : Unsigned_64 := To_U64 (Start);
+      End_Addr   : constant Unsigned_64 := To_U64 (Start + Len);
+
    begin
       if Len = 0 then
          return;
       end if;
 
-      Line_Off := Start mod Line_Size;
-      Addr := Start - Line_Off;
-      Off := 0;
+      --  Mask IRQs/FIQs during cache maintenance
+      Asm ("msr DAIFSet, #3", Volatile => True);
 
-      loop
-         DC_CIVAC (Addr);
-         Off := Off + Line_Size;
-         exit when Off > Len + Line_Off;
-         Addr := Addr + Line_Size;
+      if (Tmp_Addr and (Cache_Line - 1)) /= 0 then
+         --  Unaligned start address
+         Tmp_Addr := Tmp_Addr and (not (Cache_Line - 1));
+      end if;
+
+      while Tmp_Addr < End_Addr loop
+         DCache_Flush_Line (Tmp_Addr);
+         Tmp_Addr := Tmp_Addr + Cache_Line;
       end loop;
 
-      DSB;
+      --  Unmask interrupts
+      Asm ("msr DAIFClr, #3", Volatile => True);
    end Dcache_Flush_By_Range;
 end Interfaces.Cache;

@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2018, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -120,6 +120,12 @@ package body System.BB.Interrupts is
       --  Check that we are attaching to a real interrupt
 
       pragma Assert (Id /= No_Interrupt);
+
+      --  Check that no previous interrupt handler has been registered
+
+      if Interrupt_Handlers_Table (Id) /= null then
+         raise Program_Error;
+      end if;
 
       --  Copy the user's handler to the appropriate place within the table
 
