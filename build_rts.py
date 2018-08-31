@@ -34,7 +34,7 @@ from sparc import Leon2, Leon3, Leon4
 from powerpc import MPC8641, MPC8349e, P2020, P5566, P5634
 
 # riscv
-from riscv import Spike, HiFive1
+from riscv import Spike, HiFive1, PicoRV32
 
 # visium
 from visium import Visium
@@ -129,6 +129,8 @@ def build_configs(target):
         t = Spike()
     elif target == 'hifive1':
         t = HiFive1()
+    elif target == 'picorv32':
+        t = PicoRV32()
     elif target == 'x86-linux':
         t = X86Native()
     elif target == 'x86-windows':

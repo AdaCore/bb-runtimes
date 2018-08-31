@@ -83,7 +83,7 @@ package System is
    Max_Mantissa          : constant := 63;
    Fine_Delta            : constant := 2.0 ** (-Max_Mantissa);
 
-   Tick                  : constant := 0.01;
+   Tick                  : constant := 0.0;
 
    --  Storage-related Declarations
 

@@ -24,7 +24,10 @@ fromhost:
         .type _start_ram,@function
 
 _start_ram:
+.option push
+.option norelax
         la gp, __global_pointer$
+.option pop
         la sp, __stack_end
 
         /* Clear bss section */
