@@ -951,9 +951,9 @@ sources = {
             'libgnarl/g-boubuf.adb', 'libgnarl/g-boubuf.ads',
             'libgnarl/g-boumai.ads',
             'libgnarl/g-semaph.adb', 'libgnarl/g-semaph.ads',
-            'hie/s-tpoben.ads', 'hie/s-tpoben.adb',
             'hie/s-tasque.ads', 'hie/s-tasque.adb',
-            'hie/s-tpobop.ads', 'hie/s-tpobop.adb']
+            'hie/s-tpoben__bb.ads', 'hie/s-tpoben__bb.adb',
+            'hie/s-tpobop__bb.ads', 'hie/s-tpobop__bb.adb']
     },
 
     # Timing support
