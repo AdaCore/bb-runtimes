@@ -1,4 +1,3 @@
-from support import readfile
 from support.bsp_sources.target import DFBBTarget
 
 
@@ -30,13 +29,10 @@ class Spike(RiscV64):
     def loaders(self):
         return ['RAM']
 
-    def dump_runtime_xml(self, rts_name, rts):
-        return readfile('riscv/spike/runtime.xml')
-
     def __init__(self):
         super(Spike, self).__init__()
-        self.add_linker_script('riscv/spike/common-RAM.ld', loader='')
-        self.add_linker_script('riscv/spike/memory-map.ld', loader='')
+        self.add_linker_script('riscv/spike/common-RAM.ld', loader='RAM')
+        self.add_linker_script('riscv/spike/memory-map.ld', loader='RAM')
         self.add_sources('crt0',
                          ['riscv/start-ram.S',
                           'riscv/src/riscv_host_target_interface.ads',
