@@ -510,6 +510,21 @@ build_full_arm_pikeos()
     do_ravenscar arm-sysgo-pikeos ravenscar-full/arm-pikeos
 }
 
+build_zfp_arm_pikeos4.2()
+{
+    do_zfp arm-sysgo-pikeos4.2 zfp/arm-pikeos4.2
+}
+
+build_sfp_arm_pikeos4.2()
+{
+    do_ravenscar arm-sysgo-pikeos4.2 ravenscar-sfp/arm-pikeos4.2
+}
+
+build_full_arm_pikeos4.2()
+{
+    do_ravenscar arm-sysgo-pikeos4.2 ravenscar-full/arm-pikeos4.2
+}
+
 build_full_ppc_pikeos()
 {
     do_ravenscar powerpc-sysgo-pikeos ravenscar-full/ppc-pikeos

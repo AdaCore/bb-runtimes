@@ -20,8 +20,9 @@ class Installer(object):
                               rts_prefix):
         """Dumps the main project used to build the runtime"""
         rtsname = '%s-%s' % (rts_base_name, self.tgt.name)
-        prj = '%s.gpr' % rtsname.replace('-', '_')
-        prjname = rtsname.replace('-', '_').title()
+        gprname = rtsname.replace('-', '_').replace('.', '_')
+        prjname = gprname.title()
+        prj = '%s.gpr' % gprname
         prj = os.path.join(destination, prj)
 
         base = os.path.dirname(rts_prefix)

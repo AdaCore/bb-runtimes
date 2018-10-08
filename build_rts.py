@@ -14,7 +14,7 @@ from support.rts_sources.sources import all_scenarios, sources
 from support.docgen import docgen
 
 # PikeOS
-from pikeos import ArmPikeOS
+from pikeos import ArmPikeOS, ArmPikeOS42
 
 # Cortex-M runtimes
 from arm.cortexm import Stm32, Sam, SmartFusion2, LM3S, M1AGL, Microbit, \
@@ -50,6 +50,8 @@ import sys
 def build_configs(target):
     if target == 'arm-pikeos':
         t = ArmPikeOS()
+    elif target == 'arm-pikeos4.2':
+        t = ArmPikeOS42()
     elif target == 'zynq7000':
         t = Zynq7000()
     elif target == 'rpi2':
