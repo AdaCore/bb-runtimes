@@ -86,7 +86,9 @@ class ArmPikeOS(PikeOS):
 
 
 class ArmPikeOS42(ArmPikeOS):
-    # For now, this does not differ from ArmPikeOS, but
+    # For now, this does not differ substancially from ArmPikeOS, but
     # we are likely to need a different pikeos_version soon
     # we will be using a different thread API (p4ext instead of p4).
-    pass
+    @property
+    def target(self):
+        return 'arm-sysgo-pikeos4.2'
