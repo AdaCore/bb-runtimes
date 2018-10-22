@@ -31,7 +31,7 @@ properly added to the PATH.
 *Build/install the stlink tools*
 
 Follow the instructions from the stlink repository, or install a pre-built
-version of the tools. 
+version of the tools.
 
 Note that on Windows, a version of stlink comes pre-installed with the ARM
 ELF compiler, so this step can be skipped in that case.
@@ -104,7 +104,7 @@ To check your installation, we'll re-generate the stm32f4 run-time:
 ```
 $ cd bb-runtimes
 $ mkdir build
-$ ./build-rts.py --bsps-only --output=build --prefix=arm-eabi/lib/gnat --link stm32f4
+$ ./build_rts.py --bsps-only --output=build --prefix=arm-eabi/lib/gnat --link stm32f4
 ```
 This generates the proper project tree that will be used to actually build and install the run-times for the stm32f4.
 
