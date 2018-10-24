@@ -84,14 +84,14 @@ The files of interest in this repository are:
 │           └── svd
 ├── src/
 ├── support/*.py
-└── build-rts.py
+└── build_rts.py
 ```
 
-build-rts.py is the main script that will generate the run-time BSPs project directory.
+build_rts.py is the main script that will generate the run-time BSPs project directory.
 
 The actual BSP sources are split into two main locations: the src directory and the target-specific directories.
 
-The sources in src come in general with many variants, that are denoted via a double underscore in their name. Once installed via build-rts.py the variant part is automatically removed from the file name.
+The sources in src come in general with many variants, that are denoted via a double underscore in their name. Once installed via build_rts.py the variant part is automatically removed from the file name.
 
 For example: `s-bbbosu__armv7m.adb` is installed as `s-bbbosu.adb` in the run-time.
 
@@ -147,7 +147,7 @@ build
     └── support/
 ```
 
-**Important note:** in the call to build-rts.py:
+**Important note:** in the call to build_rts.py:
 * *--bsps-only* will generate only the necessary tree structure for building the run-times using a mix of sources from bb-runtimes and from the compiler itself. Without this switch, you would need both the original gnat repository (not publicly available), and the gcc sources.
 * *--link* is creating symbolic links in the generated tree, as this is useful when developing a new run-time. **This won't work on Windows** as symbolic links are not supported on this platform.
 * *--prefix=arm-eabi/lib/gnat* this prefix is relative to the final installation directory. When the run-time is installed in the GNAT installation directory, then gprbuild will be able to find the new run-time by its simple name.
@@ -224,7 +224,7 @@ index 307ec13..412b795 100644
 
 This modification is specific to the STM32. To port the run-time for other targets, please read the class responsible for generating the BSP and adapt as necessary.
 
-You will finally need to modify the build-rts.py script:
+You will finally need to modify the build_rts.py script:
 
 ```
      elif target.startswith('stm32'):
@@ -240,7 +240,7 @@ You will finally need to modify the build-rts.py script:
 You should now be ready to generate your own run-time:
 
 ```
-$ ./build-rts.py --bsps-only --output=build --prefix=arm-eabi/lib/gnat --link mystm32
+$ ./build_rts.py --bsps-only --output=build --prefix=arm-eabi/lib/gnat --link mystm32
 ```
 
 and check that the projects and sources have been properly created:
