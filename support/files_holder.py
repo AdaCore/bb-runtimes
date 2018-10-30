@@ -51,7 +51,8 @@ class FilesHolder(object):
 
     def add_source(self, dir, dst, src):
         base = os.path.basename(dst)
-        _, ext = base.split('.')
+        # A file could have `.` in its name. (eg: pikeos4.2-cert-app.c)
+        _, ext = base.rsplit('.', 1)
         if '__' in base:
             # File with variant:
             # remove the variant part from the destination file name

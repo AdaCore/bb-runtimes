@@ -25,7 +25,6 @@ class PikeOS(Target):
         super(PikeOS, self).__init__()
         self.add_linker_script('pikeos/memory.ld')
         self.add_sources('arch', [
-            'pikeos/pikeos-cert-app.c',
             'src/s-textio__pikeos.adb',
             'src/s-macres__native.adb'])
         self.add_sources('gnarl', [
@@ -82,6 +81,7 @@ class ArmPikeOS(PikeOS):
 
     def __init__(self):
         super(ArmPikeOS, self).__init__()
+        self.add_sources('arch', ['pikeos/pikeos-cert-app.c'])
         self.add_linker_script('pikeos/arm-app.ld')
 
 
@@ -92,3 +92,7 @@ class ArmPikeOS42(ArmPikeOS):
     @property
     def target(self):
         return 'arm-sysgo-pikeos4.2'
+
+    def __init__(self):
+        super(ArmPikeOS, self).__init__()
+        self.add_sources('arch', ['pikeos/pikeos4.2-cert-app.c'])
