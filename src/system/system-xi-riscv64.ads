@@ -112,7 +112,8 @@ package System is
    --  Other System-Dependent Declarations
 
    type Bit_Order is (High_Order_First, Low_Order_First);
-   Default_Bit_Order : constant Bit_Order := High_Order_First;
+   Default_Bit_Order : constant Bit_Order :=
+     Bit_Order'Val (Standard'Default_Bit_Order);
    pragma Warnings (Off, Default_Bit_Order); -- kill constant condition warning
 
    --  Priority-related Declarations (RM D.1)
