@@ -74,12 +74,13 @@ SECTIONS
     . = ALIGN(4);
     __sbss2_end = .;
   }
+
   __data_load = LOADADDR(.sdata2) + SIZEOF(.sdata2);
-  __data_start = .;
 
   .data : AT(__data_load)
   {
     __data = .;
+    __data_start = .;
     *(.data .data.* .gnu.linkonce.d.*)
     KEEP (*(.gnu.linkonce.d.*personality*))
     SORT(CONSTRUCTORS)
@@ -87,9 +88,8 @@ SECTIONS
     PROVIDE (_SDA_BASE_ = 32768);
     *(.sdata .sdata.* .gnu.linkonce.s.*)
     . = ALIGN(4);
+    __data_end = .;
   }
-
-  __data_end = .;
 
   .sbss :
   {
@@ -99,6 +99,7 @@ SECTIONS
     *(.scommon)
     __sbss_end = .;
   }
+
   .stacks :
   {
    . = ALIGN(8);
@@ -119,6 +120,7 @@ SECTIONS
 
    __stack_end = .;
   }
+
   .bss :
   {
    __bss_start = .;
