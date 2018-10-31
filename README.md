@@ -17,7 +17,7 @@ rely on those to just generate the BSP part of the runtime.
 
 The list of supported boards is listed in build-rts.py within build_configs.
 
-## building and intalling a runtime
+## building and installing a runtime
 
 Once a BSP is generated, make sure you have setup a GNAT compiler for the
 board's target, and call gprbuild/gprinstall
