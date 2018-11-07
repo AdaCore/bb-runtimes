@@ -27,7 +27,8 @@ all_scenarios = {
     # Main profile
     'RTS_Profile': ['zfp', 'ravenscar-sfp', 'ravenscar-full'],
     # CPU architecture
-    'CPU_Family': ['arm', 'aarch64', 'leon', 'powerpc', 'x86'],
+    'CPU_Family': ['arm', 'aarch64', 'leon', 'powerpc', 'x86',
+                   'riscv32', 'riscv64'],
     # FPU presence
     'Has_FPU': ['no', 'yes'],
     # Whether we rely on libc being available
@@ -725,6 +726,14 @@ sources = {
         'conditions': ['RTS_Profile:ravenscar-full', 'CPU_Family:powerpc'],
         'srcs': ['hie/s-traceb__ppc.adb']
     },
+
+    # FIXME: Replace with RISC-V traceback implementation:
+    'full/zcx-riscv': {
+        'conditions':
+        ['RTS_Profile:ravenscar-full', 'CPU_Family:riscv64,riscv32'],
+        'srcs': ['hie/s-traceb__ppc.adb']
+    },
+
     'full/zcx-leon': {
         'conditions': ['RTS_Profile:ravenscar-full', 'CPU_Family:leon'],
         'srcs': ['hie/s-traceb__sparc.adb']

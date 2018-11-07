@@ -108,6 +108,10 @@ class RTSProfiles(object):
                 ret['CPU_Family'] = 'powerpc'
             elif cpu in ('x86',):
                 ret['CPU_Family'] = 'x86'
+            elif cpu in ('riscv32',):
+                ret['CPU_Family'] = 'riscv32'
+            elif cpu in ('riscv64',):
+                ret['CPU_Family'] = 'riscv64'
             else:
                 print "Unexpected cpu %s" % cpu
                 sys.exit(2)

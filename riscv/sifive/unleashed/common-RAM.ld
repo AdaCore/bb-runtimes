@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
  *             Copyright (C) 2003-2006 The European Space Agency            *
- *                   Copyright (C) 2003-2018 AdaCore                        *
+ *                   Copyright (C) 2003-2019 AdaCore                        *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -36,11 +36,14 @@
 
 /* This is a RISC-V specific version of this file */
 
+SEARCH_DIR(.)
+__DYNAMIC  =  0;
+
 _DEFAULT_STACK_SIZE = 2*1024;
 
 OUTPUT_ARCH("riscv")
 
-ENTRY(_start_rom);
+ENTRY(_start_ram);
 
 SECTIONS
 {
@@ -49,7 +52,7 @@ SECTIONS
     KEEP (*(SORT_NONE(.start)))
     *(.text .text.* .gnu.linkonce.t*)
     *(.gnu.warning)
-  } > flash
+  } > ram
 
   .rodata :
   {
@@ -57,13 +60,13 @@ SECTIONS
     *(.rodata .rodata.* .gnu.linkonce.r*)
     . = ALIGN(0x4);
     __rom_end = .;
-  } > flash
+  } > ram
 
   .data :
   {
     __data_start = .;
     *(.data .data.* .gnu.linkonce.d*)
-  } > ram AT > flash
+  } > ram
 
   .srodata ALIGN(4) : ALIGN(4) /* Align both virtual and load addresses */
   {
@@ -73,13 +76,13 @@ SECTIONS
     *(.srodata.cst4)
     *(.srodata.cst2)
     *(.srodata .srodata.*)
-  } > ram  AT > flash
+  } > ram
 
   .sdata ALIGN(4) : ALIGN(4) /* Align both virtual and load addresses */
   {
     *(.sdata .sdata.*)
     *(.gnu.linkonce.s.*)
-  } > ram  AT > flash
+  } > ram
 
   __data_end = .;
 

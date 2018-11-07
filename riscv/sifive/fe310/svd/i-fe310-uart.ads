@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2018, AdaCore
+--  Copyright (C) 2019, AdaCore
 --
 
 --  This spec has been automatically generated from FE310.svd
@@ -26,7 +26,7 @@ package Interfaces.FE310.UART is
       Reserved_8_30 : Interfaces.FE310.UInt23 := 16#0#;
       FULL          : Boolean := False;
    end record
-     with Volatile_Full_Access, Size => 32,
+     with Volatile, Size => 32,
           Bit_Order => System.Low_Order_First;
 
    for TXDATA_Register use record
@@ -44,7 +44,7 @@ package Interfaces.FE310.UART is
       Reserved_8_30 : Interfaces.FE310.UInt23 := 16#0#;
       EMPTY         : Boolean := False;
    end record
-     with Volatile_Full_Access, Size => 32,
+     with Volatile, Size => 32,
           Bit_Order => System.Low_Order_First;
 
    for RXDATA_Register use record
@@ -65,7 +65,7 @@ package Interfaces.FE310.UART is
       --  unspecified
       Reserved_19_31 : Interfaces.FE310.UInt13 := 16#0#;
    end record
-     with Volatile_Full_Access, Size => 32,
+     with Volatile, Size => 32,
           Bit_Order => System.Low_Order_First;
 
    for TXCTRL_Register use record
@@ -87,7 +87,7 @@ package Interfaces.FE310.UART is
       --  unspecified
       Reserved_19_31 : Interfaces.FE310.UInt13 := 16#0#;
    end record
-     with Volatile_Full_Access, Size => 32,
+     with Volatile, Size => 32,
           Bit_Order => System.Low_Order_First;
 
    for RXCTRL_Register use record
@@ -104,7 +104,7 @@ package Interfaces.FE310.UART is
       --  unspecified
       Reserved_2_31 : Interfaces.FE310.UInt30 := 16#0#;
    end record
-     with Volatile_Full_Access, Size => 32,
+     with Volatile, Size => 32,
           Bit_Order => System.Low_Order_First;
 
    for IP_Register use record
@@ -120,7 +120,7 @@ package Interfaces.FE310.UART is
       --  unspecified
       Reserved_2_31 : Interfaces.FE310.UInt30 := 16#0#;
    end record
-     with Volatile_Full_Access, Size => 32,
+     with Volatile, Size => 32,
           Bit_Order => System.Low_Order_First;
 
    for IE_Register use record
@@ -137,7 +137,7 @@ package Interfaces.FE310.UART is
       --  unspecified
       Reserved_16_31 : Interfaces.FE310.UInt16 := 16#0#;
    end record
-     with Volatile_Full_Access, Size => 32,
+     with Volatile, Size => 32,
           Bit_Order => System.Low_Order_First;
 
    for DIV_Register use record

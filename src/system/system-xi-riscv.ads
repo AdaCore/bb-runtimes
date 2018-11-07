@@ -5,9 +5,9 @@
 --                               S Y S T E M                                --
 --                                                                          --
 --                                 S p e c                                  --
---                            (RiscV64 Version)                             --
+--                             (RISC-V Version)                             --
 --                                                                          --
---            Copyright (C) 2018, Free Software Foundation, Inc.            --
+--         Copyright (C) 2018-2019, Free Software Foundation, Inc.          --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --

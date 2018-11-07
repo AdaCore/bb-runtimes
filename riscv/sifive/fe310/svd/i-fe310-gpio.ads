@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2018, AdaCore
+--  Copyright (C) 2019, AdaCore
 --
 
 --  This spec has been automatically generated from FE310.svd
@@ -34,7 +34,7 @@ package Interfaces.FE310.GPIO is
             Arr : VALUE_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for VALUE_Register use record
@@ -59,7 +59,7 @@ package Interfaces.FE310.GPIO is
             Arr : INPUT_EN_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for INPUT_EN_Register use record
@@ -84,7 +84,7 @@ package Interfaces.FE310.GPIO is
             Arr : OUTPUT_EN_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for OUTPUT_EN_Register use record
@@ -109,7 +109,7 @@ package Interfaces.FE310.GPIO is
             Arr : PORT_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for PORT_Register use record
@@ -134,7 +134,7 @@ package Interfaces.FE310.GPIO is
             Arr : PULLUP_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for PULLUP_Register use record
@@ -159,7 +159,7 @@ package Interfaces.FE310.GPIO is
             Arr : DRIVE_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for DRIVE_Register use record
@@ -184,7 +184,7 @@ package Interfaces.FE310.GPIO is
             Arr : RISE_INT_EN_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for RISE_INT_EN_Register use record
@@ -209,7 +209,7 @@ package Interfaces.FE310.GPIO is
             Arr : RISE_INT_PEMD_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for RISE_INT_PEMD_Register use record
@@ -234,7 +234,7 @@ package Interfaces.FE310.GPIO is
             Arr : FALL_INT_EN_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for FALL_INT_EN_Register use record
@@ -259,7 +259,7 @@ package Interfaces.FE310.GPIO is
             Arr : FALL_INT_PEND_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for FALL_INT_PEND_Register use record
@@ -284,7 +284,7 @@ package Interfaces.FE310.GPIO is
             Arr : HIGH_INT_EN_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for HIGH_INT_EN_Register use record
@@ -309,7 +309,7 @@ package Interfaces.FE310.GPIO is
             Arr : HIGH_INT_PEND_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for HIGH_INT_PEND_Register use record
@@ -334,7 +334,7 @@ package Interfaces.FE310.GPIO is
             Arr : LOW_INT_EN_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for LOW_INT_EN_Register use record
@@ -359,7 +359,7 @@ package Interfaces.FE310.GPIO is
             Arr : LOW_INT_PEND_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for LOW_INT_PEND_Register use record
@@ -384,7 +384,7 @@ package Interfaces.FE310.GPIO is
             Arr : IO_FUNC_EN_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for IO_FUNC_EN_Register use record
@@ -409,7 +409,7 @@ package Interfaces.FE310.GPIO is
             Arr : IO_FUNC_SEL_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for IO_FUNC_SEL_Register use record
@@ -434,7 +434,7 @@ package Interfaces.FE310.GPIO is
             Arr : OUT_XOR_PIN_Field_Array;
       end case;
    end record
-     with Unchecked_Union, Size => 32, Volatile_Full_Access,
+     with Unchecked_Union, Size => 32, Volatile,
           Bit_Order => System.Low_Order_First;
 
    for OUT_XOR_Register use record

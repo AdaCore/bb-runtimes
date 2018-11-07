@@ -1,30 +1,26 @@
+#include "riscv_def.h"
+
         /**************/
-        /* _start_rom */
+        /* _start_ram */
         /**************/
 
         .section .start
-        .globl _start_rom
+        .globl _start_ram
         .type _start_rom,@function
 
-_start_rom:
+_start_ram:
 .option push
 .option norelax
         la gp, __global_pointer$
 .option pop
         la sp, __stack_end
 
-        /* Load data section */
-        la a0, __data_load
-        la a1, __data_start
-        la a2, __data_end
-        bgeu a1, a2, 2f
-1:
-        lw t0, (a0)
-        sw t0, (a1)
-        addi a0, a0, 4
-        addi a1, a1, 4
-        bltu a1, a2, 1b
-2:
+        /* Disable interrupts */
+        li      t0, MSTATUS_MIE
+        csrc    mstatus, t0
+
+        /* Clear time, software and external interrupt enable*/
+        csrw mie, zero
 
         /* Clear bss section */
         la a0, __bss_start
@@ -47,7 +43,7 @@ _start_rom:
 abort:
 _exit:
 
-        /* Write success exit code to the QEMU sifive_e test device */
+        /* Write success exit code to the QEMU sifive_u test device */
         li t0, 0x100000
         li t1, 0x5555
         sw t1, (t0)

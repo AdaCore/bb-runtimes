@@ -13,6 +13,8 @@ svd:
 	  mv i-fe310.ads ../svd; \
 	  mv i-fe310-uart.ads ../svd; \
 	  mv i-fe310-gpio.ads ../svd; \
+	  mv i-fe310-plic.ads ../svd; \
+	  mv a-intnam.ads     ../svd; \
 	  cd ../..; \
 	done
 	rm -rf */svdtmp

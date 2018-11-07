@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1992-2018, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2019, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -54,10 +54,10 @@ package body System.Text_IO is
 
    procedure Initialize is
    begin
+      GPIO0_Periph.IO_FUNC_SEL.Arr (16) := False;
       GPIO0_Periph.IO_FUNC_SEL.Arr (17) := False;
-      GPIO0_Periph.IO_FUNC_SEL.Arr (18) := False;
 
-      GPIO0_Periph.IO_FUNC_EN.Arr (18) := True;
+      GPIO0_Periph.IO_FUNC_EN.Arr (16) := True;
       GPIO0_Periph.IO_FUNC_EN.Arr (17) := True;
 
       UART0_Periph.DIV.DIV := UInt16 ((278895001 / 115200)) - 1;

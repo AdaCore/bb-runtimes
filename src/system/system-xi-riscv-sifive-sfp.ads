@@ -7,7 +7,7 @@
 --                                 S p e c                                  --
 --                            (RiscV64 Version)                             --
 --                                                                          --
---          Copyright (C) 2017-2018, Free Software Foundation, Inc.         --
+--            Copyright (C) 2019, Free Software Foundation, Inc.            --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -49,13 +49,8 @@ pragma Restrictions (No_Implicit_Dynamic_Code);
 pragma Restrictions (No_Finalization);
 --  Controlled types are not supported in this run time
 
-pragma Restrictions (No_Tasking);
---  Tasking is not supported in this run time
-
-pragma Discard_Names;
---  Disable explicitly the generation of names associated with entities in
---  order to reduce the amount of storage used. These names are not used anyway
---  (attributes such as 'Image and 'Value are not supported in this run time).
+pragma Profile (Ravenscar);
+--  This is a Ravenscar run time
 
 package System is
    pragma Pure;
@@ -118,14 +113,25 @@ package System is
 
    --  Priority-related Declarations (RM D.1)
 
-   Max_Priority           : constant Positive := 30;
-   Max_Interrupt_Priority : constant Positive := 31;
+   Nbr_Interrupt_Priority : constant Positive := 6;
+   --  There are 7 priority level on the FE310 but value zero is reserved to
+   --  mean "never interrupt".
 
-   subtype Any_Priority       is Integer      range  0 .. 31;
-   subtype Priority           is Any_Priority range  0 .. 30;
-   subtype Interrupt_Priority is Any_Priority range 31 .. 31;
+   Max_Interrupt_Priority : constant Positive := 255;
+   Min_Interrupt_Priority : constant Positive :=
+     Max_Interrupt_Priority - Nbr_Interrupt_Priority;
+   Max_Priority           : constant Positive :=
+     Min_Interrupt_Priority - 1;
 
-   Default_Priority : constant Priority := 15;
+   subtype Any_Priority
+      is Integer      range 0 .. Max_Interrupt_Priority;
+   subtype Priority
+      is Any_Priority range 0 .. Max_Priority;
+   subtype Interrupt_Priority
+      is Any_Priority range Min_Interrupt_Priority .. Max_Interrupt_Priority;
+
+   Default_Priority : constant Priority :=
+     (Priority'First + Priority'Last) / 2;
 
 private
 
@@ -148,13 +154,13 @@ private
    Command_Line_Args         : constant Boolean := False;
    Configurable_Run_Time     : constant Boolean := True;
    Denorm                    : constant Boolean := True;
-   Duration_32_Bits          : constant Boolean := True;
+   Duration_32_Bits          : constant Boolean := False;
    Exit_Status_Supported     : constant Boolean := False;
    Fractional_Fixed_Ops      : constant Boolean := False;
    Frontend_Layout           : constant Boolean := False;
    Machine_Overflows         : constant Boolean := False;
    Machine_Rounds            : constant Boolean := True;
-   Preallocated_Stacks       : constant Boolean := False;
+   Preallocated_Stacks       : constant Boolean := True;
    Signed_Zeros              : constant Boolean := True;
    Stack_Check_Default       : constant Boolean := False;
    Stack_Check_Probes        : constant Boolean := False;
