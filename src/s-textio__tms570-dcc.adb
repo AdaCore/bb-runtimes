@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1992-2013, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2018, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -29,7 +29,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  Minimal version of Text_IO body for use on LEON3, writes to the ARM Debug
+--  Minimal version of Text_IO body for use on TMS570 using the ARM Debug
 --  Control Channel (DCC)
 
 with System.Machine_Code; use System.Machine_Code;

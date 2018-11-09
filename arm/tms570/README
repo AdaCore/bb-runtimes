@@ -11,8 +11,8 @@ Runtimes Supported
 Targets Supported
 -----------------
 
-* Hercules TMS570LS31x (Cortex-R4F)
-* Hercules TMS570LC43x (Cortex-R5)
+* tms570: Hercules TMS570LS31x (Cortex-R4F)
+* tms570lc: Hercules TMS570LC43x (Cortex-R5)
 
 Resources Used
 --------------
@@ -30,17 +30,19 @@ Both RTIUC0 and RTIUC1 are used for timing support
 I/O:
 ,,,,
 
+The runtime libraries provide a minimal version of Ada.Text_IO supporting
+character- and string-based input and output routines. These Ada.Text_IO
+routines use the device-specific I/O package System.Text_IO (s-textio.adb).
+The runtime libraries are configured to use one of two I/O channels:
+
 Debug output:
-  The runtime libraries provide a minimal version of package Ada.Text_IO
-  supporting character- and string-based input and output routines. The bodies
-  of the Ada.Text_IO routines call through to a device-specific I/O package
-  named System.Text_IO. See the package body in s-textio.adb. I/O goes through
-  the ARM Debug Control Channel (DCC) to the JTAG connector.
+  I/O goes through the ARM Debug Control Channel (DCC) to the JTAG connector,
+  and requires support from the JTAG tool vendor. This is the default I/O
+  channel for the tms570 runtimes.
 
 SCI output:
-  Alternatively, the runtime can be built with SCI output support. See the
-  tms570_sci BSP for UART output. In this case, the SCI/LIN2 peripheral is used
-  and is configured for 115200 baud rate, one stop bit, no parity.
+  I/O uses the SCI1/LIN1 peripheral, configured for 115200 baud rate, one stop
+  bit, no parity. This is the default I/O channel for the tms570lc runtimes.
 
 System Clocks
 -------------
