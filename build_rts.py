@@ -80,9 +80,9 @@ def build_configs(target):
         t = TMS570('tms570ls31', uart_io=True)
     elif target == 'tms570lc':
         # alias for the TMS570LC43x HDK board
-        t = TMS570('tms570lc43')
-    elif target == 'tms570lc_sci':
         t = TMS570('tms570lc43', uart_io=True)
+    elif target == 'tms570lc_dcc':
+        t = TMS570('tms570lc43', uart_io=False)
     elif target == 'lm3s':
         t = LM3S()
     elif target == 'm1agl':

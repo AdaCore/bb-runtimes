@@ -122,15 +122,28 @@ class Rpi2Mc(Rpi2Base):
 class TMS570(CortexARTarget):
     @property
     def name(self):
+
+        # The TMS570LS31 runtime originally used the Debug Communication
+        # Channel (DCC) for Text_IO as it facilitated inhouse board testing.
+        # For other TMS570 runtimes, we default to using SCI1 for Text_IO as
+        # this is usable out of the box with the TI TMS570 developer kits
+        # where DCC is not as easily available.
+
         if self.variant == 'tms570ls31':
             base = 'tms570'
+
+            if self.uart_io:
+                return "%s_sci" % base
+            else:
+                return base
+
         else:
             base = 'tms570lc'
 
-        if self.uart_io:
-            return "%s_sci" % base
-        else:
-            return base
+            if self.uart_io:
+                return base
+            else:
+                return "%s_dcc" % base
 
     @property
     def has_small_memory(self):
@@ -188,7 +201,7 @@ class TMS570(CortexARTarget):
         if self.uart_io:
             self.add_sources('crt0', 'src/s-textio__tms570-sci.adb')
         else:
-            self.add_sources('crt0', 'src/s-textio__tms570.adb')
+            self.add_sources('crt0', 'src/s-textio__tms570-dcc.adb')
 
         self.add_sources('gnarl', [
             'src/a-intnam__tms570.ads',

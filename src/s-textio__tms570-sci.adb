@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1992-2017, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2018, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -29,7 +29,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  Minimal version of Text_IO body for use on TMS570LS31x, using SCI/LIN
+--  Minimal version of Text_IO body for use on TMS570LS31x, using SCI1
 
 with Interfaces;           use Interfaces;
 with System.BB.Parameters; use System.BB.Parameters;
