@@ -425,6 +425,21 @@ build_sfp_samg55()
     do_ravenscar arm-eabi ravenscar-sfp/samg55
 }
 
+build_zfp_samv71()
+{
+    do_zfp arm-eabi zfp/samv71
+}
+
+build_sfp_samv71()
+{
+    do_ravenscar arm-eabi ravenscar-sfp/samv71
+}
+
+build_full_samv71()
+{
+    do_ravenscar arm-eabi ravenscar-full/samv71
+}
+
 build_zfp_visium()
 {
     do_zfp visium-elf zfp/mcm
@@ -811,6 +826,14 @@ else
               case $opt in
                   zfp)  build_zfp_samg55 ;;
                   sfp)  build_sfp_samg55 ;;
+                  *) echo "Unknown command $opt for target $target"; exit 2;;
+              esac
+              ;;
+          samv71)
+              case $opt in
+                  zfp)  build_zfp_samv71 ;;
+                  sfp)  build_sfp_samv71 ;;
+                  full) build_full_samv71 ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;

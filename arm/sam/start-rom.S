@@ -46,6 +46,9 @@ __vectors0:
 	.thumb_func
 	.globl _start_rom
 _start_rom:
+	/* Enable FPU and cache when appropriate */
+    bl _sam_start_common
+
 	/* Copy .data */
 	movw	r0,#:lower16:__data_start
 	movt	r0,#:upper16:__data_start
@@ -75,15 +78,5 @@ _start_rom:
 
 	bl	_exit
 
-	.global __aeabi_unwind_cpp_pr0
-	.global __aeabi_unwind_cpp_pr1
-	.global __aeabi_unwind_cpp_pr2
-	.thumb_func
-__aeabi_unwind_cpp_pr0:
-	.thumb_func
-__aeabi_unwind_cpp_pr1:
-	.thumb_func
-__aeabi_unwind_cpp_pr2:
-	.thumb_func
 hang:
 	b .

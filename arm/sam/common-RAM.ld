@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
  *             Copyright (C) 2003-2006 The European Space Agency            *
- *                   Copyright (C) 2003-2013 AdaCore                        *
+ *                   Copyright (C) 2003-2015 AdaCore                        *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -39,9 +39,12 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
+SEARCH_DIR(.)
+__DYNAMIC  =  0;
+
 _DEFAULT_STACK_SIZE = 4*1024;
 
-ENTRY(_start_rom);
+ENTRY(_start_ram);
 
 SECTIONS
 {
@@ -50,26 +53,24 @@ SECTIONS
     KEEP (*(.vectors))
     *(.text .text.* .gnu.linkonce.t*)
     *(.gnu.warning)
-  } > flash
+  } > sram_tx
 
-  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > flash
+  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > sram_ro
   .ARM.exidx   :
   {
     PROVIDE_HIDDEN (__exidx_start = .);
     *(.ARM.exidx* .gnu.linkonce.armexidx.*)
     PROVIDE_HIDDEN (__exidx_end = .);
-  } > flash
-
+  } > sram_ro
+ 
   .rodata :
   {
     *(.lit)
     *(.rodata .rodata.* .gnu.linkonce.r*)
     . = ALIGN(0x4);
-    __rom_end = .;
-  } > flash
+  } > sram_ro
 
-  __data_load = __rom_end;
-  .data : AT (__rom_end)
+  .data :
   {
     __data_start = .;
     *(.data .data.* .gnu.linkonce.d*)
@@ -81,11 +82,9 @@ SECTIONS
 
     . = ALIGN(0x4);
     __data_end = .;
-  } > sram
-  __data_words = (__data_end - __data_start) >> 2;
+  } > sram_da
 
-   __ccmdata_load = __rom_end + (__data_words << 2);
-  .ccmdata : AT (__ccmdata_load)
+  .ccmdata :
   {
     __ccmdata_start = .;
     *(.ccmdata .ccmdata.*)
@@ -98,7 +97,6 @@ SECTIONS
     . = ALIGN(0x4);
     __ccmdata_end = .;
   } > ccm_da
-  __ccmdata_words = (__ccmdata_end - __ccmdata_start) >> 2;
 
   .bss (NOLOAD): {
    . = ALIGN(0x8);

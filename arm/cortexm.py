@@ -144,21 +144,20 @@ class SamCommonArchSupport(ArchSupport):
 
     @property
     def loaders(self):
-        return ('ROM', 'SAMBA')
+        return ('ROM', 'SAMBA', 'RAM')
 
     def __init__(self):
         super(SamCommonArchSupport, self).__init__()
 
         self.add_linker_script('arm/sam/common-SAMBA.ld', loader='SAMBA')
         self.add_linker_script('arm/sam/common-ROM.ld', loader='ROM')
+        self.add_linker_script('arm/sam/common-RAM.ld', loader='RAM')
 
         self.add_sources('crt0', [
-            'arm/sam/s-sam4s.ads',
             'arm/sam/start-rom.S',
             'arm/sam/start-ram.S',
+            'arm/sam/start-common.S',
             'arm/sam/setup_pll.ads'])
-        self.add_sources('gnarl', [
-            'src/s-bbpara__sam4s.ads'])
 
 
 class Sam(ArmV7MTarget):
@@ -171,6 +170,10 @@ class Sam(ArmV7MTarget):
         return SamCommonArchSupport
 
     @property
+    def use_semihosting_io(self):
+        return True
+
+    @property
     def has_single_precision_fpu(self):
         if self.board == 'sam4s':
             return False
@@ -178,38 +181,63 @@ class Sam(ArmV7MTarget):
             return True
 
     @property
+    def has_double_precision_fpu(self):
+        if self.board == 'samv71':
+            return True
+        else:
+            return False
+
+    @property
+    def cortex(self):
+        if self.board == 'samv71':
+            return 'cortex-m7'
+        else:
+            return 'cortex-m4'
+
+    @property
+    def fpu(self):
+        if self.cortex == 'cortex-m4':
+            return 'fpv4-sp-d16'
+        elif not self.has_double_precision_fpu:
+            return 'fpv5-sp-d16'
+        else:
+            return 'fpv5-d16'
+
+    @property
     def system_ads(self):
-        # No runtime full
         ret = super(Sam, self).system_ads
-        return {'zfp': ret['zfp'],
-                'ravenscar-sfp': ret['ravenscar-sfp']}
+
+        if self.board == 'samv71':
+            return ret
+        else:
+            # No runtime full
+            return {'zfp': ret['zfp'],
+                    'ravenscar-sfp': ret['ravenscar-sfp']}
 
     @property
     def compiler_switches(self):
-        base = ('-mlittle-endian', '-mthumb', '-mcpu=cortex-m4')
+        base = ('-mlittle-endian', '-mthumb', '-mcpu=%s' % self.cortex)
 
         if not self.has_single_precision_fpu:
             return base
         else:
-            return base + ('-mhard-float', '-mfpu=fpv4-sp-d16', )
+            return base + ('-mhard-float', '-mfpu=%s' % self.fpu, )
 
     def __init__(self, board):
-        assert board in ('sam4s', 'samg55'), "Unexpected SAM board %s" % board
+        assert board in ('sam4s', 'samg55', 'samv71'), \
+            "Unexpected SAM board %s" % board
         self.board = board
         super(Sam, self).__init__()
 
         self.add_linker_script(
             'arm/sam/%s/memory-map.ld' % self.name,
-            loader=('SAMBA', 'ROM'))
+            loader=('SAMBA', 'ROM', 'RAM'))
+
         self.add_sources('crt0', [
-            'arm/sam/%s/board_config.ads' % self.name,
             'arm/sam/%s/setup_pll.adb' % self.name,
             'arm/sam/%s/svd/i-sam.ads' % self.name,
             'arm/sam/%s/svd/i-sam-efc.ads' % self.name,
-            'arm/sam/%s/svd/i-sam-pmc.ads' % self.name,
-            'arm/sam/%s/svd/i-sam-sysc.ads' % self.name,
-            'src/s-textio__sam4s.adb'])
-        # FIXME: s-textio.adb is invalid for the g55
+            'arm/sam/%s/svd/i-sam-pmc.ads' % self.name])
 
         # ravenscar support
         self.add_sources('gnarl', [
@@ -217,6 +245,24 @@ class Sam(ArmV7MTarget):
             'arm/sam/%s/s-bbbopa.ads' % self.name,
             'arm/sam/%s/s-bbmcpa.ads' % self.name,
             'arm/sam/%s/svd/a-intnam.ads' % self.name])
+
+        if self.board == 'samv71':
+            self.add_sources('crt0', [
+                'arm/sam/samv71/s-samv71.ads',
+                'arm/sam/%s/svd/i-sam-pio.ads' % self.name,
+                'arm/sam/%s/svd/i-sam-uart.ads' % self.name,
+                'src/s-textio__%s.adb' % self.name])
+            self.add_sources('gnarl', [
+                'src/s-bbpara__samv71.ads'])
+        else:
+            self.add_sources('crt0', [
+                'arm/sam/sam4s/s-sam4s.ads',
+                'arm/sam/%s/board_config.ads' % self.name,
+                'arm/sam/%s/svd/i-sam-sysc.ads' % self.name,
+                'src/s-textio__sam4s.adb'])
+            # FIXME: s-textio.adb is invalid for the g55
+            self.add_sources('gnarl', [
+                'src/s-bbpara__sam4s.ads'])
 
 
 class SmartFusion2(ArmV7MTarget):

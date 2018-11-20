@@ -1,0 +1,27 @@
+project Leds is
+
+   for Main use ("leds.adb");
+   for Target use "arm-eabi";
+   for Runtime ("ada") use "ravenscar-full-samv71";
+
+   package Compiler is
+      for Default_Switches ("ada") use ("-gnatyr", "-g");
+   end Compiler;
+
+   package Builder is
+      for Executable ("leds.adb") use "leds.elf";
+      for Switches ("ada") use ("-g");
+   end Builder;
+
+   package Ide is
+      for Connection_Tool use "openocd";
+      for Connection_Config_File use "../atmel_samv71_xplained_ultra.cfg";
+      for Program_Host use "localhost:4242";
+      for Communication_Protocol use "remote";
+   end Ide;
+
+   package Linker is
+      for Switches ("ada") use ("-g");
+   end Linker;
+
+end Leds;

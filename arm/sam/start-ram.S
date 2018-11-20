@@ -6,7 +6,7 @@
 #                                                                           #
 #                               Assembly File                               #
 #                                                                           #
-#                      Copyright (C) 2012-2013 AdaCore                      #
+#                      Copyright (C) 2012-2019 AdaCore                      #
 #                                                                           #
 #  GNAT is free software;  you can  redistribute it  and/or modify it under #
 #  terms of the  GNU General Public License as published  by the Free Soft- #
@@ -97,6 +97,9 @@ _start_ram:
 	movt	r0,#:upper16:__stack_end
 	mov	sp,r0
 
+	/* Enable FPU and cache when appropriate */
+    bl _sam_start_common
+
 	/* Clear .bss */
 	movw	r0,#:lower16:__bss_start
 	movt	r0,#:upper16:__bss_start
@@ -113,11 +116,4 @@ _start_ram:
 
 	bl	_exit
 
-	.global __aeabi_unwind_cpp_pr0
-	.global __aeabi_unwind_cpp_pr1
-	.global __aeabi_unwind_cpp_pr2
-	.thumb_func
-__aeabi_unwind_cpp_pr0:
-__aeabi_unwind_cpp_pr1:
-__aeabi_unwind_cpp_pr2:
 hang:   b .
