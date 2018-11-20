@@ -89,6 +89,11 @@ class ArmPikeOS42(ArmPikeOS):
     # For now, this does not differ substancially from ArmPikeOS, but
     # we are likely to need a different pikeos_version soon
     # we will be using a different thread API (p4ext instead of p4).
+
+    @property
+    def name(self):
+        return 'arm-pikeos4.2'
+
     @property
     def target(self):
         return 'arm-sysgo-pikeos4.2'
@@ -96,3 +101,4 @@ class ArmPikeOS42(ArmPikeOS):
     def __init__(self):
         super(ArmPikeOS, self).__init__()
         self.add_sources('arch', ['pikeos/pikeos4.2-cert-app.c'])
+        self.add_linker_script('pikeos/arm-app.ld')
