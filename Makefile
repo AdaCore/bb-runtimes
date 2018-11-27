@@ -52,7 +52,7 @@ ifeq ($(TARGET),$(filter $(TARGET),arm-eabi arm-elf arm))
     TGT=arm-eabi
     TARGETS=zynq7000 rpi2 rpi2mc sam4s samg55 smartfusion2 openmv2 stm32f4 \
        stm32f429disco stm32f469disco stm32f746disco stm32756geval \
-       stm32f769disco tms570 tms570_sci tms570lc tms570lc_sci lm3s m1agl
+       stm32f769disco tms570 tms570_sci tms570lc lm3s m1agl
 endif
 
 ifeq ($(TARGET),$(filter $(TARGET),leon-elf leon2-elf leon leon2))
