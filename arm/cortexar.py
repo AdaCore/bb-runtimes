@@ -192,6 +192,7 @@ class TMS570(CortexARTarget):
         self.add_sources('crt0', [
             'arm/tms570/crt0.S',
             'arm/tms570/system_%s.c' % self.variant,
+            'src/s-bbpara__%s.ads' % self.variant,
             'arm/tms570/board_init.ads', 'arm/tms570/board_init.adb',
             'src/s-macres__tms570.adb'])
         if self.cpu == 'cortex-r4f':
@@ -205,7 +206,6 @@ class TMS570(CortexARTarget):
 
         self.add_sources('gnarl', [
             'src/a-intnam__tms570.ads',
-            'src/s-bbpara__%s.ads' % self.variant,
             'src/s-bbbosu__tms570.adb',
             'src/s-bbsumu__generic.adb'])
 
