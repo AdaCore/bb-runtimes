@@ -110,6 +110,7 @@ __gnat_init:
 0:      str r2,[r0],#4
         subs r1,r1,#1
         bne 0b
+1:
 
         /* Copy .data */
 	movw	r0,#:lower16:__data_start
