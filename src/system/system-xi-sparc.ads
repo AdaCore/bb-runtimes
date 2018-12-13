@@ -51,6 +51,11 @@ pragma Restrictions (No_Implicit_Dynamic_Code);
 pragma Restrictions (No_Finalization);
 --  Controlled types are not supported in this run time
 
+pragma Restrictions (No_Multiple_Elaboration);
+--  Multiple elaboration is not supported as standalone libraries are not
+--  supported. This allows the binder to suppress the generation of elaboration
+--  counters.
+
 pragma Restrictions (No_Tasking);
 --  Tasking is not supported in this run time
 

@@ -7,7 +7,7 @@
 --                                 S p e c                                  --
 --                            (PPC e500v2 Version)                          --
 --                                                                          --
---          Copyright (C) 1992-2017, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2018, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -48,6 +48,11 @@ pragma Restrictions (No_Implicit_Dynamic_Code);
 
 pragma Restrictions (No_Finalization);
 --  Controlled types are not supported in this run time
+
+pragma Restrictions (No_Multiple_Elaboration);
+--  Multiple elaboration is not supported as standalone libraries are not
+--  supported. This allows the binder to suppress the generation of elaboration
+--  counters.
 
 pragma Profile (Ravenscar);
 --  This is a Ravenscar run time
