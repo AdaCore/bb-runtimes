@@ -2,7 +2,7 @@
  *                                                                          *
  *                         GNAT RUN-TIME COMPONENTS                         *
  *                                                                          *
- *                         A D A I N T -  P I K E O S                       *
+ *                         A D A I N T -  P I K E O S 4 . 2                 *
  *                                                                          *
  *          Copyright (C) 2009-2019, Free Software Foundation, Inc.         *
  *                                                                          *
@@ -27,74 +27,39 @@
  *                                                                          *
  ****************************************************************************/
 /* Simple helper to create a new thread.  */
-#include <p4.h>
+#include <p4ext/p4ext_threads.h>
+#include <vm.h>
+#include <vm_debug.h>
 
-extern void vm_cprintf(const char*, ...);
 
+/* Given the attributes of an Ada task,
+   this function creates its underlying thread. */
 P4_e_t
-__gnat_p4_thread_create (P4_thr_t num, P4_prio_t prio, void *code,
-			 void *arg, void *stack_base,
-			 unsigned long stack_size
-#if P4_API_MAJOR == 4
-			 , P4_tls_area_t *tls
-#endif
-)
+__gnat_p4ext_thread_create (P4_prio_t prio, void *code,
+			    void *arg, void *stack_base,
+			    unsigned long stack_size)
 {
-  struct P4_thread_create_str tc;
-  P4_regs_t context;
+  p4ext_thr_attr_t attributes;
   P4_e_t res;
 
-#if 0
-  vm_cprintf ("thread_create: num=%u, prio=%u, code=%p, stack=%p, size=%lu\n",
-	      num, prio, code, stack_base, stack_size);
-#endif
+  p4ext_thr_attr_init(&attributes);
 
-  /* Initialize context.  */
-  res = p4_thread_arg
-    (&context, code, P4_STACK (stack_base, stack_size),
-     P4_THREAD_ARG_FPU | P4_THREAD_ARG_VEC | P4_THREAD_ARG_DEBUG,
-     1, &arg);
-  if (res != P4_E_OK)
-    {
-      vm_cprintf ("p4_thread_arg: failure (%u)\n", res);
-      return res;
-    }
+  attributes.context_flags = P4_THREAD_ARG_FPU
+			   | P4_THREAD_ARG_VEC
+			   | P4_THREAD_ARG_DEBUG;
 
-  tc.name = NULL;
-  tc.context = &context;
-  tc.prio = prio;
-  tc.tp_id = P4_TIMEPART_INHERIT;
-  tc.shortexh = P4_UID_INHERIT;
-  tc.fullexh = P4_UID_INHERIT;
-  tc.ipc_mask = P4_UID_ALL;
-  tc.ev_mask = P4_UID_ALL;
+  attributes.prio = prio;
 
-  /* ??? P4_THREAD_CREATE_READY has been deprecated, so the macro is
-     not visible anymore.  For now its value (0) is used instead  .*/
-#if P4_API_MAJOR == 4
-  p4_tls_init (tls);
+  attributes.stacksize = stack_size;
+  attributes.stack = stack_base;
 
-  res = p4_thread_create_syscall (num, &tc, 0, tls);
-#else
-  res = p4_thread_create (num, &tc, 0);
-#endif
-  if (res != P4_E_OK)
-    vm_cprintf ("p4_thread_create failed: %u\n", res);
+  /* We let p4ext automatically attribute the thread number,
+   * by passing NULL as the first argument.
+   */
+  res = p4ext_thr_create (NULL, &attributes, NULL, code, 1, arg);
+
+  if (res != P4_E_OK) {
+    vm_cprintf ("p4ext_thread_create failed: %u\n", res);
+  }
   return res;
-}
-
-#if P4_API_MAJOR == 4
-void
-__gnat_p4_tls_init (P4_tls_area_t *tls)
-{
-  p4_tls_init (tls);
-}
-#endif
-
-/* ??? This function is empty because the interrupt intialization already
-   takes place in the main(). We did not take the time to use the new scheme
-   for PikeOS 4.1 as we do not expect to support it in the future. */
-void
-__gnat_init_interrupts (void)
-{
 }

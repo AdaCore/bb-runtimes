@@ -43,7 +43,7 @@ all_scenarios = {
     # How does the runtime integrate C support
     'Add_C_Integration': ['no', 'ada_clib', 'newlib'],
     # PikeOS-specific
-    'Pikeos_Version': ['pikeos3', 'pikeos4'],
+    'Pikeos_Version': ['pikeos3', 'pikeos4', 'pikeos4.2'],
     # Whether to add the math library in the runtime
     'Add_Math_Lib': [
         'no', 'softfloat', 'hardfloat',
@@ -920,6 +920,13 @@ sources = {
         'pikeos_srcs': [
             'hie/s-interr__pikeos4.adb',
             'hie/s-osinte__pikeos4.ads', 'hie/s-osinte__pikeos4.adb']
+    },
+
+    'gnarl/pikeos4.2': {
+        'conditions': ['Pikeos_Version:pikeos4.2'],
+        'pikeos_srcs': [
+            'hie/s-interr__pikeos4.adb',
+            'hie/s-osinte__pikeos4.ads', 'hie/s-osinte__pikeos42.adb']
     },
 
     # SFP-specific files
