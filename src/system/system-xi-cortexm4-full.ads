@@ -7,7 +7,7 @@
 --                                 S p e c                                  --
 --                          (ARM Cortex M4 Version)                         --
 --                                                                          --
---           Copyright (C) 2015-2017, Free Software Foundation, Inc.        --
+--           Copyright (C) 2015-2018, Free Software Foundation, Inc.        --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -38,6 +38,11 @@ pragma Restrictions (No_Exception_Registration);
 --  Disable exception name registration. This capability is not used because
 --  it is only required by exception stream attributes which are not supported
 --  in this run time.
+
+pragma Restrictions (No_Multiple_Elaboration);
+--  Multiple elaboration is not supported as standalone libraries are not
+--  supported. This allows the binder to suppress the generation of elaboration
+--  counters.
 
 pragma Profile (GNAT_Extended_Ravenscar);
 --  This is a Ravenscar run time
