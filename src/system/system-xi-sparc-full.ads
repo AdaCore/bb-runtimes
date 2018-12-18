@@ -7,7 +7,7 @@
 --                                 S p e c                                  --
 --                          (Sparc/32 ELF Version)                          --
 --                                                                          --
---          Copyright (C) 1992-2018, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2017, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -37,11 +37,6 @@
 --  This is a Ravenscar bare board version of this package for SPARC targets.
 --  Compared to the high integrity version of this package, it is extended
 --  with support for exception handlers and controlled types.
-
-pragma Restrictions (No_Multiple_Elaboration);
---  Multiple elaboration is not supported as standalone libraries are not
---  supported. This allows the binder to suppress the generation of elaboration
---  counters.
 
 pragma Restrictions (No_Exception_Registration);
 pragma Profile (GNAT_Extended_Ravenscar);

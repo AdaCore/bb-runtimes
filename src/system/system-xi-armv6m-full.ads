@@ -39,11 +39,6 @@ pragma Restrictions (No_Exception_Registration);
 --  it is only required by exception stream attributes which are not supported
 --  in this run time.
 
-pragma Restrictions (No_Multiple_Elaboration);
---  Multiple elaboration is not supported as standalone libraries are not
---  supported. This allows the binder to suppress the generation of elaboration
---  counters.
-
 pragma Profile (GNAT_Extended_Ravenscar);
 --  This is a Ravenscar run time
 
