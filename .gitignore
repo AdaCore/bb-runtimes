@@ -9,3 +9,5 @@ b__*.ad[bs]
 .#*
 obj
 install
+build
+runtimes

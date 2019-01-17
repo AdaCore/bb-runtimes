@@ -154,6 +154,7 @@ class SamCommonArchSupport(ArchSupport):
 
         self.add_sources('crt0', [
             'arm/sam/s-sam4s.ads',
+            'arm/sam/s-sam3x8.ads',
             'arm/sam/start-rom.S',
             'arm/sam/start-ram.S',
             'arm/sam/setup_pll.ads'])
@@ -174,6 +175,8 @@ class Sam(ArmV7MTarget):
     def has_single_precision_fpu(self):
         if self.board == 'sam4s':
             return False
+        elif self.board == 'sam3x8s': # Added 10-Jan-2019
+            return False
         else:
             return True
 
@@ -192,9 +195,11 @@ class Sam(ArmV7MTarget):
             return base
         else:
             return base + ('-mhard-float', '-mfpu=fpv4-sp-d16', )
-
+#
+# Update to add sam3x8e for Arduino Due, 8-Jan-2019
+#
     def __init__(self, board):
-        assert board in ('sam4s', 'samg55'), "Unexpected SAM board %s" % board
+        assert board in ('sam3x8e', 'sam4s', 'samg55'), "Unexpected SAM board %s" % board
         self.board = board
         super(Sam, self).__init__()
 
@@ -608,7 +613,7 @@ class CortexM3(ArmV7MTarget):
 
     @property
     def has_fpu(self):
-        return True
+        return True # should this be false?  Or does this include softfpu?
 
     @property
     def use_semihosting_io(self):
