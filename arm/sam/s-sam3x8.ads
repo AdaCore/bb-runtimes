@@ -214,17 +214,17 @@ package System.Sam3x8 is
       PER     : Word;
       PDR     : Word;
       PSR     : Word;
-      Pad0    : Word;
+      Pad0C   : Word;
 
       OER     : Word;
       ODR     : Word;
       OSR     : Word;
-      Pad1    : Word;
+      Pad1C   : Word;
 
       IFER    : Word;
       IFDR    : Word;
       IFSR    : Word;
-      Pad2    : Word;
+      Pad2C   : Word;
 
       SODR    : Word;
       CODR    : Word;
@@ -239,59 +239,52 @@ package System.Sam3x8 is
       MDER    : Word;
       MDDR    : Word;
       MDSR    : Word;
-      Pad5    : Word;
+      Pad5C   : Word;
 
       PUDR    : Word;
       PUER    : Word;
       PUSR    : Word;
-      Pad6    : Word;
+      Pad6C   : Word;
 
-      ABCDSR : Word;
---      ABCDSR1 : Word;
---      ABCDSR2 : Word;
-      Pad7_4  : Word;
-      Pad7_8  : Word;
-      Pad7_C  : Word;
+      ABSR    : Word;
+      Pad74   : Word;
+      Pad78   : Word;
+      Pad7C   : Word;
 
---      IFSCDR  : Word;
       SCIFSR  : Word;
---      IFSCER  : Word;
       DIFSR  : Word;
       IFSCSR  : Word;
       SCDR    : Word;
 
---      PPDDR   : Word;
-      Pad9_0  : Word;
---      PPDER   : Word;
-      Pad9_4  : Word;
---      PPDSR   : Word;
-      Pad9_8  : Word;
-      Pad9    : Word;
+      Pad90   : Word;
+      Pad94   : Word;
+      Pad98   : Word;
+      Pad9C   : Word;
 
       OWER    : Word;
       OWDR    : Word;
       OWSR    : Word;
-      Pada    : Word;
+      PadAC   : Word;
 
       AIMER   : Word;
       AIMDR   : Word;
       AIMMR   : Word;
-      Padb    : Word;
+      PadBC   : Word;
 
       ESR     : Word;
       LSR     : Word;
       ELSR    : Word;
-      Padc    : Word;
+      PadCC   : Word;
 
       FELLSR  : Word;
       REHLSR  : Word;
       FRLHSR  : Word;
-      Padd    : Word;
+      PadDC   : Word;
 
       LOCKSR  : Word;
       WPMR    : Word;
       WPSR    : Word;
-      PadE_C  : Word;
+--      PadEC   : Word;
    end record;
 
    PIOA : PIO_Registers with Volatile, Import,

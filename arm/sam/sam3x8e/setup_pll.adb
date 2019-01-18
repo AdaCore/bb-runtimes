@@ -46,8 +46,8 @@ procedure Setup_Pll is
    CKGR_MOR_KEY_VALUE : constant
                          Interfaces.SAM.PMC.CKGR_MOR_KEY_Field := 16#37#;
 begin
-   --  Main crystal is 12 Mhz and PLLA is set to x10 (x7 for Arduino Due).
-   --  So main clock is 120 Mhz (84 Mhz for Arduino Due).
+   --  Main crystal is 12 Mhz and PLLA is set to x7
+   --  So main clock is 84 Mhz .
 
    --  5 wait states for the flash
    EFC0_Periph.FMR.FWS := 5;

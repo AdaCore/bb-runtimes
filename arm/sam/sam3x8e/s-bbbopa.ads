@@ -42,6 +42,6 @@ package System.BB.Board_Parameters is
    -- Hardware clock --
    --------------------
 
-   Clock_Frequency : constant := 84_000_000; -- Changed 9-Jan-2019 for SAM3x8e
+   Clock_Frequency : constant := 84_000_000;
 
 end System.BB.Board_Parameters;
