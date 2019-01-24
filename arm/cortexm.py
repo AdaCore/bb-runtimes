@@ -173,7 +173,7 @@ class Sam(ArmV7MTarget):
     def has_single_precision_fpu(self):
         if self.board == 'sam4s':
             return False
-        elif self.board == 'sam3x8s':
+        elif self.board == 'sam3x8e':
             return False
         else:
             return True
@@ -203,7 +203,7 @@ class Sam(ArmV7MTarget):
         self.add_linker_script(
             'arm/sam/%s/memory-map.ld' % self.name,
             loader=('SAMBA', 'ROM'))
-        if board == 'sam3x8s':
+        if board == 'sam3x8e':
             self.add_sources('crt0', ['arm/sam/s-sam3x8.ads'])
         else:
             self.add_sources('crt0', ['arm/sam/s-sam4s.ads'])
