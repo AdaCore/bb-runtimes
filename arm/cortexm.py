@@ -1,6 +1,7 @@
 # This module contains cortex-m bsp support
 from support.bsp_sources.archsupport import ArchSupport
 from support.bsp_sources.target import Target
+from support.files_holder import TemplateFileInstaller
 
 
 class CortexMArch(ArchSupport):
@@ -81,6 +82,24 @@ class ArmV7MTarget(ArmV6MTarget):
         return {'zfp': 'system-xi-arm.ads',
                 'ravenscar-sfp': 'system-xi-cortexm4-sfp.ads',
                 'ravenscar-full': 'system-xi-cortexm4-full.ads'}
+
+    @property
+    def system_ads_installer(self):
+        # The TemplateFileInstaller will replace instances of ${Max_Priority}
+        # from the source system.ads file with the desired value when
+        # copying system.ads into the runtime's source tree
+        installer = TemplateFileInstaller({
+            'Max_Priority':255 - self.interrupt_priorities + 1,
+            'Max_Interrupt_Priority':255
+        })
+        return {'zfp':installer,
+                'ravenscar-sfp':installer,
+                'ravenscar-full':installer}
+
+    @property
+    def interrupt_priorities(self):
+        # By default, assume 4-bit interrupt priorities.
+        return 16
 
     def __init__(self):
         super(ArmV7MTarget, self).__init__()

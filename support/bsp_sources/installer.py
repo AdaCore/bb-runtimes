@@ -219,8 +219,14 @@ class Installer(object):
                 if not os.path.exists(full):
                     os.makedirs(full)
 
-                for srcname, pair in l.items():
-                    self.tgt._copy_pair(srcname, pair, full)
+                for srcname, (pair, installer) in l.items():
+                    installer.install_pair(
+                        dst=srcname,
+                        srcfile=pair,
+                        destdir=full,
+                        installed_files=None,
+                        target=self.tgt
+                    )
 
             # user-defined sources
             rts_gnat.append('user_srcs')

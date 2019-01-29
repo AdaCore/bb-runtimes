@@ -1,7 +1,7 @@
 import copy
 import os
 
-from support.files_holder import FilesHolder
+from support.files_holder import FilesHolder, CopyFileInstaller
 
 
 class ArchSupport(FilesHolder):
@@ -81,8 +81,8 @@ class ArchSupport(FilesHolder):
         else:
             return self._parent.has_asm(dir)
 
-    def add_sources(self, dir, sources):
-        super(ArchSupport, self).add_sources(dir, sources)
+    def add_sources(self, dir, sources, installer=CopyFileInstaller()):
+        super(ArchSupport, self).add_sources(dir, sources, installer)
         if 'gnarl' in dir:
             if dir not in self.gnarl_dirs:
                 self.gnarl_dirs.append(dir)
@@ -153,9 +153,13 @@ class ArchSupport(FilesHolder):
 
             if not os.path.exists(destdir):
                 os.makedirs(destdir)
-            self._copy_pair(dst=val['name'], srcfile=val['pair'],
-                            destdir=destdir,
-                            installed_files=installed_files)
+            CopyFileInstaller().install_pair(
+                dst=val['name'],
+                srcfile=val['pair'],
+                destdir=destdir,
+                installed_files=installed_files,
+                target=self
+            )
             files.append(rel + '/' + val['name'])
 
     def install_libgnat(self, dest, dirs, installed_files):
@@ -186,7 +190,13 @@ class ArchSupport(FilesHolder):
             os.makedirs(destdir)
 
         for k, v in self.dirs[dirname].items():
-            self._copy_pair(dst=k, srcfile=v, destdir=destdir,
-                            installed_files=installed_files)
+            srcfile, installer = v
+            installer.install_pair(
+                dst=k,
+                srcfile=srcfile,
+                destdir=destdir,
+                installed_files=installed_files,
+                target=self
+            )
 
         return rel

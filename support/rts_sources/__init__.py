@@ -421,6 +421,11 @@ class SourceTree(FilesHolder):
         if not os.path.exists(destdir):
             os.makedirs(destdir)
 
-        for k, v in self.dirs[dirname].items():
-            self._copy_pair(dst=k, srcfile=v, destdir=destdir,
-                            installed_files=installed_files)
+        for k, (srcfile, installer) in self.dirs[dirname].items():
+            installer.install_pair(
+                dst=k,
+                srcfile=srcfile,
+                destdir=destdir,
+                installed_files=installed_files,
+                target=self
+            )

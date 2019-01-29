@@ -1,7 +1,7 @@
 import copy
 
 from support import readfile
-from support.files_holder import FilesHolder
+from support.files_holder import FilesHolder, CopyFileInstaller
 from support.bsp_sources.archsupport import ArchSupport
 from support.rts_sources.profiles import RTSProfiles
 
@@ -18,6 +18,14 @@ class TargetConfiguration(object):
     def system_ads(self):
         """a dictionary of runtime profiles and their associated system.ads"""
         raise Exception("not implemented")
+
+    @property
+    def system_ads_installer(self):
+        """The installer that will install system.ads in the source tree"""
+        # By default, copy (or symlink) system.ads
+        return {'ravenscar-full':CopyFileInstaller(),
+                'ravenscar-sfp':CopyFileInstaller(),
+                'zfp':CopyFileInstaller()}
 
     @property
     def target(self):
@@ -128,8 +136,13 @@ class Target(TargetConfiguration, ArchSupport):
                 rts.rts_vars = self.rts_options.full_scenarios(math_lib=True)
             else:
                 rts.rts_vars = self.rts_options.sfp_scenarios(math_lib=False)
+            if profile in self.system_ads_installer:
+                installer = self.system_ads_installer[profile]
+            else:
+                installer = CopyFileInstaller() # by default, just copy files
             rts.add_sources('arch', {
-                'system.ads': 'src/system/%s' % self.system_ads[profile]})
+                'system.ads': 'src/system/%s' % self.system_ads[profile]},
+                installer)
             rts.build_flags = copy.deepcopy(self.build_flags)
             rts.config_files = {}
 

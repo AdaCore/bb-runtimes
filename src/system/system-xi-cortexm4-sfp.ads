@@ -120,14 +120,14 @@ package System is
 
    --  241 .. 255 corresponds to priority level 15 .. 1
 
-   Max_Interrupt_Priority   : constant Positive := 255;
-   Max_Priority             : constant Positive := 240;
+   Max_Interrupt_Priority   : constant Positive := ${Max_Interrupt_Priority};
+   Max_Priority             : constant Positive := ${Max_Priority};
 
-   subtype Any_Priority       is Integer range         0 .. 255;
-   subtype Priority           is Any_Priority range    0 .. 240;
-   subtype Interrupt_Priority is Any_Priority range  241 .. 255;
+   subtype Any_Priority       is Integer range         0 .. ${Max_Interrupt_Priority};
+   subtype Priority           is Any_Priority range    0 .. ${Max_Priority};
+   subtype Interrupt_Priority is Any_Priority range  ${Max_Priority} + 1 .. ${Max_Interrupt_Priority};
 
-   Default_Priority : constant Priority := 120;
+   Default_Priority : constant Priority := Max_Priority / 2;
 
 private
 
