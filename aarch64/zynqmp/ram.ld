@@ -53,9 +53,6 @@ MEMORY
 REGION_ALIAS("REGION_CODE", DDR)
 REGION_ALIAS("REGION_DATA", DDR)
 
-SEARCH_DIR(.)
-__DYNAMIC  =  0;
-
 /*
  * The memory map looks like this:
  * +--------------------------------+ <- low memory

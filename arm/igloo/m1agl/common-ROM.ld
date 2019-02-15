@@ -39,9 +39,6 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
-SEARCH_DIR(.)
-__DYNAMIC  =  0;
-
 _DEFAULT_STACK_SIZE = 4*1024;
 
 ENTRY(_start_rom);
@@ -59,7 +56,7 @@ SECTIONS
   .ARM.exidx   :
   {
     PROVIDE_HIDDEN (__exidx_start = .);
-    *(.ARM.exidx* .gnu.linkonce.armexidx.*) 
+    *(.ARM.exidx* .gnu.linkonce.armexidx.*)
     PROVIDE_HIDDEN (__exidx_end = .);
   } > flash
 

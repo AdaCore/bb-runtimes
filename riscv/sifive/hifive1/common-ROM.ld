@@ -36,9 +36,6 @@
 
 /* This is a RISC-V specific version of this file */
 
-SEARCH_DIR(.)
-__DYNAMIC  =  0;
-
 _DEFAULT_STACK_SIZE = 2*1024;
 
 OUTPUT_ARCH("riscv")

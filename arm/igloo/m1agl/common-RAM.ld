@@ -39,9 +39,6 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
-SEARCH_DIR(.)
-__DYNAMIC  =  0;
-
 _DEFAULT_STACK_SIZE = 4*1024;
 
 ENTRY(_start_ram);
@@ -56,7 +53,7 @@ SECTIONS
   } > sram_tx
 
   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > sram_ro
-  .ARM.exidx   : 
+  .ARM.exidx   :
   {
      PROVIDE_HIDDEN (__exidx_start = .);
      *(.ARM.exidx* .gnu.linkonce.armexidx.*)

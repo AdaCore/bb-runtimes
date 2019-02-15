@@ -58,9 +58,6 @@ MEMORY
 REGION_ALIAS("REGION_CODE", SRAM)
 REGION_ALIAS("REGION_DATA", SRAM)
 
-SEARCH_DIR(.)
-__DYNAMIC  =  0;
-
 /*
  * The memory map looks like this:
  * +--------------------------------+ <- low memory

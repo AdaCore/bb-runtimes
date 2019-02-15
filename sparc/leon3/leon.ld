@@ -47,9 +47,6 @@ OUTPUT_FORMAT(srec)
 OUTPUT_ARCH(sparc)
 ENTRY(start)
 
-SEARCH_DIR(.)
-__DYNAMIC  =  0;
-
 /*
  * The memory map looks like this:
  * +--------------------------------+ <- low memory

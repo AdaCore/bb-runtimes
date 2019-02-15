@@ -39,9 +39,6 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
-SEARCH_DIR(.)
-__DYNAMIC  =  0;
-
 _DEFAULT_STACK_SIZE = 4k;               /* Cortex default stack size */
 
 ENTRY(_start)

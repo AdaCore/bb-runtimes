@@ -58,9 +58,6 @@ MEMORY
 REGION_ALIAS("REGION_CODE", SRAM)
 REGION_ALIAS("REGION_DATA", SRAM)
 
-SEARCH_DIR(.)
-__DYNAMIC  =  0;
-
 /*
  * The memory map looks like this:
  * +--------------------------------+ <- low memory
@@ -107,7 +104,7 @@ SECTIONS
   } > REGION_CODE
 
   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > REGION_CODE
-  .ARM.exidx   : 
+  .ARM.exidx   :
   {
     PROVIDE_HIDDEN (__exidx_start = .);
     *(.ARM.exidx* .gnu.linkonce.armexidx.*)

@@ -39,9 +39,6 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
-SEARCH_DIR(.)
-__DYNAMIC  =  0;
-
 /* Stack sizes */
 _DEFAULT_STACK_SIZE = (20 * 1024);
 

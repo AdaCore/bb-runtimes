@@ -54,9 +54,6 @@ MEMORY
 REGION_ALIAS("REGION_CODE", SRAM)
 REGION_ALIAS("REGION_DATA", SRAM)
 
-SEARCH_DIR(.)
-__DYNAMIC  =  0;
-
 /*
  * The memory map looks like this:
  * +--------------------------------+ <- low memory
@@ -95,7 +92,7 @@ SECTIONS
   {
     /* Rpi3 boot at 0.  */
     KEEP (*(.traps))
-    
+
     /* Space for command line (normally not used).  */
 
     /* Overridable vectors (used by rpi3-mc).  */
