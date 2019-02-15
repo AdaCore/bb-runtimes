@@ -27,7 +27,7 @@ class Spike(RiscV64):
 
     @property
     def loaders(self):
-        return ['RAM']
+        return ('RAM', )
 
     def __init__(self):
         super(Spike, self).__init__()
@@ -71,7 +71,7 @@ class HiFive1(RiscV32):
 
     @property
     def loaders(self):
-        return ['ROM']
+        return ('ROM', )
 
     def __init__(self):
         super(HiFive1, self).__init__()
@@ -103,7 +103,7 @@ class PicoRV32(RiscV32):
 
     @property
     def loaders(self):
-        return ['ROM']
+        return ('ROM', )
 
     def __init__(self):
         super(PicoRV32, self).__init__()

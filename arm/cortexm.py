@@ -93,7 +93,7 @@ class LM3S(ArmV7MTarget):
 
     @property
     def loaders(self):
-        return ('ROM', 'RAM', 'USER')
+        return ('ROM', 'RAM')
 
     @property
     def has_single_precision_fpu(self):
@@ -144,7 +144,7 @@ class SamCommonArchSupport(ArchSupport):
 
     @property
     def loaders(self):
-        return ('ROM', 'SAMBA', 'USER')
+        return ('ROM', 'SAMBA')
 
     def __init__(self):
         super(SamCommonArchSupport, self).__init__()
@@ -226,7 +226,7 @@ class SmartFusion2(ArmV7MTarget):
 
     @property
     def loaders(self):
-        return ('ROM', 'USER')
+        return ('ROM', )
 
     @property
     def compiler_switches(self):
@@ -330,7 +330,7 @@ class NRF51(ArmV6MTarget):
 
     @property
     def loaders(self):
-        return (['ROM'])
+        return ('ROM', )
 
     @property
     def has_fpu(self):
@@ -403,7 +403,7 @@ class Stm32CommonArchSupport(ArchSupport):
 
     @property
     def loaders(self):
-        return ('ROM', 'RAM', 'USER')
+        return ('ROM', 'RAM')
 
     @property
     def readme_file(self):

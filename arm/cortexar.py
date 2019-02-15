@@ -151,7 +151,7 @@ class TMS570(CortexARTarget):
 
     @property
     def loaders(self):
-        return ('LORAM', 'FLASH', 'HIRAM', 'USER')
+        return ('LORAM', 'FLASH', 'HIRAM')
 
     @property
     def cpu(self):
