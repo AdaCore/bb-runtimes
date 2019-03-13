@@ -17,6 +17,7 @@ SECTIONS
     __text = .;
     *(.text .text.* .gnu.linkonce.t.*)
     *(.gnu.warning)
+    *(.glink)
   } = 0
 
   .rodata :
@@ -25,7 +26,7 @@ SECTIONS
     *(.rodata .rodata.* .gnu.linkonce.r.*)
     *(.rodata1)
     . = ALIGN(4);
-  } =0
+  } = 0
 
   /* init, ctors and dtors sections.  Assume we really need them
      when they happen to be generated, so KEEP to prevent garbage

@@ -25,6 +25,7 @@ SECTIONS
     __text = .;
     *(.text .text.* .gnu.linkonce.t.*)
     *(.gnu.warning)
+    *(.glink)
   } = 0
 
   /* Read-only sections, merged into rodata segment: */
@@ -35,7 +36,7 @@ SECTIONS
     *(.rodata1)
     *(.got2)
     . = ALIGN(4);
-  } =0
+  } = 0
 
   /* init, ctors and dtors sections.  Assume we really need them
      when they happen to be generated, so KEEP to prevent garbage
