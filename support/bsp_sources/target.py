@@ -155,10 +155,18 @@ class Target(TargetConfiguration, ArchSupport):
         ret += '  <configuration>\n'
         ret += '    <config><![CDATA[\n'
         if self.loaders is not None:
+            # Add USER loader so users can always specify their own linker
+            # script. To ensure the USER loader is always used for this
+            # purpose it cannot be defined by a target
+            assert 'USER' not in self.loaders, \
+                "target cannot define USER loader"
+
+            loaders = self.loaders + ("USER", )
+
             ret += '   type Loaders is ("%s");\n' % '", "'.join(
-                self.loaders)
+                loaders)
             ret += '   Loader : Loaders := external("LOADER", "%s");\n\n' % (
-                self.loaders[0])
+                loaders[0])
         elif len(self.ld_scripts) == 1:
             # No loader defined, and a single ld script
             # Let's make it user-configurable
@@ -239,7 +247,7 @@ class Target(TargetConfiguration, ArchSupport):
             indent += 3
             blank = indent * ' '
 
-            for l in self.loaders:
+            for l in loaders:
                 ret += blank
                 ret += 'when "%s" =>\n' % l
                 indent += 3
