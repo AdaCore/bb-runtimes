@@ -153,8 +153,13 @@ class Target(TargetConfiguration, ArchSupport):
             else:
                 rts.rts_vars = self.rts_options.sfp_scenarios(
                     mem_routines, math_lib=False, small_mem=small_mem)
-            rts.add_sources('arch', {
-                'system.ads': 'src/system/%s' % self.system_ads[profile]})
+            system_ads = self.system_ads[profile]
+            if '/' in system_ads:
+                rts.add_sources('arch', {
+                    'system.ads': system_ads})
+            else:
+                rts.add_sources('arch', {
+                    'system.ads': 'src/system/%s' % system_ads})
             rts.build_flags = copy.deepcopy(self.build_flags)
             rts.config_files = {}
 
