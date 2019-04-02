@@ -54,6 +54,25 @@ class RTSProfiles(object):
         else:
             ret['Has_FPU'] = 'no'
 
+        if self.config.target is not None:
+            cpu = self.config.target.split('-')[0]
+
+            if cpu in ('aarch64', ):
+                ret['CPU_Family'] = 'aarch64'
+            elif cpu in ('arm', ):
+                ret['CPU_Family'] = 'arm'
+            elif cpu.startswith('leon'):
+                ret['CPU_Family'] = 'leon'
+            elif cpu in ('powerpc', 'ppc'):
+                ret['CPU_Family'] = 'powerpc'
+            elif cpu in ('x86',):
+                ret['CPU_Family'] = 'x86'
+            elif cpu in ('x86_64',):
+                ret['CPU_Family'] = 'x86_64'
+            else:
+                print "Unexpected cpu %s" % cpu
+                sys.exit(2)
+
         if self.config.has_libc(profile):
             ret['Has_libc'] = 'yes'
         else:
@@ -96,23 +115,6 @@ class RTSProfiles(object):
         ret = self.zfp_scenarios(mem_routines, math_lib, profile)
 
         ret['Add_Image_Enum'] = 'yes'
-
-        if self.config.target is not None:
-            cpu = self.config.target.split('-')[0]
-
-            if cpu in ('aarch64', ):
-                ret['CPU_Family'] = 'aarch64'
-            elif cpu in ('arm', ):
-                ret['CPU_Family'] = 'arm'
-            elif cpu.startswith('leon'):
-                ret['CPU_Family'] = 'leon'
-            elif cpu in ('powerpc', 'ppc'):
-                ret['CPU_Family'] = 'powerpc'
-            elif cpu in ('x86',):
-                ret['CPU_Family'] = 'x86'
-            else:
-                print "Unexpected cpu %s" % cpu
-                sys.exit(2)
 
         if not self.config.is_pikeos:
             # source installation for PikeOS do not consider those
