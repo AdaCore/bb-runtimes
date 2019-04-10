@@ -16,7 +16,7 @@ class RiscV64(DFBBTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-riscv64.ads'}
+        return {'zfp': 'system-xi-riscv.ads'}
 
 
 class Spike(RiscV64):
