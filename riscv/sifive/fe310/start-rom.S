@@ -47,9 +47,7 @@ _start_rom:
 abort:
 _exit:
 
-        /* Write success exit code to the QEMU sifive_e test device */
-        li t0, 0x100000
-        li t1, 0x5555
-        sw t1, (t0)
+        /* Use ebreak on RISC-V32 until QEMU is updated to 4.0 */
+        ebreak
 
         j _exit
