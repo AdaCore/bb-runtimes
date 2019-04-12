@@ -128,8 +128,19 @@ class Target(TargetConfiguration, ArchSupport):
                 rts.rts_vars = self.rts_options.full_scenarios(math_lib=True)
             else:
                 rts.rts_vars = self.rts_options.sfp_scenarios(math_lib=False)
-            rts.add_sources('arch', {
-                'system.ads': 'src/system/%s' % self.system_ads[profile]})
+            # By default, system.ads files are searched for in
+            # bb-runtimes/src/system.
+            # This works fine in general, however, for custom runtimes, we may
+            # need to change the location of this file for various reasons
+            # so if we detect a slash in the base name, this means that we
+            # lookup the file as any other regular source file.
+            system_ads = self.system_ads[profile]
+            if '/' in system_ads:
+                rts.add_sources('arch', {
+                    'system.ads': system_ads})
+            else:
+                rts.add_sources('arch', {
+                    'system.ads': 'src/system/%s' % system_ads})
             rts.build_flags = copy.deepcopy(self.build_flags)
             rts.config_files = {}
 
