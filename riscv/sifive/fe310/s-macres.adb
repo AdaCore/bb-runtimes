@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---            Copyright (C) 2011-2018, Free Software Foundation, Inc.       --
+--            Copyright (C) 2011-2019, Free Software Foundation, Inc.       --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -31,7 +31,7 @@
 
 package body System.Machine_Reset is
    procedure OS_Exit;
-   pragma Import (Ada, OS_Exit, "_exit");
+   pragma Import (Ada, OS_Exit, "__gnat_exit");
    pragma No_Return (OS_Exit);
    --  Reset the board
 

@@ -37,17 +37,21 @@ _start_rom:
 2:
 
         call main
-        call _exit
+        call __gnat_exit
 2:      j 2b
 
-        .globl _exit
-        .type _exit,@function
+        .globl __gnat_exit
+        .type __gnat_exit,@function
         .globl _abort
         .type abort,@function
 abort:
-_exit:
+__gnat_exit:
 
         /* Use ebreak on RISC-V32 until QEMU is updated to 4.0 */
         ebreak
 
-        j _exit
+        j __gnat_exit
+
+        /* Weak alias _exit to __gnat_exit */
+        .weak      _exit
+        .set _exit,__gnat_exit
