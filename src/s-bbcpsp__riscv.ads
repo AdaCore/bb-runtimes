@@ -54,37 +54,23 @@ package System.BB.CPU_Specific is
 
    type Context_Buffer is record
 
-      X1  : System.Address;
-      X2  : System.Address;
-      X3  : System.Address;
-      X4  : System.Address;
-      X5  : System.Address;
-      X6  : System.Address;
-      X7  : System.Address;
-      X8  : System.Address;
-      X9  : System.Address;
-      X10 : System.Address;
-      X11 : System.Address;
-      X12 : System.Address;
-      X13 : System.Address;
-      X14 : System.Address;
-      X15 : System.Address;
-      X16 : System.Address;
-      X17 : System.Address;
-      X18 : System.Address;
-      X19 : System.Address;
-      X20 : System.Address;
-      X21 : System.Address;
-      X22 : System.Address;
-      X23 : System.Address;
-      X24 : System.Address;
-      X25 : System.Address;
-      X26 : System.Address;
-      X27 : System.Address;
-      X28 : System.Address;
-      X29 : System.Address;
-      X30 : System.Address;
-      X31 : System.Address;
+      RA  : System.Address; -- X1
+
+      --  Callee-saved registers
+
+      SP  : System.Address; -- X2
+      S0  : System.Address; -- X8
+      S1  : System.Address; -- X9
+      S2  : System.Address; -- X18
+      S3  : System.Address; -- X19
+      S4  : System.Address; -- X20
+      S5  : System.Address; -- X21
+      S6  : System.Address; -- X22
+      S7  : System.Address; -- X23
+      S8  : System.Address; -- X24
+      S9  : System.Address; -- X25
+      S10 : System.Address; -- X26
+      S11 : System.Address; -- X27
 
       --  FIXME: FPU context
    end record;

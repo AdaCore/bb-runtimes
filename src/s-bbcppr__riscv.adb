@@ -191,9 +191,6 @@ package body System.BB.CPU_Primitives is
       procedure Start_Thread_Asm;
       pragma Import (Asm, Start_Thread_Asm, "__gnat_start_thread");
 
-      procedure Global_Pointer;
-      pragma Import (Asm, Global_Pointer, "__global_pointer$");
-
       Initial_SP : Address;
 
    begin
@@ -207,14 +204,13 @@ package body System.BB.CPU_Primitives is
 
       Initialize_Stack (Stack_Pointer, 0, Initial_SP);
 
-      Buffer.X1 := Start_Thread_Asm'Address;
-      Buffer.X2 := Initial_SP;
-      Buffer.X3 := Global_Pointer'Address;
+      Buffer.RA := Start_Thread_Asm'Address;
+      Buffer.SP := Initial_SP;
 
       --  Use callee saved registers to make sure the values are loaded during
       --  the first context_switch.
-      Buffer.X9  := Argument;
-      Buffer.X18 := Program_Counter;
+      Buffer.S1 := Argument;
+      Buffer.S2 := Program_Counter;
    end Initialize_Context;
 
    --------------------
