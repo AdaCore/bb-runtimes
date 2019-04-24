@@ -119,12 +119,6 @@ class RiscV32(DFBBTarget):
     def has_timer_64(self):
         return True
 
-    @property
-    def system_ads(self):
-        return {'zfp':            'system-xi-riscv.ads',
-                'ravenscar-sfp':  'system-xi-riscv-sifive-sfp.ads',
-                'ravenscar-full': 'system-xi-riscv-sifive-full.ads'}
-
 
 class HiFive1(RiscV32):
     @property
@@ -143,6 +137,12 @@ class HiFive1(RiscV32):
     @property
     def loaders(self):
         return ('ROM', )
+
+    @property
+    def system_ads(self):
+        # Only ZFP for for this target, the ravenscar run-times are not stable
+        # for the moment.
+        return {'zfp': 'system-xi-riscv.ads'}
 
     def __init__(self):
         super(HiFive1, self).__init__()
@@ -193,6 +193,11 @@ class PicoRV32(RiscV32):
     @property
     def loaders(self):
         return ('ROM', )
+
+    @property
+    def system_ads(self):
+        # Only ZFP for for this target
+        return {'zfp': 'system-xi-riscv.ads'}
 
     def __init__(self):
         super(PicoRV32, self).__init__()
