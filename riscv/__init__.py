@@ -208,3 +208,34 @@ class PicoRV32(RiscV32):
         self.add_sources('crt0', ['riscv/sifive/fe310/start-rom.S',
                                   'riscv/sifive/fe310/s-macres.adb',
                                   'riscv/picorv32/s-textio.adb'])
+
+
+class RV32IMC(RiscV32):
+    """
+    Generic ZFP run-time meant to be used with the startup generator (crt0 and
+    ld script).
+    """
+
+    @property
+    def name(self):
+        return 'rv32imc'
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ['-march=rv32imc', '-mabi=ilp32']
+
+    @property
+    def has_small_memory(self):
+        return True
+
+    @property
+    def system_ads(self):
+        # Only ZFP for for this generic target
+        return {'zfp': 'system-xi-riscv.ads'}
+
+    def __init__(self):
+        super(RV32IMC, self).__init__()
+
+        self.add_sources('crt0', ['riscv/sifive/fe310/s-macres.adb',
+                                  'src/s-textio__null.adb'])

@@ -34,7 +34,7 @@ from sparc import Leon2, Leon3, Leon4
 from powerpc import MPC8641, MPC8349e, P2020, P5566, P5634
 
 # riscv
-from riscv import Spike, Unleashed, HiFive1, PicoRV32
+from riscv import Spike, Unleashed, HiFive1, PicoRV32, RV32IMC
 
 # visium
 from visium import Visium
@@ -135,6 +135,8 @@ def build_configs(target):
         t = Unleashed()
     elif target == 'picorv32':
         t = PicoRV32()
+    elif target == 'rv32imc':
+        t = RV32IMC()
     elif target == 'x86-linux':
         t = X86Native()
     elif target == 'x86-windows':
