@@ -1,0 +1,138 @@
+Nordic nRF52 Runtimes
+=====================
+
+Runtimes Supported
+------------------
+
+* ZFP
+* Ravenscar-SFP
+* Ravenscar-Full
+
+Targets Supported
+-----------------
+
+Cortex-M4F CPUs:
+* nRF52832
+* nRF52840
+
+Interrupts
+----------
+
+The package Ada.Interrupts.Names (a-intnam.ads) is located in the gnat
+directory. This package spec was automatically generated from an SVD file so
+you will not need to change it unless an SVD file was unavailable for your
+target.
+
+See package System.BB.MCU_Parameters (s-bbmcpa.ads) for the number of
+interrupts defined. That number must reflect the contents of the
+SVD-generated package Ada.Interrupts.Names.
+
+Resources Used
+--------------
+
+The Ravenscar runtime uses the RTC0 peripheral to implement Ada semantics for
+time, i.e., delay statements and the package Ada.Real_Time. The RTC0 interrupt
+runs at the highest priority. RTC0 runs from the low frequency clock (LFCLK)
+which runs at 32.768 kHz. The LFCLK source is configured in the Setup_Board
+procedure (setup_board.adb), and may be either the external 32 kHz crystal
+oscillator (LFXO), the internal 32 kHz oscillator (LFRC), or synthesized from
+the 16 MHz high-speed clock (HFCLK).
+
+The other RTC peripherals (RTC1 and RTC2) are available for user applications.
+
+Tick-less Scheduler
+-------------------
+
+The RTC0 peripheral is used to implement a "tick-less" version of Ada.Real_Time
+which does not rely on periodic interrupts at a constant rate (e.g. 1 kHz).
+Instead, the "compare" feature of the RTC peripheral is used to generate an 
+interrupt at the precise point in time when the scheduler needs to wake up at
+the end of a delay.
+
+Rationale
+,,,,,,,,,
+
+The primary rationale for this tick-less approach is to support ultra-low power
+applications that can operate for years on batteries. To do this, the CPU must
+be allowed to remain in a low-power sleep as much as possible, avoiding
+excessive wake-ups due to unnecessary interrupts. The target baseline average
+MCU current consumption for this runtime is 10 µA (assuming only the RTC0
+peripheral is active and the HFCLK is disabled). This would allow the MCU to
+theoretically run for over a year on a single CR2032 coin cell battery.
+
+This low-power requirement eliminated the possibility of using the SysTick
+timer for the following reasons:
+1. The SysTick timer ticks at (usually) 1 kHz, which results in a lot of
+   unnecessary CPU wake-ups during long task delays.
+2. It was discovered on a nRF52840 PDK board that the power management on the
+   nRF52 powers down the entire CPU - including the SysTick - when the CPU
+   enters WFI sleep. This results in the SysTick pausing when the CPU sleeps,
+   making it useless as a time source while the CPU is sleeping.
+3. The SysTick (and any other high-resolution timer peripherals) requires the
+   high-frequency clock (HFCLK) to be active, which has a relatively high
+   current draw of approximately 200 µA, which exceeds my target current draw
+   by an order of magnitude.
+
+The solution is therefore to use the RTC0 timer, using the 32.768 kHz
+LFCLK, which allows the CPU and HFCLK domain to be powered off during WFI sleep
+while keeping task delays alive.
+
+Implementation
+,,,,,,,,,,,,,,
+The existing Ravenscar scheduler is very well designed and can already support
+a tick-less implementation without changes. The only work needed to implement a
+tick-less scheduler was to implement the alarm handler System.BB.Board_Support
+package in a way that avoids a periodic interrupt.
+
+The RTC is a 24-bit counter, which overflows every 512 seconds when operating
+at 32.768 kHz. The RTC also has a "compare" feature which allows an interrupt
+to be generated then the RTC counter reaches a configurable 24-bit value. This
+compare feature is what is used to implement the tick-less alarm.
+
+Read_Clock just needs to read and return the current value of the RTC's 24-bit
+counter. This provides a high-resolution time base that ticks every 30.518 µs.
+
+When Set_Alarm is called, it sets the RTC compare value to the specified alarm
+time. The alarm time is guaranteed to be a 24-bit value since the existing
+runtime ensures the provided alarm time does not exceed the value returned by
+the Max_Timer_Interval function, which in this runtime for the nRF52 returns
+2**24 - 1.
+
+Once the alarm time is set, a single interrupt will be generated at the
+specified alarm time, which wakes up the scheduler and unblocks the delayed
+task. This results in task delays that are much more accurate than
+SysTick-based runtimes, since the alarm interrupt is triggered at the exact
+alarm time. The resolution of the alarm is 1 timer tick, which is 30.518 µs.
+
+The runtime already guarantees that an alarm will be set at least once every
+Max_Timer_Interval to keep the scheduler alive during long periods of sleep.
+This will result in unnecessary alarm interrupts during very long periods of
+sleep, but since the RTC overflows very slowly - every 512 seconds
+(8.5 minutes) - these will occur very infrequently. The RTC uses a
+"safety factor" of 7/8 of the Max_Timer_Interval, resulting in one unnecessary
+interrupt every 448 seconds (7.5 minutes) which is perfectly acceptable since
+the CPU is only awake for a very short time before sleeping again.
+
+Considerations for Ada RM 3.8 (30)
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+
+The runtime in this repository derives the resolution of
+Ada.Real_Time.Time_Unit directly from the clock source (specified in
+System.BB.Board_Parameters). The other runtimes in this repository specify
+their main clock speed (e.g. 64 MHz), so Time_Unit is very fine. This runtime,
+however, uses a 32.768 kHz clock source which would result in a much more
+coarse Time_Unit.
+
+Ada RM Annex D.8 "Monotonic Time" item 30 states: "Time_Unit shall be less than
+or equal to 20 microseconds". A Time_Unit derived from a 32.768 kHz clock
+source would violate this requirement, as it would have Time_Unit of 30.518 µs.
+
+To ensure that the requirement in ARM D.8 (30 is met, the package spec for
+System.BB.Board_Support deals in units that are scaled up in multiples of
+32.768 kHz, and is the unit exposed to the rest of the runtime (including
+Ada.Real_Time). The Board_Support package body divides these scaled-up units
+back down to 32.768 kHz when interacting with the RTC. This scaling factor is
+configured in the constant: System.BB.Board_Parameters.RTC_Tick_Scaling_Factor.
+This value is currently set to 32, so that Time_Unit has a resolution of
+1 / (32.768 kHz * 32) = 0.954 µs, which satisfies ARM D.8 (30).
+

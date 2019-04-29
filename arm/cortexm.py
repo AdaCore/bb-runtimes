@@ -437,6 +437,123 @@ class Microbit(NRF51):
                           'src/s-textio__microbit.adb'])
 
 
+class NRF52(ArmV7MTarget):
+    @property
+    def name(self):
+        return 'nRF52'
+
+    @property
+    def parent(self):
+        return CortexMArch
+
+    @property
+    def loaders(self):
+        return ('ROM', )
+
+    @property
+    def has_fpu(self):
+        return True
+
+    @property
+    def system_ads(self):
+        # Use custom System package since system-xi-cortexm4 assumes
+        # 4-bit interrupt priorities, but the nRF52 only supports
+        # 3-bit interrupt priorities. This requires different
+        # definitions for Priority and Interrupt_Priority in System.
+        return {'zfp': 'system-xi-arm.ads',
+                'ravenscar-sfp': 'arm/nordic/nrf52/system-xi-nrf52-sfp.ads',
+                'ravenscar-full': 'arm/nordic/nrf52/system-xi-nrf52-full.ads'}
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mthumb', '-mhard-float',
+                '-mfpu=fpv4-sp-d16', '-mcpu=cortex-m4')
+
+    def __init__(self):
+        super(NRF52, self).__init__()
+
+        self.add_linker_script('arm/nordic/nrf52/common-ROM.ld', loader='ROM')
+
+        self.add_sources('crt0', [
+            'arm/nordic/nrf52/s-bbmcpa.ads',
+            'arm/nordic/nrf52/start-common.S',
+            'arm/nordic/nrf52/start-rom.S',
+            'arm/nordic/nrf52/setup_board.ads'])
+
+        self.add_sources('gnarl', [
+            'src/s-bbpara__nrf52.ads',
+            'src/s-bbbosu__nrf52.adb',
+            'src/s-bcpcst__pendsv.adb'])
+
+
+class NRF52840(NRF52):
+    @property
+    def name(self):
+        return 'nrf52840'
+
+    @property
+    def use_semihosting_io(self):
+        return True
+
+    def __init__(self):
+        super(NRF52840, self).__init__()
+
+        self.add_linker_script('arm/nordic/nrf52/memory-map_nRF52840.ld',
+                               loader='ROM')
+
+        self.add_sources('crt0', [
+            'arm/nordic/nrf52/nrf52840/s-bbbopa.ads',
+            'arm/nordic/nrf52/nrf52840/setup_board.adb',
+            'arm/nordic/nrf52/nrf52840/svd/i-nrf52.ads',
+            'arm/nordic/nrf52/nrf52840/svd/i-nrf52-ccm.ads',
+            'arm/nordic/nrf52/nrf52840/svd/i-nrf52-clock.ads',
+            'arm/nordic/nrf52/nrf52840/svd/i-nrf52-ficr.ads',
+            'arm/nordic/nrf52/nrf52840/svd/i-nrf52-gpio.ads',
+            'arm/nordic/nrf52/nrf52840/svd/i-nrf52-uicr.ads',
+            'arm/nordic/nrf52/nrf52840/svd/i-nrf52-nvmc.ads',
+            'arm/nordic/nrf52/nrf52840/svd/i-nrf52-rtc.ads',
+            'arm/nordic/nrf52/nrf52840/svd/i-nrf52-temp.ads',
+            'src/s-textio__null.adb'])
+
+        self.add_sources('gnarl', [
+            'arm/nordic/nrf52/nrf52840/svd/handler.S',
+            'arm/nordic/nrf52/nrf52840/svd/a-intnam.ads'])
+
+
+class NRF52832(NRF52):
+    @property
+    def name(self):
+        return 'nrf52832'
+
+    @property
+    def use_semihosting_io(self):
+        return True
+
+    def __init__(self):
+        super(NRF52832, self).__init__()
+
+        self.add_linker_script('arm/nordic/nrf52/memory-map_nRF52832.ld',
+                               loader='ROM')
+
+        self.add_sources('crt0', [
+            'arm/nordic/nrf52/nrf52832/s-bbbopa.ads',
+            'arm/nordic/nrf52/nrf52832/setup_board.adb',
+            'arm/nordic/nrf52/nrf52832/svd/i-nrf52.ads',
+            'arm/nordic/nrf52/nrf52832/svd/i-nrf52-clock.ads',
+            'arm/nordic/nrf52/nrf52832/svd/i-nrf52-ficr.ads',
+            'arm/nordic/nrf52/nrf52832/svd/i-nrf52-gpio.ads',
+            'arm/nordic/nrf52/nrf52832/svd/i-nrf52-uicr.ads',
+            'arm/nordic/nrf52/nrf52832/svd/i-nrf52-nvmc.ads',
+            'arm/nordic/nrf52/nrf52832/svd/i-nrf52-rtc.ads',
+            'arm/nordic/nrf52/nrf52832/svd/i-nrf52-temp.ads',
+            'src/s-textio__null.adb'])
+
+        self.add_sources('gnarl', [
+            'arm/nordic/nrf52/nrf52832/svd/handler.S',
+            'arm/nordic/nrf52/nrf52832/svd/a-intnam.ads'])
+
+
 class Stm32CommonArchSupport(ArchSupport):
     """Holds sources common to all stm32 boards"""
     @property
