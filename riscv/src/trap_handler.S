@@ -89,8 +89,39 @@ save_interrupted_context:
         SREG x30, 29*REGBYTES(tp)
         SREG x31, 30*REGBYTES(tp)
 
-#ifndef _SOFT_FLOAT
-        # FIXME: save FPU context
+#ifndef __riscv_float_abi_soft
+        FSREG f0, 31*REGBYTES(tp)
+        FSREG f1, 32*REGBYTES(tp)
+        FSREG f2, 33*REGBYTES(tp)
+        FSREG f3, 34*REGBYTES(tp)
+        FSREG f4, 35*REGBYTES(tp)
+        FSREG f5, 36*REGBYTES(tp)
+        FSREG f6, 37*REGBYTES(tp)
+        FSREG f7, 38*REGBYTES(tp)
+        FSREG f8, 39*REGBYTES(tp)
+        FSREG f9, 40*REGBYTES(tp)
+        FSREG f10, 41*REGBYTES(tp)
+        FSREG f11, 42*REGBYTES(tp)
+        FSREG f12, 43*REGBYTES(tp)
+        FSREG f13, 44*REGBYTES(tp)
+        FSREG f14, 45*REGBYTES(tp)
+        FSREG f15, 46*REGBYTES(tp)
+        FSREG f16, 47*REGBYTES(tp)
+        FSREG f17, 48*REGBYTES(tp)
+        FSREG f18, 49*REGBYTES(tp)
+        FSREG f19, 50*REGBYTES(tp)
+        FSREG f20, 51*REGBYTES(tp)
+        FSREG f21, 52*REGBYTES(tp)
+        FSREG f22, 53*REGBYTES(tp)
+        FSREG f23, 54*REGBYTES(tp)
+        FSREG f24, 55*REGBYTES(tp)
+        FSREG f25, 56*REGBYTES(tp)
+        FSREG f26, 57*REGBYTES(tp)
+        FSREG f27, 58*REGBYTES(tp)
+        FSREG f28, 59*REGBYTES(tp)
+        FSREG f29, 60*REGBYTES(tp)
+        FSREG f30, 61*REGBYTES(tp)
+        FSREG f31, 62*REGBYTES(tp)
 #endif
 
         /* Set the stack pointer for the trap handler */
@@ -161,9 +192,6 @@ save_interrupted_context:
         mv      tp, sp
 
         /* Restore Ti context */
-#ifndef _SOFT_FLOAT
-        # FIXME: load FPU context
-#endif
 
 load_interrupted_context:
 
@@ -198,6 +226,41 @@ load_interrupted_context:
         LREG x29, 28*REGBYTES(tp)
         LREG x30, 29*REGBYTES(tp)
         LREG x31, 30*REGBYTES(tp)
+
+#ifndef __riscv_float_abi_soft
+        FLREG f0, 31*REGBYTES(tp)
+        FLREG f1, 32*REGBYTES(tp)
+        FLREG f2, 33*REGBYTES(tp)
+        FLREG f3, 34*REGBYTES(tp)
+        FLREG f4, 35*REGBYTES(tp)
+        FLREG f5, 36*REGBYTES(tp)
+        FLREG f6, 37*REGBYTES(tp)
+        FLREG f7, 38*REGBYTES(tp)
+        FLREG f8, 39*REGBYTES(tp)
+        FLREG f9, 40*REGBYTES(tp)
+        FLREG f10, 41*REGBYTES(tp)
+        FLREG f11, 42*REGBYTES(tp)
+        FLREG f12, 43*REGBYTES(tp)
+        FLREG f13, 44*REGBYTES(tp)
+        FLREG f14, 45*REGBYTES(tp)
+        FLREG f15, 46*REGBYTES(tp)
+        FLREG f16, 47*REGBYTES(tp)
+        FLREG f17, 48*REGBYTES(tp)
+        FLREG f18, 49*REGBYTES(tp)
+        FLREG f19, 50*REGBYTES(tp)
+        FLREG f20, 51*REGBYTES(tp)
+        FLREG f21, 52*REGBYTES(tp)
+        FLREG f22, 53*REGBYTES(tp)
+        FLREG f23, 54*REGBYTES(tp)
+        FLREG f24, 55*REGBYTES(tp)
+        FLREG f25, 56*REGBYTES(tp)
+        FLREG f26, 57*REGBYTES(tp)
+        FLREG f27, 58*REGBYTES(tp)
+        FLREG f28, 59*REGBYTES(tp)
+        FLREG f29, 60*REGBYTES(tp)
+        FLREG f30, 61*REGBYTES(tp)
+        FLREG f31, 62*REGBYTES(tp)
+#endif
 
         /* Return from trap */
         mret

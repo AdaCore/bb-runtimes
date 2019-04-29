@@ -33,21 +33,39 @@
 # define LREG ld
 # define SREG sd
 # define REGBYTES 8
-#else
+
+#elif __riscv_xlen == 32
 # define LREG lw
 # define SREG sw
 # define REGBYTES 4
+
+# ifdef __riscv_float_abi_double
+#  error Double-Precision Floating-Point on 32-bit CPU not supported
+# endif
+
+#else
+# error XLEN value not supported
 #endif
 
-#ifndef _SOFT_FLOAT
-#  FIXME: FRAME_SIZE with FPU
-#  define FRAME_SIZE (32*REGBYTES)
+#if __riscv_flen == 64
+# define FLREG fld
+# define FSREG fsd
+#elif __riscv_flen == 32
+# define FLREG flw
+# define FSREG fsw
 #else
-#  define FRAME_SIZE (32*REGBYTES)
+# error Invalid FLEN value
+#endif
+
+#ifdef __riscv_float_abi_soft
+# define FRAME_SIZE (32*REGBYTES)
+#else
+# define FRAME_SIZE (64*REGBYTES) /* 32 integer + 32 float registers */
 #endif
 
 #define MSTATUS_MIE         0x00000008
 #define MSTATUS_MPIE        0x00000080
 #define MSTATUS_MPP         0x00001800
+#define MSTATUS_FS          0x00006000
 
 #endif /* ! _RISCV_DEF_H_ */

@@ -72,7 +72,18 @@ package System.BB.CPU_Specific is
       S10 : System.Address; -- X26
       S11 : System.Address; -- X27
 
-      --  FIXME: FPU context
+      FS0  : System.Address;
+      FS1  : System.Address;
+      FS2  : System.Address;
+      FS3  : System.Address;
+      FS4  : System.Address;
+      FS5  : System.Address;
+      FS6  : System.Address;
+      FS7  : System.Address;
+      FS8  : System.Address;
+      FS9  : System.Address;
+      FS10 : System.Address;
+      FS11 : System.Address;
    end record;
 
    Stack_Alignment : constant := 16;

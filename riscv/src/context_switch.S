@@ -37,8 +37,19 @@ __gnat_context_switch:
         SREG s10, 12*REGBYTES(t0)
         SREG s11, 13*REGBYTES(t0)
 
-#ifndef _SOFT_FLOAT
-        # FIXME: save FPU context
+#ifndef __riscv_float_abi_soft
+        FSREG fs0, 14*REGBYTES(t0)
+        FSREG fs1, 15*REGBYTES(t0)
+        FSREG fs2, 16*REGBYTES(t0)
+        FSREG fs3, 17*REGBYTES(t0)
+        FSREG fs4, 18*REGBYTES(t0)
+        FSREG fs5, 19*REGBYTES(t0)
+        FSREG fs6, 20*REGBYTES(t0)
+        FSREG fs7, 21*REGBYTES(t0)
+        FSREG fs8, 22*REGBYTES(t0)
+        FSREG fs9, 23*REGBYTES(t0)
+        FSREG fs10, 24*REGBYTES(t0)
+        FSREG fs11, 25*REGBYTES(t0)
 #endif
 
         # Load the context address of the next thread
@@ -46,10 +57,6 @@ __gnat_context_switch:
 
         # Set the new value of Running_Thread
         SREG   a1, 0(a0)
-
-#ifndef _SOFT_FLOAT
-        # FIXME: load FPU context
-#endif
 
         LREG ra, 0*REGBYTES(a1)
         LREG sp, 1*REGBYTES(a1)
@@ -65,6 +72,21 @@ __gnat_context_switch:
         LREG s9, 11*REGBYTES(a1)
         LREG s10, 12*REGBYTES(a1)
         LREG s11, 13*REGBYTES(a1)
+
+#ifndef __riscv_float_abi_soft
+        FLREG fs0, 14*REGBYTES(t0)
+        FLREG fs1, 15*REGBYTES(t0)
+        FLREG fs2, 16*REGBYTES(t0)
+        FLREG fs3, 17*REGBYTES(t0)
+        FLREG fs4, 18*REGBYTES(t0)
+        FLREG fs5, 19*REGBYTES(t0)
+        FLREG fs6, 20*REGBYTES(t0)
+        FLREG fs7, 21*REGBYTES(t0)
+        FLREG fs8, 22*REGBYTES(t0)
+        FLREG fs9, 23*REGBYTES(t0)
+        FLREG fs10, 24*REGBYTES(t0)
+        FLREG fs11, 25*REGBYTES(t0)
+#endif
 
         ret
         .size __gnat_context_switch, . - __gnat_context_switch

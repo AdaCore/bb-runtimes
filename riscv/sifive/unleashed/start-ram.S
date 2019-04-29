@@ -32,6 +32,12 @@ _start_ram:
         bltu a0, a1, 1b
 2:
 
+#ifndef __riscv_float_abi_soft
+        /* Enable the FPU */
+        li      t0, MSTATUS_FS
+        csrs    mstatus, t0
+#endif
+
         call main
         call __gnat_exit
 2:      j 2b
