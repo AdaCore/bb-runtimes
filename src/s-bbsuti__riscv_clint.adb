@@ -42,25 +42,27 @@ separate (System.BB.Board_Support)
 
 package body Time is
 
+   package BBBOPA renames System.BB.Board_Parameters;
+
    -----------------------
    -- Local Definitions --
    -----------------------
 
    Mtime_Lo : Unsigned_32
      with Volatile,
-     Address => System.BB.Board_Parameters.Mtime_Base_Address;
+     Address => System'To_Address (BBBOPA.Mtime_Base_Address);
    Mtime_Hi : Unsigned_32
      with Volatile,
-     Address => System.BB.Board_Parameters.Mtime_Base_Address + 4;
+     Address => System'To_Address (BBBOPA.Mtime_Base_Address + 4);
    --  The mtime register has a 64-bit precision on all RV32, RV64, and RV128
    --  systems.
 
    Mtimecmp_Lo : Unsigned_32
      with Volatile,
-     Address => System.BB.Board_Parameters.Mtimecmp_Base_Address;
+     Address => System'To_Address (BBBOPA.Mtimecmp_Base_Address);
    Mtimecmp_Hi : Unsigned_32
      with Volatile,
-     Address => System.BB.Board_Parameters.Mtimecmp_Base_Address + 4;
+     Address => System'To_Address (BBBOPA.Mtimecmp_Base_Address + 4);
    --  The mtimecmp register has a 64-bit precision on all RV32, RV64, and
    --  RV128 systems.
 
