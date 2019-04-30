@@ -30,7 +30,7 @@
 -- Extensive contributions were provided by Ada Core Technologies Inc.      --
 ------------------------------------------------------------------------------
 
---  This package implements PowerPC architecture specific support for the GNAT
+--  This package implements RISC-V architecture specific support for the GNAT
 --  Ravenscar run time.
 
 with System.Machine_Code; use System.Machine_Code;
@@ -45,14 +45,24 @@ package body System.BB.CPU_Specific is
    procedure Trap_Entry_Asm;
    pragma Import (Asm, Trap_Entry_Asm, "__gnat_trap_entry");
 
-   procedure Trap_Handler;
+   procedure Trap_Handler (A0, A1, A2, A3, A4, A5, A6, A7 : Register_Word);
    pragma Export (Asm, Trap_Handler, "__gnat_trap_handler");
+   --  The arguments A0-7 correspond to the a0-7 registers used for function
+   --  arguments in the RISC-V ABI. These registers potentially hold a
+   --  meaningful value in case of syscall or semihosting call.
+
+   procedure OS_Exit;
+   pragma Import (Ada, OS_Exit, "__gnat_exit");
+   pragma No_Return (OS_Exit);
 
    ------------------
    -- Trap_Handler --
    ------------------
 
-   procedure Trap_Handler is
+   procedure Trap_Handler (A0, A1, A2, A3, A4, A5, A6, A7 : Register_Word) is
+
+      pragma Unreferenced (A0, A1, A2, A3, A4, A5, A6);
+
       Cause : constant Register_Word := Mcause;
       Code  : constant Register_Word := Cause and 16#0F#;
       Interrupt_Bit : constant Register_Word := 2**(Register_Word'Size - 1);
@@ -87,7 +97,18 @@ package body System.BB.CPU_Specific is
          end case;
 
       else
-         raise Program_Error with "Unhandled trap:" & Code'Img;
+         case Code is
+            when 11 => -- Environment call from M-mode
+
+               case A7 is -- Syscall ID
+                  when 93 => OS_Exit;
+                  when others =>
+                     raise Program_Error with "Unhandled syscall:" & A7'Img;
+               end case;
+
+            when others =>
+               raise Program_Error with "Unhandled trap:" & Code'Img;
+         end case;
       end if;
    end Trap_Handler;
 

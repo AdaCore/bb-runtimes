@@ -30,6 +30,11 @@ __gnat_trap_entry:
          * Ravenscar run-time.
          */
 
+        /* The argument registers (a0-7) must be preserved until the call to
+         * __gnat_trap_handler because they may contain arguments for system
+         * calls.
+         */
+
         /* Check if sp is already in an interrupt stack (nested interrupt) */
         la      tp, __interrupt_stack_start
         bgt     tp, sp, not_in_interrupt_stack // SP is below the interrupt stack
