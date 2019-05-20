@@ -615,6 +615,8 @@ class Stm32(ArmV7MTarget):
             return 'cortex-m4'
         elif self.mcu.startswith('stm32f7'):
             return 'cortex-m7'
+        elif self.mcu.startswith('stm32f1'):
+            return 'cortex-m3'
         else:
             assert False, "Unexpected MCU %s" % self.mcu
 
@@ -651,6 +653,8 @@ class Stm32(ArmV7MTarget):
             self.mcu = 'stm32f7x'
         elif self.board == 'stm32f769disco':
             self.mcu = 'stm32f7x9'
+        elif self.board == 'stm32f103':
+            self.mcu = 'stm32f103xx'
         else:
             assert False, "Unknown stm32 board: %s" % self.board
 
@@ -668,9 +672,12 @@ class Stm32(ArmV7MTarget):
             'arm/stm32/%s/svd/i-stm32-gpio.ads' % self.mcu,
             'arm/stm32/%s/svd/i-stm32-pwr.ads' % self.mcu,
             'arm/stm32/%s/svd/i-stm32-rcc.ads' % self.mcu,
-            'arm/stm32/%s/svd/i-stm32-syscfg.ads' % self.mcu,
             'arm/stm32/%s/svd/i-stm32-usart.ads' % self.mcu])
-
+            
+        if self.board != 'stm32f103':
+            self.add_sources('crt0', [
+                'arm/stm32/%s/svd/i-stm32-syscfg.ads' % self.mcu])
+                
         if self.board == 'stm32f4':
             self.add_sources('crt0', [
                 'arm/stm32/stm32f40x/s-stm32.adb'])
