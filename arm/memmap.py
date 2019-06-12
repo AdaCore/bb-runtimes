@@ -458,6 +458,10 @@ def main():
         sys.stderr.write("Try --help\n")
         sys.exit(2)
 
+    print "// Automatically generated from %s" % filename
+    print "//  cmd line: memmap.py %s" % " ".join(sys.argv[1:])
+    print ""
+
     tree = ET.parse(filename)
     root = tree.getroot()
 
@@ -469,6 +473,7 @@ def main():
         mmu.insert(r.name, r.virt, r.phys, r.size, r.cache, r.access)
 
     mmu.generate("__mmu")
+
 
 if __name__ == '__main__':
     main()

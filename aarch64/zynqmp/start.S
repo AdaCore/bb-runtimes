@@ -2,11 +2,11 @@
  *                                                                          *
  *               GNU ADA RUN-TIME LIBRARY (GNARL) COMPONENTS                *
  *                                                                          *
- *                                  C R T 0                                 *
+ *                                 S T A R T                                *
  *                                                                          *
  *                               Assembly File                              *
  *                                                                          *
- *                          Copyright (C) 2017 AdaCore                      *
+ *                     Copyright (C) 2017-2019 AdaCore                      *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -27,13 +27,13 @@
  *                                                                          *
  ****************************************************************************/
 
-/* This file is specific to the Cortex-A53 for UltraZed board.  */
+/* This file is specific to the Xilinx ZynqMP SoC.  */
 
 /* This file contains the trap table and start up code for the multitasking
    executive implemented for bareboard targets. */
 
 /* Startup code */
-.global __start_ram
+.global __start
 .global __start_slave_cpu
 
 .set    vector_base,    __vectors
@@ -43,7 +43,6 @@
 .set    SCNTRS_EN,      0xFF260000      /* Global counter */
 .set    SCNTRS_FREQ,    0xFF260020
 
-#include "start-config.inc"
 #include "memmap.S"
 
 .section .boot,"ax"
@@ -51,7 +50,7 @@
 .weak   __gnat_initialize_cpu_devices
 .weak   __gnat_initialize_slave
 
-__start_ram:
+__start:
         mov     x0, #0
         mov     x1, #0
         mov     x2, #0
@@ -83,12 +82,12 @@ __start_ram:
         mov     x28, #0
         mov     x29, #0
         mov     x30, #0
-        b        __start_ram1
+        b        __start1
 
         .text
 
-        .type   __start_ram1, %function
-__start_ram1:
+        .type   __start1, %function
+__start1:
         # Read processor number
         mrs     x7, mpidr_el1
         and     x7, x7, #3
@@ -188,20 +187,29 @@ __int_grp1_loop:
         msr     spsr_el3, x0
         adr     x0, __start_el2
         msr     elr_el3, x0
-        mrs     x0, vbar_el3
-        msr     vbar_el2, x0
 
         isb
         eret
 
 __start_el2:
+        # set vbar_el2
+        ldr     x0, =vector_base
+        msr     vbar_el2, x0
+
         # Enable FPU (don't trap accesses)
         msr     cptr_el2, xzr
 
         # Enable SMPEN
+        # Note: CPUECTLR_EL1 may not be write-accessible, depending on
+        # the configuration of ACTLR_EL3. This means we check if we actually
+        # need to change the SMPEN bit or if it's already set. If already
+        # set, we don't attempt to modify it
         mrs     x0, S3_1_C15_C2_1
-        orr     x0, x0, #0x40
-        msr     S3_1_C15_C2_1, x0
+        orr     x1, x0, #0x40
+        cmp     x1, x0
+        beq     1f
+        msr     S3_1_C15_C2_1, x1
+1:
 
         # Make sure the generic timers are initialized
         mrs     x0, cnthctl_el2
@@ -215,11 +223,13 @@ __start_el2:
         msr     vpidr_el2, x0
         msr     vmpidr_el2, x1
 
-.if (RUNTIME_EL == 1)
         # HCR_EL2: RW(1)
         mov     x0,#(1<<31)
         orr     x0, x0, #(1<<29) /* Disable HVC */
         msr     hcr_el2,x0
+
+        # Configure EL1 translation MMU
+        bl      __configure_mmu
 
         # Switch to el1, set AIF
         mov     x0, #(0x1c0 + 5)
@@ -229,52 +239,8 @@ __start_el2:
 
         isb
         eret
-.else
-        # HCR_EL2: redirect IRQ/FIQ/ABT to EL2.
-        ldr     x0,=((1<<31) | (1<<12) | (1<<5) | (1<<4) | (1<<3))
-        msr     hcr_el2,x0
-
-        # Load stack pointer (on 32bit)
-        adrp    x2, system_stack_base
-        add     x2, x2, #:lo12:system_stack_base
-        ldr     w0, [x2, x7, lsl #2]
-        mov     sp, x0
-
-        # Enable MMU and cache.
-        tlbi    alle2
-        ldr     x0, =__mmu_l1_000000000
-        msr     ttbr0_el2, x0
-        // TCR_EL2: TB0=0, PS=000 (4GB),
-        //          TG0=00, SH0=11, ORGN0=01, IRGN1=01, T0SZ=32
-        ldr     x0, =((32 << 0) | (1 << 8) | (1 << 10) | (3 << 12) \
-                | (0 << 14))
-        msr     tcr_el2, x0
-        # MAIR_EL2:
-        # 0: b11101110 Outer write-back cacheable, Inner write-back cacheable
-        # others: not used
-        movz    x0,#0x00ee
-        msr     mair_el2,x0
-        isb
-
-        # SCTLR_EL2:
-        # I-Cache enabled
-        # D-Cache enabled
-        # MMU enabled
-        mov     x1, xzr
-        orr     x1, x1, #(1 << 12)      // Set I bit
-        orr     x1, x1, #(1 << 2)       // Set C bit
-        orr     x1, x1, #(1 << 0)       // Set M bit
-        msr     sctlr_el2, x1
-        isb
-
-        b       __start_common
-.endif
 
 __start_el1:
-        # Enable FPU
-        mov     x0, #(1 << 20)
-        msr     cpacr_el1, x0
-
         # Load stack pointer (on 32bit)
         adrp    x2, system_stack_base
         add     x2, x2, #:lo12:system_stack_base
@@ -284,6 +250,81 @@ __start_el1:
         ldr     x0, =vector_base
         msr     vbar_el1, x0
 
+        # Enable FPU
+        mov     x0, #(1 << 20)
+        msr     cpacr_el1, x0
+
+        # Enable MMU and cache if not already done
+        # test SCTLR_EL1.M bit to see the if mmu is already configured
+        mrs     x0, sctlr_el1
+        and     x0, x0, #1
+        cmp     x0, #1
+        beq     1f
+        bl      __configure_mmu
+1:
+        # CPU 0 starts master, the other are slave cpus
+        mrs     x7, mpidr_el1
+        and     x7, x7, #3
+	cbz	x7, __start_master_cpu
+        b       __start_slave_cpu
+
+__start_master_cpu:
+        /* CPU0: perform the memory initialisation: */
+        /* Copy .data, assuming in the first 4GB */
+        ldr     w0, data_segment + 0
+        ldr     w1, data_segment + 4
+        ldr     w2, data_segment + 8
+        /* Do nothing if __data_dwords is 0 */
+        cbz     x2, 1f
+        /* Do nothing if __data_load == __data_start */
+        sub     x3, x0, x1
+        cbz     x3, 1f
+0:      ldr     x3, [x0], #8
+        str     x3, [x1], #8
+        sub     x2, x2, #1
+        cbnz    x2, 0b
+1:
+
+        /* Clear .bss, assuming in the first 4GB */
+        ldr     w0, bss_segment + 0
+        ldr     w1, bss_segment + 4
+        /* Do nothing if __bss_dwords is 0 */
+        cbz     x1, 1f
+0:      str     xzr, [x0], #8
+        sub     x1, x1, #1
+        cbnz    x1, 0b
+1:
+
+        /* Call the main routine */
+        bl  main
+        bl  _exit
+0:      b  0b
+        .size  __start_master_cpu, . - __start_master_cpu
+
+        .type __start_slave_cpu, %function
+__start_slave_cpu:
+        mov     x29, xzr
+        mov     x19, x7
+        /* Initialize cpu-specific devices */
+        bl      __gnat_initialize_cpu_devices
+
+        /* Call the rts entry point for the CPU (with CPU_Id as argument). */
+        add     x0,x19,#1
+        bl      __gnat_initialize_slave
+1:      b       1b
+        .size __start_slave_cpu, . - __start_slave_cpu
+
+
+/* Important note on __configure_mmu, __dcaches_all and __dcache_level:
+   we can't use the stack to save the LR, because we may be called in a
+   context where the stack is not setup. So to save the Link Register we use:
+   * x16 in __configure_mmu
+   * x15 in __dcaches_all
+   * no need to save anything in __dcache_level because it's a leaf function
+ */
+        .type __configure_mmu, %function
+__configure_mmu:
+        mov     x16, x30    // save the link register
         # Enable MMU and cache.
         tlbi    vmalle1
         ic      iallu   // I-cache invalidate
@@ -329,48 +370,9 @@ __start_el1:
         msr     sctlr_el1, x1
         isb
 
-__start_common:
-        # CPU 0 starts master, the other are slave cpus
-        mrs     x7, mpidr_el1
-        and      x7, x7, #3
-	cbz	x7, __start_master
-        b       __start_slave_cpu
-
-/* __start_master
- */
-__start_master:
-        /* CPU0: Clear .bss, assuming in the first 4GB */
-        ldr      w0,bss_segment + 0
-        ldr     w1,bss_segment + 4
-0:      cbz     x1,1f
-        /* FIXME: write multiple words?  */
-        str     xzr,[x0],#8
-        sub     x1,x1,#1
-        cbnz    x1,0b
-1:
-
-        /* Call the main routine */
-        bl  main
-        bl  _exit
-0:      b  0b
-        .size  __start_ram1, . - __start_ram1
-
-/* __start_slave_cpu
- */
-
-        .type __start_slave_cpu, %function
-__start_slave_cpu:
-        mov     x29, xzr
-        mov     x19, x7
-        // Initialize devices
-        bl      __gnat_initialize_cpu_devices
-
-        /* Call the main routine (with CPU_Id as argument).  */
-        add     x0,x19,#1
-        bl      __gnat_initialize_slave
-1:      b       1b
-        .size __start_slave_cpu, . - __start_slave_cpu
-
+        mov     x30, x16
+        ret
+        .size __configure_mmu, . - __configure_mmu
 
         .p2align  3
 
@@ -380,6 +382,7 @@ __start_slave_cpu:
  *
  * flush or invalidate all data cache by set/way
  */
+        .type __dcaches_all, %function
 __dcaches_all:
         mov     x1, x0
         dsb     sy
@@ -415,12 +418,14 @@ __dcaches_skip:
         mov  x30, x15
 __dcaches_finished:
         ret
+        .size __dcaches_all, . - __dcaches_all
 
 /* __dcache_level
  * x0 : cache level
  * x1 : 0 clean & invalidate, 1 invalidate only
  * x2 - x9: clobbered
  */
+        .type __dcache_level, %function
 __dcache_level:
         lsl     x12, x0, #1
         msr     csselr_el1, x12 // select cache level
@@ -449,7 +454,12 @@ __dcache_loop_way:
         subs    x4, x4, #1      // set := set - 1
         b.ge    __dcache_loop_set
         ret
+        .size __dcache_level, . - __dcache_level
 
+data_segment:
+        .word   __data_load
+        .word   __data_start
+        .word   __data_dwords
 
   # BSS base and size
 bss_segment:

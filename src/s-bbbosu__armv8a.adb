@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2006 The European Space Agency            --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2019, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -52,10 +52,8 @@ package body System.BB.Board_Support is
    -- Timer --
    -----------
 
-   Alarm_Interrupt_ID : constant BB.Interrupts.Interrupt_ID :=
-                          (case Runtime_EL is
-                              when 1 => 30,  --  Phys. Non-secure timer
-                              when 2 => 26); --  Phys. Hypervisor timer
+   Alarm_Interrupt_ID : constant BB.Interrupts.Interrupt_ID := 30;
+   --  Phys. Non-secure timer
 
    --  System time stamp generator
    IOU_SCNTRS_Base_Address : constant := 16#FF26_0000#;
@@ -107,29 +105,15 @@ package body System.BB.Board_Support is
    -- Set_CNTP_CTL --
    ------------------
 
-   procedure Set_CNTP_CTL (Val : Unsigned_32) is
-   begin
-      case Runtime_EL is
-         when 1 =>
-            Set_CNTP_CTL_EL0 (Val);
-         when 2 =>
-            Set_CNTHP_CTL_EL2 (Val);
-      end case;
-   end Set_CNTP_CTL;
+   procedure Set_CNTP_CTL (Val : Unsigned_32)
+     renames Set_CNTP_CTL_EL0;
 
    -------------------
    -- Set_CNTP_CVAL --
    -------------------
 
-   procedure Set_CNTP_CVAL (Val : Unsigned_64) is
-   begin
-      case Runtime_EL is
-         when 1 =>
-            Set_CNTP_CVAL_EL0 (Val);
-         when 2 =>
-            Set_CNTHP_CVAL_EL2 (Val);
-      end case;
-   end Set_CNTP_CVAL;
+   procedure Set_CNTP_CVAL (Val : Unsigned_64)
+     renames Set_CNTP_CVAL_EL0;
 
    package GIC is
       --  This is support package for the GIC400 interrupt controller
@@ -652,8 +636,8 @@ package body System.BB.Board_Support is
       procedure Poke_Handler (Interrupt : BB.Interrupts.Interrupt_ID);
       --  Handler for the Poke interrupt
 
-      procedure Start_Ram
-        with Import, External_Name => "__start_ram";
+      procedure Start
+        with Import, External_Name => "__start";
       --  Entry point (in crt0) for a slave cpu
 
       function MPIDR return Unsigned_32 with Inline_Always;
@@ -797,7 +781,7 @@ package body System.BB.Board_Support is
          pragma Warnings (Off, "loop range is null*");
 
          for CPU_Id in CPU'First + 1 .. CPU'Last loop
-            CPU_Wake_Up (CPU_Id, Start_Ram'Address);
+            CPU_Wake_Up (CPU_Id, Start'Address);
          end loop;
 
          pragma Warnings (On, "loop range is null*");

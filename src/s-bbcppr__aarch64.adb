@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2019, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -42,7 +42,6 @@ with System.Multiprocessors;
 with System.BB.CPU_Specific; use System.BB.CPU_Specific;
 with System.BB.Threads.Queues;
 with System.BB.Board_Support;
-with System.BB.Parameters;
 with Interfaces;
 with Interfaces.AArch64;     use Interfaces.AArch64;
 
@@ -293,16 +292,9 @@ package body System.BB.CPU_Primitives is
    procedure Disable_FPU is
       V : Unsigned_64;
    begin
-      case Parameters.Runtime_EL is
-         when 1 =>
-            V := Get_CPACR_EL1;
-            V := V and not CPACR_FPEN;
-            Set_CPACR_EL1 (V);
-         when 2 =>
-            V := Get_CPTR_EL2;
-            V := V or CPTR_TFP;
-            Set_CPTR_EL2 (V);
-      end case;
+      V := Get_CPACR_EL1;
+      V := V and not CPACR_FPEN;
+      Set_CPACR_EL1 (V);
    end Disable_FPU;
 
    ----------------
@@ -312,16 +304,9 @@ package body System.BB.CPU_Primitives is
    procedure Enable_FPU is
       V : Unsigned_64;
    begin
-      case Parameters.Runtime_EL is
-         when 1 =>
-            V := Get_CPACR_EL1;
-            V := V or CPACR_FPEN;
-            Set_CPACR_EL1 (V);
-         when 2 =>
-            V := Get_CPTR_EL2;
-            V := V and not CPTR_TFP;
-            Set_CPTR_EL2 (V);
-      end case;
+      V := Get_CPACR_EL1;
+      V := V or CPACR_FPEN;
+      Set_CPACR_EL1 (V);
    end Enable_FPU;
 
    ---------------------

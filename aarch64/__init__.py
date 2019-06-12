@@ -68,7 +68,7 @@ class ZynqMP(Aarch64Target):
 
     @property
     def loaders(self):
-        return ('RAM', )
+        return ('RAM', 'QSPI')
 
     @property
     def system_ads(self):
@@ -83,18 +83,20 @@ class ZynqMP(Aarch64Target):
 
     def amend_rts(self, rts_profile, cfg):
         super(ZynqMP, self).amend_rts(rts_profile, cfg)
-        cfg.add_sources('arch', {
-            'start-config.inc': 'aarch64/zynqmp/start-config-el1.inc',
-            'memmap.S': 'aarch64/zynqmp/memmap-el1.S'})
+        cfg.add_sources('arch', [
+            'aarch64/zynqmp/memmap.S'])
         cfg.add_sources('gnarl', [
             'src/s-bbpara__zynqmp.ads'])
 
     def __init__(self):
         super(ZynqMP, self).__init__()
 
+        self.add_linker_script('aarch64/zynqmp/common.ld',
+                               loader=('RAM', 'QSPI'))
         self.add_linker_script('aarch64/zynqmp/ram.ld', loader='RAM')
+        self.add_linker_script('aarch64/zynqmp/qspi.ld', loader='QSPI')
         self.add_sources('crt0', [
-            'aarch64/zynqmp/start-ram.S',
+            'aarch64/zynqmp/start.S',
             'aarch64/zynqmp/trap_vector.S',
             'src/trap_dump__aarch64.ads',
             'src/trap_dump__aarch64.adb',
