@@ -50,7 +50,7 @@ SECTIONS
   . = 0;
   .host_target_interface :
   {
-    *(.host_target_interface)
+    KEEP(*(.host_target_interface))
   }
 
   .text :
