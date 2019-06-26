@@ -55,7 +55,7 @@ package System.BB.Board_Parameters is
 
    CLINT_Base_Address    : constant := 16#0200_0000#;
    CLINT_Mtime_Offset    : constant := 16#BFF8#;
-   CLINT_Mtimecmp_Offset : constant := 16#4000#;
+   CLINT_Mtimecmp_Offset : constant := 16#4008#; --  mtimecmp for hart 1
 
    Mtime_Base_Address : constant :=
      CLINT_Base_Address + CLINT_Mtime_Offset;

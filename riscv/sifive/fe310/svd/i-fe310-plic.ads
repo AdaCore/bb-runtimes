@@ -171,8 +171,8 @@ package Interfaces.FE310.PLIC is
    for PLIC_Peripheral use record
       PRIORITY      at 16#0# range 0 .. 1663;
       PENDING       at 16#1000# range 0 .. 63;
-      TARGET_ENABLE at 16#2000# range 0 .. 63;
-      TARGET        at 16#200000# range 0 .. 63;
+      TARGET_ENABLE at 16#2080# range 0 .. 63;
+      TARGET        at 16#201000# range 0 .. 63;
    end record;
 
    --  Platform-Level Interrupt Controller.
