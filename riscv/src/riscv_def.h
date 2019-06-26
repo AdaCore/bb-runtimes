@@ -47,14 +47,16 @@
 # error XLEN value not supported
 #endif
 
-#if __riscv_flen == 64
-# define FLREG fld
-# define FSREG fsd
-#elif __riscv_flen == 32
-# define FLREG flw
-# define FSREG fsw
-#else
-# error Invalid FLEN value
+#ifndef __riscv_float_abi_soft
+# if __riscv_flen == 64
+#  define FLREG fld
+#  define FSREG fsd
+# elif __riscv_flen == 32
+#  define FLREG flw
+#  define FSREG fsw
+# else
+#  error Invalid FLEN value
+# endif
 #endif
 
 #ifdef __riscv_float_abi_soft
