@@ -164,7 +164,7 @@ class TMS570(CortexARTarget):
     def compiler_switches(self):
         # The required compiler switches
         return ('-mbig-endian', '-mhard-float', '-mcpu=%s' % self.cpu,
-                '-mfpu=vfpv3-d16', '-marm')
+                '-mfpu=vfpv3-d16', '-marm', '-mbe32')
 
     @property
     def readme_file(self):
