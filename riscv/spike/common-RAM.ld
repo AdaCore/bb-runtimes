@@ -93,6 +93,12 @@ SECTIONS
     *(.sdata .sdata.* .gnu.linkonce.s.*)
   } > ram_da
 
+  .sdata2 :
+  {
+    *(.sdata2 .sdata2.*)
+    *(.gnu.linkonce.s2.*)
+  } > ram_da
+
   .sbss (NOLOAD): {
    . = ALIGN(0x8);
    __bss_start = .;

@@ -84,6 +84,12 @@ SECTIONS
     *(.gnu.linkonce.s.*)
   } > ram
 
+  .sdata2 ALIGN(4) : ALIGN(4) /* Align both virtual and load addresses */
+  {
+    *(.sdata2 .sdata2.*)
+    *(.gnu.linkonce.s2.*)
+  } > ram
+
   __data_end = .;
 
   /* Size of all data sections (.data, .srodata, .sdata) in number of 32bit
