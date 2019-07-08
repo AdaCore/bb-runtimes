@@ -18,6 +18,14 @@ class RiscV64(DFBBTarget):
     def system_ads(self):
         return {'zfp': 'system-xi-riscv.ads'}
 
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(RiscV64, self).dump_runtime_xml(rts_name, rts)
+        if rts_name == 'ravenscar-full':
+            cnt = cnt.replace(
+                '"-nostartfiles"',
+                ('"-nostartfiles", "-nodefaultlibs", "-lgcc"'))
+        return cnt
+
 
 class Spike(RiscV64):
     @property
