@@ -384,8 +384,8 @@ sources = {
             'hie/s-memory__xi.adb'],
         'pikeos_srcs': [
             'hie/s-init__pikeos.adb',
-            'hie/s-memory__pikeos.ads',
-            'hie/s-memory__pikeos.adb']
+            'libgnat/s-memory.ads',
+            'hie/s-memory__xi.adb']
     },
 
     # Memory operations:
