@@ -329,7 +329,7 @@ class M1AGL(ArmV6MTarget):
 
     @property
     def loaders(self):
-        return (['ROM', 'RAM'])
+        return ('ROM', 'RAM')
 
     @property
     def compiler_switches(self):
