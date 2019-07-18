@@ -333,6 +333,7 @@ sources = {
             'libgnat/s-io.ads', 'hie/s-io.adb',
             'libgnat/s-mantis.ads', 'libgnat/s-mantis.adb',
             'libgnat/s-mastop.ads', 'libgnat/s-mastop.adb',
+            'libgnat/s-memory.ads', 'hie/s-memory__xi.adb',
             'libgnat/s-pooglo.ads', 'libgnat/s-pooglo.adb',
             'libgnat/s-pooloc.ads', 'libgnat/s-pooloc.adb',
             'libgnat/s-poosiz.ads', 'libgnat/s-poosiz.adb',
@@ -379,13 +380,9 @@ sources = {
             'libgcc/unwind-pe.h'],
         'bb_srcs': [
             'hie/adaint-xi.c',
-            'hie/s-init__bb.adb',
-            'libgnat/s-memory.ads',
-            'hie/s-memory__xi.adb'],
+            'hie/s-init__bb.adb'],
         'pikeos_srcs': [
-            'hie/s-init__pikeos.adb',
-            'libgnat/s-memory.ads',
-            'hie/s-memory__xi.adb']
+            'hie/s-init__pikeos.adb']
     },
 
     # Memory operations:
