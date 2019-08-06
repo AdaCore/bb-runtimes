@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
  *             Copyright (C) 2003-2006 The European Space Agency            *
- *                      Copyright (C) 2003-2017 AdaCore                     *
+ *                      Copyright (C) 2003-2019 AdaCore                     *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -417,15 +417,15 @@ hardreset:
         nop
         .size hardreset, . - hardreset
 
-        .global _exit, __exit
+        .global _exit, _exit
 _exit:
-__exit:
+_exit:
         mov     1, %g1
         ta      0                       ! Halt if main would return ...
         nop
 
         .size _exit, . - _exit
-        .size __exit, . - __exit
+        .size _exit, . - _exit
 
 #if defined (LEON3)
 /* Slave CPU */
