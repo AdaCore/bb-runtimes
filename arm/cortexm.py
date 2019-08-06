@@ -66,6 +66,10 @@ class ArmV6MTarget(Target):
     def __init__(self):
         super(ArmV6MTarget, self).__init__()
 
+        self.add_sources('crt0', [
+            'src/s-bbarat.ads',
+            'src/s-bbarat.adb'])
+
 
 class ArmV7MTarget(ArmV6MTarget):
     @property
@@ -356,17 +360,83 @@ class M1AGL(ArmV6MTarget):
             'arm/igloo/m1agl/s-bbbopa.ads',
             'arm/igloo/m1agl/s-bbmcpa.ads',
             'arm/igloo/m1agl/s-textio.adb',
+            'arm/igloo/m1agl/svd/i-m1agl.ads',
+            'arm/igloo/m1agl/svd/i-m1agl-coreuartapb.ads',
             'arm/src/armv6m_irq_trap_without_os_extensions.S'])
 
         self.add_sources('gnarl', [
             'arm/igloo/m1agl/a-intnam.ads',
-            'arm/igloo/m1agl/svd/i-m1agl.ads',
             'arm/igloo/m1agl/svd/i-m1agl-coretimer.ads',
             'arm/igloo/m1agl/svd/i-m1agl-coreinterrupt.ads',
-            'arm/igloo/m1agl/svd/i-m1agl-coreuartapb.ads',
             'src/s-bbpara__m1agl.ads',
             'src/s-bbbosu__m1agl.adb',
             'src/s-bcpcst__m1agl.adb'])
+
+
+class CortexM1CommonArchSupport(ArmV6MTarget):
+    @property
+    def name(self):
+        return 'microsemim1'
+
+    @property
+    def loaders(self):
+        return ('TCM', 'RAM', )
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+                '-mcpu=cortex-m1')
+
+    @property
+    def has_fpu(self):
+        # We require floating point attributes as soft-float is supported
+        return True
+
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads',
+                'ravenscar-sfp': 'system-xi-armv6m-sfp.ads',
+                'ravenscar-full': 'system-xi-armv6m-full.ads'}
+
+    def __init__(self):
+        super(CortexM1CommonArchSupport, self).__init__()
+
+        self.add_linker_script('arm/cortex-m1/common-RAM.ld',
+                               loader='RAM')
+        self.add_linker_script('arm/cortex-m1/common-TCM.ld',
+                               loader='TCM')
+
+        self.add_sources('crt0', [
+            'arm/cortex-m1/start-tcm.S',
+            'arm/cortex-m1/start-ram.S'])
+
+        self.add_sources('gnarl', [
+            'src/s-bbpara__cortexm1.ads',
+            'src/s-bbbosu__armv6m.adb',
+            'src/s-bcpcst__pendsv.adb'])
+
+
+class MicrosemiM1(CortexM1CommonArchSupport):
+    @property
+    def name(self):
+        return 'microsemi-m1'
+
+    def __init__(self):
+        super(MicrosemiM1, self).__init__()
+
+        self.add_linker_script('arm/cortex-m1/microsemi/memory-map.ld',
+                               loader=['TCM', 'RAM'])
+
+        self.add_sources('crt0', [
+            'arm/cortex-m1/microsemi/s-bbbopa.ads',
+            'arm/cortex-m1/microsemi/s-bbmcpa.ads',
+            'arm/cortex-m1/microsemi/s-textio.adb',
+            'arm/cortex-m1/microsemi/svd/i-microsemi.ads',
+            'arm/cortex-m1/microsemi/svd/i-microsemi-coreuartapb.ads'])
+
+        self.add_sources('gnarl', [
+            'arm/cortex-m1/microsemi/a-intnam.ads'])
 
 
 class NRF51(ArmV6MTarget):
@@ -400,8 +470,6 @@ class NRF51(ArmV6MTarget):
         self.add_linker_script('arm/nordic/nrf51/common-ROM.ld', loader='ROM')
 
         self.add_sources('crt0', [
-            'src/s-bbarat.ads',
-            'src/s-bbarat.adb',
             'arm/nordic/nrf51/svd/i-nrf51.ads',
             'arm/nordic/nrf51/svd/i-nrf51-clock.ads',
             'arm/nordic/nrf51/svd/i-nrf51-rtc.ads',

@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2004 The European Space Agency            --
---                       Copyright (C) 2017, AdaCore                        --
+--            Copyright (C) 2005-2019, Free Software Foundation, Inc.       --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -71,10 +71,12 @@ package body System.BB.CPU_Primitives.Context_Switch_Trigger is
 
    procedure Trigger_Context_Switch is
    begin
-
-      --  Make deferred supervisor call pending
+      --  Make pending supervisor call. The context switch will occur when
+      --  interrupts are enabled. The call is followed by a data barrier to
+      --  ensure the call is set before interrupts are re-enabled.
 
       ICSR := ICSR_Pend_SV_Set;
+      Asm ("dsb", Volatile => True);
 
       --  The context switch better be pending, as otherwise it means
       --  interrupts were not disabled.

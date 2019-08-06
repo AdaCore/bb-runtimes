@@ -60,6 +60,11 @@ abstract project Target_Options is
      for Switches ("a-tags.adb") use ALL_ADAFLAGS & ("-g");
      for Switches ("raise-gcc.c") use ALL_CFLAGS & ("-fexceptions");
 
+     --  Don't inline System.Machine_Reset otherwise we can loose our common
+     --  exit system.
+
+     for Switches ("s-macres.adb") use ALL_ADAFLAGS & ("-fno-inline");
+
      for Switches ("system.ads") use ALL_ADAFLAGS &
        ("-gnatet=" & Project'Object_Dir & "/../ada_target_properties");
 

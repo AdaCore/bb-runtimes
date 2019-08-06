@@ -18,7 +18,7 @@ from pikeos import ArmPikeOS, ArmPikeOS42
 
 # Cortex-M runtimes
 from arm.cortexm import Stm32, Sam, SmartFusion2, LM3S, M1AGL, Microbit, \
-     NRF52840, NRF52832, \
+     NRF52840, NRF52832, MicrosemiM1, \
      CortexM0, CortexM0P, CortexM1, CortexM3, CortexM4, CortexM4F, \
      CortexM7F, CortexM7DF
 
@@ -94,6 +94,8 @@ def build_configs(target):
         t = NRF52840()
     elif target == 'nrf52832':
         t = NRF52832()
+    elif target == "microsemi-m1":
+        t = MicrosemiM1()
     elif target == 'cortex-m0':
         t = CortexM0()
     elif target == 'cortex-m0p':
@@ -158,7 +160,7 @@ def build_configs(target):
 
 
 def usage():
-    print "usage: build-rts.py OPTIONS board1 board2 ..."
+    print "usage: build_rts.py OPTIONS board1 board2 ..."
     print "Options are:"
     print " -v --verbose      be verbose"
     print " --bsps-only       generate only the BSPs"
