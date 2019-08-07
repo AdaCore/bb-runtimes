@@ -100,8 +100,8 @@ ifeq ($(TARGET),$(filter $(TARGET),arm-sysgo-pikeos arm-pikeos))
     TARGETS=arm-pikeos
 endif
 
-ifeq ($(TARGET),$(filter $(TARGET),arm-sysgo-pikeos4.2 arm-pikeos4.2))
-    TGT=arm-sysgo-pikeos4.2
+ifeq ($(TARGET),$(filter $(TARGET),arm-sysgo-pikeos4 arm-pikeos4.2))
+    TGT=arm-sysgo-pikeos4
     TARGETS=arm-pikeos4.2
 endif
 

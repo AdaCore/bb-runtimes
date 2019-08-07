@@ -91,7 +91,7 @@ class ArmPikeOS42(PikeOS):
 
     @property
     def target(self):
-        return 'arm-sysgo-pikeos4.2'
+        return 'arm-sysgo-pikeos4'
 
     @property
     def pikeos_version(self):
