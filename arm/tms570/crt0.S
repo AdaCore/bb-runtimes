@@ -152,22 +152,6 @@ FEDACCTRL1_INITVAL:     .word 0x000a060A
 
 
         /*********************************************************************
-         * _exit:                                                           *
-         *                                                                   *
-         * Forces a CPU reset.                                               *
-         *********************************************************************/
-        .globl  _exit
-        .type   _exit, %function
-_exit:
-	/* reset: write 0x8000 to SYSECR (16#FFFF_FFE0#) */
-        mov	r2, #0x8000
-	mvn	r3, #0
-        str	r2, [r3, #-31]
-	b	_exit
-        .size   _exit, . - _exit
-
-
-        /*********************************************************************
          * __gnat_init_cpu                                                   *
          *                                                                   *
          * Initializes CPU registers, including backed registers for all     *

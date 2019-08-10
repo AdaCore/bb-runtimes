@@ -30,6 +30,7 @@
 ------------------------------------------------------------------------------
 
 --  Reset for TMS570LS31x
+with Interfaces; use Interfaces;
 
 package body System.Machine_Reset is
    procedure Os_Exit (Status : Integer);
@@ -59,12 +60,16 @@ package body System.Machine_Reset is
       pragma Unreferenced (Status);
       --  The parameter is just for ISO-C compatibility
 
-      procedure Board_Exit;
-      pragma Import (C, Board_Exit, "_exit");
-      pragma No_Return (Board_Exit);
-      --  Reset strategy depends on the configuration
+      --  Reset: write 0x8000 so SYSECR
+      SYSECR : Unsigned_32
+        with Import, Volatile, Address => 16#FFFF_FFE0#;
+
    begin
-      Board_Exit;
+      SYSECR := 16#8000#;
+
+      loop
+         null;
+      end loop;
    end Os_Exit;
 
    ----------
