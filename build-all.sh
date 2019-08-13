@@ -11,14 +11,7 @@ function runcmd {
   test -n "$flag_dryrun" || $*
 }
 
-# The caller should really export this variable if necessary, so we don't
-# need to hardcode absolute paths in this script.
-if [ -d /netopt/xtratum/xtratum-4.2.0-tsim/xm ] ; then
-    export XTRATUM_PATH=/netopt/xtratum/xtratum-4.2.0-tsim/xm
-fi
-
 parentdir=$(dirname $PWD)
-export XTRATUM_PATH=${XTRATUM_PATH:-$parentdir/XtratuM/xm}
 GNAT_SRC_DIR=${GNAT_SRC_DIR:-$parentdir/gnat}
 GCC_SRC_DIR=${GCC_SRC_DIR:-$parentdir/gcc}
 CROSS_DIR=${CROSS_DIR:-$parentdir/bareboard/src}
@@ -267,16 +260,6 @@ build_full_tms570()
 build_full_tms570_sci()
 {
     do_ravenscar arm-eabi ravenscar-full/tms570-sci
-}
-
-build_sfp_xtratum_tms570()
-{
-    do_ravenscar arm-eabi ravenscar-xtratum/tms570
-}
-
-build_full_xtratum_tms570()
-{
-    do_ravenscar arm-eabi ravenscar-full-xtratum/tms570
 }
 
 build_sfp_rm48()
@@ -844,12 +827,8 @@ else
                   sfp)  build_sfp_tms570 ;;
                   full) build_full_tms570 ;;
                   full-sci) build_full_tms570_sci ;;
-                  xtratum-sfp) build_sfp_xtratum_tms570 ;;
-                  xtratum-full) build_full_xtratum_tms570 ;;
                   raven-sfp) raven_testsuite ravenscar-sfp/tms570 ;;
                   raven-full) raven_testsuite ravenscar-full/tms570 ;;
-                  raven-xtratum-sfp) raven_testsuite ravenscar-sfp/xtratum-tms570 ;;
-                  raven-xtratum-full) raven_testsuite ravenscar-full/xtratum-tms570 ;;
                   *) echo "Unknown command $opt for target $target"; exit 2;;
               esac
               ;;

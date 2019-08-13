@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 2012-2015, Free Software Foundation, Inc.         --
+--          Copyright (C) 2012-2019, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -39,8 +39,6 @@ package body System.Text_IO is
 
    function Get return Character is
    begin
-      --  XtratuM no longer supports reading from the console
-
       raise Program_Error;
       return ASCII.NUL;
    end Get;

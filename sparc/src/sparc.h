@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002, Universidad Politecnica de Madrid          *
  *             Copyright (C) 2003-2005, The European Space Agency           *
- *                    Copyright (C) 2003-2017, AdaCore                      *
+ *                    Copyright (C) 2003-2019, AdaCore                      *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -35,7 +35,7 @@
 
 /* Get the id of the current cpu (always 0 on single processor) */
 
-#if defined (LEON3) && !defined (XTRATUM)
+#if defined (LEON3)
 # define CURRENT_CPU(reg)       \
         rd      %asr17, reg;    \
         srl     reg, 28, reg;

@@ -25,7 +25,6 @@ class LeonArch(ArchSupport):
             'sparc/src/context_switch.S',
             'sparc/src/trap_handler.S',
             'sparc/src/interrupt_masking.S',
-            'sparc/src/floating_point.S',
             'src/s-bbcaco.ads',
             'src/s-bbcaco__leon.adb',
             'src/s-bbinte__generic.adb'])

@@ -78,13 +78,6 @@ case $config in
         run=run_tms570
 	BUILDOPTS=-XLOADER=HIRAM
         ;;
-    ravenscar-sfp/xtratum-tms570 | ravenscar-full/xtratum-tms570)
-        support_dirs="arm-eabi ravenscar-sfp"
-        discr="no_libc,no_serial_output,no_cache_control,no_accurate_clock,no_long_delay,arm,xtratum"
-        cross=arm-eabi
-        run=run_xtratum_tms570
-	BUILDOPTS="-largs -Wl,-Ttext=0x40000,-Tdata=0x8020000"
-        ;;
     ravenscar-sfp/leon)
         support_dirs=leon-elf
         discr="no_libc,no_accurate_clock,no_cache_control,no_long_delay,sparc,leon"
@@ -165,22 +158,6 @@ run_tms570()
 {
   arm-eabi-objcopy --srec-forceS3 -O srec $1 ${1}.srec
   ../examples/mpc5566-monitor/p5566/sendsrec.py -s 115200 -r /dev/cu.usbserial-TI* ${1}.srec
-}
-
-run_xtratum_tms570()
-{
-  (
-    sz=`arm-eabi-size $1 | cut -c 17-24 | tail -1`
-    if [ $sz -gt 128000 ]; then
-      echo "Too big (size=$sz)"
-      return 1
-    fi
-    cp $1 ~/work/xtratum/hello_world/partition0
-    cd ~/work/xtratum/hello_world
-    rm -f kernel.out xm_cf.bin.xmc
-    make > /dev/null 2>&1
-    ~/work/qemu-armeb/armeb-softmmu/qemu-system-armeb -nographic -no-reboot -M TMS570 -kernel kernel.out
-  )
 }
 
 if [ "$flag_continue" != "y" ]; then
