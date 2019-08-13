@@ -17,7 +17,7 @@ from support.docgen import docgen
 from pikeos import ArmPikeOS, ArmPikeOS42
 
 # Cortex-M runtimes
-from arm.cortexm import Stm32, Sam, SmartFusion2, LM3S, M1AGL, Microbit, \
+from arm.cortexm import Stm32, Sam, SmartFusion2, LM3S, Microbit, \
      NRF52840, NRF52832, MicrosemiM1, \
      CortexM0, CortexM0P, CortexM1, CortexM3, CortexM4, CortexM4F, \
      CortexM7F, CortexM7DF
@@ -86,8 +86,6 @@ def build_configs(target):
         t = TMS570('tms570lc43', uart_io=False)
     elif target == 'lm3s':
         t = LM3S()
-    elif target == 'm1agl':
-        t = M1AGL()
     elif target == 'microbit':
         t = Microbit()
     elif target == 'nrf52840':

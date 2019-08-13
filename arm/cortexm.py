@@ -326,53 +326,6 @@ class SmartFusion2(ArmV7MTarget):
             'src/s-bbpara__smartfusion2.ads'])
 
 
-class M1AGL(ArmV6MTarget):
-    @property
-    def name(self):
-        return 'm1agl'
-
-    @property
-    def loaders(self):
-        return ('ROM', 'RAM')
-
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ('-mlittle-endian', '-mthumb', '-msoft-float',
-                '-mcpu=cortex-m1')
-
-    @property
-    def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads',
-                'ravenscar-sfp': 'system-xi-m1agl-sfp.ads'}
-
-    def __init__(self):
-        super(M1AGL, self).__init__()
-
-        self.add_linker_script('arm/igloo/m1agl/common-ROM.ld', loader='ROM')
-        self.add_linker_script('arm/igloo/m1agl/common-RAM.ld', loader='RAM')
-        self.add_linker_script('arm/igloo/m1agl/memory-map.ld',
-                               loader=['ROM', 'RAM'])
-
-        self.add_sources('crt0', [
-            'arm/igloo/m1agl/start-rom.S',
-            'arm/igloo/m1agl/start-ram.S',
-            'arm/igloo/m1agl/s-bbbopa.ads',
-            'arm/igloo/m1agl/s-bbmcpa.ads',
-            'arm/igloo/m1agl/s-textio.adb',
-            'arm/igloo/m1agl/svd/i-m1agl.ads',
-            'arm/igloo/m1agl/svd/i-m1agl-coreuartapb.ads',
-            'arm/src/armv6m_irq_trap_without_os_extensions.S'])
-
-        self.add_sources('gnarl', [
-            'arm/igloo/m1agl/a-intnam.ads',
-            'arm/igloo/m1agl/svd/i-m1agl-coretimer.ads',
-            'arm/igloo/m1agl/svd/i-m1agl-coreinterrupt.ads',
-            'src/s-bbpara__m1agl.ads',
-            'src/s-bbbosu__m1agl.adb',
-            'src/s-bcpcst__m1agl.adb'])
-
-
 class CortexM1CommonArchSupport(ArmV6MTarget):
     @property
     def name(self):
