@@ -32,8 +32,8 @@ $ gprbuild -j0 -P ravenscar_sfp_microsemi_m1.gpr
 $ gprinstall -p -P ravenscar_sfp_microsemi_m1.gpr
 
 The other runtimes can be installed by specifying the corresponding project
-file with the BSPs directory. The runtime can then be used by your application
-by:
+file within the BSPs directory. The runtime can then be used by your
+application by:
 
 * selecting the runtime in GPS through the project properties dialog;
 * adding the ``for Runtime ("ada") use "ravenscar-sfp-microsemi-m1";``
