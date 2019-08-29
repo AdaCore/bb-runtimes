@@ -1,0 +1,5 @@
+# Declare files that will always have LF line endings on checkout.
+*.ada text eol=lf
+*.adb text eol=lf
+*.ads text eol=lf
+*.gpr text eol=lf
