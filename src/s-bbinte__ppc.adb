@@ -93,12 +93,9 @@ package body System.BB.Interrupts is
    --  Table that contains a pointer to the top of the stack for each processor
 
    type Handlers_Table is array (Interrupt_ID) of Interrupt_Handler;
-   pragma Suppress_Initialization (Handlers_Table);
-   --  Type used to represent the procedures used as interrupt handlers.
-   --  We need to prevent initialization to avoid elaboration code, so we rely
-   --  on default initialization to zero of uninitialized data.
+   --  Type used to represent the procedures used as interrupt handlers
 
-   Interrupt_Handlers_Table : Handlers_Table;
+   Interrupt_Handlers_Table : Handlers_Table := (others => null);
    --  Table containing handlers attached to the different external interrupts
 
    Interrupt_Being_Handled : Any_Interrupt_ID := No_Interrupt;
