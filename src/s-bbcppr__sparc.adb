@@ -51,12 +51,14 @@ package body System.BB.CPU_Primitives is
    PSR      : constant Context_Id :=  8;
    WIM      : constant Context_Id := 17;
    WIN      : constant Context_Id := 18;
+   FSR      : constant Context_Id := 19;
    O0       : constant Context_Id :=  0;
    INT      : constant Context_Id := 52;
-   --  These are the registers that are initialized: Program Counter, Stack
-   --  Pointer, Window Invalid Mask, and Processor State Register. Moreover,
-   --  the first input argument, the number of register windows to be restored,
-   --  and the interrupt nesting level are also initialized.
+   --  these are the registers that are initialized: Program Counter, Stack
+   --  Pointer, Window Invalid Mask, Floating-Point State Register, and
+   --  Processor State Register. Moreover, the first input argument, the number
+   --  of register windows to be restored, and the interrupt nesting level are
+   --  also initialized.
 
    Base_CCR : constant Context_Id := Base_CCR_Context_Index;
    CCR      : constant Context_Id := CCR_Context_Index;
@@ -286,6 +288,10 @@ package body System.BB.CPU_Primitives is
       Buffer (CCR) :=
         (if Get_CCR'Address = Null_Address then Null_Address else Get_CCR);
       Buffer (Base_CCR) := Buffer (CCR);
+
+      --  The Floating-Point State Register is initialized to 0
+
+      Buffer (FSR) := SSE.To_Address (0);
 
       --  The rest of registers do not need to be initialized
 
