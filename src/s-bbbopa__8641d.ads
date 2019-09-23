@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---                     Copyright (C) 2014-2016, AdaCore                     --
+--                     Copyright (C) 2014-2019, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -48,7 +48,7 @@ package System.BB.Board_Parameters is
    -- Hardware clock --
    --------------------
 
-   Clock_Frequency : constant Positive := 264_000_000 / 4;
+   Clock_Frequency : constant Positive := 200_000_000 / 4;
    --  Frequency of the system clock for the decrementer timer
 
 end System.BB.Board_Parameters;
