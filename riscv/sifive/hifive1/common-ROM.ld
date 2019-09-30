@@ -110,16 +110,14 @@ SECTIONS
    *(COMMON)
 
    /* Interrupt stacks. Statically allocated in System.BB.Interrupts */
-   . = ALIGN(8);
    __interrupt_stack_start = .;
    *(.interrupt_stacks)
+   . = ALIGN(0x10); /* Align stack to 128 bits as required in the ABI */
    __interrupt_stack_end = .;
-
-   . = ALIGN(0x8);    /* Align the stack to 64 bits */
 
    __stack_start = .;
    . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
-   . = ALIGN(0x8);
+   . = ALIGN(0x10); /* Align stack to 128 bits as required in the ABI */
    __stack_end = .;
 
    _end = .;
