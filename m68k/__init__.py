@@ -20,10 +20,6 @@ class M68KArch(ArchSupport):
 
 class M68KTarget(DFBBTarget):
     @property
-    def target(self):
-        return 'm68k-elf'
-
-    @property
     def parent(self):
         return M68KArch
 
@@ -34,10 +30,14 @@ class M68KTarget(DFBBTarget):
         }
 
 
-class MC68020(M68KTarget):
+class M68020(M68KTarget):
+    @property
+    def target(self):
+        return 'm68020-elf'
+
     @property
     def name(self):
-        return "mc68020"
+        return "m68020"
 
     @property
     def parent(self):
@@ -45,7 +45,7 @@ class MC68020(M68KTarget):
 
     @property
     def readme_file(self):
-        return 'm68k/mc68020/README'
+        return 'm68k/m68020/README'
 
     @property
     def loaders(self):
@@ -54,16 +54,16 @@ class MC68020(M68KTarget):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mc68020', )
+        return ('-m68020', )
 
     def __init__(self):
-        super(MC68020, self).__init__()
+        super(M68020, self).__init__()
 
-        self.add_linker_script('m68k/mc68020/common-RAM.ld',
+        self.add_linker_script('m68k/m68020/common-RAM.ld',
                                loader=('RAM'))
-        self.add_linker_script('m68k/mc68020/memory-map.ld', loader='RAM')
+        self.add_linker_script('m68k/m68020/memory-map.ld', loader='RAM')
         self.add_sources('crt0', [
-            'm68k/mc68020/mc68901.ads',
-            'm68k/mc68020/start-ram.S',
-            'm68k/mc68020/s-macres.adb',
-            'm68k/mc68020/s-textio.adb'])
+            'm68k/m68020/mc68901.ads',
+            'm68k/m68020/start-ram.S',
+            'm68k/m68020/s-macres.adb',
+            'm68k/m68020/s-textio.adb'])
