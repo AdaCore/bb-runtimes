@@ -67,3 +67,14 @@ class M68020(M68KTarget):
             'm68k/m68020/start-ram.S',
             'm68k/m68020/s-macres.adb',
             'm68k/m68020/s-textio.adb'])
+
+
+class M68020_SoftFloat(M68020):
+    @property
+    def name(self):
+        return "m68020-softfloat"
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-m68020', '-msoft-float')
