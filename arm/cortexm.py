@@ -680,9 +680,11 @@ class Stm32(ArmV7MTarget):
             'arm/stm32/%s/svd/i-stm32-usart.ads' % self.mcu)
 
         if self.board == 'stm32f4':
-            self.add_gnat_source('arm/stm32/stm32f40x/s-stm32.adb')
+            self.add_sources('crt0', [
+                'arm/stm32/stm32f40x/s-stm32.adb'])
         elif self.board == 'feather_stm32f405':
-            self.add_gnat_source('arm/stm32/stm32f40x/s-stm32.adb')
+            self.add_sources('crt0', [
+                'arm/stm32/stm32f40x/s-stm32.adb'])
             self.update_pair(
                 's-bbbopa.ads',
                 'arm/stm32/%s/s-bbbopa-feather_stm32f405.ads' % self.mcu)
