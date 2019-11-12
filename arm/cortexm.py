@@ -637,7 +637,7 @@ class Stm32(ArmV7MTarget):
 
     def __init__(self, board):
         self.board = board
-        if self.board == 'stm32f4':
+        if self.board == 'stm32f4' or self.board == 'feather_stm32f405':
             self.mcu = 'stm32f40x'
         elif self.board == 'stm32f429disco':
             self.mcu = 'stm32f429x'
@@ -674,6 +674,12 @@ class Stm32(ArmV7MTarget):
         if self.board == 'stm32f4':
             self.add_sources('crt0', [
                 'arm/stm32/stm32f40x/s-stm32.adb'])
+        elif self.board == 'feather_stm32f405':
+            self.add_sources('crt0', [
+                'arm/stm32/stm32f40x/s-stm32.adb'])
+            self.update_pair(
+                's-bbbopa.ads',
+                'arm/stm32/%s/s-bbbopa-feather_stm32f405.ads' % self.mcu)
         elif self.board == 'stm32f429disco':
             self.add_sources('crt0', [
                 'arm/stm32/stm32f429x/s-stm32.adb'])
