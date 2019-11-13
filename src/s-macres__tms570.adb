@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---            Copyright (C) 2011-2019, Free Software Foundation, Inc.       --
+--            Copyright (C) 2011-2020, Free Software Foundation, Inc.       --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -29,12 +29,13 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  Reset for TMS570LS31x
+--  Reset for TMS570
 with Interfaces; use Interfaces;
 
 package body System.Machine_Reset is
    procedure Os_Exit (Status : Integer);
    pragma No_Return (Os_Exit);
+   pragma Weak_External (Os_Exit);
    pragma Export (Ada, Os_Exit, "_exit");
    --  Shutdown or restart the board
 
