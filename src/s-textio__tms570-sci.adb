@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1992-2017, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2019, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -31,8 +31,19 @@
 
 --  Minimal version of Text_IO body for use on TMS570LS31x, using SCI/LIN
 
+--  @design
+--  This package is in charge of sending characters to the remote host
+--  machine. The application output is sent through the UART, from which the
+--  host machine extracts the application output.
+--
+--  The TMS570 runtime uses the SCI1/LIN1 module, configured for 115200 baud
+--  rate, one stop bit, no parity.
+
 with Interfaces;           use Interfaces;
+--  @design used for the 32-bit integers definition
 with System.BB.Parameters; use System.BB.Parameters;
+--  @design used to retrieve the system clock, used to calculate the prescaler
+--  values to achieve the desired baud rate.
 
 package body System.Text_IO is
 

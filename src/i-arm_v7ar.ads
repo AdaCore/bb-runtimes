@@ -6,7 +6,7 @@
 --                                                                          --
 --                                   S p e c                                --
 --                                                                          --
---                      Copyright (C) 2016-2017, AdaCore                    --
+--                      Copyright (C) 2016-2019, AdaCore                    --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -29,10 +29,11 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  Low level operations for ARM V7A and ARM V7R cores (cache maintainance,
---  access to control registers...)
+--  @design Low level operations for ARM V7A and ARM V7R cores (cache
+--  maintainance, access to control registers...)
 
 with System;
+--  @design used for the type ``Address``
 
 package Interfaces.ARM_V7AR is
    pragma No_Elaboration_Code_All;

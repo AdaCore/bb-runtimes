@@ -6,7 +6,7 @@
 --                                                                          --
 --                                   B o d y                                --
 --                                                                          --
---                      Copyright (C) 2016-2017, AdaCore                    --
+--                      Copyright (C) 2016-2019, AdaCore                    --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -30,6 +30,7 @@
 ------------------------------------------------------------------------------
 
 with System.Machine_Code; use System.Machine_Code;
+--  @design to generate assembly code.
 
 package body Interfaces.ARM_V7AR is
    use System;
