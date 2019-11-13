@@ -283,3 +283,10 @@ fiqSp:          .word __fiq_stack_end
 irqSp:          .word __irq_stack_end
 userSp:         .word __stack_end
         .size   __gnat_init_cpu, . - __gnat_init_cpu
+
+/* provide a weak variant of CPU errata: if any, this can then be overloaded */
+        .weak  __cpu_errata
+        .type  __cpu_errata, %function
+__cpu_errata:
+        bx lr
+        .size  __cpu_errata, . - __cpu_errata
