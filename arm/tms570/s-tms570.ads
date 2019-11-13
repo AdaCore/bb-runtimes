@@ -2,7 +2,7 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---                      Copyright (C) 2016-2017, AdaCore                    --
+--                      Copyright (C) 2016-2020, AdaCore                    --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -27,10 +27,10 @@
 
 --  Board initialization code for the TMS570.
 
-package Board_Init is
+package System.TMS570 is
    pragma No_Elaboration_Code_All;
 
    procedure Board_Init;
    pragma Export (Asm, Board_Init, "__gnat_board_init");
 
-end Board_Init;
+end System.TMS570;

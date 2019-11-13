@@ -176,11 +176,7 @@ class TMS570(CortexARTarget):
                 'ravenscar-sfp': 'system-xi-arm-sfp.ads',
                 'ravenscar-full': 'system-xi-arm-full.ads'}
 
-    def __init__(self, variant='tms570ls31', uart_io=False):
-        self.variant = variant
-        self.uart_io = uart_io
-        super(TMS570, self).__init__()
-
+    def add_linker_scripts(self):
         self.add_linker_script([
             'arm/tms570/common.ld',
             {'tms570.ld': 'arm/tms570/%s.ld' % self.variant}])
@@ -189,16 +185,21 @@ class TMS570(CortexARTarget):
         self.add_linker_script('arm/tms570/loram.ld', loader='LORAM')
         self.add_linker_switch('-Wl,-z,max-page-size=0x1000', loader=None)
 
+    def __init__(self, variant='tms570ls31', uart_io=False):
+        self.variant = variant
+        self.uart_io = uart_io
+        super(TMS570, self).__init__()
+
+        self.add_linker_scripts()
+
         self.add_sources('crt0', [
             'arm/tms570/crt0.S',
             'arm/tms570/system_%s.c' % self.variant,
             'src/s-bbpara__%s.ads' % self.variant,
-            'arm/tms570/board_init.ads', 'arm/tms570/board_init.adb',
+            'arm/tms570/s-tms570.ads', 'arm/tms570/s-tms570.adb',
             'src/s-macres__tms570.adb'])
         if self.cpu == 'cortex-r4f':
             self.add_sources('crt0', 'arm/tms570/cortex-r4.S')
-        else:
-            self.add_sources('crt0', 'arm/tms570/cortex-r5.S')
         if self.uart_io:
             self.add_sources('crt0', 'src/s-textio__tms570-sci.adb')
         else:

@@ -2,7 +2,7 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---                      Copyright (C) 2016-2019, AdaCore                    --
+--                      Copyright (C) 2016-2020, AdaCore                    --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -30,7 +30,7 @@ with Interfaces;              use Interfaces;
 with Interfaces.ARM_V7AR;     use Interfaces.ARM_V7AR;
 with System;                  use System;
 
-package body Board_Init is
+package body System.TMS570 is
 
    --  MPU table constants
    pragma Warnings (Off, "*is not referenced");
@@ -395,4 +395,4 @@ package body Board_Init is
       Enable_Cache;
    end Board_Init;
 
-end Board_Init;
+end System.TMS570;
