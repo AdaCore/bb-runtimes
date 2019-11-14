@@ -39,7 +39,7 @@
 SEARCH_DIR(.)
 __DYNAMIC  =  0;
 
-_DEFAULT_STACK_SIZE = 2*1024;
+_DEFAULT_STACK_SIZE = (40 * 1024);
 
 OUTPUT_ARCH("riscv")
 
@@ -49,10 +49,15 @@ SECTIONS
 {
   .text :
   {
+    __text = .;
     KEEP (*(SORT_NONE(.start)))
     *(.text .text.* .gnu.linkonce.t*)
     *(.gnu.warning)
   } > ram
+
+  .init  : { KEEP(*(.init)) } > ram
+  .ctors : { KEEP(SORT_BY_NAME(*)(.ctors)) } > ram
+  .dtors : { KEEP(SORT_BY_NAME(*)(.dtors)) } > ram
 
   .rodata :
   {
@@ -62,8 +67,25 @@ SECTIONS
     __rom_end = .;
   } > ram
 
+  .eh_frame_hdr :
+  {
+     __eh_frame_hdr = .;
+    *(.eh_frame_hdr)
+  } > ram
+
+  .eh_frame  :
+  {
+    KEEP (*(.eh_frame))
+  } > ram
+
+  .gcc_except_table :
+  {
+    *(.gcc_except_table .gcc_except_table.*)
+  } > ram
+
   .data :
   {
+    __data = .;
     __data_start = .;
     *(.data .data.* .gnu.linkonce.d*)
   } > ram

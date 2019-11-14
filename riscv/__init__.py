@@ -1,3 +1,4 @@
+from support import readfile
 from support.bsp_sources.target import DFBBTarget
 
 
@@ -23,8 +24,17 @@ class RiscV64(DFBBTarget):
         if rts_name == 'ravenscar-full':
             cnt = cnt.replace(
                 '"-nostartfiles"',
-                ('"-nostartfiles", "-nodefaultlibs", "-lgcc"'))
+                ('"-nodefaultlibs", "-lgcc", "-lc",\n'
+                 '"-u", "_Unwind_Find_FDE",\n'
+                 ' "-Wl,--eh-frame-hdr",\n'
+                 '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"'))
         return cnt
+
+    def amend_rts(self, rts_profile, conf):
+        super(DFBBTarget, self).amend_rts(rts_profile, conf)
+        if rts_profile == 'ravenscar-full':
+            conf.config_files.update(
+                {'link-zcx.spec': readfile('riscv/link-zcx.spec')})
 
 
 class Spike(RiscV64):
