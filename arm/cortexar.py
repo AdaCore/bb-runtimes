@@ -197,7 +197,7 @@ class TMS570(CortexARTarget):
             self.add_sources('crt0', 'src/s-textio__tms570.adb')
 
         self.add_sources('gnarl', [
-            'src/a-intnam__tms570.ads',
+            'src/a-intnam__%s.ads' % self.variant,
             'src/s-bbpara__%s.ads' % self.variant,
             'src/s-bbbosu__tms570.adb',
             'src/s-bbsumu__generic.adb'])
