@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -78,12 +78,14 @@ package System.BB.Parameters is
    --  These definitions are in this package in order to isolate target
    --  dependencies.
 
-   subtype Interrupt_Range is Natural range 0 .. 95;
+   subtype Interrupt_Range is Natural range 0 .. 126;
    --  Number of interrupts supported by the VIC. For the TMS570 interrupts,
-   --  we really only consider the 95 usable interrupt channels. The run time
-   --  assumes the interrupt source to interrupt channel map is direct (1:1),
-   --  as is the default, but the user can change this as long as the IRQ used
-   --  by the system for alarms stays unchanged.
+   --  we really consider the 126 usable interrupt channels even though not all
+   --  are used. Note that channel 127 exists but does not have a dedicated
+   --  vector and shall not be used.
+   --  The run time assumes the interrupt source to interrupt
+   --  channel map is direct (1:1), as is the default, but the user can change
+   --  this as long as the IRQ used by the system for alarms stays unchanged.
 
    Trap_Vectors : constant := 7;
    --  ARM in general has these traps:

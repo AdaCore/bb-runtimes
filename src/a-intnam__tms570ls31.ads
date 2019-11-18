@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---          Copyright (C) 1991-2013, Free Software Foundation, Inc.         --
+--          Copyright (C) 1991-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -42,12 +42,11 @@ package Ada.Interrupts.Names is
    RTI_Compare_Interrupt_1              : constant Interrupt_ID := 3;
    RTI_Compare_Interrupt_2              : constant Interrupt_ID := 4;
    RTI_Compare_Interrupt_3              : constant Interrupt_ID := 5;
-
    RTI_Overflow_Interrupt_0             : constant Interrupt_ID := 6;
    RTI_Overflow_Interrupt_1             : constant Interrupt_ID := 7;
    RTI_Timebase_Interrupt               : constant Interrupt_ID := 8;
 
-   GIO_Interrupt_A                      : constant Interrupt_ID := 9;
+   GIO_High_Level_Interrupt             : constant Interrupt_ID := 9;
    N2HET1_Level_0_Interrupt             : constant Interrupt_ID := 10;
    HET_TU1_Level_0_Interrupt            : constant Interrupt_ID := 11;
    MIBSPI1_Level_0_Interrupt            : constant Interrupt_ID := 12;
@@ -61,7 +60,7 @@ package Ada.Interrupts.Names is
    ESM_Low_Level_Interrupt              : constant Interrupt_ID := 20;
    Software_Interrupt                   : constant Interrupt_ID := 21;
    PMU_Interrupt                        : constant Interrupt_ID := 22;
-   GIO_Interrupt_B                      : constant Interrupt_ID := 23;
+   GIO_Low_Level_Interrupt              : constant Interrupt_ID := 23;
    N2HET1_Level_1_Interrupt             : constant Interrupt_ID := 24;
    HET_TU1_Level_1_Interrupt            : constant Interrupt_ID := 25;
    MIBSPI1_Level_1_Interrupt            : constant Interrupt_ID := 26;
