@@ -103,13 +103,15 @@ __gnat_init:
         /* Clear .bss */
         movw  r0, #:lower16:__bss_start
         movt  r0, #:upper16:__bss_start
-        movw  r1, #:lower16:__bss_words /* Must be less than 64K words here */
+        movw  r1, #:lower16:__bss_words
+        movt  r1, #:upper16:__bss_words
         movw  r2, #0
 	cmp   r1,#0
 	beq   1f
 0:      str r2,[r0],#4
         subs r1,r1,#1
         bne 0b
+1:
 
         /* Copy .data */
 	movw	r0,#:lower16:__data_start

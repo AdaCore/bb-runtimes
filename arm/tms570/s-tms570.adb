@@ -240,7 +240,7 @@ package body System.TMS570 is
 
       --  Region 7: 16MB peripheral segment 2
       CP15.Set_MPU_Region_Number (6);
-      CP15.Set_MPU_Region_Base_Address    (16#F000_0000#);
+      CP15.Set_MPU_Region_Base_Address    (16#FC00_0000#);
       CP15.Set_MPU_Region_Size_And_Enable (Size_16MB or 1);
       CP15.Set_MPU_Region_Access_Control  (XN or AP_RW_RW or NON_SHAREABLE);
 
