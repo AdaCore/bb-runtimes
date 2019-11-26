@@ -61,7 +61,7 @@ package System.BB.Parameters is
    -- Stacks --
    ------------
 
-   Interrupt_Stack_Size : constant := 2 * 1024;
+   Interrupt_Stack_Size : constant := 8 * 1024;
    --  Size of each of the interrupt stacks in bytes
 
    Interrupt_Sec_Stack_Size : constant := 1024;
