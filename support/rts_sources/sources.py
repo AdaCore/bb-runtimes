@@ -728,7 +728,7 @@ sources = {
     'full/zcx-riscv': {
         'conditions':
         ['RTS_Profile:ravenscar-full', 'CPU_Family:riscv64,riscv32'],
-        'srcs': ['hie/s-traceb__ppc.adb']
+        'srcs': ['hie/s-traceb__riscv.adb']
     },
 
     'full/zcx-leon': {
