@@ -32,7 +32,6 @@ ALL_BSP = {'arm-eabi': ['stm32f4', 'stm32f429disco', 'stm32f469disco',
                         ],
            'aarch64-elf': ['rpi3']}
 
-
 def main():
     try:
         opts, args = getopt.getopt(
