@@ -165,7 +165,7 @@ def build(archs, prefix):
 
 ALL_BSP = ['stm32f4', 'stm32f429disco', 'stm32f469disco', 'stm32f746disco',
            'stm32756geval', 'stm32f769disco', 'samg55', 'sam4s', 'samv71',
-           'openmv2', 'rpi3', 'rpi2']
+           'openmv2', 'rpi3', 'rpi2', 'feather_stm32f405']
 
 
 def main():
