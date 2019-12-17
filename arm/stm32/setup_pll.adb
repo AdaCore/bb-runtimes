@@ -2,7 +2,7 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---          Copyright (C) 2012-2017, Free Software Foundation, Inc.         --
+--          Copyright (C) 2012-2019, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -156,11 +156,12 @@ procedure Setup_Pll is
         (SYSCLK /= Clock_Frequency,
            "Cannot generate requested clock");
 
-      pragma Compile_Time_Error
+      --  Cannot be checked at compile time, depends on APB1_PRE and APB2_PRE
+      pragma Assert
         (HCLK not in HCLK_Range
            or else PCLK1 not in PCLK1_Range
            or else PCLK2 not in PCLK2_Range,
-           "Invalid AHB/APB prescalers configuration");
+         "Invalid AHB/APB prescalers configuration");
 
       --  PWR clock enable
 
