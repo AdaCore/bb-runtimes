@@ -102,7 +102,8 @@ procedure Setup_Pll is
                        else (if HSE_Enabled then SYSCLK_SRC_HSE
                              else SYSCLK_SRC_HSI));
       SW_Value    : constant CFGR_SW_Field :=
-                      SYSCLK_Source'Enum_Rep (SW);
+        CFGR_SW_Field'(As_Array => False,
+                       Val => SYSCLK_Source'Enum_Rep (SW));
 
       SYSCLK      : constant Integer := (if Activate_PLL
                                          then PLLCLKOUT
@@ -216,10 +217,10 @@ procedure Setup_Pll is
          --  Configure the PLL clock source, multiplication and division
          --  factors
          RCC_Periph.PLLCFGR :=
-           (PLLM   => PLLM,
-            PLLN   => PLLN,
-            PLLP   => PLLP,
-            PLLQ   => PLLQ,
+           (PLLM   => PLLCFGR_PLLM_Field'(As_Array => False, Val => PLLM),
+            PLLN   => PLLCFGR_PLLN_Field'(As_Array => False, Val => PLLN),
+            PLLP   => PLLCFGR_PLLP_Field'(As_Array => False, Val => PLLP),
+            PLLQ   => PLLCFGR_PLLQ_Field'(As_Array => False, Val => PLLQ),
             PLLSRC => (if HSE_Enabled
                        then PLL_Source'Enum_Rep (PLL_SRC_HSE)
                        else PLL_Source'Enum_Rep (PLL_SRC_HSI)),
@@ -269,7 +270,7 @@ procedure Setup_Pll is
 
       if Activate_PLL then
          loop
-            exit when RCC_Periph.CFGR.SWS =
+            exit when RCC_Periph.CFGR.SWS.Val =
               SYSCLK_Source'Enum_Rep (SYSCLK_SRC_PLL);
          end loop;
 

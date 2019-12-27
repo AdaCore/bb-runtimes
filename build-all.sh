@@ -355,17 +355,32 @@ build_full_stm32f429()
     do_ravenscar arm-eabi ravenscar-full/stm32f429disco
 }
 
-build_zfp_stm32f469()
+build_zfp_stm32f429()
+{
+    do_zfp arm-eabi zfp/stm32f429disco
+}
+
+build_sfp_stm32f429()
+{
+    do_ravenscar arm-eabi ravenscar-sfp/stm32f429disco
+}
+
+build_full_stm32f429()
+{
+    do_ravenscar arm-eabi ravenscar-full/stm32f429disco
+}
+
+build_zfp_stm32f411()
 {
     do_zfp arm-eabi zfp/stm32f469disco
 }
 
-build_sfp_stm32f469()
+build_sfp_stm32f411()
 {
     do_ravenscar arm-eabi ravenscar-sfp/stm32f469disco
 }
 
-build_full_stm32f469()
+build_full_stm32f411()
 {
     do_ravenscar arm-eabi ravenscar-full/stm32f469disco
 }
