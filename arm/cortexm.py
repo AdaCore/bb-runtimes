@@ -648,6 +648,8 @@ class Stm32(ArmV7MTarget):
         self.board = board
         if self.board == 'stm32f4' or self.board == 'feather_stm32f405':
             self.mcu = 'stm32f40x'
+        elif self.board == 'nucleo_f411re':
+            self.mcu = 'stm32f411'
         elif self.board == 'stm32f429disco':
             self.mcu = 'stm32f429x'
         elif self.board == 'openmv2':
@@ -682,6 +684,9 @@ class Stm32(ArmV7MTarget):
         if self.board == 'stm32f4':
             self.add_sources('crt0', [
                 'arm/stm32/stm32f40x/s-stm32.adb'])
+        if self.board == 'nucleo_f411re':
+            self.add_sources('crt0', [
+                'arm/stm32/stm32f411/s-stm32.adb'])
         elif self.board == 'feather_stm32f405':
             self.add_sources('crt0', [
                 'arm/stm32/stm32f40x/s-stm32.adb'])
