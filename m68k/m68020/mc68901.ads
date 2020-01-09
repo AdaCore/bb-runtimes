@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---            Copyright (C) 2019, Free Software Foundation, Inc.            --
+--         Copyright (C) 2019-2020, Free Software Foundation, Inc.          --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -88,6 +88,20 @@ package MC68901 is
 
    type Output_State is (High_Impedance, Low, High, Loopback_Mode);
 
+   type Timer_Prescaler is (Stopped, Prescaler_4, Prescaler_10, Prescaler_16,
+                            Prescaler_50, Prescaler_64, Prescaler_100,
+                            Prescaler_200);
+   for Timer_Prescaler use (Stopped       => 0,
+                            Prescaler_4   => 1,
+                            Prescaler_10  => 2,
+                            Prescaler_16  => 3,
+                            Prescaler_50  => 4,
+                            Prescaler_64  => 5,
+                            Prescaler_100 => 6,
+                            Prescaler_200 => 7);
+
+   type Timer_Data is mod 2**8 with Size => 8;
+
    --------------------
    -- Register Types --
    --------------------
@@ -119,6 +133,16 @@ package MC68901 is
       Break               : Enable_Type;
       Hi_And_Low          : Output_State;
       Transmitter         : Enable_Type;
+   end record with Size => Register_Size;
+
+   type TimerAB_Control is record
+      Reset_Output   : Boolean;
+      Operation_Mode : Boolean;
+      Prescaler      : Timer_Prescaler;
+   end record with Size => Register_Size;
+
+   type TimerAB_Data is record
+      Data : Timer_Data;
    end record with Size => Register_Size;
 
    ------------------------------
@@ -154,6 +178,16 @@ package MC68901 is
       Transmitter         at 0 range 7 .. 7;
    end record;
 
+   for TimerAB_Control use record
+      Reset_Output   at 0 range 3 .. 3;
+      Operation_Mode at 0 range 4 .. 4;
+      Prescaler      at 0 range 5 .. 7;
+   end record;
+
+   for TimerAB_Data use record
+      Data at 0 range 0 .. 7;
+   end record;
+
    --------------------
    -- GPIO Registers --
    --------------------
@@ -174,5 +208,13 @@ package MC68901 is
      with Volatile, Size => Register_Size,
           Address =>
             System'To_Address (MC68901_Base_Address + UDR_Offset_Address);
+
+   TimerB_Control_Register : TimerAB_Control
+     with Volatile, Address =>
+       System'To_Address (MC68901_Base_Address + TBCR_Offset_Address);
+
+   TimerB_Data_Register : TimerAB_Data
+     with Volatile, Address =>
+       System'To_Address (MC68901_Base_Address + TBDR_Offset_Address);
 
 end MC68901;
