@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---            Copyright (C) 2011-2019, Free Software Foundation, Inc.       --
+--            Copyright (C) 2011-2020, Free Software Foundation, Inc.       --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -29,7 +29,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with System.Machine_Code; use System.Machine_Code;
+with MC68901; use MC68901;
 
 package body System.Machine_Reset is
    procedure Os_Exit (Status : Integer);
@@ -60,7 +60,12 @@ package body System.Machine_Reset is
       --  The parameter is just for ISO-C compatibility
 
    begin
-      Asm ("reset", Volatile => True);
+      --  TimerB output signal is bound to the M68020 reset input. To reset
+      --  immediately the following sets the timer to the lowest prescaler
+      --  and counter value.
+
+      MC68901.TimerB_Data_Register.Data := 1;
+      MC68901.TimerB_Control_Register.Prescaler := Prescaler_4;
 
       loop null; end loop;
    end Os_Exit;
