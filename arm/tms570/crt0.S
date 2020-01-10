@@ -142,29 +142,13 @@ __gnat_init:
  	bl      main
 
         /* reboot the board if main would return */
-        bl      __exit
+        bl      _exit
 
 DEVID:                  .word 0xfffffff0
 DEVID_REVA:             .word 0x802aad05
 FEDACCTRL1:             .word 0xfff87008
 FEDACCTRL1_INITVAL:     .word 0x000a060A
 	.size __gnat_init, . - __gnat_init
-
-
-        /*********************************************************************
-         * __exit:                                                           *
-         *                                                                   *
-         * Forces a CPU reset.                                               *
-         *********************************************************************/
-        .globl  __exit
-        .type   __exit, %function
-__exit:
-	/* reset: write 0x8000 to SYSECR (16#FFFF_FFE0#) */
-        mov	r2, #0x8000
-	mvn	r3, #0
-        str	r2, [r3, #-31]
-	b	__exit
-        .size   __exit, . - __exit
 
 
         /*********************************************************************

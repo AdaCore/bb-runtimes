@@ -167,13 +167,7 @@ class TMS570(CortexARTarget):
                 'ravenscar-sfp': 'system-xi-arm-sfp.ads',
                 'ravenscar-full': 'system-xi-arm-full.ads'}
 
-    def __init__(self, variant='tms570ls31', uart_io=False):
-        self.variant = variant
-        self.uart_io = uart_io
-        super(TMS570, self).__init__(
-            mem_routines=True,
-            small_mem=True)
-
+    def add_linker_scripts(self):
         self.add_linker_script([
             'arm/tms570/common.ld',
             {'tms570.ld': 'arm/tms570/%s.ld' % self.variant}])
@@ -183,6 +177,15 @@ class TMS570(CortexARTarget):
         self.add_linker_switch('-Wl,-z,max-page-size=0x1000',
                                loader=['FLASH', 'HIRAM', 'LORAM',
                                        'LORAM_16M', 'BOOT'])
+
+    def __init__(self, variant='tms570ls31', uart_io=False):
+        self.variant = variant
+        self.uart_io = uart_io
+        super(TMS570, self).__init__(
+            mem_routines=True,
+            small_mem=True)
+
+        self.add_linker_scripts()
 
         self.add_sources('crt0', [
             'arm/tms570/crt0.S',
