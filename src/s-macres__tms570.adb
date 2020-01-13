@@ -35,8 +35,11 @@ with Interfaces;
 package body System.Machine_Reset is
    procedure Os_Exit (Status : Integer);
    pragma No_Return (Os_Exit);
+   pragma Weak_External (Os_Exit);
    pragma Export (Ada, Os_Exit, "_exit");
    --  Shutdown or restart the board
+   --  This symbol is weak to allow users to overload it in their
+   --  application.
 
    procedure Os_Abort;
    pragma No_Return (Os_Abort);
