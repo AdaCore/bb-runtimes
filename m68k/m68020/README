@@ -17,7 +17,7 @@ Floating-Point Support
 
 GNAT supports both software and hardware floating-point operations. By default
 GNAT uses hard float unless the soft float runtimes are used. The soft float
-runtimes are by postfixed by -softfloat.
+runtimes are postfixed by -softfloat.
 
 GNAT supports the single, double and extended real data formats offered by the
 MC68881 and MC68882 floating-point coprocessors when configure for hard float.
