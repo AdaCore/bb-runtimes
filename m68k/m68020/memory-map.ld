@@ -36,7 +36,7 @@
 
 MEMORY
 {
-  ram  (rwx) : ORIGIN = 0x00000000, LENGTH = 128M
+  ram  (rwx) : ORIGIN = 0x00000000, LENGTH = 1M
 }
 
 REGION_ALIAS("ram_tx", ram)
