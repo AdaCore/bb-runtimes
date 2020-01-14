@@ -27,24 +27,24 @@
 #############################################################################
 
 /* This is an -*- asm -*- file.  */
-		.section .init,"ax"
-		# Reset vector
-		.long	__stack_end	| Initial Interrupt Stack Pointer
-		.long 	_start_ram  | Initial Program Counter
+        .section .init,"ax"
+        # Reset vector
+        .long   __stack_end         | Initial Interrupt Stack Pointer
+        .long   _start_ram          | Initial Program Counter
 
-	    .section ".text"
+        .section ".text"
         .global _start_ram
 
 _start_ram:
-		# Clear .bss
-	    movea.l #__bss_start, %a0
-	    move.l  #__bss_words, %d0 | move sets the condition codes
-		beq.b   1f
-0:		clr.b	(%a0)+
-		subq.l	#1, %d0
-		bpl.b  	0b
+        # Clear .bss
+        movea.l #__bss_start, %a0
+        move.l  #__bss_words, %d0   | move sets the condition codes
+        beq.b   1f
+0:      clr.b  (%a0)+
+        subq.l  #1, %d0
+        bpl.b   0b
 1:
-		bsr.l main
-		bsr.l _exit
+        bsr.l   main
+        bsr.l   _exit
 
-		.size _start_ram, . - _start_ram
+        .size _start_ram, . - _start_ram
