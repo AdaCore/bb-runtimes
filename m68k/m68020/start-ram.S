@@ -36,6 +36,9 @@
         .global _start_ram
 
 _start_ram:
+        # load stack pointer from initial stack pointer
+        movea.l #__stack_end, %sp
+
         # Clear .bss
         movea.l #__bss_start, %a0
         move.l  #__bss_words, %d0   | move sets the condition codes
