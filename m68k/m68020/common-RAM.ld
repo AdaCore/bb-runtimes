@@ -36,7 +36,7 @@
 
 /* This is a Motorola 68020 specific version of this file */
 
-_DEFAULT_STACK_SIZE = 32*1024;
+_DEFAULT_STACK_SIZE = 64*1024;
 
 ENTRY(_start_ram);
 
