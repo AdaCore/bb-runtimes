@@ -160,6 +160,6 @@ package Ada.Interrupts.Names is
    CRC2_Interrupt                       : constant Interrupt_ID := 121;
    --  Reserved: 122-123
    EPC_FIFO_Full_Or_CAM_Full_Interrupt  : constant Interrupt_ID := 124;
-   --  Reserved: 125-127
+   --  Reserved: 125-126
 
 end Ada.Interrupts.Names;

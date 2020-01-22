@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2006 The European Space Agency            --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -207,9 +207,16 @@ package body System.BB.Board_Support is
    begin
       --  Disable all interrupts, except for NMIs
 
-      VIM.REQENACLR (0) := not NMI_Ints;
-      VIM.REQENACLR (1) := not 0;
-      VIM.REQENACLR (2) := not 0;
+      VIM.REQENACLR (0)  := not NMI_Ints;
+      VIM.WAKEENACLR (0) := not 0;
+      VIM.REQENACLR (1)  := not 0;
+      VIM.WAKEENACLR (1) := not 0;
+      VIM.REQENACLR (2)  := not 0;
+      VIM.WAKEENACLR (2) := not 0;
+      if Interrupt_ID'Last > 96 then
+         VIM.REQENACLR (3)  := not 0;
+         VIM.WAKEENACLR (3) := not 0;
+      end if;
 
       --  Initialize timer
 
