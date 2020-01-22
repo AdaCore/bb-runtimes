@@ -118,8 +118,6 @@ package body System.BB.Board_Support is
 
    procedure Irq_Interrupt_Handler;
    pragma Export (C, Irq_Interrupt_Handler, "__gnat_irq_handler");
-   procedure Fiq_Interrupt_Handler;
-   pragma Export (C, Fiq_Interrupt_Handler, "__gnat_fiq_handler");
    --  Low-level interrupt handlers
 
    --------------------------------------
@@ -169,9 +167,6 @@ package body System.BB.Board_Support is
 
    VIM : VIM_Registers_Type with Volatile, Import, Address => VIM_Base;
 
-   procedure Enable_Interrupt_Request (Interrupt : Interrupt_ID);
-   --  Enable interrupt requests for the given interrupt
-
    ------------------------
    -- Interrupt_Handlers --
    ------------------------
@@ -181,21 +176,14 @@ package body System.BB.Board_Support is
    pragma Volatile (Interrupt_Vectors);
    for Interrupt_Vectors'Address use 16#FFF8_2004#;
 
-   FIQ_Prio  : constant Interrupt_Priority := Interrupt_Priority'Last;
    IRQ_Prio  : constant Interrupt_Priority := Interrupt_Priority'First;
-   pragma Assert (FIQ_Prio = IRQ_Prio + 1);
+   pragma Assert (IRQ_Prio = Interrupt_Priority'Last);
 
    NMI_Ints  : constant Unsigned_32 := 3;
    --  Bitmap of unmaskable interrupts, namely interrupt channel 0 and 1
 
-   FIQ_Masked : Boolean := False;
-   --  Reflects whether FIQ interrupts are masked in the VIM or not
-
    procedure IRQ_Handler;
    pragma Import (Asm, IRQ_Handler, "__gnat_irq_trap");
-
-   procedure FIQ_Handler;
-   pragma Import (Asm, FIQ_Handler, "__gnat_fiq_trap");
 
    ----------------------
    -- Initialize_Board --
@@ -311,7 +299,7 @@ package body System.BB.Board_Support is
          BB.Interrupts.Attach_Handler
            (Handler,
             Alarm_Interrupt_ID,
-            Interrupts.Priority_Of_Interrupt (Alarm_Interrupt_ID));
+            IRQ_Prio);
       end Install_Alarm_Handler;
    end Time;
 
@@ -331,38 +319,6 @@ package body System.BB.Board_Support is
       Interrupt_Wrapper (Interrupt_ID (Id - 1));
    end Irq_Interrupt_Handler;
 
-   ---------------------------
-   -- Fiq_Interrupt_Handler --
-   ---------------------------
-
-   procedure Fiq_Interrupt_Handler
-   is
-      Id : constant Unsigned_32 := VIM.FIQINDEX and 16#FF#;
-   begin
-      if Id = 0 then
-         --  Spurious interrupt
-         return;
-      end if;
-
-      Interrupt_Wrapper (Interrupt_ID (Id - 1));
-   end Fiq_Interrupt_Handler;
-
-   ------------------------------
-   -- Enable_Interrupt_Request --
-   ------------------------------
-
-   procedure Enable_Interrupt_Request (Interrupt : Interrupt_ID) is
-      Reg : constant Natural := Interrupt / 32;
-      Bit : constant Unsigned_32 := Shift_Left (1, Interrupt mod 32);
-      --  Many VIM registers use 3 words of 32 bits each to serve as a bitmap
-      --  for all interrupt channels. Regofs indicates register offset (0..2),
-      --  and Regbit indicates the mask required for addressing the bit.
-
-   begin
-      VIM.REQENASET (Reg) := Bit;
-      VIM.WAKEENASET (Reg) := Bit;
-   end Enable_Interrupt_Request;
-
    package body Multiprocessors is separate;
 
    package body Interrupts is
@@ -373,10 +329,7 @@ package body System.BB.Board_Support is
       function Priority_Of_Interrupt
         (Interrupt : Interrupt_ID)
         return System.Any_Priority
-      is
-         (if Interrupt <= 31 and then (VIM.FIRQPR (0) and 2**Interrupt) /= 0
-          then FIQ_Prio
-         else IRQ_Prio);
+      is (IRQ_Prio);
 
       --------------------------
       -- Set_Current_Priority --
@@ -385,19 +338,9 @@ package body System.BB.Board_Support is
       procedure Set_Current_Priority (Priority : Integer)
       is
       begin
-         --  On the TMS570, FIQs cannot be masked by the processor. So, we need
-         --  to disable them at the controller when required.
-
-         if (Priority = FIQ_Prio) xor FIQ_Masked then
-            if Priority = FIQ_Prio then
-               VIM.REQENACLR (0) := VIM.FIRQPR (0);
-               FIQ_Masked := True;
-
-            else
-               VIM.REQENASET (0) := VIM.FIRQPR (0);
-               FIQ_Masked := False;
-            end if;
-         end if;
+         --  Nothing to do here as the masking of IRQs is handled at context
+         --  switch by the restauration of the CPSR register.
+         null;
       end Set_Current_Priority;
 
       -------------------------------
@@ -409,8 +352,12 @@ package body System.BB.Board_Support is
          Prio      : Interrupt_Priority)
       is
          pragma Unreferenced (Prio);
-         Hw_Prio : constant Any_Priority := Priority_Of_Interrupt (Interrupt);
-
+         Reg : constant Natural := Interrupt / 32;
+         Bit : constant Unsigned_32 := Shift_Left (1, Interrupt mod 32);
+         --  Many VIM registers use 3 words of 32 bits each to serve as a
+         --  bitmap for all interrupt channels. Regofs indicates register
+         --  offset (0..2), and Regbit indicates the mask required for
+         --  addressing the bit.
       begin
          --  While we could directly have installed fixed IRQ and FIQ handlers,
          --  this would have required that all IRQ and FIQ handlers go through
@@ -418,15 +365,9 @@ package body System.BB.Board_Support is
          --  the vector capability of the interrupt handler, it is possible to
          --  handle some interrupts directly for best performance.
 
-         case Interrupt_Priority (Hw_Prio) is
-            when IRQ_Prio =>
-               Interrupt_Vectors (Interrupt) := IRQ_Handler'Address;
-
-            when FIQ_Prio =>
-               Interrupt_Vectors (Interrupt) := FIQ_Handler'Address;
-         end case;
-
-         Enable_Interrupt_Request (Interrupt);
+         Interrupt_Vectors (Interrupt) := IRQ_Handler'Address;
+         VIM.REQENASET (Reg) := Bit;
+         VIM.WAKEENASET (Reg) := Bit;
       end Install_Interrupt_Handler;
 
       ----------------

@@ -18,18 +18,47 @@ class CortexARArch(ArchSupport):
         self.add_sources('gnarl', [
             'src/s-bbcpsp__arm.ads',
             'src/s-bbcppr__new.ads',
-            'src/s-bbcppr__arm.adb',
             'src/s-bbinte__generic.adb'])
 
 
-class CortexARTarget(DFBBTarget):
+class CortexAArch(ArchSupport):
+    @property
+    def name(self):
+        return "cortex-a"
+
+    @property
+    def parent(self):
+        return CortexARArch
+
+    def __init__(self):
+        super(CortexAArch, self).__init__()
+        self.add_sources('gnarl', [
+            'src/s-bbcppr__arm.adb'])
+
+
+class CortexRArch(ArchSupport):
+    @property
+    def name(self):
+        return "cortex-r"
+
+    @property
+    def parent(self):
+        return CortexARArch
+
+    def __init__(self):
+        super(CortexRArch, self).__init__()
+        self.add_sources('gnarl', [
+            'src/s-bbcppr__armv7r.adb'])
+
+
+class CortexATarget(DFBBTarget):
     @property
     def target(self):
         return 'arm-eabi'
 
     @property
     def parent(self):
-        return CortexARArch
+        return CortexAArch
 
     @property
     def has_timer_64(self):
@@ -40,7 +69,7 @@ class CortexARTarget(DFBBTarget):
         return 'system-xi-arm.ads'
 
     def amend_rts(self, rts_profile, conf):
-        super(CortexARTarget, self).amend_rts(rts_profile, conf)
+        super(CortexATarget, self).amend_rts(rts_profile, conf)
         # s-bbcppr.adb uses the r7 register during context switching: this
         # is not compatible with the use of frame pointers that is emited at
         # -O0 by gcc. Let's disable fp even at -O0.
@@ -48,7 +77,13 @@ class CortexARTarget(DFBBTarget):
             conf.build_flags['common_flags'] += ['-fomit-frame-pointer']
 
 
-class Rpi2Base(CortexARTarget):
+class CortexRTarget(CortexATarget):
+    @property
+    def parent(self):
+        return CortexRArch
+
+
+class Rpi2Base(CortexATarget):
     @property
     def loaders(self):
         return ('RAM', )
@@ -127,7 +162,7 @@ class Rpi2Mc(Rpi2Base):
             'src/s-bbpara__rpi2.ads'])
 
 
-class TMS570(CortexARTarget):
+class TMS570(CortexRTarget):
     @property
     def name(self):
         if self.variant == 'tms570ls31':
@@ -164,8 +199,8 @@ class TMS570(CortexARTarget):
     @property
     def system_ads(self):
         return {'zfp': self.zfp_system_ads,
-                'ravenscar-sfp': 'system-xi-arm-sfp.ads',
-                'ravenscar-full': 'system-xi-arm-full.ads'}
+                'ravenscar-sfp': 'system-xi-armv7r-sfp.ads',
+                'ravenscar-full': 'system-xi-armv7r-full.ads'}
 
     def add_linker_scripts(self):
         self.add_linker_script([
@@ -206,7 +241,7 @@ class TMS570(CortexARTarget):
             'src/s-bbsumu__generic.adb'])
 
 
-class Zynq7000(CortexARTarget):
+class Zynq7000(CortexATarget):
     @property
     def name(self):
         return "zynq7000"
