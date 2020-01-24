@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2006 The European Space Agency            --
---                     Copyright (C) 2003-2019, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -291,9 +291,10 @@ package body System.BB.Board_Support is
    pragma Export (C, Initialize_CPU_Devices, "__gnat_initialize_cpu_devices");
    --  Per CPU device initialization
 
-   Initialized_CPUs : Natural := 0;
+   Initialized_CPUs : CPU := 1;
    --  Number of initialized CPUs. We start the user code only when all CPUs
    --  are ready.
+   --  Initialized to one as the startup CPU is always there.
 
    package body Spin_Locks
    is
@@ -427,7 +428,7 @@ package body System.BB.Board_Support is
          Initialized_CPUs := Initialized_CPUs + 1;
 
          --  If not all CPUs are initialized, then wait on the Barrier lock
-         Wait := Initialized_CPUs < System.BB.Parameters.Max_Number_Of_CPUs;
+         Wait := Initialized_CPUs < Multiprocessors.Number_Of_CPUs;
 
          Spin_Locks.Unlock (Lock);
 
@@ -648,13 +649,33 @@ package body System.BB.Board_Support is
          Start_Address : System.Address);
       --  Reset and wake_up the specified CPU
 
+      Calculated_Number_Of_CPUs : Unsigned_32 := 0;
+
       --------------------
       -- Number_Of_CPUs --
       --------------------
 
       function Number_Of_CPUs return CPU is
+         R : Unsigned_32;
       begin
-         return CPU'Last;
+         if Calculated_Number_Of_CPUs = 0 then
+            pragma Warnings (Off, "condition is always *");
+            if Parameters.Max_Number_Of_CPUs = 1 then
+               Calculated_Number_Of_CPUs := 1;
+
+            else
+               Asm ("mrs %0, S3_1_c11_c0_2",
+                    Outputs => Unsigned_32'Asm_Output ("=r", R),
+                    Volatile => True);
+               R := Shift_Right (R, 24) and 3;
+
+               Calculated_Number_Of_CPUs :=
+                 Unsigned_32'Min (R + 1, Parameters.Max_Number_Of_CPUs);
+            end if;
+            pragma Warnings (On, "condition is always *");
+         end if;
+
+         return CPU (Calculated_Number_Of_CPUs);
       end Number_Of_CPUs;
 
       -----------
@@ -727,7 +748,7 @@ package body System.BB.Board_Support is
          end if;
 
          --  Set the APU start address
-         case CPU_Id is
+         case Natural (CPU_Id) is
          when 1 =>
             APU.Regs.RVBAR_ADDR0L := Addr_L;
             APU.Regs.RVBAR_ADDR0H := Addr_H;
@@ -740,6 +761,8 @@ package body System.BB.Board_Support is
          when 4 =>
             APU.Regs.RVBAR_ADDR3L := Addr_L;
             APU.Regs.RVBAR_ADDR3H := Addr_H;
+         when others =>
+            raise Program_Error;
          end case;
 
          --  Release the reset line if needed
@@ -758,29 +781,35 @@ package body System.BB.Board_Support is
 
       procedure Start_All_CPUs is
       begin
+         if not System.BB.Parameters.Multiprocessor
+           or else Number_Of_CPUs = 1
+         then
+            --  Nothing to do
+            return;
+         end if;
+
          --  Note: this gets never called in the Uniprocessor case.
          BB.Interrupts.Attach_Handler
            (Poke_Handler'Access, Poke_Interrupt, Interrupt_Priority'Last);
 
          --  With SMP systems, we implement a barrier to synchronize all CPUs
          --  at startup
-         if System.BB.Parameters.Multiprocessor then
-            --  Starting CPU is up and running
-            Initialized_CPUs := Initialized_CPUs + 1;
 
-            --  Initialize the spin locks that protects the Initialized_CPUs
-            --  variable
-            Spin_Locks.Initialize (Lock, Locked => False);
+         --  Starting CPU is up and running
+         Initialized_CPUs := 1;
 
-            --  Barrier will lock all CPUs at startup waiting for each of them
-            --  to initialize before proceeding with the user application
-            Spin_Locks.Initialize (Barrier, Locked => True);
-         end if;
+         --  Initialize the spin locks that protects the Initialized_CPUs
+         --  variable
+         Spin_Locks.Initialize (Lock, Locked => False);
+
+         --  Barrier will lock all CPUs at startup waiting for each of them
+         --  to initialize before proceeding with the user application
+         Spin_Locks.Initialize (Barrier, Locked => True);
 
          --  Disable warnings for non-SMP case
          pragma Warnings (Off, "loop range is null*");
 
-         for CPU_Id in CPU'First + 1 .. CPU'Last loop
+         for CPU_Id in CPU'First + 1 .. Number_Of_CPUs loop
             CPU_Wake_Up (CPU_Id, Start'Address);
          end loop;
 
