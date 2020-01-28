@@ -378,10 +378,12 @@ package body System.BB.Board_Support is
    is
       Id : constant Unsigned_32 := VIM.IRQINDEX and 16#FF#;
    begin
+      pragma Annotate (Xcov, Exempt_On, "Defensive code, cannot be covered");
       if Id = 0 then
          --  Spurious interrupt
          return;
       end if;
+      pragma Annotate (Xcov, Exempt_Off);
 
       Interrupt_Wrapper (Interrupt_ID (Id - 1));
    end Irq_Interrupt_Handler;
