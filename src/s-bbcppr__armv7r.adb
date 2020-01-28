@@ -28,19 +28,89 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This version is for ARM bareboard targets using the ARMv7-R
---  instruction set, where FIQs can't be masked once activated in the CPSR.
---  It is not suitable for ARMv7-M targets, which use Thumb2, or Cortex-A that
---  use a different IRQ mechanism.
+--  @design
+--  This package contains the primitives which are dependent of the
+--  underlying processor in order to facilitate portability. There is
+--  another package :ref:`system.bb.board_support` which isolates the kernel
+--  from the peripherals installed in the target machine. This package is
+--  specific for ARMv7-R bare board target, and it is therefore used
+--  for the R4/R5/R7/R8 targets.
+--
+--  The functionality provided by this package is:
+--
+--  -  Save and restore the machine state for context switches.
+--  -  Install the low level Interrupt Service Routine for traps and
+--     interrupts.
+--  -  Enable and disable interrupts, as well as changing the level to which
+--     interrupts are allowed.
+--
+--  These routines are sometimes implemented in assembly, and imported to the
+--  Ada code by this package.
+--
+--  **Context switch**
+--
+--  The context of a task for ARM based processors is made up by the
+--  following items:
+--
+--  - Callee-save registers
+--  - the CPSR system register
+--  - SP & LR registers
+--
+--  and as a separate structure:
+--
+--  - the callee-save FPU registers
+--  - the FPSCR register
+--
+--  The switch itself is performed in supervisor mode as changing the SPSR is
+--  cheaper than changing the CPSR. The thread mode is restored before
+--  continuing the task execution.
+--
+--  The FPU context is switched in a lazy way: upon a switch from a task that
+--  has been using the FPU registers, the runtime saves the task identifier
+--  and forbid FPU usage. When an FPU trap is then raised, the runtime then
+--  checks if the running task is the same as the saved task identifier. If
+--  this is the case then no action is done and FPU usage is just enabled
+--  until next context switch. If different then the previously running task
+--  FPU context is saved and the current task FPU context is restored before
+--  continuing.
+--
+--  Interrupt handling specificities:
+--
+--  The actual low-level configuration of interrupt support is board-specific
+--  as it depends on the actual Interrupt controller used (GIC, VIM, etc.). So
+--  this initialization is performed by ``System.BB.Board_Support``.
+--
+--  This package thus only defines common behavior for the interrupt handling.
+--
+--  This common behavior supports:
+--
+--   * FPU usage in interrupt handlers:
+--     using FPU registers is allowed in interrupt handlers, leading to lazy
+--     FPU context switch if needed. This usage is also compatible with nested
+--     interrupt handling: the FPU context can be also switched between two
+--     interrupt handlers.
+--   * the regular context switch to the interrupt handler is handled by
+--     ``System.BB.Board_Support`` as this depends on the interrupt
+--     controller.
+--
+--  The runtime is not using the FIQs as the FIQs cannot be masked once
+--  activated.
 
 with Interfaces; use Interfaces;
+--  @design used for 32-bit integer definition.
 
 with System.Multiprocessors;
+--  @design used for CPU type definition.
 with System.BB.Threads;
+--  @design for the low-level thread definition.
 with System.BB.Threads.Queues;
+--  @design to get and set the running thread upon context switch.
 with System.BB.Board_Support;
+--  @design used to handle board-specific interrupt support.
 with System.BB.Parameters;
+--  @design to get interrupt priorities.
 with System.Machine_Code; use System.Machine_Code;
+--  @design to issue assembly code inline.
 
 package body System.BB.CPU_Primitives is
    use System.BB.Threads;

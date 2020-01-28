@@ -29,8 +29,14 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  Reset for TMS570LS31x
-with Interfaces;
+--  @design
+--  This package is in charge of stopping the execution by rebooting the
+--  processor.
+--
+--  On the TMS570 processor, this writes 16#8000# to SYSECR.
+
+with Interfaces; use Interfaces;
+--  @design used for Unsigned_32 type definition.
 
 package body System.Machine_Reset is
    procedure Os_Exit (Status : Integer);

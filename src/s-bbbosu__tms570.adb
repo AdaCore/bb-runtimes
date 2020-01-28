@@ -34,8 +34,75 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+--  @design
+--  This package defines constants and primitives used for handling the
+--  peripherals available in the target board. This package is specific for
+--  the TMS570.
+--
+--  The set of peripherals which are internally managed by the executive are
+--  vectored interrupt manager (VIM) and the real-time interrupt (RTI).
+--
+--  **Timer design**
+--
+--  The hardware provides the RTI module as a timer functionality for operating
+--  systems and for benchmarking code. It provides two independent 64 bit
+--  counter blocks and four configurable compares for generating system ticks
+--  or DMA requests. ``System.BB.Board_Support`` uses both counters to handle
+--  the system clock and the timing events.
+--
+--  The counters blocks consist of 2 32-bit counters and a prescaler. The first
+--  counter (the "Up Counter") operates at RTICLK (the CPU frequency), while
+--  the second one (the "Free Running Counter") depends on the value of the
+--  prescaler:
+--
+--  .. math::
+--
+--     f_{RTIFRCx} = \left \{
+--     \begin{array}{l l}
+--      \frac{f_{RTICLK}}{RTICPUCx + 1} & \text{when RTICPUCx }\neq\text{ 0} \\
+--      \frac{f_{RTICLK}}{2^{32} + 1} & \text{when RTICPUCx }=\text{ 0}
+--     \end{array}
+--     \right .
+--
+--  where RTICPUCx is the value of the prescaler.
+--
+--  The system clock is using the Clock Counter 0, and uses a value of
+--  :math:`2^{32} - 1` as prescaler, thus offering a full 64-bit counter in
+--  total.
+--
+--  The alarms use the Clock Counter 1 and the configurable compare 3.
+--  The compares operate on the value of the Free Running Counter, so depending
+--  on the delay before the alarm, the runtime uses either 1 as minimal
+--  prescaler value to achieve the maximum precision on the free running
+--  counter with an operating frequency of :math:`\frac{f_{RTICLK}}{2}`, or if
+--  the delay exceeds 32-bit uses :math:`2^{32} - 1` as prescaler value to
+--  first setup an approximate alarm that will be dismissed by the run-time
+--  but then refined with the proper accuracy.
+--
+--  This means that the precision of alarms are :math:`\frac{f_{RTICLK}}{2}`
+--  and that an alarm generates at most 2 interrupts.
+--
+--  **Interrupts**
+--
+--  The interrupt controller on the Cortex-R offers two kind of interrupts:
+--  the FIQ and the IRQ. The FIQs have higher priority than the IRQs.
+--
+--  The runtime doesn't use the FIQs as they can't be masked, so only relies
+--  on IRQs for interrupt support. The runtime maps IRQ to priority 241.
+--
+--  A task is allowed to run above interrupt priority levels, so as to mask
+--  those interrupts while running.
+--
+--  The switch to IRQ handlers is done in hardware, with the generic
+--  registers saved automatically by the hardware, and the stack being specific
+--  to the context. No specific runtime support is thus needed there, apart
+--  from the initial setup.
+
 with Interfaces;          use Interfaces;
+--  @design definitions for 32 and 64-bit integers.
+
 with System.Machine_Code; use System.Machine_Code;
+--  @design for low-level asm insertion.
 
 package body System.BB.Board_Support is
    use BB.Interrupts;
