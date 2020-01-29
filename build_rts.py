@@ -150,149 +150,160 @@ def usage():
     print "target."
 
 
-def main():
-    # global link, gccdir, gnatdir, verbose, create_common
+class Main(object):
+    def __init__(self):
+        # global link, gccdir, gnatdir, verbose, create_common
 
-    dest = "install"
-    dest_bsps = None
-    dest_prjs = None
-    dest_srcs = None
-    prefix = None
-    gen_rts_srcs = True
+        self.dest = "install"
+        self.dest_bsps = None
+        self.dest_prjs = None
+        self.dest_srcs = None
+        self.prefix = None
+        self.gen_rts_srcs = True
 
-    try:
-        opts, args = getopt.getopt(
-            sys.argv[1:], "hvl",
-            ["help", "verbose", "bsps-only",
-             "output=", "output-bsps=", "output-prjs=", "output-srcs=",
-             "prefix=", "gcc-dir=", "gnat-dir=", "link"])
-    except getopt.GetoptError, e:
-        print "error: " + str(e)
-        print ""
-        usage()
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt in ("-v", "--verbose"):
-            FilesHolder.verbose = True
-        elif opt in ("-h", "--help"):
+        try:
+            opts, args = getopt.getopt(
+                sys.argv[1:], "hvl",
+                ["help", "verbose", "bsps-only",
+                 "output=", "output-bsps=", "output-prjs=", "output-srcs=",
+                 "prefix=", "gcc-dir=", "gnat-dir=", "link"])
+        except getopt.GetoptError, e:
+            print "error: " + str(e)
+            print ""
             usage()
-            sys.exit()
-        elif opt in ("-l", "--link"):
-            FilesHolder.link = True
-        elif opt == "--output":
-            dest = arg
-        elif opt == "--output-bsps":
-            dest_bsps = arg
-        elif opt == "--output-prjs":
-            dest_prjs = arg
-        elif opt == "--output-srcs":
-            dest_srcs = arg
-        elif opt == "--gcc-dir":
-            FilesHolder.gccdir = arg
-        elif opt == "--gnat-dir":
-            FilesHolder.gnatdir = arg
-        elif opt == "--prefix":
-            prefix = arg
-        elif opt == "--bsps-only":
-            gen_rts_srcs = False
-        else:
-            print "unexpected switch: %s" % opt
             sys.exit(2)
 
-    if len(args) < 1:
-        print "error: missing configuration"
-        print ""
-        usage()
-        sys.exit(2)
+        for opt, arg in opts:
+            if opt in ("-v", "--verbose"):
+                FilesHolder.verbose = True
+            elif opt in ("-h", "--help"):
+                usage()
+                sys.exit()
+            elif opt in ("-l", "--link"):
+                FilesHolder.link = True
+            elif opt == "--output":
+                self.dest = arg
+            elif opt == "--output-bsps":
+                self.dest_bsps = arg
+            elif opt == "--output-prjs":
+                self.dest_prjs = arg
+            elif opt == "--output-srcs":
+                self.dest_srcs = arg
+            elif opt == "--gcc-dir":
+                FilesHolder.gccdir = arg
+            elif opt == "--gnat-dir":
+                FilesHolder.gnatdir = arg
+            elif opt == "--prefix":
+                self.prefix = arg
+            elif opt == "--bsps-only":
+                self.gen_rts_srcs = False
+            else:
+                print "unexpected switch: %s" % opt
+                sys.exit(2)
 
-    boards = []
+        if len(args) < 1:
+            print "error: missing configuration"
+            print ""
+            usage()
+            sys.exit(2)
 
-    for arg in args:
-        board = build_configs(arg)
-        boards.append(board)
+        self.boards = []
 
-    # figure out the target
-    target = boards[0].target
-    if target is None:
-        target = "native"
-    for board in boards:
-        if board.target is None and target == "native":
-            continue
-        if board.target != target:
-            target = None
+        for arg in args:
+            board = build_configs(arg)
+            self.boards.append(board)
 
-    dest = os.path.abspath(dest)
-    if not os.path.exists(dest):
-        os.makedirs(dest)
-
-    # default paths in case not specified from the command-line:
-    if dest_bsps is None:
-        dest_bsps = os.path.join(dest, 'BSPs')
-    if not os.path.exists(dest_bsps):
-        os.makedirs(dest_bsps)
-
-    # Install the BSPs
-    for board in boards:
-        install = Installer(board)
-        install.install(dest_bsps, prefix)
-
-    # post-processing, install ada_object_path and ada_source_path to be
-    # installed in all runtimes by gprinstall
-    bsp_support = os.path.join(dest_bsps, 'support')
-    if not os.path.exists(bsp_support):
-        os.mkdir(bsp_support)
-        with open(os.path.join(bsp_support, 'ada_source_path'), 'w') as fp:
-            fp.write('gnat\ngnarl\n')
-        with open(os.path.join(bsp_support, 'ada_object_path'), 'w') as fp:
-            fp.write('adalib\n')
-
-    if gen_rts_srcs:
-        assert target is not None, \
+        # figure out the target
+        self.target = self.boards[0].target
+        if self.target is None:
+            self.target = "native"
+        for board in self.boards:
+            if board.target is None and self.target == "native":
+                continue
+            if board.target != self.target:
+                self.target = None
+        assert self.target is not None, \
             "cannot generate rts sources for mixed cross compilers"
-        is_pikeos = target is not None and 'pikeos' in target
 
-        # determining what runtime sources we need:
-        # - 'pikeos': all profiles, and a specific rts sources organisation
-        # - 'ravenscar-full': all profiles support
-        # - 'ravenscar-sfp': sfp + zfp profiles support
-        # - 'zfp': just zfp support
+        # make sure dest_bsps, dest_prjs and dest_srcs have values
+        if self.dest_bsps is None:
+            self.dest_bsps = os.path.join(self.dest, 'BSPs')
+        if self.gen_rts_srcs:
+            if self.dest_prjs is None:
+                self.dest_prjs = os.path.join(self.dest, 'lib', 'gnat')
+            if self.dest_srcs is None:
+                self.dest_srcs = os.path.join(
+                    self.dest, 'include', 'rts-sources')
 
-        if is_pikeos:
-            rts_profile = 'ravenscar-full'
-        else:
-            rts_profile = 'zfp'
+    def install(self):
+        self.dest = os.path.abspath(self.dest)
+        if not os.path.exists(self.dest):
+            os.makedirs(self.dest)
 
-            for board in boards:
-                if 'ravenscar-full' in board.system_ads:
-                    # install everything
-                    rts_profile = 'ravenscar-full'
-                    break
-                else:
-                    for rts in board.system_ads:
-                        if 'ravenscar-' in rts:
-                            rts_profile = 'ravenscar-sfp'
+        # create the destination directory
+        if not os.path.exists(self.dest_bsps):
+            os.makedirs(self.dest_bsps)
 
-        # Compute rts sources subdirectories
+        # Install the BSPs
+        for board in self.boards:
+            install = Installer(board)
+            install.install(self.dest_bsps, self.prefix)
 
-        if dest_prjs is None:
-            dest_prjs = os.path.join(dest, 'lib', 'gnat')
-        if dest_srcs is None:
-            dest_srcs = os.path.join(dest, 'include', 'rts-sources')
-        if not os.path.exists(dest_prjs):
-            os.makedirs(dest_prjs)
-        if not os.path.exists(dest_srcs):
-            os.makedirs(dest_srcs)
+        # post-processing, install ada_object_path and ada_source_path to be
+        # installed in all runtimes by gprinstall
+        bsp_support = os.path.join(self.dest_bsps, 'support')
+        if not os.path.exists(bsp_support):
+            os.mkdir(bsp_support)
+            with open(os.path.join(bsp_support, 'ada_source_path'), 'w') as fp:
+                fp.write('gnat\ngnarl\n')
+            with open(os.path.join(bsp_support, 'ada_object_path'), 'w') as fp:
+                fp.write('adalib\n')
 
-        # Install the shared runtime sources
-        SourceTree.dest_sources = dest_srcs
-        SourceTree.dest_prjs = dest_prjs
+        if self.gen_rts_srcs:
+            is_pikeos = 'pikeos' in self.target
 
-        # create the rts sources object. This uses a slightly different set
-        # on pikeos.
-        rts_srcs = SourceTree(
-            is_bb=not is_pikeos, profile=rts_profile,
-            rts_sources=rts_sources, rts_scenarios=rts_scenarios)
-        rts_srcs.install()
+            # determining what runtime sources we need:
+            # - 'pikeos': all profiles, and a specific rts sources organisation
+            # - 'ravenscar-full': all profiles support
+            # - 'ravenscar-sfp': sfp + zfp profiles support
+            # - 'zfp': just zfp support
+
+            if is_pikeos:
+                rts_profile = 'ravenscar-full'
+            else:
+                rts_profile = 'zfp'
+
+                for board in self.boards:
+                    if 'ravenscar-full' in board.system_ads:
+                        # install everything
+                        rts_profile = 'ravenscar-full'
+                        break
+                    else:
+                        for rts in board.system_ads:
+                            if 'ravenscar-' in rts:
+                                rts_profile = 'ravenscar-sfp'
+
+            # Compute rts sources subdirectories
+            if not os.path.exists(self.dest_prjs):
+                os.makedirs(self.dest_prjs)
+            if not os.path.exists(self.dest_srcs):
+                os.makedirs(self.dest_srcs)
+
+            # Install the shared runtime sources
+            SourceTree.dest_sources = self.dest_srcs
+            SourceTree.dest_prjs = self.dest_prjs
+
+            # create the rts sources object. This uses a slightly different set
+            # on pikeos.
+            rts_srcs = SourceTree(
+                is_bb=not is_pikeos, profile=rts_profile,
+                rts_sources=rts_sources, rts_scenarios=rts_scenarios)
+            rts_srcs.install()
+
+
+def main():
+    m = Main()
+    m.install()
 
 
 if __name__ == '__main__':
