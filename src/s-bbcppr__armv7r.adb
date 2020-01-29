@@ -65,16 +65,23 @@
 --  cheaper than changing the CPSR. The thread mode is restored before
 --  continuing the task execution.
 --
---  The FPU context is switched in a lazy way: upon a switch from a task that
---  has been using the FPU registers, the runtime saves the task identifier
---  and forbid FPU usage. When an FPU trap is then raised, the runtime then
---  checks if the running task is the same as the saved task identifier. If
---  this is the case then no action is done and FPU usage is just enabled
---  until next context switch. If different then the previously running task
---  FPU context is saved and the current task FPU context is restored before
---  continuing.
+--  The FPU context is switched in a lazy way, to save time during context
+--  switching of tasks that do not use the FPU.
 --
---  Interrupt handling specificities:
+--  - Tasks are started with FP instructions disabled.
+--  - When a task or interrupt handler tries to access FP registers, a trap
+--    is thus raised.
+--
+--    * if the FPU has been used by some other task, the runtime saves the
+--      content of the FP registers to the context that previously used them.
+--    * a pointer to the now running context is saved, its FP context is
+--      restored if needed and FP instructions enabled.
+--  - As an optimisation, FP instructions are always disabled upon context
+--    switching unless the new running thread is the last one that used FP
+--    instructions: if only one task does FP calculation, then there's no
+--    FP context switches.
+--
+--  **Interrupt handling specificities:**
 --
 --  The actual low-level configuration of interrupt support is board-specific
 --  as it depends on the actual Interrupt controller used (GIC, VIM, etc.). So
