@@ -196,7 +196,8 @@ class TMS570(CortexARTarget):
             'arm/tms570/crt0.S',
             'arm/tms570/system_%s.c' % self.variant,
             'arm/tms570/s-tms570.ads', 'arm/tms570/s-tms570.adb',
-            'src/s-macres__tms570.adb'])
+            'src/s-macres__tms570.adb',
+            'src/s-boapar__%s.ads' % self.variant])
         if self.cpu == 'cortex-r4f':
             self.add_sources('crt0', 'arm/tms570/cortex-r4.S')
         if self.uart_io:

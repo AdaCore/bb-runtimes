@@ -32,8 +32,8 @@
 --  Minimal version of Text_IO body for use on TMS570 family of MCUs, using
 --  SCI1/LIN1
 
-with Interfaces;           use Interfaces;
-with System.BB.Parameters; use System.BB.Parameters;
+with Interfaces;              use Interfaces;
+with System.Board_Parameters; use System.Board_Parameters;
 
 package body System.Text_IO is
 
