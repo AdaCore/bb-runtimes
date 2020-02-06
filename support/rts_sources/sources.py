@@ -69,8 +69,6 @@ all_scenarios = {
     'Add_Value_Enum': ['no', 'yes'],
     'Add_Value_Int': ['no', 'yes'],
     'Add_Value_LL_Int': ['no', 'yes'],
-    'Add_Value_Based_Int': ['no', 'yes'],
-    'Add_Value_LL_Based_Int': ['no', 'yes'],
     'Add_Value_Decimal': ['no', 'yes'],
     'Add_Value_LL_Decimal': ['no', 'yes'],
     'Add_Value_Float': ['no', 'yes'],
@@ -543,18 +541,6 @@ sources = {
         'srcs': [
             'libgnat/s-vallli.ads', 'libgnat/s-vallli.adb',
             'libgnat/s-valllu.ads', 'libgnat/s-valllu.adb'],
-        'requires': ['Add_Value_Utils:yes']
-    },
-    'value/based_int': {
-        'conditions': ['Add_Value_Based_Int:yes'],
-        'srcs': [
-            'libgnat/s-imgbiu.ads', 'libgnat/s-imgbiu.adb'],
-        'requires': ['Add_Value_Utils:yes']
-    },
-    'value/based_int_ll': {
-        'conditions': ['Add_Value_LL_Based_Int:yes'],
-        'srcs': [
-            'libgnat/s-imgllb.ads', 'libgnat/s-imgllb.adb'],
         'requires': ['Add_Value_Utils:yes']
     },
     'value/char': {

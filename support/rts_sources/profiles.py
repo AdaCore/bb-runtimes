@@ -158,8 +158,6 @@ class RTSProfiles(object):
         ret['Add_Value_Float'] = "yes"
         ret['Add_Value_Int'] = "yes"
         ret['Add_Value_LL_Int'] = "yes"
-        ret['Add_Value_Based_Int'] = "yes"
-        ret['Add_Value_LL_Based_Int'] = "yes"
         ret['Add_Value_Char'] = "yes"
         ret['Add_Value_Wide_Char'] = "yes"
 
