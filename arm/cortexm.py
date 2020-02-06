@@ -234,8 +234,7 @@ class Sam(ArmV7MTarget):
         super(Sam, self).__init__()
 
         self.add_linker_script(
-            'arm/sam/%s/memory-map.ld' % self.name,
-            loader=('SAMBA', 'ROM', 'RAM'))
+            'arm/sam/%s/memory-map.ld' % self.name)
 
         self.add_gnat_sources(
             'arm/sam/%s/setup_pll.adb' % self.name,
@@ -446,8 +445,8 @@ class Microbit(NRF51):
     def __init__(self):
         super(Microbit, self).__init__()
 
-        self.add_linker_script(
-            {'memory-map.ld': 'arm/nordic/nrf51/memory-map_nRF51822xxAA.ld'})
+        self.add_linker_script('arm/nordic/nrf51/memory-map_nRF51822xxAA.ld',
+                               'memory-map.ld')
 
         self.add_gnat_sources(
             'arm/nordic/nrf51/s-bbbopa__microbit.ads',
@@ -491,8 +490,8 @@ class NRF52(ArmV7MTarget):
         super(NRF52, self).__init__()
 
         self.add_linker_script('arm/nordic/nrf52/common-ROM.ld', loader='ROM')
-        self.add_linker_script(
-            {'memory-map.ld': 'arm/nordic/nrf52/memory-map_%s.ld' % self.name})
+        self.add_linker_script('arm/nordic/nrf52/memory-map_%s.ld' % self.name,
+                               'memory-map.ld')
 
         self.add_gnat_sources(
             'arm/nordic/nrf52/s-bbmcpa.ads',

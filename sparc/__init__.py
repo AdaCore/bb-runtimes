@@ -142,14 +142,16 @@ class Leon3(LeonTarget):
         return not self.need_fix_ut699
 
     @property
-    def readme_file(self):
-        return 'sparc/leon3/README'
-
-    def amend_rts(self, rts_profile, conf):
-        super(Leon3, self).amend_rts(rts_profile, conf)
+    def has_compare_and_swap(self):
         if not self.smp:
             # see R409-022
-            conf.rts_vars['Has_Compare_And_Swap'] = "no"
+            return False
+        else:
+            return True
+
+    @property
+    def readme_file(self):
+        return 'sparc/leon3/README'
 
     def __init__(self, smp):
         self.smp = smp

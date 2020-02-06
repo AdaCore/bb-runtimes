@@ -1,35 +1,56 @@
-import copy
 import os
 
 from support import is_string
-from support.files_holder import FilesHolder
+from support.files_holder import FilesHolder, FilePair
+
+
+class LdScript(FilePair):
+    def __init__(self, dst, src, loaders):
+        super(LdScript, self).__init__(dst=dst, src=src)
+        if loaders is None:
+            self._loaders = None
+        elif is_string(loaders):
+            if len(loaders) == 0:
+                self._loaders = tuple()
+            else:
+                self._loaders = (loaders, )
+        elif isinstance(loaders, list):
+            self._loaders = tuple(loaders)
+        elif isinstance(loaders, tuple):
+            self._loaders = loaders
+        else:
+            assert False, "unexpected type for loader %s" % str(loaders)
+
+    @property
+    def loaders(self):
+        return self._loaders
+
+    def add_loader(self, loader):
+        if self._loaders is None:
+            self._loaders = (loader, )
+        else:
+            self._loaders += (loader,)
+
+    @property
+    def name(self):
+        return self._dst
 
 
 class ArchSupport(FilesHolder):
     """Handles the startup files and linker scripts"""
 
-    @property
-    def name(self):
-        raise Exception("not implemented")
+    def __init__(self):
+        super(ArchSupport, self).__init__()
+        self._ld_scripts = []
+        self._ld_switches = []
+        if self.parent is not None:
+            self._parent = self.parent()
+        else:
+            self._parent = None
 
     @property
     def parent(self):
         return None
-
-    @property
-    def readme_file(self):
-        if self._parent is not None:
-            return self._parent.readme_file
-        else:
-            return None
-
-    @property
-    def rel_path(self):
-        if self._parent is not None:
-            return self._parent.rel_path + self.name + '/'
-        else:
-            # Use posix path: is used to generate ada_source_path
-            return '%s/' % self.name
 
     @property
     def loaders(self):
@@ -41,46 +62,22 @@ class ArchSupport(FilesHolder):
             return None
 
     @property
-    def compiler_switches(self):
-        return None
+    def ld_scripts(self):
+        if self._parent is not None:
+            ret = self._parent.ld_scripts
+        else:
+            ret = []
+        ret += self._ld_scripts
+        return ret
 
     @property
-    def c_switches(self):
-        return None
-
-    def __init__(self):
-        super(ArchSupport, self).__init__()
-        if self.parent is None:
-            self._parent = None
-            self.ld_scripts = []
-            self.ld_switches = []
+    def ld_switches(self):
+        if self._parent is not None:
+            ret = self._parent.ld_switches
         else:
-            self._parent = self.parent()
-            self.ld_scripts = copy.deepcopy(self._parent.ld_scripts)
-            self.ld_switches = copy.deepcopy(self._parent.ld_switches)
-        self.source_dirs = []
-        self.gnarl_dirs = []
-
-    def has_c(self, dir):
-        if dir.startswith(self.rel_path):
-            d = dir.replace(self.rel_path + 'src/', '')
-            return d in self.c_srcs
-        else:
-            return self._parent.has_c(dir)
-
-    def has_asm_cpp(self, dir):
-        if dir.startswith(self.rel_path):
-            d = dir.replace(self.rel_path + 'src/', '')
-            return d in self.asm_cpp_srcs
-        else:
-            return self._parent.has_asm_cpp(dir)
-
-    def has_asm(self, dir):
-        if dir.startswith(self.rel_path):
-            d = dir.replace(self.rel_path + 'src/', '')
-            return d in self.asm_srcs
-        else:
-            return self._parent.has_asm(dir)
+            ret = []
+        ret += self._ld_switches
+        return ret
 
     def add_gnat_source(self, source):
         self.add_source('gnat', source)
@@ -96,70 +93,21 @@ class ArchSupport(FilesHolder):
         for arg in args:
             self.add_gnarl_source(arg)
 
-    def add_source(self, dir, source):
-        super(ArchSupport, self).add_source(
-            dir, os.path.basename(source), source)
-        if 'gnarl' in dir:
-            if dir not in self.gnarl_dirs:
-                self.gnarl_dirs.append(dir)
-        else:
-            if dir not in self.source_dirs:
-                self.source_dirs.append(dir)
-
-    def add_sources(self, dir, sources):
-        super(ArchSupport, self).add_sources(dir, sources)
-        if 'gnarl' in dir:
-            if dir not in self.gnarl_dirs:
-                self.gnarl_dirs.append(dir)
-        else:
-            if dir not in self.source_dirs:
-                self.source_dirs.append(dir)
-
-    def add_linker_script(self, script, loader=''):
+    def add_linker_script(self, script, dst=None, loader=''):
         """Adds a new linker script to the BSP.
-
-        If loader is empty string, then the script is copied to the link folder
-        but not used in the runtime.xml (considered a dependency to other
-        scripts)
-        If loader is None, then the script is applicable whatever the current
-        loader used.
         """
-        if isinstance(script, dict):
-            if len(script) > 1:
-                # Dictionary with more than 1 value
-                for key in script:
-                    self.add_linker_script({key: script[key]}, loader)
+        assert is_string(script)
 
-                return
-            else:
-                # simple target pair
-                key = list(script.keys())[0]
-                base = os.path.basename(key)
-                assert base == key, \
-                    "invalid parameter: %s is not a basename" % key
-                script = script[key]
+        if dst is None:
+            # not a pair: just copy the script without renaming it
+            obj = LdScript(os.path.basename(script), script, loader)
         else:
-            if is_string(script):
-                # simple filename
-                base = os.path.basename(script)
-            else:
-                # list of scripts
-                assert isinstance(script, list), \
-                  "invalid parameter: need a basestring, a dict or a list"
-                for val in script:
-                    self.add_linker_script(val, loader)
+            obj = LdScript(dst, script, loader)
 
-                return
+        assert obj not in self.ld_scripts, \
+            "duplicated ld script name %s" % str(obj)
 
-        for val in self.ld_scripts:
-            assert val['name'] != base, \
-                "Cannot have ld scripts with the same name: %s" % base
-
-        self.ld_scripts.insert(0, {
-            'name': base,
-            'pair': script,
-            'path': self.rel_path + 'link',
-            'loader': loader})
+        self._ld_scripts.append(obj)
 
     def add_linker_switch(self, switch, loader=None):
         """Adds additional linker switch to the BSP.
@@ -167,51 +115,15 @@ class ArchSupport(FilesHolder):
         if loader is None, then the switch is applicable whatever the current
         loader used.
         """
-        self.ld_switches.append({
+        self._ld_switches.append({
             'switch': switch,
             'loader': loader})
 
-    def install_ld_scripts(self, destination, files, installed_files):
-        for val in self.ld_scripts:
-            rel = val['path']
-            destdir = os.path.join(destination, rel)
-
-            if not os.path.exists(destdir):
-                os.makedirs(destdir)
-            self._copy_pair(dst=val['name'], srcfile=val['pair'],
-                            destdir=destdir,
-                            installed_files=installed_files)
-            files.append(rel + '/' + val['name'])
-
-    def install_libgnat(self, dest, dirs, installed_files):
+    def get_sources(self, lib):
         if self._parent is not None:
-            self._parent.install_libgnat(dest, dirs, installed_files)
-
-        for d in self.source_dirs:
-            rel = self._install(d, dest, installed_files)
-            dirs.append(rel)
-
-    def install_libgnarl(self, dest, dirs, installed_files):
-        if self._parent is not None:
-            self._parent.install_libgnarl(dest, dirs, installed_files)
-
-        for d in self.gnarl_dirs:
-            rel = self._install(d, dest, installed_files)
-            dirs.append(rel)
-
-    def _install(self, dirname, destination, installed_files):
-        if dirname not in self.dirs:
-            print('undefined bsp directory %s' % dirname)
-
-        rel = self.rel_path + 'src/' + dirname
-
-        destdir = os.path.join(destination, rel)
-
-        if not os.path.exists(destdir):
-            os.makedirs(destdir)
-
-        for k, v in self.dirs[dirname].items():
-            self._copy_pair(dst=k, srcfile=v, destdir=destdir,
-                            installed_files=installed_files)
-
-        return rel
+            ret = self._parent.get_sources(lib)
+        else:
+            ret = []
+        if lib in self.dirs:
+            ret += self.dirs[lib]
+        return ret

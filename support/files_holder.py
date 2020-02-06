@@ -2,7 +2,84 @@ import os
 import shutil
 import sys
 
-from support import fullpath
+from support import fullpath, is_string
+
+
+def _copy(src, dst):
+    "Copy (or symlink) src to dst"
+
+    if not os.path.isfile(src):
+        print("runtime file " + src + " does not exists")
+        sys.exit(4)
+
+    already_exists = False
+
+    if os.path.isfile(dst):
+        with open(dst, 'r') as fp:
+            cnt1 = fp.read()
+        with open(src, 'r') as fp:
+            cnt2 = fp.read()
+        if cnt1 != cnt2:
+            print("runtime file " + dst + " already exists")
+            print("cannot install " + src)
+            sys.exit(5)
+        else:
+            already_exists = True
+
+    if already_exists:
+        if FilesHolder.verbose:
+            print("same file, skip: " + src + ", " + dst)
+    else:
+        if FilesHolder.verbose:
+            print("copy " + src + " to " + dst)
+        if FilesHolder.link:
+            os.symlink(os.path.abspath(src), dst)
+        else:
+            shutil.copy(src, dst)
+
+
+class FilePair(object):
+    def __init__(self, dst, src):
+        self._dst = dst
+
+        # Full path to the source file
+        self._src = None
+
+        if '/' not in src:
+            # Files without path elements are in gnat
+            assert FilesHolder.manifest, "Error: MANIFEST file not found"
+            assert src in FilesHolder.manifest, \
+                "Error: source file %s not in MANIFEST" % src
+            self._src = os.path.join(FilesHolder.gnatdir, src)
+
+        elif src.split('/')[0] in ('hie', 'libgnarl', 'libgnat'):
+            # BB-specific file in gnat/hie
+            self._src = os.path.join(FilesHolder.gnatdir, src)
+            assert os.path.exists(self._src), \
+                "Error: source file %s not found in gnat" % src
+
+        else:
+            # Look into the current repository
+            self._src = fullpath(src)
+
+            if not os.path.exists(self._src):
+                # Look into gcc
+                self._src = os.path.join(FilesHolder.gccdir, src)
+        assert os.path.exists(self._src)
+
+    def __eq__(self, other):
+        if is_string(other):
+            return self._dst == other
+        elif isinstance(other, FilePair):
+            return other._dst == self._dst and other._src == self._src
+        else:
+            return False
+
+    def __str__(self):
+        return self._dst
+
+    def install(self, dir):
+        _copy(self._src, os.path.join(dir, self._dst))
 
 
 class FilesHolder(object):
@@ -34,9 +111,6 @@ class FilesHolder(object):
 
     def __init__(self):
         self.dirs = {}
-        self.c_srcs = []
-        self.asm_srcs = []
-        self.asm_cpp_srcs = []
 
         # Read manifest file (if exists)
         if FilesHolder.manifest is None:
@@ -49,37 +123,43 @@ class FilesHolder(object):
                     if line and not line.startswith('--'):
                         FilesHolder.manifest.append(line)
 
-    def add_source(self, dir, dst, src):
+    def add_source_alias(self, dir, dst, src):
+        """Add source.
+
+         DIR is the target directory the file will be copied to
+         DST is the install basename of the file to copy
+         SRC is the full name of the file to copy"""
         if dir not in self.dirs:
-            self.dirs[dir] = {}
-        base = os.path.basename(dst)
+            self.dirs[dir] = []
+        self.dirs[dir].append(FilePair(dst, src))
+
+    def add_source(self, dir, src):
+        """Add source.
+
+         DIR is the target directory the file will be copied to
+         SRC is the full name of the file to copy"""
+        base = os.path.basename(src)
         # A file could have `.` in its name. (eg: pikeos4.2-cert-app.c)
         _, ext = base.rsplit('.', 1)
+        # Check if the basename of the source file contains two consecutive
+        # underscores. This is by naming convention a file variant whose
+        # variant part needs to be removed before installation.
+        # Example:
+        # s-textio__myboard.adb should be installed as s-textio.adb
         if '__' in base:
-            # File with variant:
-            # remove the variant part from the destination file name
             base, _ = base.split('__')
             base = "%s.%s" % (base, ext)
-        self.dirs[dir][base] = src
-        if dir not in self.c_srcs:
-            if ext in ('c', 'h'):
-                self.c_srcs.append(dir)
-        if dir not in self.asm_srcs:
-            if ext == 's':
-                self.asm_srcs.append(dir)
-        if dir not in self.asm_cpp_srcs:
-            if ext in ('S', 'inc'):
-                self.asm_cpp_srcs.append(dir)
+        self.add_source_alias(dir, base, src)
 
     def add_sources(self, dir, sources):
-        if isinstance(sources, list):
-            for src in sources:
-                self.add_sources(dir, src)
-        elif isinstance(sources, dict):
-            for k, v in sources.items():
-                self.add_source(dir, k, v)
-        else:
-            self.add_source(dir, sources, sources)
+        """Add a list of sources.
+
+        DIR is the target directory the files will be copied to
+        SOURCES is a list of source files"""
+        assert isinstance(sources, list) or isinstance(sources, tuple), \
+            "incorrect parameter %s" % str(sources)
+        for src in sources:
+            self.add_source(dir, src)
 
     def has_source(self, name):
         for d in self.dirs:
@@ -90,84 +170,36 @@ class FilesHolder(object):
     def remove_source(self, name):
         for d in self.dirs:
             if name in self.dirs[d]:
-                del(self.dirs[d][name])
+                self.dirs[d].remove(name)
                 return
-        print("No such source %s" % name)
-        sys.exit(2)
-
-    def remove_pair(self, original):
-        for d in self.dirs:
-            if original in self.dirs[d]:
-                self.dirs[d][original] = original
-                return True
-        return False
+        assert False, "No such source %s" % name
 
     def update_pair(self, dest, src):
-        assert isinstance(dest, str), \
-            "dest is not a string: %s (src is %s)" % (dest, src)
-        assert src is None or isinstance(src, str), \
-            "src is not a string: %s (dest is %s)" % (src, dest)
+        assert is_string(dest), \
+            "dest is not a string: %s (src is %s)" % (str(dest), str(src))
+        assert src is None or is_string(src), \
+            "src is not a string: %s (dest is %s)" % (str(src), str(dest))
 
         for d in self.dirs:
             if dest in self.dirs[d]:
-                self.dirs[d][dest] = src
+                self.dirs[d].remove(dest)
+                self.dirs[d].append(FilePair(dest, src))
                 return True
-        print('update_pair: %s not found' % dest)
-        sys.exit(2)
         # no such file
         return False
 
-    def update_pairs(self, pairs):
-        for k, v in pairs.items():
-            if not self.update_pair(k, v):
-                print("in update_pairs: no such source: %s" % k)
-        return True
+    def install(self, dir):
+        installed = []
+        for d in self.dirs:
+            full = os.path.join(dir, d)
+            installed.append(d)
 
-    def _copy(self, src, dst, installed_files):
-        "Copy (or symlink) src to dst"
+            if not os.path.exists(full):
+                os.makedirs(full)
+            for f in self.dirs[d]:
+                f.install(full)
 
-        if not os.path.isfile(src):
-            print("runtime file " + src + " does not exists")
-            sys.exit(4)
-
-        already_exists = False
-
-        if os.path.isfile(dst):
-            with open(dst, 'r') as fp:
-                cnt1 = fp.read()
-            with open(src, 'r') as fp:
-                cnt2 = fp.read()
-            if cnt1 != cnt2:
-                print("runtime file " + dst + " already exists")
-                print("cannot install " + src)
-                sys.exit(5)
-            else:
-                already_exists = True
-
-        if installed_files is not None:
-            if os.path.basename(dst) in installed_files:
-                print("runtime file " + dst + " installed multiple times")
-                sys.exit(6)
-
-            installed_files.append(os.path.basename(dst))
-
-        if already_exists:
-            if self.verbose:
-                print("same file, skip: " + src + ", " + dst)
-        else:
-            if self.verbose:
-                print("copy " + src + " to " + dst)
-            if self.link:
-                try:
-                    os.symlink(os.path.abspath(src), dst)
-                except os.error as e:
-                    print("symlink error for " + src)
-                    print("msg: " + str(e))
-                    sys.exit(2)
-            else:
-                shutil.copy(src, dst)
-
-    def _copy_pair(self, dst, srcfile, destdir, installed_files=None):
+    def copy_pair(self, dst, srcfile, destdir):
         "Copy after substitution with pairs"
 
         dstdir = os.path.join(destdir, os.path.basename(dst))
@@ -205,4 +237,4 @@ class FilesHolder(object):
             print("Cannot find source dir for %s" % srcfile)
             sys.exit(2)
 
-        self._copy(src, dstdir, installed_files)
+        _copy(src, dstdir)

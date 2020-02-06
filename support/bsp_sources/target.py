@@ -12,6 +12,7 @@ class TargetConfiguration(object):
 
     @property
     def name(self):
+        """Board's name, as used to name the runtime (e.g. zfp-<name>)"""
         raise Exception("not implemented")
 
     @property
@@ -59,10 +60,23 @@ class TargetConfiguration(object):
 
     @property
     def has_timer_64(self):
-        """True if the hardware provide a 64-bit timer. Else 32-bit timer is
+        """True if the hardware provides a 64-bit timer. Else 32-bit timer is
         assumed.
         """
         raise Exception("not implemented")
+
+    @property
+    def has_compare_and_swap(self):
+        """True if the hardware supports an atomic compare-and-swap function.
+
+        The default is to return True here as (at least for now) only the
+        LEON processor may not support CAS, all other having proper support or
+        at the minimum proper emulation when they are uni-processor.
+
+        On LEON target, some variants of the CPU may not support it, while gcc
+        expects the support: this may thus generate invalid instructions.
+        """
+        return True
 
     def has_libc(self, profile):
         """Whether libc is available and used on the target"""
@@ -85,15 +99,13 @@ class TargetConfiguration(object):
         """Switches to be used when compiling C code."""
         return ()
 
+    @property
+    def readme_file(self):
+        return None
+
 
 class Target(TargetConfiguration, ArchSupport):
     """Handles the creation of runtimes for a particular target"""
-    @property
-    def rel_path(self):
-        if self._parent is not None:
-            return self._parent.rel_path + self.name + '/'
-        else:
-            return self.name + '/'
 
     def __init__(self):
         """Initialize the target
@@ -136,11 +148,10 @@ class Target(TargetConfiguration, ArchSupport):
             # lookup the file as any other regular source file.
             system_ads = self.system_ads[profile]
             if '/' in system_ads:
-                rts.add_sources('arch', {
-                    'system.ads': system_ads})
+                rts.add_source_alias('gnat', 'system.ads', system_ads)
             else:
-                rts.add_sources('arch', {
-                    'system.ads': 'src/system/%s' % system_ads})
+                rts.add_source_alias('gnat', 'system.ads',
+                                     'src/system/%s' % system_ads)
             rts.build_flags = copy.deepcopy(self.build_flags)
             rts.config_files = {}
 
@@ -151,16 +162,36 @@ class Target(TargetConfiguration, ArchSupport):
 
         assert len(self.runtimes) > 0, "No runtime defined"
 
+    @property
+    def compiler_switches(self):
+        return []
+
     def amend_rts(self, rts_profile, rts):
         """to be overriden by the actual target to refine the runtime"""
         pass
+
+    def other_sources(self, profile):
+        """Used to return a list of source dirs to install.
+
+         The expected returned format is:
+         { 'rts_subdir': [ <dir1>, <dir2> ] }
+
+         the sources in <dir1>, <dir2> will then be installed in the runtime's
+         subdirectory rts_subdir.
+         """
+        return None
+
+    def other_projects(self, profile):
+        """List of projects to build in the runtime"""
+        return None
 
     ###############
     # runtime.xml #
     ###############
 
     def dump_runtime_xml(self, rts_name, rts):
-        " Dumps the runtime.xml file that gives the configuration to gprbuild"
+        """Dumps the runtime.xml file that gives the configuration to gprbuild
+        """
         ret = '<?xml version="1.0" ?>\n\n'
         ret += '<gprconfig>\n'
         ret += '  <configuration>\n'
@@ -172,19 +203,21 @@ class Target(TargetConfiguration, ArchSupport):
             assert 'USER' not in self.loaders, \
                 "target cannot define USER loader"
 
-            loaders = self.loaders + ("USER", )
+            loaders = list(self.loaders) + ['USER']
+        else:
+            assert len(self.ld_scripts) <= 1, (
+                "target configuration error: no loader specified and several"
+                " ld scripts are defined")
+            if len(self.ld_scripts) == 1:
+                loaders = ['DEFAULT', 'USER']
+                self.ld_scripts[0].add_loader('DEFAULT')
+            else:
+                loaders = ['USER']
 
-            ret += '   type Loaders is ("%s");\n' % '", "'.join(
-                loaders)
-            ret += '   Loader : Loaders := external("LOADER", "%s");\n\n' % (
-                loaders[0])
-        elif len(self.ld_scripts) == 1:
-            # No loader defined, and a single ld script
-            # Let's make it user-configurable
-            ret += '   LDSCRIPT := external("LDSCRIPT",\n'
-            ret += '                        "${RUNTIME_DIR(ada)}/ld/%s");' % (
-                self.ld_scripts[0]['name'],)
-            ret += '\n\n'
+        ret += '   type Loaders is ("%s");\n' % '", "'.join(
+            loaders)
+        ret += '   Loader : Loaders := external("LOADER", "%s");\n\n' % \
+            loaders[0]
 
         ret += '   package Compiler is\n'
         if len(self.compiler_switches) > 0:
@@ -213,13 +246,6 @@ class Target(TargetConfiguration, ArchSupport):
         ret += '   end Compiler;\n\n'
 
         switches = []
-        if len(self.ld_scripts) == 1 and self.loaders is None:
-            switches.append('"-T", LDSCRIPT')
-        else:
-            for val in self.ld_scripts:
-                if val['loader'] is None:
-                    # use for all loaders
-                    switches.append('"-T", "%s"' % val['name'])
         for sw in self.ld_switches:
             if sw['loader'] is None or sw['loader'] == '':
                 switches.append('"%s"' % sw['switch'])
@@ -229,7 +255,7 @@ class Target(TargetConfiguration, ArchSupport):
         blank = indent * ' '
         ret += blank + \
             'for Required_Switches use Linker\'Required_Switches &\n'
-        ret += blank + '  ("-Wl,-L${RUNTIME_DIR(ada)}/adalib",\n'
+        ret += blank + '  ("-Wl,-L${RUNTIME_DIR(Ada)}/adalib",\n'
         indent = 9
         blank = indent * ' '
 
@@ -239,8 +265,11 @@ class Target(TargetConfiguration, ArchSupport):
         else:
             # libgnat depends on libc for malloc stuff
             # libc and libgcc depends on libgnat for syscalls and abort
-            ret += (', "-lgnat", "-lc", "-lgcc", "-lgnat"')
+            ret += ', "-lgnat", "-lc", "-lgcc", "-lgnat"'
 
+        # Add the user script path first, so that they have precedence
+        ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld_user"'
+        # And then our own script(s), if any
         if len(self.ld_scripts) > 0:
             ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld"'
 
@@ -252,34 +281,30 @@ class Target(TargetConfiguration, ArchSupport):
         indent = 6
         blank = indent * ' '
 
-        if self.loaders is not None:
+        if loaders is not None:
             ret += '\n' + blank
             ret += 'case Loader is\n'
             indent += 3
             blank = indent * ' '
 
-            for l in loaders:
+            for loader in loaders:
                 ret += blank
-                ret += 'when "%s" =>\n' % l
+                ret += 'when "%s" =>\n' % loader
+                if loader == 'USER':
+                    continue
                 indent += 3
                 blank = indent * ' '
 
                 switches = []
                 for val in self.ld_scripts:
-                    if val['loader'] is None:
-                        continue
-                    if is_string(val['loader']):
-                        if val['loader'] == l:
-                            switches.append('"-T", "%s"' % val['name'])
-                    else:
-                        if l in val['loader']:
-                            switches.append('"-T", "%s"' % val['name'])
+                    if val.loaders is None or loader in val.loaders:
+                        switches.append('"-T", "%s"' % val.name)
                 for sw in self.ld_switches:
                     if is_string(sw['loader']) \
-                            and sw['loader'] == l:
+                            and sw['loader'] == loader:
                         switches.append('"%s"' % sw['switch'])
                     if isinstance(sw['loader'], list) \
-                            and l in sw['loader']:
+                            and loader in sw['loader']:
                         switches.append('"%s"' % sw['switch'])
                 if len(switches) > 0:
                     ret += blank
