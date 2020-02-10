@@ -42,10 +42,10 @@ _start_ram:
         # Clear .bss
         movea.l #__bss_start, %a0
         move.l  #__bss_words, %d0   | move sets the condition codes
-        beq.b   1f
-0:      clr.b  (%a0)+
-        subq.l  #1, %d0
-        bpl.b   0b
+        beq.l   1f
+0:      clr.l  (%a0)+
+        subq.l  #4, %d0
+        bpl.l   0b
 1:
         bsr.l   main
         bsr.l   _exit
