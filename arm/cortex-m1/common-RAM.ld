@@ -39,6 +39,8 @@
 /* This script stores and loads the application from SRAM. The size and
    location SRAM is defined in memory-map.ld */
 
+INCLUDE memory-map.ld
+
 _DEFAULT_STACK_SIZE = 4*1024;
 
 ENTRY(_start_ram);

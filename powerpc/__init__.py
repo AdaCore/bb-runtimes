@@ -123,7 +123,7 @@ class MPC8349e(PPC6XXTarget):
 
         self.add_linker_script('powerpc/mpc8349/ram.ld', loader=None)
         self.add_linker_switch('-Wl,-z,max-page-size=0x1000')
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'powerpc/mpc8349/start-ram.S',
             'powerpc/mpc8349/setup.S',
             'src/s-macres__8349e.adb',
@@ -160,10 +160,9 @@ class MPC8641(PPC6XXTarget):
         self.add_linker_script('powerpc/mpc8641/ram.ld', loader='RAM')
         self.add_linker_switch('-Wl,-u_start_ram', loader='RAM')
 
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'powerpc/mpc8641/start-rom.S',
-            'powerpc/mpc8641/setup.S'])
-        self.add_sources('crt0', [
+            'powerpc/mpc8641/setup.S',
             'src/s-macres__p2020.adb',
             'src/s-bbbopa__8641d.ads',
             'src/s-textio__p2020.adb'])
@@ -205,7 +204,7 @@ class P5634(PPCSPETarget):
     def __init__(self):
         super(P5634, self).__init__()
         self.add_linker_script('powerpc/mpc5634/5634.ld', loader=None)
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'powerpc/mpc5634/start.S',
             'src/s-macres__p55.adb',
             'src/s-textio__p55.adb'])
@@ -227,7 +226,7 @@ class P2020(PPCSPETarget):
     def __init__(self):
         super(P2020, self).__init__()
         self.add_linker_script('powerpc/p2020/p2020.ld', loader=None)
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'powerpc/p2020/start-ram.S',
             'powerpc/p2020/setup.S',
             'src/s-macres__p2020.adb',
@@ -263,7 +262,7 @@ class P5566(PPCSPETarget):
         self.add_linker_script('powerpc/p5566/bam.ld', loader='BAM')
         self.add_linker_script('powerpc/p5566/flash.ld', loader='FLASH')
         self.add_linker_script('powerpc/p5566/ram.ld', loader='EXTRAM')
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'powerpc/p5566/start-bam.S',
             'powerpc/p5566/start-ram.S',
             'powerpc/p5566/start-flash.S',

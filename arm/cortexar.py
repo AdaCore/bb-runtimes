@@ -10,7 +10,7 @@ class CortexARArch(ArchSupport):
 
     def __init__(self):
         super(CortexARArch, self).__init__()
-        self.add_sources('arch', [
+        self.add_sources('gnat', [
             'src/i-arm_v7ar.ads',
             'src/i-arm_v7ar.adb',
             'src/i-cache.ads',
@@ -79,7 +79,7 @@ class Rpi2Base(CortexARTarget):
         super(Rpi2Base, self).__init__()
 
         self.add_linker_script('arm/rpi2/ram.ld', loader='RAM')
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'src/i-raspberry_pi.ads',
             'src/s-macres__rpi2.adb'])
         self.add_sources('gnarl', [
@@ -95,7 +95,7 @@ class Rpi2(Rpi2Base):
     def __init__(self):
         super(Rpi2, self).__init__()
 
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'arm/rpi2/start-ram.S',
             'arm/rpi2/memmap.S',
             'src/s-textio__rpi2-mini.adb'])
@@ -111,7 +111,7 @@ class Rpi2Mc(Rpi2Base):
     def __init__(self):
         super(Rpi2Mc, self).__init__()
 
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'arm/rpi2-mc/start-ram.S',
             'arm/rpi2-mc/memmap.S',
             'src/s-textio__rpi2-pl011.adb'])
@@ -177,9 +177,9 @@ class TMS570(CortexARTarget):
                 'ravenscar-full': 'system-xi-arm-full.ads'}
 
     def add_linker_scripts(self):
-        self.add_linker_script([
-            'arm/tms570/common.ld',
-            {'tms570.ld': 'arm/tms570/%s.ld' % self.variant}])
+        self.add_linker_script('arm/tms570/common.ld')
+        self.add_linker_script('arm/tms570/%s.ld' % self.variant,
+                               dst='tms570.ld')
         self.add_linker_script('arm/tms570/flash.ld', loader='FLASH')
         self.add_linker_script('arm/tms570/hiram.ld', loader='HIRAM')
         self.add_linker_script('arm/tms570/loram.ld', loader='LORAM')
@@ -192,18 +192,18 @@ class TMS570(CortexARTarget):
 
         self.add_linker_scripts()
 
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'arm/tms570/crt0.S',
             'arm/tms570/system_%s.c' % self.variant,
             'arm/tms570/s-tms570.ads', 'arm/tms570/s-tms570.adb',
             'src/s-macres__tms570.adb',
             'src/s-boapar__%s.ads' % self.variant])
         if self.cpu == 'cortex-r4f':
-            self.add_sources('crt0', 'arm/tms570/cortex-r4.S')
+            self.add_source('gnat', 'arm/tms570/cortex-r4.S')
         if self.uart_io:
-            self.add_sources('crt0', 'src/s-textio__tms570-sci.adb')
+            self.add_source('gnat', 'src/s-textio__tms570-sci.adb')
         else:
-            self.add_sources('crt0', 'src/s-textio__tms570-dcc.adb')
+            self.add_source('gnat', 'src/s-textio__tms570-dcc.adb')
 
         self.add_sources('gnarl', [
             'src/a-intnam__%s.ads' % self.variant,
@@ -250,7 +250,7 @@ class Zynq7000(CortexARTarget):
     def __init__(self):
         super(Zynq7000, self).__init__()
         self.add_linker_script('arm/zynq/ram.ld', loader='RAM')
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'arm/zynq/start-ram.S',
             'arm/zynq/memmap.S',
             'src/s-textio__zynq.adb',

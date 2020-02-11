@@ -12,7 +12,7 @@ class X86Native(DFBBTarget):
 
     def __init__(self):
         super(X86Native, self).__init__()
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'src/s-macres__native.adb',
             'src/s-textio__stdio.adb'])
 

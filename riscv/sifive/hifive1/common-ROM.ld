@@ -36,6 +36,8 @@
 
 /* This is a RISC-V specific version of this file */
 
+INCLUDE memory-map.ld
+
 _DEFAULT_STACK_SIZE = 2*1024;
 
 OUTPUT_ARCH("riscv")

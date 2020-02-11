@@ -10,7 +10,7 @@ class Aarch64Arch(ArchSupport):
 
     def __init__(self):
         super(Aarch64Arch, self).__init__()
-        self.add_sources('arch', [
+        self.add_sources('gnat', [
             'src/i-aarch64.ads', 'src/i-aarch64.adb',
             'src/i-cache.ads',
             'src/i-cache__aarch64.adb'])
@@ -83,7 +83,7 @@ class ZynqMP(Aarch64Target):
 
     def amend_rts(self, rts_profile, cfg):
         super(ZynqMP, self).amend_rts(rts_profile, cfg)
-        cfg.add_sources('arch', [
+        cfg.add_sources('gnat', [
             'aarch64/zynqmp/memmap.S'])
         cfg.add_sources('gnarl', [
             'src/s-bbpara__zynqmp.ads'])
@@ -91,11 +91,10 @@ class ZynqMP(Aarch64Target):
     def __init__(self):
         super(ZynqMP, self).__init__()
 
-        self.add_linker_script('aarch64/zynqmp/common.ld',
-                               loader=('RAM', 'QSPI'))
+        self.add_linker_script('aarch64/zynqmp/common.ld')
         self.add_linker_script('aarch64/zynqmp/ram.ld', loader='RAM')
         self.add_linker_script('aarch64/zynqmp/qspi.ld', loader='QSPI')
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'aarch64/zynqmp/start.S',
             'aarch64/zynqmp/trap_vector.S',
             'src/trap_dump__aarch64.ads',
@@ -125,7 +124,7 @@ class Rpi3Base(Aarch64Target):
         super(Rpi3Base, self).__init__()
 
         self.add_linker_script('aarch64/rpi3/ram.ld', loader='RAM')
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'src/i-raspberry_pi.ads',
             'src/trap_dump__aarch64.ads',
             'src/trap_dump__aarch64.adb',
@@ -145,7 +144,7 @@ class Rpi3(Rpi3Base):
     def __init__(self):
         super(Rpi3, self).__init__()
 
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'aarch64/rpi3/start-ram.S',
             'aarch64/rpi3/memmap.S',
             'src/s-textio__rpi2-mini.adb'])
@@ -161,7 +160,7 @@ class Rpi3Mc(Rpi3Base):
     def __init__(self):
         super(Rpi3Mc, self).__init__()
 
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'aarch64/rpi3-mc/start-ram.S',
             'aarch64/rpi3-mc/traps_el3.S',
             'aarch64/rpi3-mc/traps_el2cur.S',

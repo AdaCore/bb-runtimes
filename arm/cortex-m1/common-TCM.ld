@@ -43,6 +43,8 @@
    to execute from this memory. Consequently, after the ITCM remapping
    SRAM will no longer be accessable. */
 
+INCLUDE memory-map.ld
+
 _DEFAULT_STACK_SIZE = 4*1024;
 
 ENTRY(_start_tcm);

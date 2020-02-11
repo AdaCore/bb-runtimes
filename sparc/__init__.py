@@ -12,7 +12,7 @@ class LeonArch(ArchSupport):
     def __init__(self):
         super(LeonArch, self).__init__()
         self.add_linker_switch('-Wl,-u_start', loader=None)
-        self.add_sources('arch', [
+        self.add_sources('gnat', [
             'sparc/leon/crt0.S',
             'sparc/leon/hw_init.S',
             'sparc/src/sparc.h',
@@ -78,7 +78,7 @@ class Leon2(LeonTarget):
         super(Leon2, self).__init__()
 
         self.add_linker_script('sparc/leon/leon.ld', loader=None)
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'src/s-textio__leon.adb',
             'src/s-bbbopa__leon.ads'])
         self.add_sources('gnarl', [
@@ -156,10 +156,9 @@ class Leon3(LeonTarget):
         super(Leon3, self).__init__()
 
         self.add_linker_script('sparc/leon3/leon.ld', loader=None)
-        self.add_sources('crt0', [
-            'src/s-textio__leon3.adb',
-            'src/s-bbbopa__leon3-%s.ads' % ('smp' if smp else 'up', )])
         self.add_sources('gnat', [
+            'src/s-textio__leon3.adb',
+            'src/s-bbbopa__leon3-%s.ads' % ('smp' if smp else 'up', ),
             'src/i-leon3.ads',
             'src/i-leon3-uart.ads',
             'src/i-leon3-cache.ads'])

@@ -20,7 +20,7 @@ class Visium(DFBBTarget):
 
     def __init__(self):
         super(Visium, self).__init__()
-        self.add_sources('crt0', [
+        self.add_sources('gnat', [
             'src/s-macres__native.adb',
             'src/s-textio__stdio.adb'])
 

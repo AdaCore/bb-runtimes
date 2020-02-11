@@ -36,6 +36,8 @@
 
 /* This is a Motorola 68020 specific version of this file */
 
+INCLUDE memory-map.ld
+
 _DEFAULT_STACK_SIZE = 64*1024;
 
 ENTRY(_start_ram);

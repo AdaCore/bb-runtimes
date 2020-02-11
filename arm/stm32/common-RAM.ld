@@ -39,6 +39,8 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
+INCLUDE memory-map.ld
+
 _DEFAULT_STACK_SIZE = 4*1024;
 
 ENTRY(_start_ram);
@@ -59,7 +61,7 @@ SECTIONS
     *(.ARM.exidx* .gnu.linkonce.armexidx.*)
     PROVIDE_HIDDEN (__exidx_end = .);
   } > sram_ro
- 
+
   .rodata :
   {
     *(.lit)
