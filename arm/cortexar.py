@@ -178,8 +178,8 @@ class TMS570(CortexARTarget):
 
     def add_linker_scripts(self):
         self.add_linker_script('arm/tms570/common.ld')
-        self.add_linker_script('arm/tms570/%s.ld' % self.variant,
-                               dst='tms570.ld')
+        self.add_linker_script(
+            {'tms570.ld': 'arm/tms570/%s.ld' % self.variant})
         self.add_linker_script('arm/tms570/flash.ld', loader='FLASH')
         self.add_linker_script('arm/tms570/hiram.ld', loader='HIRAM')
         self.add_linker_script('arm/tms570/loram.ld', loader='LORAM')
