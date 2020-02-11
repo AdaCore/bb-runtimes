@@ -91,7 +91,7 @@ class FilesHolder(object):
             if name in self.dirs[d]:
                 del(self.dirs[d][name])
                 return
-        print "No such source %s" % name
+        print("No such source %s" % name)
         sys.exit(2)
 
     def remove_pair(self, original):
@@ -102,16 +102,16 @@ class FilesHolder(object):
         return False
 
     def update_pair(self, dest, src):
-        assert isinstance(dest, basestring), \
+        assert isinstance(dest, str), \
             "dest is not a string: %s (src is %s)" % (dest, src)
-        assert src is None or isinstance(src, basestring), \
+        assert src is None or isinstance(src, str), \
             "src is not a string: %s (dest is %s)" % (src, dest)
 
         for d in self.dirs:
             if dest in self.dirs[d]:
                 self.dirs[d][dest] = src
                 return True
-        print 'update_pair: %s not found' % dest
+        print('update_pair: %s not found' % dest)
         sys.exit(2)
         # no such file
         return False
@@ -119,14 +119,14 @@ class FilesHolder(object):
     def update_pairs(self, pairs):
         for k, v in pairs.items():
             if not self.update_pair(k, v):
-                print "in update_pairs: no such source: %s" % k
+                print("in update_pairs: no such source: %s" % k)
         return True
 
     def _copy(self, src, dst, installed_files):
         "Copy (or symlink) src to dst"
 
         if not os.path.isfile(src):
-            print "runtime file " + src + " does not exists"
+            print("runtime file " + src + " does not exists")
             sys.exit(4)
 
         already_exists = False
@@ -137,31 +137,31 @@ class FilesHolder(object):
             with open(src, 'r') as fp:
                 cnt2 = fp.read()
             if cnt1 != cnt2:
-                print "runtime file " + dst + " already exists"
-                print "cannot install " + src
+                print("runtime file " + dst + " already exists")
+                print("cannot install " + src)
                 sys.exit(5)
             else:
                 already_exists = True
 
         if installed_files is not None:
             if os.path.basename(dst) in installed_files:
-                print "runtime file " + dst + " installed multiple times"
+                print("runtime file " + dst + " installed multiple times")
                 sys.exit(6)
 
             installed_files.append(os.path.basename(dst))
 
         if already_exists:
             if self.verbose:
-                print "same file, skip: " + src + ", " + dst
+                print("same file, skip: " + src + ", " + dst)
         else:
             if self.verbose:
-                print "copy " + src + " to " + dst
+                print("copy " + src + " to " + dst)
             if self.link:
                 try:
                     os.symlink(os.path.abspath(src), dst)
-                except os.error, e:
-                    print "symlink error for " + src
-                    print "msg: " + str(e)
+                except os.error as e:
+                    print("symlink error for " + src)
+                    print("msg: " + str(e))
                     sys.exit(2)
             else:
                 shutil.copy(src, dst)
@@ -173,7 +173,7 @@ class FilesHolder(object):
 
         # Find the sourcedir
         if srcfile is None:
-            print "No source file for %s" % dst
+            print("No source file for %s" % dst)
             sys.exit(2)
 
         # Full path to the source file
@@ -201,7 +201,7 @@ class FilesHolder(object):
                 src = os.path.join(self.gccdir, srcfile)
 
         if src is None or not os.path.exists(src):
-            print "Cannot find source dir for %s" % srcfile
+            print("Cannot find source dir for %s" % srcfile)
             sys.exit(2)
 
         self._copy(src, dstdir, installed_files)

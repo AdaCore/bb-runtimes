@@ -237,7 +237,7 @@ class Installer(object):
                 fp.write('adalib\n')
 
             # Write config files
-            for name, content in self.tgt.config_files.iteritems():
+            for name, content in self.tgt.config_files.items():
                 with open(os.path.join(base_rts, name), 'w') as fp:
                     fp.write(content)
             with open(os.path.join(base_rts, 'runtime.xml'), 'w') as fp:
@@ -253,7 +253,7 @@ class Installer(object):
             inst_files.append(os.path.join(support_dir, 'ada_source_path'))
             inst_files.append(os.path.join(support_dir, 'ada_object_path'))
 
-            for name, content in rts_obj.config_files.iteritems():
+            for name, content in rts_obj.config_files.items():
                 inst_files.append(name)
                 with open(os.path.join(base_rts, name), 'w') as fp:
                     fp.write(content)
