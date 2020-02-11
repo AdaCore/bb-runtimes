@@ -113,7 +113,7 @@ class RTSProfiles(object):
             elif cpu in ('riscv64',):
                 ret['CPU_Family'] = 'riscv64'
             else:
-                print "Unexpected cpu %s" % cpu
+                print("Unexpected cpu %s" % cpu)
                 sys.exit(2)
 
         if not self.config.is_pikeos:

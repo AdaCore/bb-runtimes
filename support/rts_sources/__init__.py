@@ -181,7 +181,7 @@ class SourceTree(FilesHolder):
             else:
                 self.scenarios['RTS_Profile'] = ['zfp', 'ravenscar-sfp']
 
-        for key, values in rts_sources.iteritems():
+        for key, values in rts_sources.items():
             # filter out folders that are not used by the selected profiles
             if profile == 'zfp':
                 if 'gnarl' in key.split('/'):
@@ -228,7 +228,7 @@ class SourceTree(FilesHolder):
         # different sub-directories
         for k, v in pairs.items():
             if k not in self.dirs[dir]:
-                print "in update_pairs: no such source: %s" % k
+                print("in update_pairs: no such source: %s" % k)
             else:
                 self.dirs[dir][k] = v
         return True
@@ -241,7 +241,7 @@ class SourceTree(FilesHolder):
         :type directory: string
         :type rules: list or None
         """
-        if isinstance(rules, basestring):
+        if isinstance(rules, str):
             rules = [rules]
 
         if directory.split('/')[0] == 'gnarl':
