@@ -81,6 +81,29 @@ class ArchSupport(FilesHolder):
         else:
             return self._parent.has_asm(dir)
 
+    def add_gnat_source(self, source):
+        self.add_source('gnat', source)
+
+    def add_gnat_sources(self, *args):
+        for arg in args:
+            self.add_gnat_source(arg)
+
+    def add_gnarl_source(self, source):
+        self.add_source('gnarl', source)
+
+    def add_gnarl_sources(self, *args):
+        for arg in args:
+            self.add_gnarl_source(arg)
+
+    def add_source(self, dir, source):
+        super(ArchSupport, self).add_source(dir, source)
+        if 'gnarl' in dir:
+            if dir not in self.gnarl_dirs:
+                self.gnarl_dirs.append(dir)
+        else:
+            if dir not in self.source_dirs:
+                self.source_dirs.append(dir)
+
     def add_sources(self, dir, sources):
         super(ArchSupport, self).add_sources(dir, sources)
         if 'gnarl' in dir:

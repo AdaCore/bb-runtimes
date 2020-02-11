@@ -10,16 +10,16 @@ class CortexARArch(ArchSupport):
 
     def __init__(self):
         super(CortexARArch, self).__init__()
-        self.add_sources('gnat', [
+        self.add_gnat_sources(
             'src/i-arm_v7ar.ads',
             'src/i-arm_v7ar.adb',
             'src/i-cache.ads',
-            'src/i-cache__armv7.adb'])
-        self.add_sources('gnarl', [
+            'src/i-cache__armv7.adb')
+        self.add_gnarl_sources(
             'src/s-bbcpsp__arm.ads',
             'src/s-bbcppr__new.ads',
             'src/s-bbcppr__arm.adb',
-            'src/s-bbinte__generic.adb'])
+            'src/s-bbinte__generic.adb')
 
 
 class CortexARTarget(DFBBTarget):
@@ -79,12 +79,12 @@ class Rpi2Base(CortexARTarget):
         super(Rpi2Base, self).__init__()
 
         self.add_linker_script('arm/rpi2/ram.ld', loader='RAM')
-        self.add_sources('gnat', [
+        self.add_gnat_sources(
             'src/i-raspberry_pi.ads',
-            'src/s-macres__rpi2.adb'])
-        self.add_sources('gnarl', [
+            'src/s-macres__rpi2.adb')
+        self.add_gnarl_sources(
             'src/a-intnam__rpi2.ads',
-            'src/s-bbbosu__rpi2.adb'])
+            'src/s-bbbosu__rpi2.adb')
 
 
 class Rpi2(Rpi2Base):
@@ -95,12 +95,12 @@ class Rpi2(Rpi2Base):
     def __init__(self):
         super(Rpi2, self).__init__()
 
-        self.add_sources('gnat', [
+        self.add_gnat_sources(
             'arm/rpi2/start-ram.S',
             'arm/rpi2/memmap.S',
-            'src/s-textio__rpi2-mini.adb'])
-        self.add_sources('gnarl', [
-            'src/s-bbpara__rpi2.ads'])
+            'src/s-textio__rpi2-mini.adb')
+        self.add_gnarl_source(
+            'src/s-bbpara__rpi2.ads')
 
 
 class Rpi2Mc(Rpi2Base):
@@ -111,12 +111,12 @@ class Rpi2Mc(Rpi2Base):
     def __init__(self):
         super(Rpi2Mc, self).__init__()
 
-        self.add_sources('gnat', [
+        self.add_gnat_sources(
             'arm/rpi2-mc/start-ram.S',
             'arm/rpi2-mc/memmap.S',
-            'src/s-textio__rpi2-pl011.adb'])
-        self.add_sources('gnarl', [
-            'src/s-bbpara__rpi2.ads'])
+            'src/s-textio__rpi2-pl011.adb')
+        self.add_gnarl_source(
+            'src/s-bbpara__rpi2.ads')
 
 
 class TMS570(CortexARTarget):
@@ -192,24 +192,24 @@ class TMS570(CortexARTarget):
 
         self.add_linker_scripts()
 
-        self.add_sources('gnat', [
+        self.add_gnat_sources(
             'arm/tms570/crt0.S',
             'arm/tms570/system_%s.c' % self.variant,
             'arm/tms570/s-tms570.ads', 'arm/tms570/s-tms570.adb',
             'src/s-macres__tms570.adb',
-            'src/s-boapar__%s.ads' % self.variant])
+            'src/s-boapar__%s.ads' % self.variant)
         if self.cpu == 'cortex-r4f':
-            self.add_source('gnat', 'arm/tms570/cortex-r4.S')
+            self.add_gnat_source('arm/tms570/cortex-r4.S')
         if self.uart_io:
-            self.add_source('gnat', 'src/s-textio__tms570-sci.adb')
+            self.add_gnat_source('src/s-textio__tms570-sci.adb')
         else:
-            self.add_source('gnat', 'src/s-textio__tms570-dcc.adb')
+            self.add_gnat_source('src/s-textio__tms570-dcc.adb')
 
-        self.add_sources('gnarl', [
+        self.add_gnarl_sources(
             'src/a-intnam__%s.ads' % self.variant,
             'src/s-bbpara__%s.ads' % self.variant,
             'src/s-bbbosu__tms570.adb',
-            'src/s-bbsumu__generic.adb'])
+            'src/s-bbsumu__generic.adb')
 
 
 class Zynq7000(CortexARTarget):
@@ -250,12 +250,12 @@ class Zynq7000(CortexARTarget):
     def __init__(self):
         super(Zynq7000, self).__init__()
         self.add_linker_script('arm/zynq/ram.ld', loader='RAM')
-        self.add_sources('gnat', [
+        self.add_gnat_sources(
             'arm/zynq/start-ram.S',
             'arm/zynq/memmap.S',
             'src/s-textio__zynq.adb',
-            'src/s-macres__zynq.adb'])
-        self.add_sources('gnarl', [
+            'src/s-macres__zynq.adb')
+        self.add_gnarl_sources(
             'src/a-intnam__zynq.ads',
             'src/s-bbpara__cortexa9.ads',
-            'src/s-bbbosu__cortexa9.adb'])
+            'src/s-bbbosu__cortexa9.adb')

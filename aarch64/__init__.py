@@ -10,16 +10,16 @@ class Aarch64Arch(ArchSupport):
 
     def __init__(self):
         super(Aarch64Arch, self).__init__()
-        self.add_sources('gnat', [
+        self.add_gnat_sources(
             'src/i-aarch64.ads', 'src/i-aarch64.adb',
             'src/i-cache.ads',
-            'src/i-cache__aarch64.adb'])
-        self.add_sources('gnarl', [
+            'src/i-cache__aarch64.adb')
+        self.add_gnarl_sources(
             'src/s-bbcpsp__aarch64.ads',
             'src/s-bbcppr__new.ads',
             'src/s-bbcppr__aarch64.adb',
             'aarch64/context_switch.S',
-            'src/s-bbinte__generic.adb'])
+            'src/s-bbinte__generic.adb')
 
 
 class Aarch64Target(DFBBTarget):
@@ -83,10 +83,6 @@ class ZynqMP(Aarch64Target):
 
     def amend_rts(self, rts_profile, cfg):
         super(ZynqMP, self).amend_rts(rts_profile, cfg)
-        cfg.add_sources('gnat', [
-            'aarch64/zynqmp/memmap.S'])
-        cfg.add_sources('gnarl', [
-            'src/s-bbpara__zynqmp.ads'])
 
     def __init__(self):
         super(ZynqMP, self).__init__()
@@ -94,16 +90,18 @@ class ZynqMP(Aarch64Target):
         self.add_linker_script('aarch64/zynqmp/common.ld')
         self.add_linker_script('aarch64/zynqmp/ram.ld', loader='RAM')
         self.add_linker_script('aarch64/zynqmp/qspi.ld', loader='QSPI')
-        self.add_sources('gnat', [
+        self.add_gnat_sources(
             'aarch64/zynqmp/start.S',
             'aarch64/zynqmp/trap_vector.S',
+            'aarch64/zynqmp/memmap.S',
             'src/trap_dump__aarch64.ads',
             'src/trap_dump__aarch64.adb',
             'src/s-textio__zynqmp.adb',
-            'src/s-macres__zynqmp.adb'])
-        self.add_sources('gnarl', [
+            'src/s-macres__zynqmp.adb')
+        self.add_gnarl_sources(
             'src/a-intnam__zynqmp.ads',
-            'src/s-bbbosu__armv8a.adb'])
+            'src/s-bbbosu__armv8a.adb',
+            'src/s-bbpara__zynqmp.ads')
 
 
 class Rpi3Base(Aarch64Target):
@@ -124,16 +122,14 @@ class Rpi3Base(Aarch64Target):
         super(Rpi3Base, self).__init__()
 
         self.add_linker_script('aarch64/rpi3/ram.ld', loader='RAM')
-        self.add_sources('gnat', [
+        self.add_gnat_sources(
             'src/i-raspberry_pi.ads',
             'src/trap_dump__aarch64.ads',
             'src/trap_dump__aarch64.adb',
-            'src/s-textio__rpi2-mini.adb',
-            'src/s-macres__rpi2.adb'])
-        self.add_sources('gnarl', [
+            'src/s-macres__rpi2.adb')
+        self.add_gnarl_sources(
             'src/a-intnam__rpi2.ads',
-            'src/s-bbpara__rpi2.ads',
-            'src/s-bbbosu__rpi3.adb'])
+            'src/s-bbbosu__rpi3.adb')
 
 
 class Rpi3(Rpi3Base):
@@ -144,12 +140,11 @@ class Rpi3(Rpi3Base):
     def __init__(self):
         super(Rpi3, self).__init__()
 
-        self.add_sources('gnat', [
+        self.add_gnat_sources(
             'aarch64/rpi3/start-ram.S',
             'aarch64/rpi3/memmap.S',
-            'src/s-textio__rpi2-mini.adb'])
-        self.add_sources('gnarl', [
-            'src/s-bbpara__rpi2.ads'])
+            'src/s-textio__rpi2-mini.adb')
+        self.add_gnarl_source('src/s-bbpara__rpi2.ads')
 
 
 class Rpi3Mc(Rpi3Base):
@@ -160,13 +155,12 @@ class Rpi3Mc(Rpi3Base):
     def __init__(self):
         super(Rpi3Mc, self).__init__()
 
-        self.add_sources('gnat', [
+        self.add_gnat_sources(
             'aarch64/rpi3-mc/start-ram.S',
             'aarch64/rpi3-mc/traps_el3.S',
             'aarch64/rpi3-mc/traps_el2cur.S',
             'aarch64/rpi3-mc/traps_el2low.S',
             'aarch64/rpi3-mc/traps_common.h',
             'aarch64/rpi3-mc/memmap.S',
-            'src/s-textio__rpi2-pl011.adb'])
-        self.add_sources('gnarl', [
-            'src/s-bbpara__rpi2-hyp.ads'])
+            'src/s-textio__rpi2-pl011.adb')
+        self.add_gnarl_source('src/s-bbpara__rpi2-hyp.ads')

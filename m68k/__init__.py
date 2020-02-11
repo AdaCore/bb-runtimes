@@ -61,11 +61,11 @@ class M68020(M68KTarget):
 
         self.add_linker_script('m68k/m68020/memory-map.ld')
         self.add_linker_script('m68k/m68020/common-RAM.ld', loader='RAM')
-        self.add_sources('gnat', [
+        self.add_gnat_sources(
             'm68k/m68020/mc68901.ads',
             'm68k/m68020/start-ram.S',
             'm68k/m68020/s-macres.adb',
-            'm68k/m68020/s-textio.adb'])
+            'm68k/m68020/s-textio.adb')
 
 
 class M68020_SoftFloat(M68020):

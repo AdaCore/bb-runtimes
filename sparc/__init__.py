@@ -12,12 +12,12 @@ class LeonArch(ArchSupport):
     def __init__(self):
         super(LeonArch, self).__init__()
         self.add_linker_switch('-Wl,-u_start', loader=None)
-        self.add_sources('gnat', [
+        self.add_gnat_sources(
             'sparc/leon/crt0.S',
             'sparc/leon/hw_init.S',
             'sparc/src/sparc.h',
-            'src/s-macres__leon.adb'])
-        self.add_sources('gnarl', [
+            'src/s-macres__leon.adb')
+        self.add_gnarl_sources(
             'src/s-bbcppr__old.ads',
             'src/s-bbcppr__sparc.adb',
             'src/s-bcpith__sparc.adb',
@@ -27,7 +27,7 @@ class LeonArch(ArchSupport):
             'sparc/src/interrupt_masking.S',
             'src/s-bbcaco.ads',
             'src/s-bbcaco__leon.adb',
-            'src/s-bbinte__generic.adb'])
+            'src/s-bbinte__generic.adb')
 
 
 class LeonTarget(DFBBTarget):
@@ -78,15 +78,15 @@ class Leon2(LeonTarget):
         super(Leon2, self).__init__()
 
         self.add_linker_script('sparc/leon/leon.ld', loader=None)
-        self.add_sources('gnat', [
+        self.add_gnat_sources(
             'src/s-textio__leon.adb',
-            'src/s-bbbopa__leon.ads'])
-        self.add_sources('gnarl', [
+            'src/s-bbbopa__leon.ads')
+        self.add_gnarl_sources(
             'src/s-bbsumu__generic.adb',
             'src/s-bbsule__leon.ads',
             'src/s-bbbosu__leon.adb',
             'src/s-bbpara__leon.ads',
-            'src/a-intnam__leon.ads'])
+            'src/a-intnam__leon.ads')
 
 
 class Leon3(LeonTarget):
@@ -156,18 +156,18 @@ class Leon3(LeonTarget):
         super(Leon3, self).__init__()
 
         self.add_linker_script('sparc/leon3/leon.ld', loader=None)
-        self.add_sources('gnat', [
+        self.add_gnat_sources(
             'src/s-textio__leon3.adb',
             'src/s-bbbopa__leon3-%s.ads' % ('smp' if smp else 'up', ),
             'src/i-leon3.ads',
             'src/i-leon3-uart.ads',
-            'src/i-leon3-cache.ads'])
-        self.add_sources('gnarl', [
+            'src/i-leon3-cache.ads')
+        self.add_gnarl_sources(
             'src/i-leon3-timers.ads',
             'src/i-leon3-irqmp.ads',
             'src/s-bbbosu__leon3.adb',
             'src/s-bbpara__leon.ads',
-            'src/a-intnam__leon3.ads'])
+            'src/a-intnam__leon3.ads')
 
 
 class Leon4(Leon3):

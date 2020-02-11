@@ -50,6 +50,8 @@ class FilesHolder(object):
                         FilesHolder.manifest.append(line)
 
     def add_source(self, dir, dst, src):
+        if dir not in self.dirs:
+            self.dirs[dir] = {}
         base = os.path.basename(dst)
         # A file could have `.` in its name. (eg: pikeos4.2-cert-app.c)
         _, ext = base.rsplit('.', 1)
@@ -70,8 +72,6 @@ class FilesHolder(object):
                 self.asm_cpp_srcs.append(dir)
 
     def add_sources(self, dir, sources):
-        if dir not in self.dirs:
-            self.dirs[dir] = {}
         if isinstance(sources, list):
             for src in sources:
                 self.add_sources(dir, src)
