@@ -11,10 +11,10 @@ root_source_dir = os.path.dirname(os.path.abspath(__file__))
 gnatvsn_spec = os.path.join(root_source_dir, 'gnatvsn.ads')
 
 try:
-    with open(gnatvsn_spec, 'rb') as fd:
+    with open(gnatvsn_spec, 'r') as fd:
         gnatvsn_content = fd.read()
 except Exception:
-    print 'cannot find gnatvsn.ads'
+    print('cannot find gnatvsn.ads')
     sys.exit(1)
 
 
@@ -29,7 +29,7 @@ def get_gnat_version():
     if m:
         return m.group(1).strip()
 
-    print 'cannot find GNAT version in gnatvsn.ads'
+    print('cannot find GNAT version in gnatvsn.ads')
     sys.exit(1)
 
 
@@ -41,7 +41,7 @@ def get_gnat_build_type():
                 'FSF': 'FSF',
                 'GPL': 'GPL'}[m.group(1).strip()]
     else:
-        print 'cannot compute GNAT build type'
+        print('cannot compute GNAT build type')
         sys.exit(1)
 
 

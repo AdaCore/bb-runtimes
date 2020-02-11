@@ -160,37 +160,38 @@ def build_configs(target):
     elif target == 'x86_64-windows':
         t = X8664Native()
     else:
-        print 'Error: undefined target %s' % target
+        print('Error: undefined target %s' % target)
         sys.exit(2)
 
     return t
 
 
 def usage():
-    print "usage: build_rts.py OPTIONS board1 board2 ..."
-    print "Options are:"
-    print " -v --verbose      be verbose"
-    print " --bsps-only       generate only the BSPs"
-    print " --gen-doc         generate the runtime documentation"
-    print " --output=DIR      where to generate the source tree"
-    print " --prefix=DIR      where built rts will be installed."
-    print " --gcc-dir=DIR     gcc source directory"
-    print " --gnat-dir=DIR    gnat source directory"
-    print " --link            create symbolic links"
-    print ""
-    print "By default, the build infrastructure is performed in:"
-    print "  $PWD/install:                 default output"
-    print "  <output>/BSPs:                The bsps"
-    print "  <output>/lib/gnat:            projects for the shared runtime"
-    print "  <output>/include/rts-sources: sources for the shared runtime"
-    print ""
-    print "The prefix controls where the built runtimes are installed."
-    print "By default, the generated project files will install rts in:"
-    print "  <gnat>/<target>/lib/gnat"
-    print ""
-    print "when generating the runtime source tree together with the BSPs, the"
-    print "boards specified on command line must use the same toolchain"
-    print "target."
+    print("usage: build_rts.py OPTIONS board1 board2 ...")
+    print("Options are:")
+    print(" -v --verbose      be verbose")
+    print(" --bsps-only       generate only the BSPs")
+    print(" --gen-doc         generate the runtime documentation")
+    print(" --output=DIR      where to generate the source tree")
+    print(" --prefix=DIR      where built rts will be installed.")
+    print(" --gcc-dir=DIR     gcc source directory")
+    print(" --gnat-dir=DIR    gnat source directory")
+    print(" --link            create symbolic links")
+    print("")
+    print("By default, the build infrastructure is performed in:")
+    print("  $PWD/install:                 default output")
+    print("  <output>/BSPs:                The bsps")
+    print("  <output>/lib/gnat:            projects for the shared runtime")
+    print("  <output>/include/rts-sources: sources for the shared runtime")
+    print("")
+    print("The prefix controls where the built runtimes are installed.")
+    print("By default, the generated project files will install rts in:")
+    print("  <gnat>/<target>/lib/gnat")
+    print("")
+    print("when generating the runtime source tree together with the BSPs, "
+          "the")
+    print("boards specified on command line must use the same toolchain")
+    print("target.")
 
 
 def main():
@@ -210,9 +211,9 @@ def main():
             ["help", "verbose", "bsps-only", "gen-doc",
              "output=", "output-bsps=", "output-prjs=", "output-srcs=",
              "prefix=", "gcc-dir=", "gnat-dir=", "link"])
-    except getopt.GetoptError, e:
-        print "error: " + str(e)
-        print ""
+    except getopt.GetoptError as e:
+        print("error: ") + str(e)
+        print("")
         usage()
         sys.exit(2)
     for opt, arg in opts:
@@ -242,12 +243,12 @@ def main():
         elif opt == "--gen-doc":
             gen_doc = True
         else:
-            print "unexpected switch: %s" % opt
+            print("unexpected switch: %s") % opt
             sys.exit(2)
 
     if len(args) < 1:
-        print "error: missing configuration"
-        print ""
+        print("error: missing configuration")
+        print("")
         usage()
         sys.exit(2)
 
