@@ -96,7 +96,8 @@ class ArchSupport(FilesHolder):
             self.add_gnarl_source(arg)
 
     def add_source(self, dir, source):
-        super(ArchSupport, self).add_source(dir, source)
+        super(ArchSupport, self).add_source(
+            dir, os.path.basename(source), source)
         if 'gnarl' in dir:
             if dir not in self.gnarl_dirs:
                 self.gnarl_dirs.append(dir)
