@@ -239,6 +239,7 @@ class Sam(ArmV7MTarget):
 
         self.add_gnat_sources(
             'arm/sam/%s/setup_pll.adb' % self.name,
+            'arm/sam/%s/s-bbbopa.ads' % self.name,
             'arm/sam/%s/svd/i-sam.ads' % self.name,
             'arm/sam/%s/svd/i-sam-efc.ads' % self.name,
             'arm/sam/%s/svd/i-sam-pmc.ads' % self.name)
@@ -246,7 +247,6 @@ class Sam(ArmV7MTarget):
         # ravenscar support
         self.add_gnarl_sources(
             'arm/sam/%s/svd/handler.S' % self.name,
-            'arm/sam/%s/s-bbbopa.ads' % self.name,
             'arm/sam/%s/s-bbmcpa.ads' % self.name,
             'arm/sam/%s/svd/a-intnam.ads' % self.name)
 
