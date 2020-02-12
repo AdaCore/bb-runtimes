@@ -10,16 +10,16 @@ class CortexMArch(ArchSupport):
 
     def __init__(self):
         super(CortexMArch, self).__init__()
-        self.add_sources('arch', [
+        self.add_gnat_sources(
             'src/s-macres__cortexm3.adb',
-            'arm/src/breakpoint_handler-cortexm.S'])
-        self.add_sources('gnarl', [
+            'arm/src/breakpoint_handler-cortexm.S')
+        self.add_gnarl_sources(
             'src/s-bbbosu__armv7m.adb',
             'src/s-bbcpsp__cortexm.ads',
             'src/s-bbcppr__old.ads',
             'src/s-bbcppr__armv7m.adb',
             'src/s-bbinte__generic.adb',
-            'src/s-bbsumu__generic.adb'])
+            'src/s-bbsumu__generic.adb')
 
 
 class CortexMTarget(Target):
@@ -55,10 +55,12 @@ class CortexMTarget(Target):
     def full_system_ads(self):
         return 'system-xi-cortexm4-full.ads'
 
+    @property
+    def has_small_memory(self):
+        return True
+
     def __init__(self):
-        super(CortexMTarget, self).__init__(
-            mem_routines=True,
-            small_mem=True)
+        super(CortexMTarget, self).__init__()
 
 
 class LM3S(CortexMTarget):
@@ -68,7 +70,7 @@ class LM3S(CortexMTarget):
 
     @property
     def loaders(self):
-        return ('ROM', 'RAM', 'USER')
+        return ('ROM', 'RAM')
 
     @property
     def has_single_precision_fpu(self):
@@ -102,12 +104,12 @@ class LM3S(CortexMTarget):
 
         self.add_linker_script('arm/lm3s/lm3s-rom.ld', 'ROM')
         self.add_linker_script('arm/lm3s/lm3s-ram.ld', 'RAM')
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'arm/lm3s/start-rom.S',
             'arm/lm3s/start-ram.S',
             'arm/lm3s/setup_pll.adb',
             'arm/lm3s/setup_pll.ads',
-            'src/s-textio__lm3s.adb'])
+            'src/s-textio__lm3s.adb')
 
 
 class SamCommonBSP(ArchSupport):
@@ -121,7 +123,7 @@ class SamCommonBSP(ArchSupport):
 
     @property
     def loaders(self):
-        return ('ROM', 'SAMBA', 'USER')
+        return ('ROM', 'SAMBA')
 
     def __init__(self):
         super(SamCommonBSP, self).__init__()
@@ -129,13 +131,13 @@ class SamCommonBSP(ArchSupport):
         self.add_linker_script('arm/sam/common-SAMBA.ld', loader='SAMBA')
         self.add_linker_script('arm/sam/common-ROM.ld', loader='ROM')
 
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'arm/sam/s-sam4s.ads',
             'arm/sam/start-rom.S',
             'arm/sam/start-ram.S',
-            'arm/sam/setup_pll.ads'])
-        self.add_sources('gnarl', [
-            'src/s-bbpara__sam4s.ads'])
+            'arm/sam/setup_pll.ads')
+        self.add_gnarl_sources(
+            'src/s-bbpara__sam4s.ads')
 
 
 class Sam(CortexMTarget):
@@ -174,24 +176,23 @@ class Sam(CortexMTarget):
         super(Sam, self).__init__()
 
         self.add_linker_script(
-            'arm/sam/%s/memory-map.ld' % self.name,
-            loader=('SAMBA', 'ROM'))
-        self.add_sources('crt0', [
+            'arm/sam/%s/memory-map.ld' % self.name)
+        self.add_gnat_sources(
             'arm/sam/%s/board_config.ads' % self.name,
             'arm/sam/%s/setup_pll.adb' % self.name,
             'arm/sam/%s/svd/i-sam.ads' % self.name,
             'arm/sam/%s/svd/i-sam-efc.ads' % self.name,
             'arm/sam/%s/svd/i-sam-pmc.ads' % self.name,
             'arm/sam/%s/svd/i-sam-sysc.ads' % self.name,
-            'src/s-textio__sam4s.adb'])
+            'src/s-textio__sam4s.adb')
         # FIXME: s-textio.adb is invalid for the g55
 
         # ravenscar support
-        self.add_sources('gnarl', [
+        self.add_gnarl_sources(
             'arm/sam/%s/svd/handler.S' % self.name,
             'arm/sam/%s/s-bbbopa.ads' % self.name,
             'arm/sam/%s/s-bbmcpa.ads' % self.name,
-            'arm/sam/%s/svd/a-intnam.ads' % self.name])
+            'arm/sam/%s/svd/a-intnam.ads' % self.name)
 
 
 class SmartFusion2(CortexMTarget):
@@ -201,7 +202,7 @@ class SmartFusion2(CortexMTarget):
 
     @property
     def loaders(self):
-        return ('ROM', 'USER')
+        return ('ROM',)
 
     @property
     def compiler_switches(self):
@@ -232,9 +233,9 @@ class SmartFusion2(CortexMTarget):
         super(SmartFusion2, self).__init__()
 
         self.add_linker_script('arm/smartfusion2/common-ROM.ld', loader='ROM')
-        self.add_linker_script('arm/smartfusion2/memory-map.ld', loader='ROM')
+        self.add_linker_script('arm/smartfusion2/memory-map.ld')
 
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'arm/smartfusion2/start-rom.S',
             'arm/smartfusion2/setup_pll.adb',
             'arm/smartfusion2/setup_pll.ads',
@@ -246,13 +247,13 @@ class SmartFusion2(CortexMTarget):
             'arm/smartfusion2/svd/i-sf2-system_registers.ads',
             'arm/smartfusion2/svd/i-sf2-mmuart.ads',
             'arm/smartfusion2/svd/i-sf2-gpio.ads',
-            'arm/smartfusion2/s-textio.adb'])
-        self.add_sources('gnarl', [
+            'arm/smartfusion2/s-textio.adb')
+        self.add_gnarl_sources(
             'arm/smartfusion2/s-sf2gpi.ads',
             'arm/smartfusion2/s-sf2gpi.adb',
             'arm/smartfusion2/svd/handler.S',
             'arm/smartfusion2/svd/a-intnam.ads',
-            'src/s-bbpara__smartfusion2.ads'])
+            'src/s-bbpara__smartfusion2.ads')
 
 
 class Stm32CommonBSP(ArchSupport):
@@ -267,7 +268,7 @@ class Stm32CommonBSP(ArchSupport):
 
     @property
     def loaders(self):
-        return ('ROM', 'RAM', 'USER')
+        return ('ROM', 'RAM')
 
     @property
     def readme_file(self):
@@ -279,14 +280,14 @@ class Stm32CommonBSP(ArchSupport):
         self.add_linker_script('arm/stm32/common-RAM.ld', loader='RAM')
         self.add_linker_script('arm/stm32/common-ROM.ld', loader='ROM')
 
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'src/s-bbpara__stm32f4.ads',
             'arm/stm32/s-stm32.ads',
             'arm/stm32/start-rom.S',
             'arm/stm32/start-ram.S',
             'arm/stm32/start-common.S',
             'arm/stm32/setup_pll.adb',
-            'arm/stm32/setup_pll.ads'])
+            'arm/stm32/setup_pll.ads')
 
 
 class Stm32(CortexMTarget):
@@ -355,10 +356,9 @@ class Stm32(CortexMTarget):
 
         super(Stm32, self).__init__()
 
-        self.add_linker_script('arm/stm32/%s/memory-map.ld' % self.mcu,
-                               loader=('RAM', 'ROM'))
+        self.add_linker_script('arm/stm32/%s/memory-map.ld' % self.mcu)
         # startup code
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'arm/stm32/%s/s-bbbopa.ads' % self.mcu,
             'arm/stm32/%s/s-bbmcpa.ads' % self.mcu,
             'arm/stm32/%s/s-bbmcpa.adb' % self.mcu,
@@ -368,30 +368,24 @@ class Stm32(CortexMTarget):
             'arm/stm32/%s/svd/i-stm32-pwr.ads' % self.mcu,
             'arm/stm32/%s/svd/i-stm32-rcc.ads' % self.mcu,
             'arm/stm32/%s/svd/i-stm32-syscfg.ads' % self.mcu,
-            'arm/stm32/%s/svd/i-stm32-usart.ads' % self.mcu])
+            'arm/stm32/%s/svd/i-stm32-usart.ads' % self.mcu)
 
         if self.board == 'stm32f4':
-            self.add_sources('crt0', [
-                'arm/stm32/stm32f40x/s-stm32.adb'])
+            self.add_gnat_source('arm/stm32/stm32f40x/s-stm32.adb')
         elif self.board == 'stm32f429disco':
-            self.add_sources('crt0', [
-                'arm/stm32/stm32f429x/s-stm32.adb'])
+            self.add_gnat_source('arm/stm32/stm32f429x/s-stm32.adb')
         elif self.board == 'openmv2':
-            self.add_sources('crt0', [
-                'arm/stm32/stm32f429x/s-stm32.adb'])
+            self.add_gnat_source('arm/stm32/stm32f429x/s-stm32.adb')
             self.update_pair(
                 's-bbbopa.ads', 'arm/stm32/%s/s-bbbopa-openmv2.ads' % self.mcu)
         elif self.board == 'stm32f469disco':
-            self.add_sources('crt0', [
-                'arm/stm32/stm32f429x/s-stm32.adb'])
+            self.add_gnat_source('arm/stm32/stm32f429x/s-stm32.adb')
         elif self.board == 'stm32f746disco':
-            self.add_sources('crt0', [
-                'arm/stm32/stm32f7x/s-stm32.adb'])
+            self.add_gnat_source('arm/stm32/stm32f7x/s-stm32.adb')
         elif self.board == 'stm32f769disco':
-            self.add_sources('crt0', [
-                'arm/stm32/stm32f7x/s-stm32.adb'])
+            self.add_gnat_source('arm/stm32/stm32f7x/s-stm32.adb')
 
         # ravenscar support
-        self.add_sources('gnarl', [
+        self.add_gnarl_sources(
             'arm/stm32/%s/svd/handler.S' % self.mcu,
-            'arm/stm32/%s/svd/a-intnam.ads' % self.mcu])
+            'arm/stm32/%s/svd/a-intnam.ads' % self.mcu)

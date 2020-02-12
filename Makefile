@@ -21,6 +21,8 @@ GCC=$(SRC_DIR)/../gcc
 GNAT_SOURCES=$(GNAT)
 GCC_SOURCES=$(GCC)
 
+RTS_SRCS=
+
 ###################
 # Other variables #
 ###################
@@ -123,7 +125,8 @@ ifneq ($(PREFIX),)
 endif
 
 BUILD_RTS_FLAGS=
-GPRBUILD_FLAGS:=-j$(JOBS) -v -s
+GEN_RTS_FLAGS=
+GPRBUILD_FLAGS:=-v -s
 
 ifneq ($(DEBUG),)
   GPRBUILD_FLAGS:=$(GPRBUILD_FLAGS) -XBUILD=Debug
@@ -131,17 +134,16 @@ endif
 
 ifneq ($(LINK),)
   BUILD_RTS_FLAGS:=$(BUILD_RTS_FLAGS) --link
+  GEN_RTS_FLAGS:=$(GEN_RTS_FLAGS) --link
 endif
 
-ifneq ($(BSPS),)
-  BUILD_RTS_FLAGS:=$(BUILD_RTS_FLAGS) --bsps-only
+ifeq ($(BSPS),)
+  RTS_SRCS=obj/rts-sources
+  BUILD_RTS_FLAGS:=$(BUILD_RTS_FLAGS) --rts-src-descriptor=obj/rts.json
 endif
 
-GPRBUILD:=GPR_PROJECT_PATH=obj/$(TGT)/lib/gnat gprbuild $(GPRBUILD_FLAGS)
-GPRINSTALL:=GPR_PROJECT_PATH=obj/$(TGT)/lib/gnat gprinstall \
-              --prefix=$(GCC_PREFIX) -f
-BUILD_RTS:=./build-rts.py --experimental $(BUILD_RTS_FLAGS)
-
+GEN_RTS:=./gen_rts_sources.py $(GEN_RTS_FLAGS)
+BUILD_RTS:=./build_rts.py $(BUILD_RTS_FLAGS)
 
 default:
 	@echo "This makefile builds&install recompilable runtimes"
@@ -177,25 +179,24 @@ default:
 	@echo "  make <board>.zfpinstall"
 	@echo "                    Install the board's zfp rts in gcc"
 
-obj/$(TGT):
-	mkdir -p obj && rm -rf obj/$(TGT)
-	set -x; $(BUILD_RTS) --output=obj/$(TGT) --gnat-dir=$(GNAT_SOURCES) --gcc-dir=$(GCC_SOURCES) $(TARGETS)
+obj/rts-sources:
+	$(GEN_RTS) \
+	  --output-descriptor=obj/rts.json \
+	  --output-sources=$@ \
+	  --gnat-dir=$(GNAT_SOURCES) --gcc-dir=$(GCC_SOURCES) \
+	  --rts-profile=ravenscar-full
 
-srcs:
-	rm -rf obj/$(TGT)
-	$(MAKE) obj/$(TGT)
+srcs: $(RTS_SRCS)
+	$(BUILD_RTS) --force \
+	  --output=obj $(TARGETS)
 
-all: obj/$(TGT)
-	for f in obj/$(TGT)/BSPs/*.gpr; do \
-	  $(GPRBUILD) -P $$f; \
-	done
+all: $(RTS_SRCS)
+	$(BUILD_RTS) --force --build \
+	   --build-flags="$(GPRBUILD_FLAGS)" --output=obj $(TARGETS)
 
-install: all
-	for f in obj/$(TGT)/BSPs/*.gpr; do \
-	  echo $(GPRINSTALL) -P $$f; \
-	  $(GPRINSTALL) --uninstall -q -P $$f; \
-	  $(GPRINSTALL) -p -f -P $$f; \
-	done
+install: $(RTS_SRCS)
+	$(BUILD_RTS) --force --build \
+	   --build-flags="$(GPRBUILD_FLAGS)" $(TARGETS)
 
 %.build: obj/$(TGT)
 	for f in obj/$(TGT)/BSPs/*_$*.gpr; do \

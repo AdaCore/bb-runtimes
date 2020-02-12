@@ -23,7 +23,7 @@
 # optional features enabled via a "no" or "yes" value, always set 'no' as the
 # first option to disable the feature by default (zfp and ravenscar-sfp cases).
 
-rts_scenarios = {
+all_scenarios = {
     # Main profile
     'RTS_Profile': ['zfp', 'ravenscar-sfp', 'ravenscar-full'],
     # CPU architecture
@@ -32,8 +32,6 @@ rts_scenarios = {
     'Has_FPU': ['no', 'yes'],
     # Whether we rely on libc being available
     'Has_libc': ['no', 'yes'],
-    # Add memory operations
-    'Add_Memory_Operations': ['no', 'yes'],
     # RAM profile
     'Memory_Profile': ['small', 'large'],
     # 32-bit or 64-bit timers available on the hardware
@@ -68,8 +66,6 @@ rts_scenarios = {
     'Add_Value_Enum': ['no', 'yes'],
     'Add_Value_Int': ['no', 'yes'],
     'Add_Value_LL_Int': ['no', 'yes'],
-    'Add_Value_Based_Int': ['no', 'yes'],
-    'Add_Value_LL_Based_Int': ['no', 'yes'],
     'Add_Value_Decimal': ['no', 'yes'],
     'Add_Value_LL_Decimal': ['no', 'yes'],
     'Add_Value_Float': ['no', 'yes'],
@@ -116,7 +112,7 @@ rts_scenarios = {
 #     c) a negated value, preceded with an exclamation point (e.g.
 #        RTS_Profile:!zfp): evaluated to True if RTS_Profile is not "zfp".
 # If no condition is defined, then the folder is always used.
-rts_sources = {
+sources = {
     # LIBGNAT
 
     'common': {
@@ -398,7 +394,7 @@ rts_sources = {
 
     # Memory operations:
     'mem': {
-        'conditions': ['Add_Memory_Operations:yes'],
+        'conditions': ['Has_libc:no'],
         'srcs': [
             'hie/s-memtyp.ads',
             'hie/s-memcom.ads', 'hie/s-memcom.adb',
@@ -534,18 +530,6 @@ rts_sources = {
         'srcs': [
             'libgnat/s-vallli.ads', 'libgnat/s-vallli.adb',
             'libgnat/s-valllu.ads', 'libgnat/s-valllu.adb'],
-        'requires': ['Add_Value_Utils:yes']
-    },
-    'value/based_int': {
-        'conditions': ['Add_Value_Based_Int:yes'],
-        'srcs': [
-            'libgnat/s-imgbiu.ads', 'libgnat/s-imgbiu.adb'],
-        'requires': ['Add_Value_Utils:yes']
-    },
-    'value/based_int_ll': {
-        'conditions': ['Add_Value_LL_Based_Int:yes'],
-        'srcs': [
-            'libgnat/s-imgllb.ads', 'libgnat/s-imgllb.adb'],
         'requires': ['Add_Value_Utils:yes']
     },
     'value/char': {

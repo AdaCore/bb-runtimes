@@ -27,10 +27,13 @@ class PikeOS(Target):
     def parent(self):
         return PikeOSBSP
 
+    def has_libc(self, profile):
+        # PikeOS is considered Bare Metal, and we don't provide newlib on
+        # this target
+        return False
+
     def __init__(self):
-        super(PikeOS, self).__init__(
-            mem_routines=True,
-            small_mem=False)
+        super(PikeOS, self).__init__()
 
     def dump_runtime_xml(self, rts_name, rts):
         cnt = readfile('pikeos/runtime.xml')

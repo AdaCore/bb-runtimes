@@ -35,9 +35,7 @@ class RiscV64(DFBBTarget):
         return 'system-xi-riscv64.ads'
 
     def __init__(self):
-        super(RiscV64, self).__init__(
-            mem_routines=True,
-            small_mem=False)
+        super(RiscV64, self).__init__()
 
 
 class Spike(RiscV64):

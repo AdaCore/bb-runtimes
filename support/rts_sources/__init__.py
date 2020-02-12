@@ -1,15 +1,17 @@
 #
-# Copyright (C) 2016-2018, AdaCore
+# Copyright (C) 2016-2020, AdaCore
 #
 # Python script to gather files for the bareboard runtime.
 # Don't use any fancy features.  Ideally, this script should work with any
 # Python version starting from 2.6 (yes, it's very old but that's the system
 # python on oldest host).
 
+from support import is_string
 from support.files_holder import FilesHolder
 
 import os
 from copy import deepcopy
+from json import dumps
 
 
 class Rule(object):
@@ -154,9 +156,6 @@ class Rule(object):
 # Definitions of shared source files.
 
 class SourceTree(FilesHolder):
-    dest_sources = None
-    dest_prjs = None
-
     def __init__(self, is_bb, profile, rts_sources, rts_scenarios):
         """This initializes the framework to generate the runtime source tree.
 
@@ -181,7 +180,7 @@ class SourceTree(FilesHolder):
             else:
                 self.scenarios['RTS_Profile'] = ['zfp', 'ravenscar-sfp']
 
-        for key, values in rts_sources.iteritems():
+        for key, values in rts_sources.items():
             # filter out folders that are not used by the selected profiles
             if profile == 'zfp':
                 if 'gnarl' in key.split('/'):
@@ -228,7 +227,7 @@ class SourceTree(FilesHolder):
         # different sub-directories
         for k, v in pairs.items():
             if k not in self.dirs[dir]:
-                print "in update_pairs: no such source: %s" % k
+                print("in update_pairs: no such source: %s" % k)
             else:
                 self.dirs[dir][k] = v
         return True
@@ -241,7 +240,7 @@ class SourceTree(FilesHolder):
         :type directory: string
         :type rules: list or None
         """
-        if isinstance(rules, basestring):
+        if is_string(rules):
             rules = [rules]
 
         if directory.split('/')[0] == 'gnarl':
@@ -263,65 +262,50 @@ class SourceTree(FilesHolder):
             if sc not in used_scenarios:
                 used_scenarios.append(sc)
 
-    def install(self):
-        """Dump the shared rts sources project file"""
-        self.dump_project_files()
+    def install(self, dest_json, dest_sources):
+        """Actually install the runtime sources"""
+        # Dump the json file describing the sources
+        self.dump_json(dest_json, dest_sources)
 
         # now install the rts sources
-        if not os.path.exists(self.dest_sources):
-            os.makedirs(self.dest_sources)
+        if not os.path.exists(dest_sources):
+            os.makedirs(dest_sources)
         dirs = []
         dirs += self.rules['gnat'].keys()
         dirs += self.rules['gnarl'].keys()
         for d in dirs:
-            installed = []
-            self.__install_dir(d, installed)
+            self.__install_dir(d, dest_sources)
 
-    def dump_project_files(self):
+    def dump_json(self, path, dest_sources):
+        cnt = {}
         for lib in ('gnat', 'gnarl'):
             if len(self.rules[lib]) == 0:
                 continue
-
-            lib_camelcase = 'Gnat' if lib == 'gnat' else 'Gnarl'
-
-            ret = 'abstract project Lib%s_Sources is\n' % lib
-            ret += '\n'
-            ret += '   %s_Dirs := ();\n' % lib_camelcase
-            ret += '   %s_Langs := ("Ada");\n' % lib_camelcase
-            ret += '    \n'
+            cnt[lib] = {}
+            lib_cnt = cnt[lib]
+            lib_cnt['scenarios'] = {}
 
             for name in sorted(self.lib_scenarios[lib]):
                 values = self.scenarios[name]
-                ret += '   type %s_Type is ("%s");\n' % (
-                    name, '", "'.join(values))
-                ret += '   %s : %s_Type := external ("%s", "%s");\n' % (
-                    name, name, name, values[0])
-                ret += '\n'
+                lib_cnt['scenarios'][name] = values
+            lib_cnt['sources'] = self.dump_sources_json(
+                dest_sources,
+                os.path.dirname(path),
+                libname=lib,
+                scenarios=deepcopy(self.lib_scenarios[lib]),
+                dirs=deepcopy(self.rules[lib]),
+                env={})
 
-            ret += self.__dump_scenario(
-                lib_camelcase,
-                deepcopy(self.lib_scenarios[lib]),
-                deepcopy(self.rules[lib]),
-                {},
-                1)
-            ret += "end Lib%s_Sources;\n" % lib
+        with open(path, 'w') as fp:
+            fp.write(dumps(cnt, indent=2, sort_keys=True))
 
-            fname = os.path.join(self.dest_prjs, 'lib%s_sources.gpr' % lib)
-            with open(fname, 'w') as fp:
-                fp.write(ret)
-
-    def __dump_scenario(self, libname, scenarios, dirs, env, indent):
-        """Recursively dumps a case statement on scenario variables.
-
-        This adds the directories defined when a scenario variable is set to
-        a specific value, according to the conditions defined in sources.py
-        """
-        blank = ' ' * (3 * indent)
-        ret = ''
-        relpath = os.path.relpath(self.dest_sources, self.dest_prjs)
-
+    def dump_sources_json(self, dest_sources, dest_json,
+                          libname, scenarios, dirs, env):
         if len(dirs) == 0:
-            return ''
+            return None
+
+        ret = {}
+        relpath = os.path.relpath(dest_sources, dest_json)
 
         # First dump all directories that match the environment
         matched = []
@@ -330,23 +314,7 @@ class SourceTree(FilesHolder):
                 matched.append(d)
 
         if len(matched) > 0:
-            ret += blank + '%s_Dirs := %s_Dirs &\n' % (libname, libname)
-            strings = ['Project\'Project_dir & "%s/%s"' % (relpath, d)
-                       for d in sorted(matched)]
-            ret += blank + '  ('
-            ret += (',\n' + blank + '   ').join(strings)
-            ret += ');\n'
-            langs = []
-            for d in sorted(matched):
-                if 'C' not in langs and d in self.c_srcs:
-                    langs.append('C')
-                if 'Asm' not in langs and d in self.asm_srcs:
-                    langs.append('Asm')
-                if 'Asm_Cpp' not in langs and d in self.asm_cpp_srcs:
-                    langs.append('Asm_Cpp')
-            if len(langs) > 0:
-                ret += blank + '%s_Langs := %s_Langs & ("%s");\n' % (
-                    libname, libname, '", "'.join(langs))
+            ret['_srcs'] = ['%s/%s' % (relpath, m) for m in matched]
 
         if len(scenarios) == 0:
             return ret
@@ -379,29 +347,14 @@ class SourceTree(FilesHolder):
                     used = True
             if not used:
                 continue
-            has_case = False
-            has_missed_case = False
 
             for value in self.scenarios[next_var]:
                 env[next_var] = value
-                subret = self.__dump_scenario(
-                    libname, scenarios[j + 1:], dirs, env, indent + 2)
-                if subret == '':
-                    has_missed_case = True
-                    continue
-                if not has_case:
-                    # start a new case statement
-                    has_case = True
-                    ret += '\n'
-                    ret += blank + 'case %s is\n' % next_var
-                else:
-                    ret += '\n'
-                ret += blank + '   when "%s" =>\n' % value
-                ret += subret
-            if has_case:
-                if has_missed_case:
-                    ret += '\n' + blank + '   when others =>\n'
-                ret += blank + 'end case;\n'
+                subret = self.dump_sources_json(
+                    dest_sources, dest_json,
+                    libname, scenarios[j + 1:], dirs, env)
+                if subret is not None and len(subret) > 0:
+                    ret["%s:%s" % (next_var, value)] = subret
 
             # remove variable from env, before moving to the next one
             del(env[next_var])
@@ -412,15 +365,14 @@ class SourceTree(FilesHolder):
 
         return ret
 
-    def __install_dir(self, dirname, installed_files):
+    def __install_dir(self, dirname, dest_sources):
         if dirname not in self.dirs:
             print('undefined shared directory %s' % dirname)
 
-        destdir = os.path.join(self.dest_sources, dirname)
+        destdir = os.path.join(dest_sources, dirname)
 
         if not os.path.exists(destdir):
             os.makedirs(destdir)
 
-        for k, v in self.dirs[dirname].items():
-            self._copy_pair(dst=k, srcfile=v, destdir=destdir,
-                            installed_files=installed_files)
+        for pair in self.dirs[dirname]:
+            pair.install(destdir)

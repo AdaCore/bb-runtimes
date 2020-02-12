@@ -36,9 +36,10 @@ class X86Native(DFBBTarget):
         return True
 
     def __init__(self):
-        super(X86Native, self).__init__(
-            mem_routines=False,
-            small_mem=False)
+        super(X86Native, self).__init__()
+
+    def has_libc(self, profile):
+        return True
 
     @property
     def zfp_system_ads(self):

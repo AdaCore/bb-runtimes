@@ -1,12 +1,5 @@
 from support import readfile
 from support.bsp_sources.target import DFBBTarget
-from native import NativeBSP
-
-
-class VisiumBSP(NativeBSP):
-    @property
-    def name(self):
-        return 'visium'
 
 
 class Visium(DFBBTarget):
@@ -18,9 +11,12 @@ class Visium(DFBBTarget):
     def target(self):
         return 'visium-elf'
 
+    def has_libc(self, profile):
+        return True
+
     @property
-    def parent(self):
-        return VisiumBSP
+    def has_small_memory(self):
+        return True
 
     def dump_runtime_xml(self, rts_name, rts):
         return readfile('visium/mcm/runtime.xml')
@@ -33,6 +29,7 @@ class Visium(DFBBTarget):
         return 'system-xi-visium.ads'
 
     def __init__(self):
-        super(Visium, self).__init__(
-            mem_routines=False,
-            small_mem=True)
+        super(Visium, self).__init__()
+        self.add_gnat_sources(
+            'src/s-macres__native.adb',
+            'src/s-textio__stdio.adb')
