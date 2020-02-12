@@ -1,6 +1,7 @@
 import copy
 import os
 
+from support import is_string
 from support.files_holder import FilesHolder
 
 
@@ -132,13 +133,13 @@ class ArchSupport(FilesHolder):
                 return
             else:
                 # simple target pair
-                key = script.keys()[0]
+                key = list(script.keys())[0]
                 base = os.path.basename(key)
                 assert base == key, \
                     "invalid parameter: %s is not a basename" % key
                 script = script[key]
         else:
-            if isinstance(script, basestring):
+            if is_string(script):
                 # simple filename
                 base = os.path.basename(script)
             else:
