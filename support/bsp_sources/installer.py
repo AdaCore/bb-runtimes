@@ -1,4 +1,4 @@
-from target import Target
+from support.bsp_sources.target import Target
 from support import readfile, datapath
 from support.files_holder import FilesHolder
 

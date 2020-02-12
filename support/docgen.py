@@ -1,9 +1,9 @@
 import shutil
 import os
 import os.path
-from files_holder import FilesHolder
+from support.files_holder import FilesHolder
 
-from . import fullpath
+from support import fullpath
 
 
 def docgen(boards, target, dest):
