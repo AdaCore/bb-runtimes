@@ -53,7 +53,7 @@ class Spike(RiscV64):
 
     def __init__(self):
         super(Spike, self).__init__()
-        self.add_linker_script('riscv/spike/memory-map.ld', loader='RAM')
+        self.add_linker_script('riscv/spike/memory-map.ld')
         self.add_linker_script('riscv/spike/common-RAM.ld', loader='RAM')
         self.add_gnat_sources(
             'riscv/start-ram.S',
