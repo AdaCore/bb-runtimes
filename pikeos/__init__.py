@@ -13,13 +13,13 @@ class PikeOSBSP(ArchSupport):
     def __init__(self):
         super(PikeOSBSP, self).__init__()
         self.add_linker_script('pikeos/memory.ld')
-        self.add_sources('arch', [
+        self.add_gnat_sources(
             'pikeos/pikeos-cert-app.c',
             'src/s-textio__pikeos.adb',
-            'src/s-macres__native.adb'])
-        self.add_sources('gnarl', [
+            'src/s-macres__native.adb')
+        self.add_gnarl_sources(
             'pikeos/adaint-pikeos.c',
-            'src/a-intnam__dummy.ads'])
+            'src/a-intnam__dummy.ads')
 
 
 class PikeOS(Target):
