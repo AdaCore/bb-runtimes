@@ -285,7 +285,7 @@ package body System.BB.Board_Support is
 
       RTI.CPUC0       := 1;             --  Set minimal prescalar for alarm
       RTI.COMPCTRL    := 0;             --  Use timer 0 for comparators
-      RTI.INTFLAG     := 16#0000_700f#; --  Clear all pending interrupts
+      RTI.INTFLAG     := 16#0007_000f#; --  Clear all pending interrupts
       RTI.CLEARINTENA := 16#0007_0f0f#; --  Disable all interrupts
       RTI.SETINTENA   := 2**3;          --  Enable Interrupt for comparator 3
       RTI.GCTRL       := 2;             --  Turn timer/counter 1 on
