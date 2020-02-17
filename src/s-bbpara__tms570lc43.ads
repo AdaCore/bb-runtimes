@@ -46,7 +46,7 @@ package System.BB.Parameters is
    -- Hardware clock --
    --------------------
 
-   --  see system_tms570lc43.c for clock setup
+   --  See system_tms570lc43.c for clock setup
 
    Clock_Frequency  : constant Natural := 300_000_000;
    --  GCLK clock Hz: used by the Cortex-R cores
@@ -59,10 +59,10 @@ package System.BB.Parameters is
    --  HCLK Value = Max.
 
    VCLK_Frequency   : constant := HCLK_Frequency / 2;
-   --  used by some system modules, peripheral modules accessed via the
+   --  Used by some system modules, peripheral modules accessed via the
    --  Peripheral Central Resource controller.
    --  VCLK Max.  = 110MHz
-   --  VCLK Value = 75 MHz
+   --  VCLK Value = 75MHz
 
    Ticks_Per_Second : constant := Clock_Frequency / 8;
    --  RTICLK, with PRE1 used as source, and divider set to 2 ** 3
