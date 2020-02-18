@@ -266,7 +266,7 @@ class Target(TargetConfiguration, ArchSupport):
         blank = indent * ' '
         ret += blank + \
             'for Required_Switches use Linker\'Required_Switches &\n'
-        ret += blank + '  ("-Wl,-L${RUNTIME_DIR(ada)}/adalib",\n'
+        ret += blank + '  ("-Wl,-L${RUNTIME_DIR(Ada)}/adalib",\n'
         indent = 9
         blank = indent * ' '
 

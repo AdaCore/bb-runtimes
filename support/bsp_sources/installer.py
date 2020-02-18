@@ -23,7 +23,7 @@ project Runtime_Build is
   for Library_Dir use "adalib";
   for Object_Dir use "obj";
 
-  for Source_Dirs use ("gnat", "gnat_user");
+  for Source_Dirs use ("gnat");
 
   package Compiler renames Target_Options.Compiler;
 
@@ -45,7 +45,7 @@ project Ravenscar_Build is
   for Library_Dir use "adalib";
   for Object_Dir use "obj";
 
-  for Source_Dirs use ("gnarl", "gnarl_user");
+  for Source_Dirs use ("gnarl");
 
   package Compiler renames Runtime_Build.Compiler;
 
@@ -264,12 +264,6 @@ class Installer(object):
             for script in self.tgt.ld_scripts:
                 script.install(dest)
 
-            # Placeholder for user-defined sources
-            user_libs = ['%s_user' % d for d in libs]
-            for lib in user_libs:
-                dest = os.path.join(rts_path, lib)
-                os.makedirs(dest)
-
             # Install runtime.xml, ada_object_path, ada_source_path
             for name, content in self.tgt.config_files.items():
                 with open(os.path.join(rts_path, name), 'w') as fp:
@@ -277,7 +271,7 @@ class Installer(object):
             with open(os.path.join(rts_path, 'runtime.xml'), 'w') as fp:
                 fp.write(self.tgt.dump_runtime_xml(rts_path, rts_obj))
             with open(os.path.join(rts_path, 'ada_source_path'), 'w') as fp:
-                fp.write('\n'.join(list(libs) + list(user_libs)))
+                fp.write('\n'.join(libs))
             with open(os.path.join(rts_path, 'ada_object_path'), 'w') as fp:
                 fp.write('adalib')
 

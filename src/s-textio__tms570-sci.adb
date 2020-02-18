@@ -33,9 +33,7 @@
 --  SCI1/LIN1
 
 --  @design
---  This package is in charge of sending characters to the remote host
---  machine. The application output is sent through the UART, from which the
---  host machine extracts the application output.
+--  This package is the target-specific implementation of standard IO.
 --
 --  The TMS570 runtime uses the SCI1/LIN1 module, configured for 115200 baud
 --  rate, one stop bit, no parity.
