@@ -102,8 +102,8 @@ class LM3S(CortexMTarget):
     def __init__(self):
         super(LM3S, self).__init__()
 
-        self.add_linker_script('arm/lm3s/lm3s-rom.ld', 'ROM')
-        self.add_linker_script('arm/lm3s/lm3s-ram.ld', 'RAM')
+        self.add_linker_script('arm/lm3s/lm3s-rom.ld', loader='ROM')
+        self.add_linker_script('arm/lm3s/lm3s-ram.ld', loader='RAM')
         self.add_gnat_sources(
             'arm/lm3s/start-rom.S',
             'arm/lm3s/start-ram.S',
