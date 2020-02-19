@@ -279,7 +279,7 @@ class Target(TargetConfiguration, ArchSupport):
             ret += ', "-lgnat", "-lc", "-lgcc", "-lgnat"'
 
         if len(self.ld_scripts) > 0:
-            ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld"'
+            ret += ',\n' + blank + '"-L${RUNTIME_DIR(Ada)}/ld"'
 
         if len(switches) > 0:
             ret += ',\n' + blank
