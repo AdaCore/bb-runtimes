@@ -471,7 +471,8 @@ fp_context_switch:
 	nop
 
 .Lreturn_from_trap:
-	jmp	%l1
-	 rett	 %l2			! return from trap
+        ! %l1 is PC and %l2 is nPC
+        b __gnat_return_from_trap
+         nop
 
 	.size fp_context_switch, . - fp_context_switch
