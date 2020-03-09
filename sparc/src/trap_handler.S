@@ -431,14 +431,20 @@ call_trap_handler:
 .Lreturn_to_next:
 	nop						! delay slots after
 	nop						! wrpsr (before rett)
-	jmp	%l2
-	 rett	%l2 + 4
+        mov %l2, %l1
+        add %l2, 4, %l2
+
+        ! %l1 is PC and %l2 is nPC
+        b __gnat_return_from_trap
+         nop
 
 .Lreturn_to_interrupted:
 	nop						! delay slots after
 	nop						! wrpsr (before rett)
-	jmp	%l1
-	 rett	 %l2
+
+        ! %l1 is PC and %l2 is nPC
+        b __gnat_return_from_trap
+         nop
 	.cfi_endproc
 
 	.size call_trap_handler, . - call_trap_handler
