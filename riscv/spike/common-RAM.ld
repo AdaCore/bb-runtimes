@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
  *             Copyright (C) 2003-2006 The European Space Agency            *
- *                   Copyright (C) 2003-2017 AdaCore                        *
+ *                   Copyright (C) 2003-2020 AdaCore                        *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -59,32 +59,35 @@ SECTIONS
     *(.start)
     *(.text .text.* .gnu.linkonce.t*)
     *(.gnu.warning)
+    /* Ensure that the begin of .rodata is word aligned.  */
+    . = ALIGN(. != 0 ? 0x4 : 0x1);
   } > ram_tx
 
   .rodata :
   {
     *(.lit)
     *(.rodata .rodata.* .gnu.linkonce.r*)
-    . = ALIGN(0x4);
+    . = ALIGN(. != 0 ? 0x4 : 0x1);
   } > ram_ro
 
   .srodata :
   {
-    *(.srodata.cst16) *(.srodata.cst8) *(.srodata.cst4) *(.srodata.cst2) *(.srodata .srodata.*)
-    . = ALIGN(0x4);
+    *(.srodata.cst16) *(.srodata.cst8) *(.srodata.cst4) *(.srodata.cst2)
+    *(.srodata .srodata.*)
+    . = ALIGN(. != 0 ? 0x4 : 0x1);
   } > ram_ro
 
   .data :
   {
     __data_start = .;
     *(.data .data.* .gnu.linkonce.d*)
-
     /* Ensure that the end of the data section is always word aligned.
-       Initial values are stored in 4-bytes blocks so we must guarantee
-       that these blocks do not fall out the section (otherwise they are
-       truncated and the initial data for the last block are lost). */
-
-    . = ALIGN(0x4);
+       Initial values are stored in 4-bytes blocks so we must guarantee that
+       these blocks do not fall out the section (otherwise they are truncated
+       and the initial data for the last block are lost).  If the section is
+       empty don't align at all since ".data" must not be emited and
+       __data_start is expected to be equal to __data_end.  */
+    . = ALIGN(. != 0 ? 0x4 : 0x1);
     __data_end = .;
   } > ram_da
 
