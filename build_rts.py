@@ -191,6 +191,7 @@ def main():
     projects = []
     for board in boards:
         print("install runtime sources for %s" % board.name)
+        sys.stdout.flush()
         installer = Installer(board)
         projects += installer.install(
             dest, rts_descriptor=args.rts_src_descriptor)
@@ -198,10 +199,19 @@ def main():
     # and build them
     if args.build:
         for prj in projects:
+            print("building project %s" % prj)
+            sys.stdout.flush()
             cmd = ['gprbuild', '-j0', '-p', '-P', prj]
             if args.build_flags is not None:
                 cmd += args.build_flags.split()
             subprocess.check_call(cmd)
+            # Post-process: remove build artifacts from obj directory
+            cleanup_ext = ('.o', '.ali', '.stdout', '.stderr', '.d', '.lexch')
+            obj_dir = os.path.join(os.path.dirname(prj), 'obj')
+            for fname in os.listdir(obj_dir):
+                _, ext = os.path.splitext(fname)
+                if ext in cleanup_ext:
+                    os.unlink(os.path.join(obj_dir, fname))
 
     print("runtimes successfully installed in %s" %
           os.path.relpath(dest, os.getcwd()))
