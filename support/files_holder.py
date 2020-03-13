@@ -65,7 +65,8 @@ class FilePair(object):
             if not os.path.exists(self._src):
                 # Look into gcc
                 self._src = os.path.join(FilesHolder.gccdir, src)
-        assert os.path.exists(self._src)
+        assert os.path.exists(self._src), \
+            "file not found: %s" % self._src
 
     def __eq__(self, other):
         if is_string(other):
