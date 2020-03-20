@@ -231,12 +231,15 @@ class Installer(object):
             if not os.path.isdir(dest):
                 os.makedirs(dest)
 
-            # Install runtime.xml, ada_object_path, ada_source_path
+            # Install target and run-time specific configuration files
             for name, content in self.tgt.config_files.items():
                 with open(os.path.join(rts_path, name), 'w') as fp:
                     fp.write(content)
+            for name, content in rts_obj.config_files.items():
+                with open(os.path.join(rts_path, name), 'w') as fp:
+                    fp.write(content)
             with open(os.path.join(rts_path, 'runtime.xml'), 'w') as fp:
-                fp.write(self.tgt.dump_runtime_xml(rts_path, rts_obj))
+                fp.write(self.tgt.dump_runtime_xml(rts_base_name, rts_obj))
             with open(os.path.join(rts_path, 'ada_source_path'), 'w') as fp:
                 # Make sure the user-defined sources come first to preempt
                 # default sources when needed
