@@ -30,6 +30,10 @@ class TargetConfiguration(object):
         return self.target is not None and 'pikeos' in self.target
 
     @property
+    def is_native(self):
+        return self.target is None or 'native' in self.target
+
+    @property
     def has_fpu(self):
         """Whether the hardware provides a FPU.
 

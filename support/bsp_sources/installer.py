@@ -160,7 +160,10 @@ class Installer(object):
         projects = []
 
         for rts_base_name, rts_obj in self.tgt.runtimes.items():
-            rtsname = '%s-%s' % (rts_base_name, self.tgt.name)
+            if self.tgt.is_native or self.tgt.is_pikeos:
+                rtsname = 'rts-%s' % rts_base_name
+            else:
+                rtsname = '%s-%s' % (rts_base_name, self.tgt.name)
             rts_path = os.path.join(destination, rtsname)
             if os.path.exists(rts_path):
                 if not self.overwrite:
