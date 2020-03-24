@@ -108,6 +108,11 @@ ifeq ($(TARGET),$(filter $(TARGET),arm-sysgo-pikeos4 arm-pikeos4.2))
     TARGETS=arm-pikeos4.2
 endif
 
+ifeq ($(TARGET),$(filter $(TARGET),arm-sysgo-pikeos4 arm-pikeos5))
+    TGT=arm-sysgo-pikeos5
+    TARGETS=arm-pikeos5
+endif
+
 ifeq ($(TARGETS), none)
   ifeq ($(TARGET),)
     $(error Error: TARGET is not defined)

@@ -117,3 +117,38 @@ class ArmPikeOS42(PikeOS):
         self.add_gnat_source('pikeos/pikeos4.2-cert-app.c')
         self.add_gnarl_source('pikeos/adaint-pikeos42.c')
         self.add_linker_script('pikeos/arm-app.ld')
+
+
+class ArmPikeOS5(PikeOS):
+    @property
+    def name(self):
+        return 'arm-pikeos5'
+
+    @property
+    def target(self):
+        return 'arm-sysgo-pikeos5'
+
+    @property
+    def pikeos_version(self):
+        return 'pikeos5'
+
+    @property
+    def pikeos_target(self):
+        return 'arm/v7hf'
+
+    @property
+    def system_ads(self):
+        return {
+            'zfp': 'system-pikeos5-arm.ads',
+            'ravenscar-sfp': 'system-pikeos5-arm-ravenscar-sfp.ads',
+            'ravenscar-full': 'system-pikeos5-arm-ravenscar-full.ads'
+        }
+
+    def dump_runtime_xml(self, rts_name, rts):
+        return readfile('pikeos/runtime42.xml')
+
+    def __init__(self):
+        super(ArmPikeOS5, self).__init__()
+        self.add_gnat_source('pikeos/pikeos4.2-cert-app.c')
+        self.add_gnarl_source('pikeos/adaint-pikeos42.c')
+        self.add_linker_script('pikeos/arm-app.ld')
