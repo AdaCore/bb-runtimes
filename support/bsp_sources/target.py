@@ -267,9 +267,12 @@ class Target(TargetConfiguration, ArchSupport):
         if rts.rts_vars['RTS_Profile'] != "ravenscar-full":
             ret += ', "-nolibc"'
         else:
-            # libgnat depends on libc for malloc stuff
-            # libc and libgcc depends on libgnat for syscalls and abort
-            ret += ', "-lgnat", "-lc", "-lgcc", "-lgnat"'
+            # We need to explicitly link with libc for Ada code as some base
+            # functions are defined there. Now libc depends on libgnat for
+            # some syscalls (in particular base I/O and memory chucks
+            # allocation), and finally libgnat depends on libgnarl as it
+            # initializes the trap handlers of the libgnarl.
+            ret += ', "-lc", "-lgnat", "-lc", "-lgnarl"'
 
         # Add the user script path first, so that they have precedence
         ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld_user"'
