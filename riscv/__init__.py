@@ -24,10 +24,7 @@ class RiscV64(DFBBTarget):
         if rts_name == 'ravenscar-full':
             cnt = cnt.replace(
                 '"-nostartfiles"',
-                ('"-nodefaultlibs", "-lgcc", "-lc",\n'
-                 '"-u", "_Unwind_Find_FDE",\n'
-                 ' "-Wl,--eh-frame-hdr",\n'
-                 '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"'))
+                '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
         return cnt
 
     def amend_rts(self, rts_profile, conf):

@@ -196,6 +196,22 @@ class Installer(object):
                 dest = os.path.join(rts_path, lib)
                 os.makedirs(dest)
 
+            # GNARL extra directory for ravenscar-full:
+            # With the ravenscar full, we can't split properly libgnat
+            # and libgnarl, as we don't have the same soft-link
+            # mechanism as the native runtime. This means that
+            # atomic operations from libgnat need to call the
+            # libgnarl functions, making the two libs inter-dependent.
+            # To remove linking headache, we thus combine the two in
+            # a single lib, keeping libgnarl as an empty lib (gnatlink will
+            # still try to link with it when tasking is used, so we need to
+            # have one available).
+            if rts_base_name == 'ravenscar-full':
+                dest = os.path.join(rts_path, 'gnarl_empty')
+                os.makedirs(dest)
+                with open(os.path.join(dest, 'empty.c'), 'w') as fp:
+                    fp.write('\n')
+
             # Now copy the full set of sources to use for the runtime
             langs = {}
             for lib in libs:
@@ -271,20 +287,37 @@ class Installer(object):
                     target_directive = ''
                 else:
                     target_directive = 'for Target use "%s";' % self.tgt.target
+                source_dirs = ['gnat_user', 'gnat']
+                languages = langs['gnat']
+                if rts_base_name == 'ravenscar-full':
+                    # ravenscar-full: combine libgnat and libgnarl
+                    source_dirs.extend(['gnarl_user', 'gnarl'])
+                    for lang in langs['gnarl']:
+                        if lang not in languages:
+                            languages.append(lang)
                 fp.write(template.format(
                     target_directive=target_directive,
-                    source_dirs='", "'.join(('gnat_user', 'gnat')),
-                    languages='", "'.join(langs['gnat'])))
+                    source_dirs='", "'.join(source_dirs),
+                    languages='", "'.join(languages)))
             if 'gnarl' in libs:
                 ravenscar_build = os.path.join(rts_path, "ravenscar_build.gpr")
                 ravenscar_build_tmpl = getdatafilepath(
                     "ravenscar_build.gpr.in")
                 with open(ravenscar_build_tmpl, 'r') as fp:
                     template = fp.read()
+                if rts_base_name != 'ravenscar-full':
+                    source_dirs = ['gnarl_user', 'gnarl']
+                    languages = langs['gnarl']
+                else:
+                    # see above: libgnarl and libgnat are merged in
+                    # ravenscar-full, and libgnarl remains there as an empty
+                    # lib
+                    source_dirs = ['gnarl_empty']
+                    languages = ['C']
                 with open(ravenscar_build, 'w') as fp:
                     fp.write(template.format(
-                        source_dirs='", "'.join(('gnarl_user', 'gnarl')),
-                        languages='", "'.join(langs['gnarl'])))
+                        source_dirs='", "'.join(source_dirs),
+                        languages='", "'.join(languages)))
                 projects.append(ravenscar_build)
             else:
                 projects.append(runtime_build)
