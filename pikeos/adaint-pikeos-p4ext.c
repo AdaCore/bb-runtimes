@@ -2,9 +2,9 @@
  *                                                                          *
  *                         GNAT RUN-TIME COMPONENTS                         *
  *                                                                          *
- *                         A D A I N T -  P I K E O S 4 . 2                 *
+ *                  A D A I N T -  P I K E O S - P 4 E X T                  *
  *                                                                          *
- *          Copyright (C) 2009-2019, Free Software Foundation, Inc.         *
+ *          Copyright (C) 2009-2020, Free Software Foundation, Inc.         *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -62,4 +62,13 @@ __gnat_p4ext_thread_create (P4_prio_t prio, void *code,
     vm_cprintf ("p4ext_thread_create failed: %u\n", res);
   }
   return res;
+}
+
+/* On PikeOS 5, p4_fast_set_prio is always inlined; have a wrapper to
+   be able to import this function in Ada.  */
+
+P4_prio_t
+__gnat_p4_fast_set_prio(P4_prio_t new_prio)
+{
+  return p4_fast_set_prio (new_prio);
 }
