@@ -32,6 +32,10 @@ class PikeOS(Target):
         # this target
         return False
 
+    @property
+    def has_double_precision_fpu(self):
+        return True
+
     def __init__(self):
         super(PikeOS, self).__init__()
 

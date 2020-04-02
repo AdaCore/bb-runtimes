@@ -33,8 +33,8 @@ def fullpath(filename):
     return os.path.join(REPO_DIR, filename)
 
 
-def getdatafile(filename):
-    """Retrieves the path of file in the data directory"""
+def getdatafilepath(filename):
+    """Retrieves the path of filename in the data directory"""
     return os.path.join(DATA_DIR, filename)
 
 

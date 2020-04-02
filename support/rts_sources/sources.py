@@ -27,11 +27,17 @@ all_scenarios = {
     # Main profile
     'RTS_Profile': ['zfp', 'ravenscar-sfp', 'ravenscar-full'],
     # CPU architecture
-    'CPU_Family': ['arm', 'aarch64', 'leon', 'powerpc', 'x86'],
+    'CPU_Family': ['arm', 'aarch64', 'leon', 'powerpc', 'x86', 'x86_64'],
     # FPU presence
     'Has_FPU': ['no', 'yes'],
     # Whether we rely on libc being available
     'Has_libc': ['no', 'yes'],
+    # Whether we provide s-memory
+    'Has_Alloc': ['yes', 'no'],
+    # Add libgcc implementation in Ada
+    'Add_Libgcc': ['no', 'yes'],
+    # Whether an implementation of compare and swap is available
+    'Has_Compare_And_Swap': ['yes', 'no'],
     # RAM profile
     'Memory_Profile': ['small', 'large'],
     # 32-bit or 64-bit timers available on the hardware
@@ -76,10 +82,10 @@ all_scenarios = {
     'Add_Exponent_LL_Int': ['no', 'yes'],
     'Add_Exponent_Modular': ['no', 'yes'],
     'Add_Exponent_LL_Float': ['no', 'yes'],
-    # Runtime support for packed arrays
-    'Add_Pack': ['no', 'yes'],
     # Ada streams
     'Add_Streams': ['no', 'yes'],
+    # Runtime support for packed arrays
+    'Add_Pack': ['no', 'yes'],
     # Various support packages
     'Add_Case_Util': ['no', 'yes'],
     'Add_Float_Control': ['no', 'yes'],
@@ -159,12 +165,7 @@ sources = {
             'hie/a-except__zfp.ads', 'hie/a-except__zfp.adb',
             'hie/a-tags__hie.ads', 'hie/a-tags__hie.adb',
             'hie/i-c__hie.ads',
-            'hie/s-assert__xi.adb',
-            'hie/s-memory__zfp.ads'],
-        'bb_srcs': [
-            'hie/s-memory__zfp.adb'],
-        'pikeos_srcs': [
-            'hie/s-memory__raven-min.adb']
+            'hie/s-assert__xi.adb']
     },
 
     'zfp-parame': {
@@ -391,7 +392,38 @@ sources = {
             'hie/s-memory__pikeos.ads',
             'hie/s-memory__pikeos.adb']
     },
-
+    # Memory operations:
+    'alloc/spec': {
+        'conditions': ['Has_Alloc:yes',
+                       'RTS_Profile:!ravenscar-full'],
+        'srcs': ['hie/s-memory__zfp.ads']
+    },
+    'alloc/c': {
+        'conditions': ['Has_Alloc:yes',
+                       'Has_libc:yes',
+                       'RTS_Profile:!ravenscar-full'],
+        'bb_srcs': ['hie/s-memory__xi.adb']
+    },
+    'alloc/no-tasking': {
+        'conditions': ['Has_Alloc:yes',
+                       'Has_libc:no',
+                       'RTS_Profile:zfp'],
+        'srcs': ['hie/s-memory__zfp.adb']
+    },
+    'alloc/no-cas': {
+        'conditions': ['Has_Alloc:yes',
+                       'Has_libc:no',
+                       'RTS_Profile:ravenscar-sfp',
+                       'Has_Compare_And_Swap:no'],
+        'srcs': ['hie/s-memory__zfp.adb']
+    },
+    'alloc/tasking': {
+        'conditions': ['Has_Alloc:yes',
+                       'Has_libc:no',
+                       'RTS_Profile:ravenscar-sfp',
+                       'Has_Compare_And_Swap:yes'],
+        'srcs': ['hie/s-memory__raven-min.adb']
+    },
     # Memory operations:
     'mem': {
         'conditions': ['Has_libc:no'],

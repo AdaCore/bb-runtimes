@@ -126,6 +126,9 @@ class RTSProfiles(object):
         else:
             ret['Pikeos_Version'] = self.config.pikeos_version
 
+        ret['Has_Compare_And_Swap'] = \
+            'yes' if self.config.has_compare_and_swap else 'no'
+
         return ret
 
     def full_scenarios(self, math_lib):

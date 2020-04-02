@@ -25,6 +25,12 @@ class LdScript(FilePair):
     def loaders(self):
         return self._loaders
 
+    def add_loader(self, loader):
+        if self._loaders is None:
+            self._loaders = (loader,)
+        else:
+            self._loaders += (loader,)
+
     @property
     def name(self):
         return self._dst
@@ -93,7 +99,7 @@ class ArchSupport(FilesHolder):
         assert is_string(script)
 
         if dst is None:
-            # simple filename
+            # not a pair: just copy the script without renaming it
             obj = LdScript(os.path.basename(script), script, loader)
         else:
             obj = LdScript(dst, script, loader)

@@ -86,7 +86,7 @@ def main():
     rts_srcs = SourceTree(
         is_bb=not args.pikeos, profile=args.rts_profile,
         rts_sources=sources, rts_scenarios=all_scenarios)
-    rts_srcs.install(dest_json=dest_json, dest_sources=dest_srcs)
+    rts_srcs.install_tree(dest_json=dest_json, dest_sources=dest_srcs)
 
 
 if __name__ == '__main__':

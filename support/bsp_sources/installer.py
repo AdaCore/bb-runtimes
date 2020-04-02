@@ -1,4 +1,4 @@
-from support import readfile, getdatafile
+from support import readfile, getdatafilepath
 from support.bsp_sources.target import Target
 from support.files_holder import _copy
 
@@ -7,50 +7,6 @@ import os
 import shutil
 import subprocess
 import sys
-
-
-LIBGNAT_BUILD = """with "target_options.gpr";
-
-project Runtime_Build is
-  for Languages use ("{languages}");
-  for Runtime ("Ada") use Project'Project_Dir;
-  {target_directive}
-
-  for Library_Auto_Init use "False";
-  for Library_Name use "gnat";
-  for Library_Kind use "static";
-
-  for Library_Dir use "adalib";
-  for Object_Dir use "obj";
-
-  for Source_Dirs use ("gnat");
-
-  package Compiler renames Target_Options.Compiler;
-
-end Runtime_Build;
-"""
-
-LIBGNARL_BUILD = """with "runtime_build.gpr";
-
-project Ravenscar_Build is
-  for Languages use ("{languages}");
-
-  for Runtime ("Ada") use Runtime_Build'Runtime("Ada");
-  for Target use Runtime_Build'Target;
-
-  for Library_Auto_Init use "False";
-  for Library_Name use "gnarl";
-  for Library_Kind use "static";
-
-  for Library_Dir use "adalib";
-  for Object_Dir use "obj";
-
-  for Source_Dirs use ("gnarl");
-
-  package Compiler renames Runtime_Build.Compiler;
-
-end Ravenscar_Build;
-"""
 
 
 def copy_file(src, dest):
@@ -204,7 +160,10 @@ class Installer(object):
         projects = []
 
         for rts_base_name, rts_obj in self.tgt.runtimes.items():
-            rtsname = '%s-%s' % (rts_base_name, self.tgt.name)
+            if self.tgt.is_native or self.tgt.is_pikeos:
+                rtsname = 'rts-%s' % rts_base_name
+            else:
+                rtsname = '%s-%s' % (rts_base_name, self.tgt.name)
             rts_path = os.path.join(destination, rtsname)
             if os.path.exists(rts_path):
                 if not self.overwrite:
@@ -230,6 +189,22 @@ class Installer(object):
                 for scenario, vals in runtime_sources.scenarios(lib).items():
                     if scenario not in scenario_vars:
                         scenario_vars[scenario] = vals[0]
+
+            # GNARL extra directory for ravenscar-full:
+            # With the ravenscar full, we can't split properly libgnat
+            # and libgnarl, as we don't have the same soft-link
+            # mechanism as the native runtime. This means that
+            # atomic operations from libgnat need to call the
+            # libgnarl functions, making the two libs inter-dependent.
+            # To remove linking headache, we thus combine the two in
+            # a single lib, keeping libgnarl as an empty lib (gnatlink will
+            # still try to link with it when tasking is used, so we need to
+            # have one available).
+            if rts_base_name == 'ravenscar-full':
+                dest = os.path.join(rts_path, 'gnarl_empty')
+                os.makedirs(dest)
+                with open(os.path.join(dest, 'empty.c'), 'w') as fp:
+                    fp.write('\n')
 
             # Now copy the full set of sources to use for the runtime
             langs = {}
@@ -258,29 +233,33 @@ class Installer(object):
                         langs[lib].append('Asm_Cpp')
 
             # Copy the ld scripts
-            dest = os.path.join(rts_path, 'ld')
-            if not os.path.isdir(dest):
-                os.makedirs(dest)
-            for script in self.tgt.ld_scripts:
-                script.install(dest)
+            if len(self.tgt.ld_scripts) > 0:
+                dest = os.path.join(rts_path, 'ld')
+                if not os.path.isdir(dest):
+                    os.makedirs(dest)
+                for script in self.tgt.ld_scripts:
+                    script.install(dest)
 
-            # Install runtime.xml, ada_object_path, ada_source_path
+            # Install target and run-time specific configuration files
             for name, content in self.tgt.config_files.items():
                 with open(os.path.join(rts_path, name), 'w') as fp:
                     fp.write(content)
+            for name, content in rts_obj.config_files.items():
+                with open(os.path.join(rts_path, name), 'w') as fp:
+                    fp.write(content)
             with open(os.path.join(rts_path, 'runtime.xml'), 'w') as fp:
-                fp.write(self.tgt.dump_runtime_xml(rts_path, rts_obj))
+                fp.write(self.tgt.dump_runtime_xml(rts_base_name, rts_obj))
             with open(os.path.join(rts_path, 'ada_source_path'), 'w') as fp:
-                fp.write('\n'.join(libs))
+                fp.write('%s\n' % '\n'.join(list(libs)))
             with open(os.path.join(rts_path, 'ada_object_path'), 'w') as fp:
-                fp.write('adalib')
+                fp.write('adalib\n')
 
             # And generate the project files used to build the rts
 
             build_flags = {}
             for f in ['common_flags', 'asm_flags', 'c_flags']:
                 build_flags[f] = '",\n        "'.join(rts_obj.build_flags[f])
-            cnt = readfile(getdatafile('target_options.gpr'))
+            cnt = readfile(getdatafilepath('target_options.gpr'))
             # Format
             cnt = cnt.format(**build_flags)
             # Write
@@ -288,19 +267,45 @@ class Installer(object):
                 fp.write(cnt)
 
             runtime_build = os.path.join(rts_path, "runtime_build.gpr")
-            ravenscar_build = os.path.join(rts_path, "ravenscar_build.gpr")
+            runtime_build_tmpl = getdatafilepath('runtime_build.gpr.in')
+            with open(runtime_build_tmpl, 'r') as fp:
+                template = fp.read()
             with open(runtime_build, 'w') as fp:
                 if self.is_native:
                     target_directive = ''
                 else:
                     target_directive = 'for Target use "%s";' % self.tgt.target
-                fp.write(LIBGNAT_BUILD.format(
+                source_dirs = ['gnat']
+                languages = langs['gnat']
+                if rts_base_name == 'ravenscar-full':
+                    # ravenscar-full: combine libgnat and libgnarl
+                    source_dirs.append('gnarl')
+                    for lang in langs['gnarl']:
+                        if lang not in languages:
+                            languages.append(lang)
+                fp.write(template.format(
                     target_directive=target_directive,
-                    languages='", "'.join(langs['gnat'])))
+                    source_dirs='", "'.join(source_dirs),
+                    languages='", "'.join(languages)))
             if 'gnarl' in libs:
+                ravenscar_build = os.path.join(rts_path, "ravenscar_build.gpr")
+                ravenscar_build_tmpl = getdatafilepath(
+                    "ravenscar_build.gpr.in")
+                with open(ravenscar_build_tmpl, 'r') as fp:
+                    template = fp.read()
+                if rts_base_name != 'ravenscar-full':
+                    source_dirs = ['gnarl']
+                    languages = langs['gnarl']
+                else:
+                    # see above: libgnarl and libgnat are merged in
+                    # ravenscar-full, and libgnarl remains there as an empty
+                    # lib
+                    source_dirs = ['gnarl_empty']
+                    languages = ['C']
                 with open(ravenscar_build, 'w') as fp:
-                    fp.write(LIBGNARL_BUILD.format(
-                        languages='", "'.join(langs['gnarl'])))
+                    fp.write(template.format(
+                        source_dirs='", "'.join(source_dirs),
+                        languages='", "'.join(languages)))
                 projects.append(ravenscar_build)
             else:
                 projects.append(runtime_build)

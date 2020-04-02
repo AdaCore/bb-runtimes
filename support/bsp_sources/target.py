@@ -35,7 +35,7 @@ class TargetConfiguration(object):
 
     @property
     def name(self):
-        """board's name, as used to name the runtime (e.g. zfp-name)"""
+        """Board's name, as used to name the runtime (e.g. zfp-<name>)"""
         raise Exception("not implemented")
 
     @property
@@ -46,6 +46,10 @@ class TargetConfiguration(object):
     @property
     def is_pikeos(self):
         return self.target is not None and 'pikeos' in self.target
+
+    @property
+    def is_native(self):
+        return self.target is None or 'native' in self.target
 
     @property
     def has_fpu(self):
@@ -78,10 +82,24 @@ class TargetConfiguration(object):
 
     @property
     def has_timer_64(self):
-        """True if the hardware provide a 64-bit timer. Else 32-bit timer is
+        """True if the hardware provides a 64-bit timer. Else 32-bit timer is
         assumed.
         """
         raise Exception("not implemented")
+
+    @ property
+    def has_compare_and_swap(self):
+        """True if the hardware supports an atomic compare-and-swap function.
+
+        The default is to return True here as (at least for now) only the
+        LEON processor may not support CAS, all other having proper support or
+        at the minimum proper emulation when they are uni-processor.
+
+        On LEON target, some variants of the CPU may not support it, while gcc
+        expects the support: this may thus generate invalid instructions.
+        """
+
+        return True
 
     def has_libc(self, profile):
         """Whether libc is available and used on the target"""
@@ -274,9 +292,9 @@ class Target(TargetConfiguration, ArchSupport):
         if rts.rts_vars['RTS_Profile'] != "ravenscar-full":
             ret += ', "-nolibc"'
         else:
-            # libgnat depends on libc for malloc stuff
-            # libc and libgcc depends on libgnat for syscalls and abort
-            ret += ', "-lgnat", "-lc", "-lgcc", "-lgnat"'
+            # in the ravenscar-full case, the runtime depends on
+            # functionalities from newlib, such as memory allocation.
+            ret += ', "-lc", "-lgnat"'
 
         if len(self.ld_scripts) > 0:
             ret += ',\n' + blank + '"-L${RUNTIME_DIR(Ada)}/ld"'
@@ -289,7 +307,7 @@ class Target(TargetConfiguration, ArchSupport):
         indent = 6
         blank = indent * ' '
 
-        if self.loaders is not None:
+        if loaders is not None:
             ret += '\n' + blank
             ret += 'case Loader is\n'
             indent += 3

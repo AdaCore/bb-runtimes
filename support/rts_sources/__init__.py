@@ -262,7 +262,7 @@ class SourceTree(FilesHolder):
             if sc not in used_scenarios:
                 used_scenarios.append(sc)
 
-    def install(self, dest_json, dest_sources):
+    def install_tree(self, dest_json, dest_sources):
         """Actually install the runtime sources"""
         # Dump the json file describing the sources
         self.dump_json(dest_json, dest_sources)
