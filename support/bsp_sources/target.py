@@ -1,6 +1,6 @@
 import copy
 
-from support import readfile
+from support import readfile, is_string
 from support.files_holder import FilesHolder
 from support.bsp_sources.archsupport import ArchSupport
 from support.rts_sources.profiles import RTSProfiles
@@ -268,14 +268,14 @@ class Target(TargetConfiguration, ArchSupport):
                 for val in self.ld_scripts:
                     if val['loader'] is None:
                         continue
-                    if isinstance(val['loader'], basestring):
+                    if is_string(val['loader']):
                         if val['loader'] == l:
                             switches.append('"-T", "%s"' % val['name'])
                     else:
                         if l in val['loader']:
                             switches.append('"-T", "%s"' % val['name'])
                 for sw in self.ld_switches:
-                    if isinstance(sw['loader'], basestring) \
+                    if is_string(sw['loader']) \
                             and sw['loader'] == l:
                         switches.append('"%s"' % sw['switch'])
                     if isinstance(sw['loader'], list) \
