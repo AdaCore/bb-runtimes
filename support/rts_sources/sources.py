@@ -402,7 +402,7 @@ sources = {
         'conditions': ['Has_Alloc:yes',
                        'Has_libc:yes',
                        'RTS_Profile:!ravenscar-full'],
-        'bb_srcs': ['hie/s-memory__xi.adb']
+        'bb_srcs': ['hie/s-memory__libc.adb']
     },
     'alloc/no-tasking': {
         'conditions': ['Has_Alloc:yes',
