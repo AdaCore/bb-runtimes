@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---          Copyright (C) 2012-2017, Free Software Foundation, Inc.         --
+--          Copyright (C) 2012-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -128,7 +128,7 @@ package Ada.Interrupts.Names is
    PL14_Interrupt         : constant Interrupt_ID := 90;
    PL15_Interrupt         : constant Interrupt_ID := 91;
    SCU_Parity_Interrupt   : constant Interrupt_ID := 92;
-   Reserved_93_Interrupt  : constant Interrupt_ID := 35;
-   Reserved_94_Interrupt  : constant Interrupt_ID := 35;
-   Reserved_95_Interrupt  : constant Interrupt_ID := 35;
+   Reserved_93_Interrupt  : constant Interrupt_ID := 93;
+   Reserved_94_Interrupt  : constant Interrupt_ID := 94;
+   Reserved_95_Interrupt  : constant Interrupt_ID := 95;
 end Ada.Interrupts.Names;
