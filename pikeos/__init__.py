@@ -110,7 +110,7 @@ class ArmPikeOS42(PikeOS):
         }
 
     def dump_runtime_xml(self, rts_name, rts):
-        return readfile('pikeos/runtime42.xml')
+        return readfile('pikeos/runtime_p4ext.xml')
 
     def __init__(self):
         super(ArmPikeOS42, self).__init__()
@@ -145,7 +145,7 @@ class ArmPikeOS5(PikeOS):
         }
 
     def dump_runtime_xml(self, rts_name, rts):
-        return readfile('pikeos/runtime42.xml')
+        return readfile('pikeos/runtime_p4ext.xml')
 
     def __init__(self):
         super(ArmPikeOS5, self).__init__()
