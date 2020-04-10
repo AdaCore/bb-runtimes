@@ -33,7 +33,8 @@
      for Leading_Required_Switches ("C") use
         Compiler'Leading_Required_Switches ("C") &
         ("-I" & Pikeos_Files & "/include/") &
-        ("-I" & Pikeos_Files & "/pikeos-native/include/");
+        ("-I" & Pikeos_Files & "/pikeos-native/include/") &
+        ("-I" & Pikeos_Files & "/pikeos-native/include/p4ext");
    end Compiler;
 
 ]]>
