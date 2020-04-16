@@ -886,7 +886,6 @@ sources = {
             'hie/s-tasdeb__xi.ads', 'hie/s-tasdeb__raven.adb',
             'libgnarl/s-tasinf.ads', 'libgnarl/s-tasinf.adb',
             'hie/s-taskin.adb',
-            'hie/s-taspri.ads',
             'libgnarl/s-tasres.ads',
             'libgnarl/s-tpobmu.ads'],
         'bb_srcs': [
@@ -904,6 +903,7 @@ sources = {
             'hie/s-interr.adb',
             'hie/s-multip.ads', 'hie/s-multip.adb',
             'hie/s-taprop__bb.adb',
+            'hie/s-taspri.ads',
             'hie/s-tpobmu.adb',
             'hie/s-osinte.ads'],
         'pikeos_srcs': [
@@ -913,6 +913,7 @@ sources = {
             'hie/s-multip__raven-default.adb',
             'hie/s-musplo.adb',
             'hie/s-taprop__pikeos.adb',
+            'hie/s-taspri__pikeos.ads',
             'libgnarl/s-tpobmu.adb']
     },
     'gnarl/pikeos3': {
