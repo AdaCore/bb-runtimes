@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2019, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -52,7 +52,7 @@ package body System.BB.Board_Support is
    procedure External_Interrupt_Trap_Handler
      (Unused : BB.Interrupts.Interrupt_ID)
    is
-      Int_Id : BB.Interrupts.Interrupt_ID;
+      Int_Id : BB.Interrupts.Any_Interrupt_ID;
    begin
 
       --  While there is at least one pending interrupt above threshold for the
@@ -84,7 +84,8 @@ package body System.BB.Board_Support is
             --  one is signaled as completed. So we signal completion right
             --  away to allow nested interrupt handling.
             PLIC.Complete (Int_Id);
-
+         else
+            exit;
          end if;
       end loop;
 

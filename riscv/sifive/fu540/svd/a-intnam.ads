@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2019, AdaCore
+--  Copyright (C) 2020, AdaCore
 --
 
 --  This spec has been automatically generated from FU540.svd
@@ -17,8 +17,6 @@ package Ada.Interrupts.Names is
    -- Interrupts --
    ----------------
 
-   --  System tick
-   Sys_Tick_Interrupt       : constant Interrupt_ID := -1;
    Watchdog_Interrupt       : constant Interrupt_ID := 1;
    RTC_Interrupt            : constant Interrupt_ID := 2;
    UART0_Interrupt          : constant Interrupt_ID := 3;

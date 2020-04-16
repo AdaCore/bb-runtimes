@@ -36,7 +36,8 @@ from m68k import M68020, M68020_SoftFloat
 from powerpc import MPC8641, MPC8349e, P2020, P5566, P5634
 
 # riscv
-from riscv import Spike, Unleashed, HiFive1, PicoRV32, RV32IMC
+from riscv import Spike, Unleashed, PolarFireSOC, HiFive1, PicoRV32, \
+     RV32IMC
 
 # visium
 from visium import Visium
@@ -156,6 +157,8 @@ def build_configs(target):
         t = HiFive1()
     elif target == 'unleashed':
         t = Unleashed()
+    elif target == 'polarfiresoc':
+        t = PolarFireSOC()
     elif target == 'picorv32':
         t = PicoRV32()
     elif target == 'rv32imc':

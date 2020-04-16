@@ -121,6 +121,42 @@ class Unleashed(RiscV64):
             'riscv/sifive/fe310/s-bbripl.adb')
 
 
+class PolarFireSOC(Unleashed):
+    @property
+    def name(self):
+        return 'polarfiresoc'
+
+    def __init__(self):
+        super(Unleashed, self).__init__()
+
+        self.add_linker_script('riscv/sifive/unleashed/memory-map.ld')
+        self.add_linker_script('riscv/sifive/unleashed/common-RAM.ld',
+                               loader='RAM')
+        self.add_gnat_sources(
+            'riscv/sifive/unleashed/start-ram.S',
+            'riscv/sifive/fe310/svd/i-fe310.ads',
+            'riscv/sifive/fe310/svd/i-fe310-plic.ads',
+            'riscv/sifive/fe310/s-macres.adb',
+            'src/s-textio__ns16550.adb',
+            'riscv/src/riscv_def.h')
+        self.add_gnarl_sources(
+            'riscv/microchip/polarfiresoc/a-intnam.ads',
+            'src/s-bbpara__polarfiresoc.ads',
+            'src/s-bbbopa__polarfiresoc.ads',
+            'src/s-bbbosu__riscv.adb',
+            'src/s-bbsuti__riscv_clint.adb',
+            'src/s-bbsumu__generic.adb',
+            'src/s-bbcppr__new.ads',
+            'src/s-bbcppr__riscv.adb',
+            'src/s-bbcpsp__riscv.ads',
+            'src/s-bbcpsp__riscv.adb',
+            'src/s-bbinte__riscv.adb',
+            'riscv/src/context_switch.S',
+            'riscv/src/trap_handler.S',
+            'riscv/src/s-bbripl.ads',
+            'riscv/microchip/polarfiresoc/s-bbripl.adb')
+
+
 class RiscV32(DFBBTarget):
     @property
     def name(self):
