@@ -60,12 +60,9 @@ SECTIONS
   } >romMirror AT>rom
 
   /* .ARM.exidx is sorted, so has to go in its own output section.  */
-  .ARM.exidx   : 
-  {
-     PROVIDE_HIDDEN (__exidx_start = .);
-     *(.ARM.exidx* .gnu.linkonce.armexidx.*) 
-     PROVIDE_HIDDEN (__exidx_end = .);
-  } > romMirror AT>rom
+  .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > romMirror AT>rom
+  PROVIDE_HIDDEN (__exidx_start = LOADADDR(.ARM.exidx));
+  PROVIDE_HIDDEN (__exidx_end = __exidx_start + SIZEOF(.ARM.exidx));
 
   .data : ALIGN(0x10)
   {

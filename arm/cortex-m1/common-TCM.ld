@@ -80,10 +80,10 @@ SECTIONS
   __exidx_load = __extab_load + (__extab_words << 2);
   .ARM.exidx : AT (__exidx_load)
   {
-     PROVIDE_HIDDEN (__exidx_start = .);
      *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-     PROVIDE_HIDDEN (__exidx_end = .);
   } > dtcm_rodata
+  PROVIDE_HIDDEN (__exidx_start = LOADADDR(.ARM.exidx));
+  PROVIDE_HIDDEN (__exidx_end = __exidx_start + SIZEOF(.ARM.exidx));
    __exidx_words = (__exidx_end - __exidx_start) >> 2;
 
   __rodata_load = __exidx_load + __exidx_words << 2;

@@ -55,12 +55,9 @@ SECTIONS
   } > sram_tx
 
   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > sram_ro
-  .ARM.exidx   :
-  {
-    PROVIDE_HIDDEN (__exidx_start = .);
-    *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    PROVIDE_HIDDEN (__exidx_end = .);
-  } > sram_ro
+  .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > sram_ro
+  PROVIDE_HIDDEN (__exidx_start = LOADADDR(.ARM.exidx));
+  PROVIDE_HIDDEN (__exidx_end = __exidx_start + SIZEOF(.ARM.exidx));
 
   .rodata :
   {

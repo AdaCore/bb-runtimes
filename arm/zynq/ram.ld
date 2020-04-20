@@ -103,13 +103,15 @@ SECTIONS
     *(.rodata .rodata.* .gnu.linkonce.r*)
   } > REGION_CODE
 
-  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > REGION_CODE
+  .ARM.extab   : {
+    *(.ARM.extab* .gnu.linkonce.armextab.*)
+  } > REGION_CODE
   .ARM.exidx   :
   {
-    PROVIDE_HIDDEN (__exidx_start = .);
     *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    PROVIDE_HIDDEN (__exidx_end = .);
   } > REGION_CODE
+  PROVIDE_HIDDEN (__exidx_start = LOADADDR(.ARM.exidx));
+  PROVIDE_HIDDEN (__exidx_end = __exidx_start + SIZEOF(.ARM.exidx));
 
   .data :
   {
