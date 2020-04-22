@@ -60,9 +60,16 @@ SECTIONS
   } >romMirror AT>rom
 
   /* .ARM.exidx is sorted, so has to go in its own output section.  */
+  /* .ARM.exidx is 4-bytes aligned, so __exidx_start needs to be
+     aligned too. Note that assigning the location counter also makes
+     ld attach the following symbols to the next section (instead of the
+     previous section which is the default), so will properly
+     consider the location counter of .ARM.exidx for __exidx_start and
+      __exidx_end and not the previous section's one. */
+  . = ALIGN(0x4);
+  PROVIDE_HIDDEN (__exidx_start = .);
   .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > romMirror AT>rom
-  PROVIDE_HIDDEN (__exidx_start = LOADADDR(.ARM.exidx));
-  PROVIDE_HIDDEN (__exidx_end = __exidx_start + SIZEOF(.ARM.exidx));
+  PROVIDE_HIDDEN (__exidx_end = .);
 
   .data : ALIGN(0x10)
   {

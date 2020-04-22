@@ -78,12 +78,19 @@ SECTIONS
    __extab_words = (__extab_end - __extab_start) >> 2;
 
   __exidx_load = __extab_load + (__extab_words << 2);
+  /* .ARM.exidx is 4-bytes aligned, so __exidx_start needs to be
+     aligned too. Note that assigning the location counter also makes
+     ld attach the following symbols to the next section (instead of the
+     previous section which is the default), so will properly
+     consider the location counter of .ARM.exidx for __exidx_start and
+      __exidx_end and not the previous section's one. */
+  . = ALIGN(0x4);
+  PROVIDE_HIDDEN (__exidx_start = .);
   .ARM.exidx : AT (__exidx_load)
   {
      *(.ARM.exidx* .gnu.linkonce.armexidx.*)
   } > dtcm_rodata
-  PROVIDE_HIDDEN (__exidx_start = LOADADDR(.ARM.exidx));
-  PROVIDE_HIDDEN (__exidx_end = __exidx_start + SIZEOF(.ARM.exidx));
+  PROVIDE_HIDDEN (__exidx_end = .);
    __exidx_words = (__exidx_end - __exidx_start) >> 2;
 
   __rodata_load = __exidx_load + __exidx_words << 2;
