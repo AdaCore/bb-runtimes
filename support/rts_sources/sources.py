@@ -683,7 +683,8 @@ sources = {
         'requires': ['Add_IO_Exceptions:yes'],
         'srcs': [
             'libgnat/a-stream.ads', 'libgnat/a-stream.adb',
-            'libgnat/s-stratt.ads', 'libgnat/s-stratt.adb']
+            'libgnat/s-stratt.ads', 'libgnat/s-stratt.adb',
+            'libgnat/s-statxd.ads', 'libgnat/s-statxd.adb']
     },
 
     # Zero-cost-exception support
