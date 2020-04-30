@@ -192,7 +192,7 @@ def main():
              "output=", "output-bsps=", "output-prjs=", "output-srcs=",
              "prefix=", "gcc-dir=", "gnat-dir=", "link"])
     except getopt.GetoptError as e:
-        print("error: ") + str(e)
+        print("error: " + str(e))
         print("")
         usage()
         sys.exit(2)
@@ -223,7 +223,7 @@ def main():
         elif opt == "--gen-doc":
             gen_doc = True
         else:
-            print("unexpected switch: %s") % opt
+            print("unexpected switch: %s" % opt)
             sys.exit(2)
 
     if len(args) < 1:
