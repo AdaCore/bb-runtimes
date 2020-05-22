@@ -1,0 +1,57 @@
+x86_64 Runtimes
+===============
+
+This BSP supports x86_64 processors.
+
+
+Runtimes Supported
+------------------
+
+* zfp-x86_64-multiboot: ZFP runtime booted using a Mutliboot 1 bootloader.
+
+
+Booting
+-------
+
+The multiboot runtime is configured to be booted from a Mutliboot 1 compilant
+bootloader. For example, this runtime can be booted with GNATemulator or
+through QEMU through the -kernel.
+
+Resources Used
+--------------
+
+The runtime libraries provide a minimal version of package Ada.Text_IO
+supporting character- and string-based input and output routines. These are
+implemented using a board-specific UART. You can change the UART selection
+as well as the configuration (e.g., the baud rate). The source files are
+located in the gnat directory in a package named System.Text_IO
+(gnat/s-textio.adb).
+
+Memory Layout
+-------------
+
+The memory layout is controlled by linker scripts specific to where the
+program is located in memory. GNAT for x86_64 Bare Metal ships with a single
+script named common-RAM.ld that determines where program is loaded into RAM.
+It is located in the ld directory.
+
+Script selection is controlled by a scenario variable declared in an XML
+file named runtime.xml that is located in the runtime root directory. The
+scenario variable is used to specify linker switches.
+
+The memory sections' locations and sizes are specified in memory-map.ld,
+also located in the ld directory. The XML also specifies this file as part
+of the linker switches.
+
+You can modify all of these scripts as required. Alternatively, these
+scripts can be overridden at link time by setting the environment variable
+LOADER to 'USER' and specifying the linker script via the '-T' linker switch.
+
+By default the runtimes are configured to use 128MB. If your system has more
+or less memory, modify memory-map.ld to suite your requirements.
+
+Serial Port
+-----------
+
+Ada.Text_IO uses the standard COM1 port with a the default configuration of
+24000 baud, 8-bit characters, with no start, one stop bit, and no parity bits.
