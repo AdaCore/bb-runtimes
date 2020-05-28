@@ -17,13 +17,13 @@ import sys
 
 def usage():
     """Script usage"""
-    print "usage: install.py [--arch=arm-eabi|aarch64-elf] [--prefix=<path>]"
-    print "  --arch: only build for the specified architecture"
-    print "  --prefix: installation prefix for the runtimes"
-    print ""
-    print "By default:"
-    print "  Builds and installs all targets for which a compiler is"
-    print "  available. The runtimes are installed in the toolchain itself."
+    print("usage: install.py [--arch=arm-eabi|aarch64-elf] [--prefix=<path>]")
+    print("  --arch: only build for the specified architecture")
+    print("  --prefix: installation prefix for the runtimes")
+    print("")
+    print("By default:")
+    print("  Builds and installs all targets for which a compiler is")
+    print("  available. The runtimes are installed in the toolchain itself.")
 
 
 def which(program):
@@ -61,7 +61,7 @@ def rmtree(path):
 
 def run_program(argv):
     exe = os.path.basename(argv[0])
-    print "[%s] %s" % (exe, " ".join(argv[1:]))
+    print("[%s] %s" % (exe, " ".join(argv[1:])))
     p = subprocess.Popen(
         argv,
         stdout=subprocess.PIPE,
@@ -80,9 +80,9 @@ def run_program(argv):
         return 'stderr is not ASCII'
 
     if len(stderr) > 0:
-        print stderr
+        print(stderr)
     if len(stdout) > 0:
-        print stdout
+        print(stdout)
 
     return p.returncode
 
@@ -112,11 +112,11 @@ def build(archs, prefix):
         gcc_bin = which(gcc)
 
         if gcc_bin is None:
-            print "skip %s: no compiler found for target %s" % (
-                os.path.basename(gpr), target)
+            print("skip %s: no compiler found for target %s" % (
+                os.path.basename(gpr), target))
             continue
 
-        print '** %s **' % os.path.basename(gpr)
+        print('** %s **' % os.path.basename(gpr))
 
         gcc_dir = os.path.dirname(gcc_bin)
         gprbuild = os.path.join(gcc_dir, 'gprbuild')
@@ -135,8 +135,8 @@ def build(archs, prefix):
         error = False
         returncode = run_program(cmd)
         if returncode:
-            print 'Build error (gprbuild returned {}):\n{}'.format(
-                returncode)
+            print('Build error (gprbuild returned {}):\n{}'.format(
+                returncode))
             error = True
             continue
 
@@ -151,16 +151,17 @@ def build(archs, prefix):
             cmd += ['-XPREFIX=%s' % prefix]
         returncode = run_program(cmd)
         if returncode:
-            print 'Build error (gprinstall returned {}):\n'.format(
-                returncode)
+            print('Build error (gprinstall returned {}):\n'.format(
+                returncode))
             error = True
             continue
 
         if error:
-            print "Failed"
+            print("Failed")
         else:
-            print "OK"
-        print ""
+            print("OK")
+        print("")
+
 
 ALL_BSP = ['stm32f4', 'stm32f429disco', 'stm32f469disco', 'stm32f746disco',
            'stm32f769disco', 'samg55', 'sam4s', 'openmv2', 'rpi3', 'rpi2']
@@ -171,7 +172,7 @@ def main():
         opts, args = getopt.getopt(
             sys.argv[1:], "", ["arch=", "prefix=", "help"])
     except getopt.GetoptError, e:
-        print "error: " + str(e)
+        print("error: " + str(e))
         usage()
         sys.exit(2)
 
@@ -190,11 +191,12 @@ def main():
     returncode = run_program(['./build-rts.py', '--bsps-only',
                               '--output=.'] + ALL_BSP)
     if returncode:
-        print 'Build error (gprinstall returned {}):\n{}'.format(
-             returncode)
+        print('Build error (gprinstall returned {}):\n{}'.format(
+             returncode))
         return
 
     build(archs, prefix)
+
 
 if __name__ == '__main__':
     main()
