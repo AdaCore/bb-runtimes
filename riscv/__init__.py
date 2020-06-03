@@ -101,7 +101,7 @@ class Unleashed(RiscV64):
             'riscv/sifive/fe310/svd/i-fe310-gpio.ads',
             'riscv/sifive/fe310/svd/i-fe310-plic.ads',
             'riscv/sifive/fe310/s-macres.adb',
-            'riscv/sifive/hifive1/s-textio.adb',
+            'riscv/sifive/unleashed/s-textio.adb',
             'riscv/src/riscv_def.h')
         self.add_gnarl_sources(
             'riscv/sifive/fu540/svd/a-intnam.ads',
