@@ -267,8 +267,7 @@ def main():
                 if ext in cleanup_ext:
                     os.unlink(os.path.join(obj_dir, fname))
 
-    print("runtimes successfully installed in %s" %
-          os.path.relpath(dest, os.getcwd()))
+    print("runtimes successfully installed in %s" % dest)
 
 
 if __name__ == '__main__':
