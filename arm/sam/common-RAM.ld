@@ -39,6 +39,8 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
+INCLUDE memory-map.ld
+
 SEARCH_DIR(.)
 __DYNAMIC  =  0;
 
