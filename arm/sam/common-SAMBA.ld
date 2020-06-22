@@ -39,6 +39,8 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
+INCLUDE memory-map.ld
+
 ENTRY(_start_ram);
 
 _DEFAULT_STACK_SIZE = 4*1024;
