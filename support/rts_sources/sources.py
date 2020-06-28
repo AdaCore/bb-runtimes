@@ -183,7 +183,6 @@ sources = {
             'libgnat/a-elchha.ads', 'hie/a-elchha__full.adb',
             'hie/a-excach__cert.adb',
             'libgnat/a-except.ads', 'libgnat/a-except.adb',
-            'libgnat/a-excpol.adb',
             'libgnat/a-exctra.ads', 'libgnat/a-exctra.adb',
             'libgnat/a-exexda.adb',
             'libgnat/a-exexpr.adb',
