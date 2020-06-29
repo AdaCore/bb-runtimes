@@ -924,14 +924,14 @@ sources = {
         'conditions': ['Pikeos_Version:pikeos4.2'],
         'pikeos_srcs': [
             'hie/s-interr__pikeos4.adb',
-            'hie/s-osinte__pikeos4.ads', 'hie/s-osinte__pikeos42.adb']
+            'hie/s-osinte__pikeos4.ads', 'hie/s-osinte__p4ext.adb']
     },
 
     'gnarl/pikeos5': {
         'conditions': ['Pikeos_Version:pikeos5'],
         'pikeos_srcs': [
             'hie/s-interr__pikeos4.adb',
-            'hie/s-osinte__pikeos4.ads', 'hie/s-osinte__pikeos42.adb']
+            'hie/s-osinte__pikeos4.ads', 'hie/s-osinte__p4ext.adb']
     },
 
     # SFP-specific files

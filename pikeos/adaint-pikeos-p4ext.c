@@ -72,3 +72,14 @@ __gnat_p4_fast_set_prio(P4_prio_t new_prio)
 {
   return p4_fast_set_prio (new_prio);
 }
+
+
+/* p4_my_uid is a inlined call to p4_my_uid_syscall which has a
+   different signature on PikeOS 4 and 5; have a wrapper to abstract
+   away this difference.  */
+
+P4_uid_t
+__gnat_p4_my_uid()
+{
+  return p4_my_uid();
+}
