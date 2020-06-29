@@ -164,13 +164,9 @@ def build_configs(target):
     elif target == 'rv32imc':
         t = RV32IMC()
     # native platforms
-    elif target == 'x86-linux':
+    elif target in ('x86-linux', 'x86-windows'):
         t = X86Native()
-    elif target == 'x86-windows':
-        t = X86Native()
-    elif target == 'x86_64-linux':
-        t = X8664Native()
-    elif target == 'x86_64-windows':
+    elif target in ('x86_64-linux', 'x86_64-windows', 'x86_64-windows64'):
         t = X8664Native()
     else:
         print('Error: undefined target %s' % target)
