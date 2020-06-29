@@ -187,7 +187,7 @@ private
       ("-u_p4_entry" & ASCII.NUL &
        "-u__cxx_local_dtors" & ASCII.NUL &
        "-nostdlib" & ASCII.NUL &
-       "-T../ld/arm-app.ld" & ASCII.NUL &
+       "-T../ld/arm-pikeos5.ld" & ASCII.NUL &
        "-T../ld/memory.ld" & ASCII.NUL &
        "-lp4ext" & ASCII.NUL &
        "-lgnat" & ASCII.NUL &

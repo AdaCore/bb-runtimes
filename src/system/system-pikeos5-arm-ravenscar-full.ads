@@ -176,7 +176,7 @@ private
    pragma Linker_Options
       ("-u_p4_entry" & ASCII.NUL &
        "-nostdlib" & ASCII.NUL &
-       "-T../ld/arm-app.ld" & ASCII.NUL &
+       "-T../ld/arm-pikeos5.ld" & ASCII.NUL &
        "-lp4ext" & ASCII.NUL &
        "-lgnat" & ASCII.NUL &
        "-lvm" & ASCII.NUL &
