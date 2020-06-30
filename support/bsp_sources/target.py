@@ -58,6 +58,11 @@ class TargetConfiguration(object):
         return False
 
     @property
+    def has_huge_memory(self):
+        """Set to True on targets with lots (> 512MB) of RAM"""
+        return False
+
+    @property
     def use_semihosting_io(self):
         """ARM specific: whether to use a serial text io or the semihosting"""
         return False

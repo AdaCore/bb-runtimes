@@ -25,6 +25,10 @@ class X8664Target(DFBBTarget):
         return X8664Arch
 
     @property
+    def has_huge_memory(self):
+        return True
+
+    @property
     def system_ads(self):
         return {
             'zfp': 'system-xi-x86_64.ads',

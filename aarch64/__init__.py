@@ -32,6 +32,10 @@ class Aarch64Target(DFBBTarget):
         return Aarch64Arch
 
     @property
+    def has_huge_memory(self):
+        return True
+
+    @property
     def has_timer_64(self):
         return True
 

@@ -36,7 +36,7 @@ all_scenarios = {
     # Whether an implementation of compare and swap is available
     'Has_Compare_And_Swap': ['yes', 'no'],
     # RAM profile
-    'Memory_Profile': ['small', 'large'],
+    'Memory_Profile': ['small', 'large', 'huge'],
     # 32-bit or 64-bit timers available on the hardware
     'Timer': ['n/a', 'timer32', 'timer64'],
     # Choose between Serial I/O or semihosting (Cortex-M specific)
@@ -1003,6 +1003,11 @@ sources = {
         'bb_srcs': ['hie/s-parame__large.ads',
                     'hie/s-parame.adb']
     },
+    'gnat/parameters/huge': {
+        'conditions': ['RTS_Profile:!zfp', 'Memory_Profile:huge'],
+        'bb_srcs': ['hie/s-parame__huge.ads',
+                    'hie/s-parame.adb']
+    },
     'gnat/parameters/zfp-small': {
         'conditions': ['RTS_Profile:zfp', 'Memory_Profile:small'],
         'bb_srcs': ['hie/s-parame__zfp_small.ads']
@@ -1011,5 +1016,8 @@ sources = {
         'conditions': ['RTS_Profile:zfp', 'Memory_Profile:large'],
         'bb_srcs': ['hie/s-parame__zfp.ads']
     },
-
+    'gnat/parameters/zfp-huge': {
+        'conditions': ['RTS_Profile:zfp', 'Memory_Profile:huge'],
+        'bb_srcs': ['hie/s-parame__zfp_huge.ads']
+    },
 }

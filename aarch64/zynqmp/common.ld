@@ -39,7 +39,7 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
-_DEFAULT_STACK_SIZE = (200 * 1024);
+_DEFAULT_STACK_SIZE = (8 * 1024 * 1024);
 
 ENTRY(__vectors);
 

@@ -83,6 +83,8 @@ class RTSProfiles(object):
         if not self.config.is_pikeos:
             if self.config.has_small_memory:
                 ret['Memory_Profile'] = 'small'
+            elif self.config.has_huge_memory:
+                ret['Memory_Profile'] = 'huge'
             else:
                 ret['Memory_Profile'] = 'large'
 
