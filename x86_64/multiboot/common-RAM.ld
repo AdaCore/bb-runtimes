@@ -46,23 +46,16 @@ ENTRY(_start);
 SECTIONS
 {
 
-  /* The boot code needs to be located in first 64KiB to accommodate 16-bit
-   * code, which we encounter when the other cores boot. */
+  /* Place the image above 1MB to avoid the memory hole at 0x90000-0xFFFFF */
 
-  .boot 0x8000 : ALIGN (16)
+  .text 1M : ALIGN (16)
   {
     __text_start = .;
     KEEP(*(.multiboot))
     *(.boottext)
     *(.bootrodata)
     *(.gdt)
-  } > ram
 
-  /* Place the rest of the image above 1MB to avoid the memory hole at
-   * 0x90000-0xFFFFF */
-
-  .text 1M :
-  {
     KEEP (*(.init))
     *(.text .text.* .gnu.linkonce.t*)
     *(.gnu.warning)
