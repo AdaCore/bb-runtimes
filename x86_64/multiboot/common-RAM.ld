@@ -39,7 +39,7 @@
 
 INCLUDE memory-map.ld
 
-_DEFAULT_STACK_SIZE = 128*1024;
+_DEFAULT_STACK_SIZE = 8*1024*1024;
 
 ENTRY(_start);
 
@@ -61,7 +61,7 @@ SECTIONS
   /* Place the rest of the image above 1MB to avoid the memory hole at
    * 0x90000-0xFFFFF */
 
-  .text :
+  .text 1M :
   {
     KEEP (*(.init))
     *(.text .text.* .gnu.linkonce.t*)
