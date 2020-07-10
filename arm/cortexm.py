@@ -747,6 +747,53 @@ class CortexM0P(CortexM0):
         return ('-mlittle-endian', '-mthumb', '-msoft-float',
                 '-mcpu=cortex-m0plus')
 
+class SAMD21(ArmV6MTarget):
+    # didn't put in regular SAM bc it's v6 not 7
+    @property
+    def name(self):
+        return self.board
+
+    @property
+    def loaders(self):
+        # this makes sense
+        return ('ROM',)
+
+    @property
+    def compiler_switches(self):
+        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+                '-mcpu=cortex-m0plus')
+    
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads'}
+
+    def __init__(self, board):
+        assert board in ('samd21', 'arduino-zero'), \
+            "Unexpected board %s" % board
+        self.board = board
+        super(SAMD21, self).__init__()
+
+        self.add_linker_script('arm/sam/samd21/common-ROM.ld', loader='ROM')
+        self.add_linker_script('arm/sam/samd21/memory-map.ld', loader='ROM')
+
+        self.add_sources('crt0', [
+            'src/s-bbarat.ads',
+            'src/s-bbarat.adb',
+            'arm/sam/samd21/svd/i-sam.ads',
+            'arm/sam/samd21/svd/i-sam-gclk.ads',
+            'arm/sam/samd21/svd/i-sam-sercom.ads',
+            'arm/sam/samd21/svd/i-sam-pm.ads',
+            'arm/sam/samd21/svd/i-sam-port.ads',
+            'arm/sam/samd21/svd/i-sam-nvmctrl.ads',
+            'arm/sam/samd21/svd/i-sam-sysctrl.ads',
+            'arm/sam/samd21/svd/handler.S',
+            'arm/sam/samd21/start-rom.S',
+            'arm/sam/samd21/s-bbmcpa.ads',
+            'arm/sam/samd21/s-bbbopa.ads',
+            'arm/sam/setup_pll.ads',
+            'arm/sam/samd21/setup_pll.adb',
+            'arm/sam/samd21/s-textio.adb'
+            ])
 
 class CortexM1(ArmV6MTarget):
     @property

@@ -1,0 +1,26 @@
+project Blink is
+
+   for Main use ("blink.adb");
+   for Target use "arm-elf";
+   --  for Runtime ("ada") use "zfp-samd21";
+   for Runtime ("ada") use "zfp-arduino-zero";
+   for Object_Dir use "obj";
+
+   package Compiler is
+      for Switches ("Ada") use ("-g", "-Wl,-Map=map.txt", "-largs");
+      for Switches ("ada") use ("-g", "-Wl,-Map=map.txt", "-largs", "-fdata-sections", "-ffunction-sections");
+   end Compiler;
+
+   package Linker is
+      for Switches ("ada") use ("-g", "-Wl,--gc-sections");
+   end Linker;
+
+   package Ide is
+      for Connection_Tool use "openocd";
+      for Connection_Config_File use "../hello-zfp/arduino_zero.cfg";
+      for Program_Host use "localhost:4242";
+      for Communication_Protocol use "remote";
+   end Ide;
+
+end Blink;
+
