@@ -776,7 +776,7 @@ class SAMD21(ArmV6MTarget):
         self.add_linker_script('arm/sam/samd21/common-ROM.ld', loader='ROM')
         self.add_linker_script('arm/sam/samd21/memory-map.ld', loader='ROM')
 
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'src/s-bbarat.ads',
             'src/s-bbarat.adb',
             'arm/sam/samd21/svd/i-sam.ads',
@@ -793,7 +793,7 @@ class SAMD21(ArmV6MTarget):
             'arm/sam/setup_pll.ads',
             'arm/sam/samd21/setup_pll.adb',
             'arm/sam/samd21/s-textio.adb'
-            ])
+            )
 
 class CortexM1(ArmV6MTarget):
     @property
