@@ -7,15 +7,16 @@ This BSP supports x86_64 processors.
 Runtimes Supported
 ------------------
 
-* zfp-x86_64-multiboot: ZFP runtime booted using a Mutliboot 1 bootloader.
+* zfp-x86_64: Generic ZFP runtime for x86_64.
 
 
 Booting
 -------
 
-The multiboot runtime is configured to be booted from a Mutliboot 1 compilant
-bootloader. For example, this runtime can be booted with GNATemulator or
-through QEMU through the -kernel.
+The generic x86_64 runtimes are designed to be booted from a variety of
+different bootloaders that can load ELF files. For example, these runtimes can
+be run with GNATemulator, or with QEMU through the switch
+"-device loader,file=<your_application>,cpu-num=0".
 
 Resources Used
 --------------

@@ -87,7 +87,7 @@ pdp:	.long 0x00000083		/* 0x83 = 1GB, R/W, P */
 	# 56-63  Base 24:31	  The last 24-31 bits in the base address
 
 	# For now we set both the code and data to map the full 4GB memory
-	# range. For code:
+	# range. For 64 bit code:
 	#
 	#    Base:  0x0
 	#    Limit: 0xFFFFF
@@ -97,7 +97,7 @@ pdp:	.long 0x00000083		/* 0x83 = 1GB, R/W, P */
 	#
 	#   Table entry: 0xFFFF, 0x0000, 0x9A00, 0x00EF
 	#
-	# For data:
+	# For 64-bit data:
 	#
 	#    Base:  0x0
 	#    Limit: 0xFFFFF
@@ -107,39 +107,62 @@ pdp:	.long 0x00000083		/* 0x83 = 1GB, R/W, P */
 	#
 	#   Table entry: 0xFFFF, 0x0000, 0x9A00, 0x008F
 	#
+	# For 32 bit code: 0xFFFF, 0x0000, 0x9A00, 0x00CF
+	# For 32 bit data: 0xFFFF, 0x0000, 0x9200, 0x00CF
+	#
 	# If we want to get fancy, the code and data segments should
 	# be mapped to the ELF sections.
 
 	.align 8
 gdt:
-	# BIT 0-15,   16-31, 32-47,  48-63
-	 .word 0,      0,     0,      0	  	# 0x00: null descriptor
-gdtcode: .word 0xFFFF, 0,     0x9A00, 0x00EF	# 0x08: 64-bit code
-gdtdata: .word 0xFFFF, 0,     0x9200, 0x008F	# 0x10: 64-bit data
+	   # BIT 0-15,   16-31, 32-47,  48-63
+	   .word 0,      0,     0,      0	# 0x00: null descriptor
+gdtcode32: .word 0xFFFF, 0,     0x9A00, 0x00CF	# 0x08: 32-bit code
+gdtdata32: .word 0xFFFF, 0,     0x9200, 0x00CF	# 0x10: 32-bit data
+gdtcode64: .word 0xFFFF, 0,     0x9A00, 0x00EF	# 0x18: 64-bit code
+gdtdata64: .word 0xFFFF, 0,     0x9200, 0x008F	# 0x20: 64-bit data
 gdt_pointer:
 	.word (gdt_pointer - gdt - 1)
 	.long gdt
 
-	CODE64_SEG = gdtcode - gdt
-	DATA64_SEG = gdtdata - gdt
+	CODE32_SEG = gdtcode32 - gdt
+	DATA32_SEG = gdtdata32 - gdt
+	CODE64_SEG = gdtcode64 - gdt
+	DATA64_SEG = gdtdata64 - gdt
 
         .section .boottext,"ax"
-        .global _start
-_start:
-.code32
-	# The multiboot bootloader has set the processer into 32-bit protected
-	# mode, with interrupts and paging disabled.
+        .global _start16
+	.code16
+_start16:
+	# Processor has started in real mode. Switch to 32-bit protected mode
+	# with using similar flat page table as the 64-bit mode.
+	# Interrupts and paging are disabled.
 
+	lgdt gdt_pointer
+	# lidt idt48
+
+	# Switch to protected mode. Loading of 1 to the Machine Status Word
+	# switches us to protected mode which is followed by an intrasegment
+	# jump to flush the the instruction queue.
+
+	movw $1, %ax
+	lmsw %ax
+	jmpl $CODE32_SEG, $1f
+	.code32
+1:	movw $DATA64_SEG, %ax
+	movw %ax, %ds
+	movw %ax, %es
+	movw %ax, %ss
+	movw %ax, %fs
+
+        .global _start32
+	.code32
+_start32:
 	# Load the Global Descriptor Table to configure segment registers with
 	# flat-mode descriptors. Also load the IDT with interrupts disabled.
 
 	lgdt gdt_pointer
 	# lidt idt48
-
-	# At this point %eax contains MULTIBOOT_EAX_MAGIC and %ebx points to
-	# a valid  'multiboot_info' struct. Due to the simple nature of the
-	# runtime and for consistency with other architecture, we don't utilise
-	# this information and can safely use these registers
 
 	# %ebx holds the the processor ID number. The boot core is always 0.
 	xorl %ebx, %ebx
@@ -153,7 +176,7 @@ switch_to_long_mode:
 
 	# enable PAE and SSE
 	.set CR4_PAE, 	   1 << 5     # CR4.PAE
-	.set CR4_OSFXSR,    1 << 9     # CR4.OSFXSR
+	.set CR4_OSFXSR,   1 << 9     # CR4.OSFXSR
 
 	movl %cr4, %eax
 	orl $(CR4_PAE | CR4_OSFXSR), %eax
@@ -183,10 +206,9 @@ switch_to_long_mode:
 	orl $(CR0_PG | CR0_WP), %eax
 	movl %eax, %cr0
 
-	# jump to 64 code
+	# switch to long mode
 	jmpl $CODE64_SEG,$1f
-.code64
-  	#
+	.code64
 1:	movl $DATA64_SEG, %eax
 	movw %ax, %ds
 	movw %ax, %es
@@ -209,4 +231,4 @@ switch_to_long_mode:
         call   main
         call   _exit
 
-        .size _start, . - _start
+        .size _start16, . - _start16

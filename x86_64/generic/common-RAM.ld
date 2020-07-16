@@ -34,28 +34,36 @@
  *                                                                          *
  ****************************************************************************/
 
-/* This is the x86-64 multiboot specific version of this file. Used for booting
-   QEMU among other things. */
+/* Generic x86_64 linker script. Supports booting the application from
+ * real-mode.
+ */
 
 INCLUDE memory-map.ld
 
 _DEFAULT_STACK_SIZE = 8*1024*1024;
 
-ENTRY(_start);
+ENTRY(_start16);
 
 SECTIONS
 {
 
-  /* Place the image above 1MB to avoid the memory hole at 0x90000-0xFFFFF */
+  /* The boot code needs to be located in first 64KiB to accommodate the
+   * initial 16-bit boot code.
+   */
 
-  .text 1M : ALIGN (16)
+  .boot 0x0 : ALIGN (16)
   {
     __text_start = .;
-    KEEP(*(.multiboot))
     *(.boottext)
     *(.bootrodata)
     *(.gdt)
+  } > ram
 
+  /* Place the rest of the image above 1MB to avoid the memory hole at
+   * 0x90000-0xFFFFF */
+
+  .text 1M :
+  {
     KEEP (*(.init))
     *(.text .text.* .gnu.linkonce.t*)
     *(.gnu.warning)
@@ -73,6 +81,18 @@ SECTIONS
   {
     *(.srodata.cst16) *(.srodata.cst8) *(.srodata.cst4) *(.srodata.cst2) *(.srodata .srodata.*)
     . = ALIGN(0x4);
+  } > ram
+
+  .eh_frame_hdr :
+  {
+    *(.eh_frame_hdr)
+  } > ram
+
+  .eh_frame :
+  {
+    __EH_FRAME__ = .;
+    KEEP(*(.eh_frame))
+    LONG(0);
   } > ram
 
   .data :

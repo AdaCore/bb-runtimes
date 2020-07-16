@@ -43,7 +43,7 @@ from riscv import Spike, Unleashed, PolarFireSOC, HiFive1, PicoRV32, \
 from visium import Visium
 
 # x86_64
-from x86_64 import X8664Multiboot
+from x86_64 import X8664Generic
 
 # native
 from native import X86Native, X8664Native
@@ -167,8 +167,8 @@ def build_configs(target):
     elif target == 'rv32imc':
         t = RV32IMC()
     # x86_64
-    elif target == 'x86_64-multiboot':
-        t = X8664Multiboot()
+    elif target == 'x86_64':
+        t = X8664Generic()
     # native platforms
     elif target in ('x86-linux', 'x86-windows'):
         t = X86Native()

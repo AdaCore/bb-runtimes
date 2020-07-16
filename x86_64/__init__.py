@@ -35,14 +35,14 @@ class X8664Target(DFBBTarget):
         }
 
 
-class X8664Multiboot(X8664Target):
+class X8664Generic(X8664Target):
     @property
     def target(self):
         return 'x86_64-elf'
 
     @property
     def name(self):
-        return "x86_64-multiboot"
+        return "x86_64"
 
     @property
     def parent(self):
@@ -50,23 +50,17 @@ class X8664Multiboot(X8664Target):
 
     @property
     def readme_file(self):
-        return 'x86_64/multiboot/README'
+        return 'x86_64/generic/README'
 
     @property
     def loaders(self):
         return ('RAM', )
 
     def __init__(self):
-        super(X8664Multiboot, self).__init__()
+        super(X8664Generic, self).__init__()
 
-        self.add_linker_script('x86_64/multiboot/memory-map.ld')
-        self.add_linker_script('x86_64/multiboot/common-RAM.ld', loader='RAM')
-        # Use 4 KiB page sizes to ensure the multiboot magic appears in the
-        # first 8 KiB of the file.
-        self.add_linker_switch('-Wl,-z,max-page-size=0x1000')
-        # Force mutliboot's magic address header inclusion
-        self.add_linker_switch('-umagic_address')
+        self.add_linker_script('x86_64/generic/memory-map.ld')
+        self.add_linker_script('x86_64/generic/common-RAM.ld', loader='RAM')
 
         self.add_gnat_sources(
-            'x86_64/multiboot/multiboot.S',
             'src/s-textio__bios.adb')
