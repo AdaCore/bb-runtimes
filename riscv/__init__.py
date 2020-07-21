@@ -138,11 +138,11 @@ class PolarFireSOC(Unleashed):
             'riscv/sifive/fe310/svd/i-fe310-plic.ads',
             'riscv/sifive/fe310/s-macres.adb',
             'src/s-textio__ns16550.adb',
+            'src/s-bbbopa__polarfiresoc.ads',
             'riscv/src/riscv_def.h')
         self.add_gnarl_sources(
             'riscv/microchip/polarfiresoc/a-intnam.ads',
             'src/s-bbpara__polarfiresoc.ads',
-            'src/s-bbbopa__polarfiresoc.ads',
             'src/s-bbbosu__riscv.adb',
             'src/s-bbsuti__riscv_clint.adb',
             'src/s-bbsumu__generic.adb',
