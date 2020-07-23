@@ -54,13 +54,6 @@ package body System.Text_IO is
    begin
       --  Rely on the COM port's default initialisation
 
-      --  The BIOS prints some useless stuff that gets in the way of our
-      --  testing. Reset the terminal and clear screen remove it and to act as
-      --  marker for our testsuites
-
-      Put (ASCII.ESC); Put ('c');
-      Put (ASCII.ESC); Put ('['); Put ('2'); Put ('J');
-
       Initialized := True;
    end Initialize;
 
