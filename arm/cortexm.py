@@ -648,8 +648,8 @@ class Stm32(ArmV7MTarget):
 
     def __init__(self, board):
         self.board = board
-        if self.board == 'stm32f4' or self.board == 'feather_stm32f405':
-            self.mcu = 'stm32f40x'
+        if self.board == 'stm32f4' or self.board == 'feather_stm32f405' or self.board == 'stm32_h405':
+           self.mcu = 'stm32f40x'
         elif self.board == 'stm32f429disco':
             self.mcu = 'stm32f429x'
         elif self.board == 'openmv2':
@@ -681,7 +681,7 @@ class Stm32(ArmV7MTarget):
             'arm/stm32/%s/svd/i-stm32-syscfg.ads' % self.mcu,
             'arm/stm32/%s/svd/i-stm32-usart.ads' % self.mcu)
 
-        if self.board == 'stm32f4':
+        if self.board == 'stm32f4' or self.board == 'stm32_h405':
             self.add_gnat_source('arm/stm32/stm32f40x/s-stm32.adb')
         elif self.board == 'feather_stm32f405':
             self.add_gnat_source('arm/stm32/stm32f40x/s-stm32.adb')
