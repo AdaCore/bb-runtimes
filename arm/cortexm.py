@@ -649,7 +649,7 @@ class Stm32(ArmV7MTarget):
     def __init__(self, board):
         self.board = board
         if self.board == 'stm32f4' or self.board == 'feather_stm32f405' or self.board == 'stm32_h405':
-           self.mcu = 'stm32f40x'
+            self.mcu = 'stm32f40x'
         elif self.board == 'stm32f429disco':
             self.mcu = 'stm32f429x'
         elif self.board == 'openmv2':
