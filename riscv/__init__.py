@@ -12,6 +12,10 @@ class RiscV64(DFBBTarget):
         return 'riscv64-elf'
 
     @property
+    def has_huge_memory(self):
+        return True
+
+    @property
     def has_timer_64(self):
         return True
 
