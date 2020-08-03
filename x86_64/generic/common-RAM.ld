@@ -35,8 +35,7 @@
  ****************************************************************************/
 
 /* Generic x86_64 linker script. Supports booting the application from
- * real-mode.
- */
+ * real-mode. */
 
 INCLUDE memory-map.ld
 
@@ -48,10 +47,12 @@ SECTIONS
 {
 
   /* The boot code needs to be located in first 64KiB to accommodate the
-   * initial 16-bit boot code.
-   */
+   * initial 16-bit boot code. The 32 bit code is located at 0x500 as this
+   * is where conventional memory starts in real mode. The 16-bit code is
+   * located at the BIOS entry point so in QEMU our code runs instead of the
+   * the existing BIOS. */
 
-  .boot 0x0 : ALIGN (16)
+  .boot 0x500:
   {
     __text_start = .;
     *(.boottext)
@@ -59,28 +60,21 @@ SECTIONS
     *(.gdt)
   } > ram
 
+  .bios_replacement 0xfe05b :
+  {
+    KEEP (*(.boottext16))
+  } > ram
+
   /* Place the rest of the image above 1MB to avoid the memory hole at
    * 0x90000-0xFFFFF */
 
   .text 1M :
   {
+    *(.plt)
     KEEP (*(.init))
+    KEEP (*(.fini))
     *(.text .text.* .gnu.linkonce.t*)
     *(.gnu.warning)
-  } > ram
-
-  .rodata :
-  {
-    *(.lit)
-    *(.gdt)
-    *(.rodata .rodata.* .gnu.linkonce.r*)
-    . = ALIGN(0x4);
-  } > ram
-
-  .srodata :
-  {
-    *(.srodata.cst16) *(.srodata.cst8) *(.srodata.cst4) *(.srodata.cst2) *(.srodata .srodata.*)
-    . = ALIGN(0x4);
   } > ram
 
   .eh_frame_hdr :
@@ -95,52 +89,103 @@ SECTIONS
     LONG(0);
   } > ram
 
+  .gcc_except_table :
+  {
+      *(.gcc_except_table .gcc_except_table.*)
+  } > ram
+
+  .preinit_array     :
+  {
+    PROVIDE_HIDDEN (__preinit_array_start = .);
+    KEEP (*(.preinit_array))
+    PROVIDE_HIDDEN (__preinit_array_end = .);
+  } > ram
+
+  .init_array     :
+  {
+    PROVIDE_HIDDEN (__init_array_start = .);
+    KEEP (*(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*)))
+    KEEP (*(.init_array EXCLUDE_FILE (*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .ctors))
+    PROVIDE_HIDDEN (__init_array_end = .);
+  } > ram
+
+  .fini_array     :
+  {
+    PROVIDE_HIDDEN (__fini_array_start = .);
+    KEEP (*(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*)))
+    KEEP (*(.fini_array EXCLUDE_FILE (*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .dtors))
+    PROVIDE_HIDDEN (__fini_array_end = .);
+  } > ram
+
+  .ctors          :
+  {
+    /* gcc uses crtbegin.o to find the start of
+       the constructors, so we make sure it is
+       first.  Because this is a wildcard, it
+       doesn't matter if the user does not
+       actually link against crtbegin.o; the
+       linker won't look for a file to match a
+       wildcard.  The wildcard also means that it
+       doesn't matter which directory crtbegin.o
+       is in.  */
+    KEEP (*crtbegin.o(.ctors))
+    KEEP (*crtbegin?.o(.ctors))
+    /* We don't want to include the .ctor section from
+       the crtend.o file until after the sorted ctors.
+       The .ctor section from the crtend file contains the
+       end of ctors marker and it must be last */
+    KEEP (*(EXCLUDE_FILE (*crtend.o *crtend?.o ) .ctors))
+    KEEP (*(SORT(.ctors.*)))
+    KEEP (*(.ctors))
+  } > ram
+
+  .dtors          :
+  {
+    KEEP (*crtbegin.o(.dtors))
+    KEEP (*crtbegin?.o(.dtors))
+    KEEP (*(EXCLUDE_FILE (*crtend.o *crtend?.o ) .dtors))
+    KEEP (*(SORT(.dtors.*)))
+    KEEP (*(.dtors))
+  } > ram
+
+  .rodata :
+  {
+    *(.lit)
+    *(.gdt)
+    *(.rodata .rodata.* .gnu.linkonce.r*)
+    *(.rodata1 rodata1.*)
+    . = ALIGN(16);
+  } > ram
+
   .data :
   {
     __data_start = .;
     *(.got.plt) *(.igot.plt) *(.got) *(.igot) /* minimal PIC support */
     *(.data .data.* .gnu.linkonce.d*)
+    *(.data1 data1.*)
 
     /* Ensure that the end of the data section is always word aligned.
-       Initial values are stored in 4-bytes blocks so we must guarantee
+       Initial values are stored in 16-bytes blocks so we must guarantee
        that these blocks do not fall out the section (otherwise they are
        truncated and the initial data for the last block are lost). */
 
-    . = ALIGN(0x4);
+    . = ALIGN(16);
     __data_end = .;
-  } > ram
-
-  .sdata :
-  {
-    __global_pointer$ = . + 0x800;
-    *(.sdata .sdata.* .gnu.linkonce.s.*)
-  } > ram
-
-  .sdata2 :
-  {
-    *(.sdata2 .sdata2.*)
-    *(.gnu.linkonce.s2.*)
-  } > ram
-
-  .sbss :
-  {
-   . = ALIGN(0x4);
-   __bss_start = .;
-   *(.sbss .sbss.*)
   } > ram
 
   .bss :
   {
+   __bss_start = .;
    *(.bss .bss.*)
    *(COMMON)
 
-   . = ALIGN(0x4);    /* Align the stack to long word boundary to allow
+   . = ALIGN(16);    /* Align the stack to 16-byte boundary to allow
                          faster zeroing */
    __bss_end = .;
 
    __stack_start = .;
    . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
-   . = ALIGN(0x4);
+   . = ALIGN(16); /* Stack needs to be 16 bytes aligned */
    __stack_end = .;
 
    _end = .;
