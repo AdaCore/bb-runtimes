@@ -82,6 +82,7 @@ SECTIONS
     {
             *(.ARM.extab* .gnu.linkonce.armextab.*)
     } : rodata
+    . = ALIGN(0x4);
     __exidx_start = .;
     .ARM.exidx :
     {
