@@ -167,17 +167,11 @@ _start32:
         movw    %ax, %ss
         movw    %ax, %fs
 
-        .global _start32
-        .code32
-_start32:
         # Load the Global Descriptor Table to configure segment registers with
         # flat-mode descriptors. Also load the IDT with interrupts disabled.
 
         lgdt    gdt_pointer
         # lidt idt48
-
-        # %ebx holds the the processor ID number. The boot core is always 0.
-        xorl    %ebx, %ebx
 
         # At some point %ebp should hold a pointer to CPU specific data
 
