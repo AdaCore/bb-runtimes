@@ -382,6 +382,9 @@ sources = {
             'libgcc/unwind-pe.h'],
         'bb_srcs': [
             'hie/adaint-xi.c',
+            'hie/a-calcon.ads', 'hie/a-calcon.adb',
+            'hie/a-calclo__bb.adb',
+            'hie/a-calend.ads', 'hie/a-calend.adb',
             'hie/s-init__bb.adb'],
         'pikeos_srcs': [
             'hie/s-init__pikeos.adb']
