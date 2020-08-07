@@ -129,7 +129,7 @@ sources = {
             'libgnat/g-souinf.ads',
             'libgnat/gnat.ads',
             'libgnat/i-cexten.ads',
-            'libgnat/interfac.ads',
+            'libgnat/interfac__2020.ads',
             'libgnat/machcode.ads',
             'libgnat/s-assert.ads',
             'libgnat/s-atacco.ads', 'libgnat/s-atacco.adb',
