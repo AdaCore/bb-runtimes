@@ -657,21 +657,25 @@ sources = {
     'arith64': {
         'conditions': ['Add_Arith64:yes'],
         'srcs': [
-            'libgnat/s-arit64.ads', 'libgnat/s-arit64.adb']
+            'libgnat/s-arit64.ads', 'libgnat/s-arit64.adb',
+            'libgnat/s-aridou.ads', 'libgnat/s-aridou.adb']
     },
     'exponent/int': {
         'conditions': ['Add_Exponent_Int:yes'],
         'srcs': [
-            'libgnat/s-exnint.ads', 'libgnat/s-exnint.adb',
-            'libgnat/s-expint.ads', 'libgnat/s-expint.adb',
-            'libgnat/s-expuns.ads', 'libgnat/s-expuns.adb'],
+            'libgnat/s-exponn.ads', 'libgnat/s-exponn.adb',
+            'libgnat/s-expont.ads', 'libgnat/s-expont.adb',
+            'libgnat/s-exponu.ads', 'libgnat/s-exponu.adb',
+            'libgnat/s-exnint.ads',
+            'libgnat/s-expint.ads',
+            'libgnat/s-expuns.ads'],
     },
     'exponent/int_ll': {
         'conditions': ['Add_Exponent_LL_Int:yes'],
         'srcs': [
-            'libgnat/s-exnlli.ads', 'libgnat/s-exnlli.adb',
-            'libgnat/s-explli.ads', 'libgnat/s-explli.adb',
-            'libgnat/s-expllu.ads', 'libgnat/s-expllu.adb'],
+            'libgnat/s-exnlli.ads',
+            'libgnat/s-explli.ads',
+            'libgnat/s-expllu.ads'],
     },
     'exponent/mod': {
         'conditions': ['Add_Exponent_Modular:yes'],
