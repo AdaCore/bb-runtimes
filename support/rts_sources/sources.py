@@ -134,10 +134,12 @@ sources = {
             'libgnat/s-assert.ads',
             'libgnat/s-atacco.ads', 'libgnat/s-atacco.adb',
             'libgnat/s-imgboo.ads', 'libgnat/s-imgboo.adb',
-            'libgnat/s-imgint.ads', 'libgnat/s-imgint.adb',
-            'libgnat/s-imglli.ads', 'libgnat/s-imglli.adb',
-            'libgnat/s-imgllu.ads', 'libgnat/s-imgllu.adb',
-            'libgnat/s-imguns.ads', 'libgnat/s-imguns.adb',
+            'libgnat/s-imagei.ads', 'libgnat/s-imagei.adb',
+            'libgnat/s-imageu.ads', 'libgnat/s-imageu.adb',
+            'libgnat/s-imgint.ads',
+            'libgnat/s-imglli.ads',
+            'libgnat/s-imgllu.ads',
+            'libgnat/s-imguns.ads',
             'libgnat/s-maccod.ads',
             'hie/s-macres.ads',
             'hie/s-secsta__zfp.ads', 'hie/s-secsta__zfp.adb',
@@ -233,7 +235,7 @@ sources = {
             'libgnat/a-stwiun.ads', 'libgnat/a-stwiun.adb',
             'libgnat/a-stzbou.ads', 'libgnat/a-stzbou.adb',
             'libgnat/a-stzfix.ads', 'libgnat/a-stzfix.adb',
-            'libgnat/a-stzhas.ads', 'libgnat/a-stzhas.adb',
+            'libgnat/a-stzhas.ads',
             'libgnat/a-stzmap.ads', 'libgnat/a-stzmap.adb',
             'libgnat/a-stzsea.ads', 'libgnat/a-stzsea.adb',
             'libgnat/a-stzsup.ads', 'libgnat/a-stzsup.adb',
@@ -371,8 +373,10 @@ sources = {
             'libgnat/s-widboo.ads', 'libgnat/s-widboo.adb',
             'libgnat/s-widcha.ads', 'libgnat/s-widcha.adb',
             'libgnat/s-widenu.ads', 'libgnat/s-widenu.adb',
-            'libgnat/s-widlli.ads', 'libgnat/s-widlli.adb',
-            'libgnat/s-widllu.ads', 'libgnat/s-widllu.adb',
+            'libgnat/s-widlli.ads',
+            'libgnat/s-widllu.ads',
+            'libgnat/s-widthi.ads', 'libgnat/s-widthi.adb',
+            'libgnat/s-widthu.ads', 'libgnat/s-widthu.adb',
             'libgnat/s-widwch.ads', 'libgnat/s-widwch.adb',
             'libgnat/s-wwdcha.ads', 'libgnat/s-wwdcha.adb',
             'libgnat/s-wwdenu.ads', 'libgnat/s-wwdenu.adb',
@@ -482,17 +486,19 @@ sources = {
     'image/int_ll': {
         'conditions': ['Add_Image_LL_Int:yes'],
         'srcs': [
-            'libgnat/s-imgllw.ads', 'libgnat/s-imgllw.adb']
+            'libgnat/s-imagew.ads', 'libgnat/s-imagew.adb',
+            'libgnat/s-imgllw.ads']
     },
     'image/based_int': {
         'conditions': ['Add_Image_Based_Int:yes'],
         'srcs': [
-            'libgnat/s-imgbiu.ads', 'libgnat/s-imgbiu.adb']
+            'libgnat/s-imageb.ads', 'libgnat/s-imageb.adb',
+            'libgnat/s-imgbiu.ads']
     },
     'image/based_int_ll': {
         'conditions': ['Add_Image_LL_Based_Int:yes'],
         'srcs': [
-            'libgnat/s-imgllb.ads', 'libgnat/s-imgllb.adb']
+            'libgnat/s-imgllb.ads']
     },
     'image/char': {
         'conditions': ['Add_Image_Char:yes'],
@@ -539,15 +545,17 @@ sources = {
     'value/int': {
         'conditions': ['Add_Value_Int:yes'],
         'srcs': [
-            'libgnat/s-valint.ads', 'libgnat/s-valint.adb',
-            'libgnat/s-valuns.ads', 'libgnat/s-valuns.adb'],
+            'libgnat/s-valint.ads',
+            'libgnat/s-valueu.ads', 'libgnat/s-valueu.adb',
+            'libgnat/s-valuei.ads', 'libgnat/s-valuei.adb',
+            'libgnat/s-valuns.ads'],
         'requires': ['Add_Value_Utils:yes']
     },
     'value/int_ll': {
         'conditions': ['Add_Value_LL_Int:yes'],
         'srcs': [
-            'libgnat/s-vallli.ads', 'libgnat/s-vallli.adb',
-            'libgnat/s-valllu.ads', 'libgnat/s-valllu.adb'],
+            'libgnat/s-vallli.ads',
+            'libgnat/s-valllu.ads'],
         'requires': ['Add_Value_Utils:yes']
     },
     'value/char': {
