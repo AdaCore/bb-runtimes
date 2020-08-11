@@ -7,7 +7,7 @@
 --                                 S p e c                                  --
 --                          (ARM Cortex M4 Version)                         --
 --                                                                          --
---           Copyright (C) 2015-2019, Free Software Foundation, Inc.        --
+--           Copyright (C) 2015-2020, Free Software Foundation, Inc.        --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -61,10 +61,10 @@ package System is
 
    --  System-Dependent Named Numbers
 
-   Min_Int               : constant := Long_Long_Integer'First;
-   Max_Int               : constant := Long_Long_Integer'Last;
+   Min_Int             : constant := -2 ** (Standard'Max_Integer_Size - 1);
+   Max_Int             : constant :=  2 ** (Standard'Max_Integer_Size - 1) - 1;
 
-   Max_Binary_Modulus    : constant := 2 ** Long_Long_Integer'Size;
+   Max_Binary_Modulus    : constant := 2 ** Standard'Max_Integer_Size;
    Max_Nonbinary_Modulus : constant := 2 ** Integer'Size - 1;
 
    Max_Base_Digits       : constant := Long_Long_Float'Digits;
