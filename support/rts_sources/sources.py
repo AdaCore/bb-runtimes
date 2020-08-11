@@ -373,6 +373,7 @@ sources = {
             'libgnat/s-widboo.ads', 'libgnat/s-widboo.adb',
             'libgnat/s-widcha.ads', 'libgnat/s-widcha.adb',
             'libgnat/s-widenu.ads', 'libgnat/s-widenu.adb',
+            'libgnat/s-widint.ads',
             'libgnat/s-widlli.ads',
             'libgnat/s-widllu.ads',
             'libgnat/s-widthi.ads', 'libgnat/s-widthi.adb',
