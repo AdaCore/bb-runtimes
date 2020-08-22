@@ -528,8 +528,7 @@ class NRF52840(NRF52):
             'arm/nordic/nrf52/nrf52840/svd/i-nrf52-uicr.ads',
             'arm/nordic/nrf52/nrf52840/svd/i-nrf52-nvmc.ads',
             'arm/nordic/nrf52/nrf52840/svd/i-nrf52-rtc.ads',
-            'arm/nordic/nrf52/nrf52840/svd/i-nrf52-temp.ads',
-            'src/s-textio__null.adb')
+            'arm/nordic/nrf52/nrf52840/svd/i-nrf52-temp.ads')
         self.add_gnarl_sources(
             'arm/nordic/nrf52/nrf52840/svd/handler.S',
             'arm/nordic/nrf52/nrf52840/svd/a-intnam.ads')
@@ -557,8 +556,7 @@ class NRF52832(NRF52):
             'arm/nordic/nrf52/nrf52832/svd/i-nrf52-uicr.ads',
             'arm/nordic/nrf52/nrf52832/svd/i-nrf52-nvmc.ads',
             'arm/nordic/nrf52/nrf52832/svd/i-nrf52-rtc.ads',
-            'arm/nordic/nrf52/nrf52832/svd/i-nrf52-temp.ads',
-            'src/s-textio__null.adb')
+            'arm/nordic/nrf52/nrf52832/svd/i-nrf52-temp.ads')
 
         self.add_gnarl_sources(
             'arm/nordic/nrf52/nrf52832/svd/handler.S',
