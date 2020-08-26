@@ -58,10 +58,6 @@ all_scenarios = {
     'Add_Arith64': ['no', 'yes'],
     # 'Image:
     'Add_Image_Enum': ['no', 'yes'],
-    'Add_Image_Int': ['no', 'yes'],
-    'Add_Image_LL_Int': ['no', 'yes'],
-    'Add_Image_Based_Int': ['no', 'yes'],
-    'Add_Image_LL_Based_Int': ['no', 'yes'],
     'Add_Image_Decimal': ['no', 'yes'],
     'Add_Image_LL_Decimal': ['no', 'yes'],
     'Add_Image_Float': ['no', 'yes'],
@@ -473,8 +469,7 @@ sources = {
     'image/decimal': {
         'conditions': ['Add_Image_Decimal:yes'],
         'srcs': [
-            'libgnat/s-imgdec.adb', 'libgnat/s-imgdec.ads'],
-        'requires': ['Add_Image_Int:yes']
+            'libgnat/s-imgdec.adb', 'libgnat/s-imgdec.ads']
     },
     'image/decimal_ll': {
         'conditions': ['Add_Image_LL_Decimal:yes'],
@@ -487,26 +482,6 @@ sources = {
         'srcs': [
             'libgnat/s-imgrea.ads', 'libgnat/s-imgrea.adb'],
         'requires': ['Add_Float_Control:yes'],
-    },
-    'image/int': {
-        'conditions': ['Add_Image_Int:yes'],
-        'srcs': [
-            'libgnat/s-imgwiu.ads', 'libgnat/s-imgwiu.adb']
-    },
-    'image/int_ll': {
-        'conditions': ['Add_Image_LL_Int:yes'],
-        'srcs': [
-            'libgnat/s-imgllw.ads', 'libgnat/s-imgllw.adb']
-    },
-    'image/based_int': {
-        'conditions': ['Add_Image_Based_Int:yes'],
-        'srcs': [
-            'libgnat/s-imgbiu.ads', 'libgnat/s-imgbiu.adb']
-    },
-    'image/based_int_ll': {
-        'conditions': ['Add_Image_LL_Based_Int:yes'],
-        'srcs': [
-            'libgnat/s-imgllb.ads', 'libgnat/s-imgllb.adb']
     },
     'image/char': {
         'conditions': ['Add_Image_Char:yes'],
