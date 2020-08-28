@@ -29,6 +29,8 @@ all_scenarios = {
     # CPU architecture
     'CPU_Family': ['arm', 'aarch64', 'leon', 'powerpc', 'x86',
                    'riscv32', 'riscv64'],
+    # Word size of target
+    'Target_Word_Size': ['32', '64'],
     # FPU presence
     'Has_FPU': ['no', 'yes'],
     # Whether we rely on libc being available
@@ -162,6 +164,11 @@ sources = {
             'libgnat/text_io.ads'],
         'pikeos_srcs': [
             'hie/s-parame__large.ads', 'hie/s-parame.adb']
+    },
+
+    'common64': {
+        'conditions': ['Target_Word_Size:64'],
+        'srcs': ['libgnat/s-imgllli.ads', 'libgnat/s-imglllu.ads']
     },
 
     'zfp': {

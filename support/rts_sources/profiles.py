@@ -88,6 +88,12 @@ class RTSProfiles(object):
             else:
                 ret['Memory_Profile'] = 'large'
 
+        # 64-bit specific packages
+        if self.config.is_64bit:
+            ret['Target_Word_Size'] = "64"
+        else:
+            ret['Target_Word_Size'] = "32"
+
         return ret
 
     def sfp_scenarios(self, math_lib, profile='ravenscar-sfp'):
