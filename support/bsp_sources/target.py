@@ -26,6 +26,11 @@ class TargetConfiguration(object):
         raise Exception("not implemented")
 
     @property
+    def is_64bit(self):
+        """Set to True on 64-bit targets"""
+        return False
+
+    @property
     def is_pikeos(self):
         return self.target is not None and 'pikeos' in self.target
 

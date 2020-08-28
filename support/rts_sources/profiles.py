@@ -167,6 +167,15 @@ class RTSProfiles(object):
         ret['Add_Value_Char'] = "yes"
         ret['Add_Value_Wide_Char'] = "yes"
 
+        # 64-bit specific packages
+        if self.config.is_64bit:
+            ret['Add_Arith128'] = "yes"
+            ret['Add_Image_LLL_Int'] = "yes"
+            ret['Add_Image_LLL_Based_Int'] = "yes"
+            ret['Add_Value_LLL_Int'] = "yes"
+            ret['Add_Exponent_LLL_Int'] = "yes"
+            ret['Add_Pack64'] = "yes"
+
         if not self.config.is_pikeos:
             # PikeOS provides its own C library
             # ravenscar-full requires C memory operations, either via newlib

@@ -20,6 +20,10 @@ class RiscV64(DFBBTarget):
         return True
 
     @property
+    def is_64bit(self):
+        return True
+
+    @property
     def system_ads(self):
         return {'zfp': 'system-xi-riscv.ads'}
 

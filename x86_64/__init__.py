@@ -29,6 +29,10 @@ class X8664Target(DFBBTarget):
         return True
 
     @property
+    def is_64bit(self):
+        return True
+
+    @property
     def system_ads(self):
         return {
             'zfp': 'system-xi-x86_64.ads',
