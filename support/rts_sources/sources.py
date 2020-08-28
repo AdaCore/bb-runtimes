@@ -51,14 +51,18 @@ all_scenarios = {
         'hardfloat_dp', 'hardfloat_sp'],
     # Add complex type to the math library. N/A if Add_Math_Lib is 'no'
     'Add_Complex_Type_Support': ['no', 'yes'],
-    # Add support for 64-bit arithmetic to detect 32-bit overflows
+    # Add support for 64-bit arithmetic to detect 64-bit overflow
     'Add_Arith64': ['no', 'yes'],
+    # Add support for 128-bit arithmetic to detect 128-bit overflow
+    'Add_Arith128': ['no', 'yes'],
     # 'Image:
     'Add_Image_Enum': ['no', 'yes'],
     'Add_Image_Int': ['no', 'yes'],
     'Add_Image_LL_Int': ['no', 'yes'],
+    'Add_Image_LLL_Int': ['no', 'yes'],
     'Add_Image_Based_Int': ['no', 'yes'],
     'Add_Image_LL_Based_Int': ['no', 'yes'],
+    'Add_Image_LLL_Based_Int': ['no', 'yes'],
     'Add_Image_Decimal': ['no', 'yes'],
     'Add_Image_LL_Decimal': ['no', 'yes'],
     'Add_Image_Float': ['no', 'yes'],
@@ -69,6 +73,7 @@ all_scenarios = {
     'Add_Value_Enum': ['no', 'yes'],
     'Add_Value_Int': ['no', 'yes'],
     'Add_Value_LL_Int': ['no', 'yes'],
+    'Add_Value_LLL_Int': ['no', 'yes'],
     'Add_Value_Decimal': ['no', 'yes'],
     'Add_Value_LL_Decimal': ['no', 'yes'],
     'Add_Value_Float': ['no', 'yes'],
@@ -77,12 +82,15 @@ all_scenarios = {
     # Exponentiation:
     'Add_Exponent_Int': ['no', 'yes'],
     'Add_Exponent_LL_Int': ['no', 'yes'],
+    'Add_Exponent_LLL_Int': ['no', 'yes'],
     'Add_Exponent_Modular': ['no', 'yes'],
     'Add_Exponent_LL_Float': ['no', 'yes'],
     # Streams:
     'Add_Streams': ['no', 'yes'],
     # Runtime support for packed arrays
     'Add_Pack': ['no', 'yes'],
+    # Runtime support for packed arrays on 64-bit platforms
+    'Add_Pack64': ['no', 'yes'],
     # Various support packages
     'Add_Case_Util': ['no', 'yes'],
     'Add_Float_Control': ['no', 'yes'],
@@ -482,13 +490,20 @@ sources = {
     'image/int': {
         'conditions': ['Add_Image_Int:yes'],
         'srcs': [
-            'libgnat/s-imgwiu.ads', 'libgnat/s-imgwiu.adb']
+            'libgnat/s-imagew.ads', 'libgnat/s-imagew.adb',
+            'libgnat/s-imgwiu.ads']
     },
     'image/int_ll': {
         'conditions': ['Add_Image_LL_Int:yes'],
         'srcs': [
-            'libgnat/s-imagew.ads', 'libgnat/s-imagew.adb',
-            'libgnat/s-imgllw.ads']
+            'libgnat/s-imgllw.ads'],
+        'requires': ['Add_Image_Int:yes']
+    },
+    'image/int_lll': {
+        'conditions': ['Add_Image_LLL_Int:yes'],
+        'srcs': [
+            'libgnat/s-imglllw.ads'],
+        'requires': ['Add_Image_Int:yes']
     },
     'image/based_int': {
         'conditions': ['Add_Image_Based_Int:yes'],
@@ -499,7 +514,14 @@ sources = {
     'image/based_int_ll': {
         'conditions': ['Add_Image_LL_Based_Int:yes'],
         'srcs': [
-            'libgnat/s-imgllb.ads']
+            'libgnat/s-imgllb.ads'],
+        'requires': ['Add_Image_Based_Int:yes']
+    },
+    'image/based_int_lll': {
+        'conditions': ['Add_Image_LLL_Based_Int:yes'],
+        'srcs': [
+            'libgnat/s-imglllb.ads'],
+        'requires': ['Add_Image_Based_Int:yes']
     },
     'image/char': {
         'conditions': ['Add_Image_Char:yes'],
@@ -557,6 +579,13 @@ sources = {
         'srcs': [
             'libgnat/s-vallli.ads',
             'libgnat/s-valllu.ads'],
+        'requires': ['Add_Value_Utils:yes']
+    },
+    'value/int_lll': {
+        'conditions': ['Add_Value_LLL_Int:yes'],
+        'srcs': [
+            'libgnat/s-vallli.ads',
+            'libgnat/s-vallllu.ads'],
         'requires': ['Add_Value_Utils:yes']
     },
     'value/char': {
@@ -669,6 +698,12 @@ sources = {
             'libgnat/s-arit64.ads', 'libgnat/s-arit64.adb',
             'libgnat/s-aridou.ads', 'libgnat/s-aridou.adb']
     },
+    'arith128': {
+        'conditions': ['Add_Arith128:yes'],
+        'srcs': [
+            'libgnat/s-arit128.ads', 'libgnat/s-arit128.adb'],
+        'requires': ['Add_Arith64:yes']
+    },
     'exponent/int': {
         'conditions': ['Add_Exponent_Int:yes'],
         'srcs': [
@@ -685,6 +720,15 @@ sources = {
             'libgnat/s-exnlli.ads',
             'libgnat/s-explli.ads',
             'libgnat/s-expllu.ads'],
+        'requires': ['Add_Exponent_Int:yes']
+    },
+    'exponent/int_lll': {
+        'conditions': ['Add_Exponent_LLL_Int:yes'],
+        'srcs': [
+            'libgnat/s-exnllli.ads',
+            'libgnat/s-expllli.ads',
+            'libgnat/s-explllu.ads'],
+        'requires': ['Add_Exponent_Int:yes']
     },
     'exponent/mod': {
         'conditions': ['Add_Exponent_Modular:yes'],
@@ -873,7 +917,75 @@ sources = {
             'libgnat/s-pack62.ads', 'libgnat/s-pack62.adb',
             'libgnat/s-pack63.ads', 'libgnat/s-pack63.adb']
     },
-
+    # Pragma Pack support on 64-bit platforms
+    'pack64': {
+        'conditions': ['Add_Pack64:yes'],
+        'srcs': [
+            'libgnat/s-pack65.ads', 'libgnat/s-pack65.adb',
+            'libgnat/s-pack66.ads', 'libgnat/s-pack66.adb',
+            'libgnat/s-pack67.ads', 'libgnat/s-pack67.adb',
+            'libgnat/s-pack68.ads', 'libgnat/s-pack68.adb',
+            'libgnat/s-pack69.ads', 'libgnat/s-pack69.adb',
+            'libgnat/s-pack70.ads', 'libgnat/s-pack70.adb',
+            'libgnat/s-pack71.ads', 'libgnat/s-pack71.adb',
+            'libgnat/s-pack72.ads', 'libgnat/s-pack72.adb',
+            'libgnat/s-pack73.ads', 'libgnat/s-pack73.adb',
+            'libgnat/s-pack74.ads', 'libgnat/s-pack74.adb',
+            'libgnat/s-pack75.ads', 'libgnat/s-pack75.adb',
+            'libgnat/s-pack76.ads', 'libgnat/s-pack76.adb',
+            'libgnat/s-pack77.ads', 'libgnat/s-pack77.adb',
+            'libgnat/s-pack78.ads', 'libgnat/s-pack78.adb',
+            'libgnat/s-pack79.ads', 'libgnat/s-pack79.adb',
+            'libgnat/s-pack80.ads', 'libgnat/s-pack80.adb',
+            'libgnat/s-pack81.ads', 'libgnat/s-pack81.adb',
+            'libgnat/s-pack82.ads', 'libgnat/s-pack82.adb',
+            'libgnat/s-pack83.ads', 'libgnat/s-pack83.adb',
+            'libgnat/s-pack84.ads', 'libgnat/s-pack84.adb',
+            'libgnat/s-pack85.ads', 'libgnat/s-pack85.adb',
+            'libgnat/s-pack86.ads', 'libgnat/s-pack86.adb',
+            'libgnat/s-pack87.ads', 'libgnat/s-pack87.adb',
+            'libgnat/s-pack88.ads', 'libgnat/s-pack88.adb',
+            'libgnat/s-pack89.ads', 'libgnat/s-pack89.adb',
+            'libgnat/s-pack90.ads', 'libgnat/s-pack90.adb',
+            'libgnat/s-pack91.ads', 'libgnat/s-pack91.adb',
+            'libgnat/s-pack92.ads', 'libgnat/s-pack92.adb',
+            'libgnat/s-pack93.ads', 'libgnat/s-pack93.adb',
+            'libgnat/s-pack94.ads', 'libgnat/s-pack94.adb',
+            'libgnat/s-pack95.ads', 'libgnat/s-pack95.adb',
+            'libgnat/s-pack96.ads', 'libgnat/s-pack96.adb',
+            'libgnat/s-pack97.ads', 'libgnat/s-pack97.adb',
+            'libgnat/s-pack98.ads', 'libgnat/s-pack98.adb',
+            'libgnat/s-pack99.ads', 'libgnat/s-pack99.adb',
+            'libgnat/s-pack100.ads', 'libgnat/s-pack100.adb',
+            'libgnat/s-pack101.ads', 'libgnat/s-pack101.adb',
+            'libgnat/s-pack102.ads', 'libgnat/s-pack102.adb',
+            'libgnat/s-pack103.ads', 'libgnat/s-pack103.adb',
+            'libgnat/s-pack104.ads', 'libgnat/s-pack104.adb',
+            'libgnat/s-pack105.ads', 'libgnat/s-pack105.adb',
+            'libgnat/s-pack106.ads', 'libgnat/s-pack106.adb',
+            'libgnat/s-pack107.ads', 'libgnat/s-pack107.adb',
+            'libgnat/s-pack108.ads', 'libgnat/s-pack108.adb',
+            'libgnat/s-pack109.ads', 'libgnat/s-pack109.adb',
+            'libgnat/s-pack110.ads', 'libgnat/s-pack110.adb',
+            'libgnat/s-pack111.ads', 'libgnat/s-pack111.adb',
+            'libgnat/s-pack112.ads', 'libgnat/s-pack112.adb',
+            'libgnat/s-pack113.ads', 'libgnat/s-pack113.adb',
+            'libgnat/s-pack114.ads', 'libgnat/s-pack114.adb',
+            'libgnat/s-pack115.ads', 'libgnat/s-pack115.adb',
+            'libgnat/s-pack116.ads', 'libgnat/s-pack116.adb',
+            'libgnat/s-pack117.ads', 'libgnat/s-pack117.adb',
+            'libgnat/s-pack118.ads', 'libgnat/s-pack118.adb',
+            'libgnat/s-pack119.ads', 'libgnat/s-pack119.adb',
+            'libgnat/s-pack120.ads', 'libgnat/s-pack120.adb',
+            'libgnat/s-pack121.ads', 'libgnat/s-pack121.adb',
+            'libgnat/s-pack122.ads', 'libgnat/s-pack122.adb',
+            'libgnat/s-pack123.ads', 'libgnat/s-pack123.adb',
+            'libgnat/s-pack124.ads', 'libgnat/s-pack124.adb',
+            'libgnat/s-pack125.ads', 'libgnat/s-pack125.adb',
+            'libgnat/s-pack126.ads', 'libgnat/s-pack126.adb',
+            'libgnat/s-pack127.ads', 'libgnat/s-pack127.adb'],
+        'requires': ['Add_Pack:yes']
+    },
     # LIBGNARL
 
     'gnarl/common': {
