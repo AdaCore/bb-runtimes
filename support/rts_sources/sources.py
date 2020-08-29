@@ -591,7 +591,7 @@ sources = {
     'value/int_lll': {
         'conditions': ['Add_Value_LLL_Int:yes'],
         'srcs': [
-            'libgnat/s-vallli.ads',
+            'libgnat/s-valllli.ads',
             'libgnat/s-vallllu.ads'],
         'requires': ['Add_Value_Utils:yes']
     },
