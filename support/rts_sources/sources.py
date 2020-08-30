@@ -138,7 +138,6 @@ sources = {
             'hie/g-io-put__bb.adb',
             'libgnat/g-souinf.ads',
             'libgnat/gnat.ads',
-            'libgnat/i-cexten.ads',
             'libgnat/interfac__2020.ads',
             'libgnat/machcode.ads',
             'libgnat/s-assert.ads',
@@ -166,9 +165,16 @@ sources = {
             'hie/s-parame__large.ads', 'hie/s-parame.adb']
     },
 
-    'common64': {
+    'common/32': {
+        'conditions': ['Target_Word_Size:32'],
+        'srcs': ['libgnat/i-cexten.ads']
+    },
+
+    'common/64': {
         'conditions': ['Target_Word_Size:64'],
-        'srcs': ['libgnat/s-imgllli.ads', 'libgnat/s-imglllu.ads']
+        'srcs': [
+            'libgnat/i-cexten__128.ads',
+            'libgnat/s-imgllli.ads', 'libgnat/s-imglllu.ads']
     },
 
     'zfp': {
@@ -361,7 +367,6 @@ sources = {
             'libgnat/s-regexp.ads', 'libgnat/s-regexp.adb',
             'libgnat/s-restri.ads', 'libgnat/s-restri.adb',
             'libgnat/s-rident.ads',
-            'libgnat/s-scaval.ads', 'libgnat/s-scaval.adb',
             'hie/s-soflin.ads', 'hie/s-soflin.adb',
             'libgnat/s-sopco3.ads', 'libgnat/s-sopco3.adb',
             'libgnat/s-sopco4.ads', 'libgnat/s-sopco4.adb',
@@ -408,6 +413,18 @@ sources = {
             'hie/s-init__bb.adb'],
         'pikeos_srcs': [
             'hie/s-init__pikeos.adb']
+    },
+
+    'full/32': {
+        'conditions': ['RTS_Profile:ravenscar-full', 'Target_Word_Size:32'],
+        'srcs': [
+            'libgnat/s-scaval.ads', 'libgnat/s-scaval.adb']
+    },
+
+    'full/64': {
+        'conditions': ['RTS_Profile:ravenscar-full', 'Target_Word_Size:64'],
+        'srcs': [
+            'libgnat/s-scaval__128.ads', 'libgnat/s-scaval__128.adb']
     },
 
     # Memory operations:
