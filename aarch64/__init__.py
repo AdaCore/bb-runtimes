@@ -18,8 +18,7 @@ class Aarch64Arch(ArchSupport):
             'src/s-bbcpsp__aarch64.ads',
             'src/s-bbcppr__new.ads',
             'src/s-bbcppr__aarch64.adb',
-            'aarch64/context_switch.S',
-            'src/s-bbinte__generic.adb')
+            'aarch64/context_switch.S')
 
 
 class Aarch64Target(DFBBTarget):

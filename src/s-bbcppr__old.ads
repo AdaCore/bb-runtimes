@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2004 The European Space Agency            --
---                     Copyright (C) 2003-2016, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -34,6 +34,7 @@
 pragma Restrictions (No_Elaboration_Code);
 
 with System;
+with System.Storage_Elements;
 with System.BB.Parameters;
 
 package System.BB.CPU_Primitives is
@@ -88,6 +89,13 @@ package System.BB.CPU_Primitives is
    --  Initialize_Context inserts inside the context buffer the default
    --  values for each register. The values for the stack pointer, the
    --  program counter, and argument to be passed are provided as arguments.
+
+   procedure Initialize_Stack
+     (Base          : Address;
+      Size          : Storage_Elements.Storage_Offset;
+      Stack_Pointer : out Address);
+   --  Initialize a stack which spans BASE .. BASE + SIZE - 1. Set
+   --  STACK_POINTER to the address to be used by the processor.
 
    ---------------------------------
    -- Interrupt and trap handling --

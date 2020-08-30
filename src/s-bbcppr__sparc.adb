@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2019, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -30,8 +30,8 @@
 
 pragma Restrictions (No_Elaboration_Code);
 
-with System.Storage_Elements;
 with System.Multiprocessors;
+with System.BB.CPU_Specific;
 with System.BB.Threads;
 
 package body System.BB.CPU_Primitives is
@@ -305,6 +305,21 @@ package body System.BB.CPU_Primitives is
    begin
       null;
    end Initialize_CPU;
+
+   ----------------------
+   -- Initialize_Stack --
+   ----------------------
+
+   procedure Initialize_Stack
+     (Base          : Address;
+      Size          : Storage_Elements.Storage_Offset;
+      Stack_Pointer : out Address)
+   is
+      use System.Storage_Elements;
+   begin
+      --  Force alignment
+      Stack_Pointer := Base + (Size - (Size mod CPU_Specific.Stack_Alignment));
+   end Initialize_Stack;
 
    ----------------------------
    -- Install_Error_Handlers --

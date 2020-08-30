@@ -26,8 +26,7 @@ class LeonArch(ArchSupport):
             'sparc/src/trap_handler.S',
             'sparc/src/interrupt_masking.S',
             'src/s-bbcaco.ads',
-            'src/s-bbcaco__leon.adb',
-            'src/s-bbinte__generic.adb')
+            'src/s-bbcaco__leon.adb')
 
 
 class LeonTarget(DFBBTarget):

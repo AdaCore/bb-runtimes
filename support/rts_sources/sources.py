@@ -1019,7 +1019,7 @@ sources = {
             'hie/a-extiin.ads', 'hie/a-extiin.adb',
             'hie/a-rttiev.ads', 'hie/a-rttiev.adb',
             'hie/s-bbexti.ads', 'hie/s-bbexti.adb',
-            'hie/s-bbinte.ads',
+            'hie/s-bbinte.ads', 'hie/s-bbinte.adb',
             'hie/s-bbprot.ads', 'hie/s-bbprot.adb',
             'hie/s-bbthqu.ads', 'hie/s-bbthqu.adb',
             'hie/s-bbthre.ads', 'hie/s-bbthre.adb',

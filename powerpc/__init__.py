@@ -13,8 +13,7 @@ class PPCArch(ArchSupport):
         super(PPCArch, self).__init__()
         self.add_gnarl_sources(
             'src/s-bbcppr__new.ads',
-            'src/s-bbcppr__ppc.adb',
-            'src/s-bbinte__ppc.adb')
+            'src/s-bbcppr__ppc.adb')
 
 
 class PPC6XXArch(ArchSupport):

@@ -18,8 +18,7 @@ class CortexARArch(ArchSupport):
         self.add_gnarl_sources(
             'src/s-bbcpsp__arm.ads',
             'src/s-bbcppr__new.ads',
-            'src/s-bbcppr__arm.adb',
-            'src/s-bbinte__generic.adb')
+            'src/s-bbcppr__arm.adb')
 
 
 class CortexARTarget(DFBBTarget):
