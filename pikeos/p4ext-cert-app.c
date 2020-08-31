@@ -2,9 +2,9 @@
  *                                                                          *
  *                         GNAT RUN-TIME COMPONENTS                         *
  *                                                                          *
- *                            P I K E O S 4 . 2 - A P P                     *
+ *                        P 4 E X T - C E R T - A P P                       *
  *                                                                          *
- *          Copyright (C) 2009-2019, Free Software Foundation, Inc.         *
+ *          Copyright (C) 2009-2020, Free Software Foundation, Inc.         *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *

@@ -114,7 +114,7 @@ class ArmPikeOS42(PikeOS):
 
     def __init__(self):
         super(ArmPikeOS42, self).__init__()
-        self.add_gnat_source('pikeos/pikeos4.2-cert-app.c')
+        self.add_gnat_source('pikeos/p4ext-cert-app.c')
         self.add_gnarl_source('pikeos/adaint-pikeos-p4ext.c')
         self.add_linker_script('pikeos/arm-app.ld')
 
@@ -149,6 +149,6 @@ class ArmPikeOS5(PikeOS):
 
     def __init__(self):
         super(ArmPikeOS5, self).__init__()
-        self.add_gnat_source('pikeos/pikeos4.2-cert-app.c')
+        self.add_gnat_source('pikeos/p4ext-cert-app.c')
         self.add_gnarl_source('pikeos/adaint-pikeos-p4ext.c')
         self.add_linker_script('pikeos/arm-pikeos5.ld')
