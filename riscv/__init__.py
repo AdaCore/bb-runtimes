@@ -273,20 +273,32 @@ class PicoRV32(RiscV32):
             'riscv/picorv32/s-textio.adb')
 
 
-class RV32IMC(RiscV32):
+class RV32BASE(RiscV32):
     """
     Generic ZFP run-time meant to be used with the startup generator (crt0 and
     ld script).
     """
 
     @property
-    def name(self):
-        return 'rv32imc'
-
-    @property
     def compiler_switches(self):
         # The required compiler switches
-        return ['-march=rv32imc', '-mabi=ilp32']
+        if self.name == "rv32i":
+            return ['-march=rv32i', '-mabi=ilp32']
+
+        elif self.name == "rv32im":
+            return ['-march=rv32im', '-mabi=ilp32']
+
+        elif self.name == "rv32iac":
+            return ['-march=rv32iac', '-mabi=ilp32']
+
+        elif self.name == "rv32imac":
+            return ['-march=rv32imac', '-mabi=ilp32']
+
+        elif self.name == "rv32imafc":
+            return ['-march=rv32imafc', '-mabi=ilp32f']
+
+        elif self.name == "rv32imafdc":
+            return ['-march=rv32imafdc', '-mabi=ilp32d']
 
     @property
     def has_small_memory(self):
@@ -298,8 +310,97 @@ class RV32IMC(RiscV32):
         return {'zfp': 'system-xi-riscv.ads'}
 
     def __init__(self):
-        super(RV32IMC, self).__init__()
+        super(RV32BASE, self).__init__()
 
         self.add_gnat_sources(
             'riscv/sifive/fe310/s-macres.adb',
             'src/s-textio__null.adb')
+
+
+class RV32I(RV32BASE):
+    @property
+    def name(self):
+        return 'rv32i'
+
+
+class RV32IM(RV32BASE):
+    @property
+    def name(self):
+        return 'rv32im'
+
+
+class RV32IAC(RV32BASE):
+    @property
+    def name(self):
+        return 'rv32iac'
+
+
+class RV32IMAC(RV32BASE):
+    @property
+    def name(self):
+        return 'rv32imac'
+
+
+class RV32IMAFC(RV32BASE):
+    @property
+    def name(self):
+        return 'rv32imafc'
+
+
+class RV32IMAFDC(RV32BASE):
+    @property
+    def name(self):
+        return 'rv32imafdc'
+
+
+class RV64BASE(RiscV64):
+    """
+    Generic ZFP run-time meant to be used with the startup generator (crt0 and
+    ld script).
+    """
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        if self.name == "rv64imac":
+            return ['-march=rv64imac', '-mabi=lp64']
+
+        elif self.name == "rv64imafc":
+            return ['-march=rv64imafc', '-mabi=lp64f']
+
+        elif self.name == "rv64imafdc":
+            return ['-march=rv64imafdc', '-mabi=lp64d']
+
+    @property
+    def has_small_memory(self):
+        return True
+
+    @property
+    def system_ads(self):
+        # Only ZFP for for this generic target
+        return {'zfp': 'system-xi-riscv.ads'}
+
+    def __init__(self):
+        super(RV64BASE, self).__init__()
+
+        self.add_gnat_sources(
+            'riscv/sifive/fe310/s-macres.adb',
+            'src/s-textio__null.adb')
+
+
+class RV64IMAC(RV64BASE):
+    @property
+    def name(self):
+        return 'rv64imac'
+
+
+class RV64IMAFC(RV64BASE):
+    @property
+    def name(self):
+        return 'rv64imafc'
+
+
+class RV64IMAFDC(RV64BASE):
+    @property
+    def name(self):
+        return 'rv64imafdc'
