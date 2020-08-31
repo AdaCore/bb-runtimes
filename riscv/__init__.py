@@ -235,44 +235,6 @@ class HiFive1(RiscV32):
             'riscv/sifive/fe310/s-bbripl.adb')
 
 
-class PicoRV32(RiscV32):
-    @property
-    def name(self):
-        return 'picorv32'
-
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ['-march=rv32imc', '-mabi=ilp32']
-
-    @property
-    def has_small_memory(self):
-        return True
-
-    @property
-    def loaders(self):
-        return ('ROM', )
-
-    @property
-    def system_ads(self):
-        # Only ZFP for for this target
-        return {'zfp': 'system-xi-riscv.ads'}
-
-    def __init__(self):
-        super(PicoRV32, self).__init__()
-
-        # Use the same base linker script as the HiFive1
-        self.add_linker_script('riscv/picorv32/memory-map.ld')
-        self.add_linker_script('riscv/sifive/hifive1/common-ROM.ld',
-                               loader='ROM')
-
-        # Use the same startup code as the HiFive1
-        self.add_gnat_sources(
-            'riscv/sifive/fe310/start-rom.S',
-            'riscv/sifive/fe310/s-macres.adb',
-            'riscv/picorv32/s-textio.adb')
-
-
 class RV32BASE(RiscV32):
     """
     Generic ZFP run-time meant to be used with the startup generator (crt0 and
