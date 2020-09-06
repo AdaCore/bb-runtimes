@@ -1,8 +1,8 @@
 --
---  Copyright (C) 2019, AdaCore
+--  Copyright (C) 2020, AdaCore
 --
 
---  This spec has been automatically generated from STM32F411xx.svd
+--  This spec has been automatically generated from STM32F411.svd
 
 pragma Ada_2012;
 pragma Style_Checks (Off);
@@ -84,129 +84,23 @@ package Interfaces.STM32.RCC is
       Reserved_28_31 at 0 range 28 .. 31;
    end record;
 
-   --  PLLCFGR_PLLM array element
-   subtype PLLCFGR_PLLM_Element is Interfaces.STM32.Bit;
-
-   --  PLLCFGR_PLLM array
-   type PLLCFGR_PLLM_Field_Array is array (0 .. 5) of PLLCFGR_PLLM_Element
-     with Component_Size => 1, Size => 6;
-
-   --  Type definition for PLLCFGR_PLLM
-   type PLLCFGR_PLLM_Field
-     (As_Array : Boolean := False)
-   is record
-      case As_Array is
-         when False =>
-            --  PLLM as a value
-            Val : Interfaces.STM32.UInt6;
-         when True =>
-            --  PLLM as an array
-            Arr : PLLCFGR_PLLM_Field_Array;
-      end case;
-   end record
-     with Unchecked_Union, Size => 6;
-
-   for PLLCFGR_PLLM_Field use record
-      Val at 0 range 0 .. 5;
-      Arr at 0 range 0 .. 5;
-   end record;
-
-   --  PLLCFGR_PLLN array element
-   subtype PLLCFGR_PLLN_Element is Interfaces.STM32.Bit;
-
-   --  PLLCFGR_PLLN array
-   type PLLCFGR_PLLN_Field_Array is array (0 .. 8) of PLLCFGR_PLLN_Element
-     with Component_Size => 1, Size => 9;
-
-   --  Type definition for PLLCFGR_PLLN
-   type PLLCFGR_PLLN_Field
-     (As_Array : Boolean := False)
-   is record
-      case As_Array is
-         when False =>
-            --  PLLN as a value
-            Val : Interfaces.STM32.UInt9;
-         when True =>
-            --  PLLN as an array
-            Arr : PLLCFGR_PLLN_Field_Array;
-      end case;
-   end record
-     with Unchecked_Union, Size => 9;
-
-   for PLLCFGR_PLLN_Field use record
-      Val at 0 range 0 .. 8;
-      Arr at 0 range 0 .. 8;
-   end record;
-
-   --  PLLCFGR_PLLP array element
-   subtype PLLCFGR_PLLP_Element is Interfaces.STM32.Bit;
-
-   --  PLLCFGR_PLLP array
-   type PLLCFGR_PLLP_Field_Array is array (0 .. 1) of PLLCFGR_PLLP_Element
-     with Component_Size => 1, Size => 2;
-
-   --  Type definition for PLLCFGR_PLLP
-   type PLLCFGR_PLLP_Field
-     (As_Array : Boolean := False)
-   is record
-      case As_Array is
-         when False =>
-            --  PLLP as a value
-            Val : Interfaces.STM32.UInt2;
-         when True =>
-            --  PLLP as an array
-            Arr : PLLCFGR_PLLP_Field_Array;
-      end case;
-   end record
-     with Unchecked_Union, Size => 2;
-
-   for PLLCFGR_PLLP_Field use record
-      Val at 0 range 0 .. 1;
-      Arr at 0 range 0 .. 1;
-   end record;
-
+   subtype PLLCFGR_PLLM_Field is Interfaces.STM32.UInt6;
+   subtype PLLCFGR_PLLN_Field is Interfaces.STM32.UInt9;
+   subtype PLLCFGR_PLLP_Field is Interfaces.STM32.UInt2;
    subtype PLLCFGR_PLLSRC_Field is Interfaces.STM32.Bit;
-   --  PLLCFGR_PLLQ array element
-   subtype PLLCFGR_PLLQ_Element is Interfaces.STM32.Bit;
-
-   --  PLLCFGR_PLLQ array
-   type PLLCFGR_PLLQ_Field_Array is array (0 .. 3) of PLLCFGR_PLLQ_Element
-     with Component_Size => 1, Size => 4;
-
-   --  Type definition for PLLCFGR_PLLQ
-   type PLLCFGR_PLLQ_Field
-     (As_Array : Boolean := False)
-   is record
-      case As_Array is
-         when False =>
-            --  PLLQ as a value
-            Val : Interfaces.STM32.UInt4;
-         when True =>
-            --  PLLQ as an array
-            Arr : PLLCFGR_PLLQ_Field_Array;
-      end case;
-   end record
-     with Unchecked_Union, Size => 4;
-
-   for PLLCFGR_PLLQ_Field use record
-      Val at 0 range 0 .. 3;
-      Arr at 0 range 0 .. 3;
-   end record;
+   subtype PLLCFGR_PLLQ_Field is Interfaces.STM32.UInt4;
 
    --  PLL configuration register
    type PLLCFGR_Register is record
       --  Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input
       --  clock
-      PLLM           : PLLCFGR_PLLM_Field :=
-                        (As_Array => False, Val => 16#0#);
+      PLLM           : PLLCFGR_PLLM_Field := 16#10#;
       --  Main PLL (PLL) multiplication factor for VCO
-      PLLN           : PLLCFGR_PLLN_Field :=
-                        (As_Array => False, Val => 16#0#);
+      PLLN           : PLLCFGR_PLLN_Field := 16#C0#;
       --  unspecified
       Reserved_15_15 : Interfaces.STM32.Bit := 16#0#;
       --  Main PLL (PLL) division factor for main system clock
-      PLLP           : PLLCFGR_PLLP_Field :=
-                        (As_Array => False, Val => 16#0#);
+      PLLP           : PLLCFGR_PLLP_Field := 16#0#;
       --  unspecified
       Reserved_18_21 : Interfaces.STM32.UInt4 := 16#0#;
       --  Main PLL(PLL) and audio PLL (PLLI2S) entry clock source
@@ -215,8 +109,7 @@ package Interfaces.STM32.RCC is
       Reserved_23_23 : Interfaces.STM32.Bit := 16#0#;
       --  Main PLL (PLL) division factor for USB OTG FS, SDIO and random number
       --  generator clocks
-      PLLQ           : PLLCFGR_PLLQ_Field :=
-                        (As_Array => False, Val => 16#0#);
+      PLLQ           : PLLCFGR_PLLQ_Field := 16#4#;
       --  unspecified
       Reserved_28_31 : Interfaces.STM32.UInt4 := 16#2#;
    end record
@@ -235,60 +128,8 @@ package Interfaces.STM32.RCC is
       Reserved_28_31 at 0 range 28 .. 31;
    end record;
 
-   --  CFGR_SW array element
-   subtype CFGR_SW_Element is Interfaces.STM32.Bit;
-
-   --  CFGR_SW array
-   type CFGR_SW_Field_Array is array (0 .. 1) of CFGR_SW_Element
-     with Component_Size => 1, Size => 2;
-
-   --  Type definition for CFGR_SW
-   type CFGR_SW_Field
-     (As_Array : Boolean := False)
-   is record
-      case As_Array is
-         when False =>
-            --  SW as a value
-            Val : Interfaces.STM32.UInt2;
-         when True =>
-            --  SW as an array
-            Arr : CFGR_SW_Field_Array;
-      end case;
-   end record
-     with Unchecked_Union, Size => 2;
-
-   for CFGR_SW_Field use record
-      Val at 0 range 0 .. 1;
-      Arr at 0 range 0 .. 1;
-   end record;
-
-   --  CFGR_SWS array element
-   subtype CFGR_SWS_Element is Interfaces.STM32.Bit;
-
-   --  CFGR_SWS array
-   type CFGR_SWS_Field_Array is array (0 .. 1) of CFGR_SWS_Element
-     with Component_Size => 1, Size => 2;
-
-   --  Type definition for CFGR_SWS
-   type CFGR_SWS_Field
-     (As_Array : Boolean := False)
-   is record
-      case As_Array is
-         when False =>
-            --  SWS as a value
-            Val : Interfaces.STM32.UInt2;
-         when True =>
-            --  SWS as an array
-            Arr : CFGR_SWS_Field_Array;
-      end case;
-   end record
-     with Unchecked_Union, Size => 2;
-
-   for CFGR_SWS_Field use record
-      Val at 0 range 0 .. 1;
-      Arr at 0 range 0 .. 1;
-   end record;
-
+   subtype CFGR_SW_Field is Interfaces.STM32.UInt2;
+   subtype CFGR_SWS_Field is Interfaces.STM32.UInt2;
    subtype CFGR_HPRE_Field is Interfaces.STM32.UInt4;
    --  CFGR_PPRE array element
    subtype CFGR_PPRE_Element is Interfaces.STM32.UInt3;
@@ -327,9 +168,9 @@ package Interfaces.STM32.RCC is
    --  clock configuration register
    type CFGR_Register is record
       --  System clock switch
-      SW           : CFGR_SW_Field := (As_Array => False, Val => 16#0#);
+      SW           : CFGR_SW_Field := 16#0#;
       --  Read-only. System clock switch status
-      SWS          : CFGR_SWS_Field := (As_Array => False, Val => 16#0#);
+      SWS          : CFGR_SWS_Field := 16#0#;
       --  AHB prescaler
       HPRE         : CFGR_HPRE_Field := 16#0#;
       --  unspecified
