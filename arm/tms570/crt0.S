@@ -6,7 +6,7 @@
  *                                                                          *
  *                               Assembly File                              *
  *                                                                          *
- *                      Copyright (C) 2011-2017 AdaCore                     *
+ *                      Copyright (C) 2011-2019 AdaCore                     *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -142,29 +142,13 @@ __gnat_init:
  	bl      main
 
         /* reboot the board if main would return */
-        bl      __exit
+        bl      _exit
 
 DEVID:                  .word 0xfffffff0
 DEVID_REVA:             .word 0x802aad05
 FEDACCTRL1:             .word 0xfff87008
 FEDACCTRL1_INITVAL:     .word 0x000a060A
 	.size __gnat_init, . - __gnat_init
-
-
-        /*********************************************************************
-         * __exit:                                                           *
-         *                                                                   *
-         * Forces a CPU reset.                                               *
-         *********************************************************************/
-        .globl  __exit
-        .type   __exit, %function
-__exit:
-	/* reset: write 0x8000 to SYSECR (16#FFFF_FFE0#) */
-        mov	r2, #0x8000
-	mvn	r3, #0
-        str	r2, [r3, #-31]
-	b	__exit
-        .size   __exit, . - __exit
 
 
         /*********************************************************************
@@ -285,3 +269,10 @@ fiqSp:          .word __fiq_stack_end
 irqSp:          .word __irq_stack_end
 userSp:         .word __stack_end
         .size   __gnat_init_cpu, . - __gnat_init_cpu
+
+/* provide a weak variant of CPU errata: if any, this can then be overloaded */
+        .weak  __cpu_errata
+        .type  __cpu_errata, %function
+__cpu_errata:
+        bx lr
+        .size  __cpu_errata, . - __cpu_errata

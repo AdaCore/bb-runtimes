@@ -15,6 +15,16 @@ _start_ram:
 .option pop
         la sp, __stack_end
 
+        /* The run-time doesn't support SMP yet, so all harts with an ID
+         * different than one are put in an infinite loop.
+         *
+         * We select hart one because it is the first core other than the
+         * monitor, and the monitor doesn't have floating point support.
+         */
+        li   t0, 1 /* hart id that will be allowed to run */
+        csrr t1, mhartid
+        bne t0, t1, infinite_loop
+
         /* Disable interrupts */
         li      t0, MSTATUS_MIE
         csrc    mstatus, t0
@@ -40,7 +50,10 @@ _start_ram:
 
         call main
         call __gnat_exit
-2:      j 2b
+
+infinite_loop:
+        wfi
+        j infinite_loop
 
         .globl __gnat_exit
         .type __gnat_exit,@function

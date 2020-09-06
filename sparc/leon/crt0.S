@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
  *             Copyright (C) 2003-2006 The European Space Agency            *
- *                      Copyright (C) 2003-2017 AdaCore                     *
+ *                      Copyright (C) 2003-2019 AdaCore                     *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -50,10 +50,10 @@
 
 /* Entry for traps which do nothing */
 
-#define DUMMY_TRAP              \
-        jmpl    %l2, %g0;       \
-        rett    %l2 + 4;        \
-        nop;                    \
+#define DUMMY_TRAP                    \
+        mov  %l2, %l1;                \
+        add  %l2, 4, %l2;             \
+        b    __gnat_return_from_trap; \
         nop;
 
 /* Entry for traps that should not occur. They cause program termination */
@@ -417,15 +417,15 @@ hardreset:
         nop
         .size hardreset, . - hardreset
 
-        .global _exit, __exit
+        .global _exit, _exit
 _exit:
-__exit:
+_exit:
         mov     1, %g1
         ta      0                       ! Halt if main would return ...
         nop
 
         .size _exit, . - _exit
-        .size __exit, . - __exit
+        .size _exit, . - _exit
 
 #if defined (LEON3)
 /* Slave CPU */
@@ -475,8 +475,10 @@ overflow:
         std     %i6, [%sp + I6_OFFSET]
 
         restore                         ! Increment CWP
-        jmpl    %l1, %g0                ! Load npc with saved pc
-        rett    %l2                     ! return from trap
+
+        ! %l1 is PC and %l2 is nPC
+        b __gnat_return_from_trap
+         nop
 
         .size overflow, . - overflow
 
@@ -507,8 +509,9 @@ underflow:
         save                            ! Come back to the trap window
         save                            ! where return address is located
 
-        jmpl    %l1, %g0
-        rett    %l2                     ! Return from trap
+        ! %l1 is PC and %l2 is nPC
+        b __gnat_return_from_trap
+         nop
 
         .size underflow, . - underflow
         .type flush_windows,#function
@@ -605,8 +608,12 @@ flush_windows:
         nop
         nop
 
-        jmp     %l2                       ! return to nPC
-        rett    %l2 + 4
+        mov %l2, %l1
+        add %l2, 4, %l2
+
+        ! %l1 is PC and %l2 is nPC
+        b __gnat_return_from_trap
+         nop
 
         .size flush_windows, . - flush_windows
 
@@ -621,10 +628,53 @@ mask_interrupt_level:
         nop
         nop
 
-        jmp     %l2
-        rett    %l2 + 4                         ! Return from trap
+        mov %l2, %l1
+        add %l2, 4, %l2
+
+        ! %l1 is PC and %l2 is nPC
+        b __gnat_return_from_trap
+         nop
 
         .size mask_interrupt_level, . - mask_interrupt_level
+
+
+/* Routine to return from trap, potentially with handling of Leon3 errata.
+   %l1 must be set to the PC after return, and %l2 to nPC after return. */
+
+        .global __gnat_return_from_trap
+        .type __gnat_return_from_trap,#function
+__gnat_return_from_trap:
+
+#if defined(LEON3)
+/* Comment the #define below to disable the handling of Leon3 errata
+   GRLIB-TN-0018 */
+#define LEON3_ERRATA_GRLIB_TN_0018
+#endif
+
+#if defined (LEON3_ERRATA_GRLIB_TN_0018)
+
+        /* LEON3FT RETT Restart Errata (GRLIB-TN-0018) workaround #1 */
+        mov %psr, %l0            ! save condition codes
+1:      lda [%g0] 2, %l3         ! read cache control register
+        srl %l3, 15, %l4         ! check bit 15 if flush in progress
+        andcc %l4, 1, %g0
+        bne 1b                   ! loop back if flushing
+        ! let following instruction go into the delay slot
+        andn %l3, 3, %l4         ! mask out DCS field
+        ! align cache line boundary at this point for optimum performance
+        sta %l4, [%g0] 2         ! write to disable Icache
+        mov %l0, %psr            ! delay + restore condition codes
+        or %l1, %l1, %l1         ! delay + catch rf parity error on l1
+        or %l2, %l2, %l2         ! delay + catch rf parity error on l2
+        sta %l3, [%g0] 2         ! write to re-enable Icache after rett
+        nop                      ! delay to ensure first insn after gets cached
+        jmp %l1
+        rett %l2
+#else
+        jmpl    %l1, %g0         ! PC
+        rett    %l2              ! nPC
+#endif
+        .size __gnat_return_from_trap, . - __gnat_return_from_trap
 
         .section ".rodata"
         .align  8

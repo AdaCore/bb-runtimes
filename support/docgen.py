@@ -1,9 +1,9 @@
 import shutil
 import os
 import os.path
-from files_holder import FilesHolder
 
-from . import fullpath
+from support.files_holder import FilesHolder
+from support import fullpath
 
 
 def docgen(boards, target, dest):
@@ -39,7 +39,7 @@ def docgen(boards, target, dest):
                 files[board.readme_file] = board.name
             readmes[board.name] = board.readme_file
         if board.name not in runtimes:
-            runtimes[board.name] = board.runtimes[:]
+            runtimes[board.name] = board.runtimes
 
     overall_readme = os.path.join(dest, "index.rst")
     with open(overall_readme, "w") as fp:
@@ -93,3 +93,4 @@ def docgen(boards, target, dest):
             fp.write(".. include:: %s\n\n" % fname)
             shutil.copy(fullpath(f), os.path.join(dest, "%s" % fname))
         fp.write("\n")
+        print("documentation successfully generated in %s" % dest)

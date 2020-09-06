@@ -1,0 +1,43 @@
+<?xml version="1.0" ?>
+
+<gprconfig>
+  <configuration>
+   <config><![CDATA[
+
+  This_Target := project'Canonical_Target;
+  Default_Arch := "";
+  Default_Proc := "";
+  Default_Version := "";
+
+  case This_Target is
+    when "arm-pikeos5" | "arm-sysgo-pikeos5" =>
+       Default_Arch := "arm";
+       Default_Proc := "v7hf";
+       Default_Version := "5.0";
+    when "arm-pikeos4.2" | "arm-sysgo-pikeos4" =>
+       Default_Arch := "arm";
+       Default_Proc := "v7hf";
+       Default_Version := "4.2";
+    when others =>
+       null;
+   end case;
+
+  Pikeos_Arch := external ("PIKEOS_ARCH", Default_Arch);
+  Pikeos_Proc := external ("PIKEOS_PROC", Default_Proc);
+  Pikeos_Version := external ("PIKEOS_VERSION", Default_Version);
+  Pikeos_Files := external ("PIKEOS_TARGET_FILES",
+                            "/opt/pikeos-" & Pikeos_Version & "/target/"
+                            & Pikeos_Arch & "/" & Pikeos_Proc & "/");
+
+   package Compiler is
+     for Leading_Required_Switches ("C") use
+        Compiler'Leading_Required_Switches ("C") &
+        ("-I" & Pikeos_Files & "/include/") &
+        ("-I" & Pikeos_Files & "/pikeos-native/include/") &
+        ("-I" & Pikeos_Files & "/pikeos-native/include/p4ext");
+   end Compiler;
+
+]]>
+   </config>
+  </configuration>
+</gprconfig>

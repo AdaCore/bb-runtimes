@@ -39,6 +39,8 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
+INCLUDE memory-map.ld
+
 _DEFAULT_STACK_SIZE = 4*1024;
 
 ENTRY(_start_ram);
@@ -53,13 +55,17 @@ SECTIONS
   } > sram_tx
 
   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > sram_ro
-  .ARM.exidx   :
-  {
-    PROVIDE_HIDDEN (__exidx_start = .);
-    *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    PROVIDE_HIDDEN (__exidx_end = .);
-  } > sram_ro
- 
+  /* .ARM.exidx is 4-bytes aligned, so __exidx_start needs to be
+     aligned too. Note that assigning the location counter also makes
+     ld attach the following symbols to the next section (instead of the
+     previous section which is the default), so will properly
+     consider the location counter of .ARM.exidx for __exidx_start and
+      __exidx_end and not the previous section's one. */
+  . = ALIGN(0x4);
+  PROVIDE_HIDDEN (__exidx_start = .);
+  .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > sram_ro
+  PROVIDE_HIDDEN (__exidx_end = .);
+
   .rodata :
   {
     *(.lit)

@@ -36,10 +36,12 @@
 
 /* This is a RISC-V specific version of this file */
 
+INCLUDE memory-map.ld
+
 SEARCH_DIR(.)
 __DYNAMIC  =  0;
 
-_DEFAULT_STACK_SIZE = 2*1024;
+_DEFAULT_STACK_SIZE = (40 * 1024);
 
 OUTPUT_ARCH("riscv")
 
@@ -49,10 +51,15 @@ SECTIONS
 {
   .text :
   {
+    __text = .;
     KEEP (*(SORT_NONE(.start)))
     *(.text .text.* .gnu.linkonce.t*)
     *(.gnu.warning)
   } > ram
+
+  .init  : { KEEP(*(.init)) } > ram
+  .ctors : { KEEP(SORT_BY_NAME(*)(.ctors)) } > ram
+  .dtors : { KEEP(SORT_BY_NAME(*)(.dtors)) } > ram
 
   .rodata :
   {
@@ -62,8 +69,25 @@ SECTIONS
     __rom_end = .;
   } > ram
 
+  .eh_frame_hdr :
+  {
+     __eh_frame_hdr = .;
+    *(.eh_frame_hdr)
+  } > ram
+
+  .eh_frame  :
+  {
+    KEEP (*(.eh_frame))
+  } > ram
+
+  .gcc_except_table :
+  {
+    *(.gcc_except_table .gcc_except_table.*)
+  } > ram
+
   .data :
   {
+    __data = .;
     __data_start = .;
     *(.data .data.* .gnu.linkonce.d*)
   } > ram
@@ -82,6 +106,12 @@ SECTIONS
   {
     *(.sdata .sdata.*)
     *(.gnu.linkonce.s.*)
+  } > ram
+
+  .sdata2 ALIGN(4) : ALIGN(4) /* Align both virtual and load addresses */
+  {
+    *(.sdata2 .sdata2.*)
+    *(.gnu.linkonce.s2.*)
   } > ram
 
   __data_end = .;
@@ -107,16 +137,15 @@ SECTIONS
    *(COMMON)
 
    /* Interrupt stacks. Statically allocated in System.BB.Interrupts */
-   . = ALIGN(8);
    __interrupt_stack_start = .;
    *(.interrupt_stacks)
+   . = ALIGN(0x10); /* Align stack to 128 bits as required in the ABI */
    __interrupt_stack_end = .;
 
-   . = ALIGN(0x8);    /* Align the stack to 64 bits */
 
    __stack_start = .;
    . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
-   . = ALIGN(0x8);
+   . = ALIGN(0x10); /* Align stack to 128 bits as required in the ABI */
    __stack_end = .;
 
    _end = .;

@@ -1,0 +1,73 @@
+M68020 Runtimes
+===============
+
+This BSP supports the M68020-based Motorola MVME133 VMEmodule as emulated by
+GNATemulator.
+
+
+Runtimes Supported
+------------------
+
+* zfp-m68020: ZFP with hard float
+* zfp-m68020-softfloat: ZFP with soft float
+
+
+Floating-Point Support
+----------------------
+
+GNAT supports both software and hardware floating-point operations. By default
+GNAT uses hard float unless the soft float runtimes are used. The soft float
+runtimes are postfixed by -softfloat.
+
+GNAT supports the single, double and extended real data formats offered by the
+MC68881 and MC68882 floating-point coprocessors when configure for hard float.
+When configured to use soft float, GNAT only supports the IEEE 754 single and
+double real data formats. Consequently, the predefine Real types have the
+following digits of precision:
+
++-------------+---------+--------------+-------------------+
+| Digits      |  Float  |  Long_Float  |  Long_Long_Float  |
++=============+=========+==============+===================+
+| Soft Float  |    6    |      15      |        15         |
++-------------+---------+--------------+-------------------+
+| Hard Float  |    6    |      15      |        18         |
++-------------+---------+--------------+-------------------+
+
+
+Resources Used
+--------------
+
+The runtime libraries provide a minimal version of package Ada.Text_IO
+supporting character- and string-based input and output routines. These are
+implemented using a board-specific UART. You can change the UART selection
+as well as the configuration (e.g., the baud rate). The source files are
+located in the gnat directory in a package named System.Text_IO
+(gnat/s-textio.adb). By default
+
+Memory Layout
+-------------
+
+The memory layout is controlled by linker scripts specific to whether the
+program is located in memory. GNAT for M68020 ships with a single script named
+common-RAM.ld that determines where program is loaded into memory. It is
+located in the ld directory.
+
+Script selection is controlled by a scenario variable declared in an XML
+file named runtime.xml that is located in the runtime root directory. The
+scenario variable is used to specify linker switches.
+
+The memory sections' locations and sizes are specified in memory-map.ld,
+also located in the ld directory. The XML also specifies this file as part
+of the linker switches.
+
+You can modify all of these scripts as required. Alternatively, these
+scripts can be overridden at link time by setting the environment variable
+LOADER to 'USER' and specifying the linker script via the '-T' linker switch.
+
+Serial Port
+-----------
+
+Ada.Text_IO uses the USART peripheral contained within MC68901 Mutlifuntion
+Peripheral for serial communication (with the MC68901 located at address
+16#FFF8_0000#). The USART is configured for 9600 baud, 8-bit characters, with
+no start, stop bits, or parity bits.

@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -38,6 +38,8 @@
 
 --  This is the TMS570 (ARMv7) version of this package
 
+with System.Board_Parameters;
+
 package System.BB.Parameters is
    pragma No_Elaboration_Code_All;
    pragma Pure;
@@ -48,23 +50,14 @@ package System.BB.Parameters is
 
    --  see system_tms570ls31.c for clock setup
 
-   Clock_Frequency  : constant := 180_000_000;
+   Clock_Frequency  : constant := System.Board_Parameters.Clock_Frequency;
    --  GCLK clock Hz: used by the Cortex-R cores
-
-   HCLK_Frequency   : constant := Clock_Frequency;
-   --  Main clock used by the high-speed system modules
-   --  synchronous with system clock
-
-   VCLK_Frequency   : constant := HCLK_Frequency / 2;
-   --  used by some system modules, peripheral modules accessed via the
-   --  Peripheral Central Resource controller
-   --  VCLK: 90 MHz
 
    Ticks_Per_Second : constant := Clock_Frequency / 8;
    --  RTICLK, with PRE1 used as source, and divider set to 2 ** 3
    --  RTICLK source can come from VCLK, or from the PLL1 with a divider.
    --  Here we use the latter.
-   --  RTICLK Value = 45 MHz.
+   --  RTICLK Value = 22 MHz.
 
    ----------------
    -- Interrupts --

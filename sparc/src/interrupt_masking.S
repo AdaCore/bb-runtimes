@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
  *             Copyright (C) 2003-2005 The European Space Agency            *
- *                     Copyright (C) 2003-2015 AdaCore                      *
+ *                     Copyright (C) 2003-2019 AdaCore                      *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -57,11 +57,6 @@
 
 #include "sparc.h"
 
-#ifdef XTRATUM
-/* Include the para-virtualized hypervisor services */
-#include <xm.h>
-#endif
-
 	.text
 	.align 4
 
@@ -70,14 +65,9 @@
 	.global disable_interrupts
 	.type   disable_interrupts,@function
 disable_interrupts:
-#ifdef XTRATUM
-	set	sparc_set_pil_nr, %o0		! mask all interrupts
-	__XM_AHC
-#else
 	mov	0xF, %o0			! set maximum PIL
 	ta	8				! call the trap handler in
 						! charge of changing PIL
-#endif
 	retl					! return from leaf subroutine
 	 nop
 
@@ -90,18 +80,8 @@ disable_interrupts:
 	.global enable_interrupts
 	.type   enable_interrupts,@function
 enable_interrupts:
-#ifdef XTRATUM
-	sll	%o0, 8, %l4             ! Put argument in PIL place
-	set	sparc_get_psr_nr, %o0
-	__XM_AHC
-	andn	%o0, PSR_PIL_MASK, %o0	! Erase the PIL field of PSR
-        or	%o0, %l4, %o1		! Write PSR with passed PIL
-	set	sparc_set_psr_nr, %o0
-	__XM_AHC
-#else
 	ta	8				! call the trap handler in
 						! charge of changing PIL
-#endif
 	retl					! return from leaf subroutine
 	 nop
 

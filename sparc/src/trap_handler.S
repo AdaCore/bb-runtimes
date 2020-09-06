@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
  *             Copyright (C) 2003-2005 The European Space Agency            *
- *                    Copyright (C) 2003-2017 AdaCore                       *
+ *                    Copyright (C) 2003-2019 AdaCore                       *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -37,11 +37,6 @@
 
 #include "sparc.h"
 
-#ifdef XTRATUM
-/* Include the para-virtualized hypervisor services */
-#include <xm.h>
-#endif
-
 /*
    This is the service routine shared by all user handlers (for synchronous
    and asynchronous traps). It prepares the machine for safe execution of
@@ -65,21 +60,6 @@
 	.global common_handler
 	.type   common_handler,@function
 common_handler:
-#ifdef XTRATUM
-	/* XtratuM needs to first get the PSR before it gets corrupted. For
-	   example, the ICC may be modified in this handler (as it actually
-	   happens later when checking whether the trap is synchronous or
-	   asynchronous). If we have an interrupt happening between two
-	   instructions like:
-	      cmp %l0, 10
-	      bge somewhere
-	   the corruption of the ICC has a devastating effect. */
-
-	set	sparc_get_psr_nr, %o0			! get psr
-	__XM_AHC
-	mov	%o0, %l0				! put psr in l0
-#endif
-
 	/* Switch to the interrupt stack, only if not already on it.  */
 	mov	%fp, %l6
 	set	__interrupt_stack_start, %l4
@@ -101,12 +81,6 @@ common_handler:
 	mov	%g5, %l5
 				! and %l6 contains the new stack pointer
 
-#ifdef XTRATUM
-	/* Make space for saving the interrupt context on the stack. XtratuM
-	   handles register windows, so we do not do the window overflow
-	   handling here. */
-	sub	%l6, INTERRUPT_STACK_FRAME_SIZE, %sp
-#else
 	/* When the SPARC executes a trap handler, it automatically decrements
 	   the CWP (like a save). We must check whether this new window is an
 	   invalid one and process a window overflow if this is the case.
@@ -186,7 +160,6 @@ call_trap_handler:
 	.cfi_window_save
 	.cfi_register	15,17	! o7 saved in l1
 	.cfi_def_cfa_register 30
-#endif
 
 .Lsave_isf:
 	/* Save the state of the interrupted task registers (PSR, PC, nPC, Y,
@@ -244,14 +217,6 @@ call_trap_handler:
 
 	andn	 %g3, SYNCHRONOUS_TRAP_BIT_MASK, %g3	! clear sync bit
 
-#ifdef XTRATUM
-	/* With XtratuM, extended interrupts (TT between 0xe0 and 0xff) are
-	   treated like hardware interrupts */
-
-	cmp	%g3, 0xe0
-	bge	.Lfix_pil
-#endif
-
 	/* If this is an external interrupt (TT between 0x11 and 0x1f), two
 	   things must be done: 1) set the PIL to mask off interrupts and
 	   2) change the stack. Note that the original PSR stored in l0 is
@@ -265,17 +230,12 @@ call_trap_handler:
 	 nop
 
 .Lfix_pil:
-#ifdef XTRATUM
-	set	sparc_set_pil_nr, %o0		! mask all interrupts
-        __XM_AHC
-#else
 	or	%l0, PSR_PIL_MASK, %l0		! mask all interrupts
 	/* Note: We use two wr instructions to change the PIL and the ET flag
 	   in the PSR, as specified in the SPARC v7.0 Instruction Set
 	   manual. */
 
 	wr	%l0, %psr			! set the appropriate PIL
-#endif
 
 .Lexecute_handler:
 	/* When being here the following values are in global registers:
@@ -294,13 +254,10 @@ call_trap_handler:
 	set	user_vector_table, %g2
 	ld	[%g2 + %g4], %g2	! g2 <- user's handler address
 
-/* Partitions on top of XtratuM cannot enable/disable traps */
-#ifndef XTRATUM
 	wr	%l0, PSR_ET_MASK, %psr	! ----- Enable traps. -----
 	nop                             ! But keep all interrupts masked
 	nop
 	nop
-#endif
 
 	/* Jump to the trap wrapper that will later call the user's handler */
 
@@ -314,14 +271,6 @@ call_trap_handler:
 
 	ld	[%sp + ISF_TT_OFFSET], %l3	    ! retrieve trap type
 	andn	%l3, SYNCHRONOUS_TRAP_BIT_MASK, %l3 ! without the sync bit
-
-#ifdef XTRATUM
-	/* With XtratuM, extended interrupts are treated like hardware
-	   interrupts */
-
-	cmp	%l3, 0xe0
-	bge	.Lcheck_context_switch
-#endif
 
 	/* If this is an external interrupt (TT between 0x11 and 0x1f), we
 	    must tell the executive that interrupt handling is finishing. */
@@ -360,14 +309,7 @@ call_trap_handler:
 .Lrestore_from_isf:
 	ld	[%sp + ISF_Y_OFFSET], %g2
 	wr	%g2, %y				! restore Y register
-
-#ifdef XTRATUM
-	set     sparc_get_psr_nr, %o0		! get psr
-        __XM_AHC
-	mov	%o0, %l0
-#else
 	rd	%psr, %l0
-#endif
 
 	set	(PSR_EF_MASK | PSR_CWP_MASK), %g3
 	and	%l0, %g3, %l6			! get current EF and CWP
@@ -392,9 +334,6 @@ call_trap_handler:
 	ldd	[%sp + ISF_I4_OFFSET], %i4
 	ldd	[%sp + ISF_I6_OFFSET], %i6
 
-/* XtratuM will handle invalid windows */
-
-#ifndef XTRATUM
 	/* If (CWP + 1) is an invalid window, we need to reload it. */
 
 	rd	%wim, %l4
@@ -433,8 +372,6 @@ call_trap_handler:
 
 .Lvalid_window:
 
-#endif
-
 .Ldecrease_nesting_level:
 	/* Decrease the nesting level for the task handling the interrupt */
 
@@ -445,7 +382,6 @@ call_trap_handler:
 	add	%l6, -1, %l6
 	st	%l6, [%l5 + INT_NESTING_OFFSET]
 
-#if defined (LEON) && !defined (XTRATUM)
 	/* Before leaving, restore the base state of the Cache Control
 	   Register if we are at the outermost interrupt. */
 
@@ -467,21 +403,9 @@ call_trap_handler:
 # endif
 
 .Lreturn_from_trap:
-#endif
 
 	/* Set the PSR as it was before the trap and return from trap */
 
-#ifdef XTRATUM
-	mov	%l0, %o1			! Use o1 to pass the saved PSR
-	set	sparc_set_psr_nr, %o0		! as argument to the hypercall
-	__XM_AHC
-
-	restore
-	save
-
-	set	sparc_iret_nr, %o0
-	__XM_AHC
-#else
 	/* Adjust return address for synchronous traps. The procedure which
 	   installs the trap handler will force bit 8 to 1 in case of
 	   synchronous traps (those that want to return to the instruction
@@ -506,16 +430,21 @@ call_trap_handler:
 	 						! later by rett
 .Lreturn_to_next:
 	nop						! delay slots after
-	nop						! wrpsr (before rett) 
-	jmp	%l2
-	 rett	%l2 + 4
+	nop						! wrpsr (before rett)
+        mov %l2, %l1
+        add %l2, 4, %l2
+
+        ! %l1 is PC and %l2 is nPC
+        b __gnat_return_from_trap
+         nop
 
 .Lreturn_to_interrupted:
 	nop						! delay slots after
 	nop						! wrpsr (before rett)
-	jmp	%l1
-	 rett	 %l2
+
+        ! %l1 is PC and %l2 is nPC
+        b __gnat_return_from_trap
+         nop
 	.cfi_endproc
-#endif
 
 	.size call_trap_handler, . - call_trap_handler

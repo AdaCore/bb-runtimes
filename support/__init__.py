@@ -9,6 +9,7 @@ _SRC_SEARCH_PATH = [REPO_DIR, ]
 
 
 def add_source_search_path(path):
+    """Adds an additional default search path for source files"""
     abspath = os.path.abspath(path)
 
     if abspath not in _SRC_SEARCH_PATH:
@@ -32,7 +33,8 @@ def fullpath(filename):
     return os.path.join(REPO_DIR, filename)
 
 
-def datapath(filename):
+def getdatafilepath(filename):
+    """Retrieves the path of filename in the data directory"""
     return os.path.join(DATA_DIR, filename)
 
 
@@ -42,3 +44,14 @@ def readfile(filename):
     res = fp.read()
     fp.close()
     return res
+
+
+def is_string(arg):
+    """Handles differencies in behavior between python2 and 3 concerning strings
+
+    This checks the type of arg against basestring on python2 and against
+    str on python3"""
+    if sys.version_info[0] < 3:
+        return isinstance(arg, basestring)
+    else:
+        return isinstance(arg, str)

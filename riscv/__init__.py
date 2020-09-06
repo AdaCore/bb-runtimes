@@ -1,3 +1,4 @@
+from support import readfile
 from support.bsp_sources.target import DFBBTarget
 
 
@@ -18,6 +19,20 @@ class RiscV64(DFBBTarget):
     def system_ads(self):
         return {'zfp': 'system-xi-riscv.ads'}
 
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(RiscV64, self).dump_runtime_xml(rts_name, rts)
+        if rts_name == 'ravenscar-full':
+            cnt = cnt.replace(
+                '"-nostartfiles"',
+                '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
+        return cnt
+
+    def amend_rts(self, rts_profile, conf):
+        super(DFBBTarget, self).amend_rts(rts_profile, conf)
+        if rts_profile == 'ravenscar-full':
+            conf.config_files.update(
+                {'link-zcx.spec': readfile('riscv/link-zcx.spec')})
+
 
 class Spike(RiscV64):
     @property
@@ -35,14 +50,14 @@ class Spike(RiscV64):
 
     def __init__(self):
         super(Spike, self).__init__()
+        self.add_linker_script('riscv/spike/memory-map.ld')
         self.add_linker_script('riscv/spike/common-RAM.ld', loader='RAM')
-        self.add_linker_script('riscv/spike/memory-map.ld', loader='RAM')
-        self.add_sources('crt0',
-                         ['riscv/start-ram.S',
-                          'riscv/src/riscv_host_target_interface.ads',
-                          'riscv/src/riscv_host_target_interface.adb',
-                          'src/s-macres__riscv-htif.adb',
-                          'src/s-textio__riscv-htif.adb'])
+        self.add_gnat_sources(
+            'riscv/start-ram.S',
+            'riscv/src/riscv_host_target_interface.ads',
+            'riscv/src/riscv_host_target_interface.adb',
+            'src/s-macres__riscv-htif.adb',
+            'src/s-textio__riscv-htif.adb')
 
 
 class Unleashed(RiscV64):
@@ -76,19 +91,19 @@ class Unleashed(RiscV64):
     def __init__(self):
         super(Unleashed, self).__init__()
 
+        self.add_linker_script('riscv/sifive/unleashed/memory-map.ld')
         self.add_linker_script('riscv/sifive/unleashed/common-RAM.ld',
                                loader='RAM')
-        self.add_linker_script('riscv/sifive/unleashed/memory-map.ld',
-                               loader='RAM')
-        self.add_sources('crt0', ['riscv/sifive/unleashed/start-ram.S',
-                                  'riscv/sifive/fe310/svd/i-fe310.ads',
-                                  'riscv/sifive/fe310/svd/i-fe310-uart.ads',
-                                  'riscv/sifive/fe310/svd/i-fe310-gpio.ads',
-                                  'riscv/sifive/fe310/svd/i-fe310-plic.ads',
-                                  'riscv/sifive/fe310/s-macres.adb',
-                                  'riscv/sifive/hifive1/s-textio.adb',
-                                  'riscv/src/riscv_def.h'])
-        self.add_sources('gnarl', [
+        self.add_gnat_sources(
+            'riscv/sifive/unleashed/start-ram.S',
+            'riscv/sifive/fe310/svd/i-fe310.ads',
+            'riscv/sifive/fe310/svd/i-fe310-uart.ads',
+            'riscv/sifive/fe310/svd/i-fe310-gpio.ads',
+            'riscv/sifive/fe310/svd/i-fe310-plic.ads',
+            'riscv/sifive/fe310/s-macres.adb',
+            'riscv/sifive/hifive1/s-textio.adb',
+            'riscv/src/riscv_def.h')
+        self.add_gnarl_sources(
             'riscv/sifive/fu540/svd/a-intnam.ads',
             'src/s-bbpara__riscv.ads',
             'src/s-bbbopa__unleashed.ads',
@@ -103,7 +118,7 @@ class Unleashed(RiscV64):
             'riscv/src/context_switch.S',
             'riscv/src/trap_handler.S',
             'riscv/src/s-bbripl.ads',
-            'riscv/sifive/fe310/s-bbripl.adb'])
+            'riscv/sifive/fe310/s-bbripl.adb')
 
 
 class RiscV32(DFBBTarget):
@@ -146,19 +161,19 @@ class HiFive1(RiscV32):
 
     def __init__(self):
         super(HiFive1, self).__init__()
+        self.add_linker_script('riscv/sifive/hifive1/memory-map.ld')
         self.add_linker_script('riscv/sifive/hifive1/common-ROM.ld',
                                loader='ROM')
-        self.add_linker_script('riscv/sifive/hifive1/memory-map.ld',
-                               loader='ROM')
-        self.add_sources('crt0', ['riscv/sifive/fe310/start-rom.S',
-                                  'riscv/sifive/fe310/svd/i-fe310.ads',
-                                  'riscv/sifive/fe310/svd/i-fe310-uart.ads',
-                                  'riscv/sifive/fe310/svd/i-fe310-gpio.ads',
-                                  'riscv/sifive/fe310/svd/i-fe310-plic.ads',
-                                  'riscv/sifive/fe310/s-macres.adb',
-                                  'riscv/sifive/hifive1/s-textio.adb',
-                                  'riscv/src/riscv_def.h'])
-        self.add_sources('gnarl', [
+        self.add_gnat_sources(
+            'riscv/sifive/fe310/start-rom.S',
+            'riscv/sifive/fe310/svd/i-fe310.ads',
+            'riscv/sifive/fe310/svd/i-fe310-uart.ads',
+            'riscv/sifive/fe310/svd/i-fe310-gpio.ads',
+            'riscv/sifive/fe310/svd/i-fe310-plic.ads',
+            'riscv/sifive/fe310/s-macres.adb',
+            'riscv/sifive/hifive1/s-textio.adb',
+            'riscv/src/riscv_def.h')
+        self.add_gnarl_sources(
             'riscv/sifive/fe310/svd/a-intnam.ads',
             'src/s-bbpara__riscv.ads',
             'src/s-bbbopa__hifive1.ads',
@@ -173,7 +188,7 @@ class HiFive1(RiscV32):
             'riscv/src/context_switch.S',
             'riscv/src/trap_handler.S',
             'riscv/src/s-bbripl.ads',
-            'riscv/sifive/fe310/s-bbripl.adb'])
+            'riscv/sifive/fe310/s-bbripl.adb')
 
 
 class PicoRV32(RiscV32):
@@ -203,16 +218,15 @@ class PicoRV32(RiscV32):
         super(PicoRV32, self).__init__()
 
         # Use the same base linker script as the HiFive1
+        self.add_linker_script('riscv/picorv32/memory-map.ld')
         self.add_linker_script('riscv/sifive/hifive1/common-ROM.ld',
                                loader='ROM')
 
-        self.add_linker_script('riscv/picorv32/memory-map.ld',
-                               loader='ROM')
-
         # Use the same startup code as the HiFive1
-        self.add_sources('crt0', ['riscv/sifive/fe310/start-rom.S',
-                                  'riscv/sifive/fe310/s-macres.adb',
-                                  'riscv/picorv32/s-textio.adb'])
+        self.add_gnat_sources(
+            'riscv/sifive/fe310/start-rom.S',
+            'riscv/sifive/fe310/s-macres.adb',
+            'riscv/picorv32/s-textio.adb')
 
 
 class RV32IMC(RiscV32):
@@ -242,5 +256,6 @@ class RV32IMC(RiscV32):
     def __init__(self):
         super(RV32IMC, self).__init__()
 
-        self.add_sources('crt0', ['riscv/sifive/fe310/s-macres.adb',
-                                  'src/s-textio__null.adb'])
+        self.add_gnat_sources(
+            'riscv/sifive/fe310/s-macres.adb',
+            'src/s-textio__null.adb')

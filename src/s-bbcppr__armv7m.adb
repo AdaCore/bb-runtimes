@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2019, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -457,27 +457,46 @@ package body System.BB.CPU_Primitives is
    -----------------------
 
    procedure Enable_Interrupts (Level : Integer) is
-   begin
-      if not Is_ARMv6m then
-         --  BASEPRI is not available in the armv6-m architecture, it was
-         --  introduced in armv7-m. There's only one level of trap.
 
-         --  Set the BASEPRI according to the specified level. PRIMASK is still
-         --  set, so the change does not take effect until the next Asm.
+      procedure Clear_PRIMASK_Register;
+      --  Wrapper around the Clear PRIMASK register instruction
+
+      ----------------------------
+      -- Clear_PRIMASK_Register --
+      ----------------------------
+
+      procedure Clear_PRIMASK_Register is
+      begin
+         --  Enabling interrupts will cause any pending interrupts to take
+         --  effect. The instruction barrier is required by the architecture
+         --  to ensure subsequent instructions are executed with interrupts
+         --  enabled and at the right hardware priority level.
+
+         Asm ("cpsie i" & NL &
+              "isb",
+              Clobber => "memory", Volatile => True);
+      end Clear_PRIMASK_Register;
+
+   begin
+      if Is_ARMv6m then
+         --  The absence of the BASEPRI register on the ARMv6-M architecture
+         --  means only one interrupt priority can be supported on this
+         --  architecture. Consequently, interrupts have to remain
+         --  disabled while we are at a priority level of Interrupt_Priority,
+         --  otherwise it would allow interrupt handlers to run when a task or
+         --  another interrupt handler is running at this level; creating
+         --  a scenario where a protected object's mutual exclusion may be
+         --  violated.
+
+         if Level /= Interrupt_Priority'Last then
+            Clear_PRIMASK_Register;
+         end if;
+      else
+         --  Set BASEPRI to mask interrupts below Level and enable interrupts
 
          Board_Support.Interrupts.Set_Current_Priority (Level);
-
+         Clear_PRIMASK_Register;
       end if;
-
-      --  The following enables interrupts and will cause any pending
-      --  interrupts to take effect. The barriers and their placing are
-      --  essential, otherwise a blocking operation might not cause an
-      --  immediate context switch, violating mutual exclusion.
-
-      Asm ("cpsie i" & NL
-         & "dsb"     & NL
-         & "isb",
-           Clobber => "memory", Volatile => True);
    end Enable_Interrupts;
 
 end System.BB.CPU_Primitives;

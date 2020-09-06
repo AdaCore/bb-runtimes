@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -38,6 +38,8 @@
 
 --  This is the TMS570 (ARMv7) version of this package
 
+with System.Board_Parameters;
+
 package System.BB.Parameters is
    pragma No_Elaboration_Code_All;
    pragma Pure;
@@ -48,23 +50,9 @@ package System.BB.Parameters is
 
    --  see system_tms570lc43.c for clock setup
 
-   Clock_Frequency  : constant Natural := 300_000_000;
-   --  GCLK clock Hz: used by the Cortex-R cores
-   --  GCLK Max.  = 300MHz on the TMS570LC43x
-   --  GCLK Value = Max.
+   Clock_Frequency  : constant := System.Board_Parameters.Clock_Frequency;
 
-   HCLK_Frequency   : constant := Clock_Frequency / 2;
-   --  Main clock used by the high-speed system modules
-   --  HCLK Max.  = 150MHz
-   --  HCLK Value = Max.
-
-   VCLK_Frequency   : constant := HCLK_Frequency / 2;
-   --  used by some system modules, peripheral modules accessed via the
-   --  Peripheral Central Resource controller.
-   --  VCLK Max.  = 110MHz
-   --  VCLK Value = 75 MHz
-
-   Ticks_Per_Second : constant := Clock_Frequency / 8;
+   Ticks_Per_Second : constant := System.Board_Parameters.Clock_Frequency / 8;
    --  RTICLK, with PRE1 used as source, and divider set to 2 ** 3
    --  RTICLK source can come from VCLK, or from the PLL1 with a divider.
    --  Here we use the latter.
@@ -78,12 +66,14 @@ package System.BB.Parameters is
    --  These definitions are in this package in order to isolate target
    --  dependencies.
 
-   subtype Interrupt_Range is Natural range 0 .. 95;
+   subtype Interrupt_Range is Natural range 0 .. 126;
    --  Number of interrupts supported by the VIC. For the TMS570 interrupts,
-   --  we really only consider the 95 usable interrupt channels. The run time
-   --  assumes the interrupt source to interrupt channel map is direct (1:1),
-   --  as is the default, but the user can change this as long as the IRQ used
-   --  by the system for alarms stays unchanged.
+   --  we really consider the 126 usable interrupt channels even though not all
+   --  are used. Note that channel 127 exists but does not have a dedicated
+   --  vector and shall not be used.
+   --  The run time assumes the interrupt source to interrupt
+   --  channel map is direct (1:1), as is the default, but the user can change
+   --  this as long as the IRQ used by the system for alarms stays unchanged.
 
    Trap_Vectors : constant := 7;
    --  ARM in general has these traps:

@@ -44,7 +44,7 @@ all_scenarios = {
     # How does the runtime integrate C support
     'Add_C_Integration': ['no', 'ada_clib', 'newlib'],
     # PikeOS-specific
-    'Pikeos_Version': ['pikeos3', 'pikeos4', 'pikeos4.2'],
+    'Pikeos_Version': ['pikeos3', 'pikeos4', 'pikeos4.2', 'pikeos5'],
     # Whether to add the math library in the runtime
     'Add_Math_Lib': [
         'no', 'softfloat', 'hardfloat',
@@ -69,8 +69,6 @@ all_scenarios = {
     'Add_Value_Enum': ['no', 'yes'],
     'Add_Value_Int': ['no', 'yes'],
     'Add_Value_LL_Int': ['no', 'yes'],
-    'Add_Value_Based_Int': ['no', 'yes'],
-    'Add_Value_LL_Based_Int': ['no', 'yes'],
     'Add_Value_Decimal': ['no', 'yes'],
     'Add_Value_LL_Decimal': ['no', 'yes'],
     'Add_Value_Float': ['no', 'yes'],
@@ -333,6 +331,7 @@ sources = {
             'libgnat/s-io.ads', 'hie/s-io.adb',
             'libgnat/s-mantis.ads', 'libgnat/s-mantis.adb',
             'libgnat/s-mastop.ads', 'libgnat/s-mastop.adb',
+            'libgnat/s-memory.ads', 'hie/s-memory__xi.adb',
             'libgnat/s-pooglo.ads', 'libgnat/s-pooglo.adb',
             'libgnat/s-pooloc.ads', 'libgnat/s-pooloc.adb',
             'libgnat/s-poosiz.ads', 'libgnat/s-poosiz.adb',
@@ -379,13 +378,9 @@ sources = {
             'libgcc/unwind-pe.h'],
         'bb_srcs': [
             'hie/adaint-xi.c',
-            'hie/s-init__bb.adb',
-            'libgnat/s-memory.ads',
-            'hie/s-memory__xi.adb'],
+            'hie/s-init__bb.adb'],
         'pikeos_srcs': [
-            'hie/s-init__pikeos.adb',
-            'hie/s-memory__pikeos.ads',
-            'hie/s-memory__pikeos.adb']
+            'hie/s-init__pikeos.adb']
     },
 
     # Memory operations:
@@ -548,18 +543,6 @@ sources = {
             'libgnat/s-valllu.ads', 'libgnat/s-valllu.adb'],
         'requires': ['Add_Value_Utils:yes']
     },
-    'value/based_int': {
-        'conditions': ['Add_Value_Based_Int:yes'],
-        'srcs': [
-            'libgnat/s-imgbiu.ads', 'libgnat/s-imgbiu.adb'],
-        'requires': ['Add_Value_Utils:yes']
-    },
-    'value/based_int_ll': {
-        'conditions': ['Add_Value_LL_Based_Int:yes'],
-        'srcs': [
-            'libgnat/s-imgllb.ads', 'libgnat/s-imgllb.adb'],
-        'requires': ['Add_Value_Utils:yes']
-    },
     'value/char': {
         'conditions': ['Add_Value_Char:yes'],
         'srcs': [
@@ -700,7 +683,8 @@ sources = {
         'requires': ['Add_IO_Exceptions:yes'],
         'srcs': [
             'libgnat/a-stream.ads', 'libgnat/a-stream.adb',
-            'libgnat/s-stratt.ads', 'libgnat/s-stratt.adb']
+            'libgnat/s-stratt.ads', 'libgnat/s-stratt.adb',
+            'libgnat/s-statxd.ads', 'libgnat/s-statxd.adb']
     },
 
     # Zero-cost-exception support
@@ -731,7 +715,7 @@ sources = {
     'full/zcx-riscv': {
         'conditions':
         ['RTS_Profile:ravenscar-full', 'CPU_Family:riscv64,riscv32'],
-        'srcs': ['hie/s-traceb__ppc.adb']
+        'srcs': ['hie/s-traceb__riscv.adb']
     },
 
     'full/zcx-leon': {
@@ -889,7 +873,6 @@ sources = {
             'hie/s-tasdeb__xi.ads', 'hie/s-tasdeb__raven.adb',
             'libgnarl/s-tasinf.ads', 'libgnarl/s-tasinf.adb',
             'hie/s-taskin.adb',
-            'hie/s-taspri.ads',
             'libgnarl/s-tasres.ads',
             'libgnarl/s-tpobmu.ads'],
         'bb_srcs': [
@@ -907,6 +890,7 @@ sources = {
             'hie/s-interr.adb',
             'hie/s-multip.ads', 'hie/s-multip.adb',
             'hie/s-taprop__bb.adb',
+            'hie/s-taspri.ads',
             'hie/s-tpobmu.adb',
             'hie/s-osinte.ads'],
         'pikeos_srcs': [
@@ -916,6 +900,7 @@ sources = {
             'hie/s-multip__raven-default.adb',
             'hie/s-musplo.adb',
             'hie/s-taprop__pikeos.adb',
+            'hie/s-taspri__pikeos.ads',
             'libgnarl/s-tpobmu.adb']
     },
     'gnarl/pikeos3': {
@@ -933,6 +918,13 @@ sources = {
 
     'gnarl/pikeos4.2': {
         'conditions': ['Pikeos_Version:pikeos4.2'],
+        'pikeos_srcs': [
+            'hie/s-interr__pikeos4.adb',
+            'hie/s-osinte__pikeos4.ads', 'hie/s-osinte__pikeos42.adb']
+    },
+
+    'gnarl/pikeos5': {
+        'conditions': ['Pikeos_Version:pikeos5'],
         'pikeos_srcs': [
             'hie/s-interr__pikeos4.adb',
             'hie/s-osinte__pikeos4.ads', 'hie/s-osinte__pikeos42.adb']

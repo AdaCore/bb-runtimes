@@ -1,0 +1,109 @@
+Microsemi CoreCortexM1 Runtimes
+================================
+
+This BSP supports the Microsemi CoreCortexM1 v2.0 and v3.0 processors for the
+Microsemi PolarFire and RTG4 FPGA families.
+
+
+Required IP
+----------
+
+* CoreCortexM1
+* CoreUARTapb (for Ada.Text_IO)
+
+
+Runtimes Supported
+------------------
+
+* ZFP
+* Ravenscar-SFP
+* Ravenscar-Full
+
+
+Using the BSP
+-------------
+
+To install the Microsemi CoreCortexM1 runtimes first ensure that the GNAT Pro
+arm-elf compiler is on your path. The Ravenscar-SFP runtime can then be
+installed through the following commands:
+
+$ cd BSPs
+$ gprbuild -j0 -P ravenscar_sfp_microsemi_m1.gpr
+$ gprinstall -p -P ravenscar_sfp_microsemi_m1.gpr
+
+The other runtimes can be installed by specifying the corresponding project
+file within the BSPs directory. The runtime can then be used by your
+application by:
+
+* selecting the runtime in GPS through the project properties dialog;
+* adding the ``for Runtime ("ada") use "ravenscar-sfp-microsemi-m1";``
+  attribute to your project file; or
+* passing the ``--RTS=ravenscar-sfp-microsemi-m1`` switch to gprbuild.
+
+
+Resources Used
+--------------
+
+The Ravenscar runtimes use the SysTick interrupt to implement Ada semantics for
+time, i.e., delay statements and package Ada.Real_Time. The SysTick interrupt
+handler runs at highest priority. Additionally, the PendSV and SVCall
+interrupts are reserved for runtime use.
+
+Ada.Text_IO on the the Microsemi CoreCortexM1 runtimes is configured to
+utilise the Microsemi CoreUARTapb IP at an address of 16#4200_0000#. The
+CoreUARTapb memory address can be changed by updating the CoreUARTapb_Base
+constant in BSPs/cortex-m/microsemi-m1/src/crt0/i-microsemi.ads prior to
+building the runtime.
+
+
+Memory Layout
+-------------
+
+The Microsemi CoreCortexM1 is configured for the following memory space:
+
+  FPGA SRAM - ORIGIN: 0x00000000, SIZE: 128KB
+  ITCM -      ORIGIN: 0x10000000, SIZE: 64KB
+  DTCM -      ORIGIN: 0x20000000, SIZE: 64KB
+
+The size of each region can be modified by updating
+BSPs/cortex-m/microsemi-m1/link/memory-map.ld. For example, if you are using
+the CoreCortexM1 v3.0 you may wish to increase the ITCM and DTCM sizes to
+128KB to account for the RAM available on this core.
+
+Two loader options are provided: TCM (default) and RAM. The RAM loader stores
+and runs the program out of SRAM at the memory address 0x0. The TCM loader on
+the other hand stores the program in SRAM, and at startup loads the text
+section of the program into the ITCM and data sections into DTCM. Once the
+data has been copied, the TCM loader will remap the ITCM region to
+16#00000000# to execute the program out of the ITCM. The loader can be chosen
+by providing the -XLOADER switch to GPRbuild.
+
+
+System Clock
+------------
+
+The Microsemi CoreCortexM1 runtime is configured for a 50MHz clock. If your
+CoreCortexM1 is provided with a different clock rate, update the
+Clock_Frequency constant in BSPs/cortex-m/microsemi-m1/src/crt0/s-bbbopa.ads
+before building either Ravenscar runtime.
+
+
+Interrupts
+----------
+
+The Microsemi CoreCortexM1 runtime supports 32 IRQ interrupts. Interrupt
+priority are not supported by the Ravenscar runtimes. The interrupt names are
+located in Ada.Interrupts.Names (a-intnam.ads).
+
+
+Serial Port
+-----------
+
+The Microsemi CoreCortexM1 runtime libraries provide a minimal version of
+package Ada.Text_IO supporting character and string-based input and output
+routines through the CoreUARTapb IP core. The device is configured for
+115200 baudrate, 8-bit data, 1 stop bit and no parity. The System.Text_IO
+package (BSPs/cortex-m/microsemi-m1/src/crt0/s-textio.adb) may be modified
+if a different configuration is desired.
+
+If Ada.Text_IO is not used the user is free to use the CoreUARTapb device.

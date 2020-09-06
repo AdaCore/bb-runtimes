@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2019, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -51,12 +51,14 @@ package body System.BB.CPU_Primitives is
    PSR      : constant Context_Id :=  8;
    WIM      : constant Context_Id := 17;
    WIN      : constant Context_Id := 18;
+   FSR      : constant Context_Id := 19;
    O0       : constant Context_Id :=  0;
    INT      : constant Context_Id := 52;
-   --  These are the registers that are initialized: Program Counter, Stack
-   --  Pointer, Window Invalid Mask, and Processor State Register. Moreover,
-   --  the first input argument, the number of register windows to be restored,
-   --  and the interrupt nesting level are also initialized.
+   --  these are the registers that are initialized: Program Counter, Stack
+   --  Pointer, Window Invalid Mask, Floating-Point State Register, and
+   --  Processor State Register. Moreover, the first input argument, the number
+   --  of register windows to be restored, and the interrupt nesting level are
+   --  also initialized.
 
    Base_CCR : constant Context_Id := Base_CCR_Context_Index;
    CCR      : constant Context_Id := CCR_Context_Index;
@@ -287,6 +289,10 @@ package body System.BB.CPU_Primitives is
         (if Get_CCR'Address = Null_Address then Null_Address else Get_CCR);
       Buffer (Base_CCR) := Buffer (CCR);
 
+      --  The Floating-Point State Register is initialized to 0
+
+      Buffer (FSR) := SSE.To_Address (0);
+
       --  The rest of registers do not need to be initialized
 
    end Initialize_Context;
@@ -296,11 +302,8 @@ package body System.BB.CPU_Primitives is
    --------------------
 
    procedure Initialize_CPU is
-      procedure Asm_Initialize_Floating_Point;
-      pragma Import (Asm, Asm_Initialize_Floating_Point,
-                     "initialize_floating_point");
    begin
-      Asm_Initialize_Floating_Point; --  Do in Ada???
+      null;
    end Initialize_CPU;
 
    ----------------------------

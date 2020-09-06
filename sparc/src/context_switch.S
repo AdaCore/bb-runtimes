@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
  *             Copyright (C) 2003-2005 The European Space Agency            *
- *                     Copyright (C) 2003-2017 AdaCore                      *
+ *                     Copyright (C) 2003-2019 AdaCore                      *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -28,14 +28,9 @@
  *                                                                          *
  ****************************************************************************/
 
-/* This file is a SPARC (V7/V8) specific implementation */
+/* This file is a SPARC (V8) specific implementation */
 
 #include "sparc.h"
-
-#ifdef XTRATUM
-/* Include the para-virtualized hypervisor services */
-#include <xm.h>
-#endif
 
 /* procedure context_switch.
    This routine performs a context switch between the two tasks that are
@@ -86,13 +81,6 @@ __gnat_context_switch:
 .Lsave_running_task_status:
 	/* No traps can happen saving the task status */
 
-#ifdef XTRATUM
-	st	%o0, [%sp + L0_OFFSET]		! temporary storage for o0
-	set sparc_flush_regwin_nr, %o0		! flush register windows
-	__XM_AHC
-	ld	[%sp + L0_OFFSET], %o0		! recover o0
-#endif
-
 	/* Save the current window on the stack */
 
 	std	%l0, [%sp + L0_OFFSET]
@@ -122,9 +110,6 @@ __gnat_context_switch:
 	ld	[%l0 + %l1], %l1		! get pointer to the running
 						! thread.
 
-/* We do not control the cache on XtratuM. XtratuM itself must be in charge
-   of this handling. */
-#if defined (LEON) && !defined (XTRATUM)
 .Lstore_ccr:
 #if defined (LEON2)
 	set	0x80000000, %l0
@@ -133,7 +118,6 @@ __gnat_context_switch:
 	lda	[%g0] 2, %l0
 #endif
 	st	%l0, [%l1 + CCR_OFFSET]
-#endif
 
 	/* Save global and output registers in the task descriptor area. */
 
@@ -158,21 +142,13 @@ __gnat_context_switch:
 
 	/* Save PSR, WIM, and Y registers */
 
-#ifdef XTRATUM
-	set 	sparc_get_psr_nr, %o0
-	__XM_AHC
-	st	%o0, [%l1 + PSR_OFFSET]		! save status register
-#else
 	rd	%psr, %g6
 	st	%g6, [%l1 + PSR_OFFSET]		! save status register
-#endif
 
 	rd	%y, %g2
 	NOP_FIX_GRLIB_TN_0009
 	st	%g2, [%l1 + Y_OFFSET]		! save Y register
 
-/* For XtratuM the register windows were already flushed in the beginning */
-#ifndef XTRATUM
 	rd	%wim, %g2
 	NOP_FIX_GRLIB_TN_0009
 	st	%g2, [%l1 + WIM_OFFSET]		! save WIM register
@@ -244,13 +220,12 @@ __gnat_context_switch:
 	ba	.Lsave_frame_loop
 	 std	 %i6, [%sp + I6_OFFSET]		! using the delay slot
 #endif
-	
+
 .Ldone_flushing:
 	/* We store the number of extra windows (apart from the one that was
 	   being used by the task) that have been saved on the stack. */
 
 	st	%g4, [%g1 + NWIN_OFFSET]
-#endif
 
 .Lupdate_running_task:
 	/* Update the value of the new running thread */
@@ -275,13 +250,6 @@ __gnat_context_switch:
 	   so that all the data manipulation executed from here until the end
 	   must be done using global registers. */
 
-#ifdef XTRATUM
-	ld	[%g1 + PSR_OFFSET], %o1		! Use o1 to pass the saved PSR
-	set     PSR_EF_MASK, %g7                ! as argument to the hypercall
-	andn	%o1, %g7, %o1                   ! o1 = saved PSR with FP disabled
-	set	sparc_set_psr_nr, %o0
-	__XM_AHC
-#else
 	ld	[%g1 + PSR_OFFSET], %g4		! g4 = saved PSR
 	set	PSR_EF_MASK, %g7
 	andn	%g4, %g7, %g4			! g4 = saved PSR with FP disabled
@@ -300,13 +268,9 @@ __gnat_context_switch:
 
 	ld	[%g1 + WIM_OFFSET], %g3		! retrieve the WIM register
 	wr	%g3, %wim
-#endif
 
 	ld	[%g1 + O6_OFFSET], %sp		! retrieve the saved SP
 
-/* We do not control the cache on XtratuM. XtratuM itself must be in charge
-   of this handling. */
-#if defined (LEON) && !defined (XTRATUM)
 .Lrestore_ccr:
 	ld	[%g1 + CCR_OFFSET], %g5
 #if defined (LEON2)
@@ -314,7 +278,6 @@ __gnat_context_switch:
 	st	%g5, [%g3 + 0x14]
 #elif defined (LEON3)
 	sta	%g5, [%g0] 2
-#endif
 #endif
 
 .Lrestore_frame_loop:
@@ -330,7 +293,6 @@ __gnat_context_switch:
 	ldd	[%sp + I4_OFFSET], %i4
 	ldd	[%sp + I6_OFFSET], %i6
 
-#ifndef XTRATUM
 	cmp	%g2, 0
 	be	.Ldone_restoring
 	 add	 %g2, -1, %g2
@@ -343,7 +305,6 @@ __gnat_context_switch:
 	   saved in g4). */
 
 	wr	%g4, %psr
-#endif
 
 	ld	[%g1 + Y_OFFSET], %g2
 	wr	%g2, %y 			! restore the Y register
@@ -363,9 +324,6 @@ __gnat_context_switch:
 
 	.size __gnat_context_switch, . - __gnat_context_switch
 
-/* We do not control the cache on XtratuM. XtratuM itself must be in charge
-   of this handling. */
-#if defined (LEON) && !defined (XTRATUM)
 /* procedure set_ccr.
    This routine sets the value passed as argument (through o0) in the Cache
    Control Register. */
@@ -400,6 +358,121 @@ get_ccr:
 
 	retl					! return from leaf subroutine
 	 nop
-
 	.size get_ccr, . - get_ccr
-#endif
+
+	.global fp_context_switch
+	.type   fp_context_switch,@function
+
+	/* Trap handler that saves/restores the floating point context in the
+	   appropriate thread descriptors. Permits deferred context switching
+	   of the floating point registers. */
+
+fp_context_switch:
+	/* First we need to enable the use of the floating point unit. Note
+	   that l0 contains the PSR. */
+	set	PSR_EF_MASK, %l3
+	or	%l0, %l3, %l0
+	wr	%l0, %psr			! enable FP
+
+	/* Check whether we need to save/restore the floating point
+	   state. If the currently executing thread is the one that
+	   was the last using the floating point unit then nothing
+	   needs to be done. */
+
+        CURRENT_CPU(%l7)
+
+	set	float_latest_user_table, %l3
+        set     __gnat_running_thread_table, %l5
+        sll     %l7, 2, %l7      /* offset in the threads tables */
+	ld	[%l3 + %l7], %l4 /* latest user */
+        ld      [%l5 + %l7], %l6 /* running thread */
+
+
+        /* Don't switch context if there is no latest user. However, we
+           need to set the latest user to indicate that there is someone
+           using the floating point now. */
+	tst	%l4
+	bz	.Lupdate_latest_user
+	 nop
+
+        /* Don't switch context the latest user is the running thread */
+	cmp	%l4, %l6
+	be	.Lfp_context_switch_done
+	 nop
+
+	/* Save the old floating point state in the task descriptor area */
+
+	st	%fsr, [%l4 + FSR_OFFSET]
+	! No NOP_FIX_GRLIB_TN_0009, as the first store size is <= 4
+	std	%f0,  [%l4 + F0_F1_OFFSET]
+	NOP_FIX_GRLIB_TN_0009
+	std	%f2,  [%l4 + F2_F3_OFFSET]
+	NOP_FIX_GRLIB_TN_0009
+	std	%f4,  [%l4 + F4_F5_OFFSET]
+	NOP_FIX_GRLIB_TN_0009
+	std	%f6,  [%l4 + F6_F7_OFFSET]
+	NOP_FIX_GRLIB_TN_0009
+	std	%f8,  [%l4 + F8_F9_OFFSET]
+	NOP_FIX_GRLIB_TN_0009
+	std	%f10, [%l4 + F10_F11_OFFSET]
+	NOP_FIX_GRLIB_TN_0009
+	std	%f12, [%l4 + F12_F13_OFFSET]
+	NOP_FIX_GRLIB_TN_0009
+	std	%f14, [%l4 + F14_F15_OFFSET]
+	NOP_FIX_GRLIB_TN_0009
+	std	%f16, [%l4 + F16_F17_OFFSET]
+	NOP_FIX_GRLIB_TN_0009
+	std	%f18, [%l4 + F18_F19_OFFSET]
+	NOP_FIX_GRLIB_TN_0009
+	std	%f20, [%l4 + F20_F21_OFFSET]
+	NOP_FIX_GRLIB_TN_0009
+	std	%f22, [%l4 + F22_F23_OFFSET]
+	NOP_FIX_GRLIB_TN_0009
+	std	%f24, [%l4 + F24_F25_OFFSET]
+	NOP_FIX_GRLIB_TN_0009
+	std	%f26, [%l4 + F26_F27_OFFSET]
+	NOP_FIX_GRLIB_TN_0009
+	std	%f28, [%l4 + F28_F29_OFFSET]
+	NOP_FIX_GRLIB_TN_0009
+	std	%f30, [%l4 + F30_F31_OFFSET]
+
+	/* Restore the new floating point state from the task descriptor area */
+
+	ldd	[%l6 + F0_F1_OFFSET],   %f0
+	ldd	[%l6 + F2_F3_OFFSET],   %f2
+	ldd	[%l6 + F4_F5_OFFSET],   %f4
+	ldd	[%l6 + F6_F7_OFFSET],   %f6
+	ldd	[%l6 + F8_F9_OFFSET],   %f8
+	ldd	[%l6 + F10_F11_OFFSET], %f10
+	ldd	[%l6 + F12_F13_OFFSET], %f12
+	ldd	[%l6 + F14_F15_OFFSET], %f14
+	ldd	[%l6 + F16_F17_OFFSET], %f16
+	ldd	[%l6 + F18_F19_OFFSET], %f18
+	ldd	[%l6 + F20_F21_OFFSET], %f20
+	ldd	[%l6 + F22_F23_OFFSET], %f22
+	ldd	[%l6 + F24_F25_OFFSET], %f24
+	ldd	[%l6 + F26_F27_OFFSET], %f26
+	ldd	[%l6 + F28_F29_OFFSET], %f28
+	ldd	[%l6 + F30_F31_OFFSET], %f30
+	ld	[%l6 + FSR_OFFSET],     %fsr
+
+.Lupdate_latest_user:
+	/* Write down the thread that is currently using the floating
+	   point unit. */
+
+	st	%l6, [%l3 + %l7]
+
+.Lfp_context_switch_done:
+	/* Restore the original PSR */
+
+	wr	%l0, %psr
+	nop
+	nop
+	nop
+
+.Lreturn_from_trap:
+        ! %l1 is PC and %l2 is nPC
+        b __gnat_return_from_trap
+         nop
+
+	.size fp_context_switch, . - fp_context_switch

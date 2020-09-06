@@ -113,7 +113,7 @@ class RTSProfiles(object):
             elif cpu in ('riscv64',):
                 ret['CPU_Family'] = 'riscv64'
             else:
-                print "Unexpected cpu %s" % cpu
+                print("Unexpected cpu %s" % cpu)
                 sys.exit(2)
 
         if not self.config.is_pikeos:
@@ -125,6 +125,9 @@ class RTSProfiles(object):
 
         else:
             ret['Pikeos_Version'] = self.config.pikeos_version
+
+        ret['Has_Compare_And_Swap'] = \
+            'yes' if self.config.has_compare_and_swap else 'no'
 
         return ret
 
@@ -151,6 +154,7 @@ class RTSProfiles(object):
         ret['Add_Image_Wide_Char'] = "yes"
         ret['Add_Pack'] = "yes"
         ret['Add_Streams'] = "yes"
+        ret['Add_Traceback'] = "yes"
         ret['Add_Value_Bool'] = "yes"
         ret['Add_Value_Enum'] = "yes"
         ret['Add_Value_Decimal'] = "yes"
@@ -158,8 +162,6 @@ class RTSProfiles(object):
         ret['Add_Value_Float'] = "yes"
         ret['Add_Value_Int'] = "yes"
         ret['Add_Value_LL_Int'] = "yes"
-        ret['Add_Value_Based_Int'] = "yes"
-        ret['Add_Value_LL_Based_Int'] = "yes"
         ret['Add_Value_Char'] = "yes"
         ret['Add_Value_Wide_Char'] = "yes"
 

@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -110,19 +110,14 @@ package System.BB.Parameters is
    ----------
 
    Max_Number_Of_CPUs : constant := 4;
-   --  Maximum number of CPUs
+   --  Maximum number of CPUs avaialble on the target.
+   --  Note: the actual number of CPUs can be lower than this number, in
+   --  which case the runtime will adjust the CPUs according to the actual
+   --  CPU count.
+   --  The actual number of CPUs can be also bigger, in which case the runtime
+   --  will not use the additional CPUs.
 
    Multiprocessor : constant Boolean := Max_Number_Of_CPUs /= 1;
    --  Are we on a multiprocessor board?
-
-   ---------------
-   -- Privilege --
-   ---------------
-
-   type Runtime_EL_Type is range 1 .. 2;
-   Runtime_EL : constant Runtime_EL_Type := 1;
-   --  Exception level for the runtime (currently used only on aarch64).  Only
-   --  EL1 and EL2 are supported. EL0 and EL3 are excluded as they don't
-   --  provide timers.
 
 end System.BB.Parameters;

@@ -2,7 +2,7 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---          Copyright (C) 2012-2017, Free Software Foundation, Inc.         --
+--          Copyright (C) 2012-2019, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -102,8 +102,7 @@ procedure Setup_Pll is
                        else (if HSE_Enabled then SYSCLK_SRC_HSE
                              else SYSCLK_SRC_HSI));
       SW_Value    : constant CFGR_SW_Field :=
-        CFGR_SW_Field'(As_Array => False,
-                       Val => SYSCLK_Source'Enum_Rep (SW));
+                      SYSCLK_Source'Enum_Rep (SW);
 
       SYSCLK      : constant Integer := (if Activate_PLL
                                          then PLLCLKOUT
@@ -157,11 +156,12 @@ procedure Setup_Pll is
         (SYSCLK /= Clock_Frequency,
            "Cannot generate requested clock");
 
-      pragma Compile_Time_Error
+      --  Cannot be checked at compile time, depends on APB1_PRE and APB2_PRE
+      pragma Assert
         (HCLK not in HCLK_Range
            or else PCLK1 not in PCLK1_Range
            or else PCLK2 not in PCLK2_Range,
-           "Invalid AHB/APB prescalers configuration");
+         "Invalid AHB/APB prescalers configuration");
 
       --  PWR clock enable
 
@@ -217,10 +217,10 @@ procedure Setup_Pll is
          --  Configure the PLL clock source, multiplication and division
          --  factors
          RCC_Periph.PLLCFGR :=
-           (PLLM   => PLLCFGR_PLLM_Field'(As_Array => False, Val => PLLM),
-            PLLN   => PLLCFGR_PLLN_Field'(As_Array => False, Val => PLLN),
-            PLLP   => PLLCFGR_PLLP_Field'(As_Array => False, Val => PLLP),
-            PLLQ   => PLLCFGR_PLLQ_Field'(As_Array => False, Val => PLLQ),
+           (PLLM   => PLLM,
+            PLLN   => PLLN,
+            PLLP   => PLLP,
+            PLLQ   => PLLQ,
             PLLSRC => (if HSE_Enabled
                        then PLL_Source'Enum_Rep (PLL_SRC_HSE)
                        else PLL_Source'Enum_Rep (PLL_SRC_HSI)),
@@ -270,7 +270,7 @@ procedure Setup_Pll is
 
       if Activate_PLL then
          loop
-            exit when RCC_Periph.CFGR.SWS.Val =
+            exit when RCC_Periph.CFGR.SWS =
               SYSCLK_Source'Enum_Rep (SYSCLK_SRC_PLL);
          end loop;
 

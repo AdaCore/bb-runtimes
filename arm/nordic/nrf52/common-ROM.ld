@@ -40,6 +40,8 @@
    appropriate memory map and output format. */
 
 SEARCH_DIR(.)
+INCLUDE memory-map.ld
+
 __DYNAMIC  =  0;
 
 _DEFAULT_STACK_SIZE = 4*1024;
@@ -56,9 +58,9 @@ SECTIONS
   } > flash
 
   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } > flash
-  PROVIDE_HIDDEN (__exidx_start = .);
   .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > flash
-  PROVIDE_HIDDEN (__exidx_end = .);
+  PROVIDE_HIDDEN (__exidx_start = LOADADDR(.ARM.exidx));
+  PROVIDE_HIDDEN (__exidx_end = __exidx_start + SIZEOF(.ARM.exidx));
 
   .rodata :
   {

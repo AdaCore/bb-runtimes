@@ -50,8 +50,8 @@ class arm_mmu(Arch):
             c = 0
             b = 1
         else:
-            print "unhandled cache attribute '%s' for region %s" % \
-              (cache, name)
+            print("unhandled cache attribute '%s' for region %s" %
+                  (cache, name))
             exit(1)
 
         # Convert access
@@ -62,7 +62,7 @@ class arm_mmu(Arch):
             ap = 3
             nx = 1
         else:
-            print "unhandled access '%s' for region %s" % (access, name)
+            print("unhandled access '%s' for region %s" % (access, name))
             exit(1)
         ns = 0      # Not secure
         nG = 0      # Not global
@@ -74,7 +74,7 @@ class arm_mmu(Arch):
         for v in range(virt, virt + size, self.pagesize):
             vn = v / self.pagesize
             if self.tt[vn]:
-                print "overlap at %s in region %s" % (hex(v), name)
+                print("overlap at %s in region %s" % (hex(v), name))
                 exit(1)
             val = (p + (ns << 19) + (nG << 17) + (S << 16) +
                    (((ap >> 2) & 1) << 15) + (tex << 12) + ((ap & 3) << 10) +
@@ -88,8 +88,8 @@ class arm_mmu(Arch):
 
     def generate(self, prefix):
         addr = 0
-        print "\t.p2align 14"
-        print "{}_l0:".format(prefix)
+        print("\t.p2align 14")
+        print("{}_l0:".format(prefix))
         for e in self.tt:
             if e:
                 v = e['val']
@@ -98,7 +98,7 @@ class arm_mmu(Arch):
                 v = 0
                 n = "*none*"
 
-            print "\t.long 0x%08x  @ for 0x%08x, %s" % (v, addr, n)
+            print("\t.long 0x%08x  @ for 0x%08x, %s" % (v, addr, n))
             addr += self.pagesize
 
 
@@ -124,8 +124,8 @@ class aarch64_mmu(Arch):
             pass
 
         def generate_entry(self, prefix, level):
-            print "\t.dword 0x%016x  // for 0x%08x, %s" % \
-              (self.val, self.va, self.name)
+            print("\t.dword 0x%016x  // for 0x%08x, %s" %
+                  (self.val, self.va, self.name))
 
     class aarch64_pgd(object):
         def __init__(self, mmu, va, va_shift):
@@ -140,8 +140,8 @@ class aarch64_mmu(Arch):
             # XNTable: 0
             # PXNTable: 0
             v = 0x3
-            print "\t.dword {}_l{}_{:09x} + 0x{:x}".format(
-                prefix, level, self.va >> self.mmu.pageshift, v)
+            print("\t.dword {}_l{}_{:09x} + 0x{:x}".format(
+                prefix, level, self.va >> self.mmu.pageshift, v))
 
         def generate_table(self, prefix, level):
             # First the next level
@@ -149,15 +149,15 @@ class aarch64_mmu(Arch):
                 if t1:
                     t1.generate_table(prefix, level + 1)
             # then the pgd
-            print "\t.p2align %d" % self.mmu.pageshift
+            print("\t.p2align %d" % self.mmu.pageshift)
             sym = "{}_l{}_{:09x}".format(
                 prefix, level, self.va >> self.mmu.pageshift)
-            print sym + ":"
+            print(sym + ":")
             for t1 in self.tt:
                 if t1:
                     t1.generate_entry(prefix, level + 1)
                 else:
-                    print "\t.dword 0"
+                    print("\t.dword 0")
             return sym
 
     def __init__(self, mode, root):
@@ -205,8 +205,8 @@ class aarch64_mmu(Arch):
                     uxn = 1
                     pxn = 1
                 else:
-                    print "unhandled access '%s' for region %s" % (
-                        access, name)
+                    print("unhandled access '%s' for region %s" % (
+                        access, name))
                     exit(1)
 
             nG = 0      # Not global
@@ -230,7 +230,7 @@ class aarch64_mmu(Arch):
             upper = (xn << 54) | (cont << 52)
             lower = (AF << 10) | (SH << 8) | (S2AP << 6) | (memattr << 2)
         else:
-            print "unknown mode '%s' for region %s" % (self.mode, name)
+            print("unknown mode '%s' for region %s" % (self.mode, name))
             exit(1)
 
         # Fill tt
@@ -262,12 +262,12 @@ class aarch64_mmu(Arch):
         if t.va_shift == e.log2_sz:
             # E must be added in that table
             if t.tt[ia]:
-                print "overlap at %s in region %s" % (hex(e.va), e.name)
+                print("overlap at %s in region %s" % (hex(e.va), e.name))
                 exit(1)
             t.tt[ia] = e
         elif isinstance(t.tt[ia], self.aarch64_pge):
             # There is already a superpage
-            print "overlap at %s in region %s" % (hex(e.va), e.name)
+            print("overlap at %s in region %s" % (hex(e.va), e.name))
             exit(1)
         else:
             if not t.tt[ia]:
@@ -294,7 +294,7 @@ class aarch64_mmu(Arch):
         elif self.max_pa <= 0xfffffffffffff:
             ps = 6
         else:
-            print "max_pa is too large: {:x}".format(self.max_pa)
+            print("max_pa is too large: {:x}".format(self.max_pa))
 
         self.tcr = (64 - va_max) | (ps << 16) | (tg << 14)
         if self.mode == "stage2":
@@ -326,12 +326,12 @@ class aarch64_mmu(Arch):
             else:
                 sz = sz >> 1
             va_max -= 1
-        print "// First level: {} (w/ {} entries), max VA: 2**{}".format(
-            level, sz, va_max)
+        print("// First level: {} (w/ {} entries), max VA: 2**{}".format(
+            level, sz, va_max))
         self.set_tcr(level, va_max)
         t.tt = t.tt[0:sz]
         res = t.generate_table(prefix, level)
-        print "{}_tcr = 0x{:08x}".format(prefix, self.tcr)
+        print("{}_tcr = 0x{:08x}".format(prefix, self.tcr))
         return res
 
 
@@ -401,8 +401,8 @@ def create_mmu_from_xml(root, arch=None, mode=None):
         if 'arch' in root.attrib:
             arch = root.attrib['arch']
         else:
-            print "error: unknown architecture"
-            print "Use --arch or set arch attribute"
+            print("error: unknown architecture")
+            print("Use --arch or set arch attribute")
             sys.exit(3)
 
     if arch not in arches:
@@ -414,10 +414,10 @@ def create_mmu_from_xml(root, arch=None, mode=None):
 
 
 def usage():
-    print "usage: memmap.py OPTIONS [INPUT]"
-    print "Options are:"
-    print " --arch=ARCH      set architecture"
-    print "    architectures are: %s" % ", ".join(arches.keys())
+    print("usage: memmap.py OPTIONS [INPUT]")
+    print("Options are:")
+    print(" --arch=ARCH      set architecture")
+    print("    architectures are: %s" % ", ".join(arches.keys()))
 
 
 def main():
@@ -430,7 +430,7 @@ def main():
     try:
         opts, args = getopt.getopt(
             sys.argv[1:], "h", ["help", "arch=", "el1", "el2"])
-    except getopt.GetoptError, e:
+    except getopt.GetoptError as e:
         sys.stderr.write("error: " + str(e) + '\n')
         sys.stderr.write("Try --help\n")
         sys.exit(2)
@@ -458,6 +458,10 @@ def main():
         sys.stderr.write("Try --help\n")
         sys.exit(2)
 
+    print("// Automatically generated from %s" % filename)
+    print("//  cmd line: memmap.py %s" % " ".join(sys.argv[1:]))
+    print("")
+
     tree = ET.parse(filename)
     root = tree.getroot()
 
@@ -469,6 +473,7 @@ def main():
         mmu.insert(r.name, r.virt, r.phys, r.size, r.cache, r.access)
 
     mmu.generate("__mmu")
+
 
 if __name__ == '__main__':
     main()

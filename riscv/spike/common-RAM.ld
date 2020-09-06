@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
  *             Copyright (C) 2003-2006 The European Space Agency            *
- *                   Copyright (C) 2003-2017 AdaCore                        *
+ *                   Copyright (C) 2003-2020 AdaCore                        *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -39,6 +39,7 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
+INCLUDE memory-map.ld
 
 _DEFAULT_STACK_SIZE = 4*1024;
 
@@ -50,7 +51,7 @@ SECTIONS
   . = 0;
   .host_target_interface :
   {
-    *(.host_target_interface)
+    KEEP(*(.host_target_interface))
   }
 
   .text :
@@ -58,32 +59,35 @@ SECTIONS
     *(.start)
     *(.text .text.* .gnu.linkonce.t*)
     *(.gnu.warning)
+    /* Ensure that the begin of .rodata is word aligned.  */
+    . = ALIGN(. != 0 ? 0x4 : 0x1);
   } > ram_tx
 
   .rodata :
   {
     *(.lit)
     *(.rodata .rodata.* .gnu.linkonce.r*)
-    . = ALIGN(0x4);
+    . = ALIGN(. != 0 ? 0x4 : 0x1);
   } > ram_ro
 
   .srodata :
   {
-    *(.srodata.cst16) *(.srodata.cst8) *(.srodata.cst4) *(.srodata.cst2) *(.srodata .srodata.*)
-    . = ALIGN(0x4);
+    *(.srodata.cst16) *(.srodata.cst8) *(.srodata.cst4) *(.srodata.cst2)
+    *(.srodata .srodata.*)
+    . = ALIGN(. != 0 ? 0x4 : 0x1);
   } > ram_ro
 
   .data :
   {
     __data_start = .;
     *(.data .data.* .gnu.linkonce.d*)
-
     /* Ensure that the end of the data section is always word aligned.
-       Initial values are stored in 4-bytes blocks so we must guarantee
-       that these blocks do not fall out the section (otherwise they are
-       truncated and the initial data for the last block are lost). */
-
-    . = ALIGN(0x4);
+       Initial values are stored in 4-bytes blocks so we must guarantee that
+       these blocks do not fall out the section (otherwise they are truncated
+       and the initial data for the last block are lost).  If the section is
+       empty don't align at all since ".data" must not be emited and
+       __data_start is expected to be equal to __data_end.  */
+    . = ALIGN(. != 0 ? 0x4 : 0x1);
     __data_end = .;
   } > ram_da
 
@@ -91,6 +95,12 @@ SECTIONS
   {
     __global_pointer$ = . + 0x800;
     *(.sdata .sdata.* .gnu.linkonce.s.*)
+  } > ram_da
+
+  .sdata2 :
+  {
+    *(.sdata2 .sdata2.*)
+    *(.gnu.linkonce.s2.*)
   } > ram_da
 
   .sbss (NOLOAD): {
@@ -103,12 +113,11 @@ SECTIONS
    *(.bss .bss.*)
    *(COMMON)
 
-   . = ALIGN(0x8);    /* Align the stack to 64 bits */
    __bss_end = .;
 
    __stack_start = .;
    . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
-   . = ALIGN(0x8);
+   . = ALIGN(0x10); /* Align stack to 128 bits as required in the ABI */
    __stack_end = .;
 
    _end = .;

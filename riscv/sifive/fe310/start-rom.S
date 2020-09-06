@@ -47,8 +47,10 @@ _start_rom:
 abort:
 __gnat_exit:
 
-        /* Use ebreak on RISC-V32 until QEMU is updated to 4.0 */
-        ebreak
+        /* Write to the SiFive Test device on QEMU to shutdown */
+        li t0, 0x5555
+        li t1, 0x100000
+        sw t0, (t1)
 
         j __gnat_exit
 

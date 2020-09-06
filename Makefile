@@ -21,6 +21,8 @@ GCC=$(SRC_DIR)/../gcc
 GNAT_SOURCES=$(GNAT)
 GCC_SOURCES=$(GCC)
 
+RTS_SRCS=
+
 ###################
 # Other variables #
 ###################
@@ -52,12 +54,13 @@ ifeq ($(TARGET),$(filter $(TARGET),arm-eabi arm-elf arm))
     TGT=arm-eabi
     TARGETS=zynq7000 rpi2 rpi2mc sam4s samg55 smartfusion2 openmv2 stm32f4 \
        stm32f429disco stm32f469disco stm32f746disco stm32756geval \
-       stm32f769disco tms570 tms570_sci tms570lc lm3s m1agl
+       stm32f769disco tms570 tms570_sci tms570lc lm3s cortex-m0 cortex-m0p \
+       cortex-m1 cortex-m3 cortex-m4 cortex-m4f cortex-m7f cortex-m7df
 endif
 
 ifeq ($(TARGET),$(filter $(TARGET),leon-elf leon2-elf leon leon2))
     TGT=leon-elf
-    TARGETS=leon
+    TARGETS=leon3 leon3-smp leon4 leon4-smp
 endif
 
 ifeq ($(TARGET),$(filter $(TARGET),leon3-elf leon3))
@@ -100,9 +103,14 @@ ifeq ($(TARGET),$(filter $(TARGET),arm-sysgo-pikeos arm-pikeos))
     TARGETS=arm-pikeos
 endif
 
-ifeq ($(TARGET),$(filter $(TARGET),arm-sysgo-pikeos4.2 arm-pikeos4.2))
-    TGT=arm-sysgo-pikeos4.2
+ifeq ($(TARGET),$(filter $(TARGET),arm-sysgo-pikeos4 arm-pikeos4.2))
+    TGT=arm-sysgo-pikeos4
     TARGETS=arm-pikeos4.2
+endif
+
+ifeq ($(TARGET),$(filter $(TARGET),arm-sysgo-pikeos4 arm-pikeos5))
+    TGT=arm-sysgo-pikeos5
+    TARGETS=arm-pikeos5
 endif
 
 ifeq ($(TARGETS), none)
@@ -123,6 +131,7 @@ ifneq ($(PREFIX),)
 endif
 
 BUILD_RTS_FLAGS=
+GEN_RTS_FLAGS=
 GPRBUILD_FLAGS:=-j$(JOBS) -v -s
 
 ifneq ($(DEBUG),)
@@ -131,16 +140,19 @@ endif
 
 ifneq ($(LINK),)
   BUILD_RTS_FLAGS:=$(BUILD_RTS_FLAGS) --link
+  GEN_RTS_FLAGS:=$(GEN_RTS_FLAGS) --link
 endif
 
-ifneq ($(BSPS),)
-  BUILD_RTS_FLAGS:=$(BUILD_RTS_FLAGS) --bsps-only
+ifeq ($(BSPS),)
+  RTS_SRCS=obj/rts-sources
+  BUILD_RTS_FLAGS:=$(BUILD_RTS_FLAGS) --rts-src-descriptor=obj/rts.json
 endif
 
 GPRBUILD:=GPR_PROJECT_PATH=obj/$(TGT)/lib/gnat gprbuild $(GPRBUILD_FLAGS)
 GPRINSTALL:=GPR_PROJECT_PATH=obj/$(TGT)/lib/gnat gprinstall \
               --prefix=$(GCC_PREFIX) -f -p
 BUILD_RTS:=./build_rts.py $(BUILD_RTS_FLAGS)
+GEN_RTS:=./gen_rts_sources.py $(GEN_RTS_FLAGS)
 
 
 default:
@@ -177,25 +189,23 @@ default:
 	@echo "  make <board>.zfpinstall"
 	@echo "                    Install the board's zfp rts in gcc"
 
-obj/$(TGT):
-	mkdir -p obj && rm -rf obj/$(TGT)
-	set -x; $(BUILD_RTS) --output=obj/$(TGT) --gnat-dir=$(GNAT_SOURCES) --gcc-dir=$(GCC_SOURCES) $(TARGETS)
+obj/rts-sources:
+	$(GEN_RTS) \
+	  --output-descriptor=obj/rts.json \
+	  --output-sources=$@ \
+	  --gnat-dir=$(GNAT_SOURCES) --gcc-dir=$(GCC_SOURCES) \
+	  --rts-profile=ravenscar-full
 
-srcs:
-	rm -rf obj/$(TGT)
-	$(MAKE) obj/$(TGT)
+srcs: $(RTS_SRCS)
+	$(BUILD_RTS) --force \
+	  --output=obj $(TARGETS)
 
-all: obj/$(TGT)
-	for f in obj/$(TGT)/BSPs/*.gpr; do \
-	  $(GPRBUILD) -P $$f; \
-	done
+all: $(RTS_SRCS)
+	$(BUILD_RTS) --force --build \
+	  --output=obj $(TARGETS)
 
-install: all
-	for f in obj/$(TGT)/BSPs/*.gpr; do \
-	  echo $(GPRINSTALL) -P $$f; \
-	  $(GPRINSTALL) --uninstall -q -P $$f; \
-	  $(GPRINSTALL) -p -f -P $$f; \
-	done
+install: $(RTS_SRCS)
+	$(BUILD_RTS) --force --build $(TARGETS)
 
 %.build: obj/$(TGT)
 	for f in obj/$(TGT)/BSPs/*_$*.gpr; do \

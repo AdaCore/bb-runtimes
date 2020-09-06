@@ -2,11 +2,11 @@
  *                                                                          *
  *               GNU ADA RUN-TIME LIBRARY (GNARL) COMPONENTS                *
  *                                                                          *
- *                                  C R T 0                                 *
+ *                           T R A P _ V E C T O R S                        *
  *                                                                          *
  *                               Assembly File                              *
  *                                                                          *
- *                          Copyright (C) 2017 AdaCore                      *
+ *                     Copyright (C) 2017-2019 AdaCore                      *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -30,7 +30,7 @@
 .org 0
 .text
 
-.globl __start_ram
+.globl __start
 .globl __vectors
 
 .globl __serror_interrupt
@@ -42,8 +42,6 @@
 .globl __sync_interrupt_low
 .globl __irq_interrupt_low
 .globl __fiq_interrupt_low
-
-#include "start-config.inc"
 
 .org 0
 .section .vectors, "a"
@@ -84,7 +82,7 @@
 __vectors:
 .set vbar, __vectors
 .org vbar
-        b       __start_ram
+        b       __start
 .org (vbar + 0x200)
         b       __sync_interrupt
 .org (vbar + 0x280)
@@ -137,11 +135,7 @@ __sync_interrupt:
         adr     x30,__fpu_fault_restore
 
         /* Check if the synchronous trap is due to floating point access */
-.if (RUNTIME_EL == 1)
         mrs     x0, esr_el1
-.else
-        mrs     x0, esr_el2
-.endif
         ubfx    x1, x0, #26, #6
         cmp     x1, #0x07
         bne     1f
@@ -175,13 +169,8 @@ __irq_interrupt:
         stp     x14, x15, [sp, #112]
         stp     x16, x17, [sp, #128]
         stp     x18, x29, [sp, #144]
-.if (RUNTIME_EL == 1)
         mrs     x4, spsr_el1
         mrs     x5, elr_el1
-.else
-        mrs     x4, spsr_el2
-        mrs     x5, elr_el2
-.endif
         stp     x30, x4, [sp, #160]
         str     x5, [sp, #176]
 
@@ -269,13 +258,8 @@ __irq_interrupt:
         //  10) restore registers
         ldr     x5, [sp, #176]
         ldp     x30, x4, [sp, #160]
-.if (RUNTIME_EL == 1)
         msr     spsr_el1, x4
         msr     elr_el1, x5
-.else
-        msr     spsr_el2, x4
-        msr     elr_el2, x5
-.endif
         ldp     x18, x29, [sp, #144]
         ldp     x16, x17, [sp, #128]
         ldp     x14, x15, [sp, #112]
