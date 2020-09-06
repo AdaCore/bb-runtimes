@@ -1,15 +1,15 @@
 --
---  Copyright (C) 2019, AdaCore
+--  Copyright (C) 2020, AdaCore
 --
 
---  This spec has been automatically generated from STM32F411xx.svd
+--  This spec has been automatically generated from STM32F411.svd
 
 pragma Ada_2012;
 pragma Style_Checks (Off);
 
 with System;
 
---  STM32F411xx
+--  STM32F411
 package Interfaces.STM32 is
    pragma Preelaborate;
    pragma No_Elaboration_Code_All;
@@ -131,6 +131,13 @@ package Interfaces.STM32 is
    SPI3_Base : constant System.Address := System'To_Address (16#40003C00#);
    SPI4_Base : constant System.Address := System'To_Address (16#40013400#);
    SPI5_Base : constant System.Address := System'To_Address (16#40015000#);
-   NVIC_Base : constant System.Address := System'To_Address (16#E000E000#);
+   NVIC_Base : constant System.Address := System'To_Address (16#E000E100#);
+   FPU_Base : constant System.Address := System'To_Address (16#E000EF34#);
+   MPU_Base : constant System.Address := System'To_Address (16#E000ED90#);
+   STK_Base : constant System.Address := System'To_Address (16#E000E010#);
+   SCB_Base : constant System.Address := System'To_Address (16#E000ED00#);
+   NVIC_STIR_Base : constant System.Address := System'To_Address (16#E000EF00#);
+   FPU_CPACR_Base : constant System.Address := System'To_Address (16#E000ED88#);
+   SCB_ACTRL_Base : constant System.Address := System'To_Address (16#E000E008#);
 
 end Interfaces.STM32;

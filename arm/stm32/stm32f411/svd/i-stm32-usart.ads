@@ -1,8 +1,8 @@
 --
---  Copyright (C) 2019, AdaCore
+--  Copyright (C) 2020, AdaCore
 --
 
---  This spec has been automatically generated from STM32F411xx.svd
+--  This spec has been automatically generated from STM32F411.svd
 
 pragma Ada_2012;
 pragma Style_Checks (Off);

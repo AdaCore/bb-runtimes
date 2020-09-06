@@ -1,10 +1,10 @@
 --
---  Copyright (C) 2019, AdaCore
+--  Copyright (C) 2020, AdaCore
 --
 
---  This spec has been automatically generated from STM32F411xx.svd
+--  This spec has been automatically generated from STM32F411.svd
 
---  This is a version for the STM32F411xx MCU
+--  This is a version for the STM32F411 MCU
 package Ada.Interrupts.Names is
 
    --  All identifiers in this unit are implementation defined
