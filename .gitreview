@@ -3,4 +3,4 @@ host = review.eu.adacore.com
 port = 29418
 project = bb-runtimes
 defaultbranch = community-2020
-defaultremote = origin
+xsdefaultremote = origin

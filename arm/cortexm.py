@@ -650,6 +650,8 @@ class Stm32(ArmV7MTarget):
         self.board = board
         if self.board == 'stm32f4' or self.board == 'feather_stm32f405':
             self.mcu = 'stm32f40x'
+        elif self.board == 'nucleo_f411re':
+            self.mcu = 'stm32f411'
         elif self.board == 'stm32f429disco':
             self.mcu = 'stm32f429x'
         elif self.board == 'openmv2':
@@ -688,6 +690,8 @@ class Stm32(ArmV7MTarget):
             self.update_pair(
                 's-bbbopa.ads',
                 'arm/stm32/%s/s-bbbopa-feather_stm32f405.ads' % self.mcu)
+        elif self.board == 'nucleo_f411re':
+            self.add_gnat_sources('arm/stm32/stm32f411/s-stm32.adb')
         elif self.board == 'stm32f429disco':
             self.add_gnat_source('arm/stm32/stm32f429x/s-stm32.adb')
         elif self.board == 'openmv2':
