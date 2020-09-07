@@ -3,7 +3,7 @@ PHDRS
     text PT_LOAD FLAGS(7);
     rodata PT_LOAD FLAGS(4);
     data PT_LOAD FLAGS(6);
-    stack PT_LOAD FLAGS(6);
+    stack PT_LOAD FLAGS(7);
 
 }
 ENTRY(__p4_start)
