@@ -39,7 +39,7 @@
 --  with support for exception handlers and controlled types.
 
 pragma Restrictions (No_Exception_Registration);
-pragma Profile (GNAT_Extended_Ravenscar);
+pragma Profile (Jorvik);
 
 package System is
    pragma Pure;
