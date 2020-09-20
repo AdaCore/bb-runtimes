@@ -42,7 +42,7 @@ package System.BB.Board_Parameters is
    -- Hardware clock --
    --------------------
 
-   Main_Clock_Frequency : constant := 100_000_000;
+   Main_Clock_Frequency : constant := 200_000_000;
    --  Optimal frequency of the system clock. Note that the STM32F411 can go
    --  up to 200 MHz, but all other STM32F40x and STM32F41x MCUs can only do
    --  168 MHz.
