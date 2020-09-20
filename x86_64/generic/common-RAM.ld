@@ -50,19 +50,22 @@ SECTIONS
    * initial 16-bit boot code. The 32 bit code is located at 0x500 as this
    * is where conventional memory starts in real mode. The 16-bit code is
    * located at the BIOS entry point so in QEMU our code runs instead of the
-   * the existing BIOS. */
+   * existing BIOS. */
 
   .boot 0x500:
   {
     __text_start = .;
     *(.boottext)
     *(.bootrodata)
+    *(.vector_table)
     *(.gdt)
+    *(.idt)
+    *(.tss)
   } > ram
 
   .bios_replacement 0xfe05b :
   {
-    KEEP (*(.boottext16))
+    KEEP (*(.bios_replacement))
   } > ram
 
   /* Place the rest of the image above 1MB to avoid the memory hole at
@@ -70,6 +73,7 @@ SECTIONS
 
   .text 1M :
   {
+    __text = .;
     *(.plt)
     KEEP (*(.init))
     KEEP (*(.fini))
@@ -79,6 +83,7 @@ SECTIONS
 
   .eh_frame_hdr :
   {
+    __eh_frame_hdr = .;
     *(.eh_frame_hdr)
   } > ram
 
@@ -159,6 +164,7 @@ SECTIONS
 
   .data :
   {
+    __data = .;
     __data_start = .;
     *(.got.plt) *(.igot.plt) *(.got) *(.igot) /* minimal PIC support */
     *(.data .data.* .gnu.linkonce.d*)
@@ -173,7 +179,7 @@ SECTIONS
     __data_end = .;
   } > ram
 
-  .bss :
+  .bss (NOLOAD):
   {
    __bss_start = .;
    *(.bss .bss.*)
@@ -182,6 +188,12 @@ SECTIONS
    . = ALIGN(16);    /* Align the stack to 16-byte boundary to allow
                          faster zeroing */
    __bss_end = .;
+
+   /* Interrupt stacks. Statically allocated in System.BB.Interrupts */
+   __interrupt_stack_start = .;
+   *(.interrupt_stacks)
+   . = ALIGN(64); /* Align stacks to 512 bits in case we need to store AVX-512 registers */
+   __interrupt_stack_end = .;
 
    __stack_start = .;
    . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;

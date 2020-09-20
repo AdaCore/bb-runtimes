@@ -116,6 +116,8 @@ class RTSProfiles(object):
                 ret['CPU_Family'] = 'powerpc'
             elif cpu in ('x86',):
                 ret['CPU_Family'] = 'x86'
+            elif cpu in ('x86_64',):
+                ret['CPU_Family'] = 'x86_64'
             elif cpu in ('riscv32',):
                 ret['CPU_Family'] = 'riscv32'
             elif cpu in ('riscv64',):

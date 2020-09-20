@@ -17,6 +17,12 @@ class X8664Arch(ArchSupport):
             'x86_64/src/ns16550.ads',
             'x86_64/src/s-macres.adb',
             'x86_64/src/start.S')
+        # s-bbcppr.ads is listed under the Generic target as it will need
+        # modifying if we want to support microarchitectures older than
+        # Sandy Bridge since the current runtime uses XOPTSAVE in its
+        # context switching routine.
+        self.add_gnarl_sources(
+            'x86_64/src/vector_table.S')
 
 
 class X8664Target(DFBBTarget):
@@ -29,6 +35,10 @@ class X8664Target(DFBBTarget):
         return True
 
     @property
+    def has_timer_64(self):
+        return True
+
+    @property
     def is_64bit(self):
         return True
 
@@ -36,7 +46,18 @@ class X8664Target(DFBBTarget):
     def system_ads(self):
         return {
             'zfp': 'system-xi-x86_64.ads',
+            'ravenscar-sfp': 'system-xi-x86_64-sfp.ads',
+            'ravenscar-full': 'system-xi-x86_64-full.ads'
         }
+
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(X8664Target, self).dump_runtime_xml(rts_name, rts)
+        if rts_name == 'ravenscar-full':
+            cnt = cnt.replace(
+                '"-nostartfiles"',
+                ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
+                 '        "-nostartfiles"'))
+        return cnt
 
 
 class X8664Generic(X8664Target):
@@ -68,3 +89,14 @@ class X8664Generic(X8664Target):
 
         self.add_gnat_sources(
             'src/s-textio__bios.adb')
+        self.add_gnarl_sources(
+            'src/a-intnam__x86_64.ads',
+            'src/s-bbcppr__new.ads',
+            'src/s-bbbosu__x86_64.adb',
+            'src/s-bbcppr__x86_64.adb',
+            'src/s-bbcpsp__x86_64.adb',
+            'src/s-bbcpsp__x86_64.ads',
+            'src/s-bbpara__x86_64.ads',
+            'src/s-bbsumu__generic.adb',
+            'x86_64/src/i-x86_64-exception_handler.adb',
+            'x86_64/src/i-x86_64-exception_handler.ads')

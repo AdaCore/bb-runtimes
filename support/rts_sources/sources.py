@@ -27,7 +27,7 @@ all_scenarios = {
     # Main profile
     'RTS_Profile': ['zfp', 'ravenscar-sfp', 'ravenscar-full'],
     # CPU architecture
-    'CPU_Family': ['arm', 'aarch64', 'leon', 'powerpc', 'x86',
+    'CPU_Family': ['arm', 'aarch64', 'leon', 'powerpc', 'x86', 'x86_64',
                    'riscv32', 'riscv64'],
     # Word size of target
     'Target_Word_Size': ['32', '64'],
@@ -662,7 +662,6 @@ sources = {
         'srcs': [
             'hie/a-ngelfu__ada.ads', 'hie/a-ngelfu__ada.adb',
             'hie/a-nlelfu__ada.ads',
-            'libgnat/a-nllefu.ads',
             'libgnat/a-nselfu.ads',
             'hie/a-nuelfu__ada.ads',
             'hie/a-numaux__ada.ads',
@@ -675,6 +674,17 @@ sources = {
             'hie/s-libsin__ada.ads', 'hie/s-libsin__ada.adb',
             'hie/s-lidosq__ada.ads',
             'hie/s-lisisq__ada.ads']
+    },
+    'math/long_long_64bit': {
+        'conditions': ['Add_Math_Lib:!no', 'CPU_Family:!x86_64'],
+        'srcs': ['libgnat/a-nllefu.ads']
+    },
+    'math/long_long_80bit': {
+        'conditions': ['Add_Math_Lib:!no', 'CPU_Family:x86_64'],
+        'srcs': [
+            'hie/s-lilodo__ada.ads', 'hie/s-lilodo__ada.adb',
+            'hie/s-lldosq__ada.ads', 'hie/s-lldosq__fpu.adb',
+            'hie/a-nllefu__ada.ads']
     },
     'math/complex': {
         'conditions': ['Add_Math_Lib:!no', 'Add_Complex_Type_Support:yes'],
@@ -813,6 +823,10 @@ sources = {
     'full/zcx-x86': {
         'conditions': ['RTS_Profile:ravenscar-full', 'CPU_Family:x86'],
         'srcs': ['hie/s-traceb__vx653-sim.adb']
+    },
+    'full/zcx-x86_64': {
+        'conditions': ['RTS_Profile:ravenscar-full', 'CPU_Family:x86_64'],
+        'srcs': ['hie/s-traceb__dwarf.adb']
     },
 
     # Containers

@@ -65,6 +65,12 @@ abstract project Target_Options is
 
      for Switches ("s-macres.adb") use ALL_ADAFLAGS & ("-fno-inline");
 
+     --  Always build System.BB.CPU_Primitives at -O2 as some targets may make
+     --  use of inline assembly that rely on specific compiler behaviour to
+     --  load constants that are not enabled at -O0.
+
+     for Switches ("s-bbcppr.adb") use ALL_ADAFLAGS & ("-O2");
+
      for Switches ("system.ads") use ALL_ADAFLAGS &
        ("-gnatet=" & Project'Object_Dir & "/../ada_target_properties");
 

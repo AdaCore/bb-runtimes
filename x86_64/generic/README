@@ -1,19 +1,42 @@
 x86_64 Runtimes
 ===============
 
-This BSP supports x86_64 processors.
-
+This BSP supports processors from the Intel 64 architecture (x86-64).
 
 Runtimes Supported
 ------------------
 
-* zfp-x86_64: Generic ZFP runtime for x86_64.
+This BSP supports the following Intel processor families:
 
+* Core and Xeon families: processors based on the Sandy Bridge microarchitecture
+  and newer.
+* Atom families: processors based on the Goldmont microarchitecture and newer.
+
+and provides the following runtimes:
+
+* zfp-x86_64
+* ravenscar-sfp-x86_64
+* ravenscar-full-x86_64
+
+The Ravenscar run-times only support running on a single core.
+
+Required CPU Features
+---------------------
+
+While the ZFP run-time has the ability to run on any x86-64 processor, the
+Ravenscar run-times require the following CPU features that are only present
+in supported processor families:
+
+* Invariant Time-Stamp Counter
+* XSAVEOPT instruction
+
+The run-time will check for these features on boot and will raise a run-time
+error if not present.
 
 Booting
 -------
 
-The generic x86_64 runtimes are designed to be booted from a variety of
+The generic x86_64 run-times are designed to be booted from a variety of
 different bootloaders that can load ELF files. For example, these runtimes can
 be run with GNATemulator, or with QEMU through the switch
 "-device loader,file=<your_application>,cpu-num=0".
@@ -28,11 +51,45 @@ as well as the configuration (e.g., the baud rate). The source files are
 located in the gnat directory in a package named System.Text_IO
 (gnat/s-textio.adb).
 
+The Ravenscar run-times control the Local APIC and the use of the APIC timer
+is reserved for the runtime.
+
+Clock Speed
+-----------
+
+The Ravenscar run-times use the invariant Time-Stamp Counter (TSC) as their
+clock and will attempt to determine the TCS frequency on boot based on the
+information provided to it by the processor. On some processors this
+information may be unavailable and the run-time will raise a program error
+indicating this. If this occurs, the TCS frequency will need to be manual set
+in System.BB.Parameters. You may also need to manually set this frequency if
+the run-time determines the wrong TCS frequency.
+
+Interrupts
+----------
+
+The Ravenscar run-times support connecting Local APIC interrupt vectors to
+protected procedure handlers via the Attach_Handler aspect. Interrupt vectors
+33 to 254 are available for user applications, with Interrupt 33 reserved for
+the Spurious Interrupt Vector and interrupt 255 reserved for the APIC Timer
+as used by the run-time. See Ada.Interrupts.Names for the list of supported
+vectors.
+
+Note that interrupt priorities are handled differently by the Intel Local APIC
+compared to many interrupt controllers used by other processors. On the Local
+APIC the interrupt priority of a vector is encoded in the top 4-bits of the
+8-bit interrupt vector number. Consequently, when attaching an interrupt to a
+protected procedure you also need to add an Interrupt_Priority aspect to the
+protected object with the priority corresponding to that vector as the run-time
+will enforce this mapping. Please refer to Ada.Interrupts.Names for a mapping
+of vector numbers to Interrupt Priorities.
+
+
 Memory Layout
 -------------
 
 The memory layout is controlled by linker scripts specific to where the
-program is located in memory. GNAT for x86_64 Bare Metal ships with a single
+program is located in memory. GNAT for x86-64 Bare Metal ships with a single
 script named common-RAM.ld that determines where program is loaded into RAM.
 It is located in the ld directory.
 

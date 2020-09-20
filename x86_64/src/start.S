@@ -56,8 +56,7 @@ pdp:    .long 0x00000083                /* 0x83 = 1GB, R/W, P */
 
         # Global Descriptor Table
         # This table describes the memory segments. We keep things simple here
-        # to begin with, using a code and data segments. We don't define a TSS
-        # segment because we are not using syscalls.
+        # to begin with, using a code and data segments.
 
         # The table entries are pretty messy:
 
@@ -66,14 +65,14 @@ pdp:    .long 0x00000083                /* 0x83 = 1GB, R/W, P */
         # 0-15   Limit 0:15       First 16 bits in the segment limiter
         # 16-31  Base 0:15        First 16 bits in the base address
         # 32-39  Base 16:23       Bits 16-23 in the base address
-        # 40-44  Access byte      Segment type and attributes
-        #   41    Access          CPU writes 1 when segment is accessed.
-        #   42    Read/Write      Code: 1 if can read
+        # 40-47  Access byte      Segment type and attributes
+        #   40    Access          CPU writes 1 when segment is accessed.
+        #   41    Read/Write      Code: 1 if can read
         #                         Data: 1 if can write
-        #   43    Direction       Data: 0 Segment grows up, 1 down
+        #   42    Direction       Data: 0 Segment grows up, 1 down
         #         Conforming      Code: 1 read by lower privilege
-        #   44    Executable      Whether the segment can execute
-        #   45    Descriptor type 1 for code or data, 0 for everything else
+        #   43    Executable      Whether the segment can execute
+        #   44    Descriptor type 1 for code or data, 0 for everything else
         #  45-46  Privilege Level 0 = Highest privilege (OS),
         #                         3 = Lowest privilege (User applications)
         #   47    Present flag    Set to 1 if segment is present
@@ -138,16 +137,29 @@ argv:
         .quad    argv_str
         .quad    0
 
+        .section .bios_replacement,"ax"
+        .global _qemu_entry
+        .code16
+_qemu_entry:
+        # Seperate entry for QEMU since we have QEMU load this section over the
+        # bios so we do not have to much around with having to provide a boot
+        # image for the BIOS to boot. See _start16 for a description of this
+        # code.
+        cli
+        lgdt    gdt_pointer
+        mov     $1, %ax
+        movl    %eax, %cr0
+        ljmp    $CODE32_SEG, $_start32
 
-        .section .boottext16,"ax"
+        .section .boottext,"ax"
         .global _start16
         .code16
 _start16:
         # Processor has started in real mode. Switch to 32-bit protected mode
-        # with interrupts disabled.
+        # with interrupts disabled. Application processors (cores other than
+        # the boot core) start here.
         cli
         lgdt    gdt_pointer
-        # lidt idt
 
         # Switch to protected mode, enable cache and cache write through, and
         # enable the FPU (this enables us to cheat here and just write 1 to

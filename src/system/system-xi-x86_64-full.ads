@@ -34,28 +34,13 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-pragma Restrictions (No_Exception_Propagation);
---  Only local exception handling is supported in this profile
-
 pragma Restrictions (No_Exception_Registration);
 --  Disable exception name registration. This capability is not used because
 --  it is only required by exception stream attributes which are not supported
 --  in this run time.
 
-pragma Restrictions (No_Implicit_Dynamic_Code);
---  Pointers to nested subprograms are not allowed in this run time, in order
---  to prevent the compiler from building "trampolines".
-
-pragma Restrictions (No_Finalization);
---  Controlled types are not supported in this run time
-
-pragma Restrictions (No_Tasking);
---  Tasking is not supported in this run time
-
-pragma Discard_Names;
---  Disable explicitly the generation of names associated with entities in
---  order to reduce the amount of storage used. These names are not used anyway
---  (attributes such as 'Image and 'Value are not supported in this run time).
+pragma Profile (Jorvik);
+--  This is a Ravenscar run time
 
 package System is
    pragma Pure;
@@ -83,7 +68,7 @@ package System is
    Max_Mantissa          : constant := 63;
    Fine_Delta            : constant := 2.0 ** (-Max_Mantissa);
 
-   Tick                  : constant := 0.0;
+   Tick                  : constant := 0.000_001;
 
    --  Storage-related Declarations
 
@@ -92,8 +77,8 @@ package System is
    Null_Address : constant Address;
 
    Storage_Unit : constant := 8;
-   Word_Size    : constant := 64;
-   Memory_Size  : constant := 2 ** 64;
+   Word_Size    : constant := Standard'Word_Size;
+   Memory_Size  : constant := 2 ** Word_Size;
 
    --  Address comparison
 
@@ -117,14 +102,21 @@ package System is
 
    --  Priority-related Declarations (RM D.1)
 
-   Max_Priority           : constant Positive := 30;
-   Max_Interrupt_Priority : constant Positive := 31;
+   --  241 - 255  correspond to hardware interrupt levels 1 .. 15
+   --  255        is the priority value that block all interrupts
+   --  240        is the maximum value of priority that is not high enough to
+   --             require the blocking of one or more interrupts.
 
-   subtype Any_Priority       is Integer      range  0 .. 31;
-   subtype Priority           is Any_Priority range  0 .. 30;
-   subtype Interrupt_Priority is Any_Priority range 31 .. 31;
+   Max_Priority           : constant Positive := 240;
+   Max_Interrupt_Priority : constant Positive := 255;
 
-   Default_Priority : constant Priority := 15;
+   subtype Any_Priority       is Integer      range   0 .. 255;
+   subtype Priority           is Any_Priority range   0 .. 240;
+   subtype Interrupt_Priority is Any_Priority range 241 .. 255;
+
+   Default_Priority : constant Priority := 120;
+   --  By default, the priority assigned is the one in the middle of the
+   --  Priority range.
 
 private
 
@@ -153,7 +145,7 @@ private
    Frontend_Layout           : constant Boolean := False;
    Machine_Overflows         : constant Boolean := False;
    Machine_Rounds            : constant Boolean := True;
-   Preallocated_Stacks       : constant Boolean := False;
+   Preallocated_Stacks       : constant Boolean := True;
    Signed_Zeros              : constant Boolean := True;
    Stack_Check_Default       : constant Boolean := False;
    Stack_Check_Probes        : constant Boolean := False;
@@ -164,7 +156,7 @@ private
    Support_Composite_Compare : constant Boolean := True;
    Support_Long_Shifts       : constant Boolean := True;
    Always_Compatible_Rep     : constant Boolean := True;
-   Suppress_Standard_Library : constant Boolean := True;
+   Suppress_Standard_Library : constant Boolean := False;
    Use_Ada_Main_Program_Name : constant Boolean := False;
    Frontend_Exceptions       : constant Boolean := False;
    ZCX_By_Default            : constant Boolean := True;
