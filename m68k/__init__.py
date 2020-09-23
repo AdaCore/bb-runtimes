@@ -59,11 +59,10 @@ class MC68020(M68KTarget):
     def __init__(self):
         super(MC68020, self).__init__()
 
-        self.add_linker_script('m68k/mc68020/common-RAM.ld',
-                               loader=('RAM'))
-        self.add_linker_script('m68k/mc68020/memory-map.ld', loader='RAM')
-        self.add_sources('crt0', [
-            'm68k/mc68020/mc68901.ads',
-            'm68k/mc68020/start-ram.S',
-            'm68k/mc68020/s-macres.adb',
-            'm68k/mc68020/s-textio.adb'])
+        self.add_linker_script('m68k/m68020/memory-map.ld')
+        self.add_linker_script('m68k/m68020/common-RAM.ld', loader='RAM')
+        self.add_gnat_sources(
+            'm68k/m68020/mc68901.ads',
+            'm68k/m68020/start-ram.S',
+            'm68k/m68020/s-macres.adb',
+            'm68k/m68020/s-textio.adb')

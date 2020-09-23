@@ -11,10 +11,10 @@ class PPCArch(ArchSupport):
 
     def __init__(self):
         super(PPCArch, self).__init__()
-        self.add_sources('gnarl', [
+        self.add_gnarl_sources(
             'src/s-bbcppr__new.ads',
             'src/s-bbcppr__ppc.adb',
-            'src/s-bbinte__ppc.adb'])
+            'src/s-bbinte__ppc.adb')
 
 
 class PPC6XXArch(ArchSupport):
@@ -28,11 +28,11 @@ class PPC6XXArch(ArchSupport):
 
     def __init__(self):
         super(PPC6XXArch, self).__init__()
-        self.add_sources('gnarl', [
+        self.add_gnarl_sources(
             'powerpc/6xx/context_switch.S',
             'powerpc/6xx/handler.S',
             'src/s-bbcpsp__6xx.ads',
-            'src/s-bbcpsp__6xx.adb'])
+            'src/s-bbcpsp__6xx.adb')
 
 
 class PPCSPEArch(ArchSupport):
@@ -46,11 +46,11 @@ class PPCSPEArch(ArchSupport):
 
     def __init__(self):
         super(PPCSPEArch, self).__init__()
-        self.add_sources('gnarl', [
+        self.add_gnarl_sources(
             'powerpc/spe/context_switch.S',
             'powerpc/spe/handler.S',
             'src/s-bbcpsp__spe.ads',
-            'src/s-bbcpsp__spe.adb'])
+            'src/s-bbcpsp__spe.adb')
 
 
 class PPC6XXTarget(DFBBTarget):
@@ -123,17 +123,17 @@ class MPC8349e(PPC6XXTarget):
 
         self.add_linker_script('powerpc/mpc8349/ram.ld', loader=None)
         self.add_linker_switch('-Wl,-z,max-page-size=0x1000')
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'powerpc/mpc8349/start-ram.S',
             'powerpc/mpc8349/setup.S',
             'src/s-macres__8349e.adb',
             'src/s-bbbopa__8349e.ads',
-            'src/s-textio__p2020.adb'])
-        self.add_sources('gnarl', [
+            'src/s-textio__p2020.adb')
+        self.add_gnarl_sources(
             'src/s-bbbosu__8349e.adb',
             'src/s-bbpara__ppc.ads',
             'src/s-bbsuti__ppc.adb',
-            'src/a-intnam__8349e.ads'])
+            'src/a-intnam__8349e.ads')
 
 
 class MPC8641(PPC6XXTarget):
@@ -160,19 +160,18 @@ class MPC8641(PPC6XXTarget):
         self.add_linker_script('powerpc/mpc8641/ram.ld', loader='RAM')
         self.add_linker_switch('-Wl,-u_start_ram', loader='RAM')
 
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'powerpc/mpc8641/start-rom.S',
-            'powerpc/mpc8641/setup.S'])
-        self.add_sources('crt0', [
+            'powerpc/mpc8641/setup.S',
             'src/s-macres__p2020.adb',
             'src/s-bbbopa__8641d.ads',
-            'src/s-textio__p2020.adb'])
-        self.add_sources('gnarl', [
+            'src/s-textio__p2020.adb')
+        self.add_gnarl_sources(
             'src/s-bbbosu__ppc-openpic.adb',
             'src/s-bbsuti__ppc.adb',
             'src/s-bbsumu__8641d.adb',
             'src/s-bbpara__8641d.ads',
-            'src/a-intnam__ppc-openpic.ads'])
+            'src/a-intnam__ppc-openpic.ads')
 
 
 class PPCSPETarget(PPC6XXTarget):
@@ -205,10 +204,10 @@ class P5634(PPCSPETarget):
     def __init__(self):
         super(P5634, self).__init__()
         self.add_linker_script('powerpc/mpc5634/5634.ld', loader=None)
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'powerpc/mpc5634/start.S',
             'src/s-macres__p55.adb',
-            'src/s-textio__p55.adb'])
+            'src/s-textio__p55.adb')
 
 
 class P2020(PPCSPETarget):
@@ -227,18 +226,18 @@ class P2020(PPCSPETarget):
     def __init__(self):
         super(P2020, self).__init__()
         self.add_linker_script('powerpc/p2020/p2020.ld', loader=None)
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'powerpc/p2020/start-ram.S',
             'powerpc/p2020/setup.S',
             'src/s-macres__p2020.adb',
             'src/s-bbbopa__p2020.ads',
-            'src/s-textio__p2020.adb'])
-        self.add_sources('gnarl', [
+            'src/s-textio__p2020.adb')
+        self.add_gnarl_sources(
             'src/s-bbsumu__generic.adb',
             'src/s-bbbosu__ppc-openpic.adb',
             'src/s-bbsuti__ppc.adb',
             'src/s-bbpara__ppc.ads',
-            'src/a-intnam__ppc-openpic.ads'])
+            'src/a-intnam__ppc-openpic.ads')
 
 
 class P5566(PPCSPETarget):
@@ -263,18 +262,18 @@ class P5566(PPCSPETarget):
         self.add_linker_script('powerpc/p5566/bam.ld', loader='BAM')
         self.add_linker_script('powerpc/p5566/flash.ld', loader='FLASH')
         self.add_linker_script('powerpc/p5566/ram.ld', loader='EXTRAM')
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'powerpc/p5566/start-bam.S',
             'powerpc/p5566/start-ram.S',
             'powerpc/p5566/start-flash.S',
             'powerpc/p5566/setup.S',
             'powerpc/p5566/setup-pll.S',
             'src/s-macres__p55.adb',
-            'src/s-textio__p55.adb'])
-        self.add_sources('gnarl', [
+            'src/s-textio__p55.adb')
+        self.add_gnarl_sources(
             'src/s-bbsumu__generic.adb',
             'src/s-bbbopa__p55.ads',
             'src/s-bbsuti__ppc.adb',
             'src/s-bbbosu__p55.adb',
             'src/s-bbpara__p55.ads',
-            'src/a-intnam__p55.ads'])
+            'src/a-intnam__p55.ads')

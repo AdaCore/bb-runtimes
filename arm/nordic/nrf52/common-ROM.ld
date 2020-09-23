@@ -40,6 +40,8 @@
    appropriate memory map and output format. */
 
 SEARCH_DIR(.)
+INCLUDE memory-map.ld
+
 __DYNAMIC  =  0;
 
 _DEFAULT_STACK_SIZE = 4*1024;

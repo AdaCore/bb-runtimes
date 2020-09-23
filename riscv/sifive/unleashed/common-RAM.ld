@@ -36,6 +36,8 @@
 
 /* This is a RISC-V specific version of this file */
 
+INCLUDE memory-map.ld
+
 SEARCH_DIR(.)
 __DYNAMIC  =  0;
 

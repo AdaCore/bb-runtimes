@@ -10,16 +10,16 @@ class CortexMArch(ArchSupport):
 
     def __init__(self):
         super(CortexMArch, self).__init__()
-        self.add_sources('arch', [
+        self.add_gnat_sources(
             'src/s-macres__cortexm3.adb',
-            'arm/src/breakpoint_handler-cortexm.S'])
-        self.add_sources('gnarl', [
+            'arm/src/breakpoint_handler-cortexm.S')
+        self.add_gnarl_sources(
             'src/s-bbcpsp__cortexm.ads',
             'src/s-bbcppr__old.ads',
             'src/s-bbcppr__armv7m.adb',
             'src/s-bbinte__generic.adb',
             'src/s-bbsumu__generic.adb',
-            'src/s-bcpcst__armvXm.ads'])
+            'src/s-bcpcst__armvXm.ads')
 
 
 class ArmV7MArch(ArchSupport):
@@ -33,9 +33,9 @@ class ArmV7MArch(ArchSupport):
 
     def __init__(self):
         super(ArmV7MArch, self).__init__()
-        self.add_sources('gnarl', [
+        self.add_gnarl_sources(
             'src/s-bbbosu__armv7m.adb',
-            'src/s-bcpcst__pendsv.adb'])
+            'src/s-bcpcst__pendsv.adb')
 
 
 class ArmV6MTarget(Target):
@@ -66,9 +66,9 @@ class ArmV6MTarget(Target):
     def __init__(self):
         super(ArmV6MTarget, self).__init__()
 
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'src/s-bbarat.ads',
-            'src/s-bbarat.adb'])
+            'src/s-bbarat.adb')
 
 
 class ArmV7MTarget(ArmV6MTarget):
@@ -127,14 +127,14 @@ class LM3S(ArmV7MTarget):
     def __init__(self):
         super(LM3S, self).__init__()
 
-        self.add_linker_script('arm/lm3s/lm3s-rom.ld', 'ROM')
-        self.add_linker_script('arm/lm3s/lm3s-ram.ld', 'RAM')
-        self.add_sources('crt0', [
+        self.add_linker_script('arm/lm3s/lm3s-rom.ld', loader='ROM')
+        self.add_linker_script('arm/lm3s/lm3s-ram.ld', loader='RAM')
+        self.add_gnat_sources(
             'arm/lm3s/start-rom.S',
             'arm/lm3s/start-ram.S',
             'arm/lm3s/setup_pll.adb',
             'arm/lm3s/setup_pll.ads',
-            'src/s-textio__lm3s.adb'])
+            'src/s-textio__lm3s.adb')
 
 
 class SamCommonArchSupport(ArchSupport):
@@ -157,11 +157,11 @@ class SamCommonArchSupport(ArchSupport):
         self.add_linker_script('arm/sam/common-ROM.ld', loader='ROM')
         self.add_linker_script('arm/sam/common-RAM.ld', loader='RAM')
 
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'arm/sam/start-rom.S',
             'arm/sam/start-ram.S',
             'arm/sam/start-common.S',
-            'arm/sam/setup_pll.ads'])
+            'arm/sam/setup_pll.ads')
 
 
 class Sam(ArmV7MTarget):
@@ -234,39 +234,35 @@ class Sam(ArmV7MTarget):
         super(Sam, self).__init__()
 
         self.add_linker_script(
-            'arm/sam/%s/memory-map.ld' % self.name,
-            loader=('SAMBA', 'ROM', 'RAM'))
+            'arm/sam/%s/memory-map.ld' % self.name)
 
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'arm/sam/%s/setup_pll.adb' % self.name,
+            'arm/sam/%s/s-bbbopa.ads' % self.name,
             'arm/sam/%s/svd/i-sam.ads' % self.name,
             'arm/sam/%s/svd/i-sam-efc.ads' % self.name,
-            'arm/sam/%s/svd/i-sam-pmc.ads' % self.name])
+            'arm/sam/%s/svd/i-sam-pmc.ads' % self.name)
 
         # ravenscar support
-        self.add_sources('gnarl', [
+        self.add_gnarl_sources(
             'arm/sam/%s/svd/handler.S' % self.name,
-            'arm/sam/%s/s-bbbopa.ads' % self.name,
             'arm/sam/%s/s-bbmcpa.ads' % self.name,
-            'arm/sam/%s/svd/a-intnam.ads' % self.name])
+            'arm/sam/%s/svd/a-intnam.ads' % self.name)
 
         if self.board == 'samv71':
-            self.add_sources('crt0', [
+            self.add_gnat_sources(
                 'arm/sam/samv71/s-samv71.ads',
                 'arm/sam/%s/svd/i-sam-pio.ads' % self.name,
-                'arm/sam/%s/svd/i-sam-uart.ads' % self.name,
-                'src/s-textio__%s.adb' % self.name])
-            self.add_sources('gnarl', [
-                'src/s-bbpara__samv71.ads'])
+                'arm/sam/%s/svd/i-sam-uart.ads' % self.name)
+            self.add_gnarl_sources(
+                'src/s-bbpara__samv71.ads')
         else:
-            self.add_sources('crt0', [
+            self.add_gnat_sources(
                 'arm/sam/sam4s/s-sam4s.ads',
                 'arm/sam/%s/board_config.ads' % self.name,
-                'arm/sam/%s/svd/i-sam-sysc.ads' % self.name,
-                'src/s-textio__sam4s.adb'])
-            # FIXME: s-textio.adb is invalid for the g55
-            self.add_sources('gnarl', [
-                'src/s-bbpara__sam4s.ads'])
+                'arm/sam/%s/svd/i-sam-sysc.ads' % self.name)
+            self.add_gnarl_sources(
+                'src/s-bbpara__sam4s.ads')
 
 
 class SmartFusion2(ArmV7MTarget):
@@ -305,7 +301,7 @@ class SmartFusion2(ArmV7MTarget):
         self.add_linker_script('arm/smartfusion2/common-ROM.ld', loader='ROM')
         self.add_linker_script('arm/smartfusion2/memory-map.ld', loader='ROM')
 
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'arm/smartfusion2/start-rom.S',
             'arm/smartfusion2/setup_pll.adb',
             'arm/smartfusion2/setup_pll.ads',
@@ -317,13 +313,13 @@ class SmartFusion2(ArmV7MTarget):
             'arm/smartfusion2/svd/i-sf2-system_registers.ads',
             'arm/smartfusion2/svd/i-sf2-mmuart.ads',
             'arm/smartfusion2/svd/i-sf2-gpio.ads',
-            'arm/smartfusion2/s-textio.adb'])
-        self.add_sources('gnarl', [
+            'arm/smartfusion2/s-textio.adb')
+        self.add_gnarl_sources(
             'arm/smartfusion2/s-sf2gpi.ads',
             'arm/smartfusion2/s-sf2gpi.adb',
             'arm/smartfusion2/svd/handler.S',
             'arm/smartfusion2/svd/a-intnam.ads',
-            'src/s-bbpara__smartfusion2.ads'])
+            'src/s-bbpara__smartfusion2.ads')
 
 
 class CortexM1CommonArchSupport(ArmV6MTarget):
@@ -360,14 +356,14 @@ class CortexM1CommonArchSupport(ArmV6MTarget):
         self.add_linker_script('arm/cortex-m1/common-TCM.ld',
                                loader='TCM')
 
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'arm/cortex-m1/start-tcm.S',
-            'arm/cortex-m1/start-ram.S'])
+            'arm/cortex-m1/start-ram.S')
 
-        self.add_sources('gnarl', [
+        self.add_gnarl_sources(
             'src/s-bbpara__cortexm1.ads',
             'src/s-bbbosu__armv6m.adb',
-            'src/s-bcpcst__pendsv.adb'])
+            'src/s-bcpcst__pendsv.adb')
 
 
 class MicrosemiM1(CortexM1CommonArchSupport):
@@ -378,18 +374,17 @@ class MicrosemiM1(CortexM1CommonArchSupport):
     def __init__(self):
         super(MicrosemiM1, self).__init__()
 
-        self.add_linker_script('arm/cortex-m1/microsemi/memory-map.ld',
-                               loader=['TCM', 'RAM'])
+        self.add_linker_script('arm/cortex-m1/microsemi/memory-map.ld')
 
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'arm/cortex-m1/microsemi/s-bbbopa.ads',
             'arm/cortex-m1/microsemi/s-bbmcpa.ads',
             'arm/cortex-m1/microsemi/s-textio.adb',
             'arm/cortex-m1/microsemi/svd/i-microsemi.ads',
-            'arm/cortex-m1/microsemi/svd/i-microsemi-coreuartapb.ads'])
+            'arm/cortex-m1/microsemi/svd/i-microsemi-coreuartapb.ads')
 
-        self.add_sources('gnarl', [
-            'arm/cortex-m1/microsemi/a-intnam.ads'])
+        self.add_gnarl_sources(
+            'arm/cortex-m1/microsemi/a-intnam.ads')
 
 
 class NRF51(ArmV6MTarget):
@@ -422,20 +417,20 @@ class NRF51(ArmV6MTarget):
 
         self.add_linker_script('arm/nordic/nrf51/common-ROM.ld', loader='ROM')
 
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'arm/nordic/nrf51/svd/i-nrf51.ads',
             'arm/nordic/nrf51/svd/i-nrf51-clock.ads',
             'arm/nordic/nrf51/svd/i-nrf51-rtc.ads',
             'arm/nordic/nrf51/svd/i-nrf51-uart.ads',
             'arm/nordic/nrf51/svd/handler.S',
             'arm/nordic/nrf51/start-rom.S',
-            'arm/nordic/nrf51/s-bbmcpa.ads'])
+            'arm/nordic/nrf51/s-bbmcpa.ads')
 
-        self.add_sources('gnarl', [
+        self.add_gnarl_sources(
             'arm/nordic/nrf51/svd/a-intnam.ads',
             'src/s-bbpara__nrf51.ads',
             'src/s-bbbosu__nrf51.adb',
-            'src/s-bcpcst__pendsv.adb'])
+            'src/s-bcpcst__pendsv.adb')
 
 
 class Microbit(NRF51):
@@ -451,11 +446,11 @@ class Microbit(NRF51):
         super(Microbit, self).__init__()
 
         self.add_linker_script('arm/nordic/nrf51/memory-map_nRF51822xxAA.ld',
-                               loader='ROM')
+                               'memory-map.ld')
 
-        self.add_sources('crt0',
-                         ['arm/nordic/nrf51/s-bbbopa__microbit.ads',
-                          'src/s-textio__microbit.adb'])
+        self.add_gnat_sources(
+            'arm/nordic/nrf51/s-bbbopa__microbit.ads',
+            'src/s-textio__microbit.adb')
 
 
 class NRF52(ArmV7MTarget):
@@ -495,17 +490,19 @@ class NRF52(ArmV7MTarget):
         super(NRF52, self).__init__()
 
         self.add_linker_script('arm/nordic/nrf52/common-ROM.ld', loader='ROM')
+        self.add_linker_script('arm/nordic/nrf52/memory-map_%s.ld' % self.name,
+                               'memory-map.ld')
 
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'arm/nordic/nrf52/s-bbmcpa.ads',
             'arm/nordic/nrf52/start-common.S',
             'arm/nordic/nrf52/start-rom.S',
-            'arm/nordic/nrf52/setup_board.ads'])
+            'arm/nordic/nrf52/setup_board.ads')
 
-        self.add_sources('gnarl', [
+        self.add_gnarl_sources(
             'src/s-bbpara__nrf52.ads',
             'src/s-bbbosu__nrf52.adb',
-            'src/s-bcpcst__pendsv.adb'])
+            'src/s-bcpcst__pendsv.adb')
 
 
 class NRF52840(NRF52):
@@ -520,10 +517,7 @@ class NRF52840(NRF52):
     def __init__(self):
         super(NRF52840, self).__init__()
 
-        self.add_linker_script('arm/nordic/nrf52/memory-map_nRF52840.ld',
-                               loader='ROM')
-
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'arm/nordic/nrf52/nrf52840/s-bbbopa.ads',
             'arm/nordic/nrf52/nrf52840/setup_board.adb',
             'arm/nordic/nrf52/nrf52840/svd/i-nrf52.ads',
@@ -535,11 +529,10 @@ class NRF52840(NRF52):
             'arm/nordic/nrf52/nrf52840/svd/i-nrf52-nvmc.ads',
             'arm/nordic/nrf52/nrf52840/svd/i-nrf52-rtc.ads',
             'arm/nordic/nrf52/nrf52840/svd/i-nrf52-temp.ads',
-            'src/s-textio__null.adb'])
-
-        self.add_sources('gnarl', [
+            'src/s-textio__null.adb')
+        self.add_gnarl_sources(
             'arm/nordic/nrf52/nrf52840/svd/handler.S',
-            'arm/nordic/nrf52/nrf52840/svd/a-intnam.ads'])
+            'arm/nordic/nrf52/nrf52840/svd/a-intnam.ads')
 
 
 class NRF52832(NRF52):
@@ -554,10 +547,7 @@ class NRF52832(NRF52):
     def __init__(self):
         super(NRF52832, self).__init__()
 
-        self.add_linker_script('arm/nordic/nrf52/memory-map_nRF52832.ld',
-                               loader='ROM')
-
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'arm/nordic/nrf52/nrf52832/s-bbbopa.ads',
             'arm/nordic/nrf52/nrf52832/setup_board.adb',
             'arm/nordic/nrf52/nrf52832/svd/i-nrf52.ads',
@@ -568,11 +558,11 @@ class NRF52832(NRF52):
             'arm/nordic/nrf52/nrf52832/svd/i-nrf52-nvmc.ads',
             'arm/nordic/nrf52/nrf52832/svd/i-nrf52-rtc.ads',
             'arm/nordic/nrf52/nrf52832/svd/i-nrf52-temp.ads',
-            'src/s-textio__null.adb'])
+            'src/s-textio__null.adb')
 
-        self.add_sources('gnarl', [
+        self.add_gnarl_sources(
             'arm/nordic/nrf52/nrf52832/svd/handler.S',
-            'arm/nordic/nrf52/nrf52832/svd/a-intnam.ads'])
+            'arm/nordic/nrf52/nrf52832/svd/a-intnam.ads')
 
 
 class Stm32CommonArchSupport(ArchSupport):
@@ -599,14 +589,14 @@ class Stm32CommonArchSupport(ArchSupport):
         self.add_linker_script('arm/stm32/common-RAM.ld', loader='RAM')
         self.add_linker_script('arm/stm32/common-ROM.ld', loader='ROM')
 
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'src/s-bbpara__stm32f4.ads',
             'arm/stm32/s-stm32.ads',
             'arm/stm32/start-rom.S',
             'arm/stm32/start-ram.S',
             'arm/stm32/start-common.S',
             'arm/stm32/setup_pll.adb',
-            'arm/stm32/setup_pll.ads'])
+            'arm/stm32/setup_pll.ads')
 
 
 class Stm32(ArmV7MTarget):
@@ -677,10 +667,9 @@ class Stm32(ArmV7MTarget):
 
         super(Stm32, self).__init__()
 
-        self.add_linker_script('arm/stm32/%s/memory-map.ld' % self.mcu,
-                               loader=('RAM', 'ROM'))
+        self.add_linker_script('arm/stm32/%s/memory-map.ld' % self.mcu)
         # startup code
-        self.add_sources('crt0', [
+        self.add_gnat_sources(
             'arm/stm32/%s/s-bbbopa.ads' % self.mcu,
             'arm/stm32/%s/s-bbmcpa.ads' % self.mcu,
             'arm/stm32/%s/s-bbmcpa.adb' % self.mcu,
@@ -690,39 +679,32 @@ class Stm32(ArmV7MTarget):
             'arm/stm32/%s/svd/i-stm32-pwr.ads' % self.mcu,
             'arm/stm32/%s/svd/i-stm32-rcc.ads' % self.mcu,
             'arm/stm32/%s/svd/i-stm32-syscfg.ads' % self.mcu,
-            'arm/stm32/%s/svd/i-stm32-usart.ads' % self.mcu])
+            'arm/stm32/%s/svd/i-stm32-usart.ads' % self.mcu)
 
         if self.board == 'stm32f4':
-            self.add_sources('crt0', [
-                'arm/stm32/stm32f40x/s-stm32.adb'])
+            self.add_gnat_source('arm/stm32/stm32f40x/s-stm32.adb')
         elif self.board == 'stm32f429disco':
-            self.add_sources('crt0', [
-                'arm/stm32/stm32f429x/s-stm32.adb'])
+            self.add_gnat_source('arm/stm32/stm32f429x/s-stm32.adb')
         elif self.board == 'openmv2':
-            self.add_sources('crt0', [
-                'arm/stm32/stm32f429x/s-stm32.adb'])
+            self.add_gnat_source('arm/stm32/stm32f429x/s-stm32.adb')
             self.update_pair(
                 's-bbbopa.ads', 'arm/stm32/%s/s-bbbopa-openmv2.ads' % self.mcu)
         elif self.board == 'stm32f469disco':
-            self.add_sources('crt0', [
-                'arm/stm32/stm32f429x/s-stm32.adb'])
+            self.add_gnat_source('arm/stm32/stm32f429x/s-stm32.adb')
         elif self.board == 'stm32f746disco':
-            self.add_sources('crt0', [
-                'arm/stm32/stm32f7x/s-stm32.adb'])
+            self.add_gnat_source('arm/stm32/stm32f7x/s-stm32.adb')
         elif self.board == 'stm32756geval':
-            self.add_sources('crt0', [
-                'arm/stm32/stm32f7x/s-stm32.adb'])
+            self.add_gnat_source('arm/stm32/stm32f7x/s-stm32.adb')
             self.update_pair(
                 's-bbbopa.ads',
                 'arm/stm32/%s/s-bbbopa-stm32756geval.ads' % self.mcu)
         elif self.board == 'stm32f769disco':
-            self.add_sources('crt0', [
-                'arm/stm32/stm32f7x/s-stm32.adb'])
+            self.add_gnat_source('arm/stm32/stm32f7x/s-stm32.adb')
 
         # ravenscar support
-        self.add_sources('gnarl', [
+        self.add_gnarl_sources(
             'arm/stm32/%s/svd/handler.S' % self.mcu,
-            'arm/stm32/%s/svd/a-intnam.ads' % self.mcu])
+            'arm/stm32/%s/svd/a-intnam.ads' % self.mcu)
 
 
 class CortexM0(ArmV6MTarget):

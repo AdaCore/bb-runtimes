@@ -39,6 +39,8 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
+INCLUDE memory-map.ld
+
 _DEFAULT_STACK_SIZE = 1024;
 
 ENTRY(_start_rom);

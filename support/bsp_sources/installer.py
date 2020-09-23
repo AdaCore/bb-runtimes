@@ -1,325 +1,339 @@
+from support import readfile, getdatafilepath
 from support.bsp_sources.target import Target
-from support import readfile, datapath
-from support.files_holder import FilesHolder
+from support.files_holder import _copy
 
+import json
 import os
+import shutil
+import subprocess
+import sys
+
+
+def copy_file(src, dest):
+    if os.path.isdir(dest):
+        dest = os.path.join(dest, os.path.basename(src))
+    _copy(src, dest)
+
+
+def install_files(flist, dest):
+    if len(flist) == 0:
+        return
+    basenames = []
+    if not os.path.isdir(dest):
+        os.makedirs(dest)
+    for item in flist:
+        if os.path.isfile(item):
+            copy_file(item, dest)
+            basenames.append(os.path.basename(item))
+
+        else:
+            for fname in os.listdir(item):
+                fsrc = os.path.join(item, fname)
+                if os.path.isfile(fsrc):
+                    copy_file(fsrc, dest)
+                    basenames.append(fname)
+    return basenames
+
+
+class SharedRTSSources(object):
+    def __init__(self, json_file):
+        self._pwd = os.path.dirname(json_file)
+        with open(json_file, 'r') as fp:
+            cnt = fp.read()
+        self.cnt = json.loads(cnt)
+
+    @property
+    def install_dir(self):
+        return self._pwd
+
+    def scenarios(self, lib):
+        assert lib in self.cnt, \
+            "The runtime sources don't provide support for lib%s" % lib
+        return self.cnt[lib]['scenarios']
+
+    def sources(self, lib):
+        assert lib in self.cnt, \
+            "The runtime sources don't provide support for lib%s" % lib
+        return self.SharedSourcesItem(self.cnt[lib]['sources'], self._pwd)
+
+    class SharedSourcesItem(object):
+        def __init__(self, raw_data, base):
+            self.cnt = raw_data
+            self.base = base
+
+        @property
+        def source_dirs(self):
+            if '_srcs' in self.cnt:
+                return [os.path.normpath(os.path.join(self.base, d))
+                        for d in self.cnt['_srcs']]
+            else:
+                return []
+
+        def __iter__(self):
+            for k, v in self.cnt.items():
+                if k == '_srcs':
+                    continue
+                scenario, condition = k.split(':')
+                yield (scenario, condition,
+                       SharedRTSSources.SharedSourcesItem(v, self.base))
 
 
 class Installer(object):
     """Responsible for generating the BSP source tree and the RTS project"""
+    overwrite = False
 
     def __init__(self, target):
         assert isinstance(target, Target), "invalid target argument"
         self.tgt = target
 
-    #########################
-    # dump_rts_project_file #
-    #########################
+    @property
+    def is_native(self):
+        return self.tgt.target is None
 
-    def dump_rts_project_file(self, rts_base_name, rts, destination,
-                              rts_prefix):
-        """Dumps the main project used to build the runtime"""
-        rtsname = '%s-%s' % (rts_base_name, self.tgt.name)
-        gprname = rtsname.replace('-', '_').replace('.', '_')
-        prjname = gprname.title()
-        prj = '%s.gpr' % gprname
-        prj = os.path.join(destination, prj)
+    def _find_rts_sources(self, destination, descriptor):
+        """Find the runtime sources and the json file that describes them.
+        """
+        # First look in the relative path
+        rts_json_file = 'rts-sources.json'
 
-        base = os.path.dirname(rts_prefix)
-        ret = 'aggregate project %s is\n' % prjname
-        ret += '\n'
-        ret += '   Base_BSP_Source_Dir   := Project\'Project_Dir & "%s";\n' % \
-               self.tgt.rel_path
-        ret += '   Base_Installation_Dir := "%s/";\n' % base
-        if not self.tgt.is_pikeos and self.tgt.target is not None:
-            board = os.path.basename(rts_prefix).replace(
-                '%s-' % rts_base_name, '')
-            ret += '   Board                 := "%s";\n' % board
-            ret += '   Default_Prefix        := \n'
-            ret += '     Base_Installation_Dir & "%s-" & Board;\n' % \
-                   rts_base_name
+        ret = None
+        if descriptor is not None:
+            # First: take the one given on the command line if any
+            ret = os.path.abspath(descriptor)
         else:
-            ret += '   Default_Prefix        := \n'
-            ret += '     Base_Installation_Dir & "%s";\n' % \
-                   os.path.basename(rts_prefix)
-        ret += '   Install_Dir           := ' \
-               'external ("PREFIX", Default_Prefix);\n'
-        ret += '\n'
-        for key in sorted(rts.keys()):
-            ret += '   for external ("%s") use "%s";\n' % (key, rts[key])
-        ret += '\n'
-        ret += '   for external ("INSTALL_PREFIX") use Install_Dir;\n'
-        ret += '\n'
+            # Next: try a relative path from the install directotry
+            fname = os.path.join(destination, rts_json_file)
+            if os.path.exists(fname):
+                ret = os.path.normpath(fname)
 
-        if self.tgt.target is not None:
-            ret += '   for Target use "%s";\n' % self.tgt.target
-        ret += '   for Runtime ("Ada") use Base_BSP_Source_Dir &\n'
-        ret += '       "%s";\n' % rts_base_name
-        ret += '\n'
-        ret += '   for Project_Path use\n'
-        ret += '     (Base_BSP_Source_Dir & "%s",\n' % rts_base_name
-        ret += '      "../lib/gnat");\n'  # pick up the local rts srcs if any
-        ret += '   for Project_Files use\n'
-        if 'ravenscar' in rts['RTS_Profile']:
-            ret += '     (Base_BSP_Source_Dir & "%s/libgnat.gpr",\n' % \
-                   rts_base_name
-            ret += '      Base_BSP_Source_Dir & "%s/libgnarl.gpr",\n' % \
-                   rts_base_name
-        else:
-            ret += '     (Base_BSP_Source_Dir & "%s/libgnat.gpr",\n' % \
-                   rts_base_name
-        ret += '      Base_BSP_Source_Dir & "%s/install.gpr");\n' % \
-               rts_base_name
-        ret += '\n'
-        ret += 'end %s;\n' % prjname
+        if ret is None:
+            # Finally: Use gprls to retrieve gnat installation path and see
+            # if we find the file somewhere in the project search path
+            if not self.is_native:
+                res = subprocess.check_output(
+                    ['gprls', '-v', '--target=%s' % self.tgt.target],
+                    stderr=subprocess.STDOUT).decode()
+            else:
+                res = subprocess.check_output(
+                    ['gprls', '-v'],
+                    stderr=subprocess.STDOUT).decode()
+            in_prj_search_path = False
+            ret = None
+            for line in res.splitlines():
+                if not in_prj_search_path:
+                    if line == 'Project Search Path:':
+                        in_prj_search_path = True
+                    continue
+                line = line.strip()
+                if line == '<Current_Directory>':
+                    continue
+                if len(line) == 0:
+                    break
+                tentative = os.path.join(line, rts_json_file)
+                if os.path.exists(tentative):
+                    ret = os.path.normpath(tentative)
+                    break
+        assert ret is not None, "Cannot find %s" % rts_json_file
+        return SharedRTSSources(ret)
 
-        with open(prj, 'w') as fp:
-            fp.write(ret)
+    def _get_rts_dirs(self, rts_source_item, scenarios):
+        """Recursively look for runtime source dirs to include in the runtime.
 
-    def install(self, destination, prefix):
+        This uses the scenario variables defined by the BSP to only use the
+        proper folders in the runtime sources.
+        """
+        ret = rts_source_item.source_dirs
+        for scenario, condition, sub in rts_source_item:
+            if scenario in scenarios and \
+                    scenarios[scenario] == condition:
+                ret += self._get_rts_dirs(sub, scenarios)
+        return ret
+
+    def install(self, destination, rts_descriptor=None):
         # Build target directories
         destination = os.path.abspath(destination)
         if not os.path.exists(destination):
             os.mkdir(destination)
 
-        installed_files = []
+        # Retrieve runtime sources
+        runtime_sources = self._find_rts_sources(destination, rts_descriptor)
+        projects = []
 
-        gnarl_dirs = []
-        gnarl_langs = []
-        gnat_dirs = []
-        gnat_langs = []
-        script_files = []
-
-        # Install the bsp
-        base = destination
-        base_bsp = os.path.join(base, self.tgt.rel_path)
-
-        if 'README' in self.tgt.config_files:
-            cnt = self.tgt.config_files['README']
-            readme_fname = os.path.join(
-                destination, 'README-%s.txt' % self.tgt.name)
-            with open(readme_fname, 'w') as fp:
-                fp.write(cnt)
-
-        scripts = []
-        self.tgt.install_ld_scripts(
-            destination, scripts, installed_files)
-
-        for d in scripts:
-            full = os.path.join(base, d)
-            rel = os.path.join('..', os.path.relpath(full, base_bsp))
-            script_files.append(rel)
-
-        # Install source files for the BSP/RTSs
-        bsp_gnat = []
-        bsp_gnarl = []
-
-        self.tgt.install_libgnat(
-            destination, bsp_gnat, installed_files)
-
-        has_ravenscar = False
-        for rts in self.tgt.runtimes:
-            if 'ravenscar' in rts:
-                has_ravenscar = True
-                break
-        if has_ravenscar:
-            # install ravenscar support
-            self.tgt.install_libgnarl(
-                destination, bsp_gnarl, installed_files)
-
-        for d in bsp_gnat:
-            full = os.path.join(base, d)
-            rel = os.path.join('..', os.path.relpath(full, base_bsp))
-            # gnat_dirs is used to generate libgnat.gpr, so relative to the
-            # bsp directory
-            gnat_dirs.append(rel)
-            if 'C' not in gnat_langs and self.tgt.has_c(d):
-                gnat_langs.append('C')
-            if 'Asm' not in gnat_langs and self.tgt.has_asm(d):
-                gnat_langs.append('Asm')
-            if 'Asm_Cpp' not in gnat_langs and self.tgt.has_asm_cpp(d):
-                gnat_langs.append('Asm_Cpp')
-
-        for d in bsp_gnarl:
-            full = os.path.join(base, d)
-            rel = os.path.join('..', os.path.relpath(full, base_bsp))
-            gnarl_dirs.append(rel)
-            if 'C' not in gnarl_langs and self.tgt.has_c(d):
-                gnarl_langs.append('C')
-            if 'Asm' not in gnarl_langs and self.tgt.has_asm(d):
-                gnarl_langs.append('Asm')
-            if 'Asm_Cpp' not in gnarl_langs and self.tgt.has_asm_cpp(d):
-                gnarl_langs.append('Asm_Cpp')
-
-        # Now install the rts-specific sources
-        for rts_name, rts_obj in self.tgt.runtimes.items():
-            base_rts = os.path.join(base_bsp, rts_name)
-            rts_gnat = [d for d in gnat_dirs]
-            rts_gnarl = [d for d in gnarl_dirs]
-            rts_gnat_langs = [l for l in gnat_langs]
-            rts_gnarl_langs = [l for l in gnarl_langs]
-
-            if prefix is not None:
-                if prefix.endswith('/'):
-                    install_prefix = prefix
-                else:
-                    install_prefix = prefix + '/'
-            elif self.tgt.target is not None:
-                if self.tgt.is_pikeos:
-                    install_prefix = 'lib/gcc/%s/%s/' % (
-                        self.tgt.target, FilesHolder.gcc_version())
-                else:
-                    install_prefix = self.tgt.target + '/lib/gnat/'
+        for rts_base_name, rts_obj in self.tgt.runtimes.items():
+            if self.tgt.is_native or self.tgt.is_pikeos:
+                rtsname = 'rts-%s' % rts_base_name
             else:
-                install_prefix = 'lib/gnat/'
-            if self.tgt.is_pikeos or self.tgt.target is None:
-                install_prefix += 'rts-%s' % rts_name
-            else:
-                install_prefix += '%s-%s' % (rts_name, self.tgt.name)
-
-            if not os.path.exists(base_rts):
-                os.makedirs(base_rts)
-
-            for d in ['obj', 'adalib']:
-                path = os.path.join(base_rts, d)
-                if not os.path.exists(path):
-                    os.mkdir(path)
-
-            for dirname, l in rts_obj.dirs.items():
-                if l is None or len(l) == 0:
-                    continue
-
-                if 'gnarl' in dirname:
-                    if dirname not in gnarl_dirs:
-                        rts_gnarl.append(dirname)
-                    if 'C' not in rts_gnarl_langs and \
-                       dirname in rts_obj.c_srcs:
-                        rts_gnarl_langs.append('C')
-                    if 'Asm' not in rts_gnarl_langs and \
-                       dirname in rts_obj.asm_srcs:
-                        rts_gnarl_langs.append('Asm')
-                    if 'Asm_Cpp' not in rts_gnarl_langs and \
-                       dirname in rts_obj.asm_cpp_srcs:
-                        rts_gnarl_langs.append('Asm_Cpp')
+                rtsname = '%s-%s' % (rts_base_name, self.tgt.name)
+            rts_path = os.path.join(destination, rtsname)
+            if os.path.exists(rts_path):
+                if not self.overwrite:
+                    print("ERROR: a runtime already exists in")
+                    print("  %s" % rts_path)
+                    print("remove the runtime, use a different installation"
+                          " path or use --force to overwrite")
+                    sys.exit(1)
                 else:
-                    if dirname not in gnat_dirs:
-                        rts_gnat.append(dirname)
-                    if 'C' not in rts_gnat_langs and \
-                       dirname in rts_obj.c_srcs:
-                        rts_gnat_langs.append('C')
-                    if 'Asm' not in rts_gnat_langs and \
-                       dirname in rts_obj.asm_srcs:
-                        rts_gnat_langs.append('Asm')
-                    if 'Asm_Cpp' not in rts_gnat_langs and \
-                       dirname in rts_obj.asm_cpp_srcs:
-                        rts_gnat_langs.append('Asm_Cpp')
+                    # remove everything there
+                    print("WARNING: replacing a previously existing runtime")
+                    print("  %s" % rts_path)
+                    shutil.rmtree(rts_path)
+            scenario_vars = rts_obj.rts_vars
 
-                full = os.path.join(base_rts, dirname)
+            if 'ravenscar' in rts_base_name:
+                libs = ('gnat', 'gnarl')
+            else:
+                libs = ('gnat', )
 
-                if not os.path.exists(full):
-                    os.makedirs(full)
+            # Amend the scenario variables with the default values
+            for lib in libs:
+                for scenario, vals in runtime_sources.scenarios(lib).items():
+                    if scenario not in scenario_vars:
+                        scenario_vars[scenario] = vals[0]
 
-                for srcname, pair in l.items():
-                    self.tgt._copy_pair(srcname, pair, full)
+            # Placeholder for user-defined sources
+            user_libs = ['%s_user' % d for d in libs]
+            for lib in user_libs:
+                dest = os.path.join(rts_path, lib)
+                os.makedirs(dest)
 
-            # user-defined sources
-            rts_gnat.append('user_srcs')
-            path = os.path.join(base_rts, 'user_srcs')
-            if not os.path.exists(path):
-                os.mkdir(path)
+            # GNARL extra directory for ravenscar-full:
+            # With the ravenscar full, we can't split properly libgnat
+            # and libgnarl, as we don't have the same soft-link
+            # mechanism as the native runtime. This means that
+            # atomic operations from libgnat need to call the
+            # libgnarl functions, making the two libs inter-dependent.
+            # To remove linking headache, we thus combine the two in
+            # a single lib, keeping libgnarl as an empty lib (gnatlink will
+            # still try to link with it when tasking is used, so we need to
+            # have one available).
+            if rts_base_name == 'ravenscar-full':
+                dest = os.path.join(rts_path, 'gnarl_empty')
+                os.makedirs(dest)
+                with open(os.path.join(dest, 'empty.c'), 'w') as fp:
+                    fp.write('\n')
 
-            # Generate ada_source_path, used for the rts bootstrap
-            with open(os.path.join(base_rts, 'ada_source_path'), 'w') as fp:
-                for d in sorted(rts_gnat + rts_gnarl):
-                    fp.write(d + '\n')
+            # Now copy the full set of sources to use for the runtime
+            langs = {}
+            for lib in libs:
+                langs[lib] = ['Ada']
+                dest = os.path.join(rts_path, lib)
+                # Install sources from the shared rts sources
+                dirs = self._get_rts_dirs(
+                    runtime_sources.sources(lib), scenario_vars)
+                install_files(dirs, dest)
+                # and install sources from the BSP
+                for pair in self.tgt.get_sources(lib):
+                    pair.install(dest)
+                if lib in rts_obj.dirs:
+                    for pair in rts_obj.dirs[lib]:
+                        pair.install(dest)
+                # Check the list of languages used there, to produce the proper
+                # _build.gpr project.
+                for fname in os.listdir(dest):
+                    _, ext = os.path.splitext(fname)
+                    if 'C' not in langs[lib] and (ext == '.c' or ext == '.h'):
+                        langs[lib].append('C')
+                    if 'Asm' not in langs[lib] and ext == '.s':
+                        langs[lib].append('Asm')
+                    if 'Asm_Cpp' not in langs[lib] and ext == '.S':
+                        langs[lib].append('Asm_Cpp')
 
-            # Generate ada_object_path
-            with open(os.path.join(base_rts, 'ada_object_path'), 'w') as fp:
+            # Copy the ld scripts
+            if len(self.tgt.ld_scripts) > 0:
+                dest = os.path.join(rts_path, 'ld')
+                if not os.path.isdir(dest):
+                    os.makedirs(dest)
+                for script in self.tgt.ld_scripts:
+                    script.install(dest)
+            # Add user-defined placeholder for ld scripts
+            dest = os.path.join(rts_path, 'ld_user')
+            if not os.path.isdir(dest):
+                os.makedirs(dest)
+
+            # Install target and run-time specific configuration files
+            for name, content in self.tgt.config_files.items():
+                with open(os.path.join(rts_path, name), 'w') as fp:
+                    fp.write(content)
+            for name, content in rts_obj.config_files.items():
+                with open(os.path.join(rts_path, name), 'w') as fp:
+                    fp.write(content)
+            with open(os.path.join(rts_path, 'runtime.xml'), 'w') as fp:
+                fp.write(self.tgt.dump_runtime_xml(rts_base_name, rts_obj))
+            with open(os.path.join(rts_path, 'ada_source_path'), 'w') as fp:
+                # Make sure the user-defined sources come first to preempt
+                # default sources when needed
+                fp.write('%s\n' % '\n'.join(list(user_libs) + list(libs)))
+            with open(os.path.join(rts_path, 'ada_object_path'), 'w') as fp:
                 fp.write('adalib\n')
 
-            # Write config files
-            for name, content in self.tgt.config_files.items():
-                with open(os.path.join(base_rts, name), 'w') as fp:
-                    fp.write(content)
-            with open(os.path.join(base_rts, 'runtime.xml'), 'w') as fp:
-                fp.write(self.tgt.dump_runtime_xml(rts_name, rts_obj))
+            # And generate the project files used to build the rts
 
-            # and now install the rts project with the proper scenario values
-            self.dump_rts_project_file(
-                rts_name, rts_obj.rts_vars, destination, install_prefix)
-
-            inst_files = ['runtime.xml']
-            support_dir = os.path.relpath(
-                os.path.join(destination, 'support'), base_rts)
-            inst_files.append(os.path.join(support_dir, 'ada_source_path'))
-            inst_files.append(os.path.join(support_dir, 'ada_object_path'))
-
-            for name, content in rts_obj.config_files.items():
-                inst_files.append(name)
-                with open(os.path.join(base_rts, name), 'w') as fp:
-                    fp.write(content)
-
-            if len(script_files) > 0:
-                link_sources = '"%s"' % '",\n         "'.join(script_files)
-            else:
-                link_sources = ''
-
-            build_flags = {
-                'link_sources': link_sources,
-                'rts_files': '",\n         "'.join(inst_files)}
-            cnt = readfile(datapath('install.gpr'))
-            # Format
-            cnt = cnt.format(**build_flags)
-            # Write
-            with open(os.path.join(base_rts, 'install.gpr'), 'w') as fp:
-                fp.write(cnt)
-
-            # and the potentially runtime specific target_options.gpr project
             build_flags = {}
             for f in ['common_flags', 'asm_flags', 'c_flags']:
                 build_flags[f] = '",\n        "'.join(rts_obj.build_flags[f])
-            cnt = readfile(datapath('target_options.gpr'))
+            cnt = readfile(getdatafilepath('target_options.gpr'))
             # Format
             cnt = cnt.format(**build_flags)
             # Write
-            with open(os.path.join(base_rts, 'target_options.gpr'), 'w') as fp:
+            with open(os.path.join(rts_path, 'target_options.gpr'), 'w') as fp:
                 fp.write(cnt)
 
-            # Set source_dirs and languages
-            prj_values = {}
-            prj_values['gnat_source_dirs'] = '"%s"' % (
-                '",\n      "'.join(sorted(rts_gnat)),)
-            if len(rts_gnarl) == 0:
-                prj_values['gnarl_source_dirs'] = ''
-            else:
-                prj_values['gnarl_source_dirs'] = '"%s"' % (
-                    '",\n      "'.join(sorted(rts_gnarl)),)
-            prj_values['gnat_langs'] = '", "'.join(["Ada"] + rts_gnat_langs)
-            prj_values['gnarl_langs'] = '", "'.join(["Ada"] + rts_gnarl_langs)
-            all_langs = []
-            for l in rts_gnat_langs + rts_gnarl_langs:
-                if l not in all_langs:
-                    all_langs.append(l)
-            prj_values['all_langs'] = '", "'.join(all_langs)
-
-            if 'ravenscar' not in rts_name:
-                projects = ('libgnat',)
-            elif 'full' in rts_name:
-                projects = ('libgnat_full', 'libgnarl_full')
-            else:
-                projects = ('libgnat', 'libgnarl')
-
-            for fname in projects:
-                cnt = readfile(datapath('%s.gpr' % fname))
-                # Format
-                cnt = cnt.format(**prj_values)
-                # Write
-                if '_full' in fname:
-                    dest = fname.replace('_full', '')
-                    empty_c = os.path.join(base_rts, 'empty.c')
-                    with open(empty_c, 'w') as fp:
-                        fp.write('')
+            runtime_build = os.path.join(rts_path, "runtime_build.gpr")
+            runtime_build_tmpl = getdatafilepath('runtime_build.gpr.in')
+            with open(runtime_build_tmpl, 'r') as fp:
+                template = fp.read()
+            with open(runtime_build, 'w') as fp:
+                if self.is_native:
+                    target_directive = ''
                 else:
-                    dest = fname
-                with open(os.path.join(base_rts, '%s.gpr' % dest), 'w') as fp:
-                    fp.write(cnt)
+                    target_directive = 'for Target use "%s";' % self.tgt.target
+                source_dirs = ['gnat_user', 'gnat']
+                languages = langs['gnat']
+                if rts_base_name == 'ravenscar-full':
+                    # ravenscar-full: combine libgnat and libgnarl
+                    source_dirs.extend(['gnarl_user', 'gnarl'])
+                    for lang in langs['gnarl']:
+                        if lang not in languages:
+                            languages.append(lang)
+                fp.write(template.format(
+                    target_directive=target_directive,
+                    source_dirs='", "'.join(source_dirs),
+                    languages='", "'.join(languages)))
+            if 'gnarl' in libs:
+                ravenscar_build = os.path.join(rts_path, "ravenscar_build.gpr")
+                ravenscar_build_tmpl = getdatafilepath(
+                    "ravenscar_build.gpr.in")
+                with open(ravenscar_build_tmpl, 'r') as fp:
+                    template = fp.read()
+                if rts_base_name != 'ravenscar-full':
+                    source_dirs = ['gnarl_user', 'gnarl']
+                    languages = langs['gnarl']
+                else:
+                    # see above: libgnarl and libgnat are merged in
+                    # ravenscar-full, and libgnarl remains there as an empty
+                    # lib
+                    source_dirs = ['gnarl_empty']
+                    languages = ['C']
+                with open(ravenscar_build, 'w') as fp:
+                    fp.write(template.format(
+                        source_dirs='", "'.join(source_dirs),
+                        languages='", "'.join(languages)))
+                projects.append(ravenscar_build)
+            else:
+                projects.append(runtime_build)
+
+            # Finally install extra sources and projects if requested by the
+            # target
+            extra = self.tgt.other_sources(rts_base_name)
+            if extra is not None:
+                for subdir, src_list in extra.items():
+                    dest = os.path.join(rts_path, subdir)
+                    if not os.path.exists(dest):
+                        os.makedirs(dest)
+                    install_files(src_list, dest)
+            extra_prjs = self.tgt.other_projects(rts_base_name)
+            if extra_prjs is not None:
+                projects += [os.path.join(rts_path, prj)
+                             for prj in extra_prjs]
+
+        return projects
