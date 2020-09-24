@@ -107,6 +107,17 @@ class PPC6XXTarget(DFBBTarget):
             conf.config_files.update(
                 {'link-zcx.spec': readfile('powerpc/prep/link-zcx.spec')})
 
+    def __init__(self):
+        super(PPC6XXTarget, self).__init__()
+        if self.use_certifiable_packages:
+            self.add_gnat_sources(
+                'powerpc/6xx/restfpr.S',
+                'powerpc/6xx/restgpr.S',
+                'powerpc/6xx/restxfpr.S',
+                'powerpc/6xx/restxgpr.S',
+                'powerpc/6xx/savefpr.S',
+                'powerpc/6xx/savegpr.S')
+
 
 class MPC8349e(PPC6XXTarget):
     @property

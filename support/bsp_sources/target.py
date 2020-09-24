@@ -104,6 +104,15 @@ class TargetConfiguration(object):
             return False
 
     @property
+    def use_certifiable_packages(self):
+        """True if the ZFP and Ravenscar SFP runtimes are to use certifiable
+        runtime components. In practise, most packages in these runtimes are
+        certifiable with the notable exception of libgcc. When true, our Ada
+        implementation of libgcc is used.
+        """
+        return False
+
+    @property
     def compiler_switches(self):
         """Switches to be used when compiling. Common to Ada, C, ASM"""
         return ()
@@ -273,13 +282,19 @@ class Target(TargetConfiguration, ArchSupport):
         indent = 9
         blank = indent * ' '
 
-        ret += blank + '"-nostartfiles"'
         if rts.rts_vars['RTS_Profile'] != "ravenscar-full":
-            ret += ', "-nolibc"'
+            # For the ZFP and Ravenscar SFP runtime we have the choice of
+            # either using libgcc or our Ada libgcc replacement. For the
+            # later choice we do not link with any of the standard libraries.
+            if rts.rts_vars['Certifiable_Packages'] == "yes":
+                ret += blank + '"-nostdlib"'
+            else:
+                ret += blank + '"-nostartfiles", "-nolibc"'
         else:
-            # in the ravenscar-full case, the runtime depends on
-            # functionalities from newlib, such as memory allocation.
-            ret += ', "-lc", "-lgnat"'
+            # In the ravenscar-full case, the runtime depends on
+            # functionalities from newlib, such as memory allocation. This
+            # runtime also does not support the certifiable packages option.
+            ret += blank + '"-nostartfiles", "-lc", "-lgnat"'
 
         # Add the user script path first, so that they have precedence
         ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld_user"'
