@@ -43,6 +43,8 @@ all_scenarios = {
     'Text_IO': ['serial', 'semihosting'],
     # How does the runtime integrate C support
     'Add_C_Integration': ['no', 'ada_clib', 'newlib'],
+    # Whether we use certifiable runtime components
+    'Certifiable_Packages': ['no', 'yes'],
     # PikeOS-specific
     'Pikeos_Version': ['pikeos3', 'pikeos4', 'pikeos4.2'],
     # Whether to add the math library in the runtime
@@ -427,6 +429,28 @@ sources = {
         'conditions': ['Add_C_Integration:newlib'],
         'srcs': [
             'hie/newlib-bb.c']
+    },
+
+    # libgcc replacement
+    'libgcc': {
+        'conditions': ['Certifiable_Packages:yes'],
+        'srcs': [
+            'hie/s-gcc.ads',    'hie/s-gcc.adb',
+            'hie/s-gccdiv.ads', 'hie/s-gccdiv.adb']
+    },
+
+    'libgcc/arm': {
+        'conditions': ['Certifiable_Packages:yes', 'CPU_Family:arm'],
+        'srcs': [
+            'hie/s-gccflo__arm.ads', 'hie/s-gccflo__arm.adb',
+            'hie/s-gccshi__arm.ads', 'hie/s-gccshi.adb']
+    },
+
+    'libgcc/other_archs': {
+        'conditions': ['Certifiable_Packages:yes', 'CPU_Family:!arm'],
+        'srcs': [
+            'hie/s-gccflo.ads', 'hie/s-gccflo.adb',
+            'hie/s-gccshi.ads', 'hie/s-gccshi.adb']
     },
 
     # Text_IO

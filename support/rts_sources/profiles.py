@@ -59,6 +59,11 @@ class RTSProfiles(object):
         else:
             ret['Has_libc'] = 'no'
 
+        if self.config.use_certifiable_packages:
+            ret['Certifiable_Packages'] = 'yes'
+        else:
+            ret['Certifiable_Packages'] = 'no'
+
         if math_lib:
             if self.config.has_single_precision_fpu:
                 if self.config.has_double_precision_fpu:
@@ -164,6 +169,10 @@ class RTSProfiles(object):
         ret['Add_Value_LL_Int'] = "yes"
         ret['Add_Value_Char'] = "yes"
         ret['Add_Value_Wide_Char'] = "yes"
+
+        # We don't support certifiable components with ravenscar-full since we
+        # our libgcc replacement does not provide exception support.
+        ret['Certifiable_Packages'] = "no"
 
         if not self.config.is_pikeos:
             # PikeOS provides its own C library
