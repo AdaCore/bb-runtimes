@@ -1,0 +1,7 @@
+# linker scripts
+
+This directory stores linker scripts for all combinations of memory sizes
+for the STM32F0 family. The scripts are organised into subdirectories
+based on the combinations of possible memory sizes. For example, the
+linker script for a STM32F0 with 128K flash and 16K RAM is located under
+`linker/flash128k/ram16k/memory-map.ld`.

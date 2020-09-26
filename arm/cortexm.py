@@ -2,6 +2,7 @@
 from support.bsp_sources.archsupport import ArchSupport
 from support.bsp_sources.target import Target
 
+import re
 
 class CortexMArch(ArchSupport):
     @property
@@ -321,6 +322,173 @@ class SmartFusion2(ArmV7MTarget):
             'arm/smartfusion2/svd/a-intnam.ads',
             'src/s-bbpara__smartfusion2.ads')
 
+
+class CortexM0CommonArchSupport(ArmV6MTarget):
+    @property
+    def name(self):
+        return 'cortex-m0'
+
+    @property
+    def loaders(self):
+        return ('ROM', 'RAM')
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+                '-mcpu=cortex-m0')
+
+    @property
+    def has_fpu(self):
+        # We require floating point attributes as soft-float is supported
+        return True
+
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads',
+                'ravenscar-sfp': 'system-xi-armv6m-sfp.ads',
+                'ravenscar-full': 'system-xi-armv6m-full.ads'}
+
+    def __init__(self):
+        super(CortexM0CommonArchSupport, self).__init__()
+
+        self.add_gnat_sources('src/s-bbpara__cortexm0.ads')
+
+        self.add_gnarl_sources(
+            'src/s-bbbosu__armv6m.adb',
+            'src/s-bcpcst__pendsv.adb')
+
+class Stm32F0(CortexM0CommonArchSupport):
+
+    # Flash memory size is determined by the "User code memory size"
+    # part of the device name
+    flash_sizes = {
+        '4': 16,
+        '6': 32,
+        '8': 64,
+        'b': 128,
+        'c': 256
+    }
+
+    # RAM size for STM32F03x is determined by the
+    # device package (pin count) and user code memory size
+    # (i.e. the last two characters of the device name, e.g. stm32f030f4)
+    f03x_ram_sizes = { # STM32F03xxx
+        'c4': 4,
+        'c6': 4,
+        'c8': 8,
+        'cc': 32,
+        'e6': 4,
+        'f4': 4,
+        'f6': 4,
+        'g4': 4,
+        'g6': 4,
+        'k4': 4,
+        'k6': 4,
+        'r8': 8,
+        'rc': 32,
+    }
+
+    # RAM size for STM32F07x is also determined by the
+    # device package (pin count) and user code memory size.
+    f07x_ram_sizes = {
+        'c6': 6,
+        'c8': 16,
+        'cb': 16,
+        'f6': 6,
+        'rb': 16,
+        'v8': 16,
+        'vb': 16,
+    }
+
+    @property
+    def name(self):
+        return self.board
+
+    @property
+    def use_semihosting_io(self):
+        return True
+    
+    @property
+    def loaders(self):
+        return ('ROM', 'RAM')
+
+    def __init__(self, board):
+        super(Stm32F0, self).__init__()
+
+        # Determine MCU features from board name (e.g. 'stm32f071rb-hse')
+        # The -hse or -hsi suffix specifies which clock source to
+        # use for the runtime (either HSE or HSI)
+        m = re.match(r'.*f0([34579])([0128])([crvx])([468bc])-(hsi|hse)', board)
+        if m is None:
+            raise RuntimeError("Unknown STM32F0 target: " + board)
+        sub_family_major      = m.group(1)
+        sub_family_minor      = m.group(2)
+        package               = m.group(3)
+        user_code_memory_size = m.group(4)
+        clock_source          = m.group(5)
+
+        self.board = board
+
+        # Determine RAM size from sub-family, package, and user code mem. size
+        if sub_family_major == '3':
+            ram_size = self.f03x_ram_sizes[package + user_code_memory_size]
+        elif sub_family_major in '45':
+            ram_size = 4 # All STM32F04x/STM32F05x devices have 4K RAM
+        elif sub_family_major == '7':
+            ram_size = self.f07x_ram_sizes[package + user_code_memory_size]
+        else:
+            ram_size = 32 # All STM32F09x devices have 32k RAM
+
+        self.add_linker_script('arm/stm32f0xx/common-RAM.ld',
+                               loader='RAM')
+        self.add_linker_script('arm/stm32f0xx/common-ROM.ld',
+                               loader='ROM')
+
+        # Select memory map based on available memory size
+        # of the specific device
+        self.add_linker_script(
+            'arm/stm32f0xx/linker/flash{}k/ram{}k/memory-map.ld'.format(
+                self.flash_sizes[user_code_memory_size],
+                ram_size
+            ))
+
+        # Common source files
+        self.add_gnat_sources(
+            'arm/stm32f0xx/s-bbmcpa.ads',
+            'arm/stm32f0xx/s-stm32.ads',
+            'arm/stm32f0xx/s-stm32.adb',
+            'arm/stm32f0xx/start-rom.S',
+            'arm/stm32f0xx/start-ram.S',
+            'arm/stm32f0xx/setup_pll.ads',
+            'arm/stm32f0xx/stm32f0x{}/svd/i-stm32.ads'.format(sub_family_minor),
+            'arm/stm32f0xx/stm32f0x{}/svd/i-stm32-flash.ads'.format(sub_family_minor),
+            'arm/stm32f0xx/stm32f0x{}/svd/i-stm32-rcc.ads'.format(sub_family_minor))
+
+        # Choose clock setup based on family.
+        if sub_family_major in '479':
+            self.add_gnat_sources('arm/stm32f0xx/setup_pll__479.adb')
+        else:
+            self.add_gnat_sources('arm/stm32f0xx/setup_pll__35.adb')
+
+        # Choose board parameters based on chosen clock source (HSE or HSI)
+        # and the device family.
+        if clock_source == 'hse':
+            # All STM32F0 devices support HSE
+            self.add_gnat_sources('arm/stm32f0xx/s-bbbopa__hse.ads')
+
+        elif sub_family_major in '479':
+            # STM32F04x/STM32F07x/STM32F09x can use HSI directly
+            # as PLL input.
+            self.add_gnat_sources('arm/stm32f0xx/s-bbbopa__hsi.ads')
+
+        else:
+            # STM32F03x/STM32F05x are forced to HSI/2 as PLL input.
+            self.add_gnat_sources('arm/stm32f0xx/s-bbbopa__hsi2.ads')
+
+        # Choose interrupt names based on family
+        self.add_gnarl_sources(
+            'arm/stm32f0xx/stm32f0x{}/svd/a-intnam.ads'.format(sub_family_minor))
 
 class CortexM1CommonArchSupport(ArmV6MTarget):
     @property
