@@ -74,7 +74,10 @@ def _copy(src, dst, template_config=None):
             os.symlink(os.path.abspath(src), dst)
         elif src_is_template:
             # Write source from template file
-            with open(dst, 'w', encoding=source_encoding) as fp:
+            # GNAT style rules require LF line endings. We need to explicitly
+            # specify LF when writing the file to prevent style errors
+            # when compiling the destination file on Windows platforms.
+            with open(dst, 'w', encoding=source_encoding, newline='\n') as fp:
                 fp.write(src_cnt)
         else:
             # Copy non templated source file
