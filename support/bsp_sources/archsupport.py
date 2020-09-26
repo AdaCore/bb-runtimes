@@ -5,8 +5,9 @@ from support.files_holder import FilesHolder, FilePair
 
 
 class LdScript(FilePair):
-    def __init__(self, dst, src, loaders):
-        super(LdScript, self).__init__(dst=dst, src=src)
+    def __init__(self, dst, src, loaders, template_config):
+        super(LdScript, self).__init__(dst=dst, src=src,
+                                       template_config=template_config)
         if loaders is None:
             self._loaders = None
         elif is_string(loaders):
@@ -100,9 +101,10 @@ class ArchSupport(FilesHolder):
 
         if dst is None:
             # not a pair: just copy the script without renaming it
-            obj = LdScript(os.path.basename(script), script, loader)
+            obj = LdScript(os.path.basename(script), script, loader,
+                           self._template_config)
         else:
-            obj = LdScript(dst, script, loader)
+            obj = LdScript(dst, script, loader, self._template_config)
 
         assert obj not in self.ld_scripts, \
             "duplicated ld script name %s" % str(obj)
