@@ -53,7 +53,7 @@ package System.BB.Board_Parameters is
 
    HSE_Clock_Frequency : constant := 8_000_000;
    --  Frequency of High Speed External clock.
-   
+
    --  If either of the above values are changed then the clock configuration
    --  below will need to be updated to generate the requested clock freq.
 

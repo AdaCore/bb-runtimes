@@ -71,6 +71,10 @@ procedure Setup_Pll is
          "Invalid HSE clock configuration value");
 
       pragma Compile_Time_Error
+        (PLLMUL_Value not in PLLMUL_Range,
+         "Invalid PLLMUL_Value configuration value");
+
+      pragma Compile_Time_Error
         (PLL_Src not in PLL_SRC_HSI_2 | PLL_SRC_HSE_PREDIV,
          "PLL does not support HSI input on STM32F03x/STM32F05x devices");
 
@@ -191,7 +195,7 @@ procedure Setup_Pll is
          --  Configure the PLL clock source, multiplication and division
          --  factors
          RCC_Periph.CFGR2.PREDIV := UInt4 (PREDIV - 1);
-         RCC_Periph.CFGR.PLLMUL  := PLLMUL_Value;
+         RCC_Periph.CFGR.PLLMUL  := PLLMUL_Value - 2;
          RCC_Periph.CFGR.PLLSRC  := PLL_Source'Enum_Rep (PLL_Src);
 
          RCC_Periph.CR.PLLON := 1;
