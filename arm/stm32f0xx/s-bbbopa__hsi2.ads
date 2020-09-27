@@ -61,7 +61,6 @@ package System.BB.Board_Parameters is
    -- Clock configuration --
    -------------------------
 
-   HSE_Enabled : constant Boolean := False; --  No high-speed ext. clock
    HSE_Bypass  : constant Boolean := False; --  Don't bypass ext. resonator
    LSI_Enabled : constant Boolean := True;  --  Use low-speed int. clock
 
@@ -73,7 +72,7 @@ package System.BB.Board_Parameters is
    SYSCLK_Src : constant System.STM32.SYSCLK_Source :=
      System.STM32.SYSCLK_SRC_PLL;
 
-   --  Derived clock dividers/multipliers
+   --  Configure derived clocks
 
    PREDIV       : constant System.STM32.PREDIV_Range := 1;
    PLLMUL_Value : constant                           := 12;

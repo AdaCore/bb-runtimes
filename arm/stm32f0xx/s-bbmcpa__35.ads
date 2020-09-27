@@ -32,12 +32,22 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package defines MCU parameters for the STM32F0xx family
+--  This package defines MCU parameters for the STM32F03x and STM32F05x
+--  family of devices.
 
 package System.BB.MCU_Parameters is
    pragma No_Elaboration_Code_All;
    pragma Preelaborate;
 
    Number_Of_Interrupts : constant := 32;
+
+   Simple_Clock_Tree : constant Boolean := True;
+   --  This is True for STM32F03x and STM32F05x devices which have a simpler
+   --  clock tree that has a forced /2 divider between the HSI and PLL input,
+   --  and does not have the HSI48 clock.
+   --
+   --  This is False for STM32F04x, STM32F07x, and STM32F09x devices which
+   --  do not have the forced /2 divider between the HSI and PLL, and have
+   --  the HSI48 clock.
 
 end System.BB.MCU_Parameters;

@@ -2,11 +2,11 @@
 --                                                                          --
 --                  GNAT RUN-TIME LIBRARY (GNARL) COMPONENTS                --
 --                                                                          --
---            S Y S T E M . B B . B O A R D _ P A R A M E T E R S           --
+--              S Y S T E M . B B . M C U _ P A R A M E T E R S             --
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---                   Copyright (C) 2016-2017, AdaCore                       --
+--                      Copyright (C) 2016, AdaCore                         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -32,55 +32,22 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package defines board parameters for a generic STM32F0xx
---  board with an 8 MHz HSE cystal.
+--  This package defines MCU parameters for the STM32F04x, STM32F07x, and
+--  STM32F09x family of devices.
 
-with System.STM32;
-
-package System.BB.Board_Parameters is
+package System.BB.MCU_Parameters is
    pragma No_Elaboration_Code_All;
-   pragma Preelaborate (System.BB.Board_Parameters);
+   pragma Preelaborate;
 
-   --------------------
-   -- Hardware clock --
-   --------------------
+   Number_Of_Interrupts : constant := 32;
 
-   --  If either of these values are changed then the clock configuration
-   --  below will also need to be changed (e.g. update PLLMUL_Value).
+   Simple_Clock_Tree : constant Boolean := False;
+   --  This is True for STM32F03x and STM32F05x devices which have a simpler
+   --  clock tree that has a forced /2 divider between the HSI and PLL input,
+   --  and does not have the HSI48 clock.
+   --
+   --  This is False for STM32F04x, STM32F07x, and STM32F09x devices which
+   --  do not have the forced /2 divider between the HSI and PLL, and have
+   --  the HSI48 clock.
 
-   Main_Clock_Frequency : constant := 48_000_000;
-   --  Optimal frequency of the system clock.
-
-   HSE_Clock_Frequency : constant := 8_000_000;
-   --  Frequency of High Speed External clock.
-
-   --  If either of the above values are changed then the clock configuration
-   --  below will need to be updated to generate the requested clock freq.
-
-   -------------------------
-   -- Clock configuration --
-   -------------------------
-
-   HSE_Bypass  : constant Boolean := False; --  Don't bypass ext. resonator
-   LSI_Enabled : constant Boolean := True;  --  Use low-speed int. clock
-
-   --  Selection of clock sources
-
-   PLL_Src    : constant System.STM32.PLL_Source    :=
-     System.STM32.PLL_SRC_HSE_PREDIV;
-
-   SYSCLK_Src : constant System.STM32.SYSCLK_Source :=
-     System.STM32.SYSCLK_SRC_PLL;
-
-   --  Configure derived clocks
-
-   PREDIV       : constant System.STM32.PREDIV_Range := 1;
-   PLLMUL_Value : constant                           := 6;
-
-   AHB_PRE : constant System.STM32.AHB_Prescaler :=
-     System.STM32.AHBPRE_DIV1;
-
-   APB_PRE : constant System.STM32.APB_Prescaler :=
-     System.STM32.APBPRE_DIV1;
-
-end System.BB.Board_Parameters;
+end System.BB.MCU_Parameters;

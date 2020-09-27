@@ -455,21 +455,21 @@ class Stm32F0(CortexM0CommonArchSupport):
 
         # Common source files
         self.add_gnat_sources(
-            'arm/stm32f0xx/s-bbmcpa.ads',
             'arm/stm32f0xx/s-stm32.ads',
             'arm/stm32f0xx/s-stm32.adb',
             'arm/stm32f0xx/start-rom.S',
             'arm/stm32f0xx/start-ram.S',
             'arm/stm32f0xx/setup_pll.ads',
+            'arm/stm32f0xx/setup_pll.adb',
             'arm/stm32f0xx/stm32f0x{}/svd/i-stm32.ads'.format(sub_family_minor),
             'arm/stm32f0xx/stm32f0x{}/svd/i-stm32-flash.ads'.format(sub_family_minor),
             'arm/stm32f0xx/stm32f0x{}/svd/i-stm32-rcc.ads'.format(sub_family_minor))
 
-        # Choose clock setup based on family.
+        # Choose MCU parameters based on family.
         if sub_family_major in '479':
-            self.add_gnat_sources('arm/stm32f0xx/setup_pll__479.adb')
+            self.add_gnat_sources('arm/stm32f0xx/s-bbmcpa__479.ads')
         else:
-            self.add_gnat_sources('arm/stm32f0xx/setup_pll__35.adb')
+            self.add_gnat_sources('arm/stm32f0xx/s-bbmcpa__35.ads')
 
         # Choose board parameters based on chosen clock source (HSE or HSI)
         # and the device family.

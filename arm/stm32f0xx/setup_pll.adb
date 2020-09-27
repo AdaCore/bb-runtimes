@@ -31,11 +31,6 @@ pragma Suppress (All_Checks);
 --  This initialization procedure mainly initializes the PLLs and
 --  all derived clocks.
 
---  This file is compatible only with the following devices in the
---  STM32F0 family:
---     STM32F03x
---     STM32F05x
-
 with Ada.Unchecked_Conversion;
 
 with Interfaces.STM32;           use Interfaces, Interfaces.STM32;
@@ -44,6 +39,7 @@ with Interfaces.STM32.RCC;       use Interfaces.STM32.RCC;
 
 with System.BB.Parameters;       use System.BB.Parameters;
 with System.BB.Board_Parameters; use System.BB.Board_Parameters;
+with System.BB.MCU_Parameters;   use System.BB.MCU_Parameters;
 with System.STM32;               use System.STM32;
 
 procedure Setup_Pll is
@@ -55,6 +51,14 @@ procedure Setup_Pll is
    ------------------------------
 
    Activate_PLL : constant Boolean := SYSCLK_Src = SYSCLK_SRC_PLL;
+
+   --  Enable HSE if used to generate the system clock (either directly,
+   --  or indirectly via the PLL).
+
+   HSE_Enabled : constant Boolean :=
+     (SYSCLK_Src = System.STM32.SYSCLK_SRC_HSE
+      or (SYSCLK_Src = System.STM32.SYSCLK_SRC_PLL
+          and PLL_Src = System.STM32.PLL_SRC_HSE_PREDIV));
 
    -----------------------
    -- Initialize_Clocks --
@@ -75,12 +79,14 @@ procedure Setup_Pll is
          "Invalid PLLMUL_Value configuration value");
 
       pragma Compile_Time_Error
-        (PLL_Src not in PLL_SRC_HSI_2 | PLL_SRC_HSE_PREDIV,
-         "PLL does not support HSI input on STM32F03x/STM32F05x devices");
+        (Simple_Clock_Tree
+         and PLL_Src not in PLL_SRC_HSI_2 | PLL_SRC_HSE_PREDIV,
+         "PLL source must be HSI/2 or HSE on STM32F03x/STM32F05x devices");
 
       pragma Compile_Time_Error
-        (PLL_Src = PLL_SRC_HSI48_PREDIV
-         or SYSCLK_Src = SYSCLK_SRC_HSI48,
+        (Simple_Clock_Tree
+         and (PLL_Src = PLL_SRC_HSI48_PREDIV
+              or SYSCLK_Src = SYSCLK_SRC_HSI48),
          "HSI48 clock not present on STM32F03x/STM32F05x devices");
 
       pragma Compile_Time_Error
