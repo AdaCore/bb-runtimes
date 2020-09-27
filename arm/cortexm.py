@@ -419,7 +419,7 @@ class Stm32F0(CortexM0CommonArchSupport):
         # Determine MCU features from board name (e.g. 'stm32f071rb-hse')
         # The -hse or -hsi suffix specifies which clock source to
         # use for the runtime (either HSE or HSI)
-        m = re.match(r'.*f0([34579])([0128])([crvx])([468bc])-(hsi|hse)', board)
+        m = re.match(r'.*f0([34579])([0128])([cefgkrv])([468bc])-(hsi|hse)', board)
         if m is None:
             raise RuntimeError("Unknown STM32F0 target: " + board)
         sub_family_major      = m.group(1)
