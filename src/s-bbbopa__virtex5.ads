@@ -2,13 +2,11 @@
 --                                                                          --
 --                  GNAT RUN-TIME LIBRARY (GNARL) COMPONENTS                --
 --                                                                          --
---                   S Y S T E M . B B . P A R A M E T E R S                --
+--            S Y S T E M . B B . B O A R D _ P A R A M E T E R S           --
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
---             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2014-2020, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -34,52 +32,22 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package defines basic parameters used by the low level tasking system
+--  This package defines board parameters for the Xilinx Virtex-5 FXT PPC440
 
-with System.BB.Board_Parameters;
-
-package System.BB.Parameters is
+package System.BB.Board_Parameters is
+   pragma No_Elaboration_Code_All;
    pragma Pure;
+
+   XPS_INTC_Base_Address : constant := 16#8180_0000#;
+   --  Base address of the XPS Interrupt Controller
 
    --------------------
    -- Hardware clock --
    --------------------
 
-   Ticks_Per_Second : constant := Board_Parameters.Clock_Frequency;
-   --  Frequency of the system clock
+   Clock_Frequency     : constant Positive := 125_000_000;
+   --  Frequency of the system clock for the decrementer timer
 
-   ----------------
-   -- Interrupts --
-   ----------------
-
-   --  These definitions are in this package in order to isolate target
-   --  dependencies.
-
-   subtype Interrupt_Range is Natural range 1 .. 128 + 8;
-   --  Number of interrupts (for both the interrupt controller and core
-   --  interrupts such as the decrementer). The runtime supports at most
-   --  128 interrupts external interrupts and 8 non external. If you have
-   --  more interrupts, you need to change the above constants. This static
-   --  range is used to declare a type, and the handler table.
-
-   ------------
-   -- Stacks --
-   ------------
-
-   Interrupt_Stack_Size : constant := 8 * 1024;
-   --  Size of each of the interrupt stacks in bytes
-
-   Interrupt_Sec_Stack_Size : constant := 1024;
-   --  Size of the secondary stack for interrupt handlers
-
-   ----------
-   -- CPUS --
-   ----------
-
-   Max_Number_Of_CPUs : constant := 1;
-   --  Maximum number of CPUs
-
-   Multiprocessor : constant Boolean := Max_Number_Of_CPUs /= 1;
-   --  Are we on a multiprocessor board?
-
-end System.BB.Parameters;
+   PLB_Clock_Frequency : constant := 125_000_000;
+   --  The PLB Clock Frequency is used by peripheral devices like UART
+end System.BB.Board_Parameters;

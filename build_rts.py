@@ -34,7 +34,7 @@ from sparc import Leon2, Leon3, Leon4
 from m68k import M68020, M68020_SoftFloat
 
 # powerpc
-from powerpc import MPC8641, MPC8349e, P2020, P5566, P5634
+from powerpc import MPC8641, MPC8349e, Virtex5, P2020, P5566, P5634
 
 # riscv
 from riscv import Spike, Unleashed, PolarFireSOC, HiFive1, \
@@ -156,6 +156,8 @@ def build_configs(target):
         t = P5566()
     elif target == 'mpc5634':
         t = P5634()
+    elif target == 'virtex5':
+        t = Virtex5()
     # Visium elf
     elif target == 'mcm':
         t = Visium()
