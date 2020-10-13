@@ -55,12 +55,9 @@ package System.BB.Parameters is
    --  These definitions are in this package in order to isolate target
    --  dependencies.
 
-   subtype Interrupt_Range is Natural range 1 .. 128 + 8;
-   --  Number of interrupts (for both the interrupt controller and core
-   --  interrupts such as the decrementer). The runtime supports at most
-   --  128 interrupts external interrupts and 8 non external. If you have
-   --  more interrupts, you need to change the above constants. This static
-   --  range is used to declare a type, and the handler table.
+   subtype Interrupt_Range is Natural range 0 .. 31;
+   --  Maximum number of external interrupts supported by the runtime. The
+   --  Xilinx XPS Interrupt controller supports 32 interrupts.
 
    ------------
    -- Stacks --

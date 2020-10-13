@@ -403,8 +403,16 @@ sources = {
     'alloc/tasking': {
         'conditions': ['Has_libc:no',
                        'RTS_Profile:ravenscar-sfp',
-                       'Has_Compare_And_Swap:yes'],
+                       'Has_Compare_And_Swap:yes',
+                       'Certifiable_Packages:no'],
         'srcs': ['hie/s-memory__raven.adb']
+    },
+    'alloc/tasking-noc': {
+        'conditions': ['Has_libc:no',
+                       'RTS_Profile:ravenscar-sfp',
+                       'Has_Compare_And_Swap:yes',
+                       'Certifiable_Packages:yes'],
+        'srcs': ['hie/s-memory__raven_noc.adb']
     },
     'mem': {
         'conditions': ['Has_libc:no'],

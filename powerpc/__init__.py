@@ -35,6 +35,24 @@ class PPC6XXArch(ArchSupport):
             'src/s-bbcpsp__6xx.adb')
 
 
+class PPCBookEArch(ArchSupport):
+    @property
+    def parent(self):
+        return PPCArch
+
+    @property
+    def name(self):
+        return 'booke'
+
+    def __init__(self):
+        super(PPCBookEArch, self).__init__()
+        self.add_gnarl_sources(
+            'powerpc/booke/context_switch.S',
+            'powerpc/booke/handler.S',
+            'src/s-bbcpsp__ppc-booke.ads',
+            'src/s-bbcpsp__ppc-booke.adb')
+
+
 class PPCSPEArch(ArchSupport):
     @property
     def parent(self):
@@ -183,6 +201,121 @@ class MPC8641(PPC6XXTarget):
             'src/s-bbsumu__8641d.adb',
             'src/s-bbpara__8641d.ads',
             'src/a-intnam__ppc-openpic.ads')
+
+
+class PPCBookETarget(DFBBTarget):
+    @property
+    def target(self):
+        return 'powerpc-elf'
+
+    @property
+    def parent(self):
+        return PPCBookEArch
+
+    @property
+    def has_timer_64(self):
+        return True
+
+    @property
+    def has_fpu(self):
+        # Add fpu support
+        return True
+
+    @property
+    def has_single_precision_fpu(self):
+        # But use soft float in the math lib
+        return False
+
+    @property
+    def has_double_precision_fpu(self):
+        # But use soft float in the math lib
+        return False
+
+    @property
+    def system_ads(self):
+        return {
+            'zfp': 'system-xi-ppc.ads',
+            'ravenscar-sfp': 'system-xi-ppc-sfp.ads',
+            'ravenscar-full': 'system-xi-ppc-full.ads'
+        }
+
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(PPCBookETarget, self).dump_runtime_xml(rts_name, rts)
+        if rts_name == 'ravenscar-full':
+            cnt = cnt.replace(
+                '"-nostartfiles"',
+                ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
+                 '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"'))
+        return cnt
+
+    def amend_rts(self, rts_profile, conf):
+        super(PPCBookETarget, self).amend_rts(rts_profile, conf)
+        # kill shrink-wrap-separate when building the runtime as this prevents
+        # the frame to be properly built and thus prevents gdb from unwinding
+        # the runtime (see R220-013).
+        conf.build_flags['common_flags'] += ['-fno-shrink-wrap-separate']
+        if rts_profile == 'ravenscar-full':
+            conf.config_files.update(
+                {'link-zcx.spec': readfile('powerpc/prep/link-zcx.spec')})
+
+    def __init__(self):
+        super(PPCBookETarget, self).__init__()
+        if self.use_certifiable_packages:
+            self.add_gnat_sources(
+                'powerpc/6xx/restfpr.S',
+                'powerpc/6xx/restgpr.S',
+                'powerpc/6xx/restxfpr.S',
+                'powerpc/6xx/restxgpr.S',
+                'powerpc/6xx/savefpr.S',
+                'powerpc/6xx/savegpr.S')
+
+
+class Virtex5(PPCBookETarget):
+    @property
+    def name(self):
+        return 'virtex5'
+
+    @property
+    def compiler_switches(self):
+        return ('-mhard-float', '-mcpu=440fp')
+
+    @property
+    def loaders(self):
+        return ('RAM', )
+
+    @property
+    def use_certifiable_packages(self):
+        return True
+
+    @property
+    def readme_file(self):
+        return 'powerpc/virtex5/README'
+
+    @property
+    def system_ads(self):
+        return {
+            'zfp': 'system-xi-ppc.ads',
+            'ravenscar-sfp': 'system-xi-ppc-xilinx-sfp.ads',
+            'ravenscar-full': 'system-xi-ppc-xilinx-full.ads'
+        }
+
+    def __init__(self):
+        super(Virtex5, self).__init__()
+        self.add_linker_script('powerpc/virtex5/ram.ld', loader='RAM')
+        self.add_linker_switch('-Wl,-u_start_ram', loader='RAM')
+
+        self.add_gnat_sources(
+            'powerpc/virtex5/start.S',
+            'powerpc/virtex5/setup.S',
+            'src/s-bbbopa__virtex5.ads',
+            'src/s-macres__none.adb',
+            'src/s-textio__xps_uart16550.adb')
+        self.add_gnarl_sources(
+            'src/s-bbbosu__virtex5-xps.adb',
+            'src/s-bbsuti__ppc.adb',
+            'src/s-bbsumu__generic.adb',
+            'src/s-bbpara__ppc-vertix5.ads',
+            'src/a-intnam__xps.ads')
 
 
 class PPCSPETarget(PPC6XXTarget):

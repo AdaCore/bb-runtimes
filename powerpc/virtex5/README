@@ -1,0 +1,162 @@
+Virtex-5 FXT PPC440 Runtimes
+============================
+
+Runtimes Supported
+------------------
+
+* ZFP
+* Ravenscar-SFP
+* Ravenscar-Full
+
+Target Support
+--------------
+
+Xilinx Virtex-5 FXT PowerPC 440 (single core) with FPU
+
+The runtime does not support FPU-less systems.
+
+The runtime uses the following FPGA IP:
+
+* XPS Interrupt Controller at address 16#8180_0000#
+* XPS 16550 UART at address 16#83E0_0000#
+
+If these IPs are located at different memory addresses on your system, the
+runtime can be updated as described in the relevant sections below.
+Additionally, the runtime can be modified to support alternate UART or
+Interrupt Controllers. Refer to the Interrupts and Text_IO sections below for
+more details.
+
+Using the runtimes
+------------------
+
+To use the runtime, copy them to the `<powerpc gnat install>/powerpc-elf/lib/gnat/`
+folder. You can then select the runtime from the Toolchain pane of the Project
+Properties dialog box in GPS or set the following in your GPR file:
+
+   for Runtime ("ada") use "ravenscar-sfp-virtex5";
+
+Alternatively, you can locate the runtime in another directory and then in the
+project file provide the full or relative path from the project file:
+
+   for Runtime ("ada") use "/path/to/runtime/ravenscar-sfp-virtex5";
+
+
+Rebuilding the Runtime
+----------------------
+
+If you need to make changes to the runtime at any point to make changes to the
+runtime's BSP you can rebuild it as follows:
+
+For ZFP: gprbuild -P runtime_build.gpr -j0
+
+For the Ravenscar runtimes: gprbuild -P ravenscar_build.gpr -j0
+
+System Clocks
+-------------
+
+See package System.BB.Board_Parameters (`s-bbbopa.ads`) in the gnat directory
+for the clock frequency declaration. By default, the clock rate is set to
+125MHz and can be modified by updating System.BB.Board_Parameters and
+rebuilding the runtime. System.BB.Board_Parameters also defines the PLB clock
+rate which is used by the runtime to determine the correct divisor for the
+UART controller.
+
+Startup Code
+------------
+
+The Xilinx Virtex-5 FXT PowerPC 440 runtime is designed to be loaded to and run
+from RAM by a bootloader. As shipped the runtime comes with two assembly files
+containing the runtime startup code: `start.S` and `setup.S`. `start.S`
+provides the entry point for the runtime and can either be called by the
+bootloader or replaced with your own code if required.
+
+`setup.S` provides the low-level setup that needs to be performed before the
+high-level Ada code is called. This includes clearing the bss segments and
+enabling and configuring the FPU. Like `start.S`, this code may be replaced
+with your own code, but please contact AdaCore if you need to modify the FPU
+settings as doing so may affect the conformance of the runtime to the Ada
+Standard.
+
+Memory Layout
+-------------
+
+The memory layout is controlled by the linker script `ram.ld`, which can be
+found inside the ld directory. By default, the script configures the system for
+128 MiB of RAM and loads the application starting from 16#10_0000# to provide
+space for any bootloader in the first 1MiB of RAM. If your requirements differ
+from this you can either modify the `ram.ld` directly or provide your own
+project-specific linker script via the `-T` linker switch and using the
+`-XLOADER=USER` switch when building your application with GPRbuild.
+
+Interrupts
+----------
+
+The Xilinx Virtex-5 FXT PowerPC 440 runtime is configured to use the Xilinx
+XPS Interrupt Controller, with the base address of the controller located at
+16#8180_0000#. If your controller uses a different base address, you can update
+the corresponding parameter in the System.BB.Board_Parameters (`s-bbbopa.ads`)
+package.
+
+The runtime supports up to 32 external interrupts and does not support nested
+interrupts due to limitations with the XPS Interrupt Controller. The package
+Ada.Interrupts.Names (`a-intnam.ads`) provides the list of interrupt names and
+mappings to the underlying interrupt ID. This package is located in the gnarl
+directory.
+
+If your Xilinx Virtex-5 target uses a different interrupt controller you will
+need to change the System.BB.Board_Support (`s-bbbosu.adb`) package to suite
+your controller. Please see that package for details on how to make the
+required changes and reach out to AdaCore support for any help needed.
+
+Of the PowerPC core interrupt, the Decrementer and External Interrupt vectors
+are reserved for runtime use. Handlers for the other PowerPC core interrupts
+may be attached via System.BB.CPU_Specific.Install_Exception_Handler procedure:
+
+   procedure Install_Exception_Handler
+     (Service_Routine : System.Address;
+      Vector          : Vector_Id);
+
+The Service_Routine parameter is the address of your interrupt handler routine
+and takes the form of:
+
+   GNAT_Error_Handler (Trap : Vector_Id);
+
+For non-critical interrupts, the processor saves the CPU state, reenables the
+FPU and switches the handler to use a dedicated interrupt state. By contrast,
+for critical interrupts and Machine Check interrupts the processor only saves
+the non-FPU state and does not reenable the FPU while the handler is running.
+Critical and Machine Check interrupts are not enabled by the runtime but can
+be enabled by the user after installing the appropriate interrupt handler by
+setting the appropriate MSR bits.
+
+Text_IO
+-------
+
+The runtimes provide a minimal version of the Ada.Text_IO package supporting
+character- and string-based input and output routines. The bodies of the
+Ada.Text_IO routines call through to a device-specific I/O package named
+System.Text_IO. See the package body in the file `s-textio.adb` in the gnat
+directory for more details.
+
+By default System.Text_IO is configured to use the XPS 16550 UART at a base
+address of 16#83E0_0000#. The UART is configured for 115200 baud rate, 8-bits,
+no parity and 1 stop bit.
+
+If required the based address and UART settings can be changed in the
+System.Text_IO package. If your system uses a different UART controller you may
+also replace System.Text_IO with your own implementation.
+
+Resources Used
+--------------
+
+The Ravenscar runtime libraries use the time base and decrementer core
+registers to implement Ada semantics for time, i.e., delay statements and
+package Ada.Real_Time. See the package body for System.BB.Board_Support in the
+file `gnat/s-bbsuti.adb`. Note that these registers are 32-bits wide, so
+although the underlying time base value is 64-bits, the value must be read in
+two separate instructions, that is, non-atomically, and then combined. This
+results in the possibility of a race condition in which the upper half changes
+after being read, apart from when the lower half is read. To deal with that
+race condition a loop is used, but note that this requires multiple reads of
+the two registers. See function Read_Clock in that package for the loop.
+
