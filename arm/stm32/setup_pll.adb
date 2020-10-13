@@ -2,7 +2,7 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---          Copyright (C) 2012-2019, Free Software Foundation, Inc.         --
+--          Copyright (C) 2012-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -262,10 +262,10 @@ procedure Setup_Pll is
                                   2 => To_APB (APB2_PRE))),
          RTCPRE  => 16#0#,
          I2SSRC  => I2S_Clock_Selection'Enum_Rep (I2SSEL_PLL),
-         MCO1    => MC01_Clock_Selection'Enum_Rep (MC01SEL_HSI),
-         MCO1PRE => MC0x_Prescaler'Enum_Rep (MC0xPRE_DIV1),
-         MCO2    => MC02_Clock_Selection'Enum_Rep (MC02SEL_SYSCLK),
-         MCO2PRE => MC0x_Prescaler'Enum_Rep (MC0xPRE_DIV5),
+         MCO1    => MCO1_Clock_Selection'Enum_Rep (MCO1SEL_HSI),
+         MCO1PRE => MCOx_Prescaler'Enum_Rep (MCOxPRE_DIV1),
+         MCO2    => MCO2_Clock_Selection'Enum_Rep (MCO2SEL_SYSCLK),
+         MCO2PRE => MCOx_Prescaler'Enum_Rep (MCOxPRE_DIV5),
          others  => <>);
 
       if Activate_PLL then

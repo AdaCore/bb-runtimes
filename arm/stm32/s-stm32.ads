@@ -2,7 +2,7 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---          Copyright (C) 2012-2016, Free Software Foundation, Inc.         --
+--          Copyright (C) 2012-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -131,33 +131,33 @@ package System.STM32 is
       I2SSEL_CKIN)
      with Size => 1;
 
-   type MC01_Clock_Selection is
-     (MC01SEL_HSI,
-      MC01SEL_LSE,
-      MC01SEL_HSE,
-      MC01SEL_PLL)
+   type MCO1_Clock_Selection is
+     (MCO1SEL_HSI,
+      MCO1SEL_LSE,
+      MCO1SEL_HSE,
+      MCO1SEL_PLL)
      with Size => 2;
 
-   type MC02_Clock_Selection is
-     (MC02SEL_SYSCLK,
-      MC02SEL_PLLI2S,
-      MC02SEL_HSE,
-      MC02SEL_PLL)
+   type MCO2_Clock_Selection is
+     (MCO2SEL_SYSCLK,
+      MCO2SEL_PLLI2S,
+      MCO2SEL_HSE,
+      MCO2SEL_PLL)
      with Size => 2;
 
-   type MC0x_Prescaler is
-     (MC0xPRE_DIV1,
-      MC0xPRE_DIV2,
-      MC0xPRE_DIV3,
-      MC0xPRE_DIV4,
-      MC0xPRE_DIV5)
+   type MCOx_Prescaler is
+     (MCOxPRE_DIV1,
+      MCOxPRE_DIV2,
+      MCOxPRE_DIV3,
+      MCOxPRE_DIV4,
+      MCOxPRE_DIV5)
      with Size => 3;
-   for MC0x_Prescaler use
-     (MC0xPRE_DIV1 => 0,
-      MC0xPRE_DIV2 => 2#100#,
-      MC0xPRE_DIV3 => 2#101#,
-      MC0xPRE_DIV4 => 2#110#,
-      MC0xPRE_DIV5 => 2#111#);
+   for MCOx_Prescaler use
+     (MCOxPRE_DIV1 => 0,
+      MCOxPRE_DIV2 => 2#100#,
+      MCOxPRE_DIV3 => 2#101#,
+      MCOxPRE_DIV4 => 2#110#,
+      MCOxPRE_DIV5 => 2#111#);
 
    --  Constants for RCC CR register
 
