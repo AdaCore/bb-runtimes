@@ -597,6 +597,41 @@ class Stm32CommonArchSupport(ArchSupport):
             'arm/stm32/setup_pll.ads')
 
 
+stm32_board_configuration = {
+    'stm32f4':           {'STM32_Main_Clock_Frequency': '168_000_000',
+                          'STM32_HSE_Clock_Frequency': '8_000_000',
+                          'STM32_FLASH_Latency': '5'},
+
+    'feather_stm32f405': {'STM32_Main_Clock_Frequency': '168_000_000',
+                          'STM32_HSE_Clock_Frequency': '12_000_000',
+                          'STM32_FLASH_Latency': '5'},
+
+    'stm32f429disco':    {'STM32_Main_Clock_Frequency': '180_000_000',
+                          'STM32_HSE_Clock_Frequency': '8_000_000',
+                          'STM32_FLASH_Latency': '5'},
+
+    'openmv2':           {'STM32_Main_Clock_Frequency': '180_000_000',
+                          'STM32_HSE_Clock_Frequency': '12_000_000',
+                          'STM32_FLASH_Latency': '5'},
+
+    'stm32f469disco':    {'STM32_Main_Clock_Frequency': '180_000_000',
+                          'STM32_HSE_Clock_Frequency': '8_000_000',
+                          'STM32_FLASH_Latency': '5'},
+
+    'stm32f746disco':    {'STM32_Main_Clock_Frequency': '200_000_000',
+                          'STM32_HSE_Clock_Frequency': '25_000_000',
+                          'STM32_FLASH_Latency': '5'},
+
+    'stm32756geval':     {'STM32_Main_Clock_Frequency': '180_000_000',
+                          'STM32_HSE_Clock_Frequency': '25_000_000',
+                          'STM32_FLASH_Latency': '5'},
+
+    'stm32f769disco':    {'STM32_Main_Clock_Frequency': '200_000_000',
+                          'STM32_HSE_Clock_Frequency': '25_000_000',
+                          'STM32_FLASH_Latency': '6'},
+    }
+
+
 class Stm32(ArmV7MTarget):
     """Generic handling of stm32 boards"""
     @property
@@ -646,29 +681,32 @@ class Stm32(ArmV7MTarget):
 
     def __init__(self, board):
         self.board = board
-        if self.board == 'stm32f4' or self.board == 'feather_stm32f405':
+        if self.board in ['stm32f4', 'feather_stm32f405']:
             self.mcu = 'stm32f40x'
-        elif self.board == 'stm32f429disco':
+        elif self.board in ['stm32f429disco', 'openmv2']:
             self.mcu = 'stm32f429x'
-        elif self.board == 'openmv2':
-            self.mcu = 'stm32f429x'
-        elif self.board == 'stm32f469disco':
+        elif self.board in ['stm32f469disco']:
             self.mcu = 'stm32f469x'
-        elif self.board == 'stm32f746disco':
+        elif self.board in ['stm32f746disco', 'stm32756geval']:
             self.mcu = 'stm32f7x'
-        elif self.board == 'stm32756geval':
-            self.mcu = 'stm32f7x'
-        elif self.board == 'stm32f769disco':
+        elif self.board in ['stm32f769disco']:
             self.mcu = 'stm32f7x9'
         else:
             assert False, "Unknown stm32 board: %s" % self.board
 
         super(Stm32, self).__init__()
 
+        # Add board template configuration
+        for key, value in stm32_board_configuration[self.board].items():
+            self.add_template_config_value(key, value)
+
+        self.add_template_config_value('Board_Name', self.board)
+        self.add_template_config_value('MCU_Name', self.mcu)
+
         self.add_linker_script('arm/stm32/%s/memory-map.ld' % self.mcu)
+
         # startup code
         self.add_gnat_sources(
-            'arm/stm32/%s/s-bbbopa.ads' % self.mcu,
             'arm/stm32/%s/s-bbmcpa.ads' % self.mcu,
             'arm/stm32/%s/s-bbmcpa.adb' % self.mcu,
             'arm/stm32/%s/svd/i-stm32.ads' % self.mcu,
@@ -679,29 +717,17 @@ class Stm32(ArmV7MTarget):
             'arm/stm32/%s/svd/i-stm32-syscfg.ads' % self.mcu,
             'arm/stm32/%s/svd/i-stm32-usart.ads' % self.mcu)
 
-        if self.board == 'stm32f4':
+        self.add_gnat_source('arm/stm32/s-bbbopa.ads.tmpl')
+
+        if self.mcu in ['stm32f40x']:
             self.add_gnat_source('arm/stm32/stm32f40x/s-stm32.adb')
-        elif self.board == 'feather_stm32f405':
-            self.add_gnat_source('arm/stm32/stm32f40x/s-stm32.adb')
-            self.update_pair(
-                's-bbbopa.ads',
-                'arm/stm32/%s/s-bbbopa-feather_stm32f405.ads' % self.mcu)
-        elif self.board == 'stm32f429disco':
+
+        elif self.mcu in ['stm32f429x',
+                          'stm32f469x']:
             self.add_gnat_source('arm/stm32/stm32f429x/s-stm32.adb')
-        elif self.board == 'openmv2':
-            self.add_gnat_source('arm/stm32/stm32f429x/s-stm32.adb')
-            self.update_pair(
-                's-bbbopa.ads', 'arm/stm32/%s/s-bbbopa-openmv2.ads' % self.mcu)
-        elif self.board == 'stm32f469disco':
-            self.add_gnat_source('arm/stm32/stm32f429x/s-stm32.adb')
-        elif self.board == 'stm32f746disco':
-            self.add_gnat_source('arm/stm32/stm32f7x/s-stm32.adb')
-        elif self.board == 'stm32756geval':
-            self.add_gnat_source('arm/stm32/stm32f7x/s-stm32.adb')
-            self.update_pair(
-                's-bbbopa.ads',
-                'arm/stm32/%s/s-bbbopa-stm32756geval.ads' % self.mcu)
-        elif self.board == 'stm32f769disco':
+
+        elif self.mcu in ['stm32f7x',
+                          'stm32f7x9']:
             self.add_gnat_source('arm/stm32/stm32f7x/s-stm32.adb')
 
         # ravenscar support
