@@ -1,12 +1,39 @@
 import os
 import shutil
 import sys
+import re
 
 from support import fullpath, is_string
 
 
-def _copy(src, dst):
+TEMPLATE_EXT = '.tmpl'
+
+
+def _apply_template_config(content, template_config):
+    # Replace all instances matching the format "${key}" with the corresponding
+    # value in template_config. The matching pattern is enclosed in
+    # double-quotes (") to avoid invalid characters in Ada source code.
+    def lookup(match):
+        key = match.group(1)
+        assert key in template_config, \
+            "key '%s' not defined in template configuration" % key
+        return str(template_config.get(key))
+
+    return(re.sub(r'\"\$\{([^\$\"\}]*)\}\"', lookup, content))
+
+
+def _copy(src, dst, template_config=None):
     "Copy (or symlink) src to dst"
+
+    src_is_template = (src.endswith(TEMPLATE_EXT) and
+                       template_config is not None)
+
+    # Remove template extension from destination filename, if any
+    if dst.endswith(TEMPLATE_EXT):
+        dst = dst[:-len(TEMPLATE_EXT)]
+
+    # The run-time sources are encoded in ASCII
+    source_encoding = 'us-ascii'
 
     if not os.path.isfile(src):
         print("runtime file " + src + " does not exists")
@@ -14,17 +41,28 @@ def _copy(src, dst):
 
     already_exists = False
 
-    if os.path.isfile(dst):
-        with open(dst, 'r') as fp:
-            cnt1 = fp.read()
-        with open(src, 'r') as fp:
-            cnt2 = fp.read()
-        if cnt1 != cnt2:
-            print("runtime file " + dst + " already exists")
-            print("cannot install " + src)
-            sys.exit(5)
-        else:
-            already_exists = True
+    if os.path.isfile(dst) or src_is_template:
+        with open(src, 'r', encoding=source_encoding) as fp:
+            src_cnt = fp.read()
+
+        # Apply template configuration
+        if src_is_template:
+            if FilesHolder.verbose:
+                print("Apply template config to %s: %s" %
+                      (src, str(template_config)))
+            src_cnt = _apply_template_config(src_cnt, template_config)
+
+        # Check if destination file already exists with same content
+        if os.path.isfile(dst):
+            with open(dst, 'r') as fp:
+                dst_cnt = fp.read()
+
+            if dst_cnt != src_cnt:
+                print("runtime file " + dst + " already exists")
+                print("cannot install " + src)
+                sys.exit(5)
+            else:
+                already_exists = True
 
     if already_exists:
         if FilesHolder.verbose:
@@ -32,15 +70,21 @@ def _copy(src, dst):
     else:
         if FilesHolder.verbose:
             print("copy " + src + " to " + dst)
-        if FilesHolder.link:
+        if FilesHolder.link and not src_is_template:
             os.symlink(os.path.abspath(src), dst)
+        elif src_is_template:
+            # Write source from template file
+            with open(dst, 'w', encoding=source_encoding) as fp:
+                fp.write(src_cnt)
         else:
+            # Copy non templated source file
             shutil.copy(src, dst)
 
 
 class FilePair(object):
-    def __init__(self, dst, src):
+    def __init__(self, dst, src, template_config=None):
         self._dst = dst
+        self._template_config = template_config
 
         # Full path to the source file
         self._src = None
@@ -65,7 +109,9 @@ class FilePair(object):
             if not os.path.exists(self._src):
                 # Look into gcc
                 self._src = os.path.join(FilesHolder.gccdir, src)
-        assert os.path.exists(self._src)
+
+        assert os.path.exists(self._src), \
+            "Error: source file '%s' not found" % src
 
     def __eq__(self, other):
         if is_string(other):
@@ -79,7 +125,7 @@ class FilePair(object):
         return self._dst
 
     def install(self, dir):
-        _copy(self._src, os.path.join(dir, self._dst))
+        _copy(self._src, os.path.join(dir, self._dst), self._template_config)
 
 
 class FilesHolder(object):
@@ -111,6 +157,7 @@ class FilesHolder(object):
 
     def __init__(self):
         self.dirs = {}
+        self._template_config = {}
 
         # Read manifest file (if exists)
         if FilesHolder.manifest is None:
@@ -131,7 +178,7 @@ class FilesHolder(object):
          SRC is the full name of the file to copy"""
         if dir not in self.dirs:
             self.dirs[dir] = []
-        self.dirs[dir].append(FilePair(dst, src))
+        self.dirs[dir].append(FilePair(dst, src, self._template_config))
 
     def add_source(self, dir, src):
         """Add source.
@@ -161,6 +208,17 @@ class FilesHolder(object):
         for src in sources:
             self.add_source(dir, src)
 
+    def add_template_config_value(self, key, value):
+        """Adds key/value that will be used to instantiate templated source"""
+
+        assert isinstance(key, str) and isinstance(value, str), \
+            "template key and value must be strings"
+
+        if key in self._template_config:
+            assert False, "config key already defined  %s" % key
+        else:
+            self._template_config[key] = value
+
     def has_source(self, name):
         for d in self.dirs:
             if name in self.dirs[d]:
@@ -183,7 +241,7 @@ class FilesHolder(object):
         for d in self.dirs:
             if dest in self.dirs[d]:
                 self.dirs[d].remove(dest)
-                self.dirs[d].append(FilePair(dest, src))
+                self.dirs[d].append(FilePair(dest, src, self._template_config))
                 return True
         # no such file
         return False
