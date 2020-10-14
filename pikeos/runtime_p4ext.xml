@@ -10,6 +10,10 @@
   Default_Version := "";
 
   case This_Target is
+    when "aarch64-pikeos5" | "aarch64-sysgo-pikeos5" =>
+       Default_Arch := "arm";
+       Default_Proc := "v8hf";
+       Default_Version := "5.0";
     when "arm-pikeos5" | "arm-sysgo-pikeos5" =>
        Default_Arch := "arm";
        Default_Proc := "v7hf";
@@ -18,6 +22,10 @@
        Default_Arch := "arm";
        Default_Proc := "v7hf";
        Default_Version := "4.2";
+    when "ppc-pikeos5" | "powerpc-sysgo-pikeos5" =>
+       Default_Arch := "ppc";
+       Default_Proc := "e500mc-4g";
+       Default_Version := "5.0";
     when others =>
        null;
    end case;

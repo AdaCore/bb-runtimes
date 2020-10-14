@@ -12,7 +12,8 @@ from support.bsp_sources.installer import Installer
 from support.docgen import docgen
 
 # PikeOS
-from pikeos import ArmPikeOS, ArmPikeOS42, ArmPikeOS5
+from pikeos import AArch64PikeOS5, ArmPikeOS, ArmPikeOS42, ArmPikeOS5, \
+    PPCPikeOS5
 
 # Cortex-M runtimes
 from arm.cortexm import Stm32, Sam, SmartFusion2, LM3S, Microbit, \
@@ -57,12 +58,16 @@ import sys
 
 def build_configs(target):
     # PikeOS
-    if target == 'arm-pikeos':
+    if target == 'aarch64-pikeos5':
+        t = AArch64PikeOS5()
+    elif target == 'arm-pikeos':
         t = ArmPikeOS()
     elif target == 'arm-pikeos4.2':
         t = ArmPikeOS42()
     elif target == 'arm-pikeos5':
         t = ArmPikeOS5()
+    elif target == 'ppc-pikeos5':
+        t = PPCPikeOS5()
     # AArch64 elf
     elif target == 'rpi3':
         t = Rpi3()

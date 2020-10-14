@@ -103,6 +103,11 @@ ifeq ($(TARGET),$(filter $(TARGET),x86_64-w64-mingw32 x86_64-windows64))
     TARGETS=x86_64-windows64
 endif
 
+ifeq ($(TARGET),$(filter $(TARGET),aarch64-pikeos5))
+    TGT=aarch64-sysgo-pikeos5
+    TARGETS=aarch64-pikeos5
+endif
+
 ifeq ($(TARGET),$(filter $(TARGET),arm-sysgo-pikeos arm-pikeos))
     TGT=arm-sysgo-pikeos
     TARGETS=arm-pikeos
@@ -116,6 +121,11 @@ endif
 ifeq ($(TARGET),$(filter $(TARGET),arm-sysgo-pikeos4 arm-pikeos5))
     TGT=arm-sysgo-pikeos5
     TARGETS=arm-pikeos5
+endif
+
+ifeq ($(TARGET),$(filter $(TARGET),ppc-pikeos5))
+    TGT=powerpc-sysgo-pikeos5
+    TARGETS=ppc-pikeos5
 endif
 
 ifeq ($(TARGETS), none)

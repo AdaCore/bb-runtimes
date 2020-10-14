@@ -119,6 +119,41 @@ class ArmPikeOS42(PikeOS):
         self.add_linker_script('pikeos/arm-app.ld')
 
 
+class AArch64PikeOS5(PikeOS):
+    @property
+    def name(self):
+        return 'aarch64-pikeos5'
+
+    @property
+    def target(self):
+        return 'aarch64-sysgo-pikeos5'
+
+    @property
+    def pikeos_version(self):
+        return 'pikeos5'
+
+    @property
+    def pikeos_target(self):
+        return 'arm/v8hf'
+
+    @property
+    def system_ads(self):
+        return {
+            'zfp': 'system-pikeos5-aarch64.ads',
+            'ravenscar-sfp': 'system-pikeos5-aarch64-ravenscar-sfp.ads',
+            'ravenscar-full': 'system-pikeos5-aarch64-ravenscar-full.ads'
+        }
+
+    def dump_runtime_xml(self, rts_name, rts):
+        return readfile('pikeos/runtime_p4ext.xml')
+
+    def __init__(self):
+        super(AArch64PikeOS5, self).__init__()
+        self.add_gnat_source('pikeos/p4ext-cert-app.c')
+        self.add_gnarl_source('pikeos/adaint-pikeos-p4ext.c')
+        self.add_linker_script('pikeos/aarch64-pikeos5.ld')
+
+
 class ArmPikeOS5(PikeOS):
     @property
     def name(self):
@@ -152,3 +187,38 @@ class ArmPikeOS5(PikeOS):
         self.add_gnat_source('pikeos/p4ext-cert-app.c')
         self.add_gnarl_source('pikeos/adaint-pikeos-p4ext.c')
         self.add_linker_script('pikeos/arm-pikeos5.ld')
+
+
+class PPCPikeOS5(PikeOS):
+    @property
+    def name(self):
+        return 'ppc-pikeos5'
+
+    @property
+    def target(self):
+        return 'powerpc-sysgo-pikeos5'
+
+    @property
+    def pikeos_version(self):
+        return 'pikeos5'
+
+    @property
+    def pikeos_target(self):
+        return 'ppc/e500mc-4g'
+
+    @property
+    def system_ads(self):
+        return {
+            'zfp': 'system-pikeos5-ppc.ads',
+            'ravenscar-sfp': 'system-pikeos5-ppc-ravenscar-sfp.ads',
+            'ravenscar-full': 'system-pikeos5-ppc-ravenscar-full.ads'
+        }
+
+    def dump_runtime_xml(self, rts_name, rts):
+        return readfile('pikeos/runtime_p4ext.xml')
+
+    def __init__(self):
+        super(PPCPikeOS5, self).__init__()
+        self.add_gnat_source('pikeos/p4ext-cert-app.c')
+        self.add_gnarl_source('pikeos/adaint-pikeos-p4ext.c')
+        self.add_linker_script('pikeos/ppc-pikeos5.ld')

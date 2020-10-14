@@ -33,6 +33,11 @@
 #include <vm_debug.h>
 #endif
 
+#if defined (USE_ZCX) && !defined(__ARM_EABI__)
+#include <stddef.h>
+#include "unwind-dw2-fde.h"
+#endif
+
 void __gnat_init_exception_frames (void);
 
 void __gnat_init_debug(void)
