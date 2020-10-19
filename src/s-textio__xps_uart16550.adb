@@ -94,7 +94,7 @@ package body System.Text_IO is
    end record;
 
    type Stop_Bits_Type is (One, Two);
-   type Word_Length_Type is (Five, Size, Seven, Eight);
+   type Word_Length_Type is (Five, Six, Seven, Eight);
 
    type Line_Control is record
       Divisor_Latch_Access : Boolean;
