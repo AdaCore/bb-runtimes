@@ -80,19 +80,19 @@ _start_flash:
 	bltr
 
         # Copy data
-	lis   %r11,(__data_start - 4)@ha
-	la    %r11,(__data_start - 4)@l(%r11)
-	lis   %r10,(__data_end)@ha
-        la    %r10,(__data_end)@l(%r10)
-        subf  %r10,%r11,%r10
-	lis   %r8,(__data_load - 4)@ha
-	la    %r8,(__data_load - 4)@l(%r8)
-	mtctr %r10
-	b     1f
-0:      lwzu  %r4,4(%r8)
-	stwu  %r4,4(%r11)
+	lis	%r10,(__data_size_word)@ha
+	la	%r10,(__data_size_word)@l(%r10)
+	cmpwi	%r10, 0
+	beq	1f # skip if .data is empty
+	lis	%r11,(__data_start - 4)@ha
+	la	%r11,(__data_start - 4)@l(%r11)
+	lis	%r8,(__data_load - 4)@ha
+	la	%r8,(__data_load - 4)@l(%r8)
+	mtctr	%r10
+0:	lwzu	%r4,4(%r8)
+	stwu	%r4,4(%r11)
+	bdnz	0b
 1:
-	bdnz  0b
 
 	# Invalidate cache (disabled)
 0:	li	%r10,2
