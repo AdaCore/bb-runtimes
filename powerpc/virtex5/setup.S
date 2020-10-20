@@ -77,8 +77,3 @@ _setup:
 	bdnz  0b
         blr
 	.size _setup, . - _setup
-
-	.global __eabi
-__eabi:
-	blr
-	.size __eabi, . - __eabi
