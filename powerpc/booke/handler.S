@@ -147,7 +147,7 @@ interrupt_handler_common_\type:
 .endif
 .ifc   \type,machine_check
         mfmcsrr0 %r4
-        mfmcsrr0 %r5
+        mfmcsrr1 %r5
 .endif
 .ifc    \type,regular
         mfsrr0   %r4
@@ -278,7 +278,7 @@ interrupt_handler_common_\type:
 .endif
 .ifc    \type,machine_check
         mtmcsrr0 %r3
-        mtmcsrr0 %r4
+        mtmcsrr1 %r4
 .endif
 .ifc    \type,regular
         mtsrr0   %r3
