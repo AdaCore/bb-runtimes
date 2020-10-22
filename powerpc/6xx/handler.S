@@ -20,10 +20,12 @@
    executed thereby copying the stored register srr1 to msr and
    continuing execution at *SRR0.  */
 
+/* The frame size is the size of registers to store rounded up to the nearest
+ * 16 bytes alignment as we need to keep the stack pointer 16 bytes aligned. */
 #ifdef _SOFT_FLOAT
 #define FRAME_SIZE 80
 #else
-#define FRAME_SIZE (80 + 15 * 8)
+#define FRAME_SIZE (80 + 15 * 8 + 8)
 #endif
 
 /* The handler_start routine is copied into the exception vectors.
