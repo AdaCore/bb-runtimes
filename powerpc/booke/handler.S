@@ -35,10 +35,11 @@ FRAME_SIZE = 208        # Round to nearest 16-byte to ensure alignment
 
         # PowerPC interrupt handlers. An seperate handler is provided per
         # PowerPC Book E interrupt to load the interrupt vector number and jump
-        # to our common interrupt handler routines.
+        # to our common interrupt handler routines. These handlers need to be
+        # 16-byte aligned as required by the Book-E specification.
 
         .macro handler num type
-        .p2align 3
+        .p2align 4
         .type handler_\num,@function
         .globl handler_\num
 handler_\num :
