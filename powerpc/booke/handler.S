@@ -10,7 +10,7 @@
 
 # Layout of the caller saved registers:
 
-FRAME_SIZE = 200              # Round to nearest 8-byte to ensure alignment
+FRAME_SIZE = 208        # Round to nearest 16-byte to ensure alignment
         # Floating point registers:
         # r1 + 196:     srr0 (interrupted program counter)
         # r1 + 184:     fpscr
