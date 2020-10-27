@@ -258,7 +258,7 @@ sources = {
             'libgnat/a-stwiun.ads', 'libgnat/a-stwiun.adb',
             'libgnat/a-stzbou.ads', 'libgnat/a-stzbou.adb',
             'libgnat/a-stzfix.ads', 'libgnat/a-stzfix.adb',
-            'libgnat/a-stzhas.ads',
+            'libgnat/a-stzhas.ads', 'libgnat/a-stzhas.adb',
             'libgnat/a-stzmap.ads', 'libgnat/a-stzmap.adb',
             'libgnat/a-stzsea.ads', 'libgnat/a-stzsea.adb',
             'libgnat/a-stzsup.ads', 'libgnat/a-stzsup.adb',
