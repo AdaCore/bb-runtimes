@@ -78,6 +78,8 @@ SECTIONS
     __data_end = .;
   } > sram
 
+  __data_size_word = (__data_end - __data_start) / 4;
+
   .sbss :
   {
     __sbss_start = .;
