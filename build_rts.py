@@ -30,9 +30,6 @@ from aarch64 import Rpi3, Rpi3Mc, ZynqMP
 # leon
 from sparc import Leon2, Leon3, Leon4
 
-# m68k
-from m68k import M68020, M68020_SoftFloat
-
 # powerpc
 from powerpc import MPC8641, MPC8349e, Virtex5, P2020, P5566, P5634
 
@@ -140,11 +137,6 @@ def build_configs(target):
         t = Leon4(smp=False)
     elif target == 'leon4-smp':
         t = Leon4(smp=True)
-    # m68k elf
-    elif target == 'm68020':
-        t = M68020()
-    elif target == 'm68020-softfloat':
-        t = M68020_SoftFloat()
     # PPC elf
     elif target == 'mpc8641':
         t = MPC8641()
