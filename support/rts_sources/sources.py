@@ -69,6 +69,10 @@ all_scenarios = {
     'Add_Image_LLL_Based_Int': ['no', 'yes'],
     'Add_Image_Decimal': ['no', 'yes'],
     'Add_Image_LL_Decimal': ['no', 'yes'],
+    'Add_Image_LLL_Decimal': ['no', 'yes'],
+    'Add_Image_Fixed': ['no', 'yes'],
+    'Add_Image_LL_Fixed': ['no', 'yes'],
+    'Add_Image_LLL_Fixed': ['no', 'yes'],
     'Add_Image_Float': ['no', 'yes'],
     'Add_Image_Char': ['no', 'yes'],
     'Add_Image_Wide_Char': ['no', 'yes'],
@@ -80,6 +84,10 @@ all_scenarios = {
     'Add_Value_LLL_Int': ['no', 'yes'],
     'Add_Value_Decimal': ['no', 'yes'],
     'Add_Value_LL_Decimal': ['no', 'yes'],
+    'Add_Value_LLL_Decimal': ['no', 'yes'],
+    'Add_Value_Fixed': ['no', 'yes'],
+    'Add_Value_LL_Fixed': ['no', 'yes'],
+    'Add_Value_LLL_Fixed': ['no', 'yes'],
     'Add_Value_Float': ['no', 'yes'],
     'Add_Value_Char': ['no', 'yes'],
     'Add_Value_Wide_Char': ['no', 'yes'],
@@ -98,6 +106,7 @@ all_scenarios = {
     # Various support packages
     'Add_Case_Util': ['no', 'yes'],
     'Add_Float_Control': ['no', 'yes'],
+    'Add_Image_Util': ['no', 'yes'],
     'Add_IO_Exceptions': ['no', 'yes'],
     'Add_Value_Utils': ['no', 'yes'],
 }
@@ -352,7 +361,11 @@ sources = {
             'libgnat/s-exctab.ads', 'libgnat/s-exctab.adb',
             'libgnat/s-finmas.ads', 'libgnat/s-finmas.adb',
             'libgnat/s-finroo.ads', 'libgnat/s-finroo.adb',
-            'libgnat/s-fore.ads', 'libgnat/s-fore.adb',
+            'libgnat/s-fore_d.ads', 'libgnat/s-fore_d.adb',
+            'libgnat/s-fore_f.ads', 'libgnat/s-fore_f.adb',
+            'libgnat/s-fode32.ads', 'libgnat/s-fode64.ads',
+            'libgnat/s-fofi32.ads', 'libgnat/s-fofi64.ads',
+            'libgnat/s-forrea.ads', 'libgnat/s-forrea.adb',
             'libgnat/s-geveop.ads', 'libgnat/s-geveop.adb',
             'libgnat/s-htable.ads', 'libgnat/s-htable.adb',
             'hie/s-init.ads',
@@ -426,7 +439,8 @@ sources = {
     'full/64': {
         'conditions': ['RTS_Profile:ravenscar-full', 'Target_Word_Size:64'],
         'srcs': [
-            'libgnat/s-scaval__128.ads', 'libgnat/s-scaval__128.adb']
+            'libgnat/s-scaval__128.ads', 'libgnat/s-scaval__128.adb',
+            'libgnat/s-fode128.ads', 'libgnat/s-fofi128.ads']
     },
 
     # Memory operations:
@@ -528,14 +542,41 @@ sources = {
     'image/decimal': {
         'conditions': ['Add_Image_Decimal:yes'],
         'srcs': [
-            'libgnat/s-imgdec.adb', 'libgnat/s-imgdec.ads'],
-        'requires': ['Add_Image_Int:yes']
+            'libgnat/s-imaged.ads', 'libgnat/s-imaged.adb',
+            'libgnat/s-imde32.ads'],
+        'requires': ['Add_Image_Util:yes']
     },
     'image/decimal_ll': {
         'conditions': ['Add_Image_LL_Decimal:yes'],
         'srcs': [
-            'libgnat/s-imglld.adb', 'libgnat/s-imglld.ads'],
+            'libgnat/s-imde64.ads'],
         'requires': ['Add_Image_Decimal:yes']
+    },
+    'image/decimal_lll': {
+        'conditions': ['Add_Image_LLL_Decimal:yes'],
+        'srcs': [
+            'libgnat/s-imde128.ads'],
+        'requires': ['Add_Image_Decimal:yes']
+    },
+    'image/fixed': {
+        'conditions': ['Add_Image_Fixed:yes'],
+        'srcs': [
+            'libgnat/s-arit32.ads', 'libgnat/s-arit32.adb',
+            'libgnat/s-imagef.ads', 'libgnat/s-imagef.adb',
+            'libgnat/s-imfi32.ads'],
+        'requires': ['Add_Image_Util:yes']
+    },
+    'image/fixed_ll': {
+        'conditions': ['Add_Image_LL_Fixed:yes'],
+        'srcs': [
+            'libgnat/s-imfi64.ads'],
+        'requires': ['Add_Image_Fixed:yes', 'Add_Arith64:yes']
+    },
+    'image/fixed_lll': {
+        'conditions': ['Add_Image_LLL_Fixed:yes'],
+        'srcs': [
+            'libgnat/s-imfi128.ads'],
+        'requires': ['Add_Image_Fixed:yes', 'Add_Arith128:yes']
     },
     'image/float': {
         'conditions': ['Add_Image_Float:yes'],
@@ -590,6 +631,12 @@ sources = {
             'libgnat/s-imgwch.ads', 'libgnat/s-imgwch.adb'],
         'requires': ['Add_Image_Char:yes']
     },
+    'image/util': {
+        'conditions': ['Add_Image_Util:yes'],
+        'srcs': [
+            'libgnat/s-imguti.ads', 'libgnat/s-imguti.adb'],
+        'requires': ['Add_Image_Int:yes']
+    },
     # 'Value support
     'value/Boolean': {
         'conditions': ['Add_Value_Bool:yes'],
@@ -606,18 +653,48 @@ sources = {
     'value/decimal': {
         'conditions': ['Add_Value_Decimal:yes'],
         'srcs': [
-            'libgnat/s-valdec.ads', 'libgnat/s-valdec.adb'],
+            'libgnat/s-valuer.ads', 'libgnat/s-valuer.adb',
+            'libgnat/s-valued.ads', 'libgnat/s-valued.adb',
+            'libgnat/s-vade32.ads'],
         'requires': ['Add_Value_Utils:yes']
     },
     'value/decimal_ll': {
         'conditions': ['Add_Value_LL_Decimal:yes'],
         'srcs': [
-            'libgnat/s-vallld.ads', 'libgnat/s-vallld.adb'],
+            'libgnat/s-vade64.ads'],
+        'requires': ['Add_Value_Decimal:yes']
+    },
+    'value/decimal_lll': {
+        'conditions': ['Add_Value_LLL_Decimal:yes'],
+        'srcs': [
+            'libgnat/s-vade128.ads'],
+        'requires': ['Add_Value_Decimal:yes']
+    },
+    'value/fixed': {
+        'conditions': ['Add_Value_Fixed:yes'],
+        'srcs': [
+            'libgnat/s-arit32.ads', 'libgnat/s-arit32.adb',
+            'libgnat/s-valuer.ads', 'libgnat/s-valuer.adb',
+            'libgnat/s-valuef.ads', 'libgnat/s-valuef.adb',
+            'libgnat/s-vafi32.ads'],
         'requires': ['Add_Value_Utils:yes']
+    },
+    'value/fixed_ll': {
+        'conditions': ['Add_Value_LL_Fixed:yes'],
+        'srcs': [
+            'libgnat/s-vafi64.ads'],
+        'requires': ['Add_Value_Fixed:yes', 'Add_Arith64:yes']
+    },
+    'value/fixed_lll': {
+        'conditions': ['Add_Value_LLL_Fixed:yes'],
+        'srcs': [
+            'libgnat/s-vafi128.ads'],
+        'requires': ['Add_Value_Fixed:yes', 'Add_Arith128:yes']
     },
     'value/float': {
         'conditions': ['Add_Value_Float:yes'],
         'srcs': [
+            'libgnat/s-valuer.ads', 'libgnat/s-valuer.adb',
             'libgnat/s-valrea.ads', 'libgnat/s-valrea.adb'],
         'requires': ['Add_Value_Utils:yes', 'Add_Float_Control:yes']
     },
