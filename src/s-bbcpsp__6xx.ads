@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2004 The European Space Agency            --
---                     Copyright (C) 2003-2015, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -125,6 +125,7 @@ package System.BB.CPU_Specific is
 
    External_Interrupt_Excp : constant Vector_Id := 16#500#;
    Decrementer_Excp        : constant Vector_Id := 16#900#;
+   System_Management_Excp  : constant Vector_Id := 16#1400#;
 
    procedure Install_Exception_Handler
      (Service_Routine : System.Address;
@@ -142,5 +143,53 @@ package System.BB.CPU_Specific is
 
    PowerPC_Book_E : constant Boolean := False;
    --  Does the CPU implement PowerPC Book-E standard
+
+   ------------------------------
+   -- CPU Register Definitions --
+   ------------------------------
+
+   --  Machine State Register (MSR)
+
+   type Privilege is (Supervisor, User);
+
+   type Machine_State_Register is record
+      Power_Management_Enable        : Boolean;
+      Temporary_GPR_Enable           : Boolean;
+      Exception_Little_Endian_Enable : Boolean;
+      External_Interrupt_Enable      : Boolean;
+      Privilege_Level                : Privilege;
+      Floating_Point_Available       : Boolean;
+      Machine_Check_Enable           : Boolean;
+      FP_Exception_Mode_0            : Boolean;
+      Single_Step_Trace_Enable       : Boolean;
+      Branch_Trace_Enable            : Boolean;
+      FP_Exception_Mode_1            : Boolean;
+      Critical_Interrupt_Enable      : Boolean;
+      Exception_Prefix               : Boolean;
+      Instruction_Address_Space      : Boolean;
+      Data_Address_Space             : Boolean;
+      Recoverable_Exception          : Boolean;
+      Little_Endian_Mode_Enable      : Boolean;
+   end record with Size => 32;
+
+   for Machine_State_Register use record
+      Power_Management_Enable        at 0 range 13 .. 13;
+      Temporary_GPR_Enable           at 0 range 14 .. 14;
+      Exception_Little_Endian_Enable at 0 range 15 .. 15;
+      External_Interrupt_Enable      at 0 range 16 .. 16;
+      Privilege_Level                at 0 range 17 .. 17;
+      Floating_Point_Available       at 0 range 18 .. 18;
+      Machine_Check_Enable           at 0 range 19 .. 19;
+      FP_Exception_Mode_0            at 0 range 20 .. 20;
+      Single_Step_Trace_Enable       at 0 range 21 .. 21;
+      Branch_Trace_Enable            at 0 range 22 .. 22;
+      FP_Exception_Mode_1            at 0 range 23 .. 23;
+      Critical_Interrupt_Enable      at 0 range 24 .. 24;
+      Exception_Prefix               at 0 range 25 .. 25;
+      Instruction_Address_Space      at 0 range 26 .. 26;
+      Data_Address_Space             at 0 range 27 .. 27;
+      Recoverable_Exception          at 0 range 30 .. 30;
+      Little_Endian_Mode_Enable      at 0 range 31 .. 31;
+   end record;
 
 end System.BB.CPU_Specific;

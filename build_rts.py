@@ -33,7 +33,7 @@ from sparc import Leon2, Leon3, Leon4
 from m68k import MC68020
 
 # powerpc
-from powerpc import MPC8641, MPC8349e, Virtex5, P2020, P5566, P5634
+from powerpc import MPC5200, MPC8641, MPC8349e, Virtex5, P2020, P5566, P5634
 
 # riscv
 from riscv import Spike, Unleashed, HiFive1, PicoRV32, RV32IMC
@@ -130,6 +130,8 @@ def build_configs(target):
     elif target == 'm68020':
         t = MC68020()
     # PPC elf
+    elif target == 'mpc5200':
+        t = MPC5200()
     elif target == 'mpc8641':
         t = MPC8641()
     elif target == '8349e':

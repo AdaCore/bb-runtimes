@@ -138,6 +138,53 @@ class PPC6XXTarget(DFBBTarget):
                 'powerpc/6xx/savegpr.S')
 
 
+class MPC5200(PPC6XXTarget):
+    @property
+    def name(self):
+        return 'mpc5200'
+
+    @property
+    def compiler_switches(self):
+        return ('-mhard-float', '-mcpu=603e')
+
+    @property
+    def loaders(self):
+        return ('RAM', )
+
+    @property
+    def use_certifiable_packages(self):
+        return True
+
+    @property
+    def readme_file(self):
+        return 'powerpc/mpc5200/README'
+
+    @property
+    def system_ads(self):
+        return {
+            'zfp': 'system-xi-ppc.ads',
+            'ravenscar-sfp': 'system-xi-ppc-mpc5200-sfp.ads',
+        }
+
+    def __init__(self):
+        super(MPC5200, self).__init__()
+        self.add_linker_script('powerpc/mpc5200/ram.ld', loader='RAM')
+        self.add_linker_switch('-Wl,-u_start_ram', loader='RAM')
+
+        self.add_gnat_sources(
+            'powerpc/mpc5200/start.S',
+            'powerpc/mpc5200/setup.S',
+            'src/s-macres__mpc5200.adb',
+            'src/s-bbbopa__mpc5200.ads',
+            'src/s-textio__mpc5200.adb')
+        self.add_gnarl_sources(
+            'src/s-bbbosu__mpc5200.adb',
+            'src/s-bbsuti__ppc.adb',
+            'src/s-bbsumu__generic.adb',
+            'src/s-bbpara__mpc5200.ads',
+            'src/a-intnam__mpc5200.ads')
+
+
 class MPC8349e(PPC6XXTarget):
     @property
     def name(self):
