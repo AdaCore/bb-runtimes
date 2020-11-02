@@ -212,7 +212,7 @@ sources = {
             'libgnat/a-cwila9.ads',
             'libgnat/a-chzla1.ads',
             'libgnat/a-chzla9.ads',
-            'libgnat/a-decima.ads', 'libgnat/a-decima.adb',
+            'libgnat/a-decima.adb',
             'libgnat/a-einuoc.ads', 'libgnat/a-einuoc.adb',
             'libgnat/a-elchha.ads', 'hie/a-elchha__full.adb',
             'hie/a-excach__cert.adb',
@@ -433,12 +433,14 @@ sources = {
     'full/32': {
         'conditions': ['RTS_Profile:ravenscar-full', 'Target_Word_Size:32'],
         'srcs': [
+            'libgnat/a-decima.ads',
             'libgnat/s-scaval.ads', 'libgnat/s-scaval.adb']
     },
 
     'full/64': {
         'conditions': ['RTS_Profile:ravenscar-full', 'Target_Word_Size:64'],
         'srcs': [
+            'libgnat/a-decima__128.ads',
             'libgnat/s-scaval__128.ads', 'libgnat/s-scaval__128.adb',
             'libgnat/s-fode128.ads', 'libgnat/s-fofi128.ads']
     },
