@@ -31,7 +31,7 @@ from aarch64 import Rpi3, Rpi3Mc, ZynqMP
 from sparc import Leon2, Leon3, Leon4
 
 # powerpc
-from powerpc import MPC8641, MPC8349e, Virtex5, P2020, P5566, P5634
+from powerpc import MPC5200, MPC8641, MPC8349e, Virtex5, P2020, P5566, P5634
 
 # riscv
 from riscv import Spike, Unleashed, PolarFireSOC, HiFive1, \
@@ -138,6 +138,8 @@ def build_configs(target):
     elif target == 'leon4-smp':
         t = Leon4(smp=True)
     # PPC elf
+    elif target == 'mpc5200':
+        t = MPC5200()
     elif target == 'mpc8641':
         t = MPC8641()
     elif target == '8349e':
