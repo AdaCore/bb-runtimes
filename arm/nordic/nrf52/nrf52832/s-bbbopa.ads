@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---                   Copyright (C) 2016-2019, AdaCore                       --
+--                   Copyright (C) 2016-2020, AdaCore                       --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -59,8 +59,8 @@ package System.BB.Board_Parameters is
    --  low-power RTC peripheral, which runs at 32.768 kHz.
    --
    --  In this runtime, the minimum allowed frequency is 50_000 Hz so that
-   --  Ada.Real_Time.Time_Unit does not exceed 20 µs as required by
-   --  Ada RM D.8 (30). Since the RTC's actual period is 30.518 µs we multiply
+   --  Ada.Real_Time.Time_Unit does not exceed 20 us as required by
+   --  Ada RM D.8 (30). Since the RTC's actual period is 30.518 us we multiply
    --  the RTC frequency by RTC_Tick_Scaling_Factor so that Time_Unit meets the
    --  requirement in Ada RM D.8 (30).
 

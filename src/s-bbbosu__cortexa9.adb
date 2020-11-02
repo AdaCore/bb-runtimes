@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2006 The European Space Agency            --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -252,7 +252,7 @@ package body System.BB.Board_Support is
 
          else
             --  Set comparator using the 64-bit private timer comparator.
-            --  See Cortex-A9 Technical Reference Manual §4.3.
+            --  See Cortex-A9 Technical Reference Manual 4.3.
             --  Requires revision >= r2p0, otherwise no exception is raised for
             --  past counter values.
 

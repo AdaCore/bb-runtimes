@@ -55,7 +55,7 @@ package System.BB.Parameters is
    --  The frequency of the Time Stamp Clock (TSC) in Hertz. When set to zero
    --  the runtime will attempt to determine its value from the processor's
    --  internal registers following the guidelines provided by the Intel 64 and
-   --  IA-32 Architectures Software Developer’s Manual, Volume 3B, Section
+   --  IA-32 Architectures Software Developer's Manual, Volume 3B, Section
    --  18.7.3. Since the TSC clock source is implemented differently across
    --  the different Intel chip families, on some certain processors the
    --  runtime may fail to either determine the TSC frequency or will set it

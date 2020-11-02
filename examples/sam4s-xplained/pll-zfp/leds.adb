@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GNAT EXAMPLE                                 --
 --                                                                          --
---                    Copyright (C) 2013-2014, AdaCore                      --
+--                    Copyright (C) 2013-2020, AdaCore                      --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -187,7 +187,7 @@ procedure Leds is
 
       --  While PLL is unlocked, the Master Clock selection is
       --  automatically changed to Slow Clock. For further information,
-      --  see Section 28.2.14.2 “Clock Switching Waveforms” on page 467.
+      --  see Section 28.2.14.2 "Clock Switching Waveforms" on page 467.
 
       --  Code Example:
       --        write_register(PMC_MCKR,0x00000001)

@@ -157,7 +157,7 @@ package body System.BB.CPU_Primitives is
    --  segments that span 4-GiB of RAM along with TSS segments for each CPU.
 
    --  x86 Descriptor Types
-   --  See Intel 64 and IA-32 Architectures Software Developer’s Manual
+   --  See Intel 64 and IA-32 Architectures Software Developer's Manual
    --  Volume 3A, Chapter 3: Protected-Mode Memory Management.
 
    type Base_Address_Low_Part is mod 2 ** 24;

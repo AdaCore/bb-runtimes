@@ -2,7 +2,7 @@
 --                                                                          --
 --                               GNAT EXAMPLE                               --
 --                                                                          --
---                        Copyright (C) 2013, AdaCore                       --
+--                     Copyright (C) 2013-2020, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -374,17 +374,17 @@ package body Hdk is
       --  2. Program SDTIMR and SDSRETR to satisdy the timing requirement
 
       --  Formula                            DataSheet     Value
-      --  T_RFC >= (tRFC × fEMIF_CLK) - 1    tRC = 63ns     5
-      --  T_RP >= (tRP × fEMIF_CLK) - 1      tRP = 20ns     1
-      --  T_RCD >= (tRCD × fEMIF_CLK) - 1    tRCD = 20ns    1
-      --  T_WR >= (tWR × fEMIF_CLK) - 1      tRDL = 2CLK    1
-      --  T_RAS >= (tRAS × fEMIF_CLK) - 1    tRAS = 42ns    3
-      --  T_RC >= (tRC × fEMIF_CLK) - 1      tRC = 63ns     5
-      --  T_RRD >= (tRRD × fEMIF_CLK) - 1    tRRD = 14ns    1
+      --  T_RFC >= (tRFC x fEMIF_CLK) - 1    tRC = 63ns     5
+      --  T_RP >= (tRP x fEMIF_CLK) - 1      tRP = 20ns     1
+      --  T_RCD >= (tRCD x fEMIF_CLK) - 1    tRCD = 20ns    1
+      --  T_WR >= (tWR x fEMIF_CLK) - 1      tRDL = 2CLK    1
+      --  T_RAS >= (tRAS x fEMIF_CLK) - 1    tRAS = 42ns    3
+      --  T_RC >= (tRC x fEMIF_CLK) - 1      tRC = 63ns     5
+      --  T_RRD >= (tRRD x fEMIF_CLK) - 1    tRRD = 14ns    1
       SDTIMR := 2#00101_001_0_001_0_001_0011_0101_0_001_0000#;
 
       --  Self refresh
-      --  T_XS >= (tXSR × fEMIF_CLK) - 1     tRC = 63ns     5
+      --  T_XS >= (tXSR x fEMIF_CLK) - 1     tRC = 63ns     5
       SDSRETR := 5;
 
       --  3. Program the RR field of SDRCR such as:
@@ -414,7 +414,7 @@ package body Hdk is
       --  6. Finally program the RR field to match that of the attached device
 
       --  Refresh control
-      --  RR <= fEMIF_CLK × tRefresh Period / ncycles
+      --  RR <= fEMIF_CLK x tRefresh Period / ncycles
       --  tREF = 64ms, ncycles = 4096 -> RR = 1302
       SDRCR := 1302;
    end Init_Emif;

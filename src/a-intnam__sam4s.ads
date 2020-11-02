@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---          Copyright (C) 1991-2014, Free Software Foundation, Inc.         --
+--          Copyright (C) 1991-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -38,7 +38,7 @@ package Ada.Interrupts.Names is
    pragma Implementation_Defined;
 
    --  The SAM4S datasheet defines peripheral indentifiers in Table 11-1
-   --  (page 41 of 1100E–ATARM–24-Jul-13). The meaningful number, the ID
+   --  (page 41 of 1100E-ATARM-24-Jul-13). The meaningful number, the ID
    --  starts at 0. Unfortunately, Interrupt_ID 0 is reserved and the SysTick
    --  interrupt (a core interrupt) is handled by the runtime like other
    --  interrupts. So the first interrupt (supply controler) is numbered 2
