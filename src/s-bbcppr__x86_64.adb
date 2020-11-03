@@ -259,10 +259,8 @@ package body System.BB.CPU_Primitives is
       Data            : Segment_Descriptor (Data_Segment);
       CPU_TSS         : TSS_Entries;
    end record;
-   pragma No_Component_Reordering (Runtime_Gobal_Descriptor_Table);
    --  GDT used by the runtime. This will replace the default GDT in start.S
-   --  by including the TSS Descriptors for each CPU. We don't want the
-   --  compiler to do any fancy tricks and reorder the table.
+   --  by including the TSS Descriptors for each CPU.
    --  Note: the IDT uses the position of the Code segment. If the position of
    --  the code segment changes then the IDT in vector_table.S needs updating.
 
