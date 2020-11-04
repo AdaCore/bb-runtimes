@@ -31,7 +31,7 @@
 
 --  Minimal version of Text_IO body for use with COM1
 
-with NS16550; use NS16550;
+with Interfaces.X86_64.NS16550; use Interfaces.X86_64.NS16550;
 
 package body System.Text_IO is
 

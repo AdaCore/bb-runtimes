@@ -4,7 +4,7 @@
 --                                                                          --
 --                              N S 1 6 5 5 0                               --
 --                                                                          --
---                                 B o d y                                  --
+--                                 S p e c                                  --
 --                                                                          --
 --            Copyright (C) 2020, Free Software Foundation, Inc.            --
 --                                                                          --
@@ -29,54 +29,57 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Unchecked_Conversion;
+package Interfaces.X86_64.NS16550 with Pure, No_Elaboration_Code_All is
+   type Number_Of_Bits is (Five, Six, Seven, Eight);
+   for Number_Of_Bits use
+     (Five => 2#00#, Six => 2#01#, Seven => 2#10#, Eight => 2#11#);
 
-package body NS16550 is
-   Data_Register_Register : constant := 0;
-   Line_Control_Register  : constant := 3;
-   Line_Status_Register   : constant := 5;
+   type Number_Of_Stop_Bits is (One, Two);
+   for Number_Of_Stop_Bits use (One => 0, Two => 1);
 
-   ----------------------
-   -- Set_Line_Control --
-   ----------------------
+   type Parity_Option is (None, Odd, Even, Mark, Space);
+   for Parity_Option use
+     (None => 0, Odd => 1, Even => 2, Mark => 3, Space => 4);
 
-   procedure Set_Line_Control (Data : Line_Control; Port : IO_Port) is
-      function To_Byte is new
-        Ada.Unchecked_Conversion (Line_Control, Unsigned_8);
-   begin
-      Write_IO_Byte (To_Byte (Data), Port + Line_Control_Register);
-   end Set_Line_Control;
+   type Line_Control is record
+      Data_Bits            : Number_Of_Bits;
+      Stop_Bits            : Number_Of_Stop_Bits;
+      Parity               : Parity_Option;
+      Divisor_Latch_Access : Boolean;
+   end record with Size => 8;
 
-   ---------------------
-   -- Get_Line_Status --
-   ---------------------
+   for Line_Control use record
+      Data_Bits            at 0 range 0 .. 1;
+      Stop_Bits            at 0 range 2 .. 2;
+      Parity               at 0 range 3 .. 5;
+      Divisor_Latch_Access at 0 range 7 .. 7;
+   end record;
 
-   function Get_Line_Status (Port : IO_Port) return Line_Status is
-      function To_Line_Status is new
-        Ada.Unchecked_Conversion (Unsigned_8, Line_Status);
-   begin
-      return To_Line_Status (Read_IO_Byte (Port + Line_Status_Register));
-   end Get_Line_Status;
+   type Line_Status is record
+      Data_Ready        : Boolean;
+      Overrun_Error     : Boolean;
+      Parity_Error      : Boolean;
+      Framing_Error     : Boolean;
+      Break_Indicator   : Boolean;
+      Transmit_Ready    : Boolean;
+      Transmitter_Empty : Boolean;
+      Impending_Error   : Boolean;
+   end record with Size => 8;
 
-   ---------------
-   -- Read_Data --
-   ---------------
+   for Line_Status use record
+      Data_Ready        at 0 range 0 .. 0;
+      Overrun_Error     at 0 range 1 .. 1;
+      Parity_Error      at 0 range 2 .. 2;
+      Framing_Error     at 0 range 3 .. 3;
+      Break_Indicator   at 0 range 4 .. 4;
+      Transmit_Ready    at 0 range 5 .. 5;
+      Transmitter_Empty at 0 range 6 .. 6;
+      Impending_Error   at 0 range 7 .. 7;
+   end record;
 
-   function Read_Data (Port : IO_Port) return Character is
-      function To_Character is new
-        Ada.Unchecked_Conversion (Unsigned_8, Character);
-   begin
-      return To_Character (Read_IO_Byte (Port + Data_Register_Register));
-   end Read_Data;
+   procedure Set_Line_Control (Data : Line_Control; Port : IO_Port);
+   function Get_Line_Status (Port : IO_Port) return Line_Status;
+   function Read_Data (Port : IO_Port) return Character;
+   procedure Write_Data (Data : Character; Port : IO_Port);
 
-   ----------------
-   -- Write_Data --
-   ----------------
-
-   procedure Write_Data (Data : Character; Port : IO_Port) is
-      function To_Byte is new
-        Ada.Unchecked_Conversion (Character, Unsigned_8);
-   begin
-      Write_IO_Byte (To_Byte (Data), Port + Data_Register_Register);
-   end Write_Data;
-end NS16550;
+end Interfaces.X86_64.NS16550;

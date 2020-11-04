@@ -13,8 +13,8 @@ class X8664Arch(ArchSupport):
         self.add_gnat_sources(
             'x86_64/src/i-x86_64.adb',
             'x86_64/src/i-x86_64.ads',
-            'x86_64/src/ns16550.adb',
-            'x86_64/src/ns16550.ads',
+            'x86_64/src/i-x86_64-ns16550.adb',
+            'x86_64/src/i-x86_64-ns16550.ads',
             'x86_64/src/s-macres.adb',
             'x86_64/src/start.S')
         # s-bbcppr.ads is listed under the Generic target as it will need
