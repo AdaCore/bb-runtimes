@@ -920,11 +920,10 @@ sources = {
         'srcs': ['hie/s-traceb__ppc.adb']
     },
 
-    # FIXME: Replace with RISC-V traceback implementation:
     'full/zcx-riscv': {
         'conditions':
         ['RTS_Profile:ravenscar-full', 'CPU_Family:riscv64,riscv32'],
-        'srcs': ['hie/s-traceb__riscv.adb']
+        'srcs': ['hie/s-traceb__dwarf.adb']
     },
 
     'full/zcx-leon': {
