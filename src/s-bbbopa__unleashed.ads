@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---                    Copyright (C) 2012-2019, AdaCore                      --
+--                    Copyright (C) 2012-2020, AdaCore                      --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -32,7 +32,9 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package defines board parameters for the HiFive1
+--  This package defines board parameters for the SiFive Unleashed
+
+with Interfaces;
 
 package System.BB.Board_Parameters is
    pragma No_Elaboration_Code_All;
@@ -42,7 +44,7 @@ package System.BB.Board_Parameters is
    -- Hardware clock --
    --------------------
 
-   Clock_Scale     : constant := 1;
+   Clock_Scale : constant := 1;
    --  Scaling factor for clock frequency. This is used to provide a clock
    --  frequency that results in a definition of Time_Unit less than 20
    --  microseconds (as Ada RM D.8 (30) requires).
@@ -64,5 +66,11 @@ package System.BB.Board_Parameters is
    Mtimecmp_Base_Address : constant :=
      CLINT_Base_Address + CLINT_Mtimecmp_Offset;
    --  Address of the memory mapped mtimecmp register
+
+   GDB_First_CPU_Id : constant Interfaces.Unsigned_32 := 1;
+   pragma Export (C, GDB_First_CPU_Id, "__gnat_gdb_cpu_first_id");
+   --  This value is used by GDB to know the hardware id of the first CPU used
+   --  by the run-time. On this board CPU #0 (the monitor) is not used,
+   --  therefore the first id is 1.
 
 end System.BB.Board_Parameters;

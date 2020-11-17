@@ -96,6 +96,18 @@ class Unleashed(RiscV64):
     def loaders(self):
         return ('RAM', )
 
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(Unleashed, self).dump_runtime_xml(rts_name, rts)
+        return cnt.replace(
+            '"common-RAM.ld"',
+            '"common-RAM.ld",\n'
+            '               --  This symbol is used by GDB to know the\n'
+            '               --  hardware id of the first CPU used by\n'
+            '               --  the run-time. The -u option is used to make\n'
+            '               --  sure the symbol is not discared in the final\n'
+            '               --  binary.\n'
+            '               "-u", "__gnat_gdb_cpu_first_id"')
+
     def __init__(self):
         super(Unleashed, self).__init__()
 

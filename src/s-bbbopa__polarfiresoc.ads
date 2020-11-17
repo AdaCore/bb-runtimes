@@ -34,6 +34,8 @@
 
 --  This package defines board parameters for the PolarFire SOC
 
+with Interfaces;
+
 package System.BB.Board_Parameters is
    pragma No_Elaboration_Code_All;
    pragma Pure;
@@ -74,5 +76,11 @@ package System.BB.Board_Parameters is
    PLIC_Nbr_Of_Mask_Regs : constant := 6;
    PLIC_Hart_Id          : constant := 1;
    PLIC_Priority_Bits    : constant := 3;
+
+   GDB_First_CPU_Id : constant Interfaces.Unsigned_32 := 1;
+   pragma Export (C, GDB_First_CPU_Id, "__gnat_gdb_cpu_first_id");
+   --  This value is used by GDB to know the hardware id of the first CPU used
+   --  by the run-time. On this board CPU #0 (the monitor) is not used,
+   --  therefore the first id is 1.
 
 end System.BB.Board_Parameters;
