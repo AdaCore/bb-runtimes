@@ -697,7 +697,10 @@ sources = {
         'conditions': ['Add_Value_Float:yes'],
         'srcs': [
             'libgnat/s-valuer.ads', 'libgnat/s-valuer.adb',
-            'libgnat/s-valrea.ads', 'libgnat/s-valrea.adb'],
+            'libgnat/s-valrea.ads', 'libgnat/s-valrea.adb',
+            'libgnat/s-valflt.ads',
+            'libgnat/s-vallfl.ads',
+            'libgnat/s-valllf.ads'],
         'requires': ['Add_Value_Utils:yes', 'Add_Float_Control:yes']
     },
     'value/int': {
@@ -762,11 +765,10 @@ sources = {
     'fpu': {
         'conditions': ['Has_FPU:yes'],
         'srcs': [
-            'libgnat/s-fatflt.ads',
             'libgnat/s-fatgen.ads', 'libgnat/s-fatgen.adb',
+            'libgnat/s-fatflt.ads',
             'libgnat/s-fatlfl.ads',
-            'libgnat/s-fatllf.ads',
-            'libgnat/s-fatsfl.ads'],
+            'libgnat/s-fatllf.ads'],
     },
     'math': {
         'conditions': ['Add_Math_Lib:!no'],
