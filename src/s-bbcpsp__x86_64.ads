@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2004 The European Space Agency            --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -36,8 +36,9 @@
 
 pragma Restrictions (No_Elaboration_Code);
 
-with System;
+with Ada.Unchecked_Conversion;
 with Interfaces;
+with System;
 with System.BB.Interrupts;
 
 package System.BB.CPU_Specific is
@@ -381,6 +382,7 @@ package System.BB.CPU_Specific is
    Local_APIC_ICR_High_Offset_Address      : constant := 16#310#;
    Local_APIC_LVT_Timer_Offset_Address     : constant := 16#320#;
    Local_APIC_Initial_Count_Offset_Address : constant := 16#380#;
+   Local_APIC_Timer_Current_Count_Address  : constant := 16#390#;
    Local_APIC_Divide_Config_Offset_Address : constant := 16#3E0#;
 
    type APIC_ID is new Interfaces.Unsigned_8;
@@ -520,6 +522,12 @@ package System.BB.CPU_Specific is
          System'To_Address
            (Local_APIC_Base_Address + Local_APIC_Initial_Count_Offset_Address);
 
+   Local_APIC_Timer_Current_Count : APIC_Time
+     with Volatile,
+       Address =>
+         System'To_Address
+           (Local_APIC_Base_Address + Local_APIC_Timer_Current_Count_Address);
+
    Local_APIC_Timer_Divide_Configuration : Divide_Configuration
      with Volatile,
        Address =>
@@ -538,6 +546,48 @@ package System.BB.CPU_Specific is
    --  vice versa (since we need to multiply ticks with the frequency, which
    --  caps the maximum number of ticks the clock can accumulate until we can
    --  no longer perform that conversion).
+
+   ---------
+   -- PIT --
+   ---------
+
+   PIT_Channel_0_Data_Port : constant := 16#40#;
+   PIT_Mode_Command_Port   : constant := 16#43#;
+
+   type PIT_Channel is (Channel_0, Channel_1, Channel_2, Read_Back);
+   type PIT_Access_Mode is
+     (Latch_Count_Value, Low_Byte, High_Byte, Low_High_Byte);
+   type PIT_Operating_Mode is
+     (Interrupt_On_Terminal_Count, One_Shot, Rate_Generator,
+      Square_Wave_Generator, Software_Triggered_Strobe,
+      Hardware_Triggered_Strobe);
+   type PIT_BCD_Binary_Mode is (BCD, Binary);
+
+   type PIT_Mode_Command_Register is record
+      Channel         : PIT_Channel;
+      Access_Mode     : PIT_Access_Mode;
+      Operating_Mode  : PIT_Operating_Mode;
+      BCD_Binary_Mode : PIT_BCD_Binary_Mode;
+   end record with Size => 8;
+
+   for PIT_Mode_Command_Register use record
+      Channel         at 0 range 6 .. 7;
+      Access_Mode     at 0 range 4 .. 5;
+      Operating_Mode  at 0 range 1 .. 3;
+      BCD_Binary_Mode at 0 range 0 .. 0;
+   end record;
+
+   function To_IO_Byte is new
+     Ada.Unchecked_Conversion
+       (PIT_Mode_Command_Register, Interfaces.Unsigned_8);
+
+   ---------------
+   -- CPU Clock --
+   ---------------
+
+   function Read_Raw_Clock return Interfaces.Unsigned_64
+     with Inline;
+   --  Read the hardware clock source
 
    -------------------------
    -- Hardware Exceptions --
@@ -569,5 +619,30 @@ package System.BB.CPU_Specific is
    SIMD_Floating_Point_Exception  : constant SBI.Interrupt_ID := 19;
    Virtualization_Exception       : constant SBI.Interrupt_ID := 20;
    Control_Protection_Exception   : constant SBI.Interrupt_ID := 21;
+
+   ------------------
+   -- Helper Types --
+   ------------------
+
+   --  The Bytable types allow the individual bytes of an unsigned types to be
+   --  easily accessed.
+
+   type Bytable_View is (Full, Bytes);
+
+   type Unsigned_16_Bytable (View : Bytable_View := Full) is record
+      case View is
+         when Full =>
+            Value : Interfaces.Unsigned_16;
+         when Bytes =>
+            Low   : Interfaces.Unsigned_8;
+            High  : Interfaces.Unsigned_8;
+      end case;
+   end record with Unchecked_Union, Size => 16;
+
+   for Unsigned_16_Bytable use record
+      Value at 0 range 0 .. 15;
+      Low   at 0 range 0 .. 7;
+      High  at 0 range 8 .. 15;
+   end record;
 
 end System.BB.CPU_Specific;

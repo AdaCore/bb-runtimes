@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -57,6 +57,8 @@
 --  manually save it. (The offset is not hardcoded as a raw integer for
 --  readability and maintainability purposes: it allows for the TSS record to
 --  change without having to update the affected assembly).
+
+pragma Suppress (All_Checks);
 
 with Ada.Unchecked_Conversion;
 with System.BB.Board_Support;
@@ -550,8 +552,6 @@ package body System.BB.CPU_Primitives is
 
             --  When the core crystal clock frequency is not enumerated the TSC
             --  appears to use the base frequency reported in CPUID Leaf 16H.
-            --  TODO: Verify the clock frequency is accurate against a known
-            --  source (PIT or HPET).
 
             elsif Max_CPUID_Index >= Processor_Frequency_Info_Leaf then
                Asm ("cpuid",
@@ -570,8 +570,6 @@ package body System.BB.CPU_Primitives is
       --  derive their TSC from the bus frequency. Consequently, the TSC
       --  calculated here assumes the nominal 100 MHz bus frequency defined
       --  for these microarchitectures.
-      --  TODO: Verify the clock frequency is accurate against a known clock
-      --  source (PIT or HPET).
 
       elsif My_CPU_Model in
         Sandy_Bridge_Client | Sandy_Bridge_Server | Ivy_Bridge_Client   |
@@ -598,36 +596,164 @@ package body System.BB.CPU_Primitives is
       end if;
 
       --  If we got to this point and have not been able to determine the
-      --  clock frequency, good chance we are running in QEMU TCG which
-      --  unhelpfully does not present any of the above information to us.
-      --  Given that QEMU is not time deterministic we set the TSC Frequency
-      --  to a nominal 1 GHz.
+      --  clock frequency, we have to determine the TSC Frequency by testing
+      --  it against the Programmable Interval Timer (PIT), which has a known
+      --  frequency.
 
       if TSC_Frequency = 0 then
-         --  Read CPUID Hypervisor Information Leaf to check to see if we are
-         --  running inside QEMU TCG.
-
          declare
-            --  Leaf 40000000H, Hypervisor Information Leaf
+            function Calculate_Frequency return Unsigned_64;
+            --  Calculate the frequency of the TSC by comparing the number of
+            --  TSC ticks against a set number of PIT ticks, which has a known
+            --  frequency of 1.193182 MHz.
 
-            Hypervisor_Info_Leaf : constant := 16#40000000#;
+            -------------------------
+            -- Calculate_Frequency --
+            -------------------------
 
-            subtype Hypervisor_ID_Slice is String (1 .. 4);
-            EBX, ECX, EDX : Hypervisor_ID_Slice;
+            function Calculate_Frequency return Unsigned_64 is
+               PIT_Frequency : constant := 1_193_182;
+               --  PIT operates at 1.193182 MHz
+
+               PIT_Ticks_To_Count : constant := 11_932;
+               --  The number of PIT tickets we want to a we want to count the
+               --  TSC over. This number corresponds to approximately 10ms.
+
+               PIT_Reset_Count : constant Unsigned_16_Bytable :=
+                 (View => Full, Value => Unsigned_16'Last);
+               --  Value we want the PIT to start from
+
+               Start_PIT      : Unsigned_16_Bytable;
+               Current_PIT    : Unsigned_16_Bytable;
+               Target_PIT     : Unsigned_16;
+               PIT_Tick_Count : Unsigned_16;
+               --  Start and end value of the PIT run and the target PIT value
+               --  that we'll stop the run at
+
+               Start_TSC      : Unsigned_64;
+               End_TSC        : Unsigned_64;
+               TSC_Tick_Count : Unsigned_64;
+               --  Start and end value of the TSC run and the resulting number
+               --  of ticks.
+
+            begin
+               --  Set PIT reset value
+               Write_IO_Byte (PIT_Reset_Count.Low, PIT_Channel_0_Data_Port);
+               Write_IO_Byte (PIT_Reset_Count.High, PIT_Channel_0_Data_Port);
+
+               --  Wait until the PIT clock ticks over so we do not start the
+               --  timing run in the middle of a tick.
+
+               Start_PIT.Low  := Read_IO_Byte (PIT_Channel_0_Data_Port);
+               Start_PIT.High := Read_IO_Byte (PIT_Channel_0_Data_Port);
+
+               loop
+                  Current_PIT.Low  := Read_IO_Byte (PIT_Channel_0_Data_Port);
+                  Current_PIT.High := Read_IO_Byte (PIT_Channel_0_Data_Port);
+
+                  exit when Current_PIT.Value /= Start_PIT.Value;
+               end loop;
+
+               --  Start timing run
+
+               Start_TSC := Read_Raw_Clock;
+               Start_PIT.Value := Current_PIT.Value;
+               Target_PIT := Start_PIT.Value - PIT_Ticks_To_Count;
+
+               loop
+                  Current_PIT.Low  := Read_IO_Byte (PIT_Channel_0_Data_Port);
+                  Current_PIT.High := Read_IO_Byte (PIT_Channel_0_Data_Port);
+
+                  --  QEMU may jump over PIT values on successive reads so
+                  --  exit once we have reached or past the target value.
+
+                  exit when Current_PIT.Value <= Target_PIT;
+               end loop;
+
+               End_TSC := Read_Raw_Clock;
+
+               --  Calculate TSC frequency from the results of the timing run
+
+               TSC_Tick_Count := End_TSC - Start_TSC;
+               PIT_Tick_Count := Start_PIT.Value - Current_PIT.Value;
+
+               --  We can do the following multiplication first since we won't
+               --  overflow the Unsigned_64 type because the maximum number of
+               --  TSC ticks in a second is at most the frequency of the CPU,
+               --  which currently tops out at around 5 GHz.
+               return
+                 TSC_Tick_Count * PIT_Frequency / Unsigned_64 (PIT_Tick_Count);
+            end Calculate_Frequency;
+
+            PIT_Config : constant PIT_Mode_Command_Register :=
+              (Channel         => Channel_0,
+               Access_Mode     => Low_High_Byte,
+               Operating_Mode  => Interrupt_On_Terminal_Count,
+               BCD_Binary_Mode => Binary);
+            --  PIT configuration settings
+
+            type Clock_Runs is range 1 .. 5;
+            --  We determine the TSC clock frequency over 5 runs to account
+            --  for variations in the PIT and TSC sources that we see on
+            --  virtualized hosts.
+
+            Frequency_Results : array (Clock_Runs) of Unsigned_64;
+            --  Array for the results of each clock determining run
+
+            Median_Index : constant := (Frequency_Results'Length + 1) / 2;
+            --  Helper constant to locate the median result in the array
+
+            Acceptable_Clock_Difference : constant := 20;
+            --  The maximum percentage difference between clock runs
+            --  that we find acceptable.
+
+            Max_Frequency_Error : Integer_64;
+            --  The maximum difference between two clock frequency measurement
+            --  we will tolerate.
 
          begin
-            Asm ("cpuid",
-                 Inputs  => Unsigned_32'Asm_Input ("a", Hypervisor_Info_Leaf),
-                 Outputs =>
-                   (Hypervisor_ID_Slice'Asm_Output ("=b", EBX),
-                    Hypervisor_ID_Slice'Asm_Output ("=c", ECX),
-                    Hypervisor_ID_Slice'Asm_Output ("=d", EDX)),
-                 Volatile => True);
+            --  Configure PIT
 
-            if EBX = "TCGT" and then ECX = "CGTC" and then EDX = "GTCG" then
-               --  Since QEMU TCG is not time deterministic set TSC_Frequency
-               --  to some sane value.
-               TSC_Frequency := 1_000_000_000;
+            Write_IO_Byte (To_IO_Byte (PIT_Config), PIT_Mode_Command_Port);
+
+            --  Find the TSC frequency over the number of specified runs
+
+            for Run_Number in Frequency_Results'Range loop
+               Frequency_Results (Run_Number) := Calculate_Frequency;
+            end loop;
+
+            --  Pick the median result. Do this by first sorting the results
+
+            for J in Frequency_Results'First .. Frequency_Results'Last - 1 loop
+               for K in J + 1 .. Frequency_Results'Last loop
+                  declare
+                     Swap_Temp : Unsigned_64;
+                  begin
+                     if Frequency_Results (K) < Frequency_Results (J) then
+                        Swap_Temp := Frequency_Results (J);
+                        Frequency_Results (J) := Frequency_Results (K);
+                        Frequency_Results (K) := Swap_Temp;
+                     end if;
+                  end;
+               end loop;
+            end loop;
+
+            TSC_Frequency := Frequency_Results (Median_Index);
+
+            Max_Frequency_Error :=
+              Integer_64 (TSC_Frequency / Acceptable_Clock_Difference);
+
+            if abs
+              (Integer_64 (TSC_Frequency) -
+               Integer_64 (Frequency_Results (Median_Index - 1))) >
+              Max_Frequency_Error
+              or else
+                abs
+                  (Integer_64 (TSC_Frequency) -
+                   Integer_64 (Frequency_Results (Median_Index + 1))) >
+                Max_Frequency_Error
+            then
+               raise Program_Error with "Clock measurements lack precision";
             end if;
          end;
       end if;
@@ -1137,21 +1263,8 @@ package body System.BB.CPU_Primitives is
 
       --  Setup Local APIC Timer
 
-      --  Disable "condition is always" warning on configuration parameter
-      --  TSC_Frequency
+      --  Disable warnings for Local_APIC_Timer_Divide_Configuration
 
-      pragma Warnings (Off, "condition is always*");
-
-      TSC_Frequency_In_kHz :=
-        (if TSC_Frequency /= 0
-           then TSC_Frequency
-           else Determine_TSC_Frequency) / 1_000;
-
-      if TSC_Frequency_In_kHz = 0 then
-         raise Program_Error with "TSC frequency could not be determined";
-      end if;
-
-      --  Disable warnings for non-SMP case
       pragma Warnings (Off, "condition is always*");
 
       Local_APIC_Timer_Divide_Configuration :=
@@ -1168,6 +1281,15 @@ package body System.BB.CPU_Primitives is
          Mask       => False,
          Delivery   => Idle,
          Vector     => APIC_Timer_Interrupt_ID);
+
+      TSC_Frequency_In_kHz :=
+        (if TSC_Frequency /= 0
+           then TSC_Frequency
+           else Determine_TSC_Frequency) / 1_000;
+
+      if TSC_Frequency_In_kHz = 0 then
+         raise Program_Error with "TSC frequency could not be determined";
+      end if;
 
       --  Clear any pending interrupts that may have occurred before or during
       --  the setup.

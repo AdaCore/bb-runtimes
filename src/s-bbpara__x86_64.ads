@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -64,7 +64,7 @@ package System.BB.Parameters is
    --  behaviour is as expected. In both cases you will need to manual set the
    --  TSC_Frequency constant above.
 
-   APIC_Timer_Divider : constant := 8;
+   APIC_Timer_Divider : constant := 16;
    --  Since the timer frequency is typically in GHz, clock the timer down as
    --  we do not need such a fine grain timer capable of firing every
    --  nanosecond (which also means the longest delay we can have before

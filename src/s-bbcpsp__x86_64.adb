@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -37,6 +37,9 @@ with Interfaces;          use Interfaces;
 with System.Machine_Code; use System.Machine_Code;
 
 package body System.BB.CPU_Specific is
+
+   NL : constant String := ASCII.LF & ASCII.HT;
+   --  New line separator for Asm blocks
 
    Cached_CPU_Model : CPU_Model := No_Model;
    --  Cache a copy of the CPU's model information so we can quickly reterive
@@ -67,5 +70,22 @@ package body System.BB.CPU_Specific is
 
       return Cached_CPU_Model;
    end My_CPU_Model;
+
+   --------------------
+   -- Read_Raw_Clock --
+   --------------------
+
+   function Read_Raw_Clock return Unsigned_64 is
+      Raw_Count : Unsigned_64;
+   begin
+      Asm
+        ("rdtsc"                                                         & NL &
+         "shlq   $32,   %%rdx"                                           & NL &
+         "orq    %%rdx, %%rax",
+         Outputs  => Unsigned_64'Asm_Output ("=a", Raw_Count),
+         Clobber  => "rdx",
+         Volatile => True);
+      return Raw_Count;
+   end Read_Raw_Clock;
 
 end System.BB.CPU_Specific;

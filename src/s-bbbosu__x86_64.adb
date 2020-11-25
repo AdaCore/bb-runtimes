@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -45,9 +45,6 @@ package body System.BB.Board_Support is
    use System.BB.CPU_Specific;
    use System.BB.Parameters;
    use System.Machine_Code;
-
-   NL : constant String := ASCII.LF & ASCII.HT;
-   --  New line separator for Asm blocks
 
    ----------------------
    -- Initialize_Board --
@@ -169,9 +166,6 @@ package body System.BB.Board_Support is
       --  the range of Ada.Real_Time.Time due to the overflow in the
       --  conversion.
 
-      function Read_Raw_Clock return Unsigned_64;
-      --  Read the hardware clock source
-
       Ticks_Per_Millisecond : constant := Ticks_Per_Second / 1_000;
 
       ---------------------------
@@ -207,23 +201,6 @@ package body System.BB.Board_Support is
            BB.Time.Time ((Read_Raw_Clock * Ticks_Per_Millisecond) /
                           TSC_Frequency_In_kHz);
       end Read_Clock;
-
-      --------------------
-      -- Read_Raw_Clock --
-      --------------------
-
-      function Read_Raw_Clock return Unsigned_64 is
-         Raw_Count : Unsigned_64;
-      begin
-         Asm
-           ("rdtsc"                                                      & NL &
-            "shlq   $32,   %%rdx"                                        & NL &
-            "orq    %%rdx, %%rax",
-            Outputs  => Unsigned_64'Asm_Output ("=a", Raw_Count),
-            Clobber  => "rdx",
-            Volatile => True);
-         return Raw_Count;
-      end Read_Raw_Clock;
 
       ---------------
       -- Set_Alarm --
