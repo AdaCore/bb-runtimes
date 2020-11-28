@@ -890,3 +890,61 @@ class CortexM7DF(CortexM7F):
         # The required compiler switches
         return ('-mlittle-endian', '-mthumb', '-mhard-float',
                 '-mcpu=cortex-m7', '-mfpu=fpv5-d16')
+
+
+class Stm32F1(CortexM3):
+    """Generic handling of stm32f1 boards"""
+    @property
+    def name(self):
+        return self.board
+
+    @property
+    def parent(self):
+        return CortexM3
+
+    @property
+    def loaders(self):
+        return ('ROM', 'RAM')
+
+    def __init__(self, board):
+        self.board = board
+        if self.board in ['stm32f103']:
+            self.mcu = 'stm32f103xx'
+        else:
+            assert False, "Unknown stm32f1 board: %s" % self.board
+
+        super(Stm32F1, self).__init__()
+
+        self.add_linker_script('arm/stm32f1/common-RAM.ld', loader='RAM')
+        self.add_linker_script('arm/stm32f1/common-ROM.ld', loader='ROM')
+
+        self.add_gnat_sources(
+            'src/s-bbpara__stm32f1.ads',
+            'arm/stm32f1/s-stm32.ads',
+            'arm/stm32f1/start-rom.S',
+            'arm/stm32f1/start-ram.S',
+            'arm/stm32f1/start-common.S',
+            'arm/stm32f1/setup_pll.adb',
+            'arm/stm32f1/setup_pll.ads')
+
+        self.add_linker_script('arm/stm32f1/%s/memory-map.ld' % self.mcu)
+
+        self.add_gnat_sources(
+            'arm/stm32f1/%s/s-bbbopa.ads' % self.mcu,
+            'arm/stm32f1/%s/s-bbmcpa.ads' % self.mcu,
+            'arm/stm32f1/%s/s-bbmcpa.adb' % self.mcu,
+            'arm/stm32f1/%s/svd/i-stm32.ads' % self.mcu,
+            'arm/stm32f1/%s/svd/i-stm32-flash.ads' % self.mcu,
+            'arm/stm32f1/%s/svd/i-stm32-gpio.ads' % self.mcu,
+            'arm/stm32f1/%s/svd/i-stm32-pwr.ads' % self.mcu,
+            'arm/stm32f1/%s/svd/i-stm32-rcc.ads' % self.mcu,
+            'arm/stm32f1/%s/svd/i-stm32-usart.ads' % self.mcu)
+
+        if self.board in ['stm32f103']:
+            self.add_gnat_source('arm/stm32f1/stm32f103xx/s-stm32.adb')
+
+        # ravenscar support
+        self.add_gnarl_sources(
+            'arm/stm32f1/%s/svd/handler.S' % self.mcu,
+            'arm/stm32f1/%s/svd/a-intnam.ads' % self.mcu)
+
