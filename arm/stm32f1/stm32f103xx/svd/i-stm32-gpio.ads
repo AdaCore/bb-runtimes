@@ -7,7 +7,7 @@
 pragma Ada_2012;
 pragma Style_Checks (Off);
 
-with Interfaces.Bit_Types;
+with Interfaces.STM32;
 with System;
 
 package Interfaces.STM32.GPIO is
@@ -18,7 +18,7 @@ package Interfaces.STM32.GPIO is
    -- Registers --
    ---------------
 
-   subtype Cnf_Mode is Interfaces.Bit_Types.UInt4;
+   subtype Cnf_Mode is Interfaces.STM32.UInt4;
 
    type CRL_Field_Array is array (0 .. 7) of Cnf_Mode
      with Component_Size => 4, Size => 32;
@@ -28,7 +28,7 @@ package Interfaces.STM32.GPIO is
    is record
       case As_Array is
          when False =>
-            Val : Interfaces.Bit_Types.Word;
+            Val : Interfaces.STM32.UInt32;
          when True =>
             Arr : CRL_Field_Array;
       end case;
@@ -43,7 +43,7 @@ package Interfaces.STM32.GPIO is
    is record
       case As_Array is
          when False =>
-            Val : Interfaces.Bit_Types.Word;
+            Val : Interfaces.STM32.UInt32;
          when True =>
             Arr : CRH_Field_Array;
       end case;
@@ -51,7 +51,7 @@ package Interfaces.STM32.GPIO is
      with Unchecked_Union, Size => 32, Volatile_Full_Access;
 
    --  IDR array element
-   subtype IDR_Element is Interfaces.Bit_Types.Bit;
+   subtype IDR_Element is Interfaces.STM32.Bit;
 
    --  IDR array
    type IDR_Field_Array is array (0 .. 15) of IDR_Element
@@ -64,7 +64,7 @@ package Interfaces.STM32.GPIO is
       case As_Array is
          when False =>
             --  IDR as a value
-            Val : Interfaces.Bit_Types.Short;
+            Val : Interfaces.STM32.UInt16;
          when True =>
             --  IDR as an array
             Arr : IDR_Field_Array;
@@ -82,7 +82,7 @@ package Interfaces.STM32.GPIO is
       --  Read-only. Port input data
       IDR            : IDR_Field;
       --  unspecified
-      Reserved_16_31 : Interfaces.Bit_Types.Short;
+      Reserved_16_31 : Interfaces.STM32.UInt16;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -93,7 +93,7 @@ package Interfaces.STM32.GPIO is
    end record;
 
    --  ODR array element
-   subtype ODR_Element is Interfaces.Bit_Types.Bit;
+   subtype ODR_Element is Interfaces.STM32.Bit;
 
    --  ODR array
    type ODR_Field_Array is array (0 .. 15) of ODR_Element
@@ -106,7 +106,7 @@ package Interfaces.STM32.GPIO is
       case As_Array is
          when False =>
             --  ODR as a value
-            Val : Interfaces.Bit_Types.Short;
+            Val : Interfaces.STM32.UInt16;
          when True =>
             --  ODR as an array
             Arr : ODR_Field_Array;
@@ -124,7 +124,7 @@ package Interfaces.STM32.GPIO is
       --  Port output data
       ODR            : ODR_Field := (As_Array => False, Val => 16#0#);
       --  unspecified
-      Reserved_16_31 : Interfaces.Bit_Types.Short := 16#0#;
+      Reserved_16_31 : Interfaces.STM32.UInt16 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -135,7 +135,7 @@ package Interfaces.STM32.GPIO is
    end record;
 
    --  BSRR_BS array element
-   subtype BSRR_BS_Element is Interfaces.Bit_Types.Bit;
+   subtype BSRR_BS_Element is Interfaces.STM32.Bit;
 
    --  BSRR_BS array
    type BSRR_BS_Field_Array is array (0 .. 15) of BSRR_BS_Element
@@ -148,7 +148,7 @@ package Interfaces.STM32.GPIO is
       case As_Array is
          when False =>
             --  BS as a value
-            Val : Interfaces.Bit_Types.Short;
+            Val : Interfaces.STM32.UInt16;
          when True =>
             --  BS as an array
             Arr : BSRR_BS_Field_Array;
@@ -162,7 +162,7 @@ package Interfaces.STM32.GPIO is
    end record;
 
    --  BSRR_BR array element
-   subtype BSRR_BR_Element is Interfaces.Bit_Types.Bit;
+   subtype BSRR_BR_Element is Interfaces.STM32.Bit;
 
    --  BSRR_BR array
    type BSRR_BR_Field_Array is array (0 .. 15) of BSRR_BR_Element
@@ -175,7 +175,7 @@ package Interfaces.STM32.GPIO is
       case As_Array is
          when False =>
             --  BR as a value
-            Val : Interfaces.Bit_Types.Short;
+            Val : Interfaces.STM32.UInt16;
          when True =>
             --  BR as an array
             Arr : BSRR_BR_Field_Array;
@@ -204,7 +204,7 @@ package Interfaces.STM32.GPIO is
    end record;
 
    --  BRR_BR array element
-   subtype BRR_BR_Element is Interfaces.Bit_Types.Bit;
+   subtype BRR_BR_Element is Interfaces.STM32.Bit;
 
    --  BRR_BR array
    type BRR_BR_Field_Array is array (0 .. 15) of BRR_BR_Element
@@ -217,7 +217,7 @@ package Interfaces.STM32.GPIO is
       case As_Array is
          when False =>
             --  BR as a value
-            Val : Interfaces.Bit_Types.Short;
+            Val : Interfaces.STM32.UInt16;
          when True =>
             --  BR as an array
             Arr : BRR_BR_Field_Array;
@@ -235,7 +235,7 @@ package Interfaces.STM32.GPIO is
       --  Write-only. Reset bit 0
       BR             : BRR_BR_Field := (As_Array => False, Val => 16#0#);
       --  unspecified
-      Reserved_16_31 : Interfaces.Bit_Types.Short := 16#0#;
+      Reserved_16_31 : Interfaces.STM32.UInt16 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -246,7 +246,7 @@ package Interfaces.STM32.GPIO is
    end record;
 
    --  LCKR_LCK array element
-   subtype LCKR_LCK_Element is Interfaces.Bit_Types.Bit;
+   subtype LCKR_LCK_Element is Interfaces.STM32.Bit;
 
    --  LCKR_LCK array
    type LCKR_LCK_Field_Array is array (0 .. 15) of LCKR_LCK_Element
@@ -259,7 +259,7 @@ package Interfaces.STM32.GPIO is
       case As_Array is
          when False =>
             --  LCK as a value
-            Val : Interfaces.Bit_Types.Short;
+            Val : Interfaces.STM32.UInt16;
          when True =>
             --  LCK as an array
             Arr : LCKR_LCK_Field_Array;
@@ -272,7 +272,7 @@ package Interfaces.STM32.GPIO is
       Arr at 0 range 0 .. 15;
    end record;
 
-   subtype LCKR_LCKK_Field is Interfaces.Bit_Types.Bit;
+   subtype LCKR_LCKK_Field is Interfaces.STM32.Bit;
 
    --  Port configuration lock register
    type LCKR_Register is record
@@ -281,7 +281,7 @@ package Interfaces.STM32.GPIO is
       --  Lock key
       LCKK           : LCKR_LCKK_Field := 16#0#;
       --  unspecified
-      Reserved_17_31 : Interfaces.Bit_Types.UInt15 := 16#0#;
+      Reserved_17_31 : Interfaces.STM32.UInt15 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;

@@ -23,13 +23,13 @@
 --  This file provides register definitions for the STM32F103 (ARM Cortex M3)
 --  microcontrollers from ST Microelectronics.
 
-with Interfaces.Bit_Types;
+with Interfaces.STM32;
 
 package System.STM32 is
    pragma No_Elaboration_Code_All;
    pragma Preelaborate (System.STM32);
 
-   subtype Frequency is Interfaces.Bit_Types.Word;
+   subtype Frequency is Interfaces.STM32.UInt32;
 
    type RCC_System_Clocks is record
       SYSCLK  : Frequency;
@@ -43,38 +43,38 @@ package System.STM32 is
    function System_Clocks return RCC_System_Clocks;
 
    --  MODER constants
-   subtype GPIO_MODER_Values is Interfaces.Bit_Types.UInt2;
+   subtype GPIO_MODER_Values is Interfaces.STM32.UInt2;
    Mode_IN  : constant GPIO_MODER_Values := 0;
    Mode_OUT : constant GPIO_MODER_Values := 1;
    Mode_AF  : constant GPIO_MODER_Values := 2;
    Mode_AN  : constant GPIO_MODER_Values := 3;
 
    --  OTYPER constants
-   subtype GPIO_OTYPER_Values is Interfaces.Bit_Types.Bit;
+   subtype GPIO_OTYPER_Values is Interfaces.STM32.Bit;
    Push_Pull  : constant GPIO_OTYPER_Values := 0;
    Open_Drain : constant GPIO_OTYPER_Values := 1;
 
    --  OSPEEDR constants
-   subtype GPIO_OSPEEDR_Values is Interfaces.Bit_Types.UInt2;
+   subtype GPIO_OSPEEDR_Values is Interfaces.STM32.UInt2;
    Speed_2MHz   : constant GPIO_OSPEEDR_Values := 0; -- Low speed
    Speed_25MHz  : constant GPIO_OSPEEDR_Values := 1; -- Medium speed
    Speed_50MHz  : constant GPIO_OSPEEDR_Values := 2; -- Fast speed
    Speed_100MHz : constant GPIO_OSPEEDR_Values := 3; -- High speed
 
    --  PUPDR constants
-   subtype GPIO_PUPDR_Values is Interfaces.Bit_Types.UInt2;
+   subtype GPIO_PUPDR_Values is Interfaces.STM32.UInt2;
    No_Pull   : constant GPIO_PUPDR_Values := 0;
    Pull_Up   : constant GPIO_PUPDR_Values := 1;
    Pull_Down : constant GPIO_PUPDR_Values := 2;
 
    --  AFL constants
-   AF_USART1  : constant Interfaces.Bit_Types.UInt4 := 7;
-   AF_USART6  : constant Interfaces.Bit_Types.UInt4 := 8;
+   AF_USART1  : constant Interfaces.STM32.UInt4 := 7;
+   AF_USART6  : constant Interfaces.STM32.UInt4 := 8;
 
    type MCU_ID_Register is record
-      DEV_ID   : Interfaces.Bit_Types.UInt12;
-      Reserved : Interfaces.Bit_Types.UInt4;
-      REV_ID   : Interfaces.Bit_Types.Short;
+      DEV_ID   : Interfaces.STM32.UInt12;
+      Reserved : Interfaces.STM32.UInt4;
+      REV_ID   : Interfaces.STM32.UInt16;
    end record with Pack, Size => 32;
 
    --  RCC constants

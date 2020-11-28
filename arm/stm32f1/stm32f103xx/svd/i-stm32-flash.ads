@@ -7,7 +7,7 @@
 pragma Ada_2012;
 pragma Style_Checks (Off);
 
-with Interfaces.Bit_Types;
+with Interfaces.STM32;
 with System;
 
 package Interfaces.STM32.FLASH is
@@ -18,10 +18,10 @@ package Interfaces.STM32.FLASH is
    -- Registers --
    ---------------
 
-   subtype ACR_LATENCY_Field is Interfaces.Bit_Types.UInt3;
-   subtype ACR_HLFCYA_Field is Interfaces.Bit_Types.Bit;
-   subtype ACR_PRFTBE_Field is Interfaces.Bit_Types.Bit;
-   subtype ACR_PRFTBS_Field is Interfaces.Bit_Types.Bit;
+   subtype ACR_LATENCY_Field is Interfaces.STM32.UInt3;
+   subtype ACR_HLFCYA_Field is Interfaces.STM32.Bit;
+   subtype ACR_PRFTBE_Field is Interfaces.STM32.Bit;
+   subtype ACR_PRFTBS_Field is Interfaces.STM32.Bit;
 
    --  Flash access control register
    type ACR_Register is record
@@ -34,7 +34,7 @@ package Interfaces.STM32.FLASH is
       --  Read-only. Prefetch buffer status
       PRFTBS        : ACR_PRFTBS_Field := 16#1#;
       --  unspecified
-      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#0#;
+      Reserved_6_31 : Interfaces.STM32.UInt26 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -47,27 +47,27 @@ package Interfaces.STM32.FLASH is
       Reserved_6_31 at 0 range 6 .. 31;
    end record;
 
-   subtype SR_BSY_Field is Interfaces.Bit_Types.Bit;
-   subtype SR_PGERR_Field is Interfaces.Bit_Types.Bit;
-   subtype SR_WRPRTERR_Field is Interfaces.Bit_Types.Bit;
-   subtype SR_EOP_Field is Interfaces.Bit_Types.Bit;
+   subtype SR_BSY_Field is Interfaces.STM32.Bit;
+   subtype SR_PGERR_Field is Interfaces.STM32.Bit;
+   subtype SR_WRPRTERR_Field is Interfaces.STM32.Bit;
+   subtype SR_EOP_Field is Interfaces.STM32.Bit;
 
    --  Status register
    type SR_Register is record
       --  Read-only. Busy
       BSY           : SR_BSY_Field := 16#0#;
       --  unspecified
-      Reserved_1_1  : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_1_1  : Interfaces.STM32.Bit := 16#0#;
       --  Programming error
       PGERR         : SR_PGERR_Field := 16#0#;
       --  unspecified
-      Reserved_3_3  : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_3_3  : Interfaces.STM32.Bit := 16#0#;
       --  Write protection error
       WRPRTERR      : SR_WRPRTERR_Field := 16#0#;
       --  End of operation
       EOP           : SR_EOP_Field := 16#0#;
       --  unspecified
-      Reserved_6_31 : Interfaces.Bit_Types.UInt26 := 16#0#;
+      Reserved_6_31 : Interfaces.STM32.UInt26 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -82,16 +82,16 @@ package Interfaces.STM32.FLASH is
       Reserved_6_31 at 0 range 6 .. 31;
    end record;
 
-   subtype CR_PG_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_PER_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_MER_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_OPTPG_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_OPTER_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_STRT_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_LOCK_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_OPTWRE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_ERRIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR_EOPIE_Field is Interfaces.Bit_Types.Bit;
+   subtype CR_PG_Field is Interfaces.STM32.Bit;
+   subtype CR_PER_Field is Interfaces.STM32.Bit;
+   subtype CR_MER_Field is Interfaces.STM32.Bit;
+   subtype CR_OPTPG_Field is Interfaces.STM32.Bit;
+   subtype CR_OPTER_Field is Interfaces.STM32.Bit;
+   subtype CR_STRT_Field is Interfaces.STM32.Bit;
+   subtype CR_LOCK_Field is Interfaces.STM32.Bit;
+   subtype CR_OPTWRE_Field is Interfaces.STM32.Bit;
+   subtype CR_ERRIE_Field is Interfaces.STM32.Bit;
+   subtype CR_EOPIE_Field is Interfaces.STM32.Bit;
 
    --  Control register
    type CR_Register is record
@@ -102,7 +102,7 @@ package Interfaces.STM32.FLASH is
       --  Mass Erase
       MER            : CR_MER_Field := 16#0#;
       --  unspecified
-      Reserved_3_3   : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_3_3   : Interfaces.STM32.Bit := 16#0#;
       --  Option byte programming
       OPTPG          : CR_OPTPG_Field := 16#0#;
       --  Option byte erase
@@ -112,17 +112,17 @@ package Interfaces.STM32.FLASH is
       --  Lock
       LOCK           : CR_LOCK_Field := 16#1#;
       --  unspecified
-      Reserved_8_8   : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_8_8   : Interfaces.STM32.Bit := 16#0#;
       --  Option bytes write enable
       OPTWRE         : CR_OPTWRE_Field := 16#0#;
       --  Error interrupt enable
       ERRIE          : CR_ERRIE_Field := 16#0#;
       --  unspecified
-      Reserved_11_11 : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_11_11 : Interfaces.STM32.Bit := 16#0#;
       --  End of operation interrupt enable
       EOPIE          : CR_EOPIE_Field := 16#0#;
       --  unspecified
-      Reserved_13_31 : Interfaces.Bit_Types.UInt19 := 16#0#;
+      Reserved_13_31 : Interfaces.STM32.UInt19 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -144,13 +144,13 @@ package Interfaces.STM32.FLASH is
       Reserved_13_31 at 0 range 13 .. 31;
    end record;
 
-   subtype OBR_OPTERR_Field is Interfaces.Bit_Types.Bit;
-   subtype OBR_RDPRT_Field is Interfaces.Bit_Types.Bit;
-   subtype OBR_WDG_SW_Field is Interfaces.Bit_Types.Bit;
-   subtype OBR_nRST_STOP_Field is Interfaces.Bit_Types.Bit;
-   subtype OBR_nRST_STDBY_Field is Interfaces.Bit_Types.Bit;
+   subtype OBR_OPTERR_Field is Interfaces.STM32.Bit;
+   subtype OBR_RDPRT_Field is Interfaces.STM32.Bit;
+   subtype OBR_WDG_SW_Field is Interfaces.STM32.Bit;
+   subtype OBR_nRST_STOP_Field is Interfaces.STM32.Bit;
+   subtype OBR_nRST_STDBY_Field is Interfaces.STM32.Bit;
    --  OBR_Data array element
-   subtype OBR_Data_Element is Interfaces.Bit_Types.Byte;
+   subtype OBR_Data_Element is Interfaces.STM32.Byte;
 
    --  OBR_Data array
    type OBR_Data_Field_Array is array (0 .. 1) of OBR_Data_Element
@@ -163,7 +163,7 @@ package Interfaces.STM32.FLASH is
       case As_Array is
          when False =>
             --  Data as a value
-            Val : Interfaces.Bit_Types.Short;
+            Val : Interfaces.STM32.UInt16;
          when True =>
             --  Data as an array
             Arr : OBR_Data_Field_Array;
@@ -189,11 +189,11 @@ package Interfaces.STM32.FLASH is
       --  Read-only. nRST_STDBY
       nRST_STDBY     : OBR_nRST_STDBY_Field;
       --  unspecified
-      Reserved_5_9   : Interfaces.Bit_Types.UInt5;
+      Reserved_5_9   : Interfaces.STM32.UInt5;
       --  Read-only. Data0
       Data           : OBR_Data_Field;
       --  unspecified
-      Reserved_26_31 : Interfaces.Bit_Types.UInt6;
+      Reserved_26_31 : Interfaces.STM32.UInt6;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -218,19 +218,19 @@ package Interfaces.STM32.FLASH is
       --  Flash access control register
       ACR     : aliased ACR_Register;
       --  Flash key register
-      KEYR    : aliased Interfaces.Bit_Types.Word;
+      KEYR    : aliased Interfaces.STM32.UInt32;
       --  Flash option key register
-      OPTKEYR : aliased Interfaces.Bit_Types.Word;
+      OPTKEYR : aliased Interfaces.STM32.UInt32;
       --  Status register
       SR      : aliased SR_Register;
       --  Control register
       CR      : aliased CR_Register;
       --  Flash address register
-      AR      : aliased Interfaces.Bit_Types.Word;
+      AR      : aliased Interfaces.STM32.UInt32;
       --  Option byte register
       OBR     : aliased OBR_Register;
       --  Write protection register
-      WRPR    : aliased Interfaces.Bit_Types.Word;
+      WRPR    : aliased Interfaces.STM32.UInt32;
    end record
      with Volatile;
 

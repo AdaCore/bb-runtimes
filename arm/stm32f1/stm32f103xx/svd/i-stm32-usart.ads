@@ -7,7 +7,7 @@
 pragma Ada_2012;
 pragma Style_Checks (Off);
 
-with Interfaces.Bit_Types;
+with Interfaces.STM32;
 with System;
 
 package Interfaces.STM32.USART is
@@ -18,15 +18,15 @@ package Interfaces.STM32.USART is
    -- Registers --
    ---------------
 
-   subtype SR_PE_Field is Interfaces.Bit_Types.Bit;
-   subtype SR_FE_Field is Interfaces.Bit_Types.Bit;
-   subtype SR_NE_Field is Interfaces.Bit_Types.Bit;
-   subtype SR_ORE_Field is Interfaces.Bit_Types.Bit;
-   subtype SR_IDLE_Field is Interfaces.Bit_Types.Bit;
-   subtype SR_RXNE_Field is Interfaces.Bit_Types.Bit;
-   subtype SR_TC_Field is Interfaces.Bit_Types.Bit;
-   subtype SR_TXE_Field is Interfaces.Bit_Types.Bit;
-   subtype SR_LBD_Field is Interfaces.Bit_Types.Bit;
+   subtype SR_PE_Field is Interfaces.STM32.Bit;
+   subtype SR_FE_Field is Interfaces.STM32.Bit;
+   subtype SR_NE_Field is Interfaces.STM32.Bit;
+   subtype SR_ORE_Field is Interfaces.STM32.Bit;
+   subtype SR_IDLE_Field is Interfaces.STM32.Bit;
+   subtype SR_RXNE_Field is Interfaces.STM32.Bit;
+   subtype SR_TC_Field is Interfaces.STM32.Bit;
+   subtype SR_TXE_Field is Interfaces.STM32.Bit;
+   subtype SR_LBD_Field is Interfaces.STM32.Bit;
 
    --  UART4_SR
    type SR_Register is record
@@ -49,7 +49,7 @@ package Interfaces.STM32.USART is
       --  LIN break detection flag
       LBD           : SR_LBD_Field := 16#0#;
       --  unspecified
-      Reserved_9_31 : Interfaces.Bit_Types.UInt23 := 16#0#;
+      Reserved_9_31 : Interfaces.STM32.UInt23 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -67,14 +67,14 @@ package Interfaces.STM32.USART is
       Reserved_9_31 at 0 range 9 .. 31;
    end record;
 
-   subtype DR_DR_Field is Interfaces.Bit_Types.UInt9;
+   subtype DR_DR_Field is Interfaces.STM32.UInt9;
 
    --  UART4_DR
    type DR_Register is record
       --  DR
       DR            : DR_DR_Field := 16#0#;
       --  unspecified
-      Reserved_9_31 : Interfaces.Bit_Types.UInt23 := 16#0#;
+      Reserved_9_31 : Interfaces.STM32.UInt23 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -84,8 +84,8 @@ package Interfaces.STM32.USART is
       Reserved_9_31 at 0 range 9 .. 31;
    end record;
 
-   subtype BRR_DIV_Fraction_Field is Interfaces.Bit_Types.UInt4;
-   subtype BRR_DIV_Mantissa_Field is Interfaces.Bit_Types.UInt12;
+   subtype BRR_DIV_Fraction_Field is Interfaces.STM32.UInt4;
+   subtype BRR_DIV_Mantissa_Field is Interfaces.STM32.UInt12;
 
    --  UART4_BRR
    type BRR_Register is record
@@ -94,7 +94,7 @@ package Interfaces.STM32.USART is
       --  DIV_Mantissa
       DIV_Mantissa   : BRR_DIV_Mantissa_Field := 16#0#;
       --  unspecified
-      Reserved_16_31 : Interfaces.Bit_Types.Short := 16#0#;
+      Reserved_16_31 : Interfaces.STM32.UInt16 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -105,20 +105,20 @@ package Interfaces.STM32.USART is
       Reserved_16_31 at 0 range 16 .. 31;
    end record;
 
-   subtype CR1_SBK_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_RWU_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_RE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_TE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_IDLEIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_RXNEIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_TCIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_TXEIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_PEIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_PS_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_PCE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_WAKE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_M_Field is Interfaces.Bit_Types.Bit;
-   subtype CR1_UE_Field is Interfaces.Bit_Types.Bit;
+   subtype CR1_SBK_Field is Interfaces.STM32.Bit;
+   subtype CR1_RWU_Field is Interfaces.STM32.Bit;
+   subtype CR1_RE_Field is Interfaces.STM32.Bit;
+   subtype CR1_TE_Field is Interfaces.STM32.Bit;
+   subtype CR1_IDLEIE_Field is Interfaces.STM32.Bit;
+   subtype CR1_RXNEIE_Field is Interfaces.STM32.Bit;
+   subtype CR1_TCIE_Field is Interfaces.STM32.Bit;
+   subtype CR1_TXEIE_Field is Interfaces.STM32.Bit;
+   subtype CR1_PEIE_Field is Interfaces.STM32.Bit;
+   subtype CR1_PS_Field is Interfaces.STM32.Bit;
+   subtype CR1_PCE_Field is Interfaces.STM32.Bit;
+   subtype CR1_WAKE_Field is Interfaces.STM32.Bit;
+   subtype CR1_M_Field is Interfaces.STM32.Bit;
+   subtype CR1_UE_Field is Interfaces.STM32.Bit;
 
    --  UART4_CR1
    type CR1_Register is record
@@ -146,12 +146,12 @@ package Interfaces.STM32.USART is
       PCE            : CR1_PCE_Field := 16#0#;
       --  Wakeup method
       WAKE           : CR1_WAKE_Field := 16#0#;
-      --  Word length
+      --  UInt32 length
       M              : CR1_M_Field := 16#0#;
       --  USART enable
       UE             : CR1_UE_Field := 16#0#;
       --  unspecified
-      Reserved_14_31 : Interfaces.Bit_Types.UInt18 := 16#0#;
+      Reserved_14_31 : Interfaces.STM32.UInt18 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -174,30 +174,30 @@ package Interfaces.STM32.USART is
       Reserved_14_31 at 0 range 14 .. 31;
    end record;
 
-   subtype CR2_ADD_Field is Interfaces.Bit_Types.UInt4;
-   subtype CR2_LBDL_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_LBDIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_STOP_Field is Interfaces.Bit_Types.UInt2;
-   subtype CR2_LINEN_Field is Interfaces.Bit_Types.Bit;
+   subtype CR2_ADD_Field is Interfaces.STM32.UInt4;
+   subtype CR2_LBDL_Field is Interfaces.STM32.Bit;
+   subtype CR2_LBDIE_Field is Interfaces.STM32.Bit;
+   subtype CR2_STOP_Field is Interfaces.STM32.UInt2;
+   subtype CR2_LINEN_Field is Interfaces.STM32.Bit;
 
    --  UART4_CR2
    type CR2_Register is record
       --  Address of the USART node
       ADD            : CR2_ADD_Field := 16#0#;
       --  unspecified
-      Reserved_4_4   : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_4_4   : Interfaces.STM32.Bit := 16#0#;
       --  lin break detection length
       LBDL           : CR2_LBDL_Field := 16#0#;
       --  LIN break detection interrupt enable
       LBDIE          : CR2_LBDIE_Field := 16#0#;
       --  unspecified
-      Reserved_7_11  : Interfaces.Bit_Types.UInt5 := 16#0#;
+      Reserved_7_11  : Interfaces.STM32.UInt5 := 16#0#;
       --  STOP bits
       STOP           : CR2_STOP_Field := 16#0#;
       --  LIN mode enable
       LINEN          : CR2_LINEN_Field := 16#0#;
       --  unspecified
-      Reserved_15_31 : Interfaces.Bit_Types.UInt17 := 16#0#;
+      Reserved_15_31 : Interfaces.STM32.UInt17 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -213,12 +213,12 @@ package Interfaces.STM32.USART is
       Reserved_15_31 at 0 range 15 .. 31;
    end record;
 
-   subtype CR3_EIE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_IREN_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_IRLP_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_HDSEL_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_DMAR_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_DMAT_Field is Interfaces.Bit_Types.Bit;
+   subtype CR3_EIE_Field is Interfaces.STM32.Bit;
+   subtype CR3_IREN_Field is Interfaces.STM32.Bit;
+   subtype CR3_IRLP_Field is Interfaces.STM32.Bit;
+   subtype CR3_HDSEL_Field is Interfaces.STM32.Bit;
+   subtype CR3_DMAR_Field is Interfaces.STM32.Bit;
+   subtype CR3_DMAT_Field is Interfaces.STM32.Bit;
 
    --  UART4_CR3
    type CR3_Register is record
@@ -231,13 +231,13 @@ package Interfaces.STM32.USART is
       --  Half-duplex selection
       HDSEL         : CR3_HDSEL_Field := 16#0#;
       --  unspecified
-      Reserved_4_5  : Interfaces.Bit_Types.UInt2 := 16#0#;
+      Reserved_4_5  : Interfaces.STM32.UInt2 := 16#0#;
       --  DMA enable receiver
       DMAR          : CR3_DMAR_Field := 16#0#;
       --  DMA enable transmitter
       DMAT          : CR3_DMAT_Field := 16#0#;
       --  unspecified
-      Reserved_8_31 : Interfaces.Bit_Types.UInt24 := 16#0#;
+      Reserved_8_31 : Interfaces.STM32.UInt24 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -264,11 +264,11 @@ package Interfaces.STM32.USART is
       --  Half-duplex selection
       HDSEL         : CR3_HDSEL_Field := 16#0#;
       --  unspecified
-      Reserved_4_6  : Interfaces.Bit_Types.UInt3 := 16#0#;
+      Reserved_4_6  : Interfaces.STM32.UInt3 := 16#0#;
       --  DMA enable transmitter
       DMAT          : CR3_DMAT_Field := 16#0#;
       --  unspecified
-      Reserved_8_31 : Interfaces.Bit_Types.UInt24 := 16#0#;
+      Reserved_8_31 : Interfaces.STM32.UInt24 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -283,7 +283,7 @@ package Interfaces.STM32.USART is
       Reserved_8_31 at 0 range 8 .. 31;
    end record;
 
-   subtype SR_CTS_Field is Interfaces.Bit_Types.Bit;
+   subtype SR_CTS_Field is Interfaces.STM32.Bit;
 
    --  Status register
    type SR_Register_1 is record
@@ -308,7 +308,7 @@ package Interfaces.STM32.USART is
       --  CTS flag
       CTS            : SR_CTS_Field := 16#0#;
       --  unspecified
-      Reserved_10_31 : Interfaces.Bit_Types.UInt22 := 16#0#;
+      Reserved_10_31 : Interfaces.STM32.UInt22 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -327,23 +327,23 @@ package Interfaces.STM32.USART is
       Reserved_10_31 at 0 range 10 .. 31;
    end record;
 
-   subtype CR2_LBCL_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_CPHA_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_CPOL_Field is Interfaces.Bit_Types.Bit;
-   subtype CR2_CLKEN_Field is Interfaces.Bit_Types.Bit;
+   subtype CR2_LBCL_Field is Interfaces.STM32.Bit;
+   subtype CR2_CPHA_Field is Interfaces.STM32.Bit;
+   subtype CR2_CPOL_Field is Interfaces.STM32.Bit;
+   subtype CR2_CLKEN_Field is Interfaces.STM32.Bit;
 
    --  Control register 2
    type CR2_Register_1 is record
       --  Address of the USART node
       ADD            : CR2_ADD_Field := 16#0#;
       --  unspecified
-      Reserved_4_4   : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_4_4   : Interfaces.STM32.Bit := 16#0#;
       --  lin break detection length
       LBDL           : CR2_LBDL_Field := 16#0#;
       --  LIN break detection interrupt enable
       LBDIE          : CR2_LBDIE_Field := 16#0#;
       --  unspecified
-      Reserved_7_7   : Interfaces.Bit_Types.Bit := 16#0#;
+      Reserved_7_7   : Interfaces.STM32.Bit := 16#0#;
       --  Last bit clock pulse
       LBCL           : CR2_LBCL_Field := 16#0#;
       --  Clock phase
@@ -357,7 +357,7 @@ package Interfaces.STM32.USART is
       --  LIN mode enable
       LINEN          : CR2_LINEN_Field := 16#0#;
       --  unspecified
-      Reserved_15_31 : Interfaces.Bit_Types.UInt17 := 16#0#;
+      Reserved_15_31 : Interfaces.STM32.UInt17 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -377,11 +377,11 @@ package Interfaces.STM32.USART is
       Reserved_15_31 at 0 range 15 .. 31;
    end record;
 
-   subtype CR3_NACK_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_SCEN_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_RTSE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_CTSE_Field is Interfaces.Bit_Types.Bit;
-   subtype CR3_CTSIE_Field is Interfaces.Bit_Types.Bit;
+   subtype CR3_NACK_Field is Interfaces.STM32.Bit;
+   subtype CR3_SCEN_Field is Interfaces.STM32.Bit;
+   subtype CR3_RTSE_Field is Interfaces.STM32.Bit;
+   subtype CR3_CTSE_Field is Interfaces.STM32.Bit;
+   subtype CR3_CTSIE_Field is Interfaces.STM32.Bit;
 
    --  Control register 3
    type CR3_Register_2 is record
@@ -408,7 +408,7 @@ package Interfaces.STM32.USART is
       --  CTS interrupt enable
       CTSIE          : CR3_CTSIE_Field := 16#0#;
       --  unspecified
-      Reserved_11_31 : Interfaces.Bit_Types.UInt21 := 16#0#;
+      Reserved_11_31 : Interfaces.STM32.UInt21 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
@@ -428,8 +428,8 @@ package Interfaces.STM32.USART is
       Reserved_11_31 at 0 range 11 .. 31;
    end record;
 
-   subtype GTPR_PSC_Field is Interfaces.Bit_Types.Byte;
-   subtype GTPR_GT_Field is Interfaces.Bit_Types.Byte;
+   subtype GTPR_PSC_Field is Interfaces.STM32.Byte;
+   subtype GTPR_GT_Field is Interfaces.STM32.Byte;
 
    --  Guard time and prescaler register
    type GTPR_Register is record
@@ -438,7 +438,7 @@ package Interfaces.STM32.USART is
       --  Guard time value
       GT             : GTPR_GT_Field := 16#0#;
       --  unspecified
-      Reserved_16_31 : Interfaces.Bit_Types.Short := 16#0#;
+      Reserved_16_31 : Interfaces.STM32.UInt16 := 16#0#;
    end record
      with Volatile_Full_Access, Size => 32,
           Bit_Order => System.Low_Order_First;
