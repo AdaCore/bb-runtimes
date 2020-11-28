@@ -33,7 +33,6 @@
 
 --  This is the STM32F40x (ARMv7) version of this package
 
-with Interfaces.STM32.RCC;
 with System.STM32;
 with System.BB.Board_Parameters;
 with System.BB.MCU_Parameters;

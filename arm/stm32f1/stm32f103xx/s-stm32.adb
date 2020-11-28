@@ -20,10 +20,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Unchecked_Conversion;
-
-with System.BB.Parameters;
-
 with Interfaces;            use Interfaces;
 with Interfaces.STM32;      use Interfaces.STM32;
 with Interfaces.STM32.RCC;  use Interfaces.STM32.RCC;
