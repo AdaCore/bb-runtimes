@@ -33,8 +33,7 @@
 /* This script replaces ld's default linker script, providing the
    appropriate memory map and output format. */
 
-SEARCH_DIR(.)
-__DYNAMIC  =  0;
+INCLUDE memory-map.ld
 
 _DEFAULT_STACK_SIZE = 4*1024;
 
