@@ -59,7 +59,7 @@ class Rpi2Base(CortexARTarget):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mhard-float',
+        return ('-mlittle-endian', '-mfloat-abi=hard',
                 '-mcpu=%s' % self.mcu,
                 '-mfpu=%s' % self.fpu,
                 '-marm', '-mno-unaligned-access')
@@ -162,7 +162,7 @@ class TMS570(CortexARTarget):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mbig-endian', '-mhard-float', '-mcpu=%s' % self.cpu,
+        return ('-mbig-endian', '-mfloat-abi=hard', '-mcpu=%s' % self.cpu,
                 '-mfpu=vfpv3-d16', '-marm', '-mbe32')
 
     @property
@@ -231,7 +231,7 @@ class Zynq7000(CortexARTarget):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mhard-float',
+        return ('-mlittle-endian', '-mfloat-abi=hard',
                 '-mcpu=%s' % self.mcu,
                 '-mfpu=%s' % self.fpu,
                 '-marm', '-mno-unaligned-access')

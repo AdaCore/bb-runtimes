@@ -110,7 +110,7 @@ class LM3S(ArmV7MTarget):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+        return ('-mlittle-endian', '-mthumb', '-mfloat-abi=soft',
                 '-mcpu=cortex-m3')
 
     @property
@@ -224,7 +224,7 @@ class Sam(ArmV7MTarget):
         if not self.has_single_precision_fpu:
             return base
         else:
-            return base + ('-mhard-float', '-mfpu=%s' % self.fpu, )
+            return base + ('-mfloat-abi=hard', '-mfpu=%s' % self.fpu, )
 
     def __init__(self, board):
         assert board in ('sam4s', 'samg55', 'samv71'), \
@@ -276,7 +276,7 @@ class SmartFusion2(ArmV7MTarget):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+        return ('-mlittle-endian', '-mthumb', '-mfloat-abi=soft',
                 '-mcpu=cortex-m3')
 
     @property
@@ -333,7 +333,7 @@ class CortexM1CommonArchSupport(ArmV6MTarget):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+        return ('-mlittle-endian', '-mthumb', '-mfloat-abi=soft',
                 '-mcpu=cortex-m1')
 
     @property
@@ -402,7 +402,7 @@ class NRF51(ArmV6MTarget):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+        return ('-mlittle-endian', '-mthumb', '-mfloat-abi=soft',
                 '-mcpu=cortex-m0')
 
     @property
@@ -482,7 +482,7 @@ class NRF52(ArmV7MTarget):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mthumb', '-mhard-float',
+        return ('-mlittle-endian', '-mthumb', '-mfloat-abi=hard',
                 '-mfpu=fpv4-sp-d16', '-mcpu=cortex-m4')
 
     def __init__(self):
@@ -673,7 +673,7 @@ class Stm32(ArmV7MTarget):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mhard-float',
+        return ('-mlittle-endian', '-mfloat-abi=hard',
                 '-mcpu=%s' % self.cortex,
                 '-mfpu=%s' % self.fpu,
                 '-mthumb')
@@ -751,7 +751,7 @@ class CortexM0(ArmV6MTarget):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+        return ('-mlittle-endian', '-mthumb', '-mfloat-abi=soft',
                 '-mcpu=cortex-m0')
 
     @property
@@ -767,7 +767,7 @@ class CortexM0P(CortexM0):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+        return ('-mlittle-endian', '-mthumb', '-mfloat-abi=soft',
                 '-mcpu=cortex-m0plus')
 
 
@@ -787,7 +787,7 @@ class CortexM1(ArmV6MTarget):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+        return ('-mlittle-endian', '-mthumb', '-mfloat-abi=soft',
                 '-mcpu=cortex-m1')
 
     @property
@@ -811,7 +811,7 @@ class CortexM3(ArmV7MTarget):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+        return ('-mlittle-endian', '-mthumb', '-mfloat-abi=soft',
                 '-mcpu=cortex-m3')
 
     @property
@@ -835,7 +835,7 @@ class CortexM4(ArmV7MTarget):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mthumb', '-msoft-float',
+        return ('-mlittle-endian', '-mthumb', '-mfloat-abi=soft',
                 '-mcpu=cortex-m4')
 
     @property
@@ -851,7 +851,7 @@ class CortexM4F(CortexM4):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mthumb', '-mhard-float',
+        return ('-mlittle-endian', '-mthumb', '-mfloat-abi=hard',
                 '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16')
 
 
@@ -871,7 +871,7 @@ class CortexM7F(ArmV7MTarget):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mthumb', '-mhard-float',
+        return ('-mlittle-endian', '-mthumb', '-mfloat-abi=hard',
                 '-mcpu=cortex-m7', '-mfpu=fpv5-sp-d16')
 
     @property
@@ -887,5 +887,5 @@ class CortexM7DF(CortexM7F):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mthumb', '-mhard-float',
+        return ('-mlittle-endian', '-mthumb', '-mfloat-abi=hard',
                 '-mcpu=cortex-m7', '-mfpu=fpv5-d16')
