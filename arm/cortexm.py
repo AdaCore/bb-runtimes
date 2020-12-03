@@ -491,14 +491,14 @@ class Stm32F0(CortexM0CommonArchSupport):
 
         flash_size = self.flash_sizes[user_code_memory_size]
 
-        self.add_linker_script('arm/stm32f0xx/common-RAM.ld',
+        self.add_linker_script('arm/stm32/stm32f0xx/common-RAM.ld',
                                loader='RAM')
-        self.add_linker_script('arm/stm32f0xx/common-ROM.ld',
+        self.add_linker_script('arm/stm32/stm32f0xx/common-ROM.ld',
                                loader='ROM')
 
         # Select memory map based on available memory size
         # of the specific device
-        self.add_linker_script('arm/stm32f0xx/memory-map.ld.tmpl')
+        self.add_linker_script('arm/stm32/stm32f0xx/memory-map.ld.tmpl')
 
         # Set template variables required by linker script
         self.add_template_config_value(
@@ -510,17 +510,17 @@ class Stm32F0(CortexM0CommonArchSupport):
 
         # Common source files
         self.add_gnat_sources(
-            'arm/stm32f0xx/s-stm32.ads',
-            'arm/stm32f0xx/s-stm32.adb',
-            'arm/stm32f0xx/start-rom.S',
-            'arm/stm32f0xx/start-ram.S',
-            'arm/stm32f0xx/setup_pll.ads',
-            'arm/stm32f0xx/setup_pll.adb',
-            'arm/stm32f0xx/s-bbmcpa.ads.tmpl',
-            'arm/stm32f0xx/s-bbbopa.ads.tmpl',
-            'arm/stm32f0xx/stm32f0x{}/svd/i-stm32.ads'.format(sub_family_minor),
-            'arm/stm32f0xx/stm32f0x{}/svd/i-stm32-flash.ads'.format(sub_family_minor),
-            'arm/stm32f0xx/stm32f0x{}/svd/i-stm32-rcc.ads'.format(sub_family_minor))
+            'arm/stm32/stm32f0xx/s-stm32.ads',
+            'arm/stm32/stm32f0xx/s-stm32.adb',
+            'arm/stm32/stm32f0xx/start-rom.S',
+            'arm/stm32/stm32f0xx/start-ram.S',
+            'arm/stm32/stm32f0xx/setup_pll.ads',
+            'arm/stm32/stm32f0xx/setup_pll.adb',
+            'arm/stm32/stm32f0xx/s-bbmcpa.ads.tmpl',
+            'arm/stm32/stm32f0xx/s-bbbopa.ads.tmpl',
+            'arm/stm32/stm32f0xx/stm32f0x{}/svd/i-stm32.ads'.format(sub_family_minor),
+            'arm/stm32/stm32f0xx/stm32f0x{}/svd/i-stm32-flash.ads'.format(sub_family_minor),
+            'arm/stm32/stm32f0xx/stm32f0x{}/svd/i-stm32-rcc.ads'.format(sub_family_minor))
 
         # Configure MCU parameters based on family.
         if sub_family_major in '479':
@@ -547,7 +547,7 @@ class Stm32F0(CortexM0CommonArchSupport):
 
         # Choose interrupt names based on family
         self.add_gnarl_sources(
-            'arm/stm32f0xx/stm32f0x{}/svd/a-intnam.ads'.format(sub_family_minor))
+            'arm/stm32/stm32f0xx/stm32f0x{}/svd/a-intnam.ads'.format(sub_family_minor))
 
 class CortexM1CommonArchSupport(ArmV6MTarget):
     @property
