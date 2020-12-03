@@ -74,7 +74,9 @@ def _copy(src, dst, template_config=None):
             os.symlink(os.path.abspath(src), dst)
         elif src_is_template:
             # Write source from template file
-            with open(dst, 'w', encoding=source_encoding) as fp:
+            with open(dst, 'w',
+                      newline='',  # Disable newline to os.linesep translation
+                      encoding=source_encoding) as fp:
                 fp.write(src_cnt)
         else:
             # Copy non templated source file
