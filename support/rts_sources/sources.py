@@ -749,7 +749,8 @@ sources = {
         'conditions': ['Add_Float_Control:yes'],
         'srcs': [
             'libgnat/s-flocon.ads', 'libgnat/s-flocon__none.adb',
-            'libgnat/s-powtab.ads'],
+            'libgnat/s-powflt.ads', 'libgnat/s-powlfl.ads',
+            'libgnat/s-powllf.ads']
     },
     'utils/case_util': {
         'conditions': ['Add_Case_Util:yes'],
