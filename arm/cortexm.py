@@ -602,6 +602,10 @@ stm32_board_configuration = {
                           'STM32_HSE_Clock_Frequency': '8_000_000',
                           'STM32_FLASH_Latency': '5'},
 
+    'nucleo_f411re':       {'STM32_Main_Clock_Frequency': '100_000_000',
+                          'STM32_HSE_Clock_Frequency': '8_000_000',
+                          'STM32_FLASH_Latency': '5'},
+
     'feather_stm32f405': {'STM32_Main_Clock_Frequency': '168_000_000',
                           'STM32_HSE_Clock_Frequency': '12_000_000',
                           'STM32_FLASH_Latency': '5'},
