@@ -728,7 +728,7 @@ class Stm32(ArmV7MTarget):
         if self.mcu in ['stm32f40x']:
             self.add_gnat_source('arm/stm32/stm32f40x/s-stm32.adb')
 
-        elif self.mcu in ['stm32f411re']:
+        elif self.mcu in ['stm32f411']:
             self.add_gnat_source('arm/stm32/stm32f411/s-stm32.adb')
 
         elif self.mcu in ['stm32f429x',
