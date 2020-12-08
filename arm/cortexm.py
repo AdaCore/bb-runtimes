@@ -836,6 +836,10 @@ stm32_board_configuration = {
                           'STM32_HSE_Clock_Frequency': '8_000_000',
                           'STM32_FLASH_Latency': '5'},
 
+    'nucleo_f401re':     {'STM32_Main_Clock_Frequency': '168_000_000',
+                          'STM32_HSE_Clock_Frequency': '8_000_000',
+                          'STM32_FLASH_Latency': '5'},
+
     'feather_stm32f405': {'STM32_Main_Clock_Frequency': '168_000_000',
                           'STM32_HSE_Clock_Frequency': '12_000_000',
                           'STM32_FLASH_Latency': '5'},
@@ -917,6 +921,8 @@ class Stm32(ArmV7MTarget):
         self.board = board
         if self.board in ['stm32f4', 'feather_stm32f405']:
             self.mcu = 'stm32f40x'
+        elif self.board in ['nucleo_f401re']:
+            self.mcu = 'stm32f401'
         elif self.board in ['stm32f429disco', 'openmv2']:
             self.mcu = 'stm32f429x'
         elif self.board in ['stm32f469disco']:
@@ -955,6 +961,9 @@ class Stm32(ArmV7MTarget):
 
         if self.mcu in ['stm32f40x']:
             self.add_gnat_source('arm/stm32/stm32f40x/s-stm32.adb')
+
+        elif self.mcu in ['stm32f401']:
+            self.add_gnat_source('arm/stm32/stm32f401/s-stm32.adb')
 
         elif self.mcu in ['stm32f429x',
                           'stm32f469x']:
