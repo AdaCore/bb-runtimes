@@ -1,0 +1,42 @@
+name: Build
+on: [pull_request, push]
+
+jobs:
+  linux-build:
+    name: Build and test on Linux
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install Python 3.x (required for the testsuite)
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - run: pip3 install pycodestyle
+    - name: Python stylecheck
+      run: pycodestyle . --exclude=examples
+    - uses: ada-actions/toolchain@ce2020
+      with:
+        distrib: community
+    - uses: ada-actions/toolchain@ce2020
+      with:
+        distrib: community
+        target: arm-elf
+    - run: python3 $PWD/install.py --arch=arm-eabi
+
+  win-build:
+    name: Build and test on Windows
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: ada-actions/toolchain@ce2020
+      with:
+        distrib: community
+    - uses: ada-actions/toolchain@ce2020
+      with:
+        distrib: community
+        target: arm-elf
+    - name: Install Python 3.x (required for the testsuite)
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - run: python $PWD/install.py --arch=arm-eabi
