@@ -4,6 +4,7 @@ from support.bsp_sources.target import Target
 
 import re
 
+
 class CortexMArch(ArchSupport):
     @property
     def name(self):
@@ -358,6 +359,7 @@ class CortexM0CommonArchSupport(ArmV6MTarget):
             'src/s-bbbosu__armv6m.adb',
             'src/s-bcpcst__pendsv.adb')
 
+
 class Stm32F0(CortexM0CommonArchSupport):
 
     # Flash memory size is determined by the "User code memory size"
@@ -373,7 +375,7 @@ class Stm32F0(CortexM0CommonArchSupport):
     # RAM size for STM32F03x is determined by the
     # device package (pin count) and user code memory size
     # (i.e. the last two characters of the device name, e.g. stm32f030f4)
-    f03x_ram_sizes = { # STM32F03xxx
+    f03x_ram_sizes = {  # STM32F03xxx
         'c4': 4,
         'c6': 4,
         'c8': 8,
@@ -457,7 +459,7 @@ class Stm32F0(CortexM0CommonArchSupport):
     @property
     def use_semihosting_io(self):
         return True
-    
+
     @property
     def loaders(self):
         return ('ROM', 'RAM')
@@ -468,14 +470,15 @@ class Stm32F0(CortexM0CommonArchSupport):
         # Determine MCU features from board name (e.g. 'stm32f071rb-hse')
         # The -hse or -hsi suffix specifies which clock source to
         # use for the runtime (either HSE or HSI)
-        m = re.match(r'.*f0([34579])([0128])([cefgkrv])([468bc])-(hsi|hse)', board)
+        m = re.match(r'.*f0([34579])([0128])([cefgkrv])([468bc])-(hsi|hse)',
+                     board)
         if m is None:
             raise RuntimeError("Unknown STM32F0 target: " + board)
-        sub_family_major      = m.group(1)
-        sub_family_minor      = m.group(2)
-        package               = m.group(3)
+        sub_family_major = m.group(1)
+        sub_family_minor = m.group(2)
+        package = m.group(3)
         user_code_memory_size = m.group(4)
-        clock_source          = m.group(5)
+        clock_source = m.group(5)
 
         self.board = board
 
@@ -483,11 +486,11 @@ class Stm32F0(CortexM0CommonArchSupport):
         if sub_family_major == '3':
             ram_size = self.f03x_ram_sizes[package + user_code_memory_size]
         elif sub_family_major in '45':
-            ram_size = 4 # All STM32F04x/STM32F05x devices have 4K RAM
+            ram_size = 4  # All STM32F04x/STM32F05x devices have 4K RAM
         elif sub_family_major == '7':
             ram_size = self.f07x_ram_sizes[package + user_code_memory_size]
         else:
-            ram_size = 32 # All STM32F09x devices have 32k RAM
+            ram_size = 32  # All STM32F09x devices have 32k RAM
 
         flash_size = self.flash_sizes[user_code_memory_size]
 
@@ -518,9 +521,12 @@ class Stm32F0(CortexM0CommonArchSupport):
             'arm/stm32/stm32f0xx/setup_pll.adb',
             'arm/stm32/stm32f0xx/s-bbmcpa.ads.tmpl',
             'arm/stm32/stm32f0xx/s-bbbopa.ads.tmpl',
-            'arm/stm32/stm32f0xx/stm32f0x{}/svd/i-stm32.ads'.format(sub_family_minor),
-            'arm/stm32/stm32f0xx/stm32f0x{}/svd/i-stm32-flash.ads'.format(sub_family_minor),
-            'arm/stm32/stm32f0xx/stm32f0x{}/svd/i-stm32-rcc.ads'.format(sub_family_minor))
+            ('arm/stm32/stm32f0xx/stm32f0x{}'
+             '/svd/i-stm32.ads').format(sub_family_minor),
+            ('arm/stm32/stm32f0xx/stm32f0x{}'
+             '/svd/i-stm32-flash.ads').format(sub_family_minor),
+            ('arm/stm32/stm32f0xx/stm32f0x{}'
+             '/svd/i-stm32-rcc.ads').format(sub_family_minor))
 
         # Configure MCU parameters based on family.
         if sub_family_major in '479':
@@ -547,7 +553,9 @@ class Stm32F0(CortexM0CommonArchSupport):
 
         # Choose interrupt names based on family
         self.add_gnarl_sources(
-            'arm/stm32/stm32f0xx/stm32f0x{}/svd/a-intnam.ads'.format(sub_family_minor))
+            ('arm/stm32/stm32f0xx/stm32f0x{}/'
+             'svd/a-intnam.ads').format(sub_family_minor))
+
 
 class CortexM1CommonArchSupport(ArmV6MTarget):
     @property
