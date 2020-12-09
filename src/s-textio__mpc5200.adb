@@ -273,6 +273,27 @@ package body System.Text_IO is
       --  Initialize PSC1 following the guide in MPC5200B User's Manual,
       --  Section 15.3.1.
 
+      --  Explicitly set Mode Register Pointer to Mode_1_Register in case the
+      --  bootloader had set up PSC1 for its own use. If we did not do this
+      --  then the next instructions will end up writing to the wrong address.
+
+      Command_Register :=
+        (Misc        => Reset_Mode_Register_Pointer,
+         Transmitter => No_Action,
+         Receiver    => No_Action);
+
+      --  Reset the Transmitter and receiver to a known state before
+      --  configuring.
+
+      Command_Register :=
+        (Misc        => Reset_Receiver,
+         Transmitter => No_Action,
+         Receiver    => No_Action);
+      Command_Register :=
+        (Misc        => Reset_Transmitter,
+         Transmitter => No_Action,
+         Receiver    => No_Action);
+
       --  PSC1 is configured for eight data bits, no parity and 1 stop bit
 
       Clock_Select_Register :=
