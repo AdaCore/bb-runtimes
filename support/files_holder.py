@@ -189,7 +189,17 @@ class FilesHolder(object):
          SRC is the full name of the file to copy"""
         base = os.path.basename(src)
         # A file could have `.` in its name. (eg: pikeos4.2-cert-app.c)
-        _, ext = base.rsplit('.', 1)
+        #
+        # Template files have a .tmpl extension, which needs to be kept.
+        # Example:
+        # s-textio__myboard.adb.tmpl should aliased as s-myboard.adb.tmpl
+        # The .tmpl extension is kept for now as it is removed later in
+        # the installation process.
+        if base.endswith('.tmpl'):
+            print(base)
+            _, ext, _ = base.rsplit('.', 2)
+        else:
+            _, ext = base.rsplit('.', 1)
         # Check if the basename of the source file contains two consecutive
         # underscores. This is by naming convention a file variant whose
         # variant part needs to be removed before installation.

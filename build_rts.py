@@ -45,12 +45,13 @@ from visium import Visium
 from native import X86Native, X8664Native
 
 import argparse
+import json
 import os
 import subprocess
 import sys
 
 
-def build_configs(target):
+def build_configs(target, board_name, board_params={}):
     # PikeOS
     if target == 'arm-pikeos':
         t = ArmPikeOS()
@@ -77,7 +78,7 @@ def build_configs(target):
     elif target.startswith('smartfusion2'):
         t = SmartFusion2()
     elif target.startswith('stm32f0'):
-        t = Stm32F0(target)
+        t = Stm32F0(board_name, target, board_params)
     elif target.startswith('stm32'):
         t = Stm32(target)
     elif target == 'feather_stm32f405':
@@ -102,9 +103,9 @@ def build_configs(target):
     elif target == 'microbit':
         t = Microbit()
     elif target == 'nrf52840':
-        t = NRF52840()
+        t = NRF52840(board_name, board_params)
     elif target == 'nrf52832':
-        t = NRF52832()
+        t = NRF52832(board_name, board_params)
     elif target == "microsemi-m1":
         t = MicrosemiM1()
     elif target == 'cortex-m0':
@@ -180,6 +181,14 @@ def build_configs(target):
     return t
 
 
+def build_custom_configs(json_file):
+    with open(json_file, 'r') as fp:
+        cnt = fp.read()
+    cnt = json.loads(cnt)
+    return build_configs(target=cnt['base_target'],
+                         board_name=cnt['board_name'],
+                         board_params=cnt.get('board_params', {}))
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -222,7 +231,10 @@ def main():
     boards = []
 
     for arg in args.target:
-        board = build_configs(arg)
+        if arg.endswith('.json'):
+            board = build_custom_configs(arg)
+        else:
+            board = build_configs(arg, arg)
         boards.append(board)
 
     dest = os.path.abspath(args.output)

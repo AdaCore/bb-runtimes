@@ -403,55 +403,6 @@ class Stm32F0(CortexM0CommonArchSupport):
         'vb': 16,
     }
 
-    # Board parameters (for s-bbmcpa.ads) when HSE is used.
-    # For now these are hard-coded. These could be calculated
-    # from a configurable HSE clock frequency in a future
-    # improvement.
-    board_parameters_hse = {
-        'STM32_Main_Clock_Frequency': '48_000_000',
-        'STM32_HSE_Clock_Frequency': '8_000_000',
-        'STM32_HSE_Bypass': 'False',
-        'STM32_LSI_Enabled': 'True',
-        'STM32_PLL_Src': 'System.STM32.PLL_SRC_HSE_PREDIV',
-        'STM32_SYSCLK_Src': 'System.STM32.SYSCLK_SRC_PLL',
-        'STM32_PREDIV': '1',
-        'STM32_PLLMUL_Value': '6',
-        'STM32_AHB_PRE': 'System.STM32.AHBPRE_DIV1',
-        'STM32_APB_PRE': 'System.STM32.APBPRE_DIV1'
-    }
-
-    # Board parameters (for s-bbmcpa.ads) when HSI is used.
-    # These parameters are suitable for the clock tree in
-    # F04x, F07x, and F09x devices.
-    board_parameters_hsi = {
-        'STM32_Main_Clock_Frequency': '48_000_000',
-        'STM32_HSE_Clock_Frequency': '8_000_000',
-        'STM32_HSE_Bypass': 'False',
-        'STM32_LSI_Enabled': 'True',
-        'STM32_PLL_Src': 'System.STM32.PLL_SRC_HSI_PREDIV',
-        'STM32_SYSCLK_Src': 'System.STM32.SYSCLK_SRC_PLL',
-        'STM32_PREDIV': '1',
-        'STM32_PLLMUL_Value': '6',
-        'STM32_AHB_PRE': 'System.STM32.AHBPRE_DIV1',
-        'STM32_APB_PRE': 'System.STM32.APBPRE_DIV1'
-    }
-
-    # Board parameters (for s-bbmcpa.ads) when HSI is used.
-    # These parameters are suitable for the clock tree in
-    # F03x and F05x devices (fixed /2 divider on HSI).
-    board_parameters_hsi2 = {
-        'STM32_Main_Clock_Frequency': '48_000_000',
-        'STM32_HSE_Clock_Frequency': '8_000_000',
-        'STM32_HSE_Bypass': 'False',
-        'STM32_LSI_Enabled': 'True',
-        'STM32_PLL_Src': 'System.STM32.PLL_SRC_HSI_2',
-        'STM32_SYSCLK_Src': 'System.STM32.SYSCLK_SRC_PLL',
-        'STM32_PREDIV': '1',
-        'STM32_PLLMUL_Value': '12',
-        'STM32_AHB_PRE': 'System.STM32.AHBPRE_DIV1',
-        'STM32_APB_PRE': 'System.STM32.APBPRE_DIV1'
-    }
-
     @property
     def name(self):
         return self.board
@@ -464,23 +415,20 @@ class Stm32F0(CortexM0CommonArchSupport):
     def loaders(self):
         return ('ROM', 'RAM')
 
-    def __init__(self, board):
+    def __init__(self, board_name, base_target, board_params):
         super(Stm32F0, self).__init__()
 
-        # Determine MCU features from board name (e.g. 'stm32f071rb-hse')
-        # The -hse or -hsi suffix specifies which clock source to
-        # use for the runtime (either HSE or HSI)
-        m = re.match(r'.*f0([34579])([0128])([cefgkrv])([468bc])-(hsi|hse)',
-                     board)
+        # Determine MCU features from target name (e.g. 'stm32f071rb')
+        m = re.match(r'.*f0([34579])([0128])([cefgkrv])([468bc])',
+                     base_target)
         if m is None:
-            raise RuntimeError("Unknown STM32F0 target: " + board)
+            raise RuntimeError("Unknown STM32F0 target: " + base_target)
         sub_family_major = m.group(1)
         sub_family_minor = m.group(2)
         package = m.group(3)
         user_code_memory_size = m.group(4)
-        clock_source = m.group(5)
 
-        self.board = board
+        self.board = board_name
 
         # Determine RAM size from sub-family, package, and user code mem. size
         if sub_family_major == '3':
@@ -529,32 +477,150 @@ class Stm32F0(CortexM0CommonArchSupport):
              '/svd/i-stm32-rcc.ads').format(sub_family_minor))
 
         # Configure MCU parameters based on family.
-        if sub_family_major in '479':
-            self.add_template_config_value('STM32_Simple_Clock_Tree', 'False')
-        else:
-            self.add_template_config_value('STM32_Simple_Clock_Tree', 'True')
+        simple_clock_tree = (sub_family_major in '35')
+        self.add_template_config_value('STM32_Simple_Clock_Tree',
+                                       str(simple_clock_tree))
 
-        # Configure board parameters based on chosen clock source (HSE or HSI)
-        # and the device family.
-        if clock_source == 'hse':
-            for key, value in self.board_parameters_hse.items():
-                self.add_template_config_value(key, value)
-
-        elif sub_family_major in '479':
-            # STM32F04x/STM32F07x/STM32F09x can use HSI directly
-            # as PLL input.
-            for key, value in self.board_parameters_hsi.items():
-                self.add_template_config_value(key, value)
-
-        else:
-            # STM32F03x/STM32F05x are forced to HSI/2 as PLL input.
-            for key, value in self.board_parameters_hsi2.items():
-                self.add_template_config_value(key, value)
+        # Determine clock configuration from provided board_parameters.
+        clock_configs = self._configure_clocks(board_params,
+                                               simple_clock_tree)
+        for key, value in clock_configs.items():
+            self.add_template_config_value(key, value)
 
         # Choose interrupt names based on family
         self.add_gnarl_sources(
             ('arm/stm32/stm32f0xx/stm32f0x{}/'
              'svd/a-intnam.ads').format(sub_family_minor))
+
+    def _configure_clocks(self, board_params, simple_clock_tree):
+        sysclk_freq = board_params.get('sysclk_frequency', 48000000)
+        hse_freq = board_params.get('hse_frequency', 8000000)
+        clock_source = board_params.get('clock_source', 'HSE')
+        hse_bypass = bool(board_params.get('hse_bypass', False))
+        lsi_enabled = bool(board_params.get('lsi_enabled', True))
+        apb_prescaler = board_params.get('apb_prescaler', 1)
+
+        assert clock_source in ['HSI', 'HSE', 'HSI48'], \
+            'Invalid clock_source: {}'.format(clock_source)
+
+        if simple_clock_tree:
+            assert clock_source != 'HSI48', \
+                'HSI48 is not available for STM32f03x and STM32F05x devices'
+
+        assert apb_prescaler in [1, 2, 4, 8, 16], \
+            'Invalid apb_prescaler: {}'.format(apb_prescaler)
+
+        assert hse_freq in range(4000000, 32000001), \
+            'Invalid hse_frequency: {} (must be 4-32 MHz)'.format(hse_freq)
+
+        hsi_freq = 8000000
+        pllin_freq = None  # Don't use PLL unless needed below
+        pllsrc = 'HSI_2'  # Default, might be overriden below
+
+        # Determine SYSCLK source from the configured clock_source and
+        # target sysclk_frequency.
+        #
+        # Note that the PLL is only used to generate SYSCLK if the
+        # target SYSCLK frequency is not exactly equal to the frequency
+        # of the clock source. Otherwise, the PLL is not used to save power.
+
+        if clock_source == 'HSE':
+            # Only enable PLL if needed to attain target SYSCLK frequency.
+            if sysclk_freq == hse_freq:
+                sysclk_src = 'HSE'
+            else:
+                sysclk_src = 'PLL'
+                pllsrc = 'HSE_PREDIV'
+                pllin_freq = hse_freq
+
+        elif clock_source == 'HSI':
+            if sysclk_freq == hsi_freq:
+                sysclk_src = 'HSI'
+
+            else:
+                sysclk_src = 'PLL'
+                if simple_clock_tree:
+                    # Fixed /2 divider on F03x and F05x devices
+                    pllsrc = 'HSI_2'
+                    pllin_freq = hsi_freq / 2
+                else:
+                    pllsrc = 'HSI_PREDIV'
+                    pllin_freq = hsi_freq
+
+        elif clock_source == 'HSI48':
+            sysclk_src = 'HSI48'
+            assert sysclk_freq == 48000000, \
+                'sysclk_frequency must be 48000000 ' \
+                'when clock_source is HSI48'
+
+        if pllin_freq is None:
+            # PLL not needed. Set defaults
+            prediv = 1
+            pllmul = 2 # minimum allowed value
+        else:
+            # PLL needed to obtain target main clock frequency.
+            # Brute force all possible PREDIV and PLLMUL values to find the
+            # configuration that generates the target frequency.
+            pll_configs = []
+
+            for prediv in range(1, 17):
+                # PREDIV not available on simple clock tree devices
+                if pllsrc != 'HSI_2' or prediv == 1:
+                    for pllmul in range(2, 17):
+                        pllout_freq = int((pllin_freq / prediv) * pllmul)
+
+                        # Only accept configurations that result in the
+                        # target SYSCLK speed.
+                        #
+                        # Also ensure the PLL output frequency is in the
+                        # range 16-48 MHz.
+                        if pllout_freq == sysclk_freq and \
+                           pllout_freq >= 16000000 and \
+                           pllout_freq <= 48000000:
+                            pll_configs.append({
+                                'PREDIV': 1,
+                                'PLLMUL': pllmul,
+                                'PLLOUT_FREQ': pllout_freq
+                            })
+
+            # Check that there is at least one configuration that generates
+            # the requested clock speed. This fails if there is no possible
+            # PLL configuration that can generate the requested frequency.
+            assert len(pll_configs) > 0, \
+                'Cannot generate requested sysclk_frequency of ' + \
+                '{} Hz '.format(sysclk_freq) + \
+                'from the requested clock_source ({})'.format(clock_source)
+
+            # Use first valid PLL configuration found.
+            cfg = pll_configs[0]
+            prediv = cfg['PREDIV']
+            pllmul = cfg['PLLMUL']
+            pllout_freq = cfg['PLLOUT_FREQ']
+
+        # Choose configuration value for STM32_APB_PRE
+        if apb_prescaler == 1:
+            stm32_apb_pre = 'System.STM32.APBPRE_DIV1'
+        else:
+            stm32_apb_pre = '(Enabled => True, Value => System.STM32.DIV{})' \
+                .format(apb_prescaler)
+
+        # AHB_PRE is fixed to 1 in the current implementation, since
+        # the implementation of System.BB.Parameters assumes that the
+        # processor frequency (Clock_Frequency) is equal to
+        # Main_Clock_Frequency, which is set to SYSCLK.
+
+        return {
+            'STM32_Main_Clock_Frequency': str(sysclk_freq),
+            'STM32_HSE_Clock_Frequency': str(hse_freq),
+            'STM32_HSE_Bypass': str(hse_bypass),
+            'STM32_LSI_Enabled': str(lsi_enabled),
+            'STM32_PLL_Src': 'System.STM32.PLL_SRC_' + pllsrc,
+            'STM32_SYSCLK_Src': 'System.STM32.SYSCLK_SRC_' + sysclk_src,
+            'STM32_PREDIV': str(prediv),
+            'STM32_PLLMUL_Value': str(pllmul),
+            'STM32_AHB_PRE': 'System.STM32.AHBPRE_DIV1',
+            'STM32_APB_PRE': stm32_apb_pre
+        }
 
 
 class CortexM1CommonArchSupport(ArmV6MTarget):
@@ -691,7 +757,7 @@ class Microbit(NRF51):
 class NRF52(ArmV7MTarget):
     @property
     def name(self):
-        return 'nRF52'
+        return self.board
 
     @property
     def parent(self):
@@ -721,8 +787,10 @@ class NRF52(ArmV7MTarget):
         return ('-mlittle-endian', '-mthumb', '-mhard-float',
                 '-mfpu=fpv4-sp-d16', '-mcpu=cortex-m4')
 
-    def __init__(self):
+    def __init__(self, board_name, board_params):
         super(NRF52, self).__init__()
+
+        self.board = board_name
 
         self.add_linker_script('arm/nordic/nrf52/common-ROM.ld', loader='ROM')
         self.add_linker_script('arm/nordic/nrf52/memory-map_%s.ld' % self.name,
@@ -736,8 +804,52 @@ class NRF52(ArmV7MTarget):
 
         self.add_gnarl_sources(
             'src/s-bbpara__nrf52.ads',
-            'src/s-bbbosu__nrf52.adb',
+            'src/s-bbbosu__nrf52.adb.tmpl',
             'src/s-bcpcst__pendsv.adb')
+
+        use_hfxo = board_params.get('use_hfxo', False)
+        lfclk_src = board_params.get('use_hfxo', 'Xtal')
+        use_swo_trace = board_params.get('use_swo_trace', True)
+        use_reset_pin = board_params.get('use_reset_pin', True)
+        alarm_rtc_periph = board_params.get('alarm_rtc_periph', 'RTC0')
+
+        assert type(use_hfxo) == bool, "use_hfxo must be of type bool"
+
+        assert type(use_swo_trace) == bool, \
+            "use_swo_trace must be of type bool"
+
+        assert type(use_reset_pin) == bool, \
+            "use_reset_pin must be of type bool"
+
+        assert lfclk_src in ["Xtal", "Rc", "Synth"], \
+            "Invalid value for lfclk_src." \
+            "Valid values are: 'Xtal', 'Rc', 'Synth'"
+
+        assert alarm_rtc_periph in ["RTC0", "RTC1", "RTC2"], \
+            "Invalid value for alarm_rtc_periph." \
+            "Valid values are: 'RTC0', 'RTC1', 'RTC2'"
+
+        self.add_template_config_value("NRF52_Use_HFXO",
+                                       str(use_hfxo))
+        self.add_template_config_value("NRF52_LFCLK_Src",
+                                       lfclk_src)
+        self.add_template_config_value("NRF52_Use_SWO_Trace",
+                                       str(use_swo_trace))
+        self.add_template_config_value("NRF52_Use_Reset_Pin",
+                                       str(use_reset_pin))
+        self.add_template_config_value("NRF52_Alarm_RTC_Periph",
+                                       str(alarm_rtc_periph))
+
+        # s-bbbosu.adb cannot depend on Ada.Interrupt.Names to get the
+        # selected RTC peripheral's Interrupt_ID, so it is passed in
+        # as a template parameter.
+        alarm_interrupt_ids = {
+            "RTC0": "11",
+            "RTC1": "17",
+            "RTC2": "36"
+        }
+        self.add_template_config_value("NRF52_Alarm_Interrupt_ID",
+                                       alarm_interrupt_ids[alarm_rtc_periph])
 
 
 class NRF52840(NRF52):
@@ -749,12 +861,12 @@ class NRF52840(NRF52):
     def use_semihosting_io(self):
         return True
 
-    def __init__(self):
-        super(NRF52840, self).__init__()
+    def __init__(self, board_name, board_params):
+        super(NRF52840, self).__init__(board_name, board_params)
 
         self.add_gnat_sources(
             'arm/nordic/nrf52/nrf52840/s-bbbopa.ads',
-            'arm/nordic/nrf52/nrf52840/setup_board.adb',
+            'arm/nordic/nrf52/nrf52840/setup_board.adb.tmpl',
             'arm/nordic/nrf52/nrf52840/svd/i-nrf52.ads',
             'arm/nordic/nrf52/nrf52840/svd/i-nrf52-ccm.ads',
             'arm/nordic/nrf52/nrf52840/svd/i-nrf52-clock.ads',
@@ -778,12 +890,12 @@ class NRF52832(NRF52):
     def use_semihosting_io(self):
         return True
 
-    def __init__(self):
-        super(NRF52832, self).__init__()
+    def __init__(self, board_name, board_params):
+        super(NRF52832, self).__init__(board_name, board_params)
 
         self.add_gnat_sources(
             'arm/nordic/nrf52/nrf52832/s-bbbopa.ads',
-            'arm/nordic/nrf52/nrf52832/setup_board.adb',
+            'arm/nordic/nrf52/nrf52832/setup_board.adb.tmpl',
             'arm/nordic/nrf52/nrf52832/svd/i-nrf52.ads',
             'arm/nordic/nrf52/nrf52832/svd/i-nrf52-clock.ads',
             'arm/nordic/nrf52/nrf52832/svd/i-nrf52-ficr.ads',
