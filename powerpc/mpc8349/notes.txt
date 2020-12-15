@@ -314,12 +314,13 @@ System.Exp_Mod (Pure)
 * s-expuns.ads
 System.Exp_Uns (Pure)
 
-* s-gcc.adb
 * s-gcc.ads
-* s-gccshi.adb
-* s-gccshi.ads
-* s-gccdiv.adb
-* s-gccdiv.ads
+* s-gcc-di.adb
+* s-gcc-di.ads
+* s-gcdish.adb
+* s-gcdish.ads
+* s-gcdidi.adb
+* s-gcdidi.ads
 System.GCC.* (Pure)
 
 * s-geveop.adb

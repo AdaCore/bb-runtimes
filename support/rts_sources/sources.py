@@ -503,22 +503,23 @@ sources = {
     'libgcc': {
         'conditions': ['Certifiable_Packages:yes'],
         'srcs': [
-            'hie/s-gcc.ads',    'hie/s-gcc.adb',
-            'hie/s-gccdiv.ads', 'hie/s-gccdiv.adb']
+            'hie/s-gcc.ads',
+            'hie/s-gcc-di.ads', 'hie/s-gcc-di.adb',
+            'hie/s-gcdidi.ads', 'hie/s-gcdidi.adb']
     },
 
     'libgcc/arm': {
         'conditions': ['Certifiable_Packages:yes', 'CPU_Family:arm'],
         'srcs': [
-            'hie/s-gccflo__arm.ads', 'hie/s-gccflo__arm.adb',
-            'hie/s-gccshi__arm.ads', 'hie/s-gccshi.adb']
+            'hie/s-gcdifl__arm.ads', 'hie/s-gcdifl__arm.adb',
+            'hie/s-gcdish__arm.ads', 'hie/s-gcdish.adb']
     },
 
     'libgcc/other_archs': {
         'conditions': ['Certifiable_Packages:yes', 'CPU_Family:!arm'],
         'srcs': [
-            'hie/s-gccflo.ads', 'hie/s-gccflo.adb',
-            'hie/s-gccshi.ads', 'hie/s-gccshi.adb']
+            'hie/s-gcdifl.ads', 'hie/s-gcdifl.adb',
+            'hie/s-gcdish.ads', 'hie/s-gcdish.adb']
     },
 
     # Text_IO
