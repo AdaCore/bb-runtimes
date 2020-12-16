@@ -287,6 +287,13 @@ class Installer(object):
                     target_directive = ''
                 else:
                     target_directive = 'for Target use "%s";' % self.tgt.target
+                if self.tgt.deterministic_build:
+                    deterministic_build = \
+                        'for Archive_Builder use ("%s-ar", "cr", "-D");\n  ' \
+                        'for Archive_Indexer use ("%s-ranlib", "-D");' \
+                        % (self.tgt.target, self.tgt.target)
+                else:
+                    deterministic_build = ''
                 source_dirs = ['gnat_user', 'gnat']
                 languages = langs['gnat']
                 if rts_base_name == 'ravenscar-full':
@@ -297,6 +304,7 @@ class Installer(object):
                             languages.append(lang)
                 fp.write(template.format(
                     target_directive=target_directive,
+                    deterministic_build=deterministic_build,
                     source_dirs='", "'.join(source_dirs),
                     languages='", "'.join(languages)))
             if 'gnarl' in libs:
@@ -315,7 +323,17 @@ class Installer(object):
                     source_dirs = ['gnarl_empty']
                     languages = ['C']
                 with open(ravenscar_build, 'w') as fp:
+                    if self.tgt.deterministic_build:
+                        deterministic_build = \
+                            "for Archive_Builder use " \
+                            "Runtime_Build'Archive_Builder;\n  " \
+                            "for Archive_Indexer use " \
+                            "Runtime_Build'Archive_Builder;"
+                    else:
+                        deterministic_build = ''
+
                     fp.write(template.format(
+                        deterministic_build=deterministic_build,
                         source_dirs='", "'.join(source_dirs),
                         languages='", "'.join(languages)))
                 projects.append(ravenscar_build)

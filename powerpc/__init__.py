@@ -152,6 +152,10 @@ class MPC5200(PPC6XXTarget):
         return ('RAM', )
 
     @property
+    def deterministic_build(self):
+        return True
+
+    @property
     def use_certifiable_packages(self):
         return True
 
@@ -329,6 +333,10 @@ class Virtex5(PPCBookETarget):
     @property
     def loaders(self):
         return ('RAM', )
+
+    @property
+    def deterministic_build(self):
+        return True
 
     @property
     def use_certifiable_packages(self):

@@ -16,4 +16,5 @@ project Runtime_Build is
 
   package Compiler renames Target_Options.Compiler;
 
+  {deterministic_build}
 end Runtime_Build;

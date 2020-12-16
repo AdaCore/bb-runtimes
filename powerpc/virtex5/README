@@ -4,9 +4,7 @@ Virtex-5 FXT PPC440 Runtimes
 Runtimes Supported
 ------------------
 
-* ZFP
 * Ravenscar-SFP
-* Ravenscar-Full
 
 Target Support
 --------------
@@ -47,9 +45,7 @@ Rebuilding the Runtime
 If you need to make changes to the runtime at any point to make changes to the
 runtime's BSP you can rebuild it as follows:
 
-For ZFP: gprbuild -P runtime_build.gpr -j0
-
-For the Ravenscar runtimes: gprbuild -P ravenscar_build.gpr -j0
+For the Ravenscar runtimes: gprbuild -P ravenscar_build.gpr
 
 System Clocks
 -------------

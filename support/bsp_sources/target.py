@@ -34,6 +34,12 @@ class TargetConfiguration(object):
         return self.target is None or 'native' in self.target
 
     @property
+    def deterministic_build(self):
+        """Whether builds of the runtime will produce identical library
+        binaries from the same source"""
+        return False
+
+    @property
     def has_fpu(self):
         """Whether the hardware provides a FPU.
 

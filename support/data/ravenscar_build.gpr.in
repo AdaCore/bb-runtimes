@@ -17,4 +17,5 @@ project Ravenscar_Build is
 
   package Compiler renames Runtime_Build.Compiler;
 
+  {deterministic_build}
 end Ravenscar_Build;

@@ -32,7 +32,7 @@ Rebuilding the Runtime
 If you need to make changes to the runtime at any point to make changes to the
 runtime's BSP you can rebuild it as follows:
 
-For the Ravenscar runtimes: gprbuild -P ravenscar_build.gpr -j0
+For the Ravenscar runtimes: gprbuild -P ravenscar_build.gpr
 
 System Clocks
 -------------
