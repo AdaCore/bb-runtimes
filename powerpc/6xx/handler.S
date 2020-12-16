@@ -186,8 +186,6 @@ handler_cont:
 
 	/* Check if context switch is needed.  */
 	bl       __gnat_context_switch_needed
-
-	/* context switch needed?  */
 	cmpwi   %cr7,%r3,0
 	beq-    %cr7,.Lno_con_sw
 
