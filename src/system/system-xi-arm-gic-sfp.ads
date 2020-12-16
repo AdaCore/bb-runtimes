@@ -113,23 +113,23 @@ package System is
 
    --  Priority-related Declarations (RM D.1)
 
-   --  240 - 255  correspond to IRQ and FIQ interrupt levels respectively
+   --  241 - 255  correspond to interrupt levels
    --  255        is the priority value that block all interrupts
-   --  239        is the maximum value of priority that is not high enough to
+   --  240        is the maximum value of priority that is not high enough to
    --             require the blocking of one or more interrupts.
    --
    --  The range of priorities is chosen to be similar other targets.
    --  The number of interrupt priorities is chosen to match those that can
    --  be masked/unmasked directly in the processor.
 
-   Max_Priority           : constant Positive := 239;
+   Max_Priority           : constant Positive := 240;
    Max_Interrupt_Priority : constant Positive := 255;
 
    subtype Any_Priority       is Integer      range   0 .. 255;
-   subtype Priority           is Any_Priority range   0 .. 239;
-   subtype Interrupt_Priority is Any_Priority range 240 .. 255;
+   subtype Priority           is Any_Priority range   0 .. 240;
+   subtype Interrupt_Priority is Any_Priority range 241 .. 255;
 
-   Default_Priority : constant Priority := 119;
+   Default_Priority : constant Priority := 120;
    --  By default, the priority assigned is the one in the middle of the
    --  Priority range.
 
