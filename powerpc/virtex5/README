@@ -61,10 +61,14 @@ Startup Code
 ------------
 
 The Xilinx Virtex-5 FXT PowerPC 440 runtime is designed to be loaded to and run
-from RAM by a bootloader. As shipped the runtime comes with two assembly files
+from RAM by a bootloader. As shipped, the runtime comes with two assembly files
 containing the runtime startup code: `start.S` and `setup.S`. `start.S`
-provides the entry point for the runtime and can either be called by the
-bootloader or replaced with your own code if required.
+provides the entry of the runtime (_start_ram) that needs to be called by your
+bootloader. The runtime is designed to return to the bootloader if your program
+terminates. The return is performed via a blr instruction, so ensure _start_ram
+is called in such a way that the link and stack registers contain the
+appropriate return values at the start of _start_ram. If required, `start.S`
+can be replaced with your own code.
 
 `setup.S` provides the low-level setup that needs to be performed before the
 high-level Ada code is called. This includes clearing the bss segments and

@@ -6,7 +6,7 @@
 #                                                                           #
 #                               Assembly File                               #
 #                                                                           #
-#                      Copyright (C) 2012-2014 AdaCore                      #
+#                      Copyright (C) 2012-2020 AdaCore                      #
 #                                                                           #
 #  GNAT is free software;  you can  redistribute it  and/or modify it under #
 #  terms of the  GNU General Public License as published  by the Free Soft- #
@@ -26,23 +26,33 @@
 #                                                                           #
 #############################################################################
 
-/* This is an -*- asm -*- file.  */
-	.section ".text"
+# This start routine is designed to be called from a bootloader that has
+# loaded this program into RAM. If the program's main terminates this routine
+# will return control back to the bootloader via the blr instruction.
+# Consequently, ensure the start routine is called from the bootloader in a way
+# that ensures the link and stack registers contain the appropriate return
+# information.
+
+        .section ".text"
         .global _start_ram
 
 _start_ram:
-	# Load the stack, but back-link to the previous one.
-        lis	%r0,(__stack_end - 16)@h
-        ori	%r0,%r0,(__stack_end - 16)@l
-        stw	%r1,0(%r0)
-        ori	%r1,%r0,%r0
+        # Load the program stack pointer
+        lis     %r11,(__stack_end - 16)@h
+        ori     %r11,%r11,(__stack_end - 16)@l
+        # Back-link to the caller stack
+        stw     %r1,0(%r11)
+        # Set the stack pointer to the program stack
+        mr      %r1,%r11
 
-        mflr	%r0
-        stw	%r0,12(%r1)
-        bl	_setup
-        bl	main
-        lwz	%r0,12(%r1)
-        lwz	%r1,0(%r1)
-        mtlr	%r0
+        # Call the assembly setup routine and branch to the program's main. If
+        # the main returns we return to the bootloader via the address in lr.
+        mflr    %r0
+        stw     %r0,12(%r1)
+        bl      _setup
+        bl      main
+        lwz     %r0,12(%r1)
+        lwz     %r1,0(%r1)
+        mtlr    %r0
         blr
-	.size _start_ram, . - _start_ram
+        .size _start_ram, . - _start_ram
