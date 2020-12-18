@@ -146,6 +146,7 @@ class Target(TargetConfiguration, ArchSupport):
                             'common_flags': ['-fcallgraph-info=su,da',
                                              '-ffunction-sections',
                                              '-fdata-sections'],
+                            'common_gnarl_flags': [],
                             'asm_flags': [],
                             'c_flags': ['-DIN_RTS', '-Dinhibit_libc']}
 

@@ -36,11 +36,19 @@ class CortexARTarget(DFBBTarget):
 
     def amend_rts(self, rts_profile, conf):
         super(CortexARTarget, self).amend_rts(rts_profile, conf)
-        # s-bbcppr.adb uses the r7 register during context switching: this
-        # is not compatible with the use of frame pointers that is emited at
-        # -O0 by gcc. Let's disable fp even at -O0.
         if 'ravenscar' in rts_profile:
+            # s-bbcppr.adb uses the r7 register during context switching: this
+            # is not compatible with the use of frame pointers that is emited at
+            # -O0 by gcc. Let's disable fp even at -O0.
             conf.build_flags['common_flags'] += ['-fomit-frame-pointer']
+
+            # The use of FPU registers (to speed up structure init or because
+            # SIMD instructions are used) is incompatible with the libgnarl.
+            # In fact, the libgnarl needs to take care of FPU registers context
+            # switch and does so by doing lazy context switches: this restores
+            # the registers only when they are used by apps. This means that if
+            # a FPU register is used out of context, then we're doomed.
+            conf.build_flags['common_gnarl_flags'] += ['-mgeneral-regs-only']
 
 
 class Rpi2Base(CortexARTarget):

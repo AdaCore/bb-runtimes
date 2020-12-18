@@ -280,7 +280,7 @@ def main():
         for prj in projects:
             print("building project %s" % prj)
             sys.stdout.flush()
-            cmd = ['gprbuild', '-j0', '-p', '-P', prj]
+            cmd = ['gprbuild', '-j0', '-p', '-v', '-P', prj]
             if args.build_flags is not None:
                 cmd += args.build_flags.split()
             subprocess.check_call(cmd)

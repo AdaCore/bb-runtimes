@@ -50,6 +50,17 @@ class Aarch64Target(DFBBTarget):
             'ravenscar-full': 'system-xi-arm-full.ads'
         }
 
+    def amend_rts(self, rts_profile, conf):
+        super(Aarch64Target, self).amend_rts(rts_profile, conf)
+
+        # The use of FPU registers (to speed up structure init or because
+        # SIMD instructions are used) is incompatible with the libgnarl.
+        # In fact, the libgnarl needs to take care of FPU registers context
+        # switch and does so by doing lazy context switches: this restores
+        # the registers only when they are used by apps. This means that if
+        # a FPU register is used out of context, then we're doomed.
+        conf.build_flags['common_gnarl_flags'] += ['-mgeneral-regs-only']
+
     def dump_runtime_xml(self, rts_name, rts):
         cnt = super(Aarch64Target, self).dump_runtime_xml(rts_name, rts)
         if rts_name == 'ravenscar-full':

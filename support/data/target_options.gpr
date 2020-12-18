@@ -8,72 +8,38 @@ abstract project Target_Options is
   type Build_Type is ("Production", "Debug", "Assert", "Gnatcov");
   Build : Build_Type := external ("BUILD", "Production");
 
-  package Naming is
-     for Spec_Suffix ("Asm_CPP") use ".inc";
-  end Naming;
+  --  COMFLAGS here is common flags (used for C and Ada).
+  COMFLAGS := ("{common_flags}");
+  COMGNARLFLAGS := ("{common_gnarl_flags}");
 
-  package Compiler is
-     --  COMFLAGS here is common flags (used for C and Ada).
-     COMFLAGS := ("{common_flags}");
+  --  Per language flags (COMFLAGS will be added later)
+  ADAFLAGS := ("-gnatg", "-nostdinc", "-fno-delete-null-pointer-checks");
+  ASMFLAGS := ("{asm_flags}");
+  CFLAGS := ("{c_flags}", "-Werror", "-Wall");
+  case Build is
+     when "Production" =>
+        --  Optimize
+        COMFLAGS := COMFLAGS & ("-O2");
+        ADAFLAGS := ADAFLAGS & ("-gnatp", "-gnatn2");
+     when "Debug" =>
+        --  Disable optimization and add debug symbols
+        COMFLAGS := COMFLAGS & ("-O0", "-g");
+        ASMFLAGS := ASMFLAGS & ("-g");
+     when "Assert" =>
+        --  Possibly enable assertions. This might use too much memory on
+        --  some systems or could be too slow.
+        COMFLAGS := COMFLAGS & ("-O");
+        ADAFLAGS := ADAFLAGS & ("-gnata");
+     when "Gnatcov" =>
+        --  For coverage
+        COMFLAGS := COMFLAGS & ("-O0", "-g", "-fdump-scos",
+                                "-fpreserve-control-flow");
+  end case;
 
-     --  Per language flags (COMFLAGS will be added later)
-     ADAFLAGS := ("-gnatg", "-nostdinc", "-fno-delete-null-pointer-checks");
-     ASMFLAGS := ("{asm_flags}");
-     CFLAGS := ("{c_flags}", "-Werror", "-Wall");
-     case Build is
-        when "Production" =>
-	   --  Optimize
-           COMFLAGS := COMFLAGS & ("-O2");
-           ADAFLAGS := ADAFLAGS & ("-gnatp", "-gnatn2");
-        when "Debug" =>
-	   --  Disable optimization and add debug symbols
-           COMFLAGS := COMFLAGS & ("-O0", "-g");
-           ASMFLAGS := ASMFLAGS & ("-g");
-	when "Assert" =>
-	   --  Possibly enable assertions. This might use too much memory on
-	   --  some systems or could be too slow.
-           COMFLAGS := COMFLAGS & ("-O");
-	   ADAFLAGS := ADAFLAGS & ("-gnata");
-        when "Gnatcov" =>
-	   --  For coverage
-           COMFLAGS := COMFLAGS & ("-O0", "-g", "-fdump-scos",
-                               "-fpreserve-control-flow");
-     end case;
-
-     --  Concatenate with common flags
-     ALL_ADAFLAGS := ADAFLAGS & COMFLAGS;
-     ALL_CFLAGS := CFLAGS & COMFLAGS;
-
-     for Switches ("C") use ALL_CFLAGS;
-     for Switches ("Ada") use ALL_ADAFLAGS;
-     for Switches ("Asm_Cpp") use ASMFLAGS;
-
-     --  Some runtime files need to be compiled with debug info, so that gdb
-     --  is not blind.
-     for Switches ("s-traceb.adb") use ALL_ADAFLAGS & ("-g")
-       & ("-fno-optimize-sibling-calls", "-fno-inline-functions-called-once");
-     for Switches ("s-tasdeb.adb") use ALL_ADAFLAGS & ("-g", "-O0");
-     for Switches ("a-except.adb") use ALL_ADAFLAGS
-       & ("-g", "-O1", "-fno-inline", "-fno-toplevel-reorder");
-     for Switches ("s-excdeb.adb") use ALL_ADAFLAGS & ("-g", "-O0");
-     for Switches ("s-assert.adb") use ALL_ADAFLAGS & ("-g");
-     for Switches ("a-tags.adb") use ALL_ADAFLAGS & ("-g");
-     for Switches ("raise-gcc.c") use ALL_CFLAGS & ("-fexceptions");
-
-     --  Don't inline System.Machine_Reset otherwise we can loose our common
-     --  exit system.
-
-     for Switches ("s-macres.adb") use ALL_ADAFLAGS & ("-fno-inline");
-
-     --  Always build System.BB.CPU_Primitives at -O2 as some targets may make
-     --  use of inline assembly that rely on specific compiler behaviour to
-     --  load constants that are not enabled at -O0.
-
-     for Switches ("s-bbcppr.adb") use ALL_ADAFLAGS & ("-O2");
-
-     for Switches ("system.ads") use ALL_ADAFLAGS &
-       ("-gnatet=" & Project'Object_Dir & "/../ada_target_properties");
-
-  end Compiler;
+  --  Concatenate with common flags
+  ALL_ADAFLAGS := ADAFLAGS & COMFLAGS;
+  ALL_CFLAGS := CFLAGS & COMFLAGS;
+  GNARL_ADAFLAGS := ALL_ADAFLAGS & COMGNARLFLAGS;
+  GNARL_CFLAGS := ALL_CFLAGS & COMGNARLFLAGS;
 
 end Target_Options;

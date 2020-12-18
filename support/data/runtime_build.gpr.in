@@ -14,6 +14,42 @@ project Runtime_Build is
 
   for Source_Dirs use ("{source_dirs}");
 
-  package Compiler renames Target_Options.Compiler;
+  package Naming is
+     for Spec_Suffix ("Asm_CPP") use ".inc";
+  end Naming;
+
+  package Compiler is
+     for Default_Switches ("C") use Target_Options.ALL_CFLAGS;
+     for Default_Switches ("Ada") use Target_Options.ALL_ADAFLAGS;
+     for Default_Switches ("Asm_Cpp") use Target_Options.ASMFLAGS;
+
+     --  Some runtime files need to be compiled with debug info, so that gdb
+     --  is not blind.
+     for Switches ("s-traceb.adb") use Target_Options.ALL_ADAFLAGS
+       & ("-g")
+       & ("-fno-optimize-sibling-calls", "-fno-inline-functions-called-once");
+     for Switches ("a-except.adb") use Target_Options.ALL_ADAFLAGS
+       & ("-g", "-O1", "-fno-inline", "-fno-toplevel-reorder");
+     for Switches ("s-excdeb.adb") use Target_Options.ALL_ADAFLAGS
+       & ("-g", "-O0");
+     for Switches ("s-assert.adb") use Target_Options.ALL_ADAFLAGS
+       & ("-g");
+     for Switches ("a-tags.adb") use Target_Options.ALL_ADAFLAGS
+       & ("-g");
+     for Switches ("raise-gcc.c") use Target_Options.ALL_CFLAGS
+       & ("-fexceptions");
+
+     --  Don't inline System.Machine_Reset otherwise we can loose our common
+     --  exit system.
+
+     for Switches ("s-macres.adb") use Target_Options.ALL_ADAFLAGS
+       & ("-fno-inline");
+
+     --  Generate ada_target_properties to give target-specific information
+     --  to formal verification tools.
+
+     for Switches ("system.ads") use Target_Options.ALL_ADAFLAGS
+       & ("-gnatet=" & Project'Project_Dir & "/ada_target_properties");
+  end Compiler;
 
 end Runtime_Build;

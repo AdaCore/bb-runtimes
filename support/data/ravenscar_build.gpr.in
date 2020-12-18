@@ -1,20 +1,34 @@
+with "target_options.gpr";
 with "runtime_build.gpr";
 
 project Ravenscar_Build is
-  for Languages use ("{languages}");
+   for Languages use ("{languages}");
 
-  for Runtime ("Ada") use Runtime_Build'Runtime("Ada");
-  for Target use Runtime_Build'Target;
+   for Runtime ("Ada") use Runtime_Build'Runtime("Ada");
+   for Target use Runtime_Build'Target;
 
-  for Library_Auto_Init use "False";
-  for Library_Name use "gnarl";
-  for Library_Kind use "static";
+   for Library_Auto_Init use "False";
+   for Library_Name use "gnarl";
+   for Library_Kind use "static";
 
-  for Library_Dir use "adalib";
-  for Object_Dir use "obj";
+   for Library_Dir use "adalib";
+   for Object_Dir use "obj";
 
-  for Source_Dirs use ("{source_dirs}");
+   for Source_Dirs use ("{source_dirs}");
 
-  package Compiler renames Runtime_Build.Compiler;
+   package Compiler is
+      for Default_Switches ("C") use Target_Options.GNARL_CFLAGS;
+      for Default_Switches ("Ada") use Target_Options.GNARL_ADAFLAGS;
+      for Default_Switches ("Asm_Cpp") use Target_Options.ASMFLAGS;
+
+      --  Always build System.BB.CPU_Primitives at -O2 as some targets may make
+      --  use of inline assembly that rely on specific compiler behaviour to
+      --  load constants that are not enabled at -O0.
+      for Switches ("s-bbcppr.adb") use Target_Options.GNARL_ADAFLAGS & ("-O2");
+      --  Some runtime files need to be compiled with debug info, so that gdb
+      --  is not blind.
+      for Switches ("s-tasdeb.adb") use Target_Options.ALL_ADAFLAGS
+        & ("-g", "-O0");
+   end Compiler;
 
 end Ravenscar_Build;
