@@ -542,7 +542,10 @@ sources = {
     'image/enum': {
         'conditions': ['Add_Image_Enum:yes'],
         'srcs': [
-            'libgnat/s-imenne.ads', 'libgnat/s-imenne.adb'],
+            'libgnat/s-imagen.ads', 'libgnat/s-imagen.adb',
+            'libgnat/s-imen16.ads',
+            'libgnat/s-imen32.ads',
+            'libgnat/s-imenu8.ads']
     },
     'image/decimal': {
         'conditions': ['Add_Image_Decimal:yes'],
@@ -654,7 +657,10 @@ sources = {
     'value/enum': {
         'conditions': ['Add_Value_Enum:yes'],
         'srcs': [
-            'libgnat/s-valenu.ads', 'libgnat/s-valenu.adb'],
+            'libgnat/s-valuen.ads', 'libgnat/s-valuen.adb',
+            'libgnat/s-vaen16.ads',
+            'libgnat/s-vaen32.ads',
+            'libgnat/s-vaenu8.ads'],
         'requires': ['Add_Value_Utils:yes']
     },
     'value/decimal': {
