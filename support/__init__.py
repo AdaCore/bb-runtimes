@@ -47,7 +47,8 @@ def readfile(filename):
 
 
 def is_string(arg):
-    """Handles differencies in behavior between python2 and 3 concerning strings
+    """Handles differencies in behavior between python2 and 3 concerning
+    strings
 
     This checks the type of arg against basestring on python2 and against
     str on python3"""
