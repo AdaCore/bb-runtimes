@@ -6,6 +6,8 @@ svd:
 	rm -rf */svd */svdtmp
 	$(SVD2ADA_DIR)/svd2ada $(SVD2ADA_DIR)/CMSIS-SVD/ST/STM32F40x.svd \
 	  -o stm32f40x/svdtmp -p Interfaces.STM32
+	$(SVD2ADA_DIR)/svd2ada $(SVD2ADA_DIR)/CMSIS-SVD/ST/STM32F401.svd \
+	  -o stm32f401/svdtmp -p Interfaces.STM32
 	$(SVD2ADA_DIR)/svd2ada $(SVD2ADA_DIR)/CMSIS-SVD/ST/STM32F429x.svd \
 	  -o stm32f429x/svdtmp -p Interfaces.STM32
 	$(SVD2ADA_DIR)/svd2ada $(SVD2ADA_DIR)/CMSIS-SVD/ST/STM32F46_79x.svd \
