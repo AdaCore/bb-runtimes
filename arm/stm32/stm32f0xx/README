@@ -1,0 +1,149 @@
+ARM STM32F0 Runtimes
+==================
+
+Runtimes Supported
+------------------
+
+* ZFP
+* Ravenscar-SFP
+* Ravenscar-Full
+
+Targets Supported
+-----------------
+
+STM32F0xx MCUs (ARM Cortex-M0)
+
+System Clocks
+-------------
+
+Clocks Configuration
+,,,,,,,,,,,,,,,,,,,,
+
+The system clock source is the main phase-locked loop (PLL) driven by an
+external crystal. The clock tree parameters (e.g. HSI/HSE clock source,
+dividers and multipliers) are specified in package System.BB.Board_Parameters
+(in the gnat directory as file s-bbbopa.ads), as is the resulting main
+clock frequency. For example:
+
+.. code-block:: ada
+
+   Main_Clock_Frequency : constant               := 48_000_000;
+   HSE_Clock_Frequency  : constant               := 8_000_000;
+   HSE_Enabled          : constant Boolean       := True;
+   HSE_Bypass           : constant Boolean       := False;
+   LSI_Enabled          : constant Boolean       := True;
+   PLL_Src              : constant PLL_Source    := PLL_SRC_HSE_PREDIV;
+   SYSCLK_Src           : constant SYSCLK_Source := SYSCLK_SRC_PLL;
+   PREDIV               : constant PREDIV_Range  := 1;
+   PLLMUL_Value         : constant               := 6;
+   AHB_PRE              : constant AHB_Prescaler := AHBPRE_DIV1;
+   APB_PRE              : constant APB_Prescaler := APBPRE_DIV1;
+
+Change the values in that package to reflect your specific board, as
+necessary. The runtime system uses them to configure the blocks so
+changes will take effect automatically. Package System.BB.Parameters
+(gnat/s-bbpara.ads) imports those values and re-exports them as constants
+used by library procedure Setup_PLL. The shared procedure Setup_PLL
+configures the PLL and the derived clocks to achieve that main clock
+frequency. Compilation will fail if the requested clock frequency is not
+achievable.
+
+Startup Code
+------------
+
+The startup code is in multiple assembly language files located in the gnat
+subdirectory within the runtime.
+
+There are two assembly language files for the startup code, one each for
+executing from RAM or ROM. These are files named start-ram.S, start-rom.S
+respectively.
+
+The specific startup code is selected by the linker scripts' references to
+the unique symbols defined in the assembly files, via the entry point
+definitions.
+
+The start-\*.S files are used to define the interrupt vector table
+for both ZFP and Ravenscar runtimes. These files will need to be
+modified to use custom user interrupt handlers on ZFP profiles.
+For Ravenscar runtimes, user interrupt handlers are set up using the
+Attach_Handler aspect on protected procedures.
+
+Floating-point Co-processor
+---------------------------
+
+The Cortex-M0 does not have a hardware FPU. All floating-point calculations
+are performed in software.
+
+Interrupts
+----------
+
+The package Ada.Interrupts.Names (a-intnam.ads) is located in the gnat
+directory. This package spec was automatically generated from an SVD file so
+you will not need to change it unless an SVD file was unavailable for your
+target.
+
+See package System.BB.MCU_Parameters (s-bbmcpa.ads) for the number of
+interrupts defined. That number must reflect the contents of the
+SVD-generated package Ada.Interrupts.Names.
+
+Interrupt priorities
+,,,,,,,,,,,,,,,,,,,,
+
+The Ravenscar runtimes for the STM32F0 family only support a single
+interrupt priority level (because the BASEPRI register used for
+implementing interrupt priorities is is not implemented in the
+Cortex-M0 CPU).
+
+Memory Layout
+-------------
+
+The memory layout is controlled by linker scripts specific to whether the
+program is located in RAM or ROM. The scripts are located in the ld
+directory and are named common-RAM.ld and common-ROM.ld, respectively.
+
+Script selection is controlled by a scenario variable declared in an XML
+file named runtime.xml that is located in the runtime root directory. The
+scenario variable is used to specify linker switches.
+
+The memory sections' locations and sizes are specified in memory-map.ld,
+also located in the ld directory. The XML also specifies this file as part
+of the linker switches.
+
+You can modify all of these scripts as required. Alternatively, these
+scripts can be overridden at link time using the LDSCRIPT environment
+variable.
+
+Default stack sizes
+,,,,,,,,,,,,,,,,,,,
+
+The default main stack size is 2 KB
+The default interrupt stack size is 1 KB
+The default secondary stack size is 128 B
+
+The main stack size can be configured in the linker scripts: common-ROM/RAM.ld
+The interrupt and secondary stack sizes can be configured in s-bbpara.ads
+
+Resources Used
+--------------
+
+The Ravenscar runtime libraries use the SysTick interrupt to implement Ada
+semantics for time, i.e., delay statements and package Ada.Real_Time. The
+SysTick interrupt handler runs at highest priority. See procedure
+Sys_Tick_Handler in package body System.BB.CPU_Primitives
+(gnat/s-bbcppr.adb), which calls through to the handler in the trap vectors
+only when necessary for the sake of efficiency.
+
+Ada.Text_IO
+-----------
+
+The runtime libraries provide a minimal version of package Ada.Text_IO
+supporting character- and string-based input and output routines.
+
+IMPORTANT NOTE: By default the STM32F0 runtimes use a semihosting
+implementation of Ada.Text_IO, which is only functional when a
+debugger is attached. If Ada.Text_IO is used without a debugger
+attached then the CPU will HardFault or lockup when calls are
+made to Ada.Text_IO.
+
+If Ada.Text_IO is not used by the user application then the
+software will function both with and without a debugger attached.
