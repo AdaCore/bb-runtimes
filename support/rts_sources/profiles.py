@@ -113,20 +113,28 @@ class RTSProfiles(object):
 
             if cpu in ('aarch64', ):
                 ret['CPU_Family'] = 'aarch64'
+                ret['Has_FMA'] = 'yes'
             elif cpu in ('arm', ):
                 ret['CPU_Family'] = 'arm'
+                ret['Has_FMA'] = 'no'
             elif cpu.startswith('leon'):
                 ret['CPU_Family'] = 'leon'
+                ret['Has_FMA'] = 'no'
             elif cpu in ('powerpc', 'ppc'):
                 ret['CPU_Family'] = 'powerpc'
+                ret['Has_FMA'] = 'yes'
             elif cpu in ('x86',):
                 ret['CPU_Family'] = 'x86'
+                ret['Has_FMA'] = 'no'
             elif cpu in ('x86_64',):
                 ret['CPU_Family'] = 'x86_64'
+                ret['Has_FMA'] = 'no'
             elif cpu in ('riscv32',):
                 ret['CPU_Family'] = 'riscv32'
+                ret['Has_FMA'] = 'yes'
             elif cpu in ('riscv64',):
                 ret['CPU_Family'] = 'riscv64'
+                ret['Has_FMA'] = 'yes'
             else:
                 print("Unexpected cpu %s" % cpu)
                 sys.exit(2)

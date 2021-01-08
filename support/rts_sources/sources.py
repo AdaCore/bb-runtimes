@@ -33,6 +33,8 @@ all_scenarios = {
     'Target_Word_Size': ['32', '64'],
     # FPU presence
     'Has_FPU': ['no', 'yes'],
+    # FMA presence
+    'Has_FMA': ['no', 'yes'],
     # Whether we rely on libc being available
     'Has_libc': ['no', 'yes'],
     # Whether an implementation of compare and swap is available
@@ -105,7 +107,7 @@ all_scenarios = {
     'Add_Pack64': ['no', 'yes'],
     # Various support packages
     'Add_Case_Util': ['no', 'yes'],
-    'Add_Float_Control': ['no', 'yes'],
+    'Add_Float_Util': ['no', 'yes'],
     'Add_Image_Util': ['no', 'yes'],
     'Add_IO_Exceptions': ['no', 'yes'],
     'Add_Value_Utils': ['no', 'yes'],
@@ -582,10 +584,12 @@ sources = {
         'requires': ['Add_Image_Fixed:yes', 'Add_Arith128:yes']
     },
     'image/float': {
-        'conditions': ['Add_Image_Float:yes'],
+        'conditions': ['Add_Image_Float:yes', 'Has_FPU:yes'],
         'srcs': [
-            'libgnat/s-imgrea.ads', 'libgnat/s-imgrea.adb'],
-        'requires': ['Add_Float_Control:yes'],
+            'libgnat/s-imager.ads', 'libgnat/s-imager.adb',
+            'libgnat/s-imgrea.ads', 'libgnat/s-imgflt.ads',
+            'libgnat/s-imglfl.ads', 'libgnat/s-imgllf.ads'],
+        'requires': ['Add_Image_Util:yes', 'Add_Float_Util:yes'],
     },
     'image/int': {
         'conditions': ['Add_Image_Int:yes'],
@@ -695,14 +699,13 @@ sources = {
         'requires': ['Add_Value_Fixed:yes', 'Add_Arith128:yes']
     },
     'value/float': {
-        'conditions': ['Add_Value_Float:yes'],
+        'conditions': ['Add_Value_Float:yes', 'Has_FPU:yes'],
         'srcs': [
             'libgnat/s-valuer.ads', 'libgnat/s-valuer.adb',
             'libgnat/s-valrea.ads', 'libgnat/s-valrea.adb',
-            'libgnat/s-valflt.ads',
-            'libgnat/s-vallfl.ads',
+            'libgnat/s-valflt.ads', 'libgnat/s-vallfl.ads',
             'libgnat/s-valllf.ads'],
-        'requires': ['Add_Value_Utils:yes', 'Add_Float_Control:yes']
+        'requires': ['Add_Value_Utils:yes', 'Add_Float_Util:yes']
     },
     'value/int': {
         'conditions': ['Add_Value_Int:yes'],
@@ -746,10 +749,21 @@ sources = {
         'requires': ['Add_Case_Util:yes']
     },
     # Utility packages
-    'utils/flocon': {
-        'conditions': ['Add_Float_Control:yes'],
+    'utils/float_fma': {
+        'conditions': ['Add_Float_Util:yes', 'Has_FMA:yes'],
         'srcs': [
             'libgnat/s-flocon.ads', 'libgnat/s-flocon__none.adb',
+            'libgnat/s-dourea.ads', 'libgnat/s-dourea.adb',
+            'libgnat/s-dorepr__fma.adb',
+            'libgnat/s-powflt.ads', 'libgnat/s-powlfl.ads',
+            'libgnat/s-powllf.ads']
+    },
+    'utils/float': {
+        'conditions': ['Add_Float_Util:yes', 'Has_FMA:no'],
+        'srcs': [
+            'libgnat/s-flocon.ads', 'libgnat/s-flocon__none.adb',
+            'libgnat/s-dourea.ads', 'libgnat/s-dourea.adb',
+            'libgnat/s-dorepr.adb',
             'libgnat/s-powflt.ads', 'libgnat/s-powlfl.ads',
             'libgnat/s-powllf.ads']
     },
