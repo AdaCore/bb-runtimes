@@ -38,8 +38,8 @@ class CortexARTarget(DFBBTarget):
         super(CortexARTarget, self).amend_rts(rts_profile, conf)
         if 'ravenscar' in rts_profile:
             # s-bbcppr.adb uses the r7 register during context switching: this
-            # is not compatible with the use of frame pointers that is emited at
-            # -O0 by gcc. Let's disable fp even at -O0.
+            # is not compatible with the use of frame pointers that is emited
+            # at -O0 by gcc. Let's disable fp even at -O0.
             conf.build_flags['common_flags'] += ['-fomit-frame-pointer']
 
             # The use of FPU registers (to speed up structure init or because
