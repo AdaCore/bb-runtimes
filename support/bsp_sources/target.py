@@ -295,7 +295,10 @@ class Target(TargetConfiguration, ArchSupport):
             # In the ravenscar-full case, the runtime depends on
             # functionalities from newlib, such as memory allocation. This
             # runtime also does not support the certifiable packages option.
-            ret += blank + '"-nostartfiles", "-lc", "-lgnat"'
+            # Also, there's interdependencies between libgnarl and libgnat,
+            # so we need to force -lgnarl at link time, always.
+            ret += blank + \
+                   '"-nostartfiles", "-lc", "-lgnarl", "-lgnat", "-lgnarl"'
 
         # Add the user script path first, so that they have precedence
         ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld_user"'
