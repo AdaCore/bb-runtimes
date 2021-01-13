@@ -22,13 +22,15 @@ def usage():
     print("  available. The runtimes are installed in the toolchain itself.")
 
 
-ALL_BSP = {'arm-eabi': ['stm32f4', 'nucleo_f401re', 'stm32f429disco', 'stm32f469disco',
+ALL_BSP = {'arm-eabi': ['stm32f4', 'nucleo_f401re', 'stm32f429disco',
+                        'stm32f469disco',
                         'stm32f746disco', 'stm32756geval', 'stm32f769disco',
                         'samg55', 'sam4s', 'samv71', 'openmv2', 'rpi2',
                         'feather_stm32f405', 'stm32f051r8-hsi', 'nrf52832',
                         'nrf52840', 'cortex-m0', 'cortex-m0p', 'cortex-m1',
                         'cortex-m3', 'cortex-m4', 'cortex-m4f', 'cortex-m7f',
-                        'cortex-m7df'
+                        'cortex-m7df', 'cortex-m23', 'cortex-m33f',
+                        'cortex-m33df'
                         ],
            'aarch64-elf': ['rpi3']}
 

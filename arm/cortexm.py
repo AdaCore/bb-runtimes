@@ -1133,3 +1133,102 @@ class CortexM7DF(CortexM7F):
         # The required compiler switches
         return ('-mlittle-endian', '-mthumb', '-mfloat-abi=hard',
                 '-mcpu=cortex-m7', '-mfpu=fpv5-d16')
+
+
+class ArmV8MArch(ArchSupport):
+    @property
+    def name(self):
+        return "armv8-m"
+
+    @property
+    def parent(self):
+        return CortexMArch
+
+    def __init__(self):
+        super(ArmV8MArch, self).__init__()
+        self.add_gnarl_sources(
+            'src/s-bbbosu__armv7m.adb',
+            'src/s-bcpcst__pendsv.adb')
+
+
+class ArmV8MTarget(ArmV7MTarget):
+    @property
+    def parent(self):
+        return ArmV8MArch
+
+    @property
+    def has_single_precision_fpu(self):
+        return True
+
+    @property
+    def has_double_precision_fpu(self):
+        return True
+
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads',
+                'ravenscar-sfp': 'system-xi-cortexm4-sfp.ads',
+                'ravenscar-full': 'system-xi-cortexm4-full.ads'}
+
+    def __init__(self):
+        super(ArmV7MTarget, self).__init__()
+
+
+class CortexM23(ArmV8MTarget):
+    @property
+    def name(self):
+        return 'cortex-m23'
+
+    @property
+    def has_fpu(self):
+        return True
+
+    @property
+    def use_semihosting_io(self):
+        return True
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mthumb', '-mfloat-abi=soft',
+                '-mcpu=cortex-m23')
+
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads'}
+
+
+class CortexM33F(ArmV8MTarget):
+    @property
+    def name(self):
+        return 'cortex-m33f'
+
+    @property
+    def has_fpu(self):
+        return True
+
+    @property
+    def use_semihosting_io(self):
+        return True
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mthumb', '-mfloat-abi=hard',
+                '-mcpu=cortex-m33', '-mfpu=fpv5-sp-d16')
+
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads'}
+
+
+class CortexM33DF(CortexM33F):
+    @property
+    def name(self):
+        return 'cortex-m33df'
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mthumb', '-mfloat-abi=hard',
+                '-mcpu=cortex-m33', '-mfpu=fpv5-d16')
