@@ -162,10 +162,10 @@ class RTSProfiles(object):
         ret['RTS_Profile'] = 'ravenscar-full'
         ret['Add_Arith64'] = "yes"
         ret['Add_Complex_Type_Support'] = 'yes'
+        ret['Add_Exponent_Float'] = "yes"
         ret['Add_Exponent_Int'] = "yes"
         ret['Add_Exponent_LL_Int'] = "yes"
         ret['Add_Exponent_Modular'] = "yes"
-        ret['Add_Exponent_LL_Float'] = "yes"
         ret['Add_Image_Int'] = "yes"
         ret['Add_Image_LL_Int'] = "yes"
         ret['Add_Image_Based_Int'] = "yes"

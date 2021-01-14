@@ -94,11 +94,11 @@ all_scenarios = {
     'Add_Value_Char': ['no', 'yes'],
     'Add_Value_Wide_Char': ['no', 'yes'],
     # Exponentiation:
+    'Add_Exponent_Float': ['no', 'yes'],
     'Add_Exponent_Int': ['no', 'yes'],
     'Add_Exponent_LL_Int': ['no', 'yes'],
     'Add_Exponent_LLL_Int': ['no', 'yes'],
     'Add_Exponent_Modular': ['no', 'yes'],
-    'Add_Exponent_LL_Float': ['no', 'yes'],
     # Streams:
     'Add_Streams': ['no', 'yes'],
     # Runtime support for packed arrays
@@ -904,10 +904,12 @@ sources = {
         'srcs': [
             'libgnat/s-expmod.ads', 'libgnat/s-expmod.adb'],
     },
-    'exponent/float_ll': {
-        'conditions': ['Add_Exponent_LL_Float:yes'],
+    'exponent/float': {
+        'conditions': ['Add_Exponent_Float:yes'],
         'srcs': [
-            'libgnat/s-exnllf.ads', 'libgnat/s-exnllf.adb'],
+            'libgnat/s-exponr.ads', 'libgnat/s-exponr.adb',
+            'libgnat/s-exnflt.ads', 'libgnat/s-exnlfl.ads',
+            'libgnat/s-exnllf.ads'],
     },
 
     # Ada streams
