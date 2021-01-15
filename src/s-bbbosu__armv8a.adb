@@ -37,9 +37,10 @@
 --  This is the ARMv8-A + GICv2 version of this package
 
 with Ada.Unchecked_Conversion;
-with System.Machine_Code;
+with System.ARM_GIC;
 with System.BB.CPU_Primitives.Multiprocessors;
 with System.BB.Parameters;
+with System.Machine_Code;
 with Interfaces;                 use Interfaces;
 with Interfaces.AArch64;
 
@@ -62,45 +63,6 @@ package body System.BB.Board_Support is
    SCNTRS_FREQ : Unsigned_32
      with Volatile, Import, Address => IOU_SCNTRS_Base_Address + 16#20#;
 
-   subtype PRI is Unsigned_8;
-   --  Type for GIC interrupt priorities. Note that 0 is the highest
-   --  priority, which is reserved for the kernel and has no corresponding
-   --  Interrupt_Priority value, and 255 is the lowest. We assume the
-   --  PRIGROUP setting is such that the 4 most significant bits determine
-   --  the priority group used for preemption. However, if less bits are
-   --  implemented, this should still work.
-
-   function To_PRI (P : Integer) return PRI
-     with Inline_Always;
-   --  Return the PRI mask for the given Ada priority. Note that the zero
-   --  value here means no mask, so no interrupts are masked.
-
-   procedure Set_CNTP_CVAL (Val : Unsigned_64);
-   --  Set CNTP_CVAL_EL0 or CNTHP_CVAL_EL2
-
-   procedure Set_CNTP_CTL (Val : Unsigned_32);
-   --  Set CNTP_CTL_EL0 or CNTP_CTL_EL2
-
-   subtype Banked_Interrupt is BB.Interrupts.Interrupt_ID range 0 .. 31;
-   Interrupts_Enabled  : array (Banked_Interrupt) of Boolean :=
-                           (others => False);
-   Interrupts_Priority : array (Banked_Interrupt) of PRI;
-
-   ------------
-   -- To_PRI --
-   ------------
-
-   function To_PRI (P : Integer) return PRI is
-   begin
-      if P < Interrupt_Priority'First then
-         --  Do not mask any interrupt
-         return 255;
-      else
-         --  change range 240 .. 254
-         return PRI (Interrupt_Priority'Last - P) * 16;
-      end if;
-   end To_PRI;
-
    ------------------
    -- Set_CNTP_CTL --
    ------------------
@@ -115,82 +77,15 @@ package body System.BB.Board_Support is
    procedure Set_CNTP_CVAL (Val : Unsigned_64)
      renames Set_CNTP_CVAL_EL0;
 
-   package GIC is
-      --  This is support package for the GIC400 interrupt controller
-      --  This controller complies with the ARM Generic Interrupt Controller
-      --  v2.0 specification
+   -----------
+   -- GICv2 --
+   -----------
 
-      --  Supports up to 192 interrupts
-      Max_Ints : constant := 192;
+   package GIC renames System.ARM_GIC;
 
-      subtype GIC_Interrupts is BB.Interrupts.Interrupt_ID;
-
-      function Reg_Num_32 (Intnum : GIC_Interrupts) return GIC_Interrupts
-      is (Intnum / 32);
-
-      --  32-bit registers set
-      --  Accessed by 32 bits chunks
-      type Bits32_Register_Array is
-        array (GIC_Interrupts range 0 .. Max_Ints / 32 - 1) of Unsigned_32
-        with Pack, Volatile;
-
-      --  Byte registers set
-      --  Accessed by 8 bits chunks
-      type Byte_Register_Array is array (GIC_Interrupts) of Unsigned_8
-        with Pack, Volatile;
-
-      GIC_Base_Addr  : constant := 16#F902_0000#;
-      GICD_Base_Addr : constant := 16#F901_0000#;
-
-      GICD_CTLR         : Unsigned_32
-        with Import, Volatile, Address => GICD_Base_Addr;
-
-      --  Enable set registers
-      GICD_ISENABLER    : Bits32_Register_Array
-        with Import, Address => GICD_Base_Addr + 16#100#;
-
-      --  Enable clear registers
-      GICD_ICENABLER    : Bits32_Register_Array
-        with Import, Address => GICD_Base_Addr + 16#180#;
-
-      --  Pending set registers
-      GICD_ISACTIVER    : Bits32_Register_Array
-        with Import, Address => GICD_Base_Addr + 16#300#;
-
-      --  Pending clear registers
-      GICD_ICACTIVER    : Bits32_Register_Array
-        with Import, Address => GICD_Base_Addr + 16#380#;
-
-      --  Priority registers
-      GICD_IPRIORITYR   : Byte_Register_Array
-        with Import, Address => GICD_Base_Addr + 16#400#;
-
-      --  Target set register
-      --  the bitfield represent the CPUs on which the exception is propagated
-      GICD_ITARGETSR    : array (0 .. Max_Ints / 4 - 1) of Unsigned_32
-        with Import, Volatile, Address => GICD_Base_Addr + 16#800#;
-
-      GICD_ICFGR        : array (0 .. Max_Ints / 16 - 1) of Unsigned_32
-        with Import, Volatile, Address => GICD_Base_Addr + 16#C00#;
-
-      GICD_SGIR         : Unsigned_32
-        with Import, Address => GICD_Base_Addr + 16#F00#;
-
-      GICC_CTLR         : Unsigned_32
-        with Volatile, Import, Address => GIC_Base_Addr;
-
-      GICC_PMR          : Unsigned_32
-        with Volatile, Import, Address => GIC_Base_Addr + 16#004#;
-
-      GICC_BPR          : Unsigned_32
-        with Volatile, Import, Address => GIC_Base_Addr + 16#008#;
-
-      GICC_IAR          : Unsigned_32
-        with Volatile, Import, Address => GIC_Base_Addr + 16#00C#;
-
-      GICC_EOIR         : Unsigned_32
-        with Volatile, Import, Address => GIC_Base_Addr + 16#010#;
-   end GIC;
+   ---------
+   -- APU --
+   ---------
 
    package APU is
       type Power_Down_Array is array (CPU) of Boolean with Pack;
@@ -261,10 +156,6 @@ package body System.BB.Board_Support is
 
    end APU;
 
-   procedure IRQ_Handler;
-   pragma Export (C, IRQ_Handler, "__gnat_irq_handler");
-   --  Low-level interrupt handler
-
    procedure Initialize_CPU_Devices;
    pragma Export (C, Initialize_CPU_Devices, "__gnat_initialize_cpu_devices");
    --  Per CPU device initialization
@@ -275,8 +166,6 @@ package body System.BB.Board_Support is
 
    procedure Initialize_CPU_Devices
    is
-      Int_Mask : Unsigned_32 := 0;
-
    begin
       --  Timer: using the non-secure physical timer
       --  at init, we disable both the physical and the virtual timers
@@ -291,42 +180,7 @@ package body System.BB.Board_Support is
       --  Core-specific part of the GIC configuration:
       --  The GICC (CPU Interface) is banked for each CPU, so has to be
       --  configured each time.
-      --  The PPI and SGI exceptions are also CPU-specific so are banked.
-      --  see 4.1.4 in the ARM GIC Architecture Specification v2 document
-
-      --  Mask all interrupts
-      GIC.GICC_PMR := 0;
-
-      --  Binary point register
-      --  The register defines the point at which the priority value fields
-      --  split into two parts
-      GIC.GICC_BPR := 3;
-
-      --  Disable banked interrupts by default
-      GIC.GICD_ICENABLER (0) := 16#FFFF_FFFF#;
-
-      --  Enable the CPU-specific interrupts that have a handler registered.
-      --
-      --  On CPU0, no interrupt is registered for now so this has no effect.
-      --  On the other CPUs, as interrupts are registered via a call to
-      --  Interrupts.Install_Interrupt_Handler before the CPUs are started,
-      --  the following properly takes care of initializing the interrupt mask
-      --  and priorities for those.
-      for J in Interrupts_Enabled'Range loop
-         if Interrupts_Enabled (J) then
-            Int_Mask := Int_Mask or 2 ** J;
-            GIC.GICD_IPRIORITYR (J) := Interrupts_Priority (J);
-         end if;
-      end loop;
-
-      if Int_Mask /= 0 then
-         GIC.GICD_ISENABLER (0) := Int_Mask;
-      end if;
-
-      --  Set the Enable Group1 bit to the GICC CTLR register
-      --  The view we have here is a GICv2 version with Security extension,
-      --  from a non-secure mode
-      GIC.GICC_CTLR := 1;
+      GIC.Initialize_GICC;
    end Initialize_CPU_Devices;
 
    ----------------------
@@ -335,32 +189,8 @@ package body System.BB.Board_Support is
 
    procedure Initialize_Board
    is
-      use GIC;
-
    begin
-      GICD_CTLR := 0;
-
-      --  default priority
-      for J in GICD_IPRIORITYR'Range loop
-         GICD_IPRIORITYR (J) := To_PRI (System.Default_Priority);
-      end loop;
-
-      --  Target: always target cpu 0
-
-      --  Ignore the first 32 interrupts that are CPU-specific anyway
-      --  There's 4 interrupt per ITARGETSR register
-      for Reg_Num in 8 .. GIC.GICD_ITARGETSR'Last loop
-         GIC.GICD_ITARGETSR (Reg_Num) := 16#01_01_01_01#;
-      end loop;
-
-      --  Disable all shared Interrupts
-      GICD_ICENABLER (1) := 16#FFFF_FFFF#;
-      GICD_ICENABLER (2) := 16#FFFF_FFFF#;
-      GICD_ICENABLER (3) := 16#FFFF_FFFF#;
-      GICD_ICENABLER (4) := 16#FFFF_FFFF#;
-      GICD_ICENABLER (5) := 16#FFFF_FFFF#;
-
-      GICD_CTLR := 1;
+      GIC.Initialize_GICD;
 
       Initialize_CPU_Devices;
    end Initialize_Board;
@@ -426,39 +256,12 @@ package body System.BB.Board_Support is
    -- IRQ_Handler --
    -----------------
 
-   procedure IRQ_Handler
-   is
-      IAR    : constant Unsigned_32 := GIC.GICC_IAR;
-      Int_Id : constant Unsigned_32 := IAR and 16#3FF#;
-   begin
-      if Int_Id = 16#3FF# then
-         --  Spurious interrupt
-         return;
-      end if;
-
-      Interrupt_Wrapper (Interrupt_ID (Int_Id));
-
-      --  Clear interrupt request
-      GIC.GICC_EOIR := IAR;
-   end IRQ_Handler;
+   procedure IRQ_Handler is new GIC.IRQ_Handler
+     (Interrupt_Wrapper => Interrupt_Wrapper);
+   pragma Export (C, IRQ_Handler, "__gnat_irq_handler");
+   --  Low-level interrupt handler
 
    package body Interrupts is
-
-      function To_Priority (P : PRI) return Interrupt_Priority;
-      pragma Inline (To_Priority);
-      --  Given an ARM interrupt priority (PRI value), determine the Ada
-      --  priority While the value 0 is reserved for the kernel and has no Ada
-      --  priority that represents it, Interrupt_Priority'Last is closest.
-      --  ??? The compiler crashes if this is an expression function.
-
-      function To_Priority (P : PRI) return Interrupt_Priority is
-      begin
-         if P = 0 then
-            return Interrupt_Priority'Last;
-         else
-            return Interrupt_Priority'Last - Any_Priority'Base (P / 16);
-         end if;
-      end To_Priority;
 
       -------------------------------
       -- Install_Interrupt_Handler --
@@ -466,22 +269,7 @@ package body System.BB.Board_Support is
 
       procedure Install_Interrupt_Handler
         (Interrupt : BB.Interrupts.Interrupt_ID;
-         Prio      : Interrupt_Priority)
-      is
-         use GIC;
-      begin
-         GICD_IPRIORITYR (Interrupt) := To_PRI (Prio);
-         GICD_ISENABLER (Reg_Num_32 (Interrupt)) := 2 ** (Interrupt mod 32);
-
-         --  Handlers are registered before the CPUs are awaken (only the CPU 0
-         --  executes Install_Interrupt_Handler.
-         --  So we save the registered interrupts to properly initialize the
-         --  other CPUs for banked interrupts.
-         if Interrupt in Banked_Interrupt then
-            Interrupts_Priority (Interrupt) := To_PRI (Prio);
-            Interrupts_Enabled (Interrupt)  := True;
-         end if;
-      end Install_Interrupt_Handler;
+         Prio      : Interrupt_Priority) renames GIC.Install_Interrupt_Handler;
 
       ---------------------------
       -- Priority_Of_Interrupt --
@@ -489,29 +277,20 @@ package body System.BB.Board_Support is
 
       function Priority_Of_Interrupt
         (Interrupt : System.BB.Interrupts.Interrupt_ID)
-        return System.Any_Priority
-      is
-      begin
-         return To_Priority (GIC.GICD_IPRIORITYR (Interrupt));
-      end Priority_Of_Interrupt;
+        return System.Any_Priority renames GIC.Priority_Of_Interrupt;
 
       --------------------------
       -- Set_Current_Priority --
       --------------------------
 
-      procedure Set_Current_Priority (Priority : Integer) is
-      begin
-         GIC.GICC_PMR := Unsigned_32 (To_PRI (Priority));
-      end Set_Current_Priority;
+      procedure Set_Current_Priority (Priority : Integer)
+        renames GIC.Set_Current_Priority;
 
       ----------------
       -- Power_Down --
       ----------------
 
-      procedure Power_Down is
-      begin
-         Asm ("wfi", Volatile => True);
-      end Power_Down;
+      procedure Power_Down renames GIC.Power_Down;
    end Interrupts;
 
    package body Multiprocessors is
@@ -592,8 +371,7 @@ package body System.BB.Board_Support is
       procedure Poke_CPU (CPU_Id : CPU)
       is
       begin
-         GIC.GICD_SGIR :=
-           2 ** (15 + Natural (CPU_Id)) + Unsigned_32 (Poke_Interrupt);
+         GIC.Poke_CPU (CPU_Id, Poke_Interrupt);
       end Poke_CPU;
 
       -----------------

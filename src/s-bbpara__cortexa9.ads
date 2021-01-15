@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -53,12 +53,22 @@ package System.BB.Parameters is
 
    Ticks_Per_Second : constant := Clock_Frequency;
 
+   ----------------------
+   -- MPCore registers --
+   ----------------------
+
+   MPCore_Base : constant := 16#F8F0_0000#;
+
    ----------------
    -- Interrupts --
    ----------------
 
    --  These definitions are in this package in order to isolate target
    --  dependencies.
+
+   GICD_Base_Address : constant := MPCore_Base + 16#1000#;
+   GICC_Base_Address : constant := MPCore_Base + 16#100#;
+   --  Interrupt controller registers
 
    subtype Interrupt_Range is Natural range 0 .. 95;
    --  Number of interrupts supported by the GIC. The run time assumes the

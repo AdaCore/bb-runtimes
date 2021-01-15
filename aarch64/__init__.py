@@ -119,6 +119,7 @@ class ZynqMP(Aarch64Target):
         self.add_gnarl_sources(
             'src/a-intnam__zynqmp.ads',
             'src/s-bbbosu__armv8a.adb',
+            'src/s-armgic.ads', 'src/s-armgic.adb',
             'src/s-bbpara__zynqmp.ads')
 
 

@@ -265,4 +265,5 @@ class Zynq7000(CortexARTarget):
         self.add_gnarl_sources(
             'src/a-intnam__zynq.ads',
             'src/s-bbpara__cortexa9.ads',
+            'src/s-armgic.ads', 'src/s-armgic.adb',
             'src/s-bbbosu__cortexa9.adb')

@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -72,6 +72,13 @@ package System.BB.Parameters is
    --    4   (at 16#0010#) Abort - Data (asynchronous)
    --    5   (at 16#0014#) IRQ Trap (asynchronous)
    --    6   (at 16#0018#) FIQ Trap (asynchronous)
+
+   -----------------------------
+   -- GIC peripheral location --
+   -----------------------------
+
+   GICD_Base_Address : constant := 16#F901_0000#;
+   GICC_Base_Address : constant := 16#F902_0000#;
 
    ------------------------
    -- Context Management --
