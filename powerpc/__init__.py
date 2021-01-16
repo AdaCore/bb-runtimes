@@ -350,8 +350,7 @@ class Virtex5(PPCBookETarget):
     def system_ads(self):
         return {
             'zfp': 'system-xi-ppc.ads',
-            'ravenscar-sfp': 'system-xi-ppc-xilinx-sfp.ads',
-            'ravenscar-full': 'system-xi-ppc-xilinx-full.ads'
+            'ravenscar-sfp': 'system-xi-ppc-xilinx-sfp.ads'
         }
 
     def __init__(self):
