@@ -189,6 +189,7 @@ def build_custom_configs(json_file):
                          board_name=cnt['board_name'],
                          board_params=cnt.get('board_params', {}))
 
+
 def main():
     parser = argparse.ArgumentParser()
 

@@ -556,7 +556,7 @@ class Stm32F0(CortexM0CommonArchSupport):
         if pllin_freq is None:
             # PLL not needed. Set defaults
             prediv = 1
-            pllmul = 2 # minimum allowed value
+            pllmul = 2  # minimum allowed value
         else:
             # PLL needed to obtain target main clock frequency.
             # Brute force all possible PREDIV and PLLMUL values to find the

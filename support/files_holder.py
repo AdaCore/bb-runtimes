@@ -196,7 +196,6 @@ class FilesHolder(object):
         # The .tmpl extension is kept for now as it is removed later in
         # the installation process.
         if base.endswith('.tmpl'):
-            print(base)
             _, ext, _ = base.rsplit('.', 2)
         else:
             _, ext = base.rsplit('.', 1)
