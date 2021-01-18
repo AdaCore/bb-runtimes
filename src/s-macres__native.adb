@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---              Copyright (C) 2011, Free Software Foundation, Inc.          --
+--           Copyright (C) 2011-2021, Free Software Foundation, Inc.        --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -30,9 +30,9 @@
 ------------------------------------------------------------------------------
 
 package body System.Machine_Reset is
-   procedure OS_Exit (Status : Integer);
-   pragma Import (C, OS_Exit, "exit");
-   pragma No_Return (OS_Exit);
+   procedure Os_Exit (Status : Integer);
+   pragma Import (C, Os_Exit, "exit");
+   pragma No_Return (Os_Exit);
 
    ----------
    -- Stop --
@@ -40,6 +40,6 @@ package body System.Machine_Reset is
 
    procedure Stop is
    begin
-      OS_Exit (0);
+      Os_Exit (0);
    end Stop;
 end System.Machine_Reset;

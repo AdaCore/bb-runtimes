@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---            Copyright (C) 2011-2016, Free Software Foundation, Inc.       --
+--            Copyright (C) 2011-2021, Free Software Foundation, Inc.       --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -32,27 +32,27 @@
 with System.IOPorts; use System.IOPorts;
 
 package body System.Machine_Reset is
-   procedure OS_Exit;
-   pragma Export (Ada, OS_Exit, "_exit");
-   pragma No_Return (OS_Exit);
+   procedure Os_Exit;
+   pragma Export (Ada, Os_Exit, "_exit");
+   pragma No_Return (Os_Exit);
    --  Reset the board or shut-down the simulator
 
-   procedure OS_Abort;
-   pragma Export (Ada, OS_Abort, "abort");
-   pragma No_Return (OS_Abort);
-   --  Same as OS_Exit (rename in body to allow multiple pragma Export)
+   procedure Os_Abort;
+   pragma Export (Ada, Os_Abort, "abort");
+   pragma No_Return (Os_Abort);
+   --  Same as Os_Exit (rename in body to allow multiple pragma Export)
 
    --------------
-   -- OS_Abort --
+   -- Os_Abort --
    --------------
 
-   procedure OS_Abort renames OS_Exit;
+   procedure Os_Abort renames Os_Exit;
 
    -------------
-   -- OS_Exit --
+   -- Os_Exit --
    -------------
 
-   procedure OS_Exit is
+   procedure Os_Exit is
    begin
       --  Trigger a reset
 
@@ -64,11 +64,11 @@ package body System.Machine_Reset is
       loop
          null;
       end loop;
-   end OS_Exit;
+   end Os_Exit;
 
    ----------
    -- Stop --
    ----------
 
-   procedure Stop renames OS_Exit;
+   procedure Stop renames Os_Exit;
 end System.Machine_Reset;
