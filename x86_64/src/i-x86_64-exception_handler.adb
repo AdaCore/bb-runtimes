@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---            Copyright (C) 2020, Free Software Foundation, Inc.            --
+--         Copyright (C) 2020-2021, Free Software Foundation, Inc.          --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -36,7 +36,7 @@ package body Interfaces.X86_64.Exception_Handler is
    use System.BB.CPU_Specific;
    use System.BB.Interrupts;
 
-   procedure OS_Abort
+   procedure Os_Abort
      with Import, External_Name => "abort";
 
    procedure Fatal_Exception (ID : SBI.Interrupt_ID; Code : SBC.Error_Code) is
@@ -70,6 +70,6 @@ package body Interfaces.X86_64.Exception_Handler is
 
       New_Line;
       Put_Line ("Rebooting...");
-      OS_Abort;
+      Os_Abort;
    end Fatal_Exception;
 end Interfaces.X86_64.Exception_Handler;

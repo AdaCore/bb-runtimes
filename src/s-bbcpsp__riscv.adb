@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2019, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -51,9 +51,9 @@ package body System.BB.CPU_Specific is
    --  arguments in the RISC-V ABI. These registers potentially hold a
    --  meaningful value in case of syscall or semihosting call.
 
-   procedure OS_Exit;
-   pragma Import (Ada, OS_Exit, "__gnat_exit");
-   pragma No_Return (OS_Exit);
+   procedure Os_Exit;
+   pragma Import (Ada, Os_Exit, "__gnat_exit");
+   pragma No_Return (Os_Exit);
 
    ------------------
    -- Trap_Handler --
@@ -101,7 +101,7 @@ package body System.BB.CPU_Specific is
             when 11 => -- Environment call from M-mode
 
                case A7 is -- Syscall ID
-                  when 93 => OS_Exit;
+                  when 93 => Os_Exit;
                   when others =>
                      raise Program_Error with "Unhandled syscall:" & A7'Img;
                end case;
