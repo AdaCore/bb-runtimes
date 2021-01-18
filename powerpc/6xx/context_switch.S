@@ -1,14 +1,13 @@
 ##############################################################################
 #                                                                            #
-#                      Copyright (C) 2005-2015, AdaCore                      #
+#                      Copyright (C) 2005-2020, AdaCore                      #
 #                                                                            #
 #                               Assembly File                                #
 #                                                                            #
 ##############################################################################
 
 	#  Functions to store and restore the
-	#  context of a task for the PowerPC
-	#  without floating-point unit.
+	#  context of a task for the PowerPC.
 
         # Switch from running_thread (address in r3) to
 	# first_thread (address in r4).
