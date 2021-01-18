@@ -6,7 +6,7 @@
 #                                                                           #
 #                               Assembly File                               #
 #                                                                           #
-#                      Copyright (C) 2012-2020 AdaCore                      #
+#                      Copyright (C) 2012-2021 AdaCore                      #
 #                                                                           #
 #  GNAT is free software;  you can  redistribute it  and/or modify it under #
 #  terms of the  GNU General Public License as published  by the Free Soft- #
@@ -32,7 +32,9 @@ _setup:
         # Enable FPU.
         li    %r3,0x2000
         mtmsr %r3
-        sync
+
+        /* MSR(FP) requires instruction access synchronization */
+        isync
 
         li    %r0,0
 
