@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -61,8 +61,7 @@ package body System.BB.CPU_Specific is
 
    procedure Install_Error_Handlers is
    begin
-      --  To be implemented ???
-
+      --  No error handler required on this platform
       null;
    end Install_Error_Handlers;
 
