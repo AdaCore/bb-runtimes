@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1992-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -150,12 +150,12 @@ package body System.Text_IO is
    end record;
 
    type Clock_Source is
-     (IPB_Divided_By_32, Disable_Clock, IPB_Divided_By_4);
+     (IPB_Divided_By_16, Disable_Clock, IPB_Divided_By_10);
 
    for Clock_Source use
-     (IPB_Divided_By_32 => 2#0#,
+     (IPB_Divided_By_16 => 2#0#,
       Disable_Clock     => 2#1110#,
-      IPB_Divided_By_4  => 2#1111#);
+      IPB_Divided_By_10 => 2#1111#);
 
    type Clock_Select is record
       Receiver_Clock_Select    : Clock_Source;
@@ -297,8 +297,8 @@ package body System.Text_IO is
       --  PSC1 is configured for eight data bits, no parity and 1 stop bit
 
       Clock_Select_Register :=
-        (Receiver_Clock_Select    => IPB_Divided_By_32,
-         Transmitter_Clock_Select => IPB_Divided_By_32);
+        (Receiver_Clock_Select    => IPB_Divided_By_16,
+         Transmitter_Clock_Select => IPB_Divided_By_16);
       Serial_Interface_Control_Register :=
         (Operation_Mode => UART);
       Mode_1_Register :=
