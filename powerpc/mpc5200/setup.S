@@ -36,6 +36,10 @@ _setup:
         /* MSR(FP) requires instruction access synchronization */
         isync
 
+        # Disable overflow and underflow exceptions.
+        mtfsb0 25
+        mtfsb0 26
+
         li    %r0,0
 
         # Clear sbss2
