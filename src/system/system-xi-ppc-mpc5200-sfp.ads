@@ -7,7 +7,7 @@
 --                                 S p e c                                  --
 --                            (PPC ELF Version)                             --
 --                                                                          --
---          Copyright (C) 1992-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -112,8 +112,8 @@ package System is
 
    --  Priority-related Declarations (RM D.1)
 
-   --  The MPC5200 has 8 interrupt priority levels, plus 1 for the
-   --  decrementer/critical interrupts.
+   --  Due to the design of the MPC5200 SIU Interrupt Controller, all
+   --  interrupts are mapped to a single Ada Interrupt Priority.
    Nbr_Interrupt_Priorities : constant Positive := 1;
    Max_Interrupt_Priority   : constant Positive := 255;
    Max_Priority             : constant Positive :=
