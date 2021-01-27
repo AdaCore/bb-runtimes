@@ -1,0 +1,7 @@
+INCLUDE memmap.ld
+
+REGION_ALIAS("REGION_BOOT", psu_r5_0_atcm_MEM_0)
+REGION_ALIAS("REGION_CODE", psu_r5_ddr_0_MEM_0)
+REGION_ALIAS("REGION_DATA", psu_r5_ddr_0_MEM_0)
+
+INCLUDE common.ld
