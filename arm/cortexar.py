@@ -219,6 +219,66 @@ class TMS570(CortexARTarget):
             'src/s-bbsumu__generic.adb')
 
 
+class ZynqmpR5(CortexARTarget):
+    @property
+    def name(self):
+        return 'zynqmpr5'
+
+    @property
+    def has_small_memory(self):
+        return False
+
+    @property
+    def loaders(self):
+        return ('RAM',)
+
+    @property
+    def cpu(self):
+        return 'cortex-r5'
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mfloat-abi=hard',
+                '-mcpu=%s' % self.cpu, '-mfpu=vfpv3-d16', '-marm')
+
+    @property
+    def readme_file(self):
+        return 'arm/zynqmpr5/README'
+
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads',
+                'ravenscar-sfp': 'system-xi-arm-gic-sfp.ads',
+                'ravenscar-full': 'system-xi-arm-gic-full.ads'}
+
+    def add_linker_scripts(self):
+        self.add_linker_script('arm/zynqmpr5/common.ld')
+        self.add_linker_script('arm/zynqmpr5/memmap.ld')
+        self.add_linker_script('arm/zynqmpr5/ram.ld', loader='RAM')
+
+    def __init__(self):
+        super(ZynqmpR5, self).__init__()
+
+        self.add_linker_scripts()
+
+        self.add_gnat_sources(
+            'arm/zynqmpr5/crt0.S',
+            'arm/zynqmpr5/s-mpudef.ads',
+            'arm/zynqmpr5/s-mpuini.ads', 'arm/zynqmpr5/s-mpuini.adb',
+            'src/s-boapar__zynqmpr5.ads')
+        self.add_gnat_sources(
+            'src/s-textio__zynqmp.adb',
+            'src/s-macres__zynqmp.adb')
+
+        self.add_gnarl_sources(
+            'src/a-intnam__zynqmp.ads',
+            'src/s-armgic.ads', 'src/s-armgic.adb',
+            'src/s-bbpara__zynqmpr5.ads',
+            'src/s-bbbosu__zynqmpr5.adb',
+            'src/s-bbsumu__generic.adb')
+
+
 class Zynq7000(CortexARTarget):
     @property
     def name(self):

@@ -1,0 +1,35 @@
+Xilinx ZynqMP Cortex-R5 runtime
+===============================
+
+Runtimes Supported
+------------------
+
+* ZFP
+* Ravenscar-SFP
+* Ravenscar-Full
+
+Targets Supported
+-----------------
+
+* Xilinx ZynqMP ARM Cortex-R5[0] in split mode
+
+Resources used by the runtime:
+------------------------------
+
+- The GIC is configured to redirect the exceptions to the Ada runtime.
+- The UART0 is used as standard input/output by the runtime.
+- The timers TTC0[0] and TTC0[1] are used to support clock and timing events,
+  the corresponding interrupts (68, 69) are thus reserved for runtime usage.
+
+The timing assumes that the LPD_APB_CLK frequency is 100MHz, and configures
+the TTC0 prescalers so that the counter frequency is 12.5MHz. See s-bbpara.ads
+if this needs to be changed.
+
+The interrupts TTC0_0_Interrupt and TTC0_1_Interrupt are reserved by this
+runtime, so should not be used in user code.
+
+Boot:
+-----
+
+Only booting from RAM is currently supported, with the entry point set to
+0x0.
