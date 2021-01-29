@@ -133,6 +133,15 @@ class Installer(object):
                 if os.path.exists(tentative):
                     ret = os.path.normpath(tentative)
                     break
+        if ret is None:
+            # gprls did not work, try to find out manually the proper location
+            gcc = shutil.which('%s-gcc' % self.tgt.target)
+            if gcc is not None:
+                gcc_root = os.path.dirname(os.path.dirname(gcc))
+                tentative = os.path.join(
+                    gcc_root, self.tgt.target, 'lib', 'gnat', rts_json_file)
+                if os.path.exists(tentative):
+                    ret = os.path.normpath(tentative)
         assert ret is not None, "Cannot find %s" % rts_json_file
         return SharedRTSSources(ret)
 
