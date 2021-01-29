@@ -1387,3 +1387,309 @@ class CortexM33DF(CortexM33F):
         # The required compiler switches
         return ('-mlittle-endian', '-mthumb', '-mfloat-abi=hard',
                 '-mcpu=cortex-m33', '-mfpu=fpv5-d16')
+
+
+class RP2040(CortexM0P):
+    @property
+    def name(self):
+        if self.smp:
+            return 'rp2040-smp'
+        else:
+            return 'rp2040'
+
+    @property
+    def parent(self):
+        if self.smp:
+            # Don't refer to any parent since we need to override certain
+            # sources from CortexMArch (e.g. replace src/s-bbsumu__generic.adb)
+            return None
+        else:
+            return CortexMArch
+
+    @property
+    def loaders(self):
+        return ('ROM', )
+
+    @property
+    def system_ads(self):
+        return {'ravenscar-sfp': 'system-xi-armv6m-sfp.ads',
+                'ravenscar-full': 'system-xi-armv6m-full.ads'}
+
+    def __init__(self, smp):
+        self.smp = smp
+
+        super(RP2040, self).__init__()
+
+        smp_template_values = {
+            # The SMP runtime uses the TIMER for task delays, which runs from
+            # the 1 MHz Watchdog tick.
+            "RP2040_Runtime_Uses_SysTick": "False",
+
+            # The MP runtime overrides the SIO_IRQ_PROC0 and SIO_IRQ_PROC1
+            # handers to call the poke handler. See start-rom.S.tmpl
+            "RP2040_SIO_IRQ_PROC0_Handler": "__gnat_poke_handler",
+            "RP2040_SIO_IRQ_PROC1_Handler": "__gnat_poke_handler",
+
+            # 32 IRQs on both cores are available in the MP runtime (64 total)
+            "RP2040_Number_Of_Interrupts": "64",
+
+            # Config values for bbpara__cortexm0p.ads.tmpl
+            "S_BBPara_Interrupt_Stack_Size": "1024",
+            "S_BBPara_Interrupt_Sec_Stack_Size": "128",
+            "S_BBPara_Max_Number_Of_CPUs": "2"
+        }
+
+        sp_template_values = {
+            # The SP runtime uses the SysTick for task delays, which runs from
+            # the system clock (up to 133 MHz).
+            "RP2040_Runtime_Uses_SysTick": "True",
+
+            # The SP runtime does not override SIO_IRQ_PROC0 or SIO_IRQ_PROC1.
+            # They can be used as ordinary interrupts. See start-rom.S.tmpl
+            "RP2040_SIO_IRQ_PROC0_Handler": "__gnat_irq_trap",
+            "RP2040_SIO_IRQ_PROC1_Handler": "__gnat_irq_trap",
+
+            # Only the 32 IRQs on core0 are available in the SP runtime.
+            "RP2040_Number_Of_Interrupts": "32",
+
+            # Config values for bbpara__cortexm0p.ads.tmpl
+            "S_BBPara_Interrupt_Stack_Size": "1024",
+            "S_BBPara_Interrupt_Sec_Stack_Size": "128",
+            "S_BBPara_Max_Number_Of_CPUs": "1"
+        }
+
+        if self.smp:
+            template_values = smp_template_values
+        else:
+            template_values = sp_template_values
+
+        for key, value in template_values.items():
+            self.add_template_config_value(key, value)
+
+        # Common GNAT sources
+        self.add_gnat_sources(
+            'arm/rpi/rp2040/svd/i-rp2040.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-clocks.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-pll_sys.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-psm.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-resets.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-rosc.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-sio.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-timer.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-watchdog.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-xosc.ads',
+            'arm/rpi/rp2040/s-bbmcpa.ads.tmpl',
+            'arm/rpi/rp2040/start-rom.S.tmpl',
+            'arm/rpi/rp2040/s-bootro.ads',
+            'arm/rpi/rp2040/s-bootro.adb',
+            'arm/rpi/rp2040/setup_clocks.adb',
+            'arm/rpi/rp2040/s-bbbopa.ads.tmpl')
+
+        if self.smp:
+            # s-maxres__cortexm3.adb is also compatible with Cortex-M0+
+            self.add_gnat_sources('src/s-macres__cortexm3.adb')
+
+        # Common GNARL sources
+        self.add_gnarl_sources('src/s-bbpara__cortexm0p.ads.tmpl')
+
+        if self.smp:
+            self.add_gnarl_sources(
+                'arm/rpi/rp2040/a-intnam__mp.ads',
+                'src/s-bbbosu__rp2040.adb',
+                'src/s-bbcppr__armv7m.adb',
+                'src/s-bbcppr__old.ads',
+                'src/s-bbcpsp__cortexm.ads',
+                'src/s-bbpara__cortexm0p.ads.tmpl',
+                'src/s-bbsumu__rp2040.adb',
+                'src/s-bcpcst__rp2040.adb',
+                'src/s-bcpcst__armvXm.ads')
+        else:
+            self.add_gnarl_sources(
+                'arm/rpi/rp2040/a-intnam__sp.ads',
+                'src/s-bbbosu__armv6m.adb',
+                'src/s-bcpcst__pendsv.adb')
+
+
+class RP2040Target(RP2040):
+    # List of flash chips used by the supported targets
+    _flash_properties = {
+        'generic_qspi_128': {'size': '16M', 'boot2': 'generic_qspi'},
+        'at25sf128a':       {'size': '16M', 'boot2': 'generic_qspi'},
+        'gd25q64c':         {'size': '8M',  'boot2': 'generic_qspi'},
+        'w25q16jv':         {'size': '2M',  'boot2': 'w25qxx'},
+        'w25q32jv':         {'size': '4M',  'boot2': 'w25qxx'},
+        'w25q64jv':         {'size': '8M',  'boot2': 'w25qxx'},
+        'w25q128jv':        {'size': '16M', 'boot2': 'w25qxx'},
+    }
+
+    _target_properties = {
+        # RaspberryPi targets
+        'rpi-pico':
+        {
+            'flash': 'w25q16jv',
+            'xosc_startup_delay_mult': '1'
+        },
+
+        # Adafruit targets
+        'adafruit-feather-rp2040':
+        {
+            'flash': 'gd25q64c',
+            'xosc_startup_delay_mult': '64'
+        },
+        'adafruit-itsybitsy-rp2040':
+        {
+            'flash': 'w25q64jv',
+            'xosc_startup_delay_mult': '64'
+        },
+        'adafruit-macropad-rp2040':
+        {
+            'flash': 'w25q64jv',
+            'xosc_startup_delay_mult': '64'
+        },
+        'adafruit-qt2040-trinkey':
+        {
+            'flash': 'w25q64jv',
+            'xosc_startup_delay_mult': '64'
+        },
+        'adafruit-qtpy-rp2040':
+        {
+            'flash': 'w25q64jv',
+            'xosc_startup_delay_mult': '64'
+        },
+
+        # Arduino targets
+        'arduino-nano-rp2040-connect':
+        {
+            # Some batches of the Nano RP2040 Connect use different flash
+            # chips (AT25SF128A and IS25LP128F) which have differences in
+            # how the QE bit is set. The generic_qspi boot2 is compatible
+            # with both of these chips.
+            'flash': 'generic_qspi_128',
+            'xosc_startup_delay_mult': '1'
+        },
+
+        # Pimoroni targets
+        'pimoroni-interstate75':
+        {
+            'flash': 'w25q64jv',
+            'xosc_startup_delay_mult': '1'
+        },
+        'pimoroni-keybow2040':
+        {
+            'flash': 'w25q16jv',
+            'xosc_startup_delay_mult': '1'
+        },
+        'pimoroni-pga2040':
+        {
+            'flash': 'w25q64jv',
+            'xosc_startup_delay_mult': '1'
+        },
+        'pimoroni-picolipo-4m':
+        {
+            'flash': 'w25q32jv',
+            'xosc_startup_delay_mult': '1'
+        },
+        'pimoroni-picolipo-16m':
+        {
+            'flash': 'w25q128jv',
+            'xosc_startup_delay_mult': '1'
+        },
+        'pimoroni-picosystem':
+        {
+            'flash': 'w25q128jv',
+            'xosc_startup_delay_mult': '1'
+        },
+        'pimoroni-plasma2040':
+        {
+            'flash': 'w25q64jv',
+            'xosc_startup_delay_mult': '1'
+        },
+        'pimoroni-tiny2040':
+        {
+            'flash': 'w25q64jv',
+            'xosc_startup_delay_mult': '1'
+        },
+
+        # Sparkfun targets
+        'sparkfun-micromod':
+        {
+            'flash': 'w25q128jv',
+            'xosc_startup_delay_mult': '1'
+        },
+        'sparkfun-promicro':
+        {
+            'flash': 'w25q128jv',
+            'xosc_startup_delay_mult': '1'
+        },
+        'sparkfun-thingplus':
+        {
+            'flash': 'w25q128jv',
+            'xosc_startup_delay_mult': '1'
+        }
+    }
+
+    # List of supported targets. Each target has an SMP and non-SMP variant
+    # For example, 'rpi-pico' and 'rpi-pico-smp'
+    supported_targets = list(_target_properties.keys()) + \
+        [t + '-smp' for t in _target_properties.keys()]
+
+    @property
+    def name(self):
+        return self._name
+
+    def __init__(self, name):
+        super(RP2040Target, self).__init__(smp=name.endswith('-smp'))
+
+        # Check if the base name (without -smp suffix) is one of the
+        # targets supported by this class
+        self._name = name
+        base_name = name.removesuffix('-smp')
+        if base_name not in self._target_properties:
+            raise RuntimeError(f"Unknown RP2040 target: {name}")
+
+        # Lookup the flash properties of this target
+        target_properties = self._target_properties[base_name]
+        flash_properties = self._flash_properties[target_properties['flash']]
+        flash_size = flash_properties['size']
+        boot2_variant = flash_properties['boot2']
+
+        # Get other properties
+        xosc_startup_delay_mult = target_properties['xosc_startup_delay_mult']
+
+        template_values = {
+            # All targets use a 12 MHz XOSC
+            "RP2040_XOSC_Frequency": "12_000_000",
+            "RP2040_XOSC_Startup_Delay_Multiplier": xosc_startup_delay_mult,
+
+            # pll_sys configuration
+            # ((12 MHz / 1) * 125) / (6 * 2) = 125 MHz
+            "RP2040_PLL_Sys_Reference_Div": "1",
+            "RP2040_PLL_Sys_VCO_Multiple": "125",
+            "RP2040_PLL_Sys_Post_Div_1": "6",
+            "RP2040_PLL_Sys_Post_Div_2": "2",
+
+            # pll_usb configuration
+            # ((12 MHz / 1) * 40) / (5 * 2) = 48 MHz
+            "RP2040_PLL_USB_Reference_Div": "1",
+            "RP2040_PLL_USB_VCO_Multiple": "40",
+            "RP2040_PLL_USB_Post_Div_1": "5",
+            "RP2040_PLL_USB_Post_Div_2": "2",
+
+            # Linker script settings
+            # Striped SRAM is aliased to 0x20000000
+            # Non-striped SRAM is aliased to 0x21000000
+            "RP2040_Linker_Flash_Size": flash_size,
+            "RP2040_Linker_SRAM_Origin": "0x20000000"
+        }
+
+        for key, value in template_values.items():
+            self.add_template_config_value(key, value)
+
+        self.add_linker_script('arm/rpi/rp2040/memory-map.ld.tmpl')
+        self.add_linker_script('arm/rpi/rp2040/common-ROM.ld',
+                               loader='ROM')
+        self.add_linker_script('arm/rpi/rp2040/common-RAM.ld',
+                               loader='RAM')
+
+        self.add_gnat_sources(
+            f'arm/rpi/rp2040/boot2/generated/boot2__{boot2_variant}.S')

@@ -252,6 +252,9 @@ package body System.BB.CPU_Primitives is
       pragma Import (Asm, Interrupt_Stack_Table, "interrupt_stack_table");
       --  Table containing a pointer to the top of the stack for each processor
 
+      SP : constant System.Address := Interrupt_Stack_Table
+        (System.BB.Board_Support.Multiprocessors.Current_CPU);
+
    begin
 
       if Has_OS_Extensions then
@@ -270,7 +273,7 @@ package body System.BB.CPU_Primitives is
          --  Initialize SP_main (MSP)
 
          Asm ("msr MSP, %0",
-              Inputs => Address'Asm_Input ("r", Interrupt_Stack_Table (1)),
+              Inputs => Address'Asm_Input ("r", SP),
               Volatile => True);
       end if;
 

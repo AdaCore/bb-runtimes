@@ -1,0 +1,5 @@
+This directory contains pre-built stage 2 bootloaders (boot2) for the RP2040.
+
+These files have been generated from the boot2.gpr project in the parent
+directory. The have been padded and checksummed, and then output in an
+assembly file that can be included in the runtime build.
