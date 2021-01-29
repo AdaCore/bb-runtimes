@@ -1,0 +1,56 @@
+This directory contains the source code and precompiled files for the RP2040
+stage 2 bootloader (boot2). The boot2 is loaded by the RP2040 bootrom after
+reset from the first 256 bytes of flash memory into RAM, where it is then
+executed after checking its CRC-32 (the last 4 bytes). Boot2 is responsible
+for configuring the QSPI flash memory for eXecute In Place (XIP) operation
+and then jumping to the main application.
+
+The following boot2 variants are supported:
+
+generic_03
+,,,,,,,,,,
+The generic_03 boot2 is compatible with any flash chip that supports the
+03h read command (which is most serial NOR flash devices). The downside is
+that it operates in standard SPI mode so is about 3x slower than QSPI.
+
+generic_qspi
+,,,,,,,,,,,,
+The generic_qspi boot2 is compatible with most (but not all) QSPI NOR
+flash chips. It is compatible with at least the following flash chips:
+* AT25SF128A
+* GD25Q64C
+* IS25LP128F
+* W25Q16JV
+* W25Q32JV
+* W25Q64JV
+* W25Q128JV
+
+In general, it should be compatible with any devices that meet the
+following requirements:
+* The "Fast Read Quad I/O" (EBh) command is supported.
+* The "Fast Read Quad I/O" instruction has 4 dummy cycles between
+  the mode bits (M7-M0) and the first output data from the flash.
+* "Continuous read" mode is supported with mode bits (M7-M0) = A0h
+* The "Read JEDEC ID" (9Fh) command is supported.
+* The "Write Enable" (06h) command is supported.
+* If the JEDEC manufacturer ID = 9Dh (ISSI devices), then the
+  "Quad Enable" (QE) flag is in bit 2 of Status Register 1
+  and the "Write Status Register 1" (01h) command is supported.
+* If the JEDEC manufacturer ID /= 9Dh, then QE flag is in
+  bit 6 of Status Register 2 and the "Write Status Register 2" (31h)
+  instruction is supported.
+  
+Note that this version is NOT compatible with older Winbond devices,
+such as the W2580DV. Those devices MUST use the w25qxx variant of boot2.
+
+w25qxx
+,,,,,,
+The w25qxx boot2 is compatible with Winbond devices that have the
+QE flag in bit 6 of Status Register 2, and support writing to it
+via a "continuous write" from Status Register 1. It is compatible
+with at least the following Winbond devices:
+* W2580DV
+* W25Q16JV
+* W25Q32JV
+* W25Q64JV
+* W25Q128JV

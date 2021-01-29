@@ -188,8 +188,16 @@ class FilesHolder(object):
          DIR is the target directory the file will be copied to
          SRC is the full name of the file to copy"""
         base = os.path.basename(src)
-        # A file could have `.` in its name. (eg: pikeos4.2-cert-app.c)
-        _, ext = base.rsplit('.', 1)
+
+        # A file could be a template file (eg: s-bbpara__cortexm0p.ads.tmpl)
+        # in which case retain both the real extension (eg: ads) and the
+        # template extension
+        if base.endswith(TEMPLATE_EXT):
+            _, ext, _ = base.rsplit('.', 2)
+        else:
+            # A file could have `.` in its name. (eg: pikeos4.2-cert-app.c)
+            _, ext = base.rsplit('.', 1)
+
         # Check if the basename of the source file contains two consecutive
         # underscores. This is by naming convention a file variant whose
         # variant part needs to be removed before installation.
