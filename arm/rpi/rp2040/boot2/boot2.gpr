@@ -1,0 +1,46 @@
+project Boot2 is
+
+   type Flash_Device_Type is
+      ("generic_03",
+       "generic_qspi",
+       "w25qxx");
+   Flash_Device : Flash_Device_Type := external ("FLASH_DEVICE", "generic_03");
+
+   for Languages use ("Ada", "Asm_CPP");
+   for Object_Dir use "obj/" & Flash_Device;
+   for Main use ("boot2.adb");
+   for Target use "arm-eabi";
+   for Runtime ("Ada") use "zfp-cortex-m0p";
+
+   case Flash_Device is
+      when "generic_03" =>
+         for Source_Dirs use ("src", "src/generic_03");
+
+      when others =>
+         for Source_Dirs use ("src", "src/qspi", "src/qspi/" & Flash_Device);
+   end case;
+
+   package Compiler is
+      for Switches ("Ada") use
+         ("-Os",           --  Optimize for size
+          "-g",
+          "-gnatp",        --  Suppress all checks
+          "-gnatwa",       --  All warnings
+          "-gnatwl",       --  Elaboration warnings
+          "-gnatVa",       --  Validity checks
+          "-gnatyg",       --  Style checks
+          "-gnatQ",        --  Keep going after errors
+          "-fstack-usage", --  Output stack usage information
+          "-ffunction-sections",
+          "-fdata-sections");
+   end Compiler;
+
+   package Linker is
+      for Switches ("Ada") use ("-T", "memory-map.ld", "-Wl,--gc-sections");
+   end Linker;
+
+   package Builder is
+   end Builder;
+
+end Boot2;
+
