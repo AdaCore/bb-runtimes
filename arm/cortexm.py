@@ -495,7 +495,7 @@ class Stm32F0(CortexM0CommonArchSupport):
     def _configure_clocks(self, board_params, simple_clock_tree):
         sysclk_freq = board_params.get('sysclk_frequency', 48000000)
         hse_freq = board_params.get('hse_frequency', 8000000)
-        clock_source = board_params.get('clock_source', 'HSE')
+        clock_source = board_params.get('clock_source', 'HSI')
         hse_bypass = bool(board_params.get('hse_bypass', False))
         lsi_enabled = bool(board_params.get('lsi_enabled', True))
         apb_prescaler = board_params.get('apb_prescaler', 1)

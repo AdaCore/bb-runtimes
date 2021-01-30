@@ -100,7 +100,7 @@ These are the board parameters for stm32f0xx `base_target`s:
 |:------------------:|:-----:|:-------------:|:-------------------------------------------------|
 | `sysclk_frequency` | `int` | 48000000      | Configures the target SYSCLK (and CPU) frequency (in Hz). |
 | `hse_frequency`    | `int` | 8000000       | Specifies the frequency (in Hz) of the board's HSE oscillator. Valid range is 4 MHz - 32 MHz. |
-| `clock_source`     | `str` | "HSE"         | Configures the source oscillator used to generate SYSCLK. Valid values are "HSE", "HSI", and "HSI48". |
+| `clock_source`     | `str` | "HSI"         | Configures the source oscillator used to generate SYSCLK. Valid values are "HSE", "HSI", and "HSI48". |
 | `hse_bypass`       | `bool` | False        | Enables or disables the HSE bypass (see the STM32F0xx Reference Manual). |
 | `lsi_enabled`      | `bool` | True         | Enables or disables the LSI oscillator at startup. |
 | `apb_prescaler`    | `int`  | 1            | Configures the APB prescaler. Valid values are: 1, 2, 4, 8, 16. |
