@@ -1,6 +1,6 @@
 ### -*- asm -*- ##############################################################
 #                                                                            #
-#                      Copyright (C) 2005-2020, AdaCore                      #
+#                      Copyright (C) 2005-2021, AdaCore                      #
 #                                                                            #
 #                               Assembly File                                #
 #                                                                            #
@@ -76,7 +76,7 @@ handler_\num :
         handler 12 critical       # Watchdog Timer
         handler 13 regular        # Data TLB Error
         handler 14 regular        # Instruction TLB Error
-        handler 15 regular        # Debug
+        handler 15 critical       # Debug
 
         .text
 
