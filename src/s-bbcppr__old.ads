@@ -71,7 +71,7 @@ package System.BB.CPU_Primitives is
      (Context : Context_Buffer;
       Index   : Context_Id) return Word;
    pragma Inline (Get_Context);
-   --  Returns item of the specified context.
+   --  Returns item of the specified context
 
    procedure Set_Context
      (Context : in out Context_Buffer;
