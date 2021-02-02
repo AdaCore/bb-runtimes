@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2004 The European Space Agency            --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -69,9 +69,9 @@ package System.BB.CPU_Primitives is
       Argument        : System.Address;
       Stack_Pointer   : System.Address);
    pragma Inline (Initialize_Context);
-   --  Initialize_Context inserts inside the context buffer the default
-   --  values for each register. The values for the stack pointer, the
-   --  program counter, and argument to be passed are provided as arguments.
+   --  Initialize_Context initializes the context buffer with the default
+   --  values for each register. The values for program counter, the argument
+   --  to be passed and the stack pointer are provided as parameters.
 
    ---------------------------------
    -- Interrupt and Trap Handling --

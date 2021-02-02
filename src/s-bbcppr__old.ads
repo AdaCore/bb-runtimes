@@ -86,9 +86,9 @@ package System.BB.CPU_Primitives is
       Argument        : System.Address;
       Stack_Pointer   : System.Address);
    pragma Inline (Initialize_Context);
-   --  Initialize_Context inserts inside the context buffer the default
-   --  values for each register. The values for the stack pointer, the
-   --  program counter, and argument to be passed are provided as arguments.
+   --  Initialize_Context initializes the context buffer with the default
+   --  values for each register. The values for program counter, the argument
+   --  to be passed and the stack pointer are provided as parameters.
 
    procedure Initialize_Stack
      (Base          : Address;
