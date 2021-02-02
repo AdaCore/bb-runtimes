@@ -57,34 +57,31 @@ package body System.ARM_GIC is
 
    subtype GIC_Interrupts is Interrupt_ID;
 
-   --  Supports up to 192 interrupts
-   Max_IRQs : constant Natural := Natural'Min (192, Interrupt_ID'Last + 1);
-
-   --  The number of supported interrupts has to be a multiple of 32
-   pragma Assert ((Max_IRQs mod 32) = 0,
-                  "Invalid number of supported IRQs");
+   --  Supports up to 192 interrupts, MaxIRQs need to be a aligned on 32
+   --  Number_of_IRQs = Interrupt_ID'Last + 1
+   --  Max_IRQs = (Number_Of_IRQs + 31) / 32 * 32
+   Max_IRQs : constant Natural :=
+     Natural'Min (192,
+                  ((Interrupt_ID'Last / 32 + 1) * 32));
 
    function Reg_Num_32 (Intnum : GIC_Interrupts) return GIC_Interrupts
    is (Intnum / 32);
 
    --  32-bit registers set
    --  Accessed by 32 bits chunks
-   type Bits32_Register_Array is
-     array (GIC_Interrupts range 0 .. GIC_Interrupts (Max_IRQs / 32 - 1))
-     of Unsigned_32
+   type Bits32_Register_Array is array
+     (Natural range 0 .. Max_IRQs / 32 - 1) of Unsigned_32
      with Pack, Volatile;
 
    --  Byte registers set
    --  Accessed by 8 bits chunks
-   type Byte_Register_Array is
-     array (GIC_Interrupts range 0 .. GIC_Interrupts (Max_IRQs - 1))
-     of Unsigned_8
+   type Byte_Register_Array is array
+     (Natural range 0 .. Max_IRQs - 1) of Unsigned_8
      with Pack, Volatile;
 
    --  Byte registers set, accessed by 32-bit chunks
-   type Byte_Register_Array32 is
-     array (GIC_Interrupts range 0 .. GIC_Interrupts (Max_IRQs / 4 - 1))
-     of Unsigned_32
+   type Byte_Register_Array32 is array
+     (Natural range 0 .. Max_IRQs / 4 - 1) of Unsigned_32
      with Pack, Volatile;
 
    type GICD_Peripheral is record
