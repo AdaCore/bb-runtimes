@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2004 The European Space Agency            --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -137,8 +137,8 @@ package System.BB.CPU_Primitives is
 private
    Context_Buffer_Size : constant :=
      Parameters.Context_Buffer_Capacity * System.Word_Size;
-   --  Size calculated taken into account that the components are 32-bit, and
-   --  that we want then aligned on 64-bit boundaries.
+   --  Size calculated taking into account that the components are 32-bit, and
+   --  that we want them aligned on 64-bit boundaries.
 
    type Context_Buffer is array (Context_Id) of System.Address;
    for Context_Buffer'Size use Context_Buffer_Size;
