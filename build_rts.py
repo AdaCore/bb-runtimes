@@ -16,7 +16,7 @@ from pikeos import AArch64PikeOS5, ArmPikeOS, ArmPikeOS42, ArmPikeOS5, \
     PPCPikeOS5
 
 # Cortex-M runtimes
-from arm.cortexm import Stm32, Sam, SmartFusion2, LM3S, Microbit, \
+from arm.cortexm import Stm32, Stm32l, Sam, SmartFusion2, LM3S, Microbit, \
      NRF52840, NRF52832, MicrosemiM1, Stm32F0, \
      CortexM0, CortexM0P, CortexM1, CortexM3, CortexM4, CortexM4F, \
      CortexM7F, CortexM7DF, CortexM23, CortexM33F, CortexM33DF
@@ -87,6 +87,8 @@ def build_configs(target):
         t = SmartFusion2()
     elif target.startswith('stm32f0'):
         t = Stm32F0(target)
+    elif target.startswith('stm32l'):
+        t = Stm32l(target)
     elif target.startswith('stm32'):
         t = Stm32(target)
     elif target == 'feather_stm32f405':
