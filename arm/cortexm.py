@@ -811,10 +811,6 @@ class Stm32CommonArchSupport(ArchSupport):
     def loaders(self):
         return ('ROM', 'RAM')
 
-    @property
-    def readme_file(self):
-        return 'arm/stm32/README'
-
     def __init__(self):
         super(Stm32CommonArchSupport, self).__init__()
 
@@ -879,6 +875,10 @@ class Stm32(ArmV7MTarget):
     @property
     def parent(self):
         return Stm32CommonArchSupport
+
+    @property
+    def readme_file(self):
+        return 'arm/stm32/README'
 
     @property
     def use_semihosting_io(self):
@@ -996,10 +996,6 @@ class Stm32lCommonArchSupport(ArchSupport):
     def loaders(self):
         return ('ROM', 'RAM')
 
-    @property
-    def readme_file(self):
-        return 'arm/stm32l/README'
-
     def __init__(self):
         super(Stm32lCommonArchSupport, self).__init__()
 
@@ -1025,6 +1021,10 @@ class Stm32l(ArmV7MTarget):
     @property
     def parent(self):
         return Stm32lCommonArchSupport
+
+    @property
+    def readme_file(self):
+        return 'arm/stm32l/README'
 
     @property
     def use_semihosting_io(self):
