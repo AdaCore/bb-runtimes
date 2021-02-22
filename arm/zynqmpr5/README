@@ -11,7 +11,7 @@ Runtimes Supported
 Targets Supported
 -----------------
 
-* Xilinx ZynqMP ARM Cortex-R5[0] in split mode
+* Xilinx ZynqMP ARM Cortex-R5
 
 Resources used by the runtime:
 ------------------------------
@@ -22,8 +22,8 @@ Resources used by the runtime:
   the corresponding interrupts (68, 69) are thus reserved for runtime usage.
 
 The timing assumes that the LPD_APB_CLK frequency is 100MHz, and configures
-the TTC0 prescalers so that the counter frequency is 12.5MHz. See s-bbpara.ads
-if this needs to be changed.
+the TTC0 prescalers so that the counter frequency is 1.5625MHz. See
+s-bbpara.ads if this needs to be changed.
 
 The interrupts TTC0_0_Interrupt and TTC0_1_Interrupt are reserved by this
 runtime, so should not be used in user code.
@@ -33,3 +33,12 @@ Boot:
 
 Only booting from RAM is currently supported, with the entry point set to
 0x0.
+
+The application installs the trap vector in the ATCM at address 0x0,
+while the rest of the code and data is installed in the DDR.
+
+Please see:
+* memmap.ld: the various memory definitions, depend on the actual board.
+* ram.ld: assignment from board regions to linker memory regions (boot, code,
+  data).
+* common.ld: the actual linker script.

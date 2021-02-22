@@ -50,10 +50,10 @@ package System.BB.Parameters is
    LPD_APB_CLK_Frequency : constant := 100_000_000;
    --  100MHz input frequency
 
-   TTC_Prescaler    : constant := 2;
+   TTC_Prescaler    : constant := 5;
    Ticks_Per_Second : constant :=
                         LPD_APB_CLK_Frequency / (2 ** (TTC_Prescaler + 1));
-   --  Frequency of the TTC counter: 12.50 MHz
+   --  Frequency of the TTC counter: ~1.56 MHz
 
    ----------------
    -- Interrupts --
