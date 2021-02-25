@@ -35,8 +35,8 @@ from powerpc import MPC5200, MPC8641, MPC8349e, Virtex5, P2020, P5566, P5634
 
 # riscv
 from riscv import Spike, Unleashed, PolarFireSOC, HiFive1, \
-     RV32I, RV32IM, RV32IAC, RV32IMAC, RV32IMAFC, RV32IMAFDC, RV64IMAC, \
-     RV64IMAFC, RV64IMAFDC
+     RV32I, RV32IM, RV32IAC, RV32IMAC, RV32IMAFC, RV32IMAFDC, \
+     RV64IM, RV64IMC, RV64IMAC, RV64IMAFC, RV64IMFC, RV64IMAFDC
 
 # visium
 from visium import Visium
@@ -190,10 +190,16 @@ def build_configs(target):
         t = RV32IMAFC()
     elif target == "rv32imafdc":
         t = RV32IMAFDC()
+    elif target == "rv64im":
+        t = RV64IM()
+    elif target == "rv64imc":
+        t = RV64IMC()
     elif target == "rv64imac":
         t = RV64IMAC()
     elif target == "rv64imafc":
         t = RV64IMAFC()
+    elif target == "rv64imfc":
+        t = RV64IMFC()
     elif target == "rv64imafdc":
         t = RV64IMAFDC()
     # x86_64

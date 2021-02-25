@@ -333,11 +333,20 @@ class RV64BASE(RiscV64):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        if self.name == "rv64imac":
+        if self.name == "rv64im":
+            return ['-march=rv64im', '-mabi=lp64']
+
+        elif self.name == "rv64imc":
+            return ['-march=rv64imc', '-mabi=lp64']
+
+        elif self.name == "rv64imac":
             return ['-march=rv64imac', '-mabi=lp64']
 
         elif self.name == "rv64imafc":
             return ['-march=rv64imafc', '-mabi=lp64f']
+
+        elif self.name == "rv64imfc":
+            return ['-march=rv64imfc', '-mabi=lp64f']
 
         elif self.name == "rv64imafdc":
             return ['-march=rv64imafdc', '-mabi=lp64d']
@@ -359,6 +368,18 @@ class RV64BASE(RiscV64):
             'src/s-textio__null.adb')
 
 
+class RV64IM(RV64BASE):
+    @property
+    def name(self):
+        return 'rv64im'
+
+
+class RV64IMC(RV64BASE):
+    @property
+    def name(self):
+        return 'rv64imc'
+
+
 class RV64IMAC(RV64BASE):
     @property
     def name(self):
@@ -369,6 +390,12 @@ class RV64IMAFC(RV64BASE):
     @property
     def name(self):
         return 'rv64imafc'
+
+
+class RV64IMFC(RV64BASE):
+    @property
+    def name(self):
+        return 'rv64imfc'
 
 
 class RV64IMAFDC(RV64BASE):
