@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -152,12 +152,12 @@ package body System.BB.Board_Support is
 
    type Critical_Priority is mod 2 ** 2;
    type Critical_Priorities is array (Critical_ID) of
-     Critical_Priority;
+     Critical_Priority with Pack;
 
    type Main_Mask is array (Main_ID) of Boolean with Pack;
 
    type ICTL_Critical_Priority_And_Main_Interrupt_Mask is record
-      Critical_Interrupt  : Critical_Priority;
+      Critical_Interrupt  : Critical_Priorities;
       Main_Interrupt_Mask : Main_Mask;
    end record;
 
