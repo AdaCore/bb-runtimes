@@ -130,7 +130,7 @@ package body System.BB.Board_Support is
 
    type ICTL_Peripheral_Interrupt_Mask is record
       Mask : Peripheral_Mask;
-   end record;
+   end record with Size => 32;
 
    for ICTL_Peripheral_Interrupt_Mask use record
       Mask at 0 range 0 .. 23;
