@@ -285,7 +285,7 @@ class RV32BASE(RiscV32):
 
         self.add_gnat_sources(
             'riscv/sifive/fe310/s-macres.adb',
-            'src/s-textio__null.adb')
+            'src/s-textio__stdio.adb')
 
 
 class RV32I(RV32BASE):
@@ -365,7 +365,7 @@ class RV64BASE(RiscV64):
 
         self.add_gnat_sources(
             'riscv/sifive/fe310/s-macres.adb',
-            'src/s-textio__null.adb')
+            'src/s-textio__stdio.adb')
 
 
 class RV64IM(RV64BASE):
