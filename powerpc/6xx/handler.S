@@ -1,6 +1,6 @@
 /** -*- asm -*- **************************************************************
 *                                                                            *
-*                      Copyright (C) 2005-2014, AdaCore                      *
+*                      Copyright (C) 2005-2021, AdaCore                      *
 *                                                                            *
 *                               Assembly File                                *
 *                                                                            *
@@ -34,80 +34,80 @@
         .type handler_start,@function
 handler_start:
         /* Save r3,r4,r5,r9  */
-	mtsprg0 %r3
-	mtsprg1 %r4
-	mtsprg2 %r5
+        mtsprg0 %r3
+        mtsprg1 %r4
+        mtsprg2 %r5
         mtsprg3 %r9
 
         /* Restore bits FP, IR and DR of MSR
-	   This will renable the FPU and the MMU.  */
-        mfmsr	%r3
-	mfsrr1	%r5
-	li	%r9,0x2030
-        and	%r5,%r5,%r9
-        or	%r3,%r5,%r3
-        mtmsr	%r3
+           This will renable the FPU and the MMU.  */
+        mfmsr   %r3
+        mfsrr1  %r5
+        li      %r9,0x2030
+        and     %r5,%r5,%r9
+        or      %r3,%r5,%r3
+        mtmsr   %r3
 
         /* Synchronize context in case the FPU was reenabled.  */
         isync
 
-	/* Use a long branch to branch to the common continuation point,
-	   so that runtime can be located anywhere. This must be an
-	   absolute value to avoid relocation. Save LR.  */
-	mflr	%r4
-	lis	%r5,handler_cont@h
-	ori	%r5,%r5,handler_cont@l
-	mtlr	%r5
+        /* Use a long branch to branch to the common continuation point,
+           so that runtime can be located anywhere. This must be an
+           absolute value to avoid relocation. Save LR.  */
+        mflr    %r4
+        lis     %r5,handler_cont@h
+        ori     %r5,%r5,handler_cont@l
+        mtlr    %r5
 
 .Lset_handler_arg:
         /* Note: the 4 instructions below will be overwritten.  Do not modify
            them!  */
-        lis     %r9,0@h		/* handler address  */
+        lis     %r9,0@h         /* handler address  */
         ori     %r9,%r9,0@l
-        lis     %r3,0@h		/* handler argument  */
+        lis     %r3,0@h         /* handler argument  */
         ori     %r3,%r3,0@l
 
-	/* Jump to common point.  */
-	blr
+        /* Jump to common point.  */
+        blr
 
 .Lhandler_end:
         .size handler_start, . - handler_start
 
         .type handler_cont,@function
 handler_cont:
-	/* Entry:
-	        %r9: user handler address
-	        %r3: user handler argument
-	        %r4: saved lr
-		%r5: scratch
-	        %lr: scratch
-	      sprg0: saved %r3
-	      sprg1: saved %r4
-	      sprg2: saved %r5
-	      sprg3: saved %r9
-	*/
-	/* Restore LR (this makes %r4 scratch).  */
-	mtlr	%r4
-	/* Save CR.  */
+        /* Entry:
+                %r9: user handler address
+                %r3: user handler argument
+                %r4: saved lr
+                %r5: scratch
+                %lr: scratch
+              sprg0: saved %r3
+              sprg1: saved %r4
+              sprg2: saved %r5
+              sprg3: saved %r9
+        */
+        /* Restore LR (this makes %r4 scratch).  */
+        mtlr    %r4
+        /* Save CR.  */
         mfcr    %r5
 
-	/* Check MSR.PR  */
-	mfsrr1  %r4
-	andi.	%r4,%r4,0x4000
-	bne	.Lswitch_stack
+        /* Check MSR.PR  */
+        mfsrr1  %r4
+        andi.   %r4,%r4,0x4000
+        bne     .Lswitch_stack
 
         /* Check wether the stack pointer %r1 is already in the
-	   interrupt stack.  */
+           interrupt stack.  */
         lis     %r4,__interrupt_stack_start@h
-        ori	%r4,%r4,__interrupt_stack_start@l
+        ori     %r4,%r4,__interrupt_stack_start@l
         cmpl    %cr7,%r1,%r4
         blt     %cr7,.Lswitch_stack
         lis     %r4,__interrupt_stack_end@h
-        ori	%r4,%r4,__interrupt_stack_end@l
+        ori     %r4,%r4,__interrupt_stack_end@l
         cmpl    %cr7,%r1,%r4
         bge     %cr7,.Lswitch_stack
 
-	/* Yes: just allocate a new frame.  */
+        /* Yes: just allocate a new frame.  */
         stwu    %r1,-FRAME_SIZE(%r1)
         b       .Lstack_established
 
@@ -122,16 +122,16 @@ handler_cont:
         /* Save volatile registers (r0, r3-r12).  */
         stw     %r0,8(%r1)
         mfsprg0 %r4
-        stw     %r4,12(%r1) 	/* saved %r3 */
-	mfsprg1 %r4
-        stw     %r4,16(%r1)	/* saved %r4 */
-	mfsprg2 %r4
-        stw     %r4,20(%r1)	/* saved %r5 */
+        stw     %r4,12(%r1)     /* saved %r3 */
+        mfsprg1 %r4
+        stw     %r4,16(%r1)     /* saved %r4 */
+        mfsprg2 %r4
+        stw     %r4,20(%r1)     /* saved %r5 */
         stw     %r6,24(%r1)
         stw     %r7,28(%r1)
         stw     %r8,32(%r1)
-	mfsprg3 %r4
-        stw     %r4,36(%r1)	/* saved %r9 */
+        mfsprg3 %r4
+        stw     %r4,36(%r1)     /* saved %r9 */
         stw     %r10,40(%r1)
         stw     %r11,44(%r1)
         stw     %r12,48(%r1)
@@ -139,17 +139,17 @@ handler_cont:
         mfxer   %r6
         mflr    %r4
         mfctr   %r7
-        stw     %r6,52(%r1)	/* xer */
-        stw     %r4,56(%r1)	/* lr */
-        stw     %r7,60(%r1)	/* ctr */
-        stw     %r5,64(%r1)	/* cr */
+        stw     %r6,52(%r1)     /* xer */
+        stw     %r4,56(%r1)     /* lr */
+        stw     %r7,60(%r1)     /* ctr */
+        stw     %r5,64(%r1)     /* cr */
 
-	/* Set LR to user handler address.  */
-	mtlr	%r9
+        /* Set LR to user handler address.  */
+        mtlr    %r9
 
-	/* Clear reservation.  */
-	li	%r6,68
-	stwcx.	%r12,%r6,%r1
+        /* Clear reservation.  */
+        li      %r6,68
+        stwcx.  %r12,%r6,%r1
 
         /* Save srr0 (ip) and srr1 (msr).  */
         mfsrr0  %r7
@@ -182,21 +182,21 @@ handler_cont:
         /* Call user handler.  */
         blrl
 
-	/* Interrupts must be disabled when user handler returns.  */
+        /* Interrupts must be disabled when user handler returns.  */
 
-	/* Check if context switch is needed.  */
-	bl       __gnat_context_switch_needed
-	cmpwi   %cr7,%r3,0
-	beq-    %cr7,.Lno_con_sw
+        /* Check if context switch is needed.  */
+        bl       __gnat_context_switch_needed
+        cmpwi   %cr7,%r3,0
+        beq-    %cr7,.Lno_con_sw
 
-	/* Yes, we need a context switch.  */
+        /* Yes, we need a context switch.  */
 
         /* Save interrupt stack pointer (in case of nested interrupts).  */
         lis     %r5,interrupt_stack_table@ha
         stw     %r1,interrupt_stack_table@l(%r5)
 
-	bl      __gnat_pre_context_switch
-	bl      __gnat_context_switch
+        bl      __gnat_pre_context_switch
+        bl      __gnat_context_switch
 
         /* Restore interrupt stack pointer.  */
         addi    %r4,%r1,FRAME_SIZE
@@ -206,7 +206,7 @@ handler_cont:
 .Lno_con_sw:
 #ifndef _SOFT_FLOAT
         /* Restore FPU.  */
-	lfd    %f0,192(%r1)
+        lfd    %f0,192(%r1)
         mtfsf  0xff,%f0
         lfd    %f0,80(%r1)
         lfd    %f1,88(%r1)
@@ -224,7 +224,7 @@ handler_cont:
         lfd    %f13,184(%r1)
 #endif
 
-       	/* Restore srr0 and srr1.  */
+        /* Restore srr0 and srr1.  */
         lwz     %r3,68(%r1)
         lwz     %r4,72(%r1)
         mtsrr0  %r3
@@ -254,7 +254,7 @@ handler_cont:
         lwz     %r12,48(%r1)
 
         lwz     %r1,0(%r1)
-	rfi
+        rfi
 
         .size handler_cont, . - handler_cont
 
@@ -278,45 +278,45 @@ handler_cont:
          GPR5   Exception Handler Parameter
 */
 
-	.global copy_handler
-	.type   copy_handler, @function
+        .global copy_handler
+        .type   copy_handler, @function
 copy_handler:
 
         /* First copy handler.  */
         subi    %r8,%r4,4
         li      %r7,(.Lhandler_end - handler_start) / 4 /* Nbr of words.  */
         mtctr   %r7
-        lis     %r6,(handler_start - 4)@h	/* r6: start of handler.  */
+        lis     %r6,(handler_start - 4)@h       /* r6: start of handler.  */
         ori     %r6,%r6,(handler_start - 4)@l
 .Lcopy_loop:
-        lwzu    %r9,4(%r6)	/* read word from r6+4, and update r6 */
-        stwu    %r9,4(%r8)	/* write it to (r8+4), and update r8.  */
+        lwzu    %r9,4(%r6)      /* read word from r6+4, and update r6 */
+        stwu    %r9,4(%r8)      /* write it to (r8+4), and update r8.  */
         bdnz    .Lcopy_loop
 
         /* Second, write instructions that set argument and handler.  */
         addi    %r8,%r4,(.Lset_handler_arg - handler_start - 4)
 
-      	srwi    %r6,%r3,16              /* Shift right 16 bits.  */
-       	oris    %r6,%r6,0x3d200000@h    /* opcode for 'lis 9,x'  */
+        srwi    %r6,%r3,16              /* Shift right 16 bits.  */
+        oris    %r6,%r6,0x3d200000@h    /* opcode for 'lis 9,x'  */
         stwu    %r6,4(%r8)
 
-        clrlwi  %r6,%r3,16	        /* clear 16 high-order bits  */
-	oris    %r6,%r6,0x61290000@h	/* opcode for 'ori 9,9,x'  */
+        clrlwi  %r6,%r3,16              /* clear 16 high-order bits  */
+        oris    %r6,%r6,0x61290000@h    /* opcode for 'ori 9,9,x'  */
         stwu    %r6,4(%r8)
 
         srwi    %r6,%r5,16              /* Shift right 16 bits.  */
         oris    %r6,%r6,0x3c600000@h    /* opcode for 'lis 3,x'  */
         stwu    %r6,4(%r8)
 
-        clrlwi  %r6,%r5,16		/* clear 16 high-order bits  */
-       	oris    %r6,%r6,0x60630000@h	/* opcode for 'ori 3,3,x'  */
+        clrlwi  %r6,%r5,16              /* clear 16 high-order bits  */
+        oris    %r6,%r6,0x60630000@h    /* opcode for 'ori 3,3,x'  */
         stwu    %r6,4(%r8)
 
         /* Flush data cache and invalidate instruction cache.  */
         mtctr   %r7
 .Lflush:
-        dcbst   0,%r4		/* Data Cache Block Store.  */
-        icbi    0,%r4		/* Invalidate copy of storage.  */
+        dcbst   0,%r4           /* Data Cache Block Store.  */
+        icbi    0,%r4           /* Invalidate copy of storage.  */
         addi    %r4,%r4,4
         bdnz    .Lflush
 
