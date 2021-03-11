@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1992-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -78,6 +78,7 @@ package body System.Text_IO is
    Clock_Select_Offset             : constant := 16#04#;
    Command_Offset                  : constant := 16#08#;
    Buffer_Offset                   : constant := 16#0C#;
+   Interrupt_Mask_Offset           : constant := 16#14#;
    Counter_Timer_Upper_Offfset     : constant := 16#18#;
    Counter_Timer_Lower_Offfset     : constant := 16#1C#;
    Serial_Interface_Control_Offset : constant := 16#40#;
@@ -227,6 +228,11 @@ package body System.Text_IO is
      with Volatile_Full_Access,
        Address => System'To_Address (PSC1_Base_Address + Buffer_Offset);
 
+   Interrupt_Mask_Register : Unsigned_16
+     with Volatile_Full_Access,
+       Address =>
+         System'To_Address (PSC1_Base_Address + Interrupt_Mask_Offset);
+
    Counter_Timer_Upper_Register : Unsigned_8
      with Volatile_Full_Access,
        Address =>
@@ -322,6 +328,10 @@ package body System.Text_IO is
       Tx_FIFO_Control_Register := 1;
       Transmitter_FIFO_Alarm := 428;
       GPS_Port_Configuration_Register.PSC1 := UART;
+
+      --  Mask all PSC1 interrupts
+
+      Interrupt_Mask_Register := 0;
 
       --  Enable PSC1 transmitter and receiver units
 
