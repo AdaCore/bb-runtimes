@@ -119,7 +119,7 @@ package body System.BB.Board_Support is
 
          --  Convert the hardware priority to an Ada priority
 
-         return System.Interrupt_Priority'First - 1 +
+         return System.Interrupt_Priority'First - 2 +
                   Priority_From_Interrupt_ID (Interrupt);
       end Priority_Of_Interrupt;
 
@@ -141,7 +141,7 @@ package body System.BB.Board_Support is
       begin
          Hardware_Priority :=
            (if Priority in Interrupt_Priority then
-               Unsigned_64 (Priority - Interrupt_Priority'First + 1)
+               Unsigned_64 (Priority - Interrupt_Priority'First + 2)
             else 0);
 
          --  Move the hardware priority into the Task Priority Register, CR8
@@ -186,8 +186,8 @@ package body System.BB.Board_Support is
       begin
          BB.Interrupts.Attach_Handler
            (Handler,
-            APIC_Timer_Interrupt_ID,
-            Interrupts.Priority_Of_Interrupt (APIC_Timer_Interrupt_ID));
+            APIC_Timer_Vector,
+            Interrupts.Priority_Of_Interrupt (APIC_Timer_Vector));
       end Install_Alarm_Handler;
 
       ----------------

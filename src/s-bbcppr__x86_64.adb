@@ -360,7 +360,7 @@ package body System.BB.CPU_Primitives is
    --  We do not want the compiler creating any prologue or epilogue sequences
    --  for our handler function.
 
-   procedure Process_Exception (ID : Interrupt_ID; Code : Error_Code);
+   procedure Process_Exception (ID : LAPIC_Vector; Code : Error_Code);
    --  Process the exception that was raised and invoke any specific runtime
    --  response. This is seperate from the Exception_Handler above as we can
    --  more freely use Ada code.
@@ -794,7 +794,7 @@ package body System.BB.CPU_Primitives is
    --  stack are not improperly manipulated.
 
    procedure Exception_Handler is
-      Number : Interrupt_ID;
+      Vector : LAPIC_Vector;
       Code   : Error_Code;
    begin
       --  The processor and the vector stub has pushed the following contents
@@ -806,7 +806,7 @@ package body System.BB.CPU_Primitives is
       --   CS
       --   RIP
       --   Exception Code
-      --   Exception Number  <-- RSP
+      --   Exception Vector  <-- RSP
       --
       --  Save the rest of the integer caller-save registers.
 
@@ -822,14 +822,14 @@ package body System.BB.CPU_Primitives is
          "pushq  %%r11",
          Volatile => True);
 
-      --  Retrieve the exception number and code off the stack
+      --  Retrieve the exception vector and code off the stack
 
       Asm
         ("movq  80(%%rsp), %0"                                           & NL &
          "movl  72(%%rsp), %1",
          Outputs  =>
            (Error_Code'Asm_Output ("=r", Code),
-            Interrupt_ID'Asm_Output ("=r", Number)),
+            LAPIC_Vector'Asm_Output ("=r", Vector)),
          Volatile => True);
 
       --  We don't need to save the vector and floating point states as the
@@ -837,7 +837,7 @@ package body System.BB.CPU_Primitives is
 
       --  Handle the exception in proper Ada code
 
-      Process_Exception (Number, Code);
+      Process_Exception (Vector, Code);
 
       --  Exception has been successfully handled. Time to clean up and exit.
       --  Since processing an exception will not modify the task queues no
@@ -1280,7 +1280,7 @@ package body System.BB.CPU_Primitives is
         (Timer_Mode => One_Shot,
          Mask       => False,
          Delivery   => Idle,
-         Vector     => APIC_Timer_Interrupt_ID);
+         Vector     => APIC_Timer_Vector);
 
       TSC_Frequency_In_kHz :=
         (if TSC_Frequency /= 0
@@ -1314,7 +1314,7 @@ package body System.BB.CPU_Primitives is
       --  components to assembly instructions. Note for this to work properly
       --  this file needs to be compiled at -O1 or -O2.
 
-      IRQ_Number : Interrupt_ID;
+      Vector : LAPIC_Vector;
    begin
       --  On entry we are on the processor's interrupt stack. Create a new
       --  frame on the stack that we will use as the stack for handling this
@@ -1363,7 +1363,7 @@ package body System.BB.CPU_Primitives is
 
       Asm
         ("movl  72(%%rsp) , %0",
-         Outputs  => Interrupt_ID'Asm_Output ("=r", IRQ_Number),
+         Outputs  => LAPIC_Vector'Asm_Output ("=r", Vector),
          Clobber  => "memory",
          Volatile => True);
 
@@ -1418,7 +1418,7 @@ package body System.BB.CPU_Primitives is
 
       --  Handle the interrupt at the runtime level
 
-      Interrupt_Wrapper (IRQ_Number);
+      Interrupt_Wrapper (Vector);
 
       --  Signal to the Local APIC that the interrupt is finished
 
@@ -1499,8 +1499,8 @@ package body System.BB.CPU_Primitives is
    -- Process_Exception --
    -----------------------
 
-   procedure Process_Exception (ID : Interrupt_ID; Code : Error_Code) is
-      procedure Fatal_Exception (ID : Interrupt_ID; Code : Error_Code)
+   procedure Process_Exception (ID : LAPIC_Vector; Code : Error_Code) is
+      procedure Fatal_Exception (ID : LAPIC_Vector; Code : Error_Code)
         with Import, External_Name => "__gnat_fatal_exception";
 
    begin

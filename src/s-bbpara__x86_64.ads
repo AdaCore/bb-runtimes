@@ -81,6 +81,9 @@ package System.BB.Parameters is
    subtype Interrupt_Range is Natural range 0 .. 255;
    --  Number of interrupts supported by the Local APIC
 
+   IO_APIC_Base_Address : constant := 16#FEC0_0000#;
+   --  Address of the I/O APIC
+
    ------------
    -- Stacks --
    ------------

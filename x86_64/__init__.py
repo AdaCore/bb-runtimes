@@ -99,4 +99,6 @@ class X8664Generic(X8664Target):
             'src/s-bbpara__x86_64.ads',
             'src/s-bbsumu__generic.adb',
             'x86_64/src/i-x86_64-exception_handler.adb',
-            'x86_64/src/i-x86_64-exception_handler.ads')
+            'x86_64/src/i-x86_64-exception_handler.ads',
+            'x86_64/src/i-x86_64-io_apic.adb',
+            'x86_64/src/i-x86_64-io_apic.ads')

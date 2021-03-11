@@ -7,7 +7,7 @@
 --                                 S p e c                                  --
 --                            (x86-64 Version)                              --
 --                                                                          --
---          Copyright (C) 1992-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -102,17 +102,18 @@ package System is
 
    --  Priority-related Declarations (RM D.1)
 
-   --  241 - 255  correspond to hardware interrupt levels 1 .. 15
+   --  242 - 255  correspond to hardware interrupt levels 2 .. 15. Levels 0 and
+   --             1 are unused by the Local APIC.
    --  255        is the priority value that block all interrupts
-   --  240        is the maximum value of priority that is not high enough to
+   --  241        is the maximum value of priority that is not high enough to
    --             require the blocking of one or more interrupts.
 
-   Max_Priority           : constant Positive := 240;
+   Max_Priority           : constant Positive := 241;
    Max_Interrupt_Priority : constant Positive := 255;
 
    subtype Any_Priority       is Integer      range   0 .. 255;
-   subtype Priority           is Any_Priority range   0 .. 240;
-   subtype Interrupt_Priority is Any_Priority range 241 .. 255;
+   subtype Priority           is Any_Priority range   0 .. 241;
+   subtype Interrupt_Priority is Any_Priority range 242 .. 255;
 
    Default_Priority : constant Priority := 120;
    --  By default, the priority assigned is the one in the middle of the

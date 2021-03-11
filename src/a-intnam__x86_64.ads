@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---            Copyright (C) 2020, Free Software Foundation, Inc.            --
+--          Copyright (C) 2020-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -29,7 +29,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package version is specific to the x86-64
+--  This package version is specific to x86-64
 
 pragma Restrictions (No_Elaboration_Code);
 
@@ -39,268 +39,287 @@ package Ada.Interrupts.Names is
 
    pragma Implementation_Defined;
 
-   --  On x86-64 the interrupt vector number encodes the priority of the
-   --  interrupt. There are 16 interrupt priority classes, each containing 16
-   --  interrupt vectors. The interrupt priority of the protected object
+   --  x86-64 uses a split interrupt controller design. Each CPU has it's own
+   --  Local Advance Programmable Interrupt Controller (APIC) that can receive
+   --  external interrupts from I/O APICs, or PCI devices via the Message
+   --  Signaled Interrupts (MSI) feature.
+
+   --  This runtime only supports attaching interrupt handlers directly to
+   --  Local APIC interrupt vectors. To attach a handler to an I/O APIC IRQ
+   --  route the IRQ to a Local APIC Vector using the routines provided in
+   --  Interfaces.X86_64.IO_APIC and attach the protected handler to the
+   --  Vector.
+
+   --  For the Local APIC the interrupt vector number encodes the priority of
+   --  the interrupt. There are 16 interrupt priority classes, each containing
+   --  16 interrupt vectors. The interrupt priority of the protected object
    --  containing the protected handler must match the priority class of the
-   --  interrupt.
+   --  interrupt. The first two interrupt priority classes are not available
+   --  for application use as they map to CPU exceptions.
 
    --  Note: Interrupt vectors used for the runtime are commented and marked as
    --  such.
 
-   --  Note: Interrupt Priorties 240 and 242 are missing as they map to
-   --  CPU exception vectors.
+   Vector_32_47_Interrupt_Priority : constant System.Interrupt_Priority := 242;
+   --  Vector_32 -> Runtime: Spurious interrupt
+   Vector_33  : constant Interrupt_ID := 33;
+   Vector_34  : constant Interrupt_ID := 34;
+   Vector_35  : constant Interrupt_ID := 35;
+   Vector_36  : constant Interrupt_ID := 36;
+   Vector_37  : constant Interrupt_ID := 37;
+   Vector_38  : constant Interrupt_ID := 38;
+   Vector_39  : constant Interrupt_ID := 39;
+   Vector_40  : constant Interrupt_ID := 40;
+   Vector_41  : constant Interrupt_ID := 41;
+   Vector_42  : constant Interrupt_ID := 42;
+   Vector_43  : constant Interrupt_ID := 43;
+   Vector_44  : constant Interrupt_ID := 44;
+   Vector_45  : constant Interrupt_ID := 45;
+   Vector_46  : constant Interrupt_ID := 46;
+   Vector_47  : constant Interrupt_ID := 47;
 
-   IRQ_32_47_Interrupt_Priority : constant System.Interrupt_Priority := 242;
-   --  IRQ_32 -> Runtime: Spurious interrupt
-   IRQ_33  : constant Interrupt_ID := 33;
-   IRQ_34  : constant Interrupt_ID := 34;
-   IRQ_35  : constant Interrupt_ID := 35;
-   IRQ_36  : constant Interrupt_ID := 36;
-   IRQ_37  : constant Interrupt_ID := 37;
-   IRQ_38  : constant Interrupt_ID := 38;
-   IRQ_39  : constant Interrupt_ID := 39;
-   IRQ_40  : constant Interrupt_ID := 40;
-   IRQ_41  : constant Interrupt_ID := 41;
-   IRQ_42  : constant Interrupt_ID := 42;
-   IRQ_43  : constant Interrupt_ID := 43;
-   IRQ_44  : constant Interrupt_ID := 44;
-   IRQ_45  : constant Interrupt_ID := 45;
-   IRQ_46  : constant Interrupt_ID := 46;
-   IRQ_47  : constant Interrupt_ID := 47;
+   Vector_48_63_Interrupt_Priority : constant System.Interrupt_Priority := 243;
+   Vector_48  : constant Interrupt_ID := 48;
+   Vector_49  : constant Interrupt_ID := 49;
+   Vector_50  : constant Interrupt_ID := 50;
+   Vector_51  : constant Interrupt_ID := 51;
+   Vector_52  : constant Interrupt_ID := 52;
+   Vector_53  : constant Interrupt_ID := 53;
+   Vector_54  : constant Interrupt_ID := 54;
+   Vector_55  : constant Interrupt_ID := 55;
+   Vector_56  : constant Interrupt_ID := 56;
+   Vector_57  : constant Interrupt_ID := 57;
+   Vector_58  : constant Interrupt_ID := 58;
+   Vector_59  : constant Interrupt_ID := 59;
+   Vector_60  : constant Interrupt_ID := 60;
+   Vector_61  : constant Interrupt_ID := 61;
+   Vector_62  : constant Interrupt_ID := 62;
+   Vector_63  : constant Interrupt_ID := 63;
 
-   IRQ_48_63_Interrupt_Priority : constant System.Interrupt_Priority := 243;
-   IRQ_48  : constant Interrupt_ID := 48;
-   IRQ_49  : constant Interrupt_ID := 49;
-   IRQ_50  : constant Interrupt_ID := 50;
-   IRQ_51  : constant Interrupt_ID := 51;
-   IRQ_52  : constant Interrupt_ID := 52;
-   IRQ_53  : constant Interrupt_ID := 53;
-   IRQ_54  : constant Interrupt_ID := 54;
-   IRQ_55  : constant Interrupt_ID := 55;
-   IRQ_56  : constant Interrupt_ID := 56;
-   IRQ_57  : constant Interrupt_ID := 57;
-   IRQ_58  : constant Interrupt_ID := 58;
-   IRQ_59  : constant Interrupt_ID := 59;
-   IRQ_60  : constant Interrupt_ID := 60;
-   IRQ_61  : constant Interrupt_ID := 61;
-   IRQ_62  : constant Interrupt_ID := 62;
-   IRQ_63  : constant Interrupt_ID := 63;
+   Vector_64_79_Interrupt_Priority : constant System.Interrupt_Priority := 244;
+   Vector_64  : constant Interrupt_ID := 64;
+   Vector_65  : constant Interrupt_ID := 65;
+   Vector_66  : constant Interrupt_ID := 66;
+   Vector_67  : constant Interrupt_ID := 67;
+   Vector_68  : constant Interrupt_ID := 68;
+   Vector_69  : constant Interrupt_ID := 69;
+   Vector_70  : constant Interrupt_ID := 70;
+   Vector_71  : constant Interrupt_ID := 71;
+   Vector_72  : constant Interrupt_ID := 72;
+   Vector_73  : constant Interrupt_ID := 73;
+   Vector_74  : constant Interrupt_ID := 74;
+   Vector_75  : constant Interrupt_ID := 75;
+   Vector_76  : constant Interrupt_ID := 76;
+   Vector_77  : constant Interrupt_ID := 77;
+   Vector_78  : constant Interrupt_ID := 78;
+   Vector_79  : constant Interrupt_ID := 79;
 
-   IRQ_64_79_Interrupt_Priority : constant System.Interrupt_Priority := 244;
-   IRQ_64  : constant Interrupt_ID := 64;
-   IRQ_65  : constant Interrupt_ID := 65;
-   IRQ_66  : constant Interrupt_ID := 66;
-   IRQ_67  : constant Interrupt_ID := 67;
-   IRQ_68  : constant Interrupt_ID := 68;
-   IRQ_69  : constant Interrupt_ID := 69;
-   IRQ_70  : constant Interrupt_ID := 70;
-   IRQ_71  : constant Interrupt_ID := 71;
-   IRQ_72  : constant Interrupt_ID := 72;
-   IRQ_73  : constant Interrupt_ID := 73;
-   IRQ_74  : constant Interrupt_ID := 74;
-   IRQ_75  : constant Interrupt_ID := 75;
-   IRQ_76  : constant Interrupt_ID := 76;
-   IRQ_77  : constant Interrupt_ID := 77;
-   IRQ_78  : constant Interrupt_ID := 78;
-   IRQ_79  : constant Interrupt_ID := 79;
+   Vector_80_95_Interrupt_Priority : constant System.Interrupt_Priority := 245;
+   Vector_80  : constant Interrupt_ID := 80;
+   Vector_81  : constant Interrupt_ID := 81;
+   Vector_82  : constant Interrupt_ID := 82;
+   Vector_83  : constant Interrupt_ID := 83;
+   Vector_84  : constant Interrupt_ID := 84;
+   Vector_85  : constant Interrupt_ID := 85;
+   Vector_86  : constant Interrupt_ID := 86;
+   Vector_87  : constant Interrupt_ID := 87;
+   Vector_88  : constant Interrupt_ID := 88;
+   Vector_89  : constant Interrupt_ID := 89;
+   Vector_90  : constant Interrupt_ID := 90;
+   Vector_91  : constant Interrupt_ID := 91;
+   Vector_92  : constant Interrupt_ID := 92;
+   Vector_93  : constant Interrupt_ID := 93;
+   Vector_94  : constant Interrupt_ID := 94;
+   Vector_95  : constant Interrupt_ID := 95;
 
-   IRQ_80_95_Interrupt_Priority : constant System.Interrupt_Priority := 245;
-   IRQ_80  : constant Interrupt_ID := 80;
-   IRQ_81  : constant Interrupt_ID := 81;
-   IRQ_82  : constant Interrupt_ID := 82;
-   IRQ_83  : constant Interrupt_ID := 83;
-   IRQ_84  : constant Interrupt_ID := 84;
-   IRQ_85  : constant Interrupt_ID := 85;
-   IRQ_86  : constant Interrupt_ID := 86;
-   IRQ_87  : constant Interrupt_ID := 87;
-   IRQ_88  : constant Interrupt_ID := 88;
-   IRQ_89  : constant Interrupt_ID := 89;
-   IRQ_90  : constant Interrupt_ID := 90;
-   IRQ_91  : constant Interrupt_ID := 91;
-   IRQ_92  : constant Interrupt_ID := 92;
-   IRQ_93  : constant Interrupt_ID := 93;
-   IRQ_94  : constant Interrupt_ID := 94;
-   IRQ_95  : constant Interrupt_ID := 95;
+   Vector_96_111_Interrupt_Priority :
+     constant System.Interrupt_Priority := 246;
+   Vector_96  : constant Interrupt_ID := 96;
+   Vector_97  : constant Interrupt_ID := 97;
+   Vector_98  : constant Interrupt_ID := 98;
+   Vector_99  : constant Interrupt_ID := 99;
+   Vector_100 : constant Interrupt_ID := 100;
+   Vector_101 : constant Interrupt_ID := 101;
+   Vector_102 : constant Interrupt_ID := 102;
+   Vector_103 : constant Interrupt_ID := 103;
+   Vector_104 : constant Interrupt_ID := 104;
+   Vector_105 : constant Interrupt_ID := 105;
+   Vector_106 : constant Interrupt_ID := 106;
+   Vector_107 : constant Interrupt_ID := 107;
+   Vector_108 : constant Interrupt_ID := 108;
+   Vector_109 : constant Interrupt_ID := 109;
+   Vector_110 : constant Interrupt_ID := 110;
+   Vector_111 : constant Interrupt_ID := 111;
 
-   IRQ_96_111_Interrupt_Priority : constant System.Interrupt_Priority := 246;
-   IRQ_96  : constant Interrupt_ID := 96;
-   IRQ_97  : constant Interrupt_ID := 97;
-   IRQ_98  : constant Interrupt_ID := 98;
-   IRQ_99  : constant Interrupt_ID := 99;
-   IRQ_100 : constant Interrupt_ID := 100;
-   IRQ_101 : constant Interrupt_ID := 101;
-   IRQ_102 : constant Interrupt_ID := 102;
-   IRQ_103 : constant Interrupt_ID := 103;
-   IRQ_104 : constant Interrupt_ID := 104;
-   IRQ_105 : constant Interrupt_ID := 105;
-   IRQ_106 : constant Interrupt_ID := 106;
-   IRQ_107 : constant Interrupt_ID := 107;
-   IRQ_108 : constant Interrupt_ID := 108;
-   IRQ_109 : constant Interrupt_ID := 109;
-   IRQ_110 : constant Interrupt_ID := 110;
-   IRQ_111 : constant Interrupt_ID := 111;
+   Vector_112_127_Interrupt_Priority :
+     constant System.Interrupt_Priority := 247;
+   Vector_112 : constant Interrupt_ID := 112;
+   Vector_113 : constant Interrupt_ID := 113;
+   Vector_114 : constant Interrupt_ID := 114;
+   Vector_115 : constant Interrupt_ID := 115;
+   Vector_116 : constant Interrupt_ID := 116;
+   Vector_117 : constant Interrupt_ID := 117;
+   Vector_118 : constant Interrupt_ID := 118;
+   Vector_119 : constant Interrupt_ID := 119;
+   Vector_120 : constant Interrupt_ID := 120;
+   Vector_121 : constant Interrupt_ID := 121;
+   Vector_122 : constant Interrupt_ID := 122;
+   Vector_123 : constant Interrupt_ID := 123;
+   Vector_124 : constant Interrupt_ID := 124;
+   Vector_125 : constant Interrupt_ID := 125;
+   Vector_126 : constant Interrupt_ID := 126;
+   Vector_127 : constant Interrupt_ID := 127;
 
-   IRQ_112_127_Interrupt_Priority : constant System.Interrupt_Priority := 247;
-   IRQ_112 : constant Interrupt_ID := 112;
-   IRQ_113 : constant Interrupt_ID := 113;
-   IRQ_114 : constant Interrupt_ID := 114;
-   IRQ_115 : constant Interrupt_ID := 115;
-   IRQ_116 : constant Interrupt_ID := 116;
-   IRQ_117 : constant Interrupt_ID := 117;
-   IRQ_118 : constant Interrupt_ID := 118;
-   IRQ_119 : constant Interrupt_ID := 119;
-   IRQ_120 : constant Interrupt_ID := 120;
-   IRQ_121 : constant Interrupt_ID := 121;
-   IRQ_122 : constant Interrupt_ID := 122;
-   IRQ_123 : constant Interrupt_ID := 123;
-   IRQ_124 : constant Interrupt_ID := 124;
-   IRQ_125 : constant Interrupt_ID := 125;
-   IRQ_126 : constant Interrupt_ID := 126;
-   IRQ_127 : constant Interrupt_ID := 127;
+   Vector_128_143_Interrupt_Priority :
+     constant System.Interrupt_Priority := 248;
+   Vector_128 : constant Interrupt_ID := 128;
+   Vector_129 : constant Interrupt_ID := 129;
+   Vector_130 : constant Interrupt_ID := 130;
+   Vector_131 : constant Interrupt_ID := 131;
+   Vector_132 : constant Interrupt_ID := 132;
+   Vector_133 : constant Interrupt_ID := 133;
+   Vector_134 : constant Interrupt_ID := 134;
+   Vector_135 : constant Interrupt_ID := 135;
+   Vector_136 : constant Interrupt_ID := 136;
+   Vector_137 : constant Interrupt_ID := 137;
+   Vector_138 : constant Interrupt_ID := 138;
+   Vector_139 : constant Interrupt_ID := 139;
+   Vector_140 : constant Interrupt_ID := 140;
+   Vector_141 : constant Interrupt_ID := 141;
+   Vector_142 : constant Interrupt_ID := 142;
+   Vector_143 : constant Interrupt_ID := 143;
 
-   IRQ_128_143_Interrupt_Priority : constant System.Interrupt_Priority := 248;
-   IRQ_128 : constant Interrupt_ID := 128;
-   IRQ_129 : constant Interrupt_ID := 129;
-   IRQ_130 : constant Interrupt_ID := 130;
-   IRQ_131 : constant Interrupt_ID := 131;
-   IRQ_132 : constant Interrupt_ID := 132;
-   IRQ_133 : constant Interrupt_ID := 133;
-   IRQ_134 : constant Interrupt_ID := 134;
-   IRQ_135 : constant Interrupt_ID := 135;
-   IRQ_136 : constant Interrupt_ID := 136;
-   IRQ_137 : constant Interrupt_ID := 137;
-   IRQ_138 : constant Interrupt_ID := 138;
-   IRQ_139 : constant Interrupt_ID := 139;
-   IRQ_140 : constant Interrupt_ID := 140;
-   IRQ_141 : constant Interrupt_ID := 141;
-   IRQ_142 : constant Interrupt_ID := 142;
-   IRQ_143 : constant Interrupt_ID := 143;
+   Vector_144_159_Interrupt_Priority :
+     constant System.Interrupt_Priority := 249;
+   Vector_144 : constant Interrupt_ID := 144;
+   Vector_145 : constant Interrupt_ID := 145;
+   Vector_146 : constant Interrupt_ID := 146;
+   Vector_147 : constant Interrupt_ID := 147;
+   Vector_148 : constant Interrupt_ID := 148;
+   Vector_149 : constant Interrupt_ID := 149;
+   Vector_150 : constant Interrupt_ID := 150;
+   Vector_151 : constant Interrupt_ID := 151;
+   Vector_152 : constant Interrupt_ID := 152;
+   Vector_153 : constant Interrupt_ID := 153;
+   Vector_154 : constant Interrupt_ID := 154;
+   Vector_155 : constant Interrupt_ID := 155;
+   Vector_156 : constant Interrupt_ID := 156;
+   Vector_157 : constant Interrupt_ID := 157;
+   Vector_158 : constant Interrupt_ID := 158;
+   Vector_159 : constant Interrupt_ID := 159;
 
-   IRQ_144_159_Interrupt_Priority : constant System.Interrupt_Priority := 249;
-   IRQ_144 : constant Interrupt_ID := 144;
-   IRQ_145 : constant Interrupt_ID := 145;
-   IRQ_146 : constant Interrupt_ID := 146;
-   IRQ_147 : constant Interrupt_ID := 147;
-   IRQ_148 : constant Interrupt_ID := 148;
-   IRQ_149 : constant Interrupt_ID := 149;
-   IRQ_150 : constant Interrupt_ID := 150;
-   IRQ_151 : constant Interrupt_ID := 151;
-   IRQ_152 : constant Interrupt_ID := 152;
-   IRQ_153 : constant Interrupt_ID := 153;
-   IRQ_154 : constant Interrupt_ID := 154;
-   IRQ_155 : constant Interrupt_ID := 155;
-   IRQ_156 : constant Interrupt_ID := 156;
-   IRQ_157 : constant Interrupt_ID := 157;
-   IRQ_158 : constant Interrupt_ID := 158;
-   IRQ_159 : constant Interrupt_ID := 159;
+   Vector_160_175_Interrupt_Priority : constant
+     System.Interrupt_Priority := 250;
+   Vector_160 : constant Interrupt_ID := 160;
+   Vector_161 : constant Interrupt_ID := 161;
+   Vector_162 : constant Interrupt_ID := 162;
+   Vector_163 : constant Interrupt_ID := 163;
+   Vector_164 : constant Interrupt_ID := 164;
+   Vector_165 : constant Interrupt_ID := 165;
+   Vector_166 : constant Interrupt_ID := 166;
+   Vector_167 : constant Interrupt_ID := 167;
+   Vector_168 : constant Interrupt_ID := 168;
+   Vector_169 : constant Interrupt_ID := 169;
+   Vector_170 : constant Interrupt_ID := 170;
+   Vector_171 : constant Interrupt_ID := 171;
+   Vector_172 : constant Interrupt_ID := 172;
+   Vector_173 : constant Interrupt_ID := 173;
+   Vector_174 : constant Interrupt_ID := 174;
+   Vector_175 : constant Interrupt_ID := 175;
 
-   IRQ_160_175_Interrupt_Priority : constant System.Interrupt_Priority := 250;
-   IRQ_160 : constant Interrupt_ID := 160;
-   IRQ_161 : constant Interrupt_ID := 161;
-   IRQ_162 : constant Interrupt_ID := 162;
-   IRQ_163 : constant Interrupt_ID := 163;
-   IRQ_164 : constant Interrupt_ID := 164;
-   IRQ_165 : constant Interrupt_ID := 165;
-   IRQ_166 : constant Interrupt_ID := 166;
-   IRQ_167 : constant Interrupt_ID := 167;
-   IRQ_168 : constant Interrupt_ID := 168;
-   IRQ_169 : constant Interrupt_ID := 169;
-   IRQ_170 : constant Interrupt_ID := 170;
-   IRQ_171 : constant Interrupt_ID := 171;
-   IRQ_172 : constant Interrupt_ID := 172;
-   IRQ_173 : constant Interrupt_ID := 173;
-   IRQ_174 : constant Interrupt_ID := 174;
-   IRQ_175 : constant Interrupt_ID := 175;
+   Vector_176_191_Interrupt_Priority : constant
+     System.Interrupt_Priority := 251;
+   Vector_176 : constant Interrupt_ID := 176;
+   Vector_177 : constant Interrupt_ID := 177;
+   Vector_178 : constant Interrupt_ID := 178;
+   Vector_179 : constant Interrupt_ID := 179;
+   Vector_180 : constant Interrupt_ID := 180;
+   Vector_181 : constant Interrupt_ID := 181;
+   Vector_182 : constant Interrupt_ID := 182;
+   Vector_183 : constant Interrupt_ID := 183;
+   Vector_184 : constant Interrupt_ID := 184;
+   Vector_185 : constant Interrupt_ID := 185;
+   Vector_186 : constant Interrupt_ID := 186;
+   Vector_187 : constant Interrupt_ID := 187;
+   Vector_188 : constant Interrupt_ID := 188;
+   Vector_189 : constant Interrupt_ID := 189;
+   Vector_190 : constant Interrupt_ID := 190;
+   Vector_191 : constant Interrupt_ID := 191;
 
-   IRQ_176_191_Interrupt_Priority : constant System.Interrupt_Priority := 251;
-   IRQ_176 : constant Interrupt_ID := 176;
-   IRQ_177 : constant Interrupt_ID := 177;
-   IRQ_178 : constant Interrupt_ID := 178;
-   IRQ_179 : constant Interrupt_ID := 179;
-   IRQ_180 : constant Interrupt_ID := 180;
-   IRQ_181 : constant Interrupt_ID := 181;
-   IRQ_182 : constant Interrupt_ID := 182;
-   IRQ_183 : constant Interrupt_ID := 183;
-   IRQ_184 : constant Interrupt_ID := 184;
-   IRQ_185 : constant Interrupt_ID := 185;
-   IRQ_186 : constant Interrupt_ID := 186;
-   IRQ_187 : constant Interrupt_ID := 187;
-   IRQ_188 : constant Interrupt_ID := 188;
-   IRQ_189 : constant Interrupt_ID := 189;
-   IRQ_190 : constant Interrupt_ID := 190;
-   IRQ_191 : constant Interrupt_ID := 191;
+   Vector_192_207_Interrupt_Priority : constant
+     System.Interrupt_Priority := 252;
+   Vector_192 : constant Interrupt_ID := 192;
+   Vector_193 : constant Interrupt_ID := 193;
+   Vector_194 : constant Interrupt_ID := 194;
+   Vector_195 : constant Interrupt_ID := 195;
+   Vector_196 : constant Interrupt_ID := 196;
+   Vector_197 : constant Interrupt_ID := 197;
+   Vector_198 : constant Interrupt_ID := 198;
+   Vector_199 : constant Interrupt_ID := 199;
+   Vector_200 : constant Interrupt_ID := 200;
+   Vector_201 : constant Interrupt_ID := 201;
+   Vector_202 : constant Interrupt_ID := 202;
+   Vector_203 : constant Interrupt_ID := 203;
+   Vector_204 : constant Interrupt_ID := 204;
+   Vector_205 : constant Interrupt_ID := 205;
+   Vector_206 : constant Interrupt_ID := 206;
+   Vector_207 : constant Interrupt_ID := 207;
 
-   IRQ_192_207_Interrupt_Priority : constant System.Interrupt_Priority := 252;
-   IRQ_192 : constant Interrupt_ID := 192;
-   IRQ_193 : constant Interrupt_ID := 193;
-   IRQ_194 : constant Interrupt_ID := 194;
-   IRQ_195 : constant Interrupt_ID := 195;
-   IRQ_196 : constant Interrupt_ID := 196;
-   IRQ_197 : constant Interrupt_ID := 197;
-   IRQ_198 : constant Interrupt_ID := 198;
-   IRQ_199 : constant Interrupt_ID := 199;
-   IRQ_200 : constant Interrupt_ID := 200;
-   IRQ_201 : constant Interrupt_ID := 201;
-   IRQ_202 : constant Interrupt_ID := 202;
-   IRQ_203 : constant Interrupt_ID := 203;
-   IRQ_204 : constant Interrupt_ID := 204;
-   IRQ_205 : constant Interrupt_ID := 205;
-   IRQ_206 : constant Interrupt_ID := 206;
-   IRQ_207 : constant Interrupt_ID := 207;
+   Vector_208_223_Interrupt_Priority : constant
+     System.Interrupt_Priority := 253;
+   Vector_208 : constant Interrupt_ID := 208;
+   Vector_209 : constant Interrupt_ID := 209;
+   Vector_210 : constant Interrupt_ID := 210;
+   Vector_211 : constant Interrupt_ID := 211;
+   Vector_212 : constant Interrupt_ID := 212;
+   Vector_213 : constant Interrupt_ID := 213;
+   Vector_214 : constant Interrupt_ID := 214;
+   Vector_215 : constant Interrupt_ID := 215;
+   Vector_216 : constant Interrupt_ID := 216;
+   Vector_217 : constant Interrupt_ID := 217;
+   Vector_218 : constant Interrupt_ID := 218;
+   Vector_219 : constant Interrupt_ID := 219;
+   Vector_220 : constant Interrupt_ID := 220;
+   Vector_221 : constant Interrupt_ID := 221;
+   Vector_222 : constant Interrupt_ID := 222;
+   Vector_223 : constant Interrupt_ID := 223;
 
-   IRQ_208_223_Interrupt_Priority : constant System.Interrupt_Priority := 253;
-   IRQ_208 : constant Interrupt_ID := 208;
-   IRQ_209 : constant Interrupt_ID := 209;
-   IRQ_210 : constant Interrupt_ID := 210;
-   IRQ_211 : constant Interrupt_ID := 211;
-   IRQ_212 : constant Interrupt_ID := 212;
-   IRQ_213 : constant Interrupt_ID := 213;
-   IRQ_214 : constant Interrupt_ID := 214;
-   IRQ_215 : constant Interrupt_ID := 215;
-   IRQ_216 : constant Interrupt_ID := 216;
-   IRQ_217 : constant Interrupt_ID := 217;
-   IRQ_218 : constant Interrupt_ID := 218;
-   IRQ_219 : constant Interrupt_ID := 219;
-   IRQ_220 : constant Interrupt_ID := 220;
-   IRQ_221 : constant Interrupt_ID := 221;
-   IRQ_222 : constant Interrupt_ID := 222;
-   IRQ_223 : constant Interrupt_ID := 223;
+   Vector_224_239_Interrupt_Priority : constant
+     System.Interrupt_Priority := 254;
+   Vector_224 : constant Interrupt_ID := 224;
+   Vector_225 : constant Interrupt_ID := 225;
+   Vector_226 : constant Interrupt_ID := 226;
+   Vector_227 : constant Interrupt_ID := 227;
+   Vector_228 : constant Interrupt_ID := 228;
+   Vector_229 : constant Interrupt_ID := 229;
+   Vector_230 : constant Interrupt_ID := 230;
+   Vector_231 : constant Interrupt_ID := 231;
+   Vector_232 : constant Interrupt_ID := 232;
+   Vector_233 : constant Interrupt_ID := 233;
+   Vector_234 : constant Interrupt_ID := 234;
+   Vector_235 : constant Interrupt_ID := 235;
+   Vector_236 : constant Interrupt_ID := 236;
+   Vector_237 : constant Interrupt_ID := 237;
+   Vector_238 : constant Interrupt_ID := 238;
+   Vector_239 : constant Interrupt_ID := 239;
 
-   IRQ_224_239_Interrupt_Priority : constant System.Interrupt_Priority := 254;
-   IRQ_224 : constant Interrupt_ID := 224;
-   IRQ_225 : constant Interrupt_ID := 225;
-   IRQ_226 : constant Interrupt_ID := 226;
-   IRQ_227 : constant Interrupt_ID := 227;
-   IRQ_228 : constant Interrupt_ID := 228;
-   IRQ_229 : constant Interrupt_ID := 229;
-   IRQ_230 : constant Interrupt_ID := 230;
-   IRQ_231 : constant Interrupt_ID := 231;
-   IRQ_232 : constant Interrupt_ID := 232;
-   IRQ_233 : constant Interrupt_ID := 233;
-   IRQ_234 : constant Interrupt_ID := 234;
-   IRQ_235 : constant Interrupt_ID := 235;
-   IRQ_236 : constant Interrupt_ID := 236;
-   IRQ_237 : constant Interrupt_ID := 237;
-   IRQ_238 : constant Interrupt_ID := 238;
-   IRQ_239 : constant Interrupt_ID := 239;
-
-   IRQ_240_255_Interrupt_Priority : constant System.Interrupt_Priority := 255;
-   IRQ_240 : constant Interrupt_ID := 240;
-   IRQ_241 : constant Interrupt_ID := 241;
-   IRQ_242 : constant Interrupt_ID := 242;
-   IRQ_243 : constant Interrupt_ID := 243;
-   IRQ_244 : constant Interrupt_ID := 244;
-   IRQ_245 : constant Interrupt_ID := 245;
-   IRQ_246 : constant Interrupt_ID := 246;
-   IRQ_247 : constant Interrupt_ID := 247;
-   IRQ_248 : constant Interrupt_ID := 248;
-   IRQ_249 : constant Interrupt_ID := 249;
-   IRQ_250 : constant Interrupt_ID := 250;
-   IRQ_251 : constant Interrupt_ID := 251;
-   IRQ_252 : constant Interrupt_ID := 252;
-   IRQ_253 : constant Interrupt_ID := 253;
-   IRQ_254 : constant Interrupt_ID := 254;
-   --  IRQ_255 -> Runtime: APIC Timer
+   Vector_240_255_Interrupt_Priority : constant
+     System.Interrupt_Priority := 255;
+   Vector_240 : constant Interrupt_ID := 240;
+   Vector_241 : constant Interrupt_ID := 241;
+   Vector_242 : constant Interrupt_ID := 242;
+   Vector_243 : constant Interrupt_ID := 243;
+   Vector_244 : constant Interrupt_ID := 244;
+   Vector_245 : constant Interrupt_ID := 245;
+   Vector_246 : constant Interrupt_ID := 246;
+   Vector_247 : constant Interrupt_ID := 247;
+   Vector_248 : constant Interrupt_ID := 248;
+   Vector_249 : constant Interrupt_ID := 249;
+   Vector_250 : constant Interrupt_ID := 250;
+   Vector_251 : constant Interrupt_ID := 251;
+   Vector_252 : constant Interrupt_ID := 252;
+   Vector_253 : constant Interrupt_ID := 253;
+   Vector_254 : constant Interrupt_ID := 254;
+   --  Vector_255 -> Runtime: APIC Timer
 
 end Ada.Interrupts.Names;
