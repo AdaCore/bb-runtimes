@@ -384,7 +384,7 @@ package body System.BB.Board_Support is
          exit when not
            (Interrupt_Status.Peripheral_Interrupt_Present or
             Interrupt_Status.Main_Interrupt_Present or
-            Interrupt_Status.Peripheral_Interrupt_Present);
+            Interrupt_Status.Critical_Interrupt_Present);
       end loop;
    end Interrupt_Handler;
 
