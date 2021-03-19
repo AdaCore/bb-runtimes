@@ -274,7 +274,11 @@ package body System.Text_IO is
 
    procedure Initialize is
       Counter_Timer : constant Unsigned_16 :=
-        Unsigned_16 (IPB_Frequency / (32 * Baud_Rate) + 1);
+        Unsigned_16 (((IPB_Frequency * 10) / (32 * Baud_Rate) + 5) / 10);
+      --  Perform the Counter_Timer calculation so that it rounds to the
+      --  nearest integer. This helps produce an effective Baud Rate that is as
+      --  close to the requested Baud Rate as possible.
+
    begin
       --  Initialize PSC1 following the guide in MPC5200B User's Manual,
       --  Section 15.3.1.
