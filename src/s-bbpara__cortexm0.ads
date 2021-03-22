@@ -38,7 +38,7 @@
 --  These parameters are in this package in order to isolate target
 --  dependencies.
 
---  This is the STM32F40x (ARMv7) version of this package
+--  This is the Arm Cortex-M0 (ARMv6-M) version of this package
 
 with System.BB.Board_Parameters;
 with System.BB.MCU_Parameters;
@@ -47,7 +47,8 @@ package System.BB.Parameters is
    pragma No_Elaboration_Code_All;
    pragma Preelaborate (System.BB.Parameters);
 
-   Ticks_Per_Second : constant := Board_Parameters.Timer_Frequency;
+   Clock_Frequency  : constant := Board_Parameters.Main_Clock_Frequency;
+   Ticks_Per_Second : constant := Board_Parameters.Main_Clock_Frequency;
 
    ----------------
    -- Interrupts --
@@ -63,7 +64,7 @@ package System.BB.Parameters is
    --  The number of bits allocated by this specific hardware implementation.
 
    subtype Interrupt_Range is Integer
-     range 1 .. MCU_Parameters.Number_Of_Interrupts;
+     range -1 .. MCU_Parameters.Number_Of_Interrupts;
    --  Number of interrupts for the interrupt controller
 
    Trap_Vectors : constant := 17;
@@ -97,7 +98,7 @@ package System.BB.Parameters is
    -- Stacks --
    ------------
 
-   Interrupt_Stack_Size : constant := 2 * 1024;
+   Interrupt_Stack_Size : constant := 1024;
    --  Size of each of the interrupt stacks in bytes. While there nominally is
    --  an interrupt stack per interrupt priority, the entire space is used as a
    --  single stack.
@@ -112,9 +113,9 @@ package System.BB.Parameters is
    --  Set to true if core has a Vector Table Offset Register (VTOR).
    --  VTOR is implemented in Cortex-M0+, Cortex-M4 and above.
 
-   Has_OS_Extensions : constant Boolean := False;
+   Has_OS_Extensions : constant Boolean := True;
    --  Set to true if core has armv6-m OS extensions (PendSV, MSP, PSP,
-   --  etc...). The OS extensions are optional for the Cortex-M1.
+   --  etc...).
 
    Is_ARMv6m : constant Boolean := True;
    --  Set to true if core is an armv6-m (Cortex-M0, Cortex-M0+, Cortex-M1)

@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2019, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -97,50 +97,85 @@ package body System.BB.Board_Support is
    Next_Tick_Time : Timer_Interval with Volatile;
    --  Time when systick will expire. This gives the high digits of the time
 
-   ----------------------------------------------
-   -- New Vectored Interrupt Controller (NVIC) --
-   ----------------------------------------------
+   -------------------------------------------------
+   -- Nested Vectored Interrupt Controller (NVIC) --
+   -------------------------------------------------
 
    NVIC_Base : constant := 16#E000_E000#;
-   --  Nested Vectored Interrupt Controller (NVIC) base.
 
-   NVIC_ISER0 : constant Address := NVIC_Base + 16#100#;
+   NVIC_ISER : array (0 .. 15) of Word with
+     Volatile,
+     Address => NVIC_Base + 16#100#;
    --  Writing a bit mask to this register enables the corresponding interrupts
 
-   type PRI is mod 2**8;
-   --  Type for ARMv7-M interrupt priorities. Note that 0 is the highest
-   --  priority, which is reserved for the kernel and has no corresponding
-   --  Interrupt_Priority value, and 255 is the lowest. We assume the PRIGROUP
-   --  setting is such that the 4 most significant bits determine the priority
-   --  group used for preemption. However, if less bits are implemented, this
-   --  should still work.
+   subtype Cortex_Priority_Shift_Width is Integer
+      range 0 .. Cortex_Priority_Bits_Width'Last - 1;
+   --  The priority bits allocated within BASEPRI etc. are not necessarily
+   --  allocated in the least-significant bits of the registers. When not all
+   --  priority bits are allocated, they are located in the upper part of the
+   --  low-order bytes of the registers. Therefore, priority assignments to the
+   --  registers must shift the intended value up into these bits, and reading
+   --  must shift back down. (This approach aids portability by maintaining the
+   --  relative priority orders when moving from an implementation allocating
+   --  more priority bits to one with fewer.) If all bits are allocated for
+   --  the priority we need to shift by 0 bits, i.e., none. If only 1 bit is
+   --  allocated we need to shift all but 1 bits.
 
-   function To_PRI (P : Integer) return PRI is
+   NVIC_Priority_Bits_Position : constant Cortex_Priority_Shift_Width :=
+     Cortex_Priority_Bits_Width'Last - NVIC_Priority_Bits;
+   --  The starting bit number for the priority bits within the hardware
+   --  registers, used to shift the bits when converting. The priority
+   --  group selection could allocate a subset of the possible bits to the
+   --  sub-priority field, such that NVIC_Priority_Bits (the total possible)
+   --  would not be the right value to subtract. We can ignore that possibility
+   --  because we know the total number of bits possible have been allocated to
+   --  the selected group's preemption level bits.
+
+   type NVIC_Priority is mod 2 ** Cortex_Priority_Bits_Width'Last;
+   --  Type representing Cortex-M NVIC interrupt priorities. These hardware
+   --  priorities vary inversely with Ada priorities, so numerically higher Ada
+   --  priority values map to numerically lower hardware values. Therefore, 0
+   --  is the most urgent hardware priority but it is reserved for the kernel
+   --  and has no corresponding Interrupt_Priority value.
+   pragma Provide_Shift_Operators (NVIC_Priority);
+
+   IP : array (0 .. Interrupt_ID'Last) of NVIC_Priority with
+     Volatile,
+     Address => NVIC_Base + 16#400#;
+
+   function To_NVIC_Priority (P : Integer) return NVIC_Priority is
      (if P not in Interrupt_Priority then 0
-      else PRI (Interrupt_Priority'Last - P + 1) * 16);
-   --  Return the BASEPRI mask for the given Ada priority. Note that the zero
-   --  value here means no mask, so no interrupts are masked.
+      else Shift_Left (NVIC_Priority (Interrupt_Priority'Last - P + 1),
+                       NVIC_Priority_Bits_Position));
+   --  Return the NVIC priority for the given Ada Interrupt_Priority. The value
+   --  zero means no interrupts would be masked.
 
-   function To_Priority (P : PRI) return Interrupt_Priority is
+   function To_Ada_Priority (P : NVIC_Priority) return Interrupt_Priority is
      (if P = 0 then Interrupt_Priority'Last
-      else (Interrupt_Priority'Last - Any_Priority'Base (P / 16) + 1));
-   --  Given an ARM interrupt priority (PRI value), determine the Ada priority
-   --  While the value 0 is reserved for the kernel and has no Ada priority
-   --  that represents it, Interrupt_Priority'Last is closest.
-
-   IP : array (0 .. Interrupt_ID'Last) of PRI
-       with Volatile, Address => 16#E000_E400#;
+      else (Interrupt_Priority'Last
+            - Any_Priority'Base (Shift_Right (P, NVIC_Priority_Bits_Position))
+            + 1));
+   --  Return the Ada Interrupt_Priority for the given NVIC_Priority.
+   --  The value zero has no corresponding Ada priority, but
+   --  Interrupt_Priority'Last is closest so we use that.
 
    --  Local utility functions
 
    procedure Enable_Interrupt_Request
      (Interrupt : Interrupt_ID;
       Prio      : Interrupt_Priority);
-   --  Enable interrupt requests for the given interrupt
+   --  Enable interrupt requests for the given interrupt. When called
+   --  for the alarm handler, verifies that the specified priority is
+   --  Interrupt_Priority'Last.
 
    procedure Interrupt_Handler;
+   --  Determine the IRQ number for the active interrupt and then call the
+   --  common interrupt wrapper routine for that interrupt number (to set
+   --  the appropriate software priorities before calling the user-defined
+   --  protected procedure handler).
+
    procedure Timer_Interrupt_Handler;
-   --  Low-level interrupt handlers
+   --  Directly invoke the common interrupt wrapper for Alarm_Interrupt_ID.
 
    ----------------------
    -- Initialize_Board --
@@ -148,7 +183,6 @@ package body System.BB.Board_Support is
 
    procedure Initialize_Board is
    begin
-      --  Mask interrupts
       Disable_Interrupts;
 
       --  Because we operate the SysTick clock as a periodic timer, and 24 bits
@@ -176,7 +210,12 @@ package body System.BB.Board_Support is
       Enable_Interrupts (Priority'Last);
    end Initialize_Board;
 
+   ----------
+   -- Time --
+   ----------
+
    package body Time is
+
       ------------------------
       -- Max_Timer_Interval --
       ------------------------
@@ -188,17 +227,18 @@ package body System.BB.Board_Support is
       ----------------
 
       function Read_Clock return BB.Time.Time is
-         PRIMASK : Word;
-         Flag    : Boolean;
-         Count   : Timer_Interval;
-         Res     : Timer_Interval;
+         Previous_PRIMASK     : Word;
+         Counter_Reached_Zero : Boolean;
+         Count                : Timer_Interval;
+         Result               : Timer_Interval;
 
       begin
          --  As several registers and variables need to be read or modified, do
-         --  it atomically.
+         --  it atomically. We first capture the current PRIMASK value and
+         --  then set it to disable all interrupts.
 
          Asm ("mrs %0, PRIMASK",
-              Outputs => Word'Asm_Output ("=&r", PRIMASK),
+              Outputs => Word'Asm_Output ("=&r", Previous_PRIMASK),
               Volatile => True);
          Asm ("msr PRIMASK, %0",
               Inputs  => Word'Asm_Input  ("r", 1),
@@ -218,9 +258,9 @@ package body System.BB.Board_Support is
          --  (or has just triggered the interrupt), so count is either zero or
          --  not far from Tick_Period.
 
-         Flag := (SYST.SYST_CSR and CSR_Count_Flag) /= 0;
+         Counter_Reached_Zero := (SYST.SYST_CSR and CSR_Count_Flag) /= 0;
 
-         if Flag then
+         if Counter_Reached_Zero then
 
             --  Systick counter has just reached zero, pretend it is still zero
 
@@ -232,22 +272,22 @@ package body System.BB.Board_Support is
             --  function, the increment of Next_Tick_Time will happen only
             --  once.
 
-            Res := Next_Tick_Time;
+            Result := Next_Tick_Time;
             Next_Tick_Time := Next_Tick_Time + Tick_Period;
 
          else
             --  The counter is decremented, so compute the actual time
 
-            Res := Next_Tick_Time - Count;
+            Result := Next_Tick_Time - Count;
          end if;
 
-         --  Restore interrupt mask
+         --  set PRIMASK back to previous setting
 
          Asm ("msr PRIMASK, %0",
-              Inputs => Word'Asm_Input ("r", PRIMASK),
+              Inputs => Word'Asm_Input ("r", Previous_PRIMASK),
               Volatile => True);
 
-         return BB.Time.Time (Res);
+         return BB.Time.Time (Result);
       end Read_Clock;
 
       ---------------------------
@@ -284,12 +324,18 @@ package body System.BB.Board_Support is
       ---------------------------
 
       procedure Install_Alarm_Handler
-        (Handler : BB.Interrupts.Interrupt_Handler) is
+        (Handler : BB.Interrupts.Interrupt_Handler)
+      is
       begin
          BB.Interrupts.Attach_Handler
            (Handler, Alarm_Interrupt_ID, Interrupt_Priority'Last);
       end Install_Alarm_Handler;
+
    end Time;
+
+   ---------------------
+   -- Multiprocessors --
+   ---------------------
 
    package body Multiprocessors is separate;
 
@@ -307,9 +353,9 @@ package body System.BB.Board_Support is
    -----------------------
 
    procedure Interrupt_Handler is
-      Id : Interrupt_ID;
-      Res : Word;
-      PRIMASK : Word;
+      IRQ_Number       : Interrupt_ID;
+      Exception_Number : Word;
+      Previous_PRIMASK : Word;
    begin
       --  While the NVIC unit supports priority levels, the ARMv6-M
       --  architecture does not have the ability to mask interrupt priorities.
@@ -317,7 +363,7 @@ package body System.BB.Board_Support is
       --  thus we mask all interrupts when handling an interrupt.
 
       Asm ("mrs %0, PRIMASK",
-           Outputs => Word'Asm_Output ("=&r", PRIMASK),
+           Outputs => Word'Asm_Output ("=&r", Previous_PRIMASK),
            Volatile => True);
       Asm ("msr PRIMASK, %0",
            Inputs  => Word'Asm_Input  ("r", 1),
@@ -326,22 +372,22 @@ package body System.BB.Board_Support is
       --  The exception number is read from the IPSR
 
       Asm ("mrs %0, ipsr",
-           Word'Asm_Output ("=r", Res),
+           Word'Asm_Output ("=r", Exception_Number),
            Volatile => True);
 
-      Res := Res and 16#FF#;
+      Exception_Number := Exception_Number and 16#FF#;
 
-      --  Convert it to IRQ number by substracting 16 (number of cpu
-      --  exceptions).
+      --  Convert it to an IRQ number by subtracting the number of CPU
+      --  exceptions
 
-      Id := Interrupt_ID'Base (Res) - 16;
+      IRQ_Number := Interrupt_ID'Base (Exception_Number) - (Trap_Vectors - 1);
 
-      Interrupt_Wrapper (Id);
+      Interrupt_Wrapper (IRQ_Number);
 
       --  Restore interrupt mask
 
       Asm ("msr PRIMASK, %0",
-           Inputs => Word'Asm_Input ("r", PRIMASK),
+           Inputs => Word'Asm_Input ("r", Previous_PRIMASK),
            Volatile => True);
    end Interrupt_Handler;
 
@@ -356,8 +402,6 @@ package body System.BB.Board_Support is
    begin
       if Interrupt = Alarm_Interrupt_ID then
 
-         --  Consistency check with Priority_Of_Interrupt
-
          pragma Assert (Prio = Interrupt_Priority'Last);
 
          Time.Clear_Alarm_Interrupt;
@@ -369,8 +413,6 @@ package body System.BB.Board_Support is
             IRQ    : constant Natural := Interrupt;
             Regofs : constant Natural := IRQ / 32;
             Regbit : constant Word := 2** (IRQ mod 32);
-            NVIC_ISER : array (0 .. 15) of Word
-                           with Volatile, Address => NVIC_ISER0;
 
             --  Many NVIC registers use 16 words of 32 bits each to serve as a
             --  bitmap for all interrupt channels. Regofs indicates register
@@ -383,7 +425,12 @@ package body System.BB.Board_Support is
       end if;
    end Enable_Interrupt_Request;
 
+   ----------------
+   -- Interrupts --
+   ----------------
+
    package body Interrupts is
+
       -------------------------------
       -- Install_Interrupt_Handler --
       -------------------------------
@@ -394,7 +441,7 @@ package body System.BB.Board_Support is
       is
       begin
          if Interrupt /= Alarm_Interrupt_ID then
-            IP (Interrupt) := To_PRI (Prio);
+            IP (Interrupt) := To_NVIC_Priority (Prio);
          end if;
 
          Enable_Interrupt_Request (Interrupt, Prio);
@@ -405,10 +452,11 @@ package body System.BB.Board_Support is
       ---------------------------
 
       function Priority_Of_Interrupt
-        (Interrupt : Interrupt_ID) return Any_Priority
+        (Interrupt : Interrupt_ID)
+         return Any_Priority
       is
          (if Interrupt = Alarm_Interrupt_ID then Interrupt_Priority'Last
-         else To_Priority (IP (Interrupt)));
+          else To_Ada_Priority (IP (Interrupt)));
 
       ----------------
       -- Power_Down --
@@ -429,5 +477,7 @@ package body System.BB.Board_Support is
          --  lack of BASEPRI register on this architecture.
          null;
       end Set_Current_Priority;
+
    end Interrupts;
+
 end System.BB.Board_Support;

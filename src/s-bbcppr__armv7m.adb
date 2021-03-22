@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -115,6 +115,9 @@ package body System.BB.CPU_Primitives is
    procedure GNAT_Error_Handler (Trap : Vector_Id);
    pragma No_Return (GNAT_Error_Handler);
 
+   procedure Set_Selected_Priority_Group;
+   --  assign the priority group specified by BB.Parameters
+
    -----------------------
    -- Context Switching --
    -----------------------
@@ -137,9 +140,86 @@ package body System.BB.CPU_Primitives is
       R12, LR, PC, PSR : Word;
    end record;
 
+   ----------------
+   -- Interrupts --
+   ----------------
+
+   subtype Cortex_Priority_Group is Integer range 0 .. 7;
+   --  The eight bits in a hardware priority value are subdivided into a "group
+   --  priority" and a "sub-priority" level. The group priority level controls
+   --  whether an interrupt can take place when the processor is already
+   --  executing another interrupt handler, i.e., the preemption levels. The
+   --  sub-priority level is only used when two interrupts with the same group
+   --  priority occur at the same time. If two interrupts occur at the same
+   --  time with the same group priority and sub-priority, the interrupt
+   --  number determines which will execute first, so sub-priorities are
+   --  not essential.
+   --
+   --  The group priority occupies the more significant bits (on the "left")
+   --  and the sub-priority bits occupy the less significant bits (on the
+   --  "right") within the register's least significant byte. The eight
+   --  possible Cortex_Priority_Group selection values define the numbers
+   --  of bits allocated within the left and right bit subsets.
+   --
+   --  The possible priority group selection numbers (0 through 7, on the left)
+   --  and their two corresponding subsets' bit allocations are as follows. The
+   --  group priority column is labeled "Preemption Bits" for clarity.
+   --
+   ---------------------------------------------
+   --    Group  |  Preemption  |  Sub-priority |
+   --    Number |     Bits     |     Bits      |
+   ---------------------------------------------
+   --       0        [7:1]            [0]
+   --       1        [7:2]           [1:0]
+   --       2        [7:3]           [2:0]
+   --       3        [7:4]           [3:0]
+   --       4        [7:5]           [4:0]
+   --       5        [7:6]           [5:0]
+   --       6         [7]            [6:0]
+   --       7        none            [7:0]
+
+   Priority_Group : constant Cortex_Priority_Group := 7 - NVIC_Priority_Bits;
+   --  The Cortex Priority Group to be configured by the runtime. Set to
+   --  maximize the number of hardware priorities available to the runtime
+   --  by allocating all implemented hardware priority bits (the quantity
+   --  NVIC_Priority_Bits) to the preemption bits. The priority group is
+   --  calculated based on the table above.
+
+   type Bit    is mod 2 ** 1;
+   type UInt16 is mod 2 ** 16;
+
+   --   App Interrupt and (system) Reset Control
+
+   type AIRCR_Register is record
+      SYSRESETREQ    : Bit;
+      SYSRESETREQs   : Bit;
+      PRIGROUP       : Cortex_Priority_Group;
+      BFHFNMINS      : Bit;
+      PRIS           : Bit;
+      Endianness     : Bit;
+      VECTKEY        : UInt16;
+   end record with
+     Size => 32;
+
+   for AIRCR_Register use record
+      SYSRESETREQ    at 0 range 2 .. 2;
+      SYSRESETREQs   at 0 range 3 .. 3;
+      PRIGROUP       at 0 range 8 .. 10;
+      BFHFNMINS      at 0 range 13 .. 13;
+      PRIS           at 0 range 14 .. 14;
+      Endianness     at 0 range 15 .. 15;
+      VECTKEY        at 0 range 16 .. 31;
+   end record;
+
+   AIRCR_Write_Key : constant := 16#05FA#;
+   AIRCR_Read_Key  : constant := 16#0FA5#;
+
+   AIRCR : AIRCR_Register with Volatile, Import, Address => 16#E000_ED0C#;
+
+   --  Additional control registers
+
    VTOR : Address with Volatile, Address => 16#E000_ED08#; -- Vec. Table Offset
 
-   AIRCR : Word with Volatile, Address => 16#E000_ED0C#; -- App Int/Reset Ctrl
    CCR   : Word with Volatile, Address => 16#E000_ED14#; -- Config. Control
    SHPR1 : Word with Volatile, Address => 16#E000_ED18#; -- Sys Hand  4- 7 Prio
    SHPR2 : Word with Volatile, Address => 16#E000_ED1C#; -- Sys Hand  8-11 Prio
@@ -154,11 +234,12 @@ package body System.BB.CPU_Primitives is
    -------------
 
    function PRIMASK return Word is
-      R : Word;
+      Result : Word;
    begin
-      Asm ("mrs %0, PRIMASK", Outputs => Word'Asm_Output ("=r", R),
+      Asm ("mrs %0, PRIMASK",
+           Outputs  => Word'Asm_Output ("=r", Result),
            Volatile => True);
-      return R;
+      return Result;
    end PRIMASK;
 
    --------------------
@@ -176,13 +257,13 @@ package body System.BB.CPU_Primitives is
       if Has_OS_Extensions then
          --  Switch the stack pointer to SP_process (PSP)
 
-         Asm ("mrs r0, MSP" & NL &
-                "msr PSP, r0" & NL &
-                "mrs r0, CONTROL" & NL &
-                "movs r1, #2" & NL &
-                "orr r0,r0,r1" & NL &
-                "msr CONTROL,r0" & NL &
-                "mrs r0, CONTROL",
+         Asm ("mrs r0, MSP"     & NL &
+              "msr PSP, r0"     & NL &
+              "mrs r0, CONTROL" & NL &
+              "movs r1, #2"     & NL &
+              "orr r0,r0,r1"    & NL &
+              "msr CONTROL,r0"  & NL &
+              "mrs r0, CONTROL",
               Clobber => "r0,r1",
               Volatile => True);
 
@@ -215,12 +296,7 @@ package body System.BB.CPU_Primitives is
       SHPR3 := 16#00_FF_00_00#;
 
       if not Is_ARMv6m then
-
-         --  Write the required key (16#05FA#) and desired PRIGROUP value. We
-         --  configure this to 3, to have 16 group priorities
-
-         AIRCR := 16#05FA_0300#;
-         pragma Assert (AIRCR = 16#FA05_0300#); --  Key value is swapped
+         Set_Selected_Priority_Group;
       end if;
 
       --  Enable usage, bus and memory management fault
@@ -357,7 +433,8 @@ package body System.BB.CPU_Primitives is
    procedure Set_Context
      (Context : in out Context_Buffer;
       Index   : Context_Id;
-      Value   : Word) is
+      Value   : Word)
+   is
    begin
       Context (Index) := Address (Value);
    end Set_Context;
@@ -514,5 +591,24 @@ package body System.BB.CPU_Primitives is
          Clear_PRIMASK_Register;
       end if;
    end Enable_Interrupts;
+
+   ---------------------------------
+   -- Set_Selected_Priority_Group --
+   ---------------------------------
+
+   procedure Set_Selected_Priority_Group is
+      Current_AIRCR : AIRCR_Register := AIRCR;
+   begin
+      Current_AIRCR.PRIGROUP := Priority_Group;
+      Current_AIRCR.VECTKEY  := AIRCR_Write_Key;
+      AIRCR := Current_AIRCR;
+
+      --  read it to give time for the assignment to take effect
+
+      Current_AIRCR := AIRCR;
+
+      pragma Assert (Current_AIRCR.VECTKEY = AIRCR_Read_Key and then
+                     Current_AIRCR.PRIGROUP = Priority_Group);
+   end Set_Selected_Priority_Group;
 
 end System.BB.CPU_Primitives;

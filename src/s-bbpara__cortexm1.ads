@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2019, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -34,7 +34,9 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package defines basic parameters used by the low level tasking system
+--  This package defines basic parameters used by the low level tasking system.
+--  These parameters are in this package in order to isolate target
+--  dependencies.
 
 --  This is the PolarFire Cortex-M1 (ARMv6-M) version of this package
 
@@ -52,8 +54,14 @@ package System.BB.Parameters is
    -- Interrupts --
    ----------------
 
-   --  These definitions are in this package in order to isolate target
-   --  dependencies.
+   subtype Cortex_Priority_Bits_Width is Integer range 1 .. 8;
+   --  The number of bits used by the hardware for priority levels, i.e.,
+   --  within the BASEPRI register and IP priority registers. Priorities are
+   --  at most eight bits wide but usually fewer. The value varies both with
+   --  vendor and chip.
+
+   NVIC_Priority_Bits : constant Cortex_Priority_Bits_Width := 4;
+   --  The number of bits allocated by this specific hardware implementation.
 
    subtype Interrupt_Range is Integer
      range -1 .. MCU_Parameters.Number_Of_Interrupts;
@@ -79,8 +87,8 @@ package System.BB.Parameters is
    --
    --  These trap vectors correspond to different low-level trap handlers in
    --  the run time. Note that as all interrupt requests (IRQs) will use the
-   --  same interrupt wrapper, there is no benefit to consider using separate
-   --  vectors for each.
+   --  same interrupt wrapper, there is no benefit to using separate vectors
+   --  for each.
 
    Context_Buffer_Capacity : constant := 10;
    --  The context buffer contains registers r4 .. r11 and the SP_process
@@ -113,7 +121,7 @@ package System.BB.Parameters is
    --  Set to true if core is an armv6-m (Cortex-M0, Cortex-M0+, Cortex-M1)
 
    ----------
-   -- CPUS --
+   -- CPUs --
    ----------
 
    Max_Number_Of_CPUs : constant := 1;

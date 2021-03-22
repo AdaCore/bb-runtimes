@@ -791,7 +791,7 @@ class Stm32l(ArmV7MTarget):
     @property
     def system_ads(self):
         return {'zfp': 'system-xi-arm.ads',
-                'ravenscar-sfp': 'system-xi-cortexm4-sfp.ads'}
+                'ravenscar-sfp': 'system-xi-stm32l5-sfp.ads'}
 
     def __init__(self, board):
         self.board = board

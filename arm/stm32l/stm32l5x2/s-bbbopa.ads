@@ -43,15 +43,19 @@ package System.BB.Board_Parameters is
    --  Maximum frequency of the system clock, per RM0438 section 9.3.3, when
    --  the PLL is used.
 
-   HSE_Clock_Frequency : constant := 8_000_000;
+   HSE_Clock_Frequency : constant := 0;
    --  The high speed external oscillator is optional and not mounted by
    --  default on the STM32L562QE Discovery Board, per UM2617 Rev 4, section
    --  6.5.2, page 22/61 (User Manual for STM32L562QE MCU). Also, 8MHz is
-   --  typical but not necessarily the value configured if the HSE is actualy
-   --  present.
+   --  typical but not necessarily the value configured if the HSE is actually
+   --  present. Set the value above to whatever is physically present.
+
+   HSI_Clock_Frequency : constant := 16_000_000;
+   LSI_Clock_Frequency : constant := 32_000;
+   LSE_Clock_Frequency : constant := 32_768;
 
    MSI_Clock_Frequency : constant := 48_000_000;
-   --  The Multispeed Internal clock, a configurable oscialltor used in our
+   --  The Multispeed Internal clock, a configurable oscillator used in our
    --  config to drive the PLL. NB: requires setting bits in RCC_CR.MSIRANGE
    --  field! Otherwise is 4MHz on powerup.
 
