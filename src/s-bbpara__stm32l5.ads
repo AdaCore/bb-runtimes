@@ -34,7 +34,9 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package defines basic parameters used by the low level tasking system
+--  This package defines basic parameters used by the low level tasking system.
+--  These parameters are in this package in order to isolate target
+--  dependencies.
 
 --  This is the STM32L562 Discovery Board version of this package
 
@@ -46,6 +48,10 @@ package System.BB.Parameters is
    pragma No_Elaboration_Code_All;
    pragma Preelaborate (System.BB.Parameters);
 
+   ------------
+   -- Clocks --
+   ------------
+
    Clock_Frequency : constant := Board_Parameters.Main_Clock_Frequency;
 
    pragma Compile_Time_Error
@@ -55,9 +61,14 @@ package System.BB.Parameters is
    Ticks_Per_Second : constant := Clock_Frequency;
 
    HSE_Clock : constant := Board_Parameters.HSE_Clock_Frequency;
-   --  Note that the HSE might not be mounted!
-
+   HSI_Clock : constant := Board_Parameters.HSI_Clock_Frequency;
+   LSI_Clock : constant := Board_Parameters.LSI_Clock_Frequency;
+   LSE_Clock : constant := Board_Parameters.LSE_Clock_Frequency;
    MSI_Clock : constant := Board_Parameters.MSI_Clock_Frequency;
+
+   ----------
+   -- Misc --
+   ----------
 
    Has_FPU : constant Boolean := True;
    --  Set to true if core has a FPU
@@ -77,8 +88,14 @@ package System.BB.Parameters is
    -- Interrupts --
    ----------------
 
-   --  These definitions are in this package in order to isolate target
-   --  dependencies.
+   subtype Cortex_Priority_Bits_Width is Integer range 1 .. 8;
+   --  The number of bits used by the hardware for priority levels, i.e.,
+   --  within the BASEPRI register and IP priority registers. Priorities are
+   --  at most eight bits wide but usually fewer. The value varies both with
+   --  vendor and chip.
+
+   NVIC_Priority_Bits : constant Cortex_Priority_Bits_Width := 3;
+   --  The number of bits allocated by this specific hardware implementation.
 
    subtype Interrupt_Range is Integer
      range -1 .. MCU_Parameters.Number_Of_Interrupts;
@@ -104,8 +121,8 @@ package System.BB.Parameters is
    --
    --  These trap vectors correspond to different low-level trap handlers in
    --  the run time. Note that as all interrupt requests (IRQs) will use the
-   --  same interrupt wrapper, there is no benefit to consider using separate
-   --  vectors for each.
+   --  same interrupt wrapper, there is no benefit to using separate vectors
+   --  for each.
 
    Context_Buffer_Capacity : constant := 10;
    --  The context buffer contains registers r4 .. r11 and the SP_process
@@ -124,7 +141,7 @@ package System.BB.Parameters is
    --  Size of the secondary stack for interrupt handlers
 
    ----------
-   -- CPUS --
+   -- CPUs --
    ----------
 
    Max_Number_Of_CPUs : constant := 1;
