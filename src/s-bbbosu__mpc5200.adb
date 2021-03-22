@@ -182,7 +182,7 @@ package body System.BB.Board_Support is
       Main_Interrupt_Present       at 0 range 10 .. 10;
       Main_Interrupt               at 0 range 11 .. 15;
       Critical_Interrupt_Present   at 0 range 21 .. 21;
-      Critical_Interrupt           at 0 range 23 .. 24;
+      Critical_Interrupt           at 0 range 22 .. 23;
       Critical_Enable_Bar          at 0 range 31 .. 31;
    end record;
 
