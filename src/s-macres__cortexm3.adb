@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---            Copyright (C) 2011-2016, Free Software Foundation, Inc.       --
+--            Copyright (C) 2011-2021, Free Software Foundation, Inc.       --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -30,8 +30,10 @@
 ------------------------------------------------------------------------------
 
 with Interfaces;
+with System.Machine_Code; use System.Machine_Code;
 
 package body System.Machine_Reset is
+
    procedure Os_Exit (Status : Integer);
    pragma No_Return (Os_Exit);
    pragma Export (Ada, Os_Exit, "_exit");
@@ -59,13 +61,32 @@ package body System.Machine_Reset is
       pragma Unreferenced (Status);
       --  The parameter is just for ISO-C compatibility
 
-      AIRCR : Interfaces.Unsigned_32;
-      for AIRCR'Address use 16#E000_ED0C#;
-      pragma Import (Ada, AIRCR);
-      pragma Volatile (AIRCR);
+      AIRCR : Interfaces.Unsigned_32 with
+        Address => 16#E000_ED0C#,
+        Import,
+        Volatile;
 
    begin
+      --  Apply a barrier prior to the reset request to ensure previous
+      --  memory accesses complete before the reset occurs.
+
+      Asm ("dsb 0xF", Volatile => True, Clobber => "memory");
+
+      --  Depending on the implementation, the reset could take some time to
+      --  occur, during which an interrupt could come in. In that case the
+      --  reset could occur in the middle of the interrupt handler. Disable
+      --  interrupts to prevent that.
+
+      Asm ("cpsid i", Volatile => True);
+
+      --  Request reset
+
       AIRCR := 16#05FA_0004#;
+
+      --  Depending on the implementation, the processor could continue
+      --  to execute a few instructions following the reset request before
+      --  the reset actually takes place. Use a loop to ensure there is no
+      --  application code to execute following the request.
 
       loop
          null;
@@ -80,4 +101,5 @@ package body System.Machine_Reset is
    begin
       Os_Exit (0);
    end Stop;
+
 end System.Machine_Reset;
