@@ -99592,7 +99592,7 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
       <name>LPUART1</name>
       <description>Universal synchronous asynchronous receiver
       transmitter</description>
-      <groupName>USART</groupName>
+      <groupName>LPUSART</groupName>
       <baseAddress>0x40008000</baseAddress>
       <addressBlock>
         <offset>0x0</offset>
@@ -104513,8 +104513,8 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
               <bitWidth>1</bitWidth>
             </field>
             <field>
-              <name>TXEIE</name>
-              <description>interrupt enable</description>
+              <name>TXEIE_TXFNFIE</name>
+              <description>shared bit differentiated by FIFO mode</description>
               <bitOffset>7</bitOffset>
               <bitWidth>1</bitWidth>
             </field>
@@ -104526,8 +104526,8 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
               <bitWidth>1</bitWidth>
             </field>
             <field>
-              <name>RXNEIE</name>
-              <description>RXNE interrupt enable</description>
+              <name>RXNEIE_RXFNEIE</name>
+              <description>shared bit differentiated by FIFO mode</description>
               <bitOffset>5</bitOffset>
               <bitWidth>1</bitWidth>
             </field>
@@ -105058,6 +105058,12 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
               <bitOffset>14</bitOffset>
               <bitWidth>1</bitWidth>
             </field>
+            <field>
+              <name>UDR</name>
+              <description>SPI slave under-run error flag</description>
+              <bitOffset>13</bitOffset>
+              <bitWidth>1</bitWidth>
+            </field>            
             <field>
               <name>EOBF</name>
               <description>EOBF</description>
