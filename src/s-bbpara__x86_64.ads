@@ -66,7 +66,7 @@ package System.BB.Parameters is
    pragma Compile_Time_Error
      ((Local_APIC_Frequency = 0 and TSC_Frequency /= 0) or
        (Local_APIC_Frequency /= 0 and TSC_Frequency = 0),
-       "Local_APIC_Frequency and TSC_Frequency need to be both zero or both" &
+       "Local_APIC_Frequency and TSC_Frequency need to be both zero or both " &
        "non-zero");
 
    APIC_Timer_Divider : constant := 4;
