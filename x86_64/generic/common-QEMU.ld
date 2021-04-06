@@ -35,33 +35,33 @@
  ****************************************************************************/
 
 /* Generic x86_64 linker script. Supports booting the application from
- * real-mode. */
+ * real-mode in QEMU. */
 
 INCLUDE memory-map.ld
 
-_DEFAULT_STACK_SIZE = 8*1024*1024;
+_DEFAULT_STACK_SIZE = 2*1024*1024;
 
-ENTRY(_start16);
+ENTRY(__start16);
 
 SECTIONS
 {
 
   /* The boot code needs to be located in first 64KiB to accommodate the
-   * initial 16-bit boot code. The 32 bit code is located at 0x500 as this
-   * is where conventional memory starts in real mode. The 16-bit code is
-   * located at the BIOS entry point so in QEMU our code runs instead of the
-   * existing BIOS. */
+   * initial 16-bit boot code. We keep the rest of the bootcode here for
+   * simplicity. */
 
   .boot 0x500:
   {
     __text_start = .;
-    *(.boottext)
-    *(.bootrodata)
-    *(.vector_table)
+    *(.boottext16)
+    *(.boottext32)
+    *(.boottext64)
     *(.gdt)
-    *(.idt)
-    *(.tss)
   } > ram
+
+  /* Overwrites QEMU's BIOS so the processor starts executing our code so our
+     output is not affected by the BIOS noisy and having to deal with a
+     bootloader. */
 
   .bios_replacement 0xfe05b :
   {
@@ -71,7 +71,12 @@ SECTIONS
   /* Place the rest of the image above 1MB to avoid the memory hole at
    * 0x90000-0xFFFFF */
 
-  .text 1M :
+  .page_table 1M (NOLOAD) :
+  {
+    *(.page_table)
+  } > ram
+
+  .text :
   {
     __text = .;
     *(.plt)
@@ -156,7 +161,6 @@ SECTIONS
   .rodata :
   {
     *(.lit)
-    *(.gdt)
     *(.rodata .rodata.* .gnu.linkonce.r*)
     *(.rodata1 rodata1.*)
     . = ALIGN(16);
@@ -179,14 +183,24 @@ SECTIONS
     __data_end = .;
   } > ram
 
+  .page_table (NOLOAD) :
+  {
+   /* Align the start and end of the bss section on 64-byte boundaries for
+     faster zeroing */
+    . = ALIGN(64);
+    *(.page_table)
+  } > ram
+
   .bss (NOLOAD):
   {
+   /* Align the start and end of the bss section on 64-byte boundaries for
+     faster zeroing */
+   . = ALIGN(64);
    __bss_start = .;
    *(.bss .bss.*)
    *(COMMON)
 
-   . = ALIGN(16);    /* Align the stack to 16-byte boundary to allow
-                         faster zeroing */
+   . = ALIGN(64);
    __bss_end = .;
 
    /* Interrupt stacks. Statically allocated in System.BB.Interrupts */
@@ -205,7 +219,7 @@ SECTIONS
    __heap_end = ORIGIN(ram) + LENGTH(ram);
   } > ram
 
-  __bss_dwords = (__bss_end - __bss_start) >> 3;
+  __bss_size = (__bss_end - __bss_start);
 
   /* Stabs debugging sections.  */
   .stab          0 : { *(.stab) }

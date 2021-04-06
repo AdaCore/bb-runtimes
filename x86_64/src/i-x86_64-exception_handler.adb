@@ -40,7 +40,6 @@ package body Interfaces.X86_64.Exception_Handler is
      with Import, External_Name => "abort";
 
    procedure Fatal_Exception (ID : SBI.Interrupt_ID; Code : SBC.Error_Code) is
-      pragma Unreferenced (Code);
    begin
       Put ("FATAL PROCESSOR EXCEPTION RAISED: ");
       case ID is
@@ -68,6 +67,7 @@ package body Interfaces.X86_64.Exception_Handler is
             Put ("Unknown exception raised. Number " & ID'Image);
       end case;
 
+      Put ("Error Code: " & Code'Image);
       New_Line;
       Put_Line ("Rebooting...");
       Os_Abort;

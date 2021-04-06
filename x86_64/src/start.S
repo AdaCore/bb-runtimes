@@ -26,31 +26,28 @@
 #                                                                           #
 #############################################################################
 
-/* Start file for x86_64 */
+# Start file for x86_64. It contains the following entry points to support
+# various bootloaders:
+#
+#   __qemu_entry
+#   __start16
+#   __start32
+#   __start64
 
-        .section .bootrodata,"a"
+        .section .page_table,"a",@nobits
         .align 4096
-        .global flat_page_tables
+        # Allocate space for the page tables. The start code will populate the
+        # table as generating a static table for 2,048 entries takes a lot of
+        # space.
 
-        # Page tables
-        # Long mode requires page tables but our runtime doesn't need them
-        # so we map the first 4GB with 1GB pages. If you need more memory
-        # expand the table.
-
-flat_page_table:
-        .long pdp + 0x03                /* 0x03 = R/W, P */
-        .long 0
-        .fill 4088, 1, 0
-
-pdp:    .long 0x00000083                /* 0x83 = 1GB, R/W, P */
-        .long 0
-        .long 0x40000083
-        .long 0
-        .long 0x80000083
-        .long 0
-        .long 0xC0000083
-        .long 0
-        .fill 4064, 1, 0
+        PAGE_TABLE_SIZE = 4096
+        NUM_PML4_ENTRIES = 1
+        NUM_PDP_ENTRIES = 4
+        NUM_PDE_ENTRIES = 512
+        TOTAL_PAGE_TABLES = 1 + NUM_PML4_ENTRIES + NUM_PDP_ENTRIES
+        TOTAL_PAGE_TABLES_SIZE = PAGE_TABLE_SIZE * TOTAL_PAGE_TABLES
+page_tables:
+        .fill TOTAL_PAGE_TABLES_SIZE, 1, 0
 
         .section .gdt,"ad"
 
@@ -118,8 +115,8 @@ gdt:
            .word 0,      0,     0,      0       # 0x00: null descriptor
 gdtcode32: .word 0xFFFF, 0,     0x9A00, 0x00CF  # 0x08: 32-bit code
 gdtdata32: .word 0xFFFF, 0,     0x9200, 0x00CF  # 0x10: 32-bit data
-gdtcode64: .word 0xFFFF, 0,     0x9A00, 0x00EF  # 0x18: 64-bit code
-gdtdata64: .word 0xFFFF, 0,     0x9200, 0x008F  # 0x20: 64-bit data
+gdtcode64: .word 0xFFFF, 0,     0x9A00, 0x00AF  # 0x18: 64-bit code
+gdtdata64: .word 0xFFFF, 0,     0x9200, 0x00CF  # 0x20: 64-bit data
 gdt_pointer:
         .word (gdt_pointer - gdt - 1)
         .long gdt
@@ -138,107 +135,163 @@ argv:
         .quad    0
 
         .section .bios_replacement,"ax"
-        .global _qemu_entry
+        .global __qemu_entry
         .code16
-_qemu_entry:
-        # Seperate entry for QEMU since we have QEMU load this section over the
-        # bios so we do not have to much around with having to provide a boot
-        # image for the BIOS to boot. See _start16 for a description of this
-        # code.
+        # Seperate entry for QEMU since we have QEMU load the bios_replacement
+        # section over it's own bios so we do not have to muck around with
+        # the BIOS (e.g.: creating an image for the BIOS to boot, dealing with
+        # the BIOS splash screen, etc). This code replicates _start16 instead
+        # of calling it since we'd need to do a long jump to _start16's memory
+        # segment which is as much effort as just switching to protected mode.
+        # See _start16 for details of this function.
+__qemu_entry:
         cli
         lgdt    gdt_pointer
         mov     $1, %ax
         movl    %eax, %cr0
-        ljmp    $CODE32_SEG, $_start32
+        ljmp    $CODE32_SEG, $setup_32mode
 
-        .section .boottext,"ax"
-        .global _start16
+        .section .boottext16,"ax"
+        .global __start16
         .code16
-_start16:
         # Processor has started in real mode. Switch to 32-bit protected mode
         # with interrupts disabled. Application processors (cores other than
         # the boot core) start here.
+__start16:
         cli
         lgdt    gdt_pointer
 
-        # Switch to protected mode, enable cache and cache write through, and
+        # Switch to protected mode, enable cache and cache write-through, and
         # enable the FPU (this enables us to cheat here and just write 1 to
         # CR0). The switch to protected mode is followed by an intrasegment
         # jump to flush the the instruction queue.
         mov     $1, %ax
         movl    %eax, %cr0
-        ljmp    $CODE32_SEG, $_start32
-
-        .section .boottext,"ax"
-        .global _start32
+        ljmp    $CODE32_SEG, $setup_32mode
         .code32
-_start32:
+setup_32mode:
         movw    $DATA32_SEG, %ax
         movw    %ax, %ds
         movw    %ax, %es
         movw    %ax, %ss
         movw    %ax, %fs
 
+        # Fall through to __start32
+
+        .section .boottext32,"ax"
+        .global __start32
+        .code32
+        # Entry when in 32-bit protected mode
+__start32:
+        .code32
+        # Entry when in 32-bit protected mode
         # Load the Global Descriptor Table to configure segment registers with
         # flat-mode descriptors. Also load the IDT with interrupts disabled.
 
         lgdt    gdt_pointer
-        # lidt idt48
 
         # At some point %ebp should hold a pointer to CPU specific data
 
-switch_to_long_mode:
+        # Disable paging in case the bootloader had enabled it
+
+        CR0_PG_BIT = 31
+        movl    %cr0, %eax
+        btrl    $CR0_PG_BIT, %eax
+        movl    %eax, %cr0
+
         # Prepare switch to long mode (64-bits) by enabling Physical Address
         # Extension (PAE) and SSE, setting up the page tables and per CPU
         # registers.
 
         # enable PAE and SSE
-        .set CR4_PAE,      1 << 5     # CR4.PAE
-        .set CR4_OSFXSR,   1 << 9     # CR4.OSFXSR
+        CR4_PAE    =  1 << 5     # CR4.PAE
+        CR4_OSFXSR =  1 << 9     # CR4.OSFXSR
 
         movl    %cr4, %eax
         orl     $(CR4_PAE | CR4_OSFXSR), %eax
         movl    %eax, %cr4
         clts
 
-        # setup page table
-        movl    $flat_page_table, %eax
+        # Populate and install the page table. We configure it to identity
+        # map the first 4G of RAM using 2M page sizes since not all CPUs
+        # support 1G page sizes.
+
+        # Initialize page tables
+        leal    page_tables, %edi
+        xorl    %eax, %eax
+        movl    $TOTAL_PAGE_TABLES_SIZE, %ecx
+        rep     stosb
+
+        # Generate PML4 Table
+        leal    page_tables, %edi
+        leal    0x1003 (%edi), %eax    # Addr to PDP entry, RW, Present
+        movl    %eax, 0(%edi)
+
+        # Generate Page Directory Pointer Table
+        leal    page_tables + 0x1000, %edi
+        leal    0x1007(%edi), %eax     # Addr to PDE entry, RW, Present
+        movl    $NUM_PDP_ENTRIES, %ecx # Iterate
+1:      movl    %eax, 0x00(%edi)
+        addl    $0x00001000, %eax
+        addl    $8, %edi
+        decl    %ecx
+        jnz     1b
+
+        # Generate Page Directory Entry Table
+        leal    page_tables + 0x2000, %edi
+        movl    $0x00000183, %eax    # G, PS, RW, Present
+        movl    $2048, %ecx
+1:      movl    %eax, 0(%edi)
+        addl    $0x00200000, %eax
+        addl    $8, %edi
+        decl    %ecx
+        jnz     1b
+
+        # Update CR3 with pointer to the new page tables
+        leal    page_tables, %eax
         movl    %eax, %cr3
 
         # enable long mode, no-execute
-        .set X86_EFER_MSR, 0xC0000080    # Extended feature register
-        .set X86_EFER_MSR_SCE,    1 << 0  # Enable SYSCALL instruction
-        .set X86_EFER_MSR_LME,    1 << 8  # Switch to long mode
-        .set X86_EFER_MSR_NXE,    1 << 11 # Enable NXE
+        EFER_MSR     = 0xC0000080    # Extended feature register
+        EFER_MSR_SCE = 0 << 0        # Enable SYSCALL instruction
+        EFER_MSR_LME = 1 << 8        # Switch to long mode
+        EFER_MSR_NXE = 0 << 11       # Enable NXE
 
-        movl    $X86_EFER_MSR, %ecx
+        movl    $EFER_MSR, %ecx
         rdmsr
-        orl     $(X86_EFER_MSR_LME | X86_EFER_MSR_NXE), %eax
+        orl     $(EFER_MSR_SCE | EFER_MSR_LME | EFER_MSR_NXE), %eax
         wrmsr
 
         # Enable paging
-        .set CR0_WP,     1 << 16   # Supervisor cannot write to read-only pages
-        .set CR0_PG,     1 << 31   # Enable paging
+        CR0_WP = 1 << 16   # Supervisor cannot write to read-only pages
+        CR0_PG = 1 << 31   # Enable paging
 
-        movl     %cr0, %eax
+        movl    %cr0, %eax
         orl     $(CR0_PG | CR0_WP), %eax
         movl    %eax, %cr0
 
-        # switch to long mode
-        jmpl    $CODE64_SEG,$1f
+        # switch to long mode and jump to our common 64-bit entry
+        jmpl    $CODE64_SEG,$__start64
+
+        .section .boottext64,"ax"
+        .global __start64
         .code64
-1:      movl    $DATA64_SEG, %eax
+        # Prepare the processor for jumping into our high-level code.
+__start64:
+        movl    $DATA64_SEG, %eax
         movw    %ax, %ds
         movw    %ax, %es
         movw    %ax, %ss
         movw    %ax, %fs
 
-        # clear bss section
+        # Clear bss section. We zero "bytes" because the underlying hardware
+        # (from Ivy Bridge onwards) will perform the operation internally using
+        # wider types.
         cld
-        xorl    %eax, %eax
+        xorq    %rax, %rax
         movq    $__bss_start, %rdi
-        movq    $__bss_dwords, %rcx
-        rep stosq
+        movq    $__bss_size, %rcx
+        rep stosb
 
         # load stack pointer
         movq    $__stack_end, %rsp
@@ -247,9 +300,7 @@ switch_to_long_mode:
         cld
 
         # Call main
-        call    main
+        callq    main
 
         # Stop the machine
-        call    _exit
-
-        .size _start32, . - _start32
+        callq    _exit

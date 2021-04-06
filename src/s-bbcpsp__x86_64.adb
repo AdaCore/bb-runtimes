@@ -72,10 +72,10 @@ package body System.BB.CPU_Specific is
    end My_CPU_Model;
 
    --------------------
-   -- Read_Raw_Clock --
+   -- Read_TSC --
    --------------------
 
-   function Read_Raw_Clock return Unsigned_64 is
+   function Read_TSC return Unsigned_64 is
       Raw_Count : Unsigned_64;
    begin
       Asm
@@ -86,6 +86,6 @@ package body System.BB.CPU_Specific is
          Clobber  => "rdx",
          Volatile => True);
       return Raw_Count;
-   end Read_Raw_Clock;
+   end Read_TSC;
 
 end System.BB.CPU_Specific;

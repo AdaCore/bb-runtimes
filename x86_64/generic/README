@@ -1,18 +1,18 @@
-x86_64 Runtimes
-===============
+x86_64 Run-times
+================
 
 This BSP supports processors from the Intel 64 architecture (x86-64).
 
-Runtimes Supported
-------------------
+Run-times Supported
+-------------------
 
 This BSP supports the following Intel processor families:
 
-* Core and Xeon families: processors based on the Sandy Bridge microarchitecture
-  and newer.
+* Core and Xeon families: processors based on the Sandy Bridge
+  microarchitecture and newer.
 * Atom families: processors based on the Goldmont microarchitecture and newer.
 
-and provides the following runtimes:
+and provides the following run-times:
 
 * zfp-x86_64
 * ravenscar-sfp-x86_64
@@ -25,26 +25,71 @@ Required CPU Features
 
 While the ZFP run-time has the ability to run on any x86-64 processor, the
 Ravenscar run-times require the following CPU features that are only present
-in supported processor families:
+in the supported processor families:
 
 * Invariant Time-Stamp Counter
 * XSAVEOPT instruction
 
 The run-time will check for these features on boot and will raise a run-time
-error if not present.
+error if the processor does not support them.
 
-Booting
--------
+Running a x86_64-elf Application
+--------------------------------
 
-The generic x86_64 run-times are designed to be booted from a variety of
-different bootloaders that can load ELF files. For example, these runtimes can
-be run with GNATemulator, or with QEMU through the switch
-"-device loader,file=<your_application>,cpu-num=0".
+The x86_64-elf run-times are designed to be booted from a variety of different
+bootloaders via bootloader-specific linker scripts. Shipped with GNAT Pro is
+support for:
+
+* GNATemulator
+* Multiboot 1 and Multiboot 2 complaint bootloaders (like GRUB)
+* LynxSecure (as a LynxSecure Application)
+
+By default, applications are built for GNATemulator. To build your application
+for one of the other supported bootloaders, set the LOADER project variable
+
+to MULTIBOOT, MULTIBOOT2 or LSA. The LOADER variable can be specified as a
+switch to GPRBuild:
+
+   gprbuild -P proj.gpr -XLOADER=MULTIBOOT
+
+or in GNAT Studio by adding the following to your project file:
+
+   type LOADER_Type is ("MULTIBOOT");
+   LOADER : LOADER_Type := external ("LOADER", "MULTIBOOT");
+
+GNATemulator
+~~~~~~~~~~~~
+
+By default, applications are built to run in GNATemulator. To run your program
+you can either press the ``Run with Emulator`` toolbar button in GNAT Studio
+or run directly from the command line with:
+
+   x86_64-elf-gnatemu my_program
+
+Multiboot
+~~~~~~~~~
+
+The MULTIBOOT and MULTIBOOT2 loaders allow the resulting ELF binary to be
+booted directy using a multiboot complaint bootloader like GRUB.
+
+LynxSecure
+~~~~~~~~~~
+
+The LSA loader produces an application that can be loaded as a LynxSecure
+Application (LSA). To add the application to a LynxSecure SRP, you first need
+to convert the ELF binary to a raw binary image:
+
+   x86_64-elf-objcopy -O binary <program> <program>.bin
+
+Once converted, the application can be included in an SRP with the following
+switch:
+
+   --subject-fvbmada=ram=128m,cpus=1,realtime=true,SERIAL0,lsapath=<program>.bin
 
 Resources Used
 --------------
 
-The runtime libraries provide a minimal version of package Ada.Text_IO
+The run-time libraries provide a minimal version of package Ada.Text_IO
 supporting character- and string-based input and output routines. These are
 implemented using a board-specific UART. You can change the UART selection
 as well as the configuration (e.g., the baud rate). The source files are
@@ -52,18 +97,19 @@ located in the gnat directory in a package named System.Text_IO
 (gnat/s-textio.adb).
 
 The Ravenscar run-times control the Local APIC and the use of the APIC timer
-is reserved for the runtime.
+is reserved for the run-time.
 
 Clock Speed
 -----------
 
-The Ravenscar run-times use the invariant Time-Stamp Counter (TSC) as their
-clock and will attempt to determine the TCS frequency on boot based on the
-information provided to it by the processor. On some processors this
-information may be unavailable and the run-time will raise a program error
-indicating this. If this occurs, the TCS frequency will need to be manual set
-in System.BB.Parameters. You may also need to manually set this frequency if
-the run-time determines the wrong TCS frequency.
+The Ravenscar run-times use the invariant Time-Stamp Counter (TSC) and Local
+APIC Timer as their clock sources and will attempt to determine the frequencies
+of these clock sources on boot, based on the information provided to it by the
+processor. On some processors this information may be unavailable, and the
+run-time will raise a program error indicating this problem. If this occurs,
+the TCS and Local APIC Timer frequency will need to be manually set in
+System.BB.Parameters. You may also need to manually set this frequency if the
+run-time determines the wrong TCS or Local APIC Timer frequencies.
 
 Interrupts
 ----------
@@ -94,7 +140,7 @@ script named common-RAM.ld that determines where program is loaded into RAM.
 It is located in the ld directory.
 
 Script selection is controlled by a scenario variable declared in an XML
-file named runtime.xml that is located in the runtime root directory. The
+file named runtime.xml that is located in the run-time root directory. The
 scenario variable is used to specify linker switches.
 
 The memory sections' locations and sizes are specified in memory-map.ld,
@@ -105,7 +151,7 @@ You can modify all of these scripts as required. Alternatively, these
 scripts can be overridden at link time by setting the environment variable
 LOADER to 'USER' and specifying the linker script via the '-T' linker switch.
 
-By default the runtimes are configured to use 128MB. If your system has more
+By default the run-times are configured to use 128MB. If your system has more
 or less memory, modify memory-map.ld to suite your requirements.
 
 Serial Port

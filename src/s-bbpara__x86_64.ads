@@ -48,28 +48,29 @@ package System.BB.Parameters is
    --------------------
 
    Ticks_Per_Second : constant := 1_000_000_000;
-   --  On x86-64 we read the TSC frequency from the CPU and convert that time
-   --  to nanoseconds.
+   --  On x86-64 we read the TSC and convert that time to nanoseconds
 
-   TSC_Frequency : constant := 0;
-   --  The frequency of the Time Stamp Clock (TSC) in Hertz. When set to zero
-   --  the runtime will attempt to determine its value from the processor's
-   --  internal registers following the guidelines provided by the Intel 64 and
-   --  IA-32 Architectures Software Developer's Manual, Volume 3B, Section
-   --  18.7.3. Since the TSC clock source is implemented differently across
-   --  the different Intel chip families, on some certain processors the
-   --  runtime may fail to either determine the TSC frequency or will set it
-   --  incorrectly. In the former case the runtime will raise a Program_Error
-   --  on boot, while for the latter always check to ensure the timing
-   --  behaviour is as expected. In both cases you will need to manual set the
-   --  TSC_Frequency constant above.
+   Local_APIC_Frequency : constant := 0;
+   TSC_Frequency        : constant := 0;
+   --  The frequencies of the Local APIC and Time Stamp Clock (TSC) in Hertz.
+   --  When set to zero the runtime will attempt to determine its value from
+   --  the processor's internal registers following the guidelines provided by
+   --  the Intel 64 and IA-32 Architectures Software Developer's Manual,
+   --  Volume 3B, Section 18.7.3. Since the TSC clock source is implemented
+   --  differently acros the different Intel chip families, on some certain
+   --  processors the runtime may fail to either determine the TSC frequency or
+   --  will set it incorrectly. In the former case the runtime will raise a
+   --  Program_Error on boot, while for the latter always check to ensure the
+   --  timing behaviour is as expected. In both cases you will need to manual
+   --  set the Local_APIC_Frequency and TSC_Frequency constants above.
+   pragma Compile_Time_Error
+     ((Local_APIC_Frequency = 0 and TSC_Frequency /= 0) or
+       (Local_APIC_Frequency /= 0 and TSC_Frequency = 0),
+       "Local_APIC_Frequency and TSC_Frequency need to be both zero or both" &
+       "non-zero");
 
-   APIC_Timer_Divider : constant := 16;
-   --  Since the timer frequency is typically in GHz, clock the timer down as
-   --  we do not need such a fine grain timer capable of firing every
-   --  nanosecond (which also means the longest delay we can have before
-   --  having to reset the 32-bit timer is ~ 1 second). Instead we aim for
-   --  microsecond granularity.
+   APIC_Timer_Divider : constant := 4;
+   --  Aim for microsecond granularity for most clock sources
 
    ----------------
    -- Interrupts --

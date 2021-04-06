@@ -198,7 +198,7 @@ package body System.BB.Board_Support is
       begin
          --  Read the raw clock and covert it to the Time time base
          return
-           BB.Time.Time ((Read_Raw_Clock * Ticks_Per_Millisecond) /
+           BB.Time.Time ((Read_TSC * Ticks_Per_Millisecond) /
                           TSC_Frequency_In_kHz);
       end Read_Clock;
 
@@ -206,33 +206,28 @@ package body System.BB.Board_Support is
       -- Set_Alarm --
       ---------------
 
-      procedure Set_Alarm (Ticks : BB.Time.Time)
-      is
-         --  Convert Ticks to the hardware time base to minimise the number
-         --  of conversions we need to do.
+      procedure Set_Alarm (Ticks : BB.Time.Time) is
+         use System.BB.Time;
 
-         Raw_Alarm_Time : constant Unsigned_64 :=
-           (Unsigned_64 (Ticks) * TSC_Frequency_In_kHz) /
-             Ticks_Per_Millisecond;
-         Now            : constant Unsigned_64 := Read_Raw_Clock;
+         Now : constant BB.Time.Time := Read_Clock;
+         --  The current time
 
-         Time_To_Alarm  : constant Unsigned_64 :=
-           (if Raw_Alarm_Time > (Now + APIC_Timer_Divider)
-              then (Raw_Alarm_Time - Now) / APIC_Timer_Divider
-              else 1);
-         --  The Raw_Alarm_Time is compared against the current time plus the
-         --  APIC_Timer_Divider because we don't want Time_To_Alarm to be set
-         --  to zero after the divide.
+         Time_To_Alarm : constant Unsigned_64 :=
+           Unsigned_64 (if Ticks > Now then Ticks - Now else 0);
+         --  Number of nanosecond Ticks until the timer needs to fire, or zero
+         --  if the time is in the past.
 
-         Timer_Value : Unsigned_32;
-         --  Value of the timer that we will set
+         Timer_Value   : constant Unsigned_64 :=
+           (Time_To_Alarm * APIC_Frequency_In_kHz) / Ticks_Per_Millisecond;
+         --  The requested value of the timer
       begin
-         Timer_Value :=
-           (if Time_To_Alarm > Unsigned_64 (Unsigned_32'Last)
-              then Unsigned_32'Last
-              else Unsigned_32 (Time_To_Alarm));
+         --  Set the APIC timer to be in the range 1 .. APIC_Time'Last. A
+         --  minimum of 1 ensures the required timer interrupt is raised.
 
-         Local_APIC_Timer_Initial_Count := APIC_Time (Timer_Value);
+         Local_APIC_Timer_Initial_Count :=
+           (if Timer_Value > Unsigned_64 (APIC_Time'Last) then APIC_Time'Last
+             elsif Timer_Value = 0 then 1
+             else APIC_Time (Timer_Value));
       end Set_Alarm;
    end Time;
 

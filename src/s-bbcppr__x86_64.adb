@@ -145,9 +145,10 @@ package body System.BB.CPU_Primitives is
    --  Manually layout the record for GDB
 
    CPU_Task_State : array (Multiprocessors.CPU) of aliased Task_State_Segment
-     with Linker_Section => ".tss";
-   --  Each CPU will store the address of their respective CPU_Task_State
-   --  record in their %gs register.
+     with Alignment => 16;
+   --  Task specific information for each task stored in the TSS table. Each
+   --  CPU will store the address of their respective CPU_Task_State record in
+   --  their %gs register.
 
    -----------------------------
    -- Global Descriptor Table --
@@ -261,10 +262,6 @@ package body System.BB.CPU_Primitives is
       Data            : Segment_Descriptor (Data_Segment);
       CPU_TSS         : TSS_Entries;
    end record;
-   --  GDT used by the runtime. This will replace the default GDT in start.S
-   --  by including the TSS Descriptors for each CPU.
-   --  Note: the IDT uses the position of the Code segment. If the position of
-   --  the code segment changes then the IDT in vector_table.S needs updating.
 
    type Descriptor_Pointer is record
       Limit        : Unsigned_16;
@@ -320,7 +317,7 @@ package body System.BB.CPU_Primitives is
            --  Initialize_CPU procedure for two reasons:
            --     1. It's hard to split (or even just take the lower part) of
            --        System.Address in a preelaborate unit with no elaboration.
-           --     2. Makes it easier to change the number of CPU's
+           --     2. Makes it easier to change the number of CPUs
            Segment_Type       => TSS_Available,
            Privilege_Level    => 0,
            Segment_Present    => True,
@@ -328,7 +325,56 @@ package body System.BB.CPU_Primitives is
            System_Flag        => False,
            Granularity        => Limit_in_Byte_Units,
            Base_Address_High  => 0)))
-     with Alignment => 8, Linker_Section => ".gdt";
+     with Alignment => 8;
+   --  GDT used by the runtime. This will replace the default GDT in start.S
+   --  to include the TSS Descriptors for each CPU.
+
+   --------------------------------
+   -- Interrupt Descriptor Table --
+   --------------------------------
+
+   --  The Interrupt Descriptor Table associates exception and interrupt
+   --  vectors with interrupt handlers via trap and interrupt gates. The IDT
+   --  is filled out in Setup_Interrupt_Descriptor_Table because we can't
+   --  statically allocate the table since the handler address splits across
+   --  different fields in the interrupt gate (or we can, but then we have to
+   --  fix the location of the IDT in memory). The vector handlers are defined
+   --  vector_handlers.S.
+   --
+   --  Interrupt Descriptor Table
+   --  See Intel 64 and IA-32 Architectures Software Developer's Manual
+   --  Volume 3A, Chapter 6: Interrupt and Exception Handling
+
+   type Vector_Address_Low_Part is mod 2 ** 16;
+   type Vector_Address_High_Part is mod 2 ** 48;
+
+   type Interrupt_Stack_Table_Selector is mod 2 ** 3;
+
+   type IDT_Gate is record
+      Vector_Address_Low    : Vector_Address_Low_Part;
+      Segment_Selector      : Unsigned_16;
+      Interrupt_Stack_Table : Interrupt_Stack_Table_Selector;
+      Segment_Type          : System_Segment_Type;
+      Privilege_Level       : Descriptor_Privilege_Level;
+      Segment_Present       : Boolean;
+      Vector_Address_High   : Vector_Address_High_Part;
+   end record with Size => 128;
+
+   for IDT_Gate use record
+      Vector_Address_Low    at 0 range  0 .. 15;
+      Segment_Selector      at 0 range 16 .. 31;
+      Interrupt_Stack_Table at 0 range 32 .. 34;
+      Segment_Type          at 0 range 40 .. 43;
+      Privilege_Level       at 0 range 45 .. 46;
+      Segment_Present       at 0 range 47 .. 47;
+      Vector_Address_High   at 0 range 48 .. 95;
+   end record;
+
+   IDT : array (LAPIC_Vector'Range) of IDT_Gate;
+
+   procedure Setup_Interrupt_Descriptor_Table;
+   --  Populate the Interrupt Descriptor Table with entries for our runtime's
+   --  interrupt and exception handlers.
 
    ---------------------------
    -- Exception Stack Table --
@@ -409,10 +455,10 @@ package body System.BB.CPU_Primitives is
    -- Timer --
    -----------
 
-   function Determine_TSC_Frequency return Unsigned_64;
-   --  Attempt to find out what the TSC frequency (kHz) from the CPU. If it
-   --  returns zero it means we were not able to determine the frequency of the
-   --  processor.
+   procedure Determine_Clock_Frequencies;
+   --  Attempt to find out what the TSC and APIC Timer frequencies are. An
+   --  exception is raised if procedure cannot determine these clock
+   --  frequencies.
 
    -------------------
    -- Miscellaneous --
@@ -499,7 +545,7 @@ package body System.BB.CPU_Primitives is
    --  Refer to Intel 64 and IA-32 Architectures Software Developer's Manual,
    --  Volume 3B, Section 18.7.3 for all the magic that happens here.
 
-   function Determine_TSC_Frequency return Unsigned_64 is
+   procedure Determine_Clock_Frequencies  is
       TSC_Information_Leaf          : constant := 16#15#;
       Processor_Frequency_Info_Leaf : constant := 16#16#;
       --  CPUID leaf IDs
@@ -510,12 +556,15 @@ package body System.BB.CPU_Primitives is
       Processor_Base_Frequency  : Unsigned_64;
       --  Clock information that we query from the CPU
 
-      TSC_Frequency             : Unsigned_64 := 0;
-      --  The Frequency of our Clock. If zero it means we were not able to
-      --  determine the frequency of the processor.
-
-      MHz : constant := 1_000_000_000;
    begin
+      pragma Warnings (Off, "*condition is always*");
+
+      if Local_APIC_Frequency /= 0 and then TSC_Frequency /= 0 then
+         APIC_Frequency_In_kHz := Local_APIC_Frequency / 1_000;
+         TSC_Frequency_In_kHz  := TSC_Frequency / 1_000;
+         return;
+      end if;
+
       if Max_CPUID_Index >= TSC_Information_Leaf then
          --  Try to see if the TSC Information Leaf 15H has the information we
          --  need.
@@ -526,6 +575,7 @@ package body System.BB.CPU_Primitives is
                 (Unsigned_64'Asm_Output ("=a", TSC_Ratio_Denominator),
                  Unsigned_64'Asm_Output ("=b", TSC_Ratio_Numerator),
                  Unsigned_64'Asm_Output ("=c", Core_Crystal_Clock_Mhz)),
+              Clobber  => "rdx",
               Volatile => True);
 
          --  The easiest case is the processor has enumerated all the TSC ratio
@@ -536,33 +586,39 @@ package body System.BB.CPU_Primitives is
             --  (only newer processors do this sadly).
 
             if Core_Crystal_Clock_Mhz /= 0 then
-               TSC_Frequency :=
-                 Core_Crystal_Clock_Mhz * MHz * TSC_Ratio_Numerator /
-                                                TSC_Ratio_Denominator;
-
-            --  The Denverton SoC does not report the crystal clock and lacks
-            --  the CPUID Leaf 16H used to calculate the TSC frequency below. A
-            --  hardcoded 25 MHz crystal clock is used instead.
+               APIC_Frequency_In_kHz := Core_Crystal_Clock_Mhz * 1_000;
+               TSC_Frequency_In_kHz :=
+                 APIC_Frequency_In_kHz * TSC_Ratio_Numerator /
+                                         TSC_Ratio_Denominator;
 
             elsif My_CPU_Model = Denverton then
-               Core_Crystal_Clock_Mhz := 25_000_000;
-               TSC_Frequency :=
-                 Core_Crystal_Clock_Mhz * MHz * TSC_Ratio_Numerator /
-                                                TSC_Ratio_Denominator;
+               --  The Denverton SoC does not report the crystal clock and
+               --  lacks the CPUID Leaf 16H used to calculate the TSC
+               --  frequency below. A hardcoded 25 MHz crystal clock is used
+               --  instead as that is the clock used in these chips.
 
-            --  When the core crystal clock frequency is not enumerated the TSC
-            --  appears to use the base frequency reported in CPUID Leaf 16H.
+               APIC_Frequency_In_kHz := 25 * 1_000;
+               TSC_Frequency_In_kHz :=
+                 APIC_Frequency_In_kHz * TSC_Ratio_Numerator /
+                                         TSC_Ratio_Denominator;
 
             elsif Max_CPUID_Index >= Processor_Frequency_Info_Leaf then
+               --  When the core crystal clock frequency is not enumerated
+               --  the TSC uses the base frequency reported in CPUID Leaf 16H.
+
                Asm ("cpuid",
                     Inputs   =>
                       Unsigned_32'Asm_Input
                         ("a", Processor_Frequency_Info_Leaf),
                     Outputs  =>
                       Unsigned_64'Asm_Output ("=a", Processor_Base_Frequency),
+                    Clobber => "rbx, rcx, rdx",
                     Volatile => True);
 
-               TSC_Frequency := Processor_Base_Frequency * MHz;
+               TSC_Frequency_In_kHz := Processor_Base_Frequency * 1_000;
+               APIC_Frequency_In_kHz :=
+                 TSC_Frequency_In_kHz * TSC_Ratio_Denominator /
+                                        TSC_Ratio_Numerator;
             end if;
          end if;
 
@@ -579,30 +635,79 @@ package body System.BB.CPU_Primitives is
         Goldmont
       then
          declare
-            Bus_Frequency : constant := 100 * MHz;
+            Bus_Frequency_kHz : constant := 100_000;
             Platform_Info : Platform_Infomation;
          begin
-
             Asm ("rdmsr",
                  Inputs   => Unsigned_32'Asm_Input ("a", MSR_PLATFORM_INFO),
                  Outputs  =>
                    Platform_Infomation'Asm_Output ("=a", Platform_Info),
                  Volatile => True);
 
-            TSC_Frequency :=
+            APIC_Frequency_In_kHz := Bus_Frequency_kHz;
+            TSC_Frequency_In_kHz :=
               Unsigned_64 (Platform_Info.Maximum_Non_Turbo_Ratio)
-              * Bus_Frequency;
+              * Bus_Frequency_kHz;
+         end;
+
+      --  If we are on LynxSecure, we can to retrieve the clock frequencies
+      --  from the RO Page provided to us on boot to get the most accurate
+      --  values.
+
+      elsif Host_Hardware = LynxSecure then
+         declare
+            type RO_Page_Type is record
+               TSC_Frequency  : Unsigned_64;
+               APIC_Frequency : Unsigned_64;
+            end record;
+            --  RO Page layout. We are only interested in the clock frequency
+            --  fields of the RO Page, so we leave out everything else.
+
+            for RO_Page_Type use record
+               TSC_Frequency  at 248 range 0 .. 63;
+               APIC_Frequency at 304 range 0 .. 63;
+            end record;
+
+            RO_Page : RO_Page_Type with Import, Address => Host_Info;
+            --  RO Page contains information passed by LynxSecure to the
+            --  subject.
+
+            subtype Valid_APIC_Frequencies is
+              Unsigned_64 range 10_000 .. 5_000_000;
+            subtype Valid_TSC_Frequencies is
+              Unsigned_64 range 500_000 .. 5_000_000;
+            --  Valid range of clock frequencies in kHz.
+
+         begin
+            APIC_Frequency_In_kHz := RO_Page.APIC_Frequency / 1000;
+            TSC_Frequency_In_kHz  := RO_Page.TSC_Frequency / 1000;
+
+            --  Sanity check the values to make sure the RO Page data structure
+            --  hasn't changed and we are reading rubbish. Zero the frequencies
+            --  if that's the case.
+
+            if APIC_Frequency_In_kHz not in Valid_APIC_Frequencies
+              or else TSC_Frequency_In_kHz not in Valid_TSC_Frequencies
+            then
+               APIC_Frequency_In_kHz := 0;
+               TSC_Frequency_In_kHz  := 0;
+            end if;
          end;
       end if;
 
       --  If we got to this point and have not been able to determine the
-      --  clock frequency, we have to determine the TSC Frequency by testing
-      --  it against the Programmable Interval Timer (PIT), which has a known
-      --  frequency.
+      --  clock frequencies, we have to determine the TSC and Local APIC
+      --  Frequency by testing them against the Programmable Interval Timer
+      --  (PIT), which has a known frequency. We perform the test five times
+      --  to ensure we can get consistent results.
 
-      if TSC_Frequency = 0 then
+      if TSC_Frequency_In_kHz = 0 then
          declare
-            function Calculate_Frequency return Unsigned_64;
+            type Clock_Values is record
+               APIC, TSC : Unsigned_64;
+            end record;
+
+            function Calculate_Frequency return Clock_Values;
             --  Calculate the frequency of the TSC by comparing the number of
             --  TSC ticks against a set number of PIT ticks, which has a known
             --  frequency of 1.193182 MHz.
@@ -611,33 +716,52 @@ package body System.BB.CPU_Primitives is
             -- Calculate_Frequency --
             -------------------------
 
-            function Calculate_Frequency return Unsigned_64 is
+            function Calculate_Frequency return Clock_Values is
                PIT_Frequency : constant := 1_193_182;
                --  PIT operates at 1.193182 MHz
 
-               PIT_Ticks_To_Count : constant := 11_932;
+               PIT_Ticks_To_Count : constant := 59_660;
                --  The number of PIT tickets we want to a we want to count the
-               --  TSC over. This number corresponds to approximately 10ms.
+               --  TSC and APIC Timer over. This number corresponds to
+               --  approximately 50ms.
 
                PIT_Reset_Count : constant Unsigned_16_Bytable :=
                  (View => Full, Value => Unsigned_16'Last);
-               --  Value we want the PIT to start from
+               --  Value to start the PIT from
+
+               APIC_Reset_Count : constant APIC_Time := APIC_Time'Last;
+               --  Value to start the APIC Timer from
 
                Start_PIT      : Unsigned_16_Bytable;
                Current_PIT    : Unsigned_16_Bytable;
                Target_PIT     : Unsigned_16;
                PIT_Tick_Count : Unsigned_16;
-               --  Start and end value of the PIT run and the target PIT value
-               --  that we'll stop the run at
+               --  PIT values used to calculate the frequencies of the TSC and
+               --  APIC Timer.
+
+               End_APIC        : APIC_Time;
+               APIC_Tick_Count : Unsigned_64;
+               --  Start and end value of the TSC run and the resulting number
+               --  of ticks.
 
                Start_TSC      : Unsigned_64;
                End_TSC        : Unsigned_64;
                TSC_Tick_Count : Unsigned_64;
                --  Start and end value of the TSC run and the resulting number
                --  of ticks.
-
             begin
+               --  Configure Local APIC Timer for the timing run by running it
+               --  at half the clock bus frequency for one shot.
+
+               Local_APIC_Timer_Divide_Configuration := Divide_by_2;
+               Local_APIC_LVT_Timer_Register :=
+                 (Timer_Mode => One_Shot,
+                  Mask       => True,
+                  Delivery   => Idle,
+                  Vector     => APIC_Timer_Vector);
+
                --  Set PIT reset value
+
                Write_IO_Byte (PIT_Reset_Count.Low, PIT_Channel_0_Data_Port);
                Write_IO_Byte (PIT_Reset_Count.High, PIT_Channel_0_Data_Port);
 
@@ -656,33 +780,46 @@ package body System.BB.CPU_Primitives is
 
                --  Start timing run
 
-               Start_TSC := Read_Raw_Clock;
+               Start_TSC := Read_TSC;
+               Local_APIC_Timer_Initial_Count := APIC_Reset_Count;
+
                Start_PIT.Value := Current_PIT.Value;
-               Target_PIT := Start_PIT.Value - PIT_Ticks_To_Count;
+               Target_PIT      := Start_PIT.Value - PIT_Ticks_To_Count;
 
                loop
+                  End_TSC := Read_TSC;
+                  End_APIC := Local_APIC_Timer_Current_Count;
+
                   Current_PIT.Low  := Read_IO_Byte (PIT_Channel_0_Data_Port);
                   Current_PIT.High := Read_IO_Byte (PIT_Channel_0_Data_Port);
 
-                  --  QEMU may jump over PIT values on successive reads so
+                  --  QEMU may jump over PIT values on successive reads, so
                   --  exit once we have reached or past the target value.
 
                   exit when Current_PIT.Value <= Target_PIT;
                end loop;
 
-               End_TSC := Read_Raw_Clock;
+               --  Stop the APIC Timer so it does not create any spurious
+               --  interrupts once we enable interrupts.
 
-               --  Calculate TSC frequency from the results of the timing run
+               Local_APIC_Timer_Initial_Count := 0;
 
-               TSC_Tick_Count := End_TSC - Start_TSC;
+               --  Calculate clock frequency from the results of the timing run
+
+               APIC_Tick_Count :=
+                 Unsigned_64 (APIC_Reset_Count - End_APIC) * 2;
                PIT_Tick_Count := Start_PIT.Value - Current_PIT.Value;
+               TSC_Tick_Count := End_TSC - Start_TSC;
 
-               --  We can do the following multiplication first since we won't
-               --  overflow the Unsigned_64 type because the maximum number of
-               --  TSC ticks in a second is at most the frequency of the CPU,
-               --  which currently tops out at around 5 GHz.
+               --  We can do the multiplication before the divison below since
+               --  the maximum number of TSC ticks in a second is below the
+               --  value that would cause Unsigned_64 to overflow (modern CPUs
+               --  currently don't go above 5Ghz).
                return
-                 TSC_Tick_Count * PIT_Frequency / Unsigned_64 (PIT_Tick_Count);
+                 (APIC => APIC_Tick_Count * PIT_Frequency /
+                            Unsigned_64 (PIT_Tick_Count),
+                  TSC  => TSC_Tick_Count * PIT_Frequency /
+                            Unsigned_64 (PIT_Tick_Count));
             end Calculate_Frequency;
 
             PIT_Config : constant PIT_Mode_Command_Register :=
@@ -693,11 +830,10 @@ package body System.BB.CPU_Primitives is
             --  PIT configuration settings
 
             type Clock_Runs is range 1 .. 5;
-            --  We determine the TSC clock frequency over 5 runs to account
-            --  for variations in the PIT and TSC sources that we see on
-            --  virtualized hosts.
+            --  Determine the clock frequencies over 5 runs to account for
+            --  variations hardware and virtualized solutions.
 
-            Frequency_Results : array (Clock_Runs) of Unsigned_64;
+            Frequency_Results : array (Clock_Runs) of Clock_Values;
             --  Array for the results of each clock determining run
 
             Median_Index : constant := (Frequency_Results'Length + 1) / 2;
@@ -711,25 +847,31 @@ package body System.BB.CPU_Primitives is
             --  The maximum difference between two clock frequency measurement
             --  we will tolerate.
 
+            TSC_Frequency : Unsigned_64;
+            --  Calculated TSC frequency
+
          begin
             --  Configure PIT
 
             Write_IO_Byte (To_IO_Byte (PIT_Config), PIT_Mode_Command_Port);
 
-            --  Find the TSC frequency over the number of specified runs
+            --  Find the TSC and APIC frequency over the number of specified
+            --  runs.
 
             for Run_Number in Frequency_Results'Range loop
                Frequency_Results (Run_Number) := Calculate_Frequency;
             end loop;
 
-            --  Pick the median result. Do this by first sorting the results
+            --  Pick the TSC median result. Do this by first sorting the
+            --  results.
 
             for J in Frequency_Results'First .. Frequency_Results'Last - 1 loop
                for K in J + 1 .. Frequency_Results'Last loop
                   declare
-                     Swap_Temp : Unsigned_64;
+                     Swap_Temp : Clock_Values;
                   begin
-                     if Frequency_Results (K) < Frequency_Results (J) then
+                     if Frequency_Results (K).TSC < Frequency_Results (J).TSC
+                     then
                         Swap_Temp := Frequency_Results (J);
                         Frequency_Results (J) := Frequency_Results (K);
                         Frequency_Results (K) := Swap_Temp;
@@ -738,28 +880,39 @@ package body System.BB.CPU_Primitives is
                end loop;
             end loop;
 
-            TSC_Frequency := Frequency_Results (Median_Index);
+            TSC_Frequency := Frequency_Results (Median_Index).TSC;
 
             Max_Frequency_Error :=
               Integer_64 (TSC_Frequency / Acceptable_Clock_Difference);
 
             if abs
               (Integer_64 (TSC_Frequency) -
-               Integer_64 (Frequency_Results (Median_Index - 1))) >
+               Integer_64 (Frequency_Results (Median_Index - 1).TSC)) >
               Max_Frequency_Error
               or else
                 abs
                   (Integer_64 (TSC_Frequency) -
-                   Integer_64 (Frequency_Results (Median_Index + 1))) >
+                   Integer_64 (Frequency_Results (Median_Index + 1).TSC)) >
                 Max_Frequency_Error
             then
                raise Program_Error with "Clock measurements lack precision";
             end if;
+
+            APIC_Frequency_In_kHz :=
+              Frequency_Results (Median_Index).APIC / 1_000;
+            TSC_Frequency_In_kHz := TSC_Frequency / 1_000;
          end;
       end if;
 
-      return TSC_Frequency;
-   end Determine_TSC_Frequency;
+      --  If the TSC Frequency is stil zero then we were not able to determine
+      --  what the clock frequencies are.
+
+      if TSC_Frequency_In_kHz = 0 then
+         raise Program_Error with "Clock frequencies could not be determined";
+      end if;
+
+      pragma Warnings (On, "*condition is always*");
+   end Determine_Clock_Frequencies;
 
    ------------------------
    -- Disable_Interrupts --
@@ -971,13 +1124,12 @@ package body System.BB.CPU_Primitives is
                  CPU_ID_String'Asm_Output ("=c", ECX),
                  CPU_ID_String'Asm_Output ("=d", EDX)),
               Volatile => True);
+
+         --  Validate that we are on a supported processor
+
          if EBX = "Genu" and then EDX = "ineI" and then ECX = "ntel" then
-            --  Capture the highest CPUID index value
-            if Max_CPUID_Index >= Min_Required_CPUID_Index then
-               Max_CPUID_Index := EAX;
-            else
-               raise Program_Error with
-                 "Unsupported Intel processor";
+            if Max_CPUID_Index < Min_Required_CPUID_Index then
+               raise Program_Error with "Unsupported Intel processor";
             end if;
          else
             raise Program_Error with "Runtime only supports Intel processors";
@@ -1149,8 +1301,8 @@ package body System.BB.CPU_Primitives is
 
          GDT_Location : constant Descriptor_Pointer :=
             (Base_Address => GDT'Address, Limit => GDT'Size / 8 - 1);
-         IDT_Location : constant Descriptor_Pointer
-            with Import, External_Name => "__idt_access";
+         IDT_Location : constant Descriptor_Pointer :=
+            (Base_Address => IDT'Address, Limit => IDT'Size / 8 - 1);
          --  Locations of the GDT and IDT tables in the format required by
          --  their respective load instructions.
 
@@ -1232,7 +1384,10 @@ package body System.BB.CPU_Primitives is
             Inputs   => Unsigned_16'Asm_Input ("r", GDT.CPU_TSS'Position),
             Volatile => True);
 
-         --  Load the IDT
+         --  Setup and load the IDT
+
+         Setup_Interrupt_Descriptor_Table;
+
          Asm
            ("lidt %0",
             Inputs   => Descriptor_Pointer'Asm_Input ("m", IDT_Location),
@@ -1261,6 +1416,10 @@ package body System.BB.CPU_Primitives is
       --  be useful to enable the Error, LINT0 and LINT1 vectors (for the
       --  latter need to decide whether to hard code or read the ACPI table).
 
+      --  Determine system clock frequencies
+
+      Determine_Clock_Frequencies;
+
       --  Setup Local APIC Timer
 
       --  Disable warnings for Local_APIC_Timer_Divide_Configuration
@@ -1282,20 +1441,14 @@ package body System.BB.CPU_Primitives is
          Delivery   => Idle,
          Vector     => APIC_Timer_Vector);
 
-      TSC_Frequency_In_kHz :=
-        (if TSC_Frequency /= 0
-           then TSC_Frequency
-           else Determine_TSC_Frequency) / 1_000;
+      --  Update APIC_Frequency_In_kHz to reflect the chosen divider
 
-      if TSC_Frequency_In_kHz = 0 then
-         raise Program_Error with "TSC frequency could not be determined";
-      end if;
+      APIC_Frequency_In_kHz := APIC_Frequency_In_kHz / APIC_Timer_Divider;
 
       --  Clear any pending interrupts that may have occurred before or during
       --  the setup.
 
       Local_APIC_End_of_Interrupt := Signal;
-
    end Initialize_CPU;
 
    -----------------------
@@ -1495,6 +1648,583 @@ package body System.BB.CPU_Primitives is
       null;
    end Install_Error_Handlers;
 
+   --------------------------------------
+   -- Setup_Interrupt_Descriptor_Table --
+   --------------------------------------
+
+   procedure Setup_Interrupt_Descriptor_Table is
+
+      procedure Add_Gate
+        (Vector    : LAPIC_Vector;
+         Handler   : System.Address;
+         Gate_Type : System_Segment_Type;
+         Stack     : Interrupt_Stack_Table_Selector);
+      --  Add a new gate entry to the Interrupt Descriptor Table
+
+      --------------
+      -- Add_Gate --
+      --------------
+
+      procedure Add_Gate
+        (Vector    : LAPIC_Vector;
+         Handler   : System.Address;
+         Gate_Type : System_Segment_Type;
+         Stack     : Interrupt_Stack_Table_Selector)
+      is
+         type Gate_Address is record
+            Low  : Vector_Address_Low_Part;
+            High : Vector_Address_High_Part;
+         end record;
+         --  Type used to split the vector handler address into the low and
+         --  high components used by the gate descriptor.
+
+         for Gate_Address use record
+            Low  at 0 range 0 .. 15;
+            High at 0 range 16 .. 63;
+         end record;
+
+         function To_Gate_Address is new
+           Ada.Unchecked_Conversion (System.Address, Gate_Address);
+
+         Handler_Address : constant Gate_Address := To_Gate_Address (Handler);
+         --  Handler address in form that we can extract the fields required
+         --  for the gate entry.
+
+      begin
+         IDT (Vector) :=
+           (Vector_Address_Low    => Handler_Address.Low,
+            Segment_Selector      => GDT.Code'Position,
+            Interrupt_Stack_Table => Stack,
+            Segment_Type          => Gate_Type,
+            Privilege_Level       => 0,
+            Segment_Present       => True,
+            Vector_Address_High   => Handler_Address.High);
+      end Add_Gate;
+
+      Interrupt_Stack : constant := 1;
+      Exception_Stack : constant := 7;
+      --  IST stack choices. We use sepeate stacks for interrupts and
+      --  exceptions since we always want stack space available in case an
+      --  exception occurs during an interrupt handler.
+
+      --  Interrupt and exception vector handlers
+
+      procedure Vector_0   with Import, External_Name => "vector_0";
+      procedure Vector_1   with Import, External_Name => "vector_1";
+      procedure Vector_2   with Import, External_Name => "vector_2";
+      procedure Vector_3   with Import, External_Name => "vector_3";
+      procedure Vector_4   with Import, External_Name => "vector_4";
+      procedure Vector_5   with Import, External_Name => "vector_5";
+      procedure Vector_6   with Import, External_Name => "vector_6";
+      procedure Vector_7   with Import, External_Name => "vector_7";
+      procedure Vector_8   with Import, External_Name => "vector_8";
+      procedure Vector_9   with Import, External_Name => "vector_9";
+      procedure Vector_10  with Import, External_Name => "vector_10";
+      procedure Vector_11  with Import, External_Name => "vector_11";
+      procedure Vector_12  with Import, External_Name => "vector_12";
+      procedure Vector_13  with Import, External_Name => "vector_13";
+      procedure Vector_14  with Import, External_Name => "vector_14";
+      procedure Vector_15  with Import, External_Name => "vector_15";
+      procedure Vector_16  with Import, External_Name => "vector_16";
+      procedure Vector_17  with Import, External_Name => "vector_17";
+      procedure Vector_18  with Import, External_Name => "vector_18";
+      procedure Vector_19  with Import, External_Name => "vector_19";
+      procedure Vector_20  with Import, External_Name => "vector_20";
+      procedure Vector_21  with Import, External_Name => "vector_21";
+      procedure Vector_22  with Import, External_Name => "vector_22";
+      procedure Vector_23  with Import, External_Name => "vector_23";
+      procedure Vector_24  with Import, External_Name => "vector_24";
+      procedure Vector_25  with Import, External_Name => "vector_25";
+      procedure Vector_26  with Import, External_Name => "vector_26";
+      procedure Vector_27  with Import, External_Name => "vector_27";
+      procedure Vector_28  with Import, External_Name => "vector_28";
+      procedure Vector_29  with Import, External_Name => "vector_29";
+      procedure Vector_30  with Import, External_Name => "vector_30";
+      procedure Vector_31  with Import, External_Name => "vector_31";
+      procedure Vector_32  with Import, External_Name => "vector_32";
+      procedure Vector_33  with Import, External_Name => "vector_33";
+      procedure Vector_34  with Import, External_Name => "vector_34";
+      procedure Vector_35  with Import, External_Name => "vector_35";
+      procedure Vector_36  with Import, External_Name => "vector_36";
+      procedure Vector_37  with Import, External_Name => "vector_37";
+      procedure Vector_38  with Import, External_Name => "vector_38";
+      procedure Vector_39  with Import, External_Name => "vector_39";
+      procedure Vector_40  with Import, External_Name => "vector_40";
+      procedure Vector_41  with Import, External_Name => "vector_41";
+      procedure Vector_42  with Import, External_Name => "vector_42";
+      procedure Vector_43  with Import, External_Name => "vector_43";
+      procedure Vector_44  with Import, External_Name => "vector_44";
+      procedure Vector_45  with Import, External_Name => "vector_45";
+      procedure Vector_46  with Import, External_Name => "vector_46";
+      procedure Vector_47  with Import, External_Name => "vector_47";
+      procedure Vector_48  with Import, External_Name => "vector_48";
+      procedure Vector_49  with Import, External_Name => "vector_49";
+      procedure Vector_50  with Import, External_Name => "vector_50";
+      procedure Vector_51  with Import, External_Name => "vector_51";
+      procedure Vector_52  with Import, External_Name => "vector_52";
+      procedure Vector_53  with Import, External_Name => "vector_53";
+      procedure Vector_54  with Import, External_Name => "vector_54";
+      procedure Vector_55  with Import, External_Name => "vector_55";
+      procedure Vector_56  with Import, External_Name => "vector_56";
+      procedure Vector_57  with Import, External_Name => "vector_57";
+      procedure Vector_58  with Import, External_Name => "vector_58";
+      procedure Vector_59  with Import, External_Name => "vector_59";
+      procedure Vector_60  with Import, External_Name => "vector_60";
+      procedure Vector_61  with Import, External_Name => "vector_61";
+      procedure Vector_62  with Import, External_Name => "vector_62";
+      procedure Vector_63  with Import, External_Name => "vector_63";
+      procedure Vector_64  with Import, External_Name => "vector_64";
+      procedure Vector_65  with Import, External_Name => "vector_65";
+      procedure Vector_66  with Import, External_Name => "vector_66";
+      procedure Vector_67  with Import, External_Name => "vector_67";
+      procedure Vector_68  with Import, External_Name => "vector_68";
+      procedure Vector_69  with Import, External_Name => "vector_69";
+      procedure Vector_70  with Import, External_Name => "vector_70";
+      procedure Vector_71  with Import, External_Name => "vector_71";
+      procedure Vector_72  with Import, External_Name => "vector_72";
+      procedure Vector_73  with Import, External_Name => "vector_73";
+      procedure Vector_74  with Import, External_Name => "vector_74";
+      procedure Vector_75  with Import, External_Name => "vector_75";
+      procedure Vector_76  with Import, External_Name => "vector_76";
+      procedure Vector_77  with Import, External_Name => "vector_77";
+      procedure Vector_78  with Import, External_Name => "vector_78";
+      procedure Vector_79  with Import, External_Name => "vector_79";
+      procedure Vector_80  with Import, External_Name => "vector_80";
+      procedure Vector_81  with Import, External_Name => "vector_81";
+      procedure Vector_82  with Import, External_Name => "vector_82";
+      procedure Vector_83  with Import, External_Name => "vector_83";
+      procedure Vector_84  with Import, External_Name => "vector_84";
+      procedure Vector_85  with Import, External_Name => "vector_85";
+      procedure Vector_86  with Import, External_Name => "vector_86";
+      procedure Vector_87  with Import, External_Name => "vector_87";
+      procedure Vector_88  with Import, External_Name => "vector_88";
+      procedure Vector_89  with Import, External_Name => "vector_89";
+      procedure Vector_90  with Import, External_Name => "vector_90";
+      procedure Vector_91  with Import, External_Name => "vector_91";
+      procedure Vector_92  with Import, External_Name => "vector_92";
+      procedure Vector_93  with Import, External_Name => "vector_93";
+      procedure Vector_94  with Import, External_Name => "vector_94";
+      procedure Vector_95  with Import, External_Name => "vector_95";
+      procedure Vector_96  with Import, External_Name => "vector_96";
+      procedure Vector_97  with Import, External_Name => "vector_97";
+      procedure Vector_98  with Import, External_Name => "vector_98";
+      procedure Vector_99  with Import, External_Name => "vector_99";
+      procedure Vector_100 with Import, External_Name => "vector_100";
+      procedure Vector_101 with Import, External_Name => "vector_101";
+      procedure Vector_102 with Import, External_Name => "vector_102";
+      procedure Vector_103 with Import, External_Name => "vector_103";
+      procedure Vector_104 with Import, External_Name => "vector_104";
+      procedure Vector_105 with Import, External_Name => "vector_105";
+      procedure Vector_106 with Import, External_Name => "vector_106";
+      procedure Vector_107 with Import, External_Name => "vector_107";
+      procedure Vector_108 with Import, External_Name => "vector_108";
+      procedure Vector_109 with Import, External_Name => "vector_109";
+      procedure Vector_110 with Import, External_Name => "vector_110";
+      procedure Vector_111 with Import, External_Name => "vector_111";
+      procedure Vector_112 with Import, External_Name => "vector_112";
+      procedure Vector_113 with Import, External_Name => "vector_113";
+      procedure Vector_114 with Import, External_Name => "vector_114";
+      procedure Vector_115 with Import, External_Name => "vector_115";
+      procedure Vector_116 with Import, External_Name => "vector_116";
+      procedure Vector_117 with Import, External_Name => "vector_117";
+      procedure Vector_118 with Import, External_Name => "vector_118";
+      procedure Vector_119 with Import, External_Name => "vector_119";
+      procedure Vector_120 with Import, External_Name => "vector_120";
+      procedure Vector_121 with Import, External_Name => "vector_121";
+      procedure Vector_122 with Import, External_Name => "vector_122";
+      procedure Vector_123 with Import, External_Name => "vector_123";
+      procedure Vector_124 with Import, External_Name => "vector_124";
+      procedure Vector_125 with Import, External_Name => "vector_125";
+      procedure Vector_126 with Import, External_Name => "vector_126";
+      procedure Vector_127 with Import, External_Name => "vector_127";
+      procedure Vector_128 with Import, External_Name => "vector_128";
+      procedure Vector_129 with Import, External_Name => "vector_129";
+      procedure Vector_130 with Import, External_Name => "vector_130";
+      procedure Vector_131 with Import, External_Name => "vector_131";
+      procedure Vector_132 with Import, External_Name => "vector_132";
+      procedure Vector_133 with Import, External_Name => "vector_133";
+      procedure Vector_134 with Import, External_Name => "vector_134";
+      procedure Vector_135 with Import, External_Name => "vector_135";
+      procedure Vector_136 with Import, External_Name => "vector_136";
+      procedure Vector_137 with Import, External_Name => "vector_137";
+      procedure Vector_138 with Import, External_Name => "vector_138";
+      procedure Vector_139 with Import, External_Name => "vector_139";
+      procedure Vector_140 with Import, External_Name => "vector_140";
+      procedure Vector_141 with Import, External_Name => "vector_141";
+      procedure Vector_142 with Import, External_Name => "vector_142";
+      procedure Vector_143 with Import, External_Name => "vector_143";
+      procedure Vector_144 with Import, External_Name => "vector_144";
+      procedure Vector_145 with Import, External_Name => "vector_145";
+      procedure Vector_146 with Import, External_Name => "vector_146";
+      procedure Vector_147 with Import, External_Name => "vector_147";
+      procedure Vector_148 with Import, External_Name => "vector_148";
+      procedure Vector_149 with Import, External_Name => "vector_149";
+      procedure Vector_150 with Import, External_Name => "vector_150";
+      procedure Vector_151 with Import, External_Name => "vector_151";
+      procedure Vector_152 with Import, External_Name => "vector_152";
+      procedure Vector_153 with Import, External_Name => "vector_153";
+      procedure Vector_154 with Import, External_Name => "vector_154";
+      procedure Vector_155 with Import, External_Name => "vector_155";
+      procedure Vector_156 with Import, External_Name => "vector_156";
+      procedure Vector_157 with Import, External_Name => "vector_157";
+      procedure Vector_158 with Import, External_Name => "vector_158";
+      procedure Vector_159 with Import, External_Name => "vector_159";
+      procedure Vector_160 with Import, External_Name => "vector_160";
+      procedure Vector_161 with Import, External_Name => "vector_161";
+      procedure Vector_162 with Import, External_Name => "vector_162";
+      procedure Vector_163 with Import, External_Name => "vector_163";
+      procedure Vector_164 with Import, External_Name => "vector_164";
+      procedure Vector_165 with Import, External_Name => "vector_165";
+      procedure Vector_166 with Import, External_Name => "vector_166";
+      procedure Vector_167 with Import, External_Name => "vector_167";
+      procedure Vector_168 with Import, External_Name => "vector_168";
+      procedure Vector_169 with Import, External_Name => "vector_169";
+      procedure Vector_170 with Import, External_Name => "vector_170";
+      procedure Vector_171 with Import, External_Name => "vector_171";
+      procedure Vector_172 with Import, External_Name => "vector_172";
+      procedure Vector_173 with Import, External_Name => "vector_173";
+      procedure Vector_174 with Import, External_Name => "vector_174";
+      procedure Vector_175 with Import, External_Name => "vector_175";
+      procedure Vector_176 with Import, External_Name => "vector_176";
+      procedure Vector_177 with Import, External_Name => "vector_177";
+      procedure Vector_178 with Import, External_Name => "vector_178";
+      procedure Vector_179 with Import, External_Name => "vector_179";
+      procedure Vector_180 with Import, External_Name => "vector_180";
+      procedure Vector_181 with Import, External_Name => "vector_181";
+      procedure Vector_182 with Import, External_Name => "vector_182";
+      procedure Vector_183 with Import, External_Name => "vector_183";
+      procedure Vector_184 with Import, External_Name => "vector_184";
+      procedure Vector_185 with Import, External_Name => "vector_185";
+      procedure Vector_186 with Import, External_Name => "vector_186";
+      procedure Vector_187 with Import, External_Name => "vector_187";
+      procedure Vector_188 with Import, External_Name => "vector_188";
+      procedure Vector_189 with Import, External_Name => "vector_189";
+      procedure Vector_190 with Import, External_Name => "vector_190";
+      procedure Vector_191 with Import, External_Name => "vector_191";
+      procedure Vector_192 with Import, External_Name => "vector_192";
+      procedure Vector_193 with Import, External_Name => "vector_193";
+      procedure Vector_194 with Import, External_Name => "vector_194";
+      procedure Vector_195 with Import, External_Name => "vector_195";
+      procedure Vector_196 with Import, External_Name => "vector_196";
+      procedure Vector_197 with Import, External_Name => "vector_197";
+      procedure Vector_198 with Import, External_Name => "vector_198";
+      procedure Vector_199 with Import, External_Name => "vector_199";
+      procedure Vector_200 with Import, External_Name => "vector_200";
+      procedure Vector_201 with Import, External_Name => "vector_201";
+      procedure Vector_202 with Import, External_Name => "vector_202";
+      procedure Vector_203 with Import, External_Name => "vector_203";
+      procedure Vector_204 with Import, External_Name => "vector_204";
+      procedure Vector_205 with Import, External_Name => "vector_205";
+      procedure Vector_206 with Import, External_Name => "vector_206";
+      procedure Vector_207 with Import, External_Name => "vector_207";
+      procedure Vector_208 with Import, External_Name => "vector_208";
+      procedure Vector_209 with Import, External_Name => "vector_209";
+      procedure Vector_210 with Import, External_Name => "vector_210";
+      procedure Vector_211 with Import, External_Name => "vector_211";
+      procedure Vector_212 with Import, External_Name => "vector_212";
+      procedure Vector_213 with Import, External_Name => "vector_213";
+      procedure Vector_214 with Import, External_Name => "vector_214";
+      procedure Vector_215 with Import, External_Name => "vector_215";
+      procedure Vector_216 with Import, External_Name => "vector_216";
+      procedure Vector_217 with Import, External_Name => "vector_217";
+      procedure Vector_218 with Import, External_Name => "vector_218";
+      procedure Vector_219 with Import, External_Name => "vector_219";
+      procedure Vector_220 with Import, External_Name => "vector_220";
+      procedure Vector_221 with Import, External_Name => "vector_221";
+      procedure Vector_222 with Import, External_Name => "vector_222";
+      procedure Vector_223 with Import, External_Name => "vector_223";
+      procedure Vector_224 with Import, External_Name => "vector_224";
+      procedure Vector_225 with Import, External_Name => "vector_225";
+      procedure Vector_226 with Import, External_Name => "vector_226";
+      procedure Vector_227 with Import, External_Name => "vector_227";
+      procedure Vector_228 with Import, External_Name => "vector_228";
+      procedure Vector_229 with Import, External_Name => "vector_229";
+      procedure Vector_230 with Import, External_Name => "vector_230";
+      procedure Vector_231 with Import, External_Name => "vector_231";
+      procedure Vector_232 with Import, External_Name => "vector_232";
+      procedure Vector_233 with Import, External_Name => "vector_233";
+      procedure Vector_234 with Import, External_Name => "vector_234";
+      procedure Vector_235 with Import, External_Name => "vector_235";
+      procedure Vector_236 with Import, External_Name => "vector_236";
+      procedure Vector_237 with Import, External_Name => "vector_237";
+      procedure Vector_238 with Import, External_Name => "vector_238";
+      procedure Vector_239 with Import, External_Name => "vector_239";
+      procedure Vector_240 with Import, External_Name => "vector_240";
+      procedure Vector_241 with Import, External_Name => "vector_241";
+      procedure Vector_242 with Import, External_Name => "vector_242";
+      procedure Vector_243 with Import, External_Name => "vector_243";
+      procedure Vector_244 with Import, External_Name => "vector_244";
+      procedure Vector_245 with Import, External_Name => "vector_245";
+      procedure Vector_246 with Import, External_Name => "vector_246";
+      procedure Vector_247 with Import, External_Name => "vector_247";
+      procedure Vector_248 with Import, External_Name => "vector_248";
+      procedure Vector_249 with Import, External_Name => "vector_249";
+      procedure Vector_250 with Import, External_Name => "vector_250";
+      procedure Vector_251 with Import, External_Name => "vector_251";
+      procedure Vector_252 with Import, External_Name => "vector_252";
+      procedure Vector_253 with Import, External_Name => "vector_253";
+      procedure Vector_254 with Import, External_Name => "vector_254";
+      procedure Vector_255 with Import, External_Name => "vector_255";
+
+   begin
+      Add_Gate (0,   Vector_0'Address,   Trap_Gate,      Exception_Stack);
+      Add_Gate (1,   Vector_1'Address,   Trap_Gate,      Exception_Stack);
+      Add_Gate (2,   Vector_2'Address,   Trap_Gate,      Exception_Stack);
+      Add_Gate (3,   Vector_3'Address,   Trap_Gate,      Exception_Stack);
+      Add_Gate (4,   Vector_4'Address,   Trap_Gate,      Exception_Stack);
+      Add_Gate (5,   Vector_5'Address,   Trap_Gate,      Exception_Stack);
+      Add_Gate (6,   Vector_6'Address,   Trap_Gate,      Exception_Stack);
+      Add_Gate (7,   Vector_7'Address,   Trap_Gate,      Exception_Stack);
+      Add_Gate (8,   Vector_8'Address,   Trap_Gate,      Exception_Stack);
+      Add_Gate (9,   Vector_9'Address,   Trap_Gate,      Exception_Stack);
+      Add_Gate (10,  Vector_10'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (11,  Vector_11'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (12,  Vector_12'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (13,  Vector_13'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (14,  Vector_14'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (15,  Vector_15'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (16,  Vector_16'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (17,  Vector_17'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (18,  Vector_18'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (19,  Vector_19'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (20,  Vector_20'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (21,  Vector_21'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (22,  Vector_22'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (23,  Vector_23'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (24,  Vector_24'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (25,  Vector_25'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (26,  Vector_26'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (27,  Vector_27'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (28,  Vector_28'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (29,  Vector_29'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (30,  Vector_30'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (31,  Vector_31'Address,  Trap_Gate,      Exception_Stack);
+      Add_Gate (32,  Vector_32'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (33,  Vector_33'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (34,  Vector_34'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (35,  Vector_35'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (36,  Vector_36'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (37,  Vector_37'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (38,  Vector_38'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (39,  Vector_39'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (40,  Vector_40'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (41,  Vector_41'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (42,  Vector_42'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (43,  Vector_43'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (44,  Vector_44'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (45,  Vector_45'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (46,  Vector_46'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (47,  Vector_47'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (48,  Vector_48'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (49,  Vector_49'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (50,  Vector_50'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (51,  Vector_51'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (52,  Vector_52'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (53,  Vector_53'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (54,  Vector_54'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (55,  Vector_55'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (56,  Vector_56'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (57,  Vector_57'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (58,  Vector_58'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (59,  Vector_59'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (60,  Vector_60'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (61,  Vector_61'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (62,  Vector_62'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (63,  Vector_63'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (64,  Vector_64'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (65,  Vector_65'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (66,  Vector_66'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (67,  Vector_67'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (68,  Vector_68'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (69,  Vector_69'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (70,  Vector_70'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (71,  Vector_71'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (72,  Vector_72'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (73,  Vector_73'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (74,  Vector_74'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (75,  Vector_75'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (76,  Vector_76'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (77,  Vector_77'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (78,  Vector_78'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (79,  Vector_79'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (80,  Vector_80'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (81,  Vector_81'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (82,  Vector_82'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (83,  Vector_83'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (84,  Vector_84'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (85,  Vector_85'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (86,  Vector_86'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (87,  Vector_87'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (88,  Vector_88'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (89,  Vector_89'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (90,  Vector_90'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (91,  Vector_91'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (92,  Vector_92'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (93,  Vector_93'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (94,  Vector_94'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (95,  Vector_95'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (96,  Vector_96'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (97,  Vector_97'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (98,  Vector_98'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (99,  Vector_99'Address,  Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (100, Vector_100'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (101, Vector_101'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (102, Vector_102'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (103, Vector_103'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (104, Vector_104'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (105, Vector_105'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (106, Vector_106'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (107, Vector_107'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (108, Vector_108'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (109, Vector_109'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (110, Vector_110'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (111, Vector_111'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (112, Vector_112'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (113, Vector_113'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (114, Vector_114'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (115, Vector_115'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (116, Vector_116'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (117, Vector_117'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (118, Vector_118'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (119, Vector_119'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (120, Vector_120'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (121, Vector_121'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (122, Vector_122'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (123, Vector_123'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (124, Vector_124'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (125, Vector_125'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (126, Vector_126'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (127, Vector_127'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (128, Vector_128'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (129, Vector_129'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (130, Vector_130'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (131, Vector_131'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (132, Vector_132'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (133, Vector_133'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (134, Vector_134'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (135, Vector_135'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (136, Vector_136'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (137, Vector_137'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (138, Vector_138'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (139, Vector_139'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (140, Vector_140'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (141, Vector_141'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (142, Vector_142'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (143, Vector_143'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (144, Vector_144'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (145, Vector_145'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (146, Vector_146'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (147, Vector_147'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (148, Vector_148'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (149, Vector_149'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (150, Vector_150'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (151, Vector_151'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (152, Vector_152'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (153, Vector_153'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (154, Vector_154'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (155, Vector_155'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (156, Vector_156'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (157, Vector_157'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (158, Vector_158'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (159, Vector_159'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (160, Vector_160'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (161, Vector_161'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (162, Vector_162'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (163, Vector_163'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (164, Vector_164'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (165, Vector_165'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (166, Vector_166'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (167, Vector_167'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (168, Vector_168'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (169, Vector_169'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (170, Vector_170'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (171, Vector_171'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (172, Vector_172'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (173, Vector_173'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (174, Vector_174'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (175, Vector_175'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (176, Vector_176'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (177, Vector_177'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (178, Vector_178'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (179, Vector_179'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (180, Vector_180'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (181, Vector_181'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (182, Vector_182'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (183, Vector_183'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (184, Vector_184'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (185, Vector_185'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (186, Vector_186'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (187, Vector_187'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (188, Vector_188'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (189, Vector_189'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (190, Vector_190'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (191, Vector_191'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (192, Vector_192'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (193, Vector_193'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (194, Vector_194'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (195, Vector_195'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (196, Vector_196'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (197, Vector_197'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (198, Vector_198'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (199, Vector_199'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (200, Vector_200'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (201, Vector_201'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (202, Vector_202'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (203, Vector_203'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (204, Vector_204'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (205, Vector_205'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (206, Vector_206'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (207, Vector_207'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (208, Vector_208'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (209, Vector_209'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (210, Vector_210'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (211, Vector_211'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (212, Vector_212'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (213, Vector_213'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (214, Vector_214'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (215, Vector_215'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (216, Vector_216'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (217, Vector_217'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (218, Vector_218'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (219, Vector_219'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (220, Vector_220'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (221, Vector_221'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (222, Vector_222'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (223, Vector_223'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (224, Vector_224'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (225, Vector_225'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (226, Vector_226'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (227, Vector_227'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (228, Vector_228'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (229, Vector_229'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (230, Vector_230'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (231, Vector_231'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (232, Vector_232'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (233, Vector_233'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (234, Vector_234'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (235, Vector_235'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (236, Vector_236'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (237, Vector_237'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (238, Vector_238'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (239, Vector_239'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (240, Vector_240'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (241, Vector_241'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (242, Vector_242'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (243, Vector_243'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (244, Vector_244'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (245, Vector_245'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (246, Vector_246'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (247, Vector_247'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (248, Vector_248'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (249, Vector_249'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (250, Vector_250'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (251, Vector_251'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (252, Vector_252'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (253, Vector_253'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (254, Vector_254'Address, Interrupt_Gate, Interrupt_Stack);
+      Add_Gate (255, Vector_255'Address, Interrupt_Gate, Interrupt_Stack);
+   end Setup_Interrupt_Descriptor_Table;
+
    -----------------------
    -- Process_Exception --
    -----------------------
@@ -1516,15 +2246,15 @@ package body System.BB.CPU_Primitives is
          when BOUND_Range_Exceeded_Exception =>
             raise Constraint_Error with "hardware BOUND check failed";
          when Segment_Not_Present_Exception =>
-            raise Storage_Error with "segment not present";
+            raise Storage_Error with "segment not present: " & Code'Image;
          when Stack_Segment_Fault_Exception =>
-            raise Storage_Error with "stack segment fault";
+            raise Storage_Error with "stack segment fault " & Code'Image;
          when Math_Fault_Exception =>
             raise Constraint_Error with "floating point exception";
          when SIMD_Floating_Point_Exception =>
             raise Constraint_Error with "SSE exception";
          when Page_Fault_Exception =>
-            raise Storage_Error with "page fault exception";
+            raise Storage_Error with "page fault exception: " & Code'Image;
          when others =>
             Fatal_Exception (ID, Code);
       end case;
@@ -1548,9 +2278,9 @@ package body System.BB.CPU_Primitives is
 
    procedure Thread_Start is
    begin
-      --  Move the argument from R12 where it was stored as part of the
-      --  creation of the task to RDI (the first parameter passing register)
-      --  and then jump to the task procedure whose address is in R13
+      --  Move the argument from R12, where it was stored as part of the
+      --  creation of the task, to RDI (the first parameter passing register).
+      --  Jump to the task procedure whose address is in R13
       Asm
         ("movq  %%r12, %%rdi"                                            & NL &
          "jmp   *%%r13",

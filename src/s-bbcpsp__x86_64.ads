@@ -475,10 +475,14 @@ package System.BB.CPU_Specific is
       Divide_by_64, Divide_by_128, Divide_by_1);
 
    for Divide_Configuration use
-     (Divide_by_2   => 2#0000#, Divide_by_4  => 2#0001#,
-      Divide_by_8   => 2#0010#, Divide_by_16 => 2#0011#,
-      Divide_by_32  => 2#1000#, Divide_by_64 => 2#1001#,
-      Divide_by_128 => 2#1010#, Divide_by_1  => 2#1011#);
+     (Divide_by_2   => 2#0000#,
+      Divide_by_4   => 2#0001#,
+      Divide_by_8   => 2#0010#,
+      Divide_by_16  => 2#0011#,
+      Divide_by_32  => 2#1000#,
+      Divide_by_64  => 2#1001#,
+      Divide_by_128 => 2#1010#,
+      Divide_by_1   => 2#1011#);
 
    Local_APIC_ID_Register : Local_APIC_ID
      with Volatile_Full_Access,
@@ -539,13 +543,19 @@ package System.BB.CPU_Specific is
    ----------------
 
    APIC_Timer_Vector : constant LAPIC_Vector := 255;
+   --  Local APIC vector for the APIC Timer
+
+   APIC_Frequency_In_kHz : Interfaces.Unsigned_64;
+   --  The frequency Local APIC Timer in kHz. We use kHz because is gives us
+   --  more head room when converting from ticks to nanoseconds and vice
+   --  versa (since we need to multiply ticks with the frequency, which caps
+   --  the maximum number of ticks the clock can accumulate until we can no
+   --  longer perform that conversion).
 
    TSC_Frequency_In_kHz : Interfaces.Unsigned_64;
    --  The frequency of the Time Stamp Counter in kHz. We use kHz because is
-   --  gives us more head room when when convert from ticks to nanoseconds and
-   --  vice versa (since we need to multiply ticks with the frequency, which
-   --  caps the maximum number of ticks the clock can accumulate until we can
-   --  no longer perform that conversion).
+   --  gives us more head room when converting from ticks to nanoseconds and
+   --  vice versa.
 
    ---------
    -- PIT --
@@ -585,9 +595,9 @@ package System.BB.CPU_Specific is
    -- CPU Clock --
    ---------------
 
-   function Read_Raw_Clock return Interfaces.Unsigned_64
+   function Read_TSC return Interfaces.Unsigned_64
      with Inline;
-   --  Read the hardware clock source
+   --  Read the TSC
 
    -------------------------
    -- Hardware Exceptions --
@@ -619,6 +629,28 @@ package System.BB.CPU_Specific is
    SIMD_Floating_Point_Exception  : constant LAPIC_Vector := 19;
    Virtualization_Exception       : constant LAPIC_Vector := 20;
    Control_Protection_Exception   : constant LAPIC_Vector := 21;
+
+   -----------------------
+   -- Hardware Platform --
+   -----------------------
+
+   --  Some hypervisors and bootloaders can provide extra information that can
+   --  assist the setup of the runtime.
+
+   type Hardware_Type is (Bare_Metal, LynxSecure);
+   for Hardware_Type use (Bare_Metal => 1, LynxSecure => 2);
+   --  Use a non-zero for our default Bare_Metal to ensure the Host_Hardware
+   --  object is not placed in the .bss section. This is because our startup
+   --  code will change it before the .bss has been initialised.
+
+   Host_Hardware : Hardware_Type := Bare_Metal with
+     Export, External_Name => "__gnat_host_hardware";
+   --  The type of host we are running on. To be set by the target specific
+   --  startup code.
+
+   Host_Info : System.Address := System.Null_Address with
+     Export, External_Name => "__gnat_host_info";
+   --  Pointer to a data structure provided by the host on boot
 
    ------------------
    -- Helper Types --

@@ -22,7 +22,7 @@ class X8664Arch(ArchSupport):
         # Sandy Bridge since the current runtime uses XOPTSAVE in its
         # context switching routine.
         self.add_gnarl_sources(
-            'x86_64/src/vector_table.S')
+            'x86_64/src/vector_handlers.S')
 
 
 class X8664Target(DFBBTarget):
@@ -79,16 +79,24 @@ class X8664Generic(X8664Target):
 
     @property
     def loaders(self):
-        return ('RAM', )
+        return ('QEMU', 'LSA', "MULTIBOOT", "MULTIBOOT2")
 
     def __init__(self):
         super(X8664Generic, self).__init__()
 
         self.add_linker_script('x86_64/generic/memory-map.ld')
-        self.add_linker_script('x86_64/generic/common-RAM.ld', loader='RAM')
+        self.add_linker_script('x86_64/generic/common-LSA.ld', loader='LSA')
+        self.add_linker_script('x86_64/generic/common-MULTIBOOT.ld', loader='MULTIBOOT')
+        self.add_linker_script('x86_64/generic/common-MULTIBOOT2.ld',
+                               loader='MULTIBOOT2')
+        self.add_linker_script('x86_64/generic/common-QEMU.ld', loader='QEMU')
+        self.add_linker_switch('-Wl,-z,max-page-size=0x1000')
 
         self.add_gnat_sources(
-            'src/s-textio__bios.adb')
+            'src/s-textio__com1.adb',
+            'x86_64/src/lynx.S',
+            'x86_64/src/multiboot.S',
+            'x86_64/src/multiboot2.S')
         self.add_gnarl_sources(
             'src/a-intnam__x86_64.ads',
             'src/s-bbcppr__new.ads',
