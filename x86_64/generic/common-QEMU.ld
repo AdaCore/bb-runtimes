@@ -71,12 +71,7 @@ SECTIONS
   /* Place the rest of the image above 1MB to avoid the memory hole at
    * 0x90000-0xFFFFF */
 
-  .page_table 1M (NOLOAD) :
-  {
-    *(.page_table)
-  } > ram
-
-  .text :
+  .text 1M :
   {
     __text = .;
     *(.plt)

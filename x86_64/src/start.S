@@ -300,7 +300,7 @@ __start64:
         cld
 
         # Call main
-        callq    main
+        call    main
 
         # Stop the machine
-        callq    _exit
+        call    _exit
