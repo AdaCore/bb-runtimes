@@ -176,7 +176,11 @@ setup_32mode:
         movw    %ax, %ss
         movw    %ax, %fs
 
-        # Fall through to __start32
+        # Jump to our 32-bit entry point. We do this explicitly so the linker
+        # doesn't decide to garbage collect __start32 because no-one points to
+        # it, and to make sure we don't encounter the situtation where
+        # __start32 isn't placed right after this routine.
+        jmp     __start32
 
         .section .boottext32,"ax"
         .global __start32
