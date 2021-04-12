@@ -787,9 +787,6 @@ package body System.BB.CPU_Primitives is
                Target_PIT      := Start_PIT.Value - PIT_Ticks_To_Count;
 
                loop
-                  End_TSC := Read_TSC;
-                  End_APIC := Local_APIC_Timer_Current_Count;
-
                   Current_PIT.Low  := Read_IO_Byte (PIT_Channel_0_Data_Port);
                   Current_PIT.High := Read_IO_Byte (PIT_Channel_0_Data_Port);
 
@@ -798,6 +795,9 @@ package body System.BB.CPU_Primitives is
 
                   exit when Current_PIT.Value <= Target_PIT;
                end loop;
+
+               End_TSC := Read_TSC;
+               End_APIC := Local_APIC_Timer_Current_Count;
 
                --  Stop the APIC Timer so it does not create any spurious
                --  interrupts once we enable interrupts.
