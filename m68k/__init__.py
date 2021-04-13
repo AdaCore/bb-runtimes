@@ -10,12 +10,6 @@ class M68KArch(ArchSupport):
 
     def __init__(self):
         super(M68KArch, self).__init__()
-        # self.add_linker_switch('-Wl,-u_start', loader=None)
-        # self.add_sources('arch', [
-        #    'sparc/leon/crt0.S',
-        #    'sparc/leon/hw_init.S',
-        #    'sparc/src/sparc.h',
-        #    'src/s-macres__leon.adb'])
 
 
 class M68KTarget(DFBBTarget):

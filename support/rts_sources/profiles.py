@@ -94,15 +94,6 @@ class RTSProfiles(object):
         else:
             ret['Target_Word_Size'] = "32"
 
-        return ret
-
-    def sfp_scenarios(self, math_lib, profile='ravenscar-sfp'):
-        """Returns the list of directories contained in a base SFP runtime"""
-        ret = self.zfp_scenarios(math_lib, profile)
-        ret['RTS_Profile'] = 'ravenscar-sfp'
-
-        ret['Add_Image_Enum'] = 'yes'
-
         if self.config.target is not None:
             cpu = self.config.target.split('-')[0]
 
@@ -120,9 +111,20 @@ class RTSProfiles(object):
                 ret['CPU_Family'] = 'riscv32'
             elif cpu in ('riscv64',):
                 ret['CPU_Family'] = 'riscv64'
+            elif cpu in ('m68020',):
+                ret['CPU_Family'] = 'm68k'
             else:
                 print("Unexpected cpu %s" % cpu)
                 sys.exit(2)
+
+        return ret
+
+    def sfp_scenarios(self, math_lib, profile='ravenscar-sfp'):
+        """Returns the list of directories contained in a base SFP runtime"""
+        ret = self.zfp_scenarios(math_lib, profile)
+        ret['RTS_Profile'] = 'ravenscar-sfp'
+
+        ret['Add_Image_Enum'] = 'yes'
 
         if not self.config.is_pikeos:
             # source installation for PikeOS do not consider those

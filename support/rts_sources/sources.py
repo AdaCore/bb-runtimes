@@ -28,7 +28,7 @@ all_scenarios = {
     'RTS_Profile': ['zfp', 'ravenscar-sfp', 'ravenscar-full'],
     # CPU architecture
     'CPU_Family': ['arm', 'aarch64', 'leon', 'powerpc', 'x86',
-                   'riscv32', 'riscv64'],
+                   'riscv32', 'riscv64', 'm68k'],
     # Word size of target
     'Target_Word_Size': ['32', '64'],
     # FPU presence
@@ -652,10 +652,18 @@ sources = {
         'conditions': ['Has_FPU:yes'],
         'srcs': [
             'libgnat/s-fatflt.ads',
-            'libgnat/s-fatgen.ads', 'libgnat/s-fatgen.adb',
+            'libgnat/s-fatgen.ads',
             'libgnat/s-fatlfl.ads',
             'libgnat/s-fatllf.ads',
             'libgnat/s-fatsfl.ads'],
+    },
+    'fpu/new': {
+        'conditions': ['Has_FPU:yes', 'CPU_Family:!m68k'],
+        'srcs': ['libgnat/s-fatgen.adb'],
+    },
+    'fpu/old': {
+        'conditions': ['Has_FPU:yes', 'CPU_Family:m68k'],
+        'srcs': ['libgnat/s-fatgen__old.adb'],
     },
     'math': {
         'conditions': ['Add_Math_Lib:!no'],
