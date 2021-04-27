@@ -98,7 +98,23 @@ SECTIONS
   .eh_frame         : { KEEP (*(.eh_frame)) } > REGION_CODE
   .gcc_except_table : { *(.gcc_except_table .gcc_except_table.*) } > REGION_CODE
 
-  . = ALIGN(0x10);
+  . = ALIGN(0x1000);
+
+  __region_data_start = .;
+
+  .mmu_ram_table_2 : ALIGN(0x1000)
+  {
+      __mmu_ram_table_2_start = .;
+      . = . + 2 * 0x1000;
+      __mmu_ram_table_2_end = .;
+  } > REGION_DATA
+
+  .mmu_ram_table_3 : ALIGN(0x1000)
+  {
+      __mmu_ram_table_3_start = .;
+      . = . + 1024 * 0x1000;
+      __mmu_ram_table_3_end = .;
+  } > REGION_DATA
 
   __data_load = .;
   .data : AT (__data_load)
