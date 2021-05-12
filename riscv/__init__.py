@@ -352,10 +352,6 @@ class RV64BASE(RiscV64):
             return ['-march=rv64imafdc', '-mabi=lp64d']
 
     @property
-    def has_small_memory(self):
-        return True
-
-    @property
     def system_ads(self):
         # Only ZFP for for this generic target
         return {'zfp': 'system-xi-riscv.ads'}
