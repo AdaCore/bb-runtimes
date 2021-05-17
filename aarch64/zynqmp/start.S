@@ -261,7 +261,12 @@ __start_el1:
         cmp     x0, #1
         beq     1f
         bl      __configure_mmu
+
 1:
+        # Initialize MMU tables
+        bl      __initialize_mmu
+        tlbi    vmalle1
+
         # CPU 0 starts master, the other are slave cpus
         mrs     x7, mpidr_el1
         and     x7, x7, #3

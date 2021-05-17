@@ -115,7 +115,9 @@ class ZynqMP(Aarch64Target):
             'src/trap_dump__aarch64.ads',
             'src/trap_dump__aarch64.adb',
             'src/s-textio__zynqmp.adb',
-            'src/s-macres__zynqmp.adb')
+            'src/s-macres__zynqmp.adb',
+            'src/s-mmu__zynqmp.ads',
+            'src/s-mmu__zynqmp.adb')
         self.add_gnarl_sources(
             'src/a-intnam__zynqmp.ads',
             'src/s-bbbosu__armv8a.adb',
