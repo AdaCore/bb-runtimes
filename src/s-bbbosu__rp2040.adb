@@ -48,11 +48,14 @@ package body System.BB.Board_Support is
    Num_IRQs : constant := 32;
    --  Number of IRQ lines per core.
 
-   subtype IRQ_ID is Interrupt_ID range 0 .. Num_IRQs - 1;
+   type IRQ_ID is range 0 .. Num_IRQs - 1;
    --  Interrupt_ID ranges from 0 .. 63 to model two sets of
    --  32 IRQs (32 for core0 and 32 for core1).
    --
    --  This type represents the IRQ number on a single core.
+
+   subtype Core0_Interrupt_ID is Interrupt_ID range 0  .. 31;
+   subtype Core1_Interrupt_ID is Interrupt_ID range 32 .. 63;
 
    Interrupt_Request_Vector : constant Vector_Id := 16;
    --  See vector definitions in ARMv6-M version of System.BB.CPU_Primitives.
@@ -62,7 +65,7 @@ package body System.BB.Board_Support is
    pragma Volatile (Alarm_Time);
    pragma Export (C, Alarm_Time, "__gnat_alarm_time");
 
-   Alarm_Interrupt_ID : constant Interrupt_ID := 3; --  TIMER_IRQ_3
+   Alarm_Interrupt_ID : constant Interrupt_ID := 3; --  TIMER_IRQ_3 (core0)
 
    ----------------------------------------------
    -- New Vectored Interrupt Controller (NVIC) --
@@ -106,7 +109,23 @@ package body System.BB.Board_Support is
    --  that represents it, Interrupt_Priority'Last is closest.
 
    function Priority_Of_IRQ (IRQ : IRQ_ID) return Any_Priority;
-   --  Get the priority of the specified IRQ (0..31)
+   --  Get the priority of the specified IRQ on the current core.
+
+   function To_Core1_IRQ (Interrupt : Core1_Interrupt_ID) return IRQ_ID
+   is (IRQ_ID (Interrupt - Core1_Interrupt_ID'First));
+   --  Map an Interrupt_ID to the corresponding IRQ line for core1.
+
+   function To_Core0_IRQ (Interrupt : Core0_Interrupt_ID) return IRQ_ID
+   is (IRQ_ID (Interrupt - Core0_Interrupt_ID'First));
+   --  Map an Interrupt_ID to the corresponding IRQ line for core0.
+
+   function To_Interrupt_ID_Core0 (IRQ : IRQ_ID) return Interrupt_ID
+   is (Core0_Interrupt_ID'First + Interrupt_ID (IRQ));
+   --  Map an IRQ line on core0 to the corresponding Interrupt_ID
+
+   function To_Interrupt_ID_Core1 (IRQ : IRQ_ID) return Interrupt_ID
+   is (Core1_Interrupt_ID'First + Interrupt_ID (IRQ));
+   --  Map an IRQ line on core1 to the corresponding Interrupt_ID
 
    type PRI_Array is array (IRQ_ID) of PRI;
 
@@ -123,12 +142,12 @@ package body System.BB.Board_Support is
    --  Local utility functions
 
    procedure Enable_Interrupt_Request
-     (Interrupt : IRQ_ID;
-      Prio      : Interrupt_Priority);
-   --  Enable interrupt requests for the given interrupt
+     (IRQ  : IRQ_ID;
+      Prio : Interrupt_Priority);
+   --  Enable interrupt requests for the given interrupt on the current core.
 
-   procedure Set_Pending_Interrupt (Interrupt : IRQ_ID);
-   --  Change interrupt state to pending.
+   procedure Set_Pending_Interrupt (IRQ : IRQ_ID);
+   --  Change interrupt state to pending on the current core.
 
    procedure Interrupt_Handler;
    --  Low-level interrupt handlers
@@ -231,8 +250,9 @@ package body System.BB.Board_Support is
    procedure Interrupt_Handler is
       use System.BB.Board_Support.Multiprocessors;
 
-      Id : Interrupt_ID;
-      Res : Word;
+      IRQ       : IRQ_ID;
+      Interrupt : Interrupt_ID;
+      Res       : Word;
 
    begin
       --  The exception number is read from the IPSR
@@ -246,16 +266,19 @@ package body System.BB.Board_Support is
       --  Convert it to IRQ number by substracting 16 (number of cpu
       --  exceptions).
 
-      Id := Interrupt_ID'Base (Res) - 16;
+      IRQ := IRQ_ID (Res - 16);
 
-      --  Map from physical IRQ number range (0 .. 31) to:
-      --  - 0 .. 31 on core0
-      --  - 32 .. 63 on core1.
-      if Current_CPU = 2 then
-         Id := Id + Num_IRQs;
-      end if;
+      --  Map to the corresponding interrupt number depending on
+      --  the CPU on which the interrupt is executing.
 
-      Interrupt_Wrapper (Id);
+      case Current_CPU is
+         when 1 =>
+            Interrupt := To_Interrupt_ID_Core0 (IRQ);
+         when 2 =>
+            Interrupt := To_Interrupt_ID_Core1 (IRQ);
+      end case;
+
+      Interrupt_Wrapper (Interrupt);
 
    end Interrupt_Handler;
 
@@ -264,11 +287,11 @@ package body System.BB.Board_Support is
    ------------------------------
 
    procedure Enable_Interrupt_Request
-     (Interrupt : IRQ_ID;
-      Prio      : Interrupt_Priority)
+     (IRQ  : IRQ_ID;
+      Prio : Interrupt_Priority)
    is
    begin
-      if Interrupt = Alarm_Interrupt_ID then
+      if IRQ = To_Core0_IRQ (Alarm_Interrupt_ID) then
 
          --  Consistency check with Priority_Of_Interrupt
 
@@ -277,9 +300,7 @@ package body System.BB.Board_Support is
          Time.Clear_Alarm_Interrupt;
       else
          declare
-            pragma Assert (Interrupt in 0 .. 31);
-            IRQ    : constant Natural := Interrupt;
-            Regbit : constant Word := 2**IRQ;
+            Regbit : constant Word := 2**Natural (IRQ);
 
          begin
             NVIC_ISER := NVIC_ISER or Regbit;
@@ -291,9 +312,9 @@ package body System.BB.Board_Support is
    -- Set_Pending_Interrupt --
    -----------------------------
 
-   procedure Set_Pending_Interrupt (Interrupt : IRQ_ID) is
+   procedure Set_Pending_Interrupt (IRQ : IRQ_ID) is
    begin
-      NVIC_ISPR := 2**Interrupt;
+      NVIC_ISPR := 2**Natural (IRQ);
    end Set_Pending_Interrupt;
 
    ---------------------
@@ -301,8 +322,10 @@ package body System.BB.Board_Support is
    ---------------------
 
    function Priority_Of_IRQ (IRQ : IRQ_ID) return Any_Priority is
-     (if IRQ = Alarm_Interrupt_ID then Interrupt_Priority'Last
-         else To_Priority (IP (IRQ)));
+     (if System.BB.Board_Support.Multiprocessors.Current_CPU = 1 and
+         IRQ = To_Core0_IRQ (Alarm_Interrupt_ID)
+      then Interrupt_Priority'Last
+      else To_Priority (IP (IRQ)));
 
    package body Interrupts is
       -------------------------------
@@ -315,28 +338,36 @@ package body System.BB.Board_Support is
       is
          use System.BB.Board_Support.Multiprocessors;
 
+         IRQ : IRQ_ID;
+
       begin
          --  Ravenscar runtimes do not permit dynamic attachment
-         --  of interrupt handlers. Handlers should therefore only
-         --  be installed during elaboration by the environment task,
-         --  which runs on core0, and before core1 is started.
+         --  of interrupt handlers, so all handlers should be installed
+         --  by the environment task during elaboration (on core0).
 
          pragma Assert (Current_CPU = 1);
 
-         if Interrupt > IRQ_ID'Last then
-            --  logical Interrupt IDs in the range 32 .. 63 are
-            --  mapped to core1.
+         if Interrupt in Core1_Interrupt_ID then
+            --  core0 cannot directly access core1's NVIC, so the register
+            --  configuration for core1 is cached in shared RAM. core1 will
+            --  read these values to configure its own NVIC when it is started
+            --  later, after elaboration (see Core1_Entry in s-bbsumu.adb).
 
-            IP_Core1 (Interrupt - Num_IRQs) := To_PRI (Prio);
-            ISER_Core1 := 2**(Interrupt - Num_IRQs);
-         else
-            --  Install handler on core0.
+            IRQ := To_Core1_IRQ (Interrupt);
+
+            IP_Core1 (IRQ) := To_PRI (Prio);
+            ISER_Core1     := 2**Natural (IRQ);
+
+         elsif Interrupt in Core0_Interrupt_ID then
+            --  core0 can configure its own NVIC directly.
+
+            IRQ := To_Core0_IRQ (Interrupt);
 
             if Interrupt /= Alarm_Interrupt_ID then
-               IP (Interrupt) := To_PRI (Prio);
+               IP (IRQ) := To_PRI (Prio);
             end if;
 
-            Enable_Interrupt_Request (Interrupt, Prio);
+            Enable_Interrupt_Request (IRQ, Prio);
          end if;
       end Install_Interrupt_Handler;
 
@@ -347,8 +378,9 @@ package body System.BB.Board_Support is
       function Priority_Of_Interrupt
         (Interrupt : Interrupt_ID) return Any_Priority
       is
-         (if Interrupt < IRQ_ID'Last then Priority_Of_IRQ (Interrupt)
-          else Priority_Of_IRQ (Interrupt - Num_IRQs));
+         (if Interrupt in Core0_Interrupt_ID
+          then Priority_Of_IRQ (To_Core0_IRQ (Interrupt))
+          else Priority_Of_IRQ (To_Core1_IRQ (Interrupt)));
 
       ----------------
       -- Power_Down --
@@ -358,7 +390,7 @@ package body System.BB.Board_Support is
       begin
          --  Enable interrupts before sleeping.
          --
-         --  This is important on core1 interrupts are kept disabled
+         --  This is important on core1 where interrupts are kept disabled
          --  during kernel initialization (__gnat_initialize_slave)
          --  until the Idle task start. This prevents poke interrupts from
          --  core0 being processed before the kernel is fully initialized.

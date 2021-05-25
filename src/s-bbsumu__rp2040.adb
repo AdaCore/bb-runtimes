@@ -53,7 +53,7 @@ package body Multiprocessors is
    SIO_IRQ_PROC1 : constant := 16;
    --  SIO FIFO IRQ (Poke Handler) for core1
 
-   procedure Poke_Handler_Core
+   procedure Poke_Handler
      with Export => True,
      External_Name => "__gnat_poke_handler";
 
@@ -107,14 +107,14 @@ package body Multiprocessors is
    end Current_CPU;
 
    -----------------------
-   -- Poke_Handler_Core --
+   -- Poke_Handler --
    -----------------------
 
-   procedure Poke_Handler_Core is
+   procedure Poke_Handler is
    begin
       Drain_FIFO;
       CPU_Primitives.Multiprocessors.Poke_Handler;
-   end Poke_Handler_Core;
+   end Poke_Handler;
 
    --------------
    -- Poke_CPU --
@@ -259,8 +259,8 @@ package body Multiprocessors is
       --  Enable user interrupts that were attached to core1
       --  during elaboration.
 
-      NVIC_ISER := ISER_Core1; --  Enable interrupts
       IP        := IP_Core1;   --  Set priorities
+      NVIC_ISER := ISER_Core1; --  Enable interrupts
 
       --  Enable FIFO interrupt to receive pokes from core0.
 
