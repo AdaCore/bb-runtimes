@@ -1,0 +1,209 @@
+------------------------------------------------------------------------------
+--                                                                          --
+--                  GNAT RUN-TIME LIBRARY (GNARL) COMPONENTS                --
+--                                                                          --
+--              S Y S T E M . B B . M C U _ P A R A M E T E R S             --
+--                                                                          --
+--                                  S p e c                                 --
+--                                                                          --
+--                      Copyright (C) 2021, AdaCore                         --
+--                                                                          --
+-- GNAT is free software;  you can  redistribute it  and/or modify it under --
+-- terms of the  GNU General Public License as published  by the Free Soft- --
+-- ware  Foundation;  either version 3,  or (at your option) any later ver- --
+-- sion.  GNAT is distributed in the hope that it will be useful, but WITH- --
+-- OUT ANY WARRANTY;  without even the  implied warranty of MERCHANTABILITY --
+-- or FITNESS FOR A PARTICULAR PURPOSE.                                     --
+--                                                                          --
+-- As a special exception under Section 7 of GPL version 3, you are granted --
+-- additional permissions described in the GCC Runtime Library Exception,   --
+-- version 3.1, as published by the Free Software Foundation.               --
+--                                                                          --
+-- You should have received a copy of the GNU General Public License and    --
+-- a copy of the GCC Runtime Library Exception along with this program;     --
+-- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
+-- <http://www.gnu.org/licenses/>.                                          --
+--                                                                          --
+-- GNAT was originally developed  by the GNAT team at  New York University. --
+-- Extensive contributions were provided by Ada Core Technologies Inc.      --
+--                                                                          --
+-- The port of GNARL to bare board targets was initially developed by the   --
+-- Real-Time Systems Group at the Technical University of Madrid.           --
+--                                                                          --
+------------------------------------------------------------------------------
+
+--  This package defines MCU parameters for the RP2040 family
+
+with Interfaces.RP2040;
+with Interfaces.RP2040.PLL_SYS;
+
+package System.BB.MCU_Parameters is
+   pragma No_Elaboration_Code_All;
+   pragma Preelaborate;
+
+   Number_Of_Interrupts : constant := "${RP2040_Number_Of_Interrupts}";
+   --  64 logical interrupts are available.
+   --
+   --  Interrupts 0 .. 31 are mapped to IRQs 0 .. 31 on core0.
+   --  Interrupts 32 .. 63 are mapped to IRQs 0 .. 31 on core1.
+
+   ---------------
+   -- Constants --
+   ---------------
+
+   --  Constants for the CLK_SYS_SELECTED register
+   CLK_SYS_SELECTED_CLK_REF     : constant := 16#0#; --  clk_ref
+   CLK_SYS_SELECTED_CLK_SYS_AUX : constant := 16#1#; --  clksrc_clk_sys_aux
+
+   --  Constants for the CLK_REF_CTRL.SRC register
+   CLK_REF_SELECTED_ROSC    : constant := 16#0#; --  rosc_clksrc_ph
+   CLK_REF_SELECTED_REF_AUX : constant := 16#1#; --  clksrc_clk_ref_aux
+   CLK_REF_SELECTED_XOSC    : constant := 16#2#; --  xosc_clksrc
+
+   ---------------
+   -- Registers --
+   ---------------
+
+   --  Control and Status
+   --  GENERAL CONSTRAINTS:
+   --  Reference clock frequency
+   --  min=5MHz, max=800MHz\n Feedback divider min=16, max=320\n VCO frequency
+   --  min=400MHz, max=1600MHz
+   type CS_Register is record
+      --  Divides the PLL input reference clock.\n Behaviour is undefined for
+      --  div=0.\n PLL output will be unpredictable during refdiv changes, wait
+      --  for lock=1 before using it.
+      REFDIV        : Interfaces.RP2040.PLL_SYS.CS_REFDIV_Field := 16#1#;
+      --  unspecified
+      Reserved_6_7  : Interfaces.RP2040.UInt2 := 16#0#;
+      --  Passes the reference clock to the output instead of the divided VCO.
+      --  The VCO continues to run so the user can switch between the reference
+      --  clock and the divided VCO but the output will glitch when doing so.
+      BYPASS        : Boolean := False;
+      --  unspecified
+      Reserved_9_30 : Interfaces.RP2040.UInt22 := 16#0#;
+      --  Read-only. PLL is locked
+      LOCK          : Boolean := False;
+   end record
+     with Volatile_Full_Access, Object_Size => 32,
+          Bit_Order => System.Low_Order_First;
+
+   for CS_Register use record
+      REFDIV        at 0 range 0 .. 5;
+      Reserved_6_7  at 0 range 6 .. 7;
+      BYPASS        at 0 range 8 .. 8;
+      Reserved_9_30 at 0 range 9 .. 30;
+      LOCK          at 0 range 31 .. 31;
+   end record;
+
+   --  Controls the PLL power modes.
+   type PWR_Register is record
+      --  PLL powerdown\n To save power set high when PLL output not required.
+      PD            : Boolean := True;
+      --  unspecified
+      Reserved_1_1  : Interfaces.RP2040.Bit := 16#0#;
+      --  PLL DSM powerdown\n Nothing is achieved by setting this low.
+      DSMPD         : Boolean := True;
+      --  PLL post divider powerdown\n To save power set high when PLL output
+      --  not required or bypass=1.
+      POSTDIVPD     : Boolean := True;
+      --  unspecified
+      Reserved_4_4  : Interfaces.RP2040.Bit := 16#0#;
+      --  PLL VCO powerdown\n To save power set high when PLL output not
+      --  required or bypass=1.
+      VCOPD         : Boolean := True;
+      --  unspecified
+      Reserved_6_31 : Interfaces.RP2040.UInt26 := 16#0#;
+   end record
+     with Volatile_Full_Access, Object_Size => 32,
+          Bit_Order => System.Low_Order_First;
+
+   for PWR_Register use record
+      PD            at 0 range 0 .. 0;
+      Reserved_1_1  at 0 range 1 .. 1;
+      DSMPD         at 0 range 2 .. 2;
+      POSTDIVPD     at 0 range 3 .. 3;
+      Reserved_4_4  at 0 range 4 .. 4;
+      VCOPD         at 0 range 5 .. 5;
+      Reserved_6_31 at 0 range 6 .. 31;
+   end record;
+
+   --  Feedback divisor
+   --  (note: this PLL does not support fractional division)
+   type FBDIV_INT_Register is record
+      --  see ctrl reg description for constraints
+      FBDIV_INT      : Interfaces.RP2040.PLL_SYS.FBDIV_INT_FBDIV_INT_Field
+        := 16#0#;
+      --  unspecified
+      Reserved_12_31 : Interfaces.RP2040.UInt20 := 16#0#;
+   end record
+     with Volatile_Full_Access, Object_Size => 32,
+          Bit_Order => System.Low_Order_First;
+
+   for FBDIV_INT_Register use record
+      FBDIV_INT      at 0 range 0 .. 11;
+      Reserved_12_31 at 0 range 12 .. 31;
+   end record;
+
+   --  Controls the PLL post dividers for the primary output
+   --  (note: this PLL does not have a secondary output)
+   --  the primary output is driven from VCO divided by postdiv1*postdiv2
+   type PRIM_Register is record
+      --  unspecified
+      Reserved_0_11  : Interfaces.RP2040.UInt12 := 16#0#;
+      --  divide by 1-7
+      POSTDIV2       : Interfaces.RP2040.PLL_SYS.PRIM_POSTDIV2_Field := 16#7#;
+      --  unspecified
+      Reserved_15_15 : Interfaces.RP2040.Bit := 16#0#;
+      --  divide by 1-7
+      POSTDIV1       : Interfaces.RP2040.PLL_SYS.PRIM_POSTDIV1_Field := 16#7#;
+      --  unspecified
+      Reserved_19_31 : Interfaces.RP2040.UInt13 := 16#0#;
+   end record
+     with Volatile_Full_Access, Object_Size => 32,
+          Bit_Order => System.Low_Order_First;
+
+   for PRIM_Register use record
+      Reserved_0_11  at 0 range 0 .. 11;
+      POSTDIV2       at 0 range 12 .. 14;
+      Reserved_15_15 at 0 range 15 .. 15;
+      POSTDIV1       at 0 range 16 .. 18;
+      Reserved_19_31 at 0 range 19 .. 31;
+   end record;
+
+   -----------------
+   -- Peripherals --
+   -----------------
+
+   type PLL_Peripheral is record
+      --  Control and Status
+      --  GENERAL CONSTRAINTS:
+      --  Reference clock frequency min=5MHz, max=800MHz
+      --  Feedback divider min=16, max=320
+      --  VCO frequency min=400MHz, max=1600MHz
+      CS        : aliased CS_Register;
+      --  Controls the PLL power modes.
+      PWR       : aliased PWR_Register;
+      --  Feedback divisor
+      --  (note: this PLL does not support fractional division)
+      FBDIV_INT : aliased FBDIV_INT_Register;
+      --  Controls the PLL post dividers for the primary output
+      --  (note: this PLL does not have a secondary output)
+      --  the primary output is driven from VCO divided by postdiv1*postdiv2
+      PRIM      : aliased PRIM_Register;
+   end record
+     with Volatile;
+
+   for PLL_Peripheral use record
+      CS        at 16#0# range 0 .. 31;
+      PWR       at 16#4# range 0 .. 31;
+      FBDIV_INT at 16#8# range 0 .. 31;
+      PRIM      at 16#C# range 0 .. 31;
+   end record;
+
+   PLL_SYS_Periph : aliased PLL_Peripheral
+     with Import, Address => Interfaces.RP2040.PLL_SYS_Base;
+   PLL_USB_Periph : aliased PLL_Peripheral
+     with Import, Address => Interfaces.RP2040.PLL_USB_Base;
+
+end System.BB.MCU_Parameters;

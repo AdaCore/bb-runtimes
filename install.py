@@ -29,7 +29,8 @@ ALL_BSP = {'arm-eabi': ['stm32f4', 'nucleo_f401re', 'stm32f429disco',
                         'feather_stm32f405', 'stm32f051r8-hsi', 'nrf52832',
                         'nrf52840', 'cortex-m0', 'cortex-m0p',
                         'cortex-m1', 'cortex-m3', 'cortex-m4', 'cortex-m4f',
-                        'cortex-m7f', 'cortex-m7df'
+                        'cortex-m7f', 'cortex-m7df',
+                        'rpi-pico', 'rpi-pico-smp'
                         ],
            'aarch64-elf': ['rpi3']}
 

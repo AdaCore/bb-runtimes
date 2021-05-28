@@ -1,0 +1,118 @@
+ARM RP2040 Runtimes
+===================
+
+* Ravenscar-SFP
+* Ravenscar-Full
+
+Targets Supported
+-----------------
+
+RP2040 (Dual Cortex-M0+ MCUs)
+
+Variants Supported
+------------------
+
+Two runtime configurations are supported for the RP2040 Ravenscar runtimes:
+* Single-processor variants run Ada tasks and interrupts on core0 only.
+  core1 is not used and is left in its reset state. For example, the
+  'rpi-pico' runtime is limited to core0.
+* Symmetric multiprocessor (SMP) variants run Ada tasks and interrupts
+  on both cores. For example, the 'rpi-pico-smp' runtime makes use of
+  core0 and core1.
+
+Ada tasks on multiprocessor runtimes can be configured to run on either
+core0 or core1 using the CPU attribute. For example:
+
+.. code-block:: ada
+   task Core0_Task with CPU = 1;
+   task Core1_Task with CPU = 2;
+
+System Clocks
+-------------
+
+The system clock source is the clk_sys phase-locked loop (PLL) driven by
+an external crystal. The frequency of the external crystal (HSE) and the
+PLL configuration is specified in package System.BB.Board_Parameters
+(in the gnat directory as file s-bbbopa.ads).
+
+Change the values in that package to reflect your specific board, taking
+care to also recalculate the PLL settings. The runtime system uses them
+to configure the clocks so changes will take effect automatically.
+The shared procedure Setup_Clocks configures the PLL and other derived
+clocks to achieve the configured clock frequency. Compilation will fail
+if the requested clock frequency is not achievable, or the PLL
+configuration is incorrect.
+
+The Main_Clock_Frequency specifies the frequency of the clock that is
+used as the basis for Ada semantics for time, i.e., delay statements
+and package Ada.Real_Time. For single-processor runtimes the SysTick
+timer is used which runs at the clk_sys frequency (up to 133 MHz).
+For multiprocessor runtimes the TIMER peripheral is used which runs
+at the Watchdog tick frequency (always 1 MHz).
+
+Startup Code
+------------
+
+The startup code is in the gnat/crt0.S assembly language file. This
+file also defines the initial vector table for ZFP runtimes.
+
+For the Ravenscar runtimes, the vector table used is defined in handler.S.
+The code in package System.BB.CPU_Primitives (gnat/s-bbcppr.adb)
+installs GNAT-specific handlers (via the VTOR) that raise exceptions
+for the traps.
+
+Interrupts
+----------
+
+The package Ada.Interrupts.Names (a-intnam.ads) is located in the gnat
+directory.
+
+The set of available interrupts depends on the runtime variant.
+Single-processor runtimes only provides interrupt support for CPU 1 (core0),
+whereas multiprocessor runtimes provide interrupts for both cores.
+
+For example, to configure an interrupt handler to run on the second CPU
+in the multiprocessor runtime:
+
+.. code-block:: ada
+   with Ada.Interrupts.Names; use Ada.Interrupts.Names;
+
+   package Example is
+
+      protected Example_PO is
+         procedure IRQ_Handler
+            with Attach_Handler => TIMER_IRQ_0_Interrupt_CPU_2;
+      end Example_PO;
+
+   end Example;
+
+
+Resources Used
+--------------
+
+The runtime libraries provide a minimal version of package Ada.Text_IO
+supporting character- and string-based input and output routines. These are
+implemented using semihosting, which requires a debugger to be attached.
+Calling the semihosted Text_IO routines without a debugger attached will
+trigger a HardFault on the processor that uses it.
+
+Multiprocessor Runtimes
+,,,,,,,,,,,,,,,,,,,,,,,
+
+The Ravenscar runtime libraries on the multiprocessor runtime configuration
+use the TIMER ALARM_3 interrupt to implement Ada semantics for time, i.e.
+delay statements and package Ada.Real_Time. The ALARM_3 interrupt handler
+runs at the highest priority. This implementation uses a tick-less approach
+to configure the alarm interrupt to trigger exactly at the alarm time,
+thereby avoiding most "useless" tick interrupts. See procedure Set_Alarm in
+package body System.BB.Board_Support (gnarl/s-bbbosu.adb).
+
+Single-processor Runtimes
+,,,,,,,,,,,,,,,,,,,,,,,,,
+
+The Ravenscar runtime libraries on the single processor runtime configuration
+use the SysTick interrupt to implement Ada semantics for time, i.e., delay
+statements and package Ada.Real_Time. The SysTick interrupt handler runs at
+highest priority. See procedure Sys_Tick_Handler in package body
+System.BB.CPU_Primitives (gnat/s-bbcppr.adb), which calls through to the
+handler in the trap vectors only when necessary for the sake of efficiency.

@@ -1015,6 +1015,180 @@ class CortexM0P(CortexM0):
         return ('-mlittle-endian', '-mthumb', '-msoft-float',
                 '-mcpu=cortex-m0plus')
 
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-xi-arm.ads'}
+
+
+class RP2040(CortexM0P):
+    @property
+    def name(self):
+        if self.smp:
+            return 'rp2040-smp'
+        else:
+            return 'rp2040'
+
+    @property
+    def parent(self):
+        if self.smp:
+            # Don't refer to any parent since we need to override certain
+            # sources from CortexMArch (e.g. replace src/s-bbsumu__generic.adb)
+            return None
+        else:
+            return CortexMArch
+
+    @property
+    def loaders(self):
+        return ('ROM', )
+
+    @property
+    def system_ads(self):
+        return {'ravenscar-sfp': 'system-xi-armv6m-sfp.ads',
+                'ravenscar-full': 'system-xi-armv6m-full.ads'}
+
+    def __init__(self, smp):
+        self.smp = smp
+
+        super(RP2040, self).__init__()
+
+        smp_template_values = {
+            # The SMP runtime uses the TIMER for task delays, which runs from
+            # the 1 MHz Watchdog tick.
+            "RP2040_Runtime_Uses_SysTick": "False",
+
+            # The MP runtime overrides the SIO_IRQ_PROC0 and SIO_IRQ_PROC1
+            # handers to call the poke handler. See start-rom.S.tmpl
+            "RP2040_SIO_IRQ_PROC0_Handler": "__gnat_poke_handler",
+            "RP2040_SIO_IRQ_PROC1_Handler": "__gnat_poke_handler",
+
+            # 32 IRQs on both cores are available in the MP runtime (64 total)
+            "RP2040_Number_Of_Interrupts": "64",
+
+            # Config values for bbpara__cortexm0p.ads.tmpl
+            "S_BBPara_Interrupt_Stack_Size": "1024",
+            "S_BBPara_Interrupt_Sec_Stack_Size": "128",
+            "S_BBPara_Max_Number_Of_CPUs": "2"
+        }
+
+        sp_template_values = {
+            # The SP runtime uses the SysTick for task delays, which runs from
+            # the system clock (up to 133 MHz).
+            "RP2040_Runtime_Uses_SysTick": "True",
+
+            # The SP runtime does not override SIO_IRQ_PROC0 or SIO_IRQ_PROC1.
+            # They can be used as ordinary interrupts. See start-rom.S.tmpl
+            "RP2040_SIO_IRQ_PROC0_Handler": "__gnat_irq_trap",
+            "RP2040_SIO_IRQ_PROC1_Handler": "__gnat_irq_trap",
+
+            # Only the 32 IRQs on core0 are available in the SP runtime.
+            "RP2040_Number_Of_Interrupts": "32",
+
+            # Config values for bbpara__cortexm0p.ads.tmpl
+            "S_BBPara_Interrupt_Stack_Size": "1024",
+            "S_BBPara_Interrupt_Sec_Stack_Size": "128",
+            "S_BBPara_Max_Number_Of_CPUs": "1"
+        }
+
+        if self.smp:
+            template_values = smp_template_values
+        else:
+            template_values = sp_template_values
+
+        for key, value in template_values.items():
+            self.add_template_config_value(key, value)
+
+        # Common GNAT sources
+        self.add_gnat_sources(
+            'arm/rpi/rp2040/svd/i-rp2040.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-clocks.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-pll_sys.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-resets.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-rosc.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-sio.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-timer.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-watchdog.ads',
+            'arm/rpi/rp2040/svd/i-rp2040-xosc.ads',
+            'arm/rpi/rp2040/s-bbmcpa.ads.tmpl',
+            'arm/rpi/rp2040/start-rom.S.tmpl',
+            'arm/rpi/rp2040/s-bootro.ads',
+            'arm/rpi/rp2040/s-bootro.adb',
+            'arm/rpi/rp2040/setup_clocks.adb',
+            'arm/rpi/rp2040/s-bbbopa.ads.tmpl')
+
+        if self.smp:
+            # s-maxres__cortexm3.adb is also compatible with Cortex-M0+
+            self.add_gnat_sources('src/s-macres__cortexm3.adb')
+
+        # Common GNARL sources
+        self.add_gnarl_sources('src/s-bbpara__cortexm0p.ads.tmpl')
+
+        if self.smp:
+            self.add_gnarl_sources(
+                'arm/rpi/rp2040/a-intnam__mp.ads',
+                'src/s-bbbosu__rp2040.adb',
+                'src/s-bbcppr__armv7m.adb',
+                'src/s-bbcppr__old.ads',
+                'src/s-bbcpsp__cortexm.ads',
+                'src/s-bbinte__generic.adb',
+                'src/s-bbpara__cortexm0p.ads.tmpl',
+                'src/s-bbsumu__rp2040.adb',
+                'src/s-bcpcst__rp2040.adb',
+                'src/s-bcpcst__armvXm.ads')
+        else:
+            self.add_gnarl_sources(
+                'arm/rpi/rp2040/a-intnam__sp.ads',
+                'src/s-bbbosu__armv6m.adb',
+                'src/s-bcpcst__pendsv.adb')
+
+
+class RpiPico(RP2040):
+    @property
+    def name(self):
+        if self.smp:
+            return 'rpi-pico-smp'
+        else:
+            return 'rpi-pico'
+
+    def __init__(self, smp):
+        super(RpiPico, self).__init__(smp)
+
+        template_values = {
+            # The Pico has a 12 MHz XOSC
+            "RP2040_XOSC_Frequency": "12_000_000",
+
+            # pll_sys configuration
+            # ((12 MHz / 1) * 125) / (6 * 2) = 125 MHz
+            "RP2040_PLL_Sys_Reference_Div": "1",
+            "RP2040_PLL_Sys_VCO_Multiple": "125",
+            "RP2040_PLL_Sys_Post_Div_1": "6",
+            "RP2040_PLL_Sys_Post_Div_2": "2",
+
+            # pll_usb configuration
+            # ((12 MHz / 1) * 40) / (5 * 2) = 48 MHz
+            "RP2040_PLL_USB_Reference_Div": "1",
+            "RP2040_PLL_USB_VCO_Multiple": "40",
+            "RP2040_PLL_USB_Post_Div_1": "5",
+            "RP2040_PLL_USB_Post_Div_2": "2",
+
+            # Linker script settings
+            # Striped SRAM is aliased to 0x20000000
+            # Non-striped SRAM is aliased to 0x21000000
+            "RP2040_Linker_Flash_Size": "2048k",
+            "RP2040_Linker_SRAM_Origin": "0x20000000"
+        }
+
+        for key, value in template_values.items():
+            self.add_template_config_value(key, value)
+
+        self.add_linker_script('arm/rpi/rp2040/memory-map.ld.tmpl')
+        self.add_linker_script('arm/rpi/rp2040/common-ROM.ld',
+                               loader='ROM')
+        self.add_linker_script('arm/rpi/rp2040/common-RAM.ld',
+                               loader='RAM')
+
+        self.add_gnat_sources(
+            'arm/rpi/rp2040/boot2__w25q080.S',)
+
 
 class CortexM1(ArmV6MTarget):
     @property
