@@ -14,12 +14,11 @@ Variants Supported
 
 Two runtime configurations are supported for the RP2040 Ravenscar runtimes:
 * Single-processor variants run Ada tasks and interrupts on core0 only.
-  core1 is not used and is left in its reset state.
-* Multiprocessor variants run Ada tasks and interrupts on both cores.
-
-The '-sp' or '-mp' suffix on the runtime name denotes the runtime variant
-provided. For example 'rpi-pico-sp' is the single-processor runtime for the
-rpi-pico target, and 'rpi-pico-mp' is the multiprocesssor runtime.
+  core1 is not used and is left in its reset state. For example, the
+  'rpi-pico' runtime is limited to core0.
+* Symmetric multiprocessor (SMP) variants run Ada tasks and interrupts
+  on both cores. For example, the 'rpi-pico-smp' runtime makes use of
+  core0 and core1.
 
 Ada tasks on multiprocessor runtimes can be configured to run on either
 core0 or core1 using the CPU attribute. For example:
