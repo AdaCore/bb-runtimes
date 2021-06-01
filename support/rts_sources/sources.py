@@ -147,8 +147,6 @@ sources = {
             'libgnat/a-unccon.ads',
             'libgnat/a-uncdea.ads',
             'libgnat/ada.ads',
-            'hie/g-io__zfp.ads', 'hie/g-io__zfp.adb',
-            'hie/g-io-put__bb.adb',
             'libgnat/g-souinf.ads',
             'libgnat/gnat.ads',
             'libgnat/interfac__2020.ads',
@@ -166,16 +164,24 @@ sources = {
             'hie/s-macres.ads',
             'hie/s-secsta__zfp.ads', 'hie/s-secsta__zfp.adb',
             'libgnat/s-stoele.ads', 'libgnat/s-stoele.adb',
-            'hie/s-textio.ads',
             'libgnat/s-unstyp.ads',
             'libgnat/unchconv.ads',
             'libgnat/unchdeal.ads'],
         'bb_srcs': [
+            'hie/g-io__zfp.ads', 'hie/g-io__zfp.adb',
+            'hie/g-io-put__bb.adb',
             'hie/a-textio.ads',
             'hie/s-bb.ads',
+            'hie/s-textio.ads',
             'libgnat/text_io.ads'],
         'pikeos_srcs': [
-            'hie/s-parame__large.ads', 'hie/s-parame.adb']
+            'hie/g-io__zfp.ads', 'hie/g-io__zfp.adb',
+            'hie/g-io-put__bb.adb',
+            'hie/s-parame__large.ads', 'hie/s-parame.adb',
+            'hie/s-textio.ads'],
+        'vx7r2cert_srcs': [
+            'libgnat/g-io.ads', 'hie/g-io__vxworks-cert.adb',
+            'hie/s-parame__zfp.ads']
     },
 
     'common/32': {

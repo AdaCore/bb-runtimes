@@ -44,7 +44,7 @@ def main():
         '--rts-profile', choices=['zfp', 'ravenscar-sfp', 'ravenscar-full'],
         required=True,  help='supported profiles')
     parser.add_argument(
-        '--source-profile', choices=['bb', 'pikeos'],
+        '--source-profile', choices=['bb', 'pikeos', 'vx7r2cert'],
         default='bb', help='platform specific source selections')
 
     args = parser.parse_args()
