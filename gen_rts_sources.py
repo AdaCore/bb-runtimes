@@ -44,8 +44,8 @@ def main():
         '--rts-profile', choices=['zfp', 'ravenscar-sfp', 'ravenscar-full'],
         required=True,  help='supported profiles')
     parser.add_argument(
-        '--pikeos', action="store_true",
-        help="use PikeOS sources")
+        '--source-profile', choices=['bb', 'pikeos'],
+        default='bb', help='platform specific source selections')
 
     args = parser.parse_args()
 
@@ -84,7 +84,7 @@ def main():
     # create the rts sources object. This uses a slightly different set
     # on pikeos.
     rts_srcs = SourceTree(
-        is_bb=not args.pikeos, profile=args.rts_profile,
+        sources=args.source_profile + "_srcs", profile=args.rts_profile,
         rts_sources=sources, rts_scenarios=all_scenarios)
     rts_srcs.install_tree(dest_json=dest_json, dest_sources=dest_srcs)
 

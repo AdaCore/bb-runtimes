@@ -156,7 +156,7 @@ class Rule(object):
 # Definitions of shared source files.
 
 class SourceTree(FilesHolder):
-    def __init__(self, is_bb, profile, rts_sources, rts_scenarios):
+    def __init__(self, sources, profile, rts_sources, rts_scenarios):
         """This initializes the framework to generate the runtime source tree.
 
         is_bb: whether we're generating a bare metal hierarchy or a PikeOS one
@@ -167,7 +167,6 @@ class SourceTree(FilesHolder):
          add the files that are ravenscar-full specific.
         """
         super(SourceTree, self).__init__()
-        self._is_bb = is_bb
         self.scenarios = deepcopy(rts_scenarios)
         self.lib_scenarios = {'gnat': [], 'gnarl': []}
         self.rules = {'gnat': {}, 'gnarl': {}}
@@ -195,12 +194,8 @@ class SourceTree(FilesHolder):
                 srcs = values['srcs']
             else:
                 srcs = []
-            if self._is_bb:
-                if 'bb_srcs' in values:
-                    srcs += values['bb_srcs']
-            else:
-                if 'pikeos_srcs' in values:
-                    srcs += values['pikeos_srcs']
+            if sources in values:
+                srcs += values[sources]
             if len(srcs) > 0:
                 if 'conditions' not in values:
                     self.add_rule(key, None)
