@@ -139,14 +139,12 @@ class RTSProfiles(object):
                 print("Unexpected cpu %s" % cpu)
                 sys.exit(2)
 
-        if not self.config.is_pikeos:
-            # source installation for PikeOS do not consider those
-            if self.config.has_timer_64:
-                ret['Timer'] = 'timer64'
-            else:
-                ret['Timer'] = 'timer32'
-
+        if self.config.has_timer_64:
+            ret['Timer'] = 'timer64'
         else:
+            ret['Timer'] = 'timer32'
+
+        if self.config.is_pikeos:
             ret['Pikeos_Version'] = self.config.pikeos_version
 
         ret['Has_Compare_And_Swap'] = \

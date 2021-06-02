@@ -86,7 +86,7 @@ class TargetConfiguration(object):
         """True if the hardware provides a 64-bit timer. Else 32-bit timer is
         assumed.
         """
-        raise Exception("not implemented")
+        return False
 
     @property
     def has_compare_and_swap(self):

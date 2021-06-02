@@ -19,10 +19,6 @@ class Vx7r2Cert(Target):
         return True
 
     @property
-    def has_timer_64(self):
-        return True
-
-    @property
     def is_legacy_format(self):
         return True
 
@@ -52,7 +48,9 @@ class AArch64Vx7r2Cert(Vx7r2Cert64):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-vxworks7-arm-zfp.ads'}
+        return {
+            'zfp': 'system-vxworks7-arm-zfp.ads',
+            'ravenscar-sfp': 'system-vxworks7-arm-ravenscar-sfp.ads'}
 
 
 class ArmVx7r2Cert(Vx7r2Cert):
