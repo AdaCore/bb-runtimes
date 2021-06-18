@@ -35,6 +35,15 @@ class TargetConfiguration(object):
         return self.target is not None and 'pikeos' in self.target
 
     @property
+    def is_legacy_format(self):
+        """Create the runtime with the legacy naming format.
+
+        Create the runtime with the legacy format with an rts-
+        prefix. By default this is only enabled for PikeOS.
+        """
+        return self.is_pikeos
+
+    @property
     def is_native(self):
         return self.target is None or 'native' in self.target
 

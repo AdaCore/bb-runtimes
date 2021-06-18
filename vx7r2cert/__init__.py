@@ -22,6 +22,10 @@ class Vx7r2Cert(Target):
     def has_timer_64(self):
         return True
 
+    @property
+    def is_legacy_format(self):
+        return True
+
 
 class AArch64Vx7r2Cert(Vx7r2Cert):
     def __init__(self):
