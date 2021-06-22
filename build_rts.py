@@ -48,7 +48,9 @@ from x86_64 import X8664Generic
 from native import X86Native, X8664Native
 
 # vx7r2cert
-from vx7r2cert import AArch64Vx7r2Cert
+from vx7r2cert import AArch64Vx7r2Cert, ArmVx7r2Cert, \
+                      PPCVx7r2Cert, PPC64Vx7r2Cert, \
+                      X86Vx7r2Cert, X86_64Vx7r2Cert
 
 import argparse
 import os
@@ -216,6 +218,16 @@ def build_configs(target):
     # vx7r2cert
     elif target == "aarch64-vx7r2cert":
         t = AArch64Vx7r2Cert()
+    elif target == "arm-vx7r2cert":
+        t = ArmVx7r2Cert()
+    elif target == "ppc-vx7r2cert":
+        t = PPCVx7r2Cert()
+    elif target == "ppc64-vx7r2cert":
+        t = PPC64Vx7r2Cert()
+    elif target == "x86-vx7r2cert":
+        t = X86Vx7r2Cert()
+    elif target == "x86_64-vx7r2cert":
+        t = X86_64Vx7r2Cert()
     else:
         print('Error: undefined target %s' % target)
         sys.exit(2)

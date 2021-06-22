@@ -30,7 +30,15 @@ class Vx7r2Cert(Target):
         return True
 
 
-class AArch64Vx7r2Cert(Vx7r2Cert):
+class Vx7r2Cert64(Vx7r2Cert):
+    def __init__(self):
+        super(Vx7r2Cert64, self).__init__()
+
+    def is_64bit(self):
+        return True
+
+
+class AArch64Vx7r2Cert(Vx7r2Cert64):
     def __init__(self):
         super(AArch64Vx7r2Cert, self).__init__()
 
@@ -43,9 +51,90 @@ class AArch64Vx7r2Cert(Vx7r2Cert):
         return 'aarch64-vx7r2cert'
 
     @property
-    def is_64bit(self):
-        return True
+    def system_ads(self):
+        return {'zfp': 'system-vxworks7-arm-zfp.ads'}
+
+
+class ArmVx7r2Cert(Vx7r2Cert):
+    def __init__(self):
+        super(ArmVx7r2Cert, self).__init__()
+
+    @property
+    def target(self):
+        return 'arm-vx7r2'
+
+    @property
+    def name(self):
+        return 'arm-vx7r2cert'
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-vxworks7-aarch64-zfp.ads'}
+        return {'zfp': 'system-vxworks7-arm-zfp.ads'}
+
+
+class PPCVx7r2Cert(Vx7r2Cert):
+    def __init__(self):
+        super(PPCVx7r2Cert, self).__init__()
+
+    @property
+    def target(self):
+        return 'ppc-vx7r2'
+
+    @property
+    def name(self):
+        return 'ppc-vx7r2cert'
+
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-vxworks7-ppc-zfp.ads'}
+
+
+class PPC64Vx7r2Cert(Vx7r2Cert64):
+    def __init__(self):
+        super(PPC64Vx7r2Cert, self).__init__()
+
+    @property
+    def target(self):
+        return 'ppc64-vx7r2'
+
+    @property
+    def name(self):
+        return 'ppc64-vx7r2cert'
+
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-vxworks7-ppc-zfp.ads'}
+
+
+class X86Vx7r2Cert(Vx7r2Cert):
+    def __init__(self):
+        super(X86Vx7r2Cert, self).__init__()
+
+    @property
+    def target(self):
+        return 'x86-vx7r2'
+
+    @property
+    def name(self):
+        return 'x86-vx7r2cert'
+
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-vxworks7-x86-zfp.ads'}
+
+
+class X86_64Vx7r2Cert(Vx7r2Cert64):
+    def __init__(self):
+        super(X86_64Vx7r2Cert, self).__init__()
+
+    @property
+    def target(self):
+        return 'x86_64-vx7r2'
+
+    @property
+    def name(self):
+        return 'x86_64-vx7r2cert'
+
+    @property
+    def system_ads(self):
+        return {'zfp': 'system-vxworks7-x86-zfp.ads'}

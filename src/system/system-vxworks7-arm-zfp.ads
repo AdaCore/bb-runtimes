@@ -5,7 +5,7 @@
 --                               S Y S T E M                                --
 --                                                                          --
 --                                 S p e c                                  --
---                 (VxWorks7/LEVEL A Version AARCH64 Kernel)                --
+--                   (VxWorks7/LEVEL A Version ARM Kernel)                  --
 --                                                                          --
 --          Copyright (C) 2020-2021, Free Software Foundation, Inc.         --
 --                                                                          --
