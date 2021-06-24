@@ -204,8 +204,29 @@ sources = {
             'hie/a-except__zfp.ads', 'hie/a-except__zfp.adb',
             'hie/a-tags__hie.ads', 'hie/a-tags__hie.adb',
             'hie/i-c__hie.ads',
-            'hie/s-assert__xi.adb',
-            'hie/s-memory__zfp.ads']
+            'hie/s-assert__xi.adb'],
+        'bb_srcs': ['hie/s-memory__zfp.ads'],
+        'pikeos_srcs': ['hie/s-memory__zfp.ads'],
+        'vx7r2cert_srcs': [
+            'hie/s-memory__cert.ads', 'hie/s-memory__cert.adb']
+    },
+
+    'gccmath': {
+        'conditions': ['RTS_Profile:zfp,ravenscar-sfp', 'Target_Word_Size:64'],
+        'srcs': [],
+        'vx7r2cert_srcs': [
+            'hie/s-gcc.ads',
+            'hie/s-gcc-ti.ads', 'hie/s-gcc-ti.adb',
+            'hie/s-gtasl3.ads', 'hie/s-gtasl3.adb',
+            'hie/s-gtasr3.ads', 'hie/s-gtasr3.adb',
+            'hie/s-gtlsr3.ads', 'hie/s-gtlsr3.adb',
+            'hie/s-gtimo3.ads', 'hie/s-gtimo3.adb',
+            'hie/s-gtium3.ads', 'hie/s-gtium3.adb',
+            'hie/s-gcdimo.ads', 'hie/s-gcdimo.adb',
+            'hie/s-gudmo4.ads', 'hie/s-gudmo4.adb',
+            'hie/s-gtdmo3.ads',
+            'hie/s-gtidi3.ads', 'hie/s-gtidi3.adb',
+            'hie/s-gtumo4__imported.ads']
     },
 
     'full': {

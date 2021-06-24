@@ -139,6 +139,8 @@ package System is
 
 private
 
+   pragma Linker_Options ("-nostdlib");
+
    type Address is mod Memory_Size;
    Null_Address : constant Address := 0;
 
