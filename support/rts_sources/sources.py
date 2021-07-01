@@ -1048,6 +1048,7 @@ sources = {
             'libgnat/a-coormu.adb', 'libgnat/a-coormu.ads',
             'libgnat/a-coorse.adb', 'libgnat/a-coorse.ads',
             'libgnat/a-coprnu.adb', 'libgnat/a-coprnu.ads',
+            'libgnat/a-costso.adb', 'libgnat/a-costso.ads',
             'libgnat/a-crbltr.ads',
             'libgnat/a-crbtgk.adb', 'libgnat/a-crbtgk.ads',
             'libgnat/a-crbtgo.adb', 'libgnat/a-crbtgo.ads',
