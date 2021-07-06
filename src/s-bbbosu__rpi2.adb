@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2006 The European Space Agency            --
---                     Copyright (C) 2003-2017, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -208,11 +208,11 @@ package body System.BB.Board_Support is
                     Local_Registers.Cores_IRQ_Source (Natural (This_CPU));
       Pending   : Unsigned_32;
       IRQ       : Interrupt_ID;
-      Base      : Unsigned_32;
+      Base      : Integer_32;
 
       subtype Basic_IRQ is Interrupt_ID range 0 .. 11;
 
-      function CTZ (X : Unsigned_32) return Unsigned_32
+      function CTZ (X : Unsigned_32) return Integer_32
         with Import, Convention => Intrinsic, External_Name => "__builtin_ctz";
       --  Returns the number of leading zeros in X, starting at the least
       --  significant position. X must not be zero.
