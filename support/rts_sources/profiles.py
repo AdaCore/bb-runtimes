@@ -123,6 +123,9 @@ class RTSProfiles(object):
             elif cpu in ('powerpc', 'ppc'):
                 ret['CPU_Family'] = 'powerpc'
                 ret['Has_FMA'] = 'yes'
+            elif cpu in ('powerpc64', 'ppc64'):
+                ret['CPU_Family'] = 'powerpc64'
+                ret['Has_FMA'] = 'yes'
             elif cpu in ('x86',):
                 ret['CPU_Family'] = 'x86'
                 ret['Has_FMA'] = 'no'

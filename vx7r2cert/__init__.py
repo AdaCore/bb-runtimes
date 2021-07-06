@@ -67,7 +67,9 @@ class ArmVx7r2Cert(Vx7r2Cert):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-vxworks7-arm-zfp.ads'}
+        return {
+            'zfp': 'system-vxworks7-arm-zfp.ads',
+            'ravenscar-sfp': 'system-vxworks7-arm-ravenscar-sfp.ads'}
 
 
 class PPCVx7r2Cert(Vx7r2Cert):
@@ -84,7 +86,9 @@ class PPCVx7r2Cert(Vx7r2Cert):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-vxworks7-ppc-zfp.ads'}
+        return {
+            'zfp': 'system-vxworks7-ppc-zfp.ads',
+            'ravenscar-sfp': 'system-vxworks7-ppc-ravenscar-sfp.ads'}
 
 
 class PPC64Vx7r2Cert(Vx7r2Cert64):
@@ -101,7 +105,9 @@ class PPC64Vx7r2Cert(Vx7r2Cert64):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-vxworks7-ppc-zfp.ads'}
+        return {
+            'zfp': 'system-vxworks7-ppc-zfp.ads',
+            'ravenscar-sfp': 'system-vxworks7-ppc-ravenscar-sfp.ads'}
 
 
 class X86Vx7r2Cert(Vx7r2Cert):
@@ -118,7 +124,9 @@ class X86Vx7r2Cert(Vx7r2Cert):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-vxworks7-x86-zfp.ads'}
+        return {
+            'zfp': 'system-vxworks7-x86-zfp.ads',
+            'ravenscar-sfp': 'system-vxworks7-x86-ravenscar-sfp.ads'}
 
 
 class X86_64Vx7r2Cert(Vx7r2Cert64):
@@ -135,4 +143,6 @@ class X86_64Vx7r2Cert(Vx7r2Cert64):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-vxworks7-x86-zfp.ads'}
+        return {
+            'zfp': 'system-vxworks7-x86-zfp.ads',
+            'ravenscar-sfp': 'system-vxworks7-x86-ravenscar-sfp.ads'}

@@ -27,8 +27,8 @@ all_scenarios = {
     # Main profile
     'RTS_Profile': ['zfp', 'ravenscar-sfp', 'ravenscar-full'],
     # CPU architecture
-    'CPU_Family': ['arm', 'aarch64', 'leon', 'powerpc', 'x86', 'x86_64',
-                   'riscv32', 'riscv64'],
+    'CPU_Family': ['arm', 'aarch64', 'leon', 'powerpc', 'powerpc64',
+                   'x86', 'x86_64', 'riscv32', 'riscv64'],
     # Word size of target
     'Target_Word_Size': ['32', '64'],
     # FPU presence
@@ -1277,6 +1277,18 @@ sources = {
     'gnarl/aarch64': {
         'conditions': ['CPU_Family:aarch64'],
         'vx7r2cert_srcs': ['libgnarl/s-vxwork__aarch64.ads']
+    },
+    'gnarl/arm': {
+        'conditions': ['CPU_Family:arm'],
+        'vx7r2cert_srcs': ['libgnarl/s-vxwork__arm.ads']
+    },
+    'gnarl/ppc': {
+        'conditions': ['CPU_Family:powerpc,powerpc64'],
+        'vx7r2cert_srcs': ['libgnarl/s-vxwork__ppc.ads']
+    },
+    'gnarl/x86': {
+        'conditions': ['CPU_Family:x86,x86_64'],
+        'vx7r2cert_srcs': ['libgnarl/s-vxwork__x86.ads']
     },
     'gnarl/pikeos3': {
         'conditions': ['Pikeos_Version:pikeos3'],
