@@ -182,6 +182,7 @@ sources = {
         'vx7r2cert_srcs': [
             'hie/s-textio__vxworks7cert.ads', 'hie/s-textio__vxworks7cert.adb',
             'hie/a-textio.ads', 'hie/a-textio__vxworks7cert.adb',
+            'hie/s-init__vxworks7cert.ads',
             'hie/s-soflin__light.ads',
             'libgnat/s-stache.ads', 'libgnat/s-stache.adb',
             'libgnat/s-stchop__limit.ads', 'libgnat/s-stchop__vxworks.adb',
