@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+
+<gprconfig>
+    <configuration>
+        <config><![CDATA[
+            package Linker is
+               for Required_Switches use
+                     ("-nostdlib");
+            end Linker;
+]]>
+        </config>
+    </configuration>
+</gprconfig>

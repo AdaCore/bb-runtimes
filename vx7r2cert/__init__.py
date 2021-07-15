@@ -1,3 +1,4 @@
+from support import readfile
 from support.bsp_sources.target import Target
 
 
@@ -24,6 +25,9 @@ class Vx7r2Cert(Target):
 
     def has_libc(self, profile):
         return True
+
+    def dump_runtime_xml(self, rts_name, rts):
+        return readfile('vx7r2cert/runtime.xml')
 
 
 class Vx7r2Cert64(Vx7r2Cert):

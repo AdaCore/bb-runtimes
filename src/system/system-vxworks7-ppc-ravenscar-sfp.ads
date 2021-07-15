@@ -141,7 +141,6 @@ package System is
    Default_Priority : constant Priority := 122;
 
 private
-   pragma Linker_Options ("-nostdlib");
 
    type Address is mod Memory_Size;
    Null_Address : constant Address := 0;
