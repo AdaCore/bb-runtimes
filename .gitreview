@@ -2,5 +2,5 @@
 host = review.eu.adacore.com
 port = 29418
 project = bb-runtimes
-defaultbranch = 21.2
+defaultbranch = 21-sustained
 defaultremote = origin
