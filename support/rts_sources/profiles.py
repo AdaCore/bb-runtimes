@@ -48,6 +48,84 @@ class RTSProfiles(object):
         """Returns the list of directories contained in a base ZFP runtime"""
         ret = {}
         ret['RTS_Profile'] = profile
+        ret['Add_Arith64'] = "yes"
+        ret['Add_Case_Util:yes'] = "yes"
+        ret['Add_Exponent_Float'] = "yes"
+        ret['Add_Exponent_Int'] = "yes"
+        ret['Add_Exponent_LL_Int'] = "yes"
+        ret['Add_Exponent_Modular'] = "yes"
+        ret['Add_Float_Util'] = "yes"
+
+        ret['Add_Image_Enum'] = 'yes'
+        ret['Add_Image_Int'] = "yes"
+        ret['Add_Image_LL_Int'] = "yes"
+        ret['Add_Image_Based_Int'] = "yes"
+        ret['Add_Image_LL_Based_Int'] = "yes"
+        ret['Add_Image_Decimal'] = "yes"
+        ret['Add_Image_LL_Decimal'] = "yes"
+        ret['Add_Image_Fixed'] = "yes"
+        ret['Add_Image_LL_Fixed'] = "yes"
+        ret['Add_Image_Float'] = "yes"
+        ret['Add_Image_Char'] = "yes"
+        ret['Add_Image_Util'] = "yes"
+
+        ret['Add_Value_Bool'] = "yes"
+        ret['Add_Value_Enum'] = "yes"
+        ret['Add_Value_Decimal'] = "yes"
+        ret['Add_Value_LL_Decimal'] = "yes"
+        ret['Add_Value_Fixed'] = "yes"
+        ret['Add_Value_LL_Fixed'] = "yes"
+        ret['Add_Value_Float'] = "yes"
+        ret['Add_Value_Int'] = "yes"
+        ret['Add_Value_LL_Int'] = "yes"
+        ret['Add_Value_Char'] = "yes"
+        ret['Add_Value_Util'] = "yes"
+
+        if self.config.is_64bit:
+            ret['Add_Exponent_LLL_Int'] = "yes"
+
+            ret['Add_Image_LLL_Int'] = "yes"
+            ret['Add_Image_LLL_Based_Int'] = "yes"
+            ret['Add_Image_LLL_Decimal'] = "yes"
+            ret['Add_Image_LLL_Fixed'] = "yes"
+
+            ret['Add_Value_LLL_Int'] = "yes"
+            ret['Add_Value_LLL_Decimal'] = "yes"
+            ret['Add_Value_LLL_Fixed'] = "yes"
+
+        if self.config.target is not None:
+            cpu = self.config.target.split('-')[0]
+
+            if cpu in ('aarch64', ):
+                ret['CPU_Family'] = 'aarch64'
+                ret['Has_FMA'] = 'yes'
+            elif cpu in ('arm', ):
+                ret['CPU_Family'] = 'arm'
+                ret['Has_FMA'] = 'no'
+            elif cpu.startswith('leon'):
+                ret['CPU_Family'] = 'leon'
+                ret['Has_FMA'] = 'no'
+            elif cpu in ('powerpc', 'ppc'):
+                ret['CPU_Family'] = 'powerpc'
+                ret['Has_FMA'] = 'yes'
+            elif cpu in ('powerpc64', 'ppc64'):
+                ret['CPU_Family'] = 'powerpc64'
+                ret['Has_FMA'] = 'yes'
+            elif cpu in ('x86',):
+                ret['CPU_Family'] = 'x86'
+                ret['Has_FMA'] = 'no'
+            elif cpu in ('x86_64',):
+                ret['CPU_Family'] = 'x86_64'
+                ret['Has_FMA'] = 'no'
+            elif cpu in ('riscv32',):
+                ret['CPU_Family'] = 'riscv32'
+                ret['Has_FMA'] = 'yes'
+            elif cpu in ('riscv64',):
+                ret['CPU_Family'] = 'riscv64'
+                ret['Has_FMA'] = 'yes'
+            else:
+                print("Unexpected cpu %s" % cpu)
+                sys.exit(2)
 
         if self.config.has_fpu:
             ret['Has_FPU'] = 'yes'
@@ -95,6 +173,7 @@ class RTSProfiles(object):
 
         # 64-bit specific packages
         if self.config.is_64bit:
+            ret['Add_Arith128'] = "yes"
             ret['Target_Word_Size'] = "64"
         else:
             ret['Target_Word_Size'] = "32"
@@ -105,42 +184,6 @@ class RTSProfiles(object):
         """Returns the list of directories contained in a base SFP runtime"""
         ret = self.zfp_scenarios(math_lib, profile)
         ret['RTS_Profile'] = 'ravenscar-sfp'
-
-        ret['Add_Image_Enum'] = 'yes'
-
-        if self.config.target is not None:
-            cpu = self.config.target.split('-')[0]
-
-            if cpu in ('aarch64', ):
-                ret['CPU_Family'] = 'aarch64'
-                ret['Has_FMA'] = 'yes'
-            elif cpu in ('arm', ):
-                ret['CPU_Family'] = 'arm'
-                ret['Has_FMA'] = 'no'
-            elif cpu.startswith('leon'):
-                ret['CPU_Family'] = 'leon'
-                ret['Has_FMA'] = 'no'
-            elif cpu in ('powerpc', 'ppc'):
-                ret['CPU_Family'] = 'powerpc'
-                ret['Has_FMA'] = 'yes'
-            elif cpu in ('powerpc64', 'ppc64'):
-                ret['CPU_Family'] = 'powerpc64'
-                ret['Has_FMA'] = 'yes'
-            elif cpu in ('x86',):
-                ret['CPU_Family'] = 'x86'
-                ret['Has_FMA'] = 'no'
-            elif cpu in ('x86_64',):
-                ret['CPU_Family'] = 'x86_64'
-                ret['Has_FMA'] = 'no'
-            elif cpu in ('riscv32',):
-                ret['CPU_Family'] = 'riscv32'
-                ret['Has_FMA'] = 'yes'
-            elif cpu in ('riscv64',):
-                ret['CPU_Family'] = 'riscv64'
-                ret['Has_FMA'] = 'yes'
-            else:
-                print("Unexpected cpu %s" % cpu)
-                sys.exit(2)
 
         if self.config.has_timer_64:
             ret['Timer'] = 'timer64'
@@ -161,49 +204,15 @@ class RTSProfiles(object):
 
         # override the RTS value
         ret['RTS_Profile'] = 'ravenscar-full'
-        ret['Add_Arith64'] = "yes"
         ret['Add_Complex_Type_Support'] = 'yes'
-        ret['Add_Exponent_Float'] = "yes"
-        ret['Add_Exponent_Int'] = "yes"
-        ret['Add_Exponent_LL_Int'] = "yes"
-        ret['Add_Exponent_Modular'] = "yes"
-        ret['Add_Image_Int'] = "yes"
-        ret['Add_Image_LL_Int'] = "yes"
-        ret['Add_Image_Based_Int'] = "yes"
-        ret['Add_Image_LL_Based_Int'] = "yes"
-        ret['Add_Image_Decimal'] = "yes"
-        ret['Add_Image_LL_Decimal'] = "yes"
-        ret['Add_Image_Fixed'] = "yes"
-        ret['Add_Image_LL_Fixed'] = "yes"
-        ret['Add_Image_Float'] = "yes"
-        ret['Add_Image_Char'] = "yes"
         ret['Add_Image_Wide_Char'] = "yes"
         ret['Add_Pack'] = "yes"
         ret['Add_Streams'] = "yes"
         ret['Add_Traceback'] = "yes"
-        ret['Add_Value_Bool'] = "yes"
-        ret['Add_Value_Enum'] = "yes"
-        ret['Add_Value_Decimal'] = "yes"
-        ret['Add_Value_LL_Decimal'] = "yes"
-        ret['Add_Value_Fixed'] = "yes"
-        ret['Add_Value_LL_Fixed'] = "yes"
-        ret['Add_Value_Float'] = "yes"
-        ret['Add_Value_Int'] = "yes"
-        ret['Add_Value_LL_Int'] = "yes"
-        ret['Add_Value_Char'] = "yes"
         ret['Add_Value_Wide_Char'] = "yes"
 
         # 64-bit specific packages
         if self.config.is_64bit:
-            ret['Add_Arith128'] = "yes"
-            ret['Add_Image_LLL_Int'] = "yes"
-            ret['Add_Image_LLL_Based_Int'] = "yes"
-            ret['Add_Image_LLL_Decimal'] = "yes"
-            ret['Add_Image_LLL_Fixed'] = "yes"
-            ret['Add_Value_LLL_Int'] = "yes"
-            ret['Add_Value_LLL_Decimal'] = "yes"
-            ret['Add_Value_LLL_Fixed'] = "yes"
-            ret['Add_Exponent_LLL_Int'] = "yes"
             ret['Add_Pack64'] = "yes"
 
         # We don't support certifiable components with ravenscar-full since we
