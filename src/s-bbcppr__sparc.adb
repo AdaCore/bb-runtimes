@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2021, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -30,6 +30,7 @@
 
 pragma Restrictions (No_Elaboration_Code);
 
+with System.Machine_Code;
 with System.Multiprocessors;
 with System.BB.CPU_Specific;
 with System.BB.Threads;
@@ -302,8 +303,26 @@ package body System.BB.CPU_Primitives is
    --------------------
 
    procedure Initialize_CPU is
+      NL : constant String := ASCII.CR & ASCII.LF;
    begin
-      null;
+
+      --  Disable the FPU
+      --
+      --  The lazy context switch mechanism requires the FPU to be disabled at
+      --  the beginning of a task. For the secondary tasks, the FPU is disabled
+      --  in the FSR value of their context buffer. For the environment task
+      --  that is executing the elaboration code, we disabled the FPU here.
+
+      System.Machine_Code.Asm
+        ("mov %%psr, %%l0" & NL &       -- Read PSR
+         "set 0x00001000, %%l1" & NL &  -- PSR Enable-Float (EF) flag
+         "andn %%l0, %%l1, %%l0" & NL & -- Clear PSR EF
+         "mov %%l0, %%psr" & NL &       -- Write PSR
+         "nop" & NL &
+         "nop" & NL &
+         "nop" & NL,
+         Clobber => "l0, l1",
+         Volatile => True);
    end Initialize_CPU;
 
    ----------------------

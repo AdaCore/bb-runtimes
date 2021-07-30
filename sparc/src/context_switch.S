@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
  *             Copyright (C) 2003-2005 The European Space Agency            *
- *                     Copyright (C) 2003-2019 AdaCore                      *
+ *                     Copyright (C) 2003-2021 AdaCore                      *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -387,17 +387,17 @@ fp_context_switch:
 	ld	[%l3 + %l7], %l4 /* latest user */
         ld      [%l5 + %l7], %l6 /* running thread */
 
-
-        /* Don't switch context if there is no latest user. However, we
-           need to set the latest user to indicate that there is someone
-           using the floating point now. */
-	tst	%l4
-	bz	.Lupdate_latest_user
-	 nop
-
         /* Don't switch context the latest user is the running thread */
 	cmp	%l4, %l6
 	be	.Lfp_context_switch_done
+	 nop
+
+        /* Don't store the context if there is no latest user. However, we
+           need to load the context of the running thread and set the latest
+           user to indicate that there is someone using the floating point
+           now. */
+	tst	%l4
+	bz	.Lload_fp_context
 	 nop
 
 	/* Save the old floating point state in the task descriptor area */
@@ -436,6 +436,7 @@ fp_context_switch:
 	NOP_FIX_GRLIB_TN_0009
 	std	%f30, [%l4 + F30_F31_OFFSET]
 
+.Lload_fp_context:
 	/* Restore the new floating point state from the task descriptor area */
 
 	ldd	[%l6 + F0_F1_OFFSET],   %f0
@@ -456,7 +457,6 @@ fp_context_switch:
 	ldd	[%l6 + F30_F31_OFFSET], %f30
 	ld	[%l6 + FSR_OFFSET],     %fsr
 
-.Lupdate_latest_user:
 	/* Write down the thread that is currently using the floating
 	   point unit. */
 
