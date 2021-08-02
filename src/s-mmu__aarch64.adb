@@ -35,10 +35,10 @@ with Interfaces;
 
 package body System.MMU is
 
-   Set_NX : constant Boolean := True;
+   Set_NX : constant Boolean := False;
    --  Select if the data region should be non executable.
 
-   Set_RO : constant Boolean := True;
+   Set_RO : constant Boolean := False;
    --  Select if the code region should be read only.
 
    type Level_2_Output_Address is mod 2 ** 27;
