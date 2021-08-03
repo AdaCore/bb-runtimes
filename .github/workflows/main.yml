@@ -14,10 +14,10 @@ jobs:
     - run: pip3 install pycodestyle
     - name: Python stylecheck
       run: pycodestyle . --exclude=examples
-    - uses: ada-actions/toolchain@ce2020
+    - uses: ada-actions/toolchain@ce2021
       with:
         distrib: community
-    - uses: ada-actions/toolchain@ce2020
+    - uses: ada-actions/toolchain@ce2021
       with:
         distrib: community
         target: arm-elf
@@ -28,10 +28,10 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: ada-actions/toolchain@ce2020
+    - uses: ada-actions/toolchain@ce2021
       with:
         distrib: community
-    - uses: ada-actions/toolchain@ce2020
+    - uses: ada-actions/toolchain@ce2021
       with:
         distrib: community
         target: arm-elf
