@@ -212,7 +212,7 @@ sources = {
             'hie/s-bb.ads',
             'hie/s-textio.ads'],
         'pikeos_srcs': [
-            'hie/a-textio.ads', 'hie/a-textio__pikeos.adb',
+            'hie/a-textio.ads',
             'hie/g-io__zfp.ads', 'hie/g-io__zfp.adb',
             'hie/g-io-put__bb.adb',
             'hie/s-parame__large.ads', 'hie/s-parame.adb',
@@ -258,6 +258,10 @@ sources = {
             'hie/s-memory__cert.ads', 'hie/s-memory__cert.adb',
             'libgnat/s-traent.ads', 'libgnat/s-traent.adb',
             'hie/s-traceb__cert.ads']
+    },
+    'zfp/non-tasking': {
+        'conditions': ['RTS_Profile:zfp'],
+        'pikeos_srcs': ['hie/a-textio__pikeos-light.adb']
     },
     'zfp/aarch64': {
         'conditions': ['CPU_Family:aarch64'],
@@ -1273,6 +1277,7 @@ sources = {
             'hie/s-osinte.ads'],
         'pikeos_srcs': [
             'hie/a-reatim.ads', 'hie/a-reatim.adb',
+            'hie/a-textio__pikeos.adb',
             'hie/s-multip__raven-default.ads',
             'hie/s-multip__raven-default.adb',
             'hie/s-musplo.adb',
