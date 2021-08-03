@@ -219,11 +219,8 @@ sources = {
             'hie/s-textio.ads'],
         'vx7r2cert_srcs': [
             'libgnat/g-io.ads', 'hie/g-io__vxworks7cert.adb',
-            'libgnat/s-parame__ae653.ads', 'libgnat/s-parame__vxworks.adb',
             'hie/s-textio__vxworks7cert.ads', 'hie/s-textio__vxworks7cert.adb',
             'hie/a-textio.ads', 'hie/a-textio__vxworks7cert.adb',
-            # 'hie/s-init__vxworks7cert.ads',
-            # 'hie/s-soflin__light.ads',
             'libgnat/s-stchop__limit.ads', 'libgnat/s-stchop__vxworks.adb',
         ]
     },
@@ -261,7 +258,8 @@ sources = {
     },
     'zfp/non-tasking': {
         'conditions': ['RTS_Profile:zfp'],
-        'pikeos_srcs': ['hie/a-textio__pikeos-light.adb']
+        'pikeos_srcs': ['hie/a-textio__pikeos-light.adb'],
+        'vx7r2cert_srcs': ['hie/s-parame__zfp_huge.ads']
     },
     'zfp/aarch64': {
         'conditions': ['CPU_Family:aarch64'],
@@ -288,6 +286,12 @@ sources = {
     'zfp/x86_64': {
         'conditions': ['CPU_Family:x86_64'],
         'vx7r2cert_srcs': ['hie/s-traceb__dummy.adb']
+    },
+    'ravenscar-sfp': {
+        'conditions': ['RTS_Profile:ravenscar-sfp'],
+        'vx7r2cert_srcs': [
+            'libgnat/s-parame__ae653.ads', 'libgnat/s-parame__vxworks.adb',
+            'hie/s-init__vxworks7cert.ads']
     },
     'gccmath': {
         'conditions': ['RTS_Profile:zfp,ravenscar-sfp', 'Target_Word_Size:64'],
@@ -1289,6 +1293,7 @@ sources = {
             'libgnarl/a-reatim.ads',
             'libgnarl/a-reatim.adb',
             'hie/s-interr__raven-vxworks.adb',
+            'hie/s-soflin__light.ads',
             'hie/s-taprop__raven-cert.ads',
             'hie/s-taprop__vxworks7cert.adb',
             'hie/s-tpopsp__vxworks7-cert-tls.adb',
