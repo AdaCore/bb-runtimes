@@ -86,7 +86,8 @@ class X8664Generic(X8664Target):
 
         self.add_linker_script('x86_64/generic/memory-map.ld')
         self.add_linker_script('x86_64/generic/common-LSA.ld', loader='LSA')
-        self.add_linker_script('x86_64/generic/common-MULTIBOOT.ld', loader='MULTIBOOT')
+        self.add_linker_script('x86_64/generic/common-MULTIBOOT.ld',
+                               loader='MULTIBOOT')
         self.add_linker_script('x86_64/generic/common-MULTIBOOT2.ld',
                                loader='MULTIBOOT2')
         self.add_linker_script('x86_64/generic/common-QEMU.ld', loader='QEMU')
