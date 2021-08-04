@@ -44,7 +44,7 @@ class RTSProfiles(object):
             if not modified:
                 break
 
-    def zfp_scenarios(self, math_lib, profile='zfp'):
+    def zfp_scenarios(self, profile='zfp'):
         """Returns the list of directories contained in a base ZFP runtime"""
         ret = {}
         ret['RTS_Profile'] = profile
@@ -142,21 +142,20 @@ class RTSProfiles(object):
         else:
             ret['Certifiable_Packages'] = 'no'
 
-        if math_lib:
-            if self.config.has_single_precision_fpu:
-                if self.config.has_double_precision_fpu:
-                    # Full hardware
-                    ret['Add_Math_Lib'] = 'hardfloat'
-                else:
-                    # Hardware only for SP.
-                    ret['Add_Math_Lib'] = 'hardfloat_sp'
+        if self.config.has_single_precision_fpu:
+            if self.config.has_double_precision_fpu:
+                # Full hardware
+                ret['Add_Math_Lib'] = 'hardfloat'
             else:
-                if self.config.has_double_precision_fpu:
-                    # Hardware only for DP.
-                    ret['Add_Math_Lib'] = 'hardfloat_dp'
-                else:
-                    # No hardware support
-                    ret['Add_Math_Lib'] = 'softfloat'
+                # Hardware only for SP.
+                ret['Add_Math_Lib'] = 'hardfloat_sp'
+        else:
+            if self.config.has_double_precision_fpu:
+                # Hardware only for DP.
+                ret['Add_Math_Lib'] = 'hardfloat_dp'
+            else:
+                # No hardware support
+                ret['Add_Math_Lib'] = 'softfloat'
 
         if self.config.use_semihosting_io:
             ret['Text_IO'] = 'semihosting'
@@ -180,9 +179,9 @@ class RTSProfiles(object):
 
         return ret
 
-    def sfp_scenarios(self, math_lib, profile='ravenscar-sfp'):
+    def sfp_scenarios(self, profile='ravenscar-sfp'):
         """Returns the list of directories contained in a base SFP runtime"""
-        ret = self.zfp_scenarios(math_lib, profile)
+        ret = self.zfp_scenarios(profile)
         ret['RTS_Profile'] = 'ravenscar-sfp'
 
         if self.config.has_timer_64:
@@ -198,9 +197,9 @@ class RTSProfiles(object):
 
         return ret
 
-    def full_scenarios(self, math_lib):
+    def full_scenarios(self):
         """Returns the list of directories contained in a base full runtime"""
-        ret = self.sfp_scenarios(math_lib, 'ravenscar-full')
+        ret = self.sfp_scenarios('ravenscar-full')
 
         # override the RTS value
         ret['RTS_Profile'] = 'ravenscar-full'

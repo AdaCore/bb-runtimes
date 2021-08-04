@@ -168,11 +168,11 @@ class Target(TargetConfiguration, ArchSupport):
             rts = FilesHolder()
             self.runtimes[profile] = rts
             if 'ravenscar' not in profile:
-                rts.rts_vars = self.rts_options.zfp_scenarios(math_lib=False)
+                rts.rts_vars = self.rts_options.zfp_scenarios()
             elif 'full' in profile:
-                rts.rts_vars = self.rts_options.full_scenarios(math_lib=True)
+                rts.rts_vars = self.rts_options.full_scenarios()
             else:
-                rts.rts_vars = self.rts_options.sfp_scenarios(math_lib=False)
+                rts.rts_vars = self.rts_options.sfp_scenarios()
             # By default, system.ads files are searched for in
             # bb-runtimes/src/system.
             # This works fine in general, however, for custom runtimes, we may
