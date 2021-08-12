@@ -84,7 +84,7 @@ class ArmV7MTarget(ArmV6MTarget):
     @property
     def system_ads(self):
         return {'zfp': 'system-xi-arm.ads',
-                'ravenscar-sfp': 'system-xi-cortexm4-sfp.ads',
+                'light-tasking': 'system-xi-cortexm4-sfp.ads',
                 'ravenscar-full': 'system-xi-cortexm4-full.ads'}
 
     def __init__(self):
@@ -217,7 +217,7 @@ class Sam(ArmV7MTarget):
         else:
             # No runtime full
             return {'zfp': ret['zfp'],
-                    'ravenscar-sfp': ret['ravenscar-sfp']}
+                    'light-tasking': ret['light-tasking']}
 
     @property
     def compiler_switches(self):
@@ -294,7 +294,7 @@ class SmartFusion2(ArmV7MTarget):
     def system_ads(self):
         # no zfp nor ravenscar-full rts
         ret = super(SmartFusion2, self).system_ads
-        return {'ravenscar-sfp': ret['ravenscar-sfp']}
+        return {'light-tasking': ret['light-tasking']}
 
     def __init__(self):
         super(SmartFusion2, self).__init__()
@@ -346,7 +346,7 @@ class CortexM0CommonArchSupport(ArmV6MTarget):
     @property
     def system_ads(self):
         return {'zfp': 'system-xi-arm.ads',
-                'ravenscar-sfp': 'system-xi-armv6m-sfp.ads',
+                'light-tasking': 'system-xi-armv6m-sfp.ads',
                 'ravenscar-full': 'system-xi-armv6m-full.ads'}
 
     def __init__(self):
@@ -579,7 +579,7 @@ class CortexM1CommonArchSupport(ArmV6MTarget):
     @property
     def system_ads(self):
         return {'zfp': 'system-xi-arm.ads',
-                'ravenscar-sfp': 'system-xi-armv6m-sfp.ads',
+                'light-tasking': 'system-xi-armv6m-sfp.ads',
                 'ravenscar-full': 'system-xi-armv6m-full.ads'}
 
     def __init__(self):
@@ -643,7 +643,7 @@ class NRF51(ArmV6MTarget):
     @property
     def system_ads(self):
         return {'zfp': 'system-xi-arm.ads',
-                'ravenscar-sfp': 'system-xi-armv6m-sfp.ads',
+                'light-tasking': 'system-xi-armv6m-sfp.ads',
                 'ravenscar-full': 'system-xi-armv6m-full.ads'}
 
     def __init__(self):
@@ -711,7 +711,7 @@ class NRF52(ArmV7MTarget):
         # 3-bit interrupt priorities. This requires different
         # definitions for Priority and Interrupt_Priority in System.
         return {'zfp': 'system-xi-arm.ads',
-                'ravenscar-sfp': 'arm/nordic/nrf52/system-xi-nrf52-sfp.ads',
+                'light-tasking': 'arm/nordic/nrf52/system-xi-nrf52-sfp.ads',
                 'ravenscar-full': 'arm/nordic/nrf52/system-xi-nrf52-full.ads'}
 
     @property
@@ -1061,7 +1061,7 @@ class Stm32l(ArmV7MTarget):
     @property
     def system_ads(self):
         return {'zfp': 'system-xi-arm.ads',
-                'ravenscar-sfp': 'system-xi-stm32l5-sfp.ads'}
+                'light-tasking': 'system-xi-stm32l5-sfp.ads'}
 
     def __init__(self, board):
         self.board = board
@@ -1293,7 +1293,7 @@ class ArmV8MTarget(ArmV7MTarget):
     @property
     def system_ads(self):
         return {'zfp': 'system-xi-arm.ads',
-                'ravenscar-sfp': 'system-xi-cortexm4-sfp.ads',
+                'light-tasking': 'system-xi-cortexm4-sfp.ads',
                 'ravenscar-full': 'system-xi-cortexm4-full.ads'}
 
     def __init__(self):

@@ -6,7 +6,7 @@ project BSP_Verification is
 
    for Main use ("bsp_verifier.adb");
 
-   for Runtime ("Ada") use "ravenscar-sfp-stm32f4";
+   for Runtime ("Ada") use "light-tasking-stm32f4";
 
    for Target use "arm-eabi";
 

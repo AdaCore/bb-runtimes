@@ -79,7 +79,7 @@ class Rpi2Base(CortexARTarget):
     @property
     def system_ads(self):
         return {'zfp': 'system-xi-arm.ads',
-                'ravenscar-sfp': 'system-xi-arm-sfp.ads',
+                'light-tasking': 'system-xi-arm-sfp.ads',
                 'ravenscar-full': 'system-xi-arm-full.ads'}
 
     def __init__(self):
@@ -180,7 +180,7 @@ class TMS570(CortexARTarget):
     @property
     def system_ads(self):
         return {'zfp': 'system-xi-arm.ads',
-                'ravenscar-sfp': 'system-xi-arm-sfp.ads',
+                'light-tasking': 'system-xi-arm-sfp.ads',
                 'ravenscar-full': 'system-xi-arm-full.ads'}
 
     def add_linker_scripts(self):
@@ -249,7 +249,7 @@ class ZynqmpR5(CortexARTarget):
     @property
     def system_ads(self):
         return {'zfp': 'system-xi-arm.ads',
-                'ravenscar-sfp': 'system-xi-arm-gic-sfp.ads',
+                'light-tasking': 'system-xi-arm-gic-sfp.ads',
                 'ravenscar-full': 'system-xi-arm-gic-full.ads'}
 
     def add_linker_scripts(self):
@@ -311,7 +311,7 @@ class Zynq7000(CortexARTarget):
     @property
     def system_ads(self):
         return {'zfp': 'system-xi-arm.ads',
-                'ravenscar-sfp': 'system-xi-arm-gic-sfp.ads',
+                'light-tasking': 'system-xi-arm-gic-sfp.ads',
                 'ravenscar-full': 'system-xi-arm-gic-full.ads'}
 
     def __init__(self):

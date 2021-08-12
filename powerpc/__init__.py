@@ -102,7 +102,7 @@ class PPC6XXTarget(DFBBTarget):
     def system_ads(self):
         return {
             'zfp': 'system-xi-ppc.ads',
-            'ravenscar-sfp': 'system-xi-ppc-sfp.ads',
+            'light-tasking': 'system-xi-ppc-sfp.ads',
             'ravenscar-full': 'system-xi-ppc-full.ads'
         }
 
@@ -162,7 +162,7 @@ class MPC5200(PPC6XXTarget):
     def system_ads(self):
         return {
             'zfp': 'system-xi-ppc.ads',
-            'ravenscar-sfp': 'system-xi-ppc-mpc5200-sfp.ads',
+            'light-tasking': 'system-xi-ppc-mpc5200-sfp.ads',
         }
 
     def __init__(self):
@@ -281,7 +281,7 @@ class PPCBookETarget(DFBBTarget):
     def system_ads(self):
         return {
             'zfp': 'system-xi-ppc.ads',
-            'ravenscar-sfp': 'system-xi-ppc-sfp.ads',
+            'light-tasking': 'system-xi-ppc-sfp.ads',
             'ravenscar-full': 'system-xi-ppc-full.ads'
         }
 
@@ -341,7 +341,7 @@ class Virtex5(PPCBookETarget):
     def system_ads(self):
         return {
             'zfp': 'system-xi-ppc.ads',
-            'ravenscar-sfp': 'system-xi-ppc-xilinx-sfp.ads',
+            'light-tasking': 'system-xi-ppc-xilinx-sfp.ads',
             'ravenscar-full': 'system-xi-ppc-xilinx-full.ads'
         }
 
@@ -377,7 +377,7 @@ class PPCSPETarget(PPC6XXTarget):
     def system_ads(self):
         return {
             'zfp': 'system-xi-e500v2.ads',
-            'ravenscar-sfp': 'system-xi-e500v2-sfp.ads',
+            'light-tasking': 'system-xi-e500v2-sfp.ads',
             'ravenscar-full': 'system-xi-e500v2-full.ads'
         }
 

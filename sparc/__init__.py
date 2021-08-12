@@ -38,7 +38,7 @@ class LeonTarget(DFBBTarget):
     def system_ads(self):
         return {
             'zfp': 'system-xi-sparc.ads',
-            'ravenscar-sfp': 'system-xi-sparc-ravenscar.ads',
+            'light-tasking': 'system-xi-sparc-ravenscar.ads',
             'ravenscar-full': 'system-xi-sparc-full.ads'
         }
 

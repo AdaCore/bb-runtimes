@@ -25,7 +25,7 @@
 
 all_scenarios = {
     # Main profile
-    'RTS_Profile': ['zfp', 'ravenscar-sfp', 'ravenscar-full'],
+    'RTS_Profile': ['zfp', 'light-tasking', 'ravenscar-full'],
     # CPU architecture
     'CPU_Family': ['arm', 'aarch64', 'leon', 'powerpc', 'powerpc64',
                    'x86', 'x86_64', 'riscv32', 'riscv64'],
@@ -242,7 +242,7 @@ sources = {
     },
 
     'zfp': {
-        'conditions': ['RTS_Profile:zfp,ravenscar-sfp'],
+        'conditions': ['RTS_Profile:zfp,light-tasking'],
         'srcs': [
             'hie/a-elchha__zfp.ads', 'hie/a-elchha__zfp.adb',
             'hie/s-sssita.ads', 'hie/s-sssita.adb',
@@ -287,14 +287,14 @@ sources = {
         'conditions': ['CPU_Family:x86_64'],
         'vx7r2cert_srcs': ['hie/s-traceb__dummy.adb']
     },
-    'ravenscar-sfp': {
-        'conditions': ['RTS_Profile:ravenscar-sfp'],
+    'light-tasking': {
+        'conditions': ['RTS_Profile:light-tasking'],
         'vx7r2cert_srcs': [
             'libgnat/s-parame__ae653.ads', 'libgnat/s-parame__vxworks.adb',
             'hie/s-init__vxworks7cert.ads']
     },
     'gccmath': {
-        'conditions': ['RTS_Profile:zfp,ravenscar-sfp', 'Target_Word_Size:64'],
+        'conditions': ['RTS_Profile:zfp,light-tasking', 'Target_Word_Size:64'],
         'srcs': [],
         'vx7r2cert_srcs': [
             'hie/s-gcc.ads',
@@ -539,20 +539,20 @@ sources = {
     },
     'alloc/no-cas': {
         'conditions': ['Has_libc:no',
-                       'RTS_Profile:ravenscar-sfp',
+                       'RTS_Profile:light-tasking',
                        'Has_Compare_And_Swap:no'],
         'srcs': ['hie/s-memory__zfp.adb']
     },
     'alloc/tasking': {
         'conditions': ['Has_libc:no',
-                       'RTS_Profile:ravenscar-sfp',
+                       'RTS_Profile:light-tasking',
                        'Has_Compare_And_Swap:yes',
                        'Certifiable_Packages:no'],
         'srcs': ['hie/s-memory__raven.adb']
     },
     'alloc/tasking-noc': {
         'conditions': ['Has_libc:no',
-                       'RTS_Profile:ravenscar-sfp',
+                       'RTS_Profile:light-tasking',
                        'Has_Compare_And_Swap:yes',
                        'Certifiable_Packages:yes'],
         'srcs': ['hie/s-memory__raven_noc.adb']
@@ -1357,7 +1357,7 @@ sources = {
 
     # SFP-specific files
     'gnarl/sfp': {
-        'conditions': ['RTS_Profile:ravenscar-sfp'],
+        'conditions': ['RTS_Profile:light-tasking'],
         'srcs': [
             'hie/s-taskin__raven.ads',
             'hie/s-tposen__raven.ads', 'hie/s-tposen__raven.adb']

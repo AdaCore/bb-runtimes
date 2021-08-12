@@ -179,10 +179,10 @@ class RTSProfiles(object):
 
         return ret
 
-    def sfp_scenarios(self, profile='ravenscar-sfp'):
+    def sfp_scenarios(self, profile='light-tasking'):
         """Returns the list of directories contained in a base SFP runtime"""
         ret = self.zfp_scenarios(profile)
-        ret['RTS_Profile'] = 'ravenscar-sfp'
+        ret['RTS_Profile'] = 'light-tasking'
 
         if self.config.has_timer_64:
             ret['Timer'] = 'timer64'

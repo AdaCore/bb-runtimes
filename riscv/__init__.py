@@ -81,7 +81,7 @@ class Unleashed(RiscV64):
     @property
     def system_ads(self):
         return {'zfp':            'system-xi-riscv.ads',
-                'ravenscar-sfp':  'system-xi-riscv-sifive-sfp.ads',
+                'light-tasking':  'system-xi-riscv-sifive-sfp.ads',
                 'ravenscar-full': 'system-xi-riscv-sifive-full.ads'}
 
     @property

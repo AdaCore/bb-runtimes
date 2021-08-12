@@ -188,7 +188,7 @@ class Installer(object):
                     shutil.rmtree(rts_path)
             scenario_vars = rts_obj.rts_vars
 
-            if 'ravenscar' in rts_base_name:
+            if 'ravenscar' in rts_base_name or 'tasking' in rts_base_name:
                 libs = ('gnat', 'gnarl')
             else:
                 libs = ('gnat', )

@@ -41,7 +41,7 @@ def main():
         '--output-sources',
         help='installation location for the runtime sources tree')
     parser.add_argument(
-        '--rts-profile', choices=['zfp', 'ravenscar-sfp', 'ravenscar-full'],
+        '--rts-profile', choices=['zfp', 'light-tasking', 'ravenscar-full'],
         required=True,  help='supported profiles')
     parser.add_argument(
         '--source-profile', choices=['bb', 'pikeos', 'vx7r2cert'],

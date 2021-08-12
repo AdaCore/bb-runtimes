@@ -167,7 +167,7 @@ class Target(TargetConfiguration, ArchSupport):
             # Set the scenario variable values for the base profile
             rts = FilesHolder()
             self.runtimes[profile] = rts
-            if 'ravenscar' not in profile:
+            if 'ravenscar' not in profile and 'tasking' not in profile:
                 rts.rts_vars = self.rts_options.zfp_scenarios()
             elif 'full' in profile:
                 rts.rts_vars = self.rts_options.full_scenarios()

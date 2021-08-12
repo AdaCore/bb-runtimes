@@ -73,7 +73,7 @@ class ArmPikeOS(PikeOS):
     def system_ads(self):
         return {
             'zfp': 'system-pikeos-arm.ads',
-            'ravenscar-sfp': 'system-pikeos-arm-ravenscar-sfp.ads',
+            'light-tasking': 'system-pikeos-arm-ravenscar-sfp.ads',
             'ravenscar-full': 'system-pikeos-arm-ravenscar-full.ads'
         }
 
@@ -105,7 +105,7 @@ class ArmPikeOS42(PikeOS):
     def system_ads(self):
         return {
             'zfp': 'system-pikeos42-arm.ads',
-            'ravenscar-sfp': 'system-pikeos42-arm-ravenscar-sfp.ads',
+            'light-tasking': 'system-pikeos42-arm-ravenscar-sfp.ads',
             'ravenscar-full': 'system-pikeos42-arm-ravenscar-full.ads'
         }
 
@@ -140,7 +140,7 @@ class AArch64PikeOS5(PikeOS):
     def system_ads(self):
         return {
             'zfp': 'system-pikeos5-aarch64.ads',
-            'ravenscar-sfp': 'system-pikeos5-aarch64-ravenscar-sfp.ads',
+            'light-tasking': 'system-pikeos5-aarch64-ravenscar-sfp.ads',
             'ravenscar-full': 'system-pikeos5-aarch64-ravenscar-full.ads'
         }
 
@@ -175,7 +175,7 @@ class ArmPikeOS5(PikeOS):
     def system_ads(self):
         return {
             'zfp': 'system-pikeos5-arm.ads',
-            'ravenscar-sfp': 'system-pikeos5-arm-ravenscar-sfp.ads',
+            'light-tasking': 'system-pikeos5-arm-ravenscar-sfp.ads',
             'ravenscar-full': 'system-pikeos5-arm-ravenscar-full.ads'
         }
 
@@ -210,7 +210,7 @@ class PPCPikeOS5(PikeOS):
     def system_ads(self):
         return {
             'zfp': 'system-pikeos5-ppc.ads',
-            'ravenscar-sfp': 'system-pikeos5-ppc-ravenscar-sfp.ads',
+            'light-tasking': 'system-pikeos5-ppc-ravenscar-sfp.ads',
             'ravenscar-full': 'system-pikeos5-ppc-ravenscar-full.ads'
         }
 
