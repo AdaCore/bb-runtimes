@@ -7,7 +7,7 @@
 --                                 S p e c                                  --
 --                        (PikeOS/APEX PPC Version)                         --
 --                                                                          --
---          Copyright (C) 1992-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -53,11 +53,6 @@ pragma Restrictions (No_Finalization);
 
 pragma Profile (Ravenscar);
 --  This is a Ravenscar run time
-
-pragma Discard_Names;
---  Disable explicitly the generation of names associated with entities in
---  order to reduce the amount of storage used. These names are not used anyway
---  (attributes such as 'Image and 'Value are not supported in this run time).
 
 package System is
    pragma Pure;
