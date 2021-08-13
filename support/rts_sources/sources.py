@@ -874,20 +874,41 @@ sources = {
     'math': {
         'conditions': ['Add_Math_Lib:!no'],
         'srcs': [
-            'hie/a-ngelfu__ada.ads', 'hie/a-ngelfu__ada.adb',
-            'hie/a-nlelfu__ada.ads',
             'libgnat/a-nselfu.ads',
-            'hie/a-nuelfu__ada.ads',
             'hie/a-numaux__ada.ads',
             'libgnat/a-numeri.ads',
-            'hie/s-gcmain__ada.ads', 'hie/s-gcmain__ada.adb',
             'libgnat/s-gearop.ads',  'libgnat/s-gearop.adb',
+        ],
+        'bb_srcs': [
+            'hie/a-ngelfu__ada.ads', 'hie/a-ngelfu__ada.adb',
+            'hie/a-nlelfu__ada.ads',
+            'hie/a-nuelfu__ada.ads',
+            'hie/s-gcmain__ada.ads', 'hie/s-gcmain__ada.adb',
             'hie/s-libdou__ada.ads', 'hie/s-libdou__ada.adb',
-            'hie/s-libm__ada.ads', 'hie/s-libm__ada.adb',
-            'hie/s-libpre__ada.ads',
             'hie/s-libsin__ada.ads', 'hie/s-libsin__ada.adb',
             'hie/s-lidosq__ada.ads',
-            'hie/s-lisisq__ada.ads']
+            'hie/s-lisisq__ada.ads',
+            'hie/s-libm__ada.ads', 'hie/s-libm__ada.adb',
+            'hie/s-libpre__ada.ads'
+        ],
+        'pikeos_srcs': [
+            'hie/a-ngelfu__ada.ads', 'hie/a-ngelfu__ada.adb',
+            'hie/a-nlelfu__ada.ads',
+            'hie/a-nuelfu__ada.ads',
+            'hie/s-gcmain__ada.ads', 'hie/s-gcmain__ada.adb',
+            'hie/s-libdou__ada.ads', 'hie/s-libdou__ada.adb',
+            'hie/s-libsin__ada.ads', 'hie/s-libsin__ada.adb',
+            'hie/s-lidosq__ada.ads',
+            'hie/s-lisisq__ada.ads',
+            'hie/s-libm__ada.ads', 'hie/s-libm__ada.adb',
+            'hie/s-libpre__ada.ads'
+        ],
+        'vx7r2cert_srcs': [
+            'hie/a-ngelfu__cert.ads', 'hie/a-ngelfu__cert.adb',
+            'hie/a-nlelfu__cert.ads',
+            'hie/a-nuelfu__cert.ads', 'hie/a-nuelfu__cert.adb',
+            'hie/s-gcmain__cert.ads', 'hie/s-gcmain__cert.adb'
+        ]
     },
     'math/long_long_64bit': {
         'conditions': ['Add_Math_Lib:!no', 'CPU_Family:!x86_64'],
@@ -925,19 +946,23 @@ sources = {
     },
     'math/softsp': {
         'conditions': ['Add_Math_Lib:softfloat,hardfloat_dp'],
-        'srcs': ['hie/s-lisisq__ada.adb']
+        'bb_srcs': ['hie/s-lisisq__ada.adb'],
+        'pikeos_srcs': ['hie/s-lisisq__ada.adb']
     },
     'math/softdp': {
         'conditions': ['Add_Math_Lib:softfloat,hardfloat_sp'],
-        'srcs': ['hie/s-lidosq__ada.adb']
+        'bb_srcs': ['hie/s-lidosq__ada.adb'],
+        'pikeos_srcs': ['hie/s-lidosq__ada.adb']
     },
     'math/hardsp': {
         'conditions': ['Add_Math_Lib:hardfloat,hardfloat_sp'],
-        'srcs': ['hie/s-lisisq__fpu.adb']
+        'bb_srcs': ['hie/s-lisisq__fpu.adb'],
+        'pikeos_srcs': ['hie/s-lisisq__fpu.adb']
     },
     'math/harddp': {
         'conditions': ['Add_Math_Lib:hardfloat,hardfloat_dp'],
-        'srcs': ['hie/s-lidosq__fpu.adb']
+        'bb_srcs': ['hie/s-lidosq__fpu.adb'],
+        'pikeos_srcs': ['hie/s-lidosq__fpu.adb']
     },
     # Arithmetic
     'arith64': {
