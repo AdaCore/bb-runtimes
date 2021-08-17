@@ -62,9 +62,9 @@ infinite_loop:
 abort:
 __gnat_exit:
 
-        /* Write success exit code to the QEMU sifive_u test device */
-        li t0, 0x100000
-        li t1, 0x5555
+        /* reset the board by writing 0xDEAD to MSS_RESET_CR */
+        li t0, 0x20002018
+        li t1, 0xDEAD
         sw t1, (t0)
 
         j __gnat_exit
