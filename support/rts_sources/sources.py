@@ -916,10 +916,15 @@ sources = {
     },
     'math/long_long_80bit': {
         'conditions': ['Add_Math_Lib:!no', 'CPU_Family:x86_64'],
-        'srcs': [
+        'bb_srcs': [
             'hie/s-lilodo__ada.ads', 'hie/s-lilodo__ada.adb',
             'hie/s-lldosq__ada.ads', 'hie/s-lldosq__fpu.adb',
-            'hie/a-nllefu__ada.ads']
+            'hie/a-nllefu__ada.ads'],
+        'pikeos_srcs': [
+            'hie/s-lilodo__ada.ads', 'hie/s-lilodo__ada.adb',
+            'hie/s-lldosq__ada.ads', 'hie/s-lldosq__fpu.adb',
+            'hie/a-nllefu__ada.ads'],
+        'vx7r2cert_srcs': ['hie/a-nllefu__cert.ads']
     },
     'math/complex': {
         'conditions': ['Add_Math_Lib:!no', 'Add_Complex_Type_Support:yes'],
