@@ -78,7 +78,7 @@ class Rpi2Base(CortexARTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads',
+        return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-arm-sfp.ads',
                 'ravenscar-full': 'system-xi-arm-full.ads'}
 
@@ -179,7 +179,7 @@ class TMS570(CortexARTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads',
+        return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-arm-sfp.ads',
                 'ravenscar-full': 'system-xi-arm-full.ads'}
 
@@ -248,7 +248,7 @@ class ZynqmpR5(CortexARTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads',
+        return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-arm-gic-sfp.ads',
                 'ravenscar-full': 'system-xi-arm-gic-full.ads'}
 
@@ -310,7 +310,7 @@ class Zynq7000(CortexARTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads',
+        return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-arm-gic-sfp.ads',
                 'ravenscar-full': 'system-xi-arm-gic-full.ads'}
 

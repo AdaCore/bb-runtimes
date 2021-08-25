@@ -37,7 +37,7 @@ class LeonTarget(DFBBTarget):
     @property
     def system_ads(self):
         return {
-            'zfp': 'system-xi-sparc.ads',
+            'light': 'system-xi-sparc.ads',
             'light-tasking': 'system-xi-sparc-ravenscar.ads',
             'ravenscar-full': 'system-xi-sparc-full.ads'
         }
@@ -105,7 +105,7 @@ class Leon3(LeonTarget):
         ret = super(Leon3, self).system_ads
         if self.smp:
             # zfp runtime makes no sense in the context of SMP variant
-            del(ret['zfp'])
+            del(ret['light'])
         return ret
 
     @property

@@ -45,7 +45,7 @@ class X8664Target(DFBBTarget):
     @property
     def system_ads(self):
         return {
-            'zfp': 'system-xi-x86_64.ads',
+            'light': 'system-xi-x86_64.ads',
             'light-tasking': 'system-xi-x86_64-sfp.ads',
             'ravenscar-full': 'system-xi-x86_64-full.ads'
         }

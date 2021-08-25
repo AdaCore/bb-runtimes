@@ -25,7 +25,7 @@
 
 all_scenarios = {
     # Main profile
-    'RTS_Profile': ['zfp', 'light-tasking', 'ravenscar-full'],
+    'RTS_Profile': ['light', 'light-tasking', 'ravenscar-full'],
     # CPU architecture
     'CPU_Family': ['arm', 'aarch64', 'leon', 'powerpc', 'powerpc64',
                    'x86', 'x86_64', 'riscv32', 'riscv64'],
@@ -241,8 +241,8 @@ sources = {
             'libgnat/s-widlllu.ads']
     },
 
-    'zfp': {
-        'conditions': ['RTS_Profile:zfp,light-tasking'],
+    'light': {
+        'conditions': ['RTS_Profile:light,light-tasking'],
         'srcs': [
             'hie/a-elchha__zfp.ads', 'hie/a-elchha__zfp.adb',
             'hie/s-sssita.ads', 'hie/s-sssita.adb',
@@ -256,34 +256,34 @@ sources = {
             'libgnat/s-traent.ads', 'libgnat/s-traent.adb',
             'hie/s-traceb__cert.ads']
     },
-    'zfp/non-tasking': {
-        'conditions': ['RTS_Profile:zfp'],
+    'light/non-tasking': {
+        'conditions': ['RTS_Profile:light'],
         'pikeos_srcs': ['hie/a-textio__pikeos-light.adb'],
         'vx7r2cert_srcs': ['hie/s-parame__zfp_huge.ads']
     },
-    'zfp/aarch64': {
+    'light/aarch64': {
         'conditions': ['CPU_Family:aarch64'],
         'vx7r2cert_srcs': [
             'hie/s-traceb__zfp.adb',
             'hie/s-tracon.ads', 'hie/s-tracon__zfp.adb'
         ]
     },
-    'zfp/arm': {
+    'light/arm': {
         'conditions': ['CPU_Family:arm'],
         'vx7r2cert_srcs': ['hie/s-traceb__dummy.adb']
     },
-    'zfp/ppc': {
+    'light/ppc': {
         'conditions': ['CPU_Family:powerpc,powerpc64'],
         'vx7r2cert_srcs': [
             'hie/s-traceb__cert-ppc.adb',
             'hie/s-tracon.ads', 'hie/s-tracon__ppc-vxcert.adb',
         ]
     },
-    'zfp/x86': {
+    'light/x86': {
         'conditions': ['CPU_Family:x86'],
         'vx7r2cert_srcs': ['hie/s-traceb__vx653-sim.adb']
     },
-    'zfp/x86_64': {
+    'light/x86_64': {
         'conditions': ['CPU_Family:x86_64'],
         'vx7r2cert_srcs': ['hie/s-traceb__dummy.adb']
     },
@@ -294,7 +294,7 @@ sources = {
             'hie/s-init__vxworks7cert.ads']
     },
     'gccmath': {
-        'conditions': ['RTS_Profile:zfp,light-tasking', 'Target_Word_Size:64'],
+        'conditions': ['RTS_Profile:light,light-tasking', 'Target_Word_Size:64'],
         'srcs': [],
         'vx7r2cert_srcs': [
             'hie/s-gcc.ads',
@@ -534,7 +534,7 @@ sources = {
         'bb_srcs': ['hie/s-memory__libc.adb']
     },
     'alloc/no-tasking': {
-        'conditions': ['Has_libc:no', 'RTS_Profile:zfp'],
+        'conditions': ['Has_libc:no', 'RTS_Profile:light'],
         'srcs': ['hie/s-memory__zfp.adb']
     },
     'alloc/no-cas': {
@@ -1445,30 +1445,30 @@ sources = {
 
     # memory profile
     'gnat/parameters/small': {
-        'conditions': ['RTS_Profile:!zfp', 'Memory_Profile:small'],
+        'conditions': ['RTS_Profile:!light', 'Memory_Profile:small'],
         'bb_srcs': ['hie/s-parame__small.ads',
                     'hie/s-parame.adb']
     },
     'gnat/parameters/large': {
-        'conditions': ['RTS_Profile:!zfp', 'Memory_Profile:large'],
+        'conditions': ['RTS_Profile:!light', 'Memory_Profile:large'],
         'bb_srcs': ['hie/s-parame__large.ads',
                     'hie/s-parame.adb']
     },
     'gnat/parameters/huge': {
-        'conditions': ['RTS_Profile:!zfp', 'Memory_Profile:huge'],
+        'conditions': ['RTS_Profile:!light', 'Memory_Profile:huge'],
         'bb_srcs': ['hie/s-parame__huge.ads',
                     'hie/s-parame.adb']
     },
-    'gnat/parameters/zfp-small': {
-        'conditions': ['RTS_Profile:zfp', 'Memory_Profile:small'],
+    'gnat/parameters/light-small': {
+        'conditions': ['RTS_Profile:light', 'Memory_Profile:small'],
         'bb_srcs': ['hie/s-parame__zfp_small.ads']
     },
-    'gnat/parameters/zfp-large': {
-        'conditions': ['RTS_Profile:zfp', 'Memory_Profile:large'],
+    'gnat/parameters/light-large': {
+        'conditions': ['RTS_Profile:light', 'Memory_Profile:large'],
         'bb_srcs': ['hie/s-parame__zfp.ads']
     },
-    'gnat/parameters/zfp-huge': {
-        'conditions': ['RTS_Profile:zfp', 'Memory_Profile:huge'],
+    'gnat/parameters/light-huge': {
+        'conditions': ['RTS_Profile:light', 'Memory_Profile:huge'],
         'bb_srcs': ['hie/s-parame__zfp_huge.ads']
     },
 }

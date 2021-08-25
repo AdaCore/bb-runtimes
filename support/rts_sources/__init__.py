@@ -174,17 +174,17 @@ class SourceTree(FilesHolder):
         SourceTree.__singleton = self
 
         if profile != 'ravenscar-full':
-            if profile == 'zfp':
-                self.scenarios['RTS_Profile'] = ['zfp']
+            if profile == 'light':
+                self.scenarios['RTS_Profile'] = ['light']
             else:
-                self.scenarios['RTS_Profile'] = ['zfp', 'light-tasking']
+                self.scenarios['RTS_Profile'] = ['light', 'light-tasking']
 
         for key, values in rts_sources.items():
             # filter out folders that are not used by the selected profiles
-            if profile == 'zfp':
+            if profile == 'light':
                 if 'gnarl' in key.split('/'):
                     continue
-            if profile in ('zfp', 'light-tasking'):
+            if profile in ('light', 'light-tasking'):
                 if 'full' in key.split('/'):
                     continue
                 if key == 'containers':

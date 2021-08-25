@@ -21,7 +21,7 @@ class X86Native(DFBBTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-x86.ads'}
+        return {'light': 'system-xi-x86.ads'}
 
     def dump_runtime_xml(self, rts_name, rts):
         return ('<?xml version="1.0" ?>\n'
@@ -45,4 +45,4 @@ class X8664Native(X86Native):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-x86_64.ads'}
+        return {'light': 'system-xi-x86_64.ads'}

@@ -83,7 +83,7 @@ class ArmV7MTarget(ArmV6MTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads',
+        return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-cortexm4-sfp.ads',
                 'ravenscar-full': 'system-xi-cortexm4-full.ads'}
 
@@ -123,7 +123,7 @@ class LM3S(ArmV7MTarget):
     def system_ads(self):
         # Only zfp supported here
         ret = super(LM3S, self).system_ads
-        return {'zfp': ret['zfp']}
+        return {'light': ret['light']}
 
     def __init__(self):
         super(LM3S, self).__init__()
@@ -216,7 +216,7 @@ class Sam(ArmV7MTarget):
             return ret
         else:
             # No runtime full
-            return {'zfp': ret['zfp'],
+            return {'light': ret['light'],
                     'light-tasking': ret['light-tasking']}
 
     @property
@@ -345,7 +345,7 @@ class CortexM0CommonArchSupport(ArmV6MTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads',
+        return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-armv6m-sfp.ads',
                 'ravenscar-full': 'system-xi-armv6m-full.ads'}
 
@@ -578,7 +578,7 @@ class CortexM1CommonArchSupport(ArmV6MTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads',
+        return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-armv6m-sfp.ads',
                 'ravenscar-full': 'system-xi-armv6m-full.ads'}
 
@@ -642,7 +642,7 @@ class NRF51(ArmV6MTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads',
+        return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-armv6m-sfp.ads',
                 'ravenscar-full': 'system-xi-armv6m-full.ads'}
 
@@ -710,7 +710,7 @@ class NRF52(ArmV7MTarget):
         # 4-bit interrupt priorities, but the nRF52 only supports
         # 3-bit interrupt priorities. This requires different
         # definitions for Priority and Interrupt_Priority in System.
-        return {'zfp': 'system-xi-arm.ads',
+        return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'arm/nordic/nrf52/system-xi-nrf52-sfp.ads',
                 'ravenscar-full': 'arm/nordic/nrf52/system-xi-nrf52-full.ads'}
 
@@ -1060,7 +1060,7 @@ class Stm32l(ArmV7MTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads',
+        return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-stm32l5-sfp.ads'}
 
     def __init__(self, board):
@@ -1126,7 +1126,7 @@ class CortexM0(ArmV6MTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads'}
+        return {'light': 'system-xi-arm.ads'}
 
 
 class CortexM0P(CortexM0):
@@ -1162,7 +1162,7 @@ class CortexM1(ArmV6MTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads'}
+        return {'light': 'system-xi-arm.ads'}
 
 
 class CortexM3(ArmV7MTarget):
@@ -1186,7 +1186,7 @@ class CortexM3(ArmV7MTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads'}
+        return {'light': 'system-xi-arm.ads'}
 
 
 class CortexM4(ArmV7MTarget):
@@ -1210,7 +1210,7 @@ class CortexM4(ArmV7MTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads'}
+        return {'light': 'system-xi-arm.ads'}
 
 
 class CortexM4F(CortexM4):
@@ -1246,7 +1246,7 @@ class CortexM7F(ArmV7MTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads'}
+        return {'light': 'system-xi-arm.ads'}
 
 
 class CortexM7DF(CortexM7F):
@@ -1292,7 +1292,7 @@ class ArmV8MTarget(ArmV7MTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads',
+        return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-cortexm4-sfp.ads',
                 'ravenscar-full': 'system-xi-cortexm4-full.ads'}
 
@@ -1321,7 +1321,7 @@ class CortexM23(ArmV8MTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads'}
+        return {'light': 'system-xi-arm.ads'}
 
 
 class CortexM33F(ArmV8MTarget):
@@ -1345,7 +1345,7 @@ class CortexM33F(ArmV8MTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads'}
+        return {'light': 'system-xi-arm.ads'}
 
 
 class CortexM33DF(CortexM33F):

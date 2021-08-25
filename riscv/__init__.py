@@ -25,7 +25,7 @@ class RiscV64(DFBBTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-riscv.ads'}
+        return {'light': 'system-xi-riscv.ads'}
 
     def dump_runtime_xml(self, rts_name, rts):
         cnt = super(RiscV64, self).dump_runtime_xml(rts_name, rts)
@@ -80,7 +80,7 @@ class Unleashed(RiscV64):
 
     @property
     def system_ads(self):
-        return {'zfp':            'system-xi-riscv.ads',
+        return {'light':            'system-xi-riscv.ads',
                 'light-tasking':  'system-xi-riscv-sifive-sfp.ads',
                 'ravenscar-full': 'system-xi-riscv-sifive-full.ads'}
 
@@ -211,7 +211,7 @@ class HiFive1(RiscV32):
     def system_ads(self):
         # Only ZFP for for this target, the ravenscar run-times are not stable
         # for the moment.
-        return {'zfp': 'system-xi-riscv.ads'}
+        return {'light': 'system-xi-riscv.ads'}
 
     def __init__(self):
         super(HiFive1, self).__init__()
@@ -278,7 +278,7 @@ class RV32BASE(RiscV32):
     @property
     def system_ads(self):
         # Only ZFP for for this generic target
-        return {'zfp': 'system-xi-riscv.ads'}
+        return {'light': 'system-xi-riscv.ads'}
 
     def __init__(self):
         super(RV32BASE, self).__init__()
@@ -354,7 +354,7 @@ class RV64BASE(RiscV64):
     @property
     def system_ads(self):
         # Only ZFP for for this generic target
-        return {'zfp': 'system-xi-riscv.ads'}
+        return {'light': 'system-xi-riscv.ads'}
 
     def __init__(self):
         super(RV64BASE, self).__init__()

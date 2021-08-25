@@ -2,7 +2,7 @@ project Leds is
 
    for Main use ("leds.adb");
    for Target use "arm-eabi";
-   for Runtime ("ada") use "zfp-samv71";
+   for Runtime ("ada") use "light-samv71";
 
    package Compiler is
       for Default_Switches ("ada") use ("-gnatyr", "-g");

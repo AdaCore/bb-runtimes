@@ -32,4 +32,4 @@ class Visium(DFBBTarget):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-visium.ads'}
+        return {'light': 'system-xi-visium.ads'}

@@ -44,7 +44,7 @@ class RTSProfiles(object):
             if not modified:
                 break
 
-    def zfp_scenarios(self, profile='zfp'):
+    def zfp_scenarios(self, profile='light'):
         """Returns the list of directories contained in a base ZFP runtime"""
         ret = {}
         ret['RTS_Profile'] = profile

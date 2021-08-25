@@ -1,6 +1,6 @@
 TARGET=powerpc-eabispe
 
-RTS=powerpc-eabispe/zfp-p5566
+RTS=powerpc-eabispe/light-p5566
 #RTS=../../install # For building in place
 
 GPRBUILD_CMD=gprbuild --target=$(TARGET) --RTS=$(RTS) monitor_p5566.gpr

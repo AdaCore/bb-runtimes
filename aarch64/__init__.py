@@ -45,7 +45,7 @@ class Aarch64Target(DFBBTarget):
     @property
     def system_ads(self):
         return {
-            'zfp': 'system-xi-arm.ads',
+            'light': 'system-xi-arm.ads',
             'light-tasking': 'system-xi-arm-sfp.ads',
             'ravenscar-full': 'system-xi-arm-full.ads'
         }
@@ -90,7 +90,7 @@ class ZynqMP(Aarch64Target):
 
     @property
     def system_ads(self):
-        return {'zfp': 'system-xi-arm.ads',
+        return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-arm-gic-sfp.ads',
                 'ravenscar-full': 'system-xi-arm-gic-full.ads'}
 
