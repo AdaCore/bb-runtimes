@@ -161,10 +161,10 @@ class SourceTree(FilesHolder):
 
         is_bb: whether we're generating a bare metal hierarchy or a PikeOS one
         profile: the most complete profile used by the target. e.g.
-         'ravenscar-full' will generate a full tree while 'zfp' will only
+         'embedded' will generate a full tree while 'zfp' will only
          consider the sources appropriate for zfp, and 'ravenscar-sfp' will
          consider the sources for both zfp and ravenscar-sfp, but will not
-         add the files that are ravenscar-full specific.
+         add the files that are embedded specific.
         """
         super(SourceTree, self).__init__()
         self.scenarios = deepcopy(rts_scenarios)
@@ -173,7 +173,7 @@ class SourceTree(FilesHolder):
         self.deps = {}
         SourceTree.__singleton = self
 
-        if profile != 'ravenscar-full':
+        if profile != 'embedded':
             if profile == 'light':
                 self.scenarios['RTS_Profile'] = ['light']
             else:

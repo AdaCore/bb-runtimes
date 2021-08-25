@@ -126,7 +126,7 @@ build
     │       │   └── crt0/
     │       └── stm32f4
     │           ├── link/
-    │           ├── ravenscar-full
+    │           ├── embedded
     │           │   ├── adalib/
     │           │   ├── arch/
     │           │   ├── obj/

@@ -1,4 +1,5 @@
 import copy
+import sys
 
 from support import readfile, is_string
 from support.files_holder import FilesHolder
@@ -103,8 +104,8 @@ class TargetConfiguration(object):
 
     def has_libc(self, profile):
         """Whether libc is available and used on the target"""
-        if profile == 'ravenscar-full':
-            # By default, we provide the newlib with the ravenscar-full
+        if profile == 'embedded':
+            # By default, we provide the newlib with the embedded
             # runtimes
             return True
         else:
@@ -167,12 +168,16 @@ class Target(TargetConfiguration, ArchSupport):
             # Set the scenario variable values for the base profile
             rts = FilesHolder()
             self.runtimes[profile] = rts
-            if 'ravenscar' not in profile and 'tasking' not in profile:
+            if profile == 'light':
                 rts.rts_vars = self.rts_options.zfp_scenarios()
-            elif 'full' in profile:
+            elif profile == 'light-tasking':
+                rts.rts_vars = self.rts_options.sfp_scenarios()
+            elif 'embedded' == profile:
                 rts.rts_vars = self.rts_options.full_scenarios()
             else:
-                rts.rts_vars = self.rts_options.sfp_scenarios()
+                print('Error: unknown profile %s' % profile)
+                sys.exit(2)
+
             # By default, system.ads files are searched for in
             # bb-runtimes/src/system.
             # This works fine in general, however, for custom runtimes, we may
@@ -292,7 +297,7 @@ class Target(TargetConfiguration, ArchSupport):
         indent = 9
         blank = indent * ' '
 
-        if rts.rts_vars['RTS_Profile'] != "ravenscar-full":
+        if rts.rts_vars['RTS_Profile'] != "embedded":
             # For the ZFP and Ravenscar SFP runtime we have the choice of
             # either using libgcc or our Ada libgcc replacement. For the
             # later choice we do not link with any of the standard libraries.
@@ -301,7 +306,7 @@ class Target(TargetConfiguration, ArchSupport):
             else:
                 ret += blank + '"-nostartfiles", "-nolibc"'
         else:
-            # In the ravenscar-full case, the runtime depends on
+            # In the embedded case, the runtime depends on
             # functionalities from newlib, such as memory allocation. This
             # runtime also does not support the certifiable packages option.
             # Also, there's interdependencies between libgnarl and libgnat,

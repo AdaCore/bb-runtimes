@@ -209,7 +209,7 @@ obj/rts-sources:
 	  --output-descriptor=obj/rts.json \
 	  --output-sources=$@ \
 	  --gnat-dir=$(GNAT_SOURCES) --gcc-dir=$(GCC_SOURCES) \
-	  --rts-profile=ravenscar-full
+	  --rts-profile=embedded
 
 srcs: $(RTS_SRCS)
 	$(BUILD_RTS) --force \
@@ -229,7 +229,7 @@ install: $(RTS_SRCS)
 
 %.fullbuild: obj/$(TGT)
 	if [ ! -f obj/$(TGT)/BSPs/ravenscar_full_$*.gpr ]; then \
-	  echo "no ravenscar-full runtime for $*"; \
+	  echo "no embedded runtime for $*"; \
 	  exit 1; \
 	fi
 	$(GPRBUILD) -P obj/$(TGT)/BSPs/ravenscar_full_$*.gpr

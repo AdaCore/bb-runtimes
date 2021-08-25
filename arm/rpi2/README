@@ -6,7 +6,7 @@ Runtimes Supported
 
 * ZFP
 * Ravenscar-SFP
-* Ravenscar-Full
+* Embedded
 
 Boot the board with an Ada program:
 -----------------------------------

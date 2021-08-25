@@ -25,7 +25,7 @@
 
 all_scenarios = {
     # Main profile
-    'RTS_Profile': ['light', 'light-tasking', 'ravenscar-full'],
+    'RTS_Profile': ['light', 'light-tasking', 'embedded'],
     # CPU architecture
     'CPU_Family': ['arm', 'aarch64', 'leon', 'powerpc', 'powerpc64',
                    'x86', 'x86_64', 'riscv32', 'riscv64'],
@@ -312,7 +312,7 @@ sources = {
     },
 
     'full': {
-        'conditions': ['RTS_Profile:ravenscar-full'],
+        'conditions': ['RTS_Profile:embedded'],
         'srcs': [
             'libgnat/a-chacon.ads', 'libgnat/a-chacon.adb',
             'libgnat/a-chlat9.ads',
@@ -514,14 +514,14 @@ sources = {
     },
 
     'full/32': {
-        'conditions': ['RTS_Profile:ravenscar-full', 'Target_Word_Size:32'],
+        'conditions': ['RTS_Profile:embedded', 'Target_Word_Size:32'],
         'srcs': [
             'libgnat/a-decima.ads',
             'libgnat/s-scaval.ads', 'libgnat/s-scaval.adb']
     },
 
     'full/64': {
-        'conditions': ['RTS_Profile:ravenscar-full', 'Target_Word_Size:64'],
+        'conditions': ['RTS_Profile:embedded', 'Target_Word_Size:64'],
         'srcs': [
             'libgnat/a-decima__128.ads',
             'libgnat/s-scaval__128.ads', 'libgnat/s-scaval__128.adb',
@@ -530,7 +530,7 @@ sources = {
 
     # Memory operations:
     'alloc/c': {
-        'conditions': ['Has_libc:yes', 'RTS_Profile:!ravenscar-full'],
+        'conditions': ['Has_libc:yes', 'RTS_Profile:!embedded'],
         'bb_srcs': ['hie/s-memory__libc.adb']
     },
     'alloc/no-tasking': {
@@ -941,7 +941,7 @@ sources = {
             'libgnat/a-nucoty.ads']
     },
     'math/full': {
-        'conditions': ['Add_Math_Lib:!no', 'RTS_Profile:ravenscar-full'],
+        'conditions': ['Add_Math_Lib:!no', 'RTS_Profile:embedded'],
         'srcs': [
             'libgnat/a-ngcoar.ads',
             'libgnat/a-ngcoar.adb',
@@ -1033,13 +1033,13 @@ sources = {
 
     # Zero-cost-exception support
     'full/zcx-arm': {
-        'conditions': ['RTS_Profile:ravenscar-full', 'CPU_Family:arm'],
+        'conditions': ['RTS_Profile:embedded', 'CPU_Family:arm'],
         'srcs': [
             'libgnat/s-excmac__arm.adb', 'libgnat/s-excmac__arm.ads',
             'hie/s-traceb__armeabi.adb']
     },
     'full/zcx-dw2': {
-        'conditions': ['RTS_Profile:ravenscar-full', 'CPU_Family:!arm'],
+        'conditions': ['RTS_Profile:embedded', 'CPU_Family:!arm'],
         'srcs': [
             'libgnat/s-excmac__gcc.ads', 'libgnat/s-excmac__gcc.adb',
             'libgcc/unwind-dw2-fde.h'],
@@ -1047,36 +1047,36 @@ sources = {
             'hie/unwind-dw2-fde-bb.c']
     },
     'full/zcx-aarch64': {
-        'conditions': ['RTS_Profile:ravenscar-full', 'CPU_Family:aarch64'],
+        'conditions': ['RTS_Profile:embedded', 'CPU_Family:aarch64'],
         'srcs': ['hie/s-traceb__dwarf.adb']
     },
     'full/zcx-ppc': {
-        'conditions': ['RTS_Profile:ravenscar-full', 'CPU_Family:powerpc'],
+        'conditions': ['RTS_Profile:embedded', 'CPU_Family:powerpc'],
         'srcs': ['hie/s-traceb__ppc.adb']
     },
 
     'full/zcx-riscv': {
         'conditions':
-        ['RTS_Profile:ravenscar-full', 'CPU_Family:riscv64,riscv32'],
+        ['RTS_Profile:embedded', 'CPU_Family:riscv64,riscv32'],
         'srcs': ['hie/s-traceb__dwarf.adb']
     },
 
     'full/zcx-leon': {
-        'conditions': ['RTS_Profile:ravenscar-full', 'CPU_Family:leon'],
+        'conditions': ['RTS_Profile:embedded', 'CPU_Family:leon'],
         'srcs': ['hie/s-traceb__sparc.adb']
     },
     'full/zcx-x86': {
-        'conditions': ['RTS_Profile:ravenscar-full', 'CPU_Family:x86'],
+        'conditions': ['RTS_Profile:embedded', 'CPU_Family:x86'],
         'srcs': ['hie/s-traceb__vx653-sim.adb']
     },
     'full/zcx-x86_64': {
-        'conditions': ['RTS_Profile:ravenscar-full', 'CPU_Family:x86_64'],
+        'conditions': ['RTS_Profile:embedded', 'CPU_Family:x86_64'],
         'srcs': ['hie/s-traceb__dwarf.adb']
     },
 
     # Containers
     'containers': {
-        'conditions': ['RTS_Profile:ravenscar-full'],
+        'conditions': ['RTS_Profile:embedded'],
         'srcs': [
             'libgnat/a-btgbso.adb', 'libgnat/a-btgbso.ads',
             'libgnat/a-cbdlli.adb', 'libgnat/a-cbdlli.ads',
@@ -1393,9 +1393,9 @@ sources = {
             'hie/s-tposen__raven.ads', 'hie/s-tposen__raven.adb']
     },
 
-    # Ravenscar-full
+    # Embedded Runtime
     'gnarl/full': {
-        'conditions': ['RTS_Profile:ravenscar-full'],
+        'conditions': ['RTS_Profile:embedded'],
         'srcs': [
             'hie/s-taskin__full.ads',
             'hie/s-tposen__xi-full.adb', 'hie/s-tposen__xi-full.ads'],
@@ -1405,7 +1405,7 @@ sources = {
 
     # Extended Ravenscar profile
     'gnarl/full/extended': {
-        'conditions': ['RTS_Profile:ravenscar-full'],
+        'conditions': ['RTS_Profile:embedded'],
         'srcs': [
             # relative delays:
             'hie/s-reldel.ads', 'hie/s-reldel.adb',

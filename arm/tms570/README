@@ -6,7 +6,7 @@ Runtimes Supported
 
 * ZFP
 * Ravenscar-SFP
-* Ravenscar-Full
+* Embedded
 
 Targets Supported
 -----------------
@@ -163,7 +163,7 @@ on board and use the SRAM for data, bss and heap.
    |                                |
    +--------------------------------+
    | .ARM.exidx                     | exception propagation support
-   | .ARM.extab                     | (ravenscar-full only)
+   | .ARM.extab                     | (embedded only)
    +--------------------------------+
    | .rodata                        |
    +--------------------------------+ <- end of read-only data

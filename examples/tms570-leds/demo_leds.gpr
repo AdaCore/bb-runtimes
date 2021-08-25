@@ -10,7 +10,7 @@ project Demo_Leds is
    end Compiler;
 
    package Builder is
-      for Default_Switches ("ada") use ("-g", "--RTS=C:\GNATPRO\7.4.0w-20141101\arm-eabi\lib\gnat\ravenscar-full-tms570");
+      for Default_Switches ("ada") use ("-g", "--RTS=C:\GNATPRO\7.4.0w-20141101\arm-eabi\lib\gnat\embedded-tms570");
    end Builder;
 
    package Ide is

@@ -47,12 +47,12 @@ class X8664Target(DFBBTarget):
         return {
             'light': 'system-xi-x86_64.ads',
             'light-tasking': 'system-xi-x86_64-sfp.ads',
-            'ravenscar-full': 'system-xi-x86_64-full.ads'
+            'embedded': 'system-xi-x86_64-full.ads'
         }
 
     def dump_runtime_xml(self, rts_name, rts):
         cnt = super(X8664Target, self).dump_runtime_xml(rts_name, rts)
-        if rts_name == 'ravenscar-full':
+        if rts_name == 'embedded':
             cnt = cnt.replace(
                 '"-nostartfiles"',
                 ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'

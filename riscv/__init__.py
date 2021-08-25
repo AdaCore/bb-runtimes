@@ -29,7 +29,7 @@ class RiscV64(DFBBTarget):
 
     def dump_runtime_xml(self, rts_name, rts):
         cnt = super(RiscV64, self).dump_runtime_xml(rts_name, rts)
-        if rts_name == 'ravenscar-full':
+        if rts_name == 'embedded':
             cnt = cnt.replace(
                 '"-nostartfiles"',
                 '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"')
@@ -37,7 +37,7 @@ class RiscV64(DFBBTarget):
 
     def amend_rts(self, rts_profile, conf):
         super(DFBBTarget, self).amend_rts(rts_profile, conf)
-        if rts_profile == 'ravenscar-full':
+        if rts_profile == 'embedded':
             conf.config_files.update(
                 {'link-zcx.spec': readfile('riscv/link-zcx.spec')})
 
@@ -82,7 +82,7 @@ class Unleashed(RiscV64):
     def system_ads(self):
         return {'light':            'system-xi-riscv.ads',
                 'light-tasking':  'system-xi-riscv-sifive-sfp.ads',
-                'ravenscar-full': 'system-xi-riscv-sifive-full.ads'}
+                'embedded': 'system-xi-riscv-sifive-full.ads'}
 
     @property
     def has_single_precision_fpu(self):

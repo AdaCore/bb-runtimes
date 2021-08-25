@@ -16,7 +16,7 @@ and provides the following run-times:
 
 * zfp-x86_64
 * ravenscar-sfp-x86_64
-* ravenscar-full-x86_64
+* embedded-x86_64
 
 The Ravenscar run-times only support running on a single core.
 

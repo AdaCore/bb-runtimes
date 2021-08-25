@@ -6,7 +6,7 @@ Runtimes Supported
 
 * ZFP
 * Ravenscar-SFP
-* Ravenscar-Full
+* Embedded
 
 Targets Supported
 -----------------
@@ -45,7 +45,7 @@ Tick-less Scheduler
 
 The RTC0 peripheral is used to implement a "tick-less" version of Ada.Real_Time
 which does not rely on periodic interrupts at a constant rate (e.g. 1 kHz).
-Instead, the "compare" feature of the RTC peripheral is used to generate an 
+Instead, the "compare" feature of the RTC peripheral is used to generate an
 interrupt at the precise point in time when the scheduler needs to wake up at
 the end of a delay.
 

@@ -47,7 +47,7 @@ class Aarch64Target(DFBBTarget):
         return {
             'light': 'system-xi-arm.ads',
             'light-tasking': 'system-xi-arm-sfp.ads',
-            'ravenscar-full': 'system-xi-arm-full.ads'
+            'embedded': 'system-xi-arm-full.ads'
         }
 
     def amend_rts(self, rts_profile, conf):
@@ -63,7 +63,7 @@ class Aarch64Target(DFBBTarget):
 
     def dump_runtime_xml(self, rts_name, rts):
         cnt = super(Aarch64Target, self).dump_runtime_xml(rts_name, rts)
-        if rts_name == 'ravenscar-full':
+        if rts_name == 'embedded':
             cnt = cnt.replace(
                 '"-nostartfiles"',
                 ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
@@ -92,7 +92,7 @@ class ZynqMP(Aarch64Target):
     def system_ads(self):
         return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-arm-gic-sfp.ads',
-                'ravenscar-full': 'system-xi-arm-gic-full.ads'}
+                'embedded': 'system-xi-arm-gic-full.ads'}
 
     @property
     def compiler_switches(self):

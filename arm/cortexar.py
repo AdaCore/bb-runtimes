@@ -36,7 +36,7 @@ class CortexARTarget(DFBBTarget):
 
     def amend_rts(self, rts_profile, conf):
         super(CortexARTarget, self).amend_rts(rts_profile, conf)
-        if 'ravenscar' in rts_profile:
+        if 'embedded' in rts_profile or 'tasking' in rts_profile:
             # s-bbcppr.adb uses the r7 register during context switching: this
             # is not compatible with the use of frame pointers that is emited
             # at -O0 by gcc. Let's disable fp even at -O0.
@@ -80,7 +80,7 @@ class Rpi2Base(CortexARTarget):
     def system_ads(self):
         return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-arm-sfp.ads',
-                'ravenscar-full': 'system-xi-arm-full.ads'}
+                'embedded': 'system-xi-arm-full.ads'}
 
     def __init__(self):
         super(Rpi2Base, self).__init__()
@@ -181,7 +181,7 @@ class TMS570(CortexARTarget):
     def system_ads(self):
         return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-arm-sfp.ads',
-                'ravenscar-full': 'system-xi-arm-full.ads'}
+                'embedded': 'system-xi-arm-full.ads'}
 
     def add_linker_scripts(self):
         self.add_linker_script('arm/tms570/common.ld')
@@ -250,7 +250,7 @@ class ZynqmpR5(CortexARTarget):
     def system_ads(self):
         return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-arm-gic-sfp.ads',
-                'ravenscar-full': 'system-xi-arm-gic-full.ads'}
+                'embedded': 'system-xi-arm-gic-full.ads'}
 
     def add_linker_scripts(self):
         self.add_linker_script('arm/zynqmpr5/common.ld')
@@ -312,7 +312,7 @@ class Zynq7000(CortexARTarget):
     def system_ads(self):
         return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-arm-gic-sfp.ads',
-                'ravenscar-full': 'system-xi-arm-gic-full.ads'}
+                'embedded': 'system-xi-arm-gic-full.ads'}
 
     def __init__(self):
         super(Zynq7000, self).__init__()

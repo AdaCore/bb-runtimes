@@ -6,7 +6,7 @@ Runtimes Supported
 
 * ZFP
 * Ravenscar-SFP (UP & SMP variants)
-* Ravenscar-Full (UP & SMP variants)
+* Embedded (UP & SMP variants)
 
 Targets Supported
 -----------------

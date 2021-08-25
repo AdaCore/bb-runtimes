@@ -85,7 +85,7 @@ class ArmV7MTarget(ArmV6MTarget):
     def system_ads(self):
         return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-cortexm4-sfp.ads',
-                'ravenscar-full': 'system-xi-cortexm4-full.ads'}
+                'embedded': 'system-xi-cortexm4-full.ads'}
 
     def __init__(self):
         super(ArmV7MTarget, self).__init__()
@@ -244,7 +244,7 @@ class Sam(ArmV7MTarget):
             'arm/sam/%s/svd/i-sam-efc.ads' % self.name,
             'arm/sam/%s/svd/i-sam-pmc.ads' % self.name)
 
-        # ravenscar support
+        # tasking support
         self.add_gnarl_sources(
             'arm/sam/%s/svd/handler.S' % self.name,
             'arm/sam/%s/s-bbmcpa.ads' % self.name,
@@ -292,7 +292,7 @@ class SmartFusion2(ArmV7MTarget):
 
     @property
     def system_ads(self):
-        # no zfp nor ravenscar-full rts
+        # no zfp nor embedded rts
         ret = super(SmartFusion2, self).system_ads
         return {'light-tasking': ret['light-tasking']}
 
@@ -347,7 +347,7 @@ class CortexM0CommonArchSupport(ArmV6MTarget):
     def system_ads(self):
         return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-armv6m-sfp.ads',
-                'ravenscar-full': 'system-xi-armv6m-full.ads'}
+                'embedded': 'system-xi-armv6m-full.ads'}
 
     def __init__(self):
         super(CortexM0CommonArchSupport, self).__init__()
@@ -580,7 +580,7 @@ class CortexM1CommonArchSupport(ArmV6MTarget):
     def system_ads(self):
         return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-armv6m-sfp.ads',
-                'ravenscar-full': 'system-xi-armv6m-full.ads'}
+                'embedded': 'system-xi-armv6m-full.ads'}
 
     def __init__(self):
         super(CortexM1CommonArchSupport, self).__init__()
@@ -644,7 +644,7 @@ class NRF51(ArmV6MTarget):
     def system_ads(self):
         return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-armv6m-sfp.ads',
-                'ravenscar-full': 'system-xi-armv6m-full.ads'}
+                'embedded': 'system-xi-armv6m-full.ads'}
 
     def __init__(self):
         super(NRF51, self).__init__()
@@ -712,7 +712,7 @@ class NRF52(ArmV7MTarget):
         # definitions for Priority and Interrupt_Priority in System.
         return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'arm/nordic/nrf52/system-xi-nrf52-sfp.ads',
-                'ravenscar-full': 'arm/nordic/nrf52/system-xi-nrf52-full.ads'}
+                'embedded': 'arm/nordic/nrf52/system-xi-nrf52-full.ads'}
 
     @property
     def compiler_switches(self):
@@ -973,7 +973,7 @@ class Stm32(ArmV7MTarget):
                           'stm32f7x9']:
             self.add_gnat_source('arm/stm32/stm32f7x/s-stm32.adb')
 
-        # ravenscar support
+        # tasking support
         self.add_gnarl_sources(
             'arm/stm32/%s/svd/handler.S' % self.mcu,
             'arm/stm32/%s/svd/a-intnam.ads' % self.mcu)
@@ -1099,7 +1099,7 @@ class Stm32l(ArmV7MTarget):
         if self.mcu in ['stm32l5x2']:
             self.add_gnat_source('arm/stm32l/stm32l5x2/s-stm32.adb')
 
-        # ravenscar support
+        # tasking support
         self.add_gnarl_sources(
             'arm/stm32l/%s/svd/handler.S' % self.mcu,
             'arm/stm32l/%s/svd/a-intnam.ads' % self.mcu)
@@ -1294,7 +1294,7 @@ class ArmV8MTarget(ArmV7MTarget):
     def system_ads(self):
         return {'light': 'system-xi-arm.ads',
                 'light-tasking': 'system-xi-cortexm4-sfp.ads',
-                'ravenscar-full': 'system-xi-cortexm4-full.ads'}
+                'embedded': 'system-xi-cortexm4-full.ads'}
 
     def __init__(self):
         super(ArmV7MTarget, self).__init__()

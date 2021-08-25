@@ -13,7 +13,7 @@ project led_demo is
       for Default_Switches ("ada") use ("-g", "-O0");
    end Builder;
 
-   --  for Runtime ("Ada") use "ravenscar-full-stm32f4";
+   --  for Runtime ("Ada") use "embedded-stm32f4";
    for Target use "arm-eabi";
 
    package Ide is

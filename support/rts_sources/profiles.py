@@ -199,10 +199,10 @@ class RTSProfiles(object):
 
     def full_scenarios(self):
         """Returns the list of directories contained in a base full runtime"""
-        ret = self.sfp_scenarios('ravenscar-full')
+        ret = self.sfp_scenarios('embedded')
 
         # override the RTS value
-        ret['RTS_Profile'] = 'ravenscar-full'
+        ret['RTS_Profile'] = 'embedded'
         ret['Add_Complex_Type_Support'] = 'yes'
         ret['Add_Image_Wide_Char'] = "yes"
         ret['Add_Pack'] = "yes"
@@ -214,13 +214,13 @@ class RTSProfiles(object):
         if self.config.is_64bit:
             ret['Add_Pack64'] = "yes"
 
-        # We don't support certifiable components with ravenscar-full since we
+        # We don't support certifiable components with embedded since we
         # our libgcc replacement does not provide exception support.
         ret['Certifiable_Packages'] = "no"
 
         if not self.config.is_pikeos:
             # PikeOS provides its own C library
-            # ravenscar-full requires C memory operations, either via newlib
+            # embedded requires C memory operations, either via newlib
             # or via our own implementation in Ada
             ret['Add_C_Integration'] = "newlib"
 
