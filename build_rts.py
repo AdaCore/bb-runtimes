@@ -50,7 +50,10 @@ from native import X86Native, X8664Native
 # vx7r2cert
 from vx7r2cert import AArch64Vx7r2Cert, ArmVx7r2Cert, \
                       PPCVx7r2Cert, PPC64Vx7r2Cert, \
-                      X86Vx7r2Cert, X86_64Vx7r2Cert
+                      X86Vx7r2Cert, X86_64Vx7r2Cert, \
+                      AArch64Vx7r2Cert_RTP, ArmVx7r2Cert_RTP, \
+                      PPCVx7r2Cert_RTP, PPC64Vx7r2Cert_RTP, \
+                      X86Vx7r2Cert_RTP, X86_64Vx7r2Cert_RTP
 
 import argparse
 import os
@@ -226,6 +229,18 @@ def build_configs(target):
         t = X86Vx7r2Cert()
     elif target == "x86_64-vx7r2cert":
         t = X86_64Vx7r2Cert()
+    elif target == "aarch64-vx7r2cert-rtp":
+        t = AArch64Vx7r2Cert_RTP()
+    elif target == "arm-vx7r2cert-rtp":
+        t = ArmVx7r2Cert_RTP()
+    elif target == "ppc-vx7r2cert-rtp":
+        t = PPCVx7r2Cert_RTP()
+    elif target == "ppc64-vx7r2cert-rtp":
+        t = PPC64Vx7r2Cert_RTP()
+    elif target == "x86-vx7r2cert-rtp":
+        t = X86Vx7r2Cert_RTP()
+    elif target == "x86_64-vx7r2cert-rtp":
+        t = X86_64Vx7r2Cert_RTP()
     else:
         print('Error: undefined target %s' % target)
         sys.exit(2)
