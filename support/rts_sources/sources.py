@@ -290,8 +290,7 @@ sources = {
     'light-tasking': {
         'conditions': ['RTS_Profile:light-tasking'],
         'vx7r2cert_srcs': [
-            'libgnat/s-parame__ae653.ads', 'libgnat/s-parame__vxworks.adb',
-            'hie/s-init__vxworks7cert.ads']
+            'libgnat/s-parame__ae653.ads', 'libgnat/s-parame__vxworks.adb']
     },
     'gccmath': {
         'conditions': ['RTS_Profile:light,light-tasking', 'Target_Word_Size:64'],
