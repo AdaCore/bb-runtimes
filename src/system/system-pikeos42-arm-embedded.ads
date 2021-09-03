@@ -5,9 +5,9 @@
 --                               S Y S T E M                                --
 --                                                                          --
 --                                 S p e c                                  --
---                        (PikeOS 5 AARCH64 Version)                        --
+--                          (PikeOS 4.2 ARM Version)                        --
 --                                                                          --
---          Copyright (C) 1992-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -34,7 +34,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This is a Jorvik version of this package for AARCH64 PikeOS 5 targets
+--  This is a Ravenscar version of this package for ARM PikeOS 4.2 targets
 
 pragma Restrictions (No_Exception_Registration);
 --  Disable exception name registration. This capability is not used because
@@ -42,7 +42,7 @@ pragma Restrictions (No_Exception_Registration);
 --  in this run time.
 
 pragma Profile (Jorvik);
---  This is a Jorvik run time
+--  This is a Ravenscar run time
 
 package System is
    pragma Pure;
@@ -79,8 +79,8 @@ package System is
    Null_Address : constant Address;
 
    Storage_Unit : constant := 8;
-   Word_Size    : constant := Standard'Word_Size;
-   Memory_Size  : constant := 2 ** Word_Size;
+   Word_Size    : constant := 32;
+   Memory_Size  : constant := 2 ** 32;
 
    --  Address comparison
 
@@ -176,7 +176,7 @@ private
    pragma Linker_Options
       ("-u_p4_entry" & ASCII.NUL &
        "-nostdlib" & ASCII.NUL &
-       "-T../ld/aarch64-pikeos5.ld" & ASCII.NUL &
+       "-T../ld/arm-app.ld" & ASCII.NUL &
        "-lp4ext" & ASCII.NUL &
        "-lgnat" & ASCII.NUL &
        "-lvm" & ASCII.NUL &
