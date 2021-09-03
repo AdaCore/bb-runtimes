@@ -1331,7 +1331,6 @@ sources = {
             'hie/s-multip__raven-default.ads',
             'hie/s-multip__raven-default.adb',
             'hie/s-musplo.adb',
-            'hie/s-osvers__vxworks-cert.ads',
             'hie/s-vxwext__cert.ads', 'hie/s-vxwext__cert.adb',
             'libgnarl/s-osinte__vxworks.ads',
             'libgnarl/s-osinte__vxworks.adb',
