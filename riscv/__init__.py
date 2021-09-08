@@ -158,6 +158,14 @@ class HiFive1(RiscV32):
         return 'hifive1'
 
     @property
+    def has_single_precision_fpu(self):
+        return False
+
+    @property
+    def has_double_precision_fpu(self):
+        return False
+
+    @property
     def compiler_switches(self):
         # The required compiler switches
         return ['-march=rv32imac', '-mabi=ilp32']

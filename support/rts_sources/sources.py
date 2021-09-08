@@ -668,7 +668,7 @@ sources = {
         'requires': ['Add_Image_Fixed:yes', 'Add_Arith128:yes']
     },
     'image/float': {
-        'conditions': ['Add_Image_Float:yes', 'Has_FPU:yes'],
+        'conditions': ['Add_Image_Float:yes'],
         'srcs': [
             'libgnat/s-imager.ads', 'libgnat/s-imager.adb',
             'libgnat/s-imgrea.ads', 'libgnat/s-imgflt.ads',
@@ -785,7 +785,7 @@ sources = {
         'requires': ['Add_Value_Fixed:yes', 'Add_Arith128:yes']
     },
     'value/float': {
-        'conditions': ['Add_Value_Float:yes', 'Has_FPU:yes'],
+        'conditions': ['Add_Value_Float:yes'],
         'srcs': [
             'libgnat/s-valuer.ads', 'libgnat/s-valuer.adb',
             'libgnat/s-valrea.ads', 'libgnat/s-valrea.adb',
@@ -865,7 +865,6 @@ sources = {
 
     # FPU/Floating point operations support
     'fpu': {
-        'conditions': ['Has_FPU:yes'],
         'srcs': [
             'libgnat/s-fatgen.ads', 'libgnat/s-fatgen.adb',
             'libgnat/s-fatflt.ads',

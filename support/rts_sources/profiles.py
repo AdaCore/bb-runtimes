@@ -98,7 +98,7 @@ class RTSProfiles(object):
 
             if cpu in ('aarch64', ):
                 ret['CPU_Family'] = 'aarch64'
-                ret['Has_FMA'] = 'yes'
+                ret['Has_FMA'] = 'yes' if self.config.has_fpu else 'no'
             elif cpu in ('arm', ):
                 ret['CPU_Family'] = 'arm'
                 ret['Has_FMA'] = 'no'
@@ -107,10 +107,10 @@ class RTSProfiles(object):
                 ret['Has_FMA'] = 'no'
             elif cpu in ('powerpc', 'ppc'):
                 ret['CPU_Family'] = 'powerpc'
-                ret['Has_FMA'] = 'yes'
+                ret['Has_FMA'] = 'yes' if self.config.has_fpu else 'no'
             elif cpu in ('powerpc64', 'ppc64'):
                 ret['CPU_Family'] = 'powerpc64'
-                ret['Has_FMA'] = 'yes'
+                ret['Has_FMA'] = 'yes' if self.config.has_fpu else 'no'
             elif cpu in ('x86',):
                 ret['CPU_Family'] = 'x86'
                 ret['Has_FMA'] = 'no'
@@ -119,10 +119,10 @@ class RTSProfiles(object):
                 ret['Has_FMA'] = 'no'
             elif cpu in ('riscv32',):
                 ret['CPU_Family'] = 'riscv32'
-                ret['Has_FMA'] = 'yes'
+                ret['Has_FMA'] = 'yes' if self.config.has_fpu else 'no'
             elif cpu in ('riscv64',):
                 ret['CPU_Family'] = 'riscv64'
-                ret['Has_FMA'] = 'yes'
+                ret['Has_FMA'] = 'yes' if self.config.has_fpu else 'no'
             else:
                 print("Unexpected cpu %s" % cpu)
                 sys.exit(2)
