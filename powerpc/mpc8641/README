@@ -4,8 +4,8 @@ MPC8641 Runtimes
 Runtimes Supported
 ------------------
 
-* ZFP
-* Ravenscar-SFP
+* Light
+* Light-Tasking
 * Embedded
 
 Targets Supported
@@ -46,7 +46,7 @@ The file `start-rom.S` initializes and starts CPU0. Note that the
 declaration of package System.BB.Parameters (`gnat/s-bbpara.ads`) contains
 a constant indicating one processor is available.
 
-For the ZFP runtime the `handler.S` file is used to initialize the vector
+For the Light runtime the `handler.S` file is used to initialize the vector
 table. For the ravenscar-* runtimes, the code in package
 System.BB.CPU_Primitives (`s-bbcppr.adb`) then installs GNAT-specific
 handlers that raise exceptions for the traps.

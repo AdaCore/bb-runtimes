@@ -4,8 +4,8 @@ Leon3 Runtimes
 Runtimes Supported
 ------------------
 
-* ZFP
-* Ravenscar-SFP (UP & SMP variants)
+* Light
+* Light-Tasking (UP & SMP variants)
 * Embedded (UP & SMP variants)
 
 Targets Supported

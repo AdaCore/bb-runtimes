@@ -161,10 +161,10 @@ class SourceTree(FilesHolder):
 
         is_bb: whether we're generating a bare metal hierarchy or a PikeOS one
         profile: the most complete profile used by the target. e.g.
-         'embedded' will generate a full tree while 'zfp' will only
-         consider the sources appropriate for zfp, and 'ravenscar-sfp' will
-         consider the sources for both zfp and ravenscar-sfp, but will not
-         add the files that are embedded specific.
+        'embedded' will generate a full tree while 'light' will only consider
+        the sources appropriate for the Light runtime, and 'light-tasking' will
+        consider the sources for both Light and Light-Tasking, but will not
+        add the files that are Embedded runtime specific.
         """
         super(SourceTree, self).__init__()
         self.scenarios = deepcopy(rts_scenarios)

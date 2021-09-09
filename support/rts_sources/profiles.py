@@ -58,7 +58,7 @@ class RTSProfiles(object):
         return ret
 
     def zfp_scenarios(self, profile='light'):
-        """Returns the list of directories contained in a base ZFP runtime"""
+        """Returns the list of directories contained in a base Light runtime"""
         ret = {}
         ret['RTS_Profile'] = profile
         ret['Add_Arith64'] = "yes"
@@ -193,7 +193,7 @@ class RTSProfiles(object):
         return ret
 
     def sfp_scenarios(self, profile='light-tasking'):
-        """Returns the list of directories contained in a base SFP runtime"""
+        """Returns the list of directories contained in a base Light-Tasking runtime"""
         ret = self.zfp_scenarios(profile)
         ret['RTS_Profile'] = 'light-tasking'
 
@@ -227,13 +227,13 @@ class RTSProfiles(object):
         if self.config.is_64bit:
             ret['Add_Pack64'] = "yes"
 
-        # We don't support certifiable components with embedded since we
+        # We don't support certifiable components with Embedded since we
         # our libgcc replacement does not provide exception support.
         ret['Certifiable_Packages'] = "no"
 
         if not self.config.is_pikeos:
             # PikeOS provides its own C library
-            # embedded requires C memory operations, either via newlib
+            # Embedded requires C memory operations, either via newlib
             # or via our own implementation in Ada
             ret['Add_C_Integration'] = "newlib"
 

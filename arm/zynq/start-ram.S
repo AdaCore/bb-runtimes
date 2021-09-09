@@ -279,7 +279,7 @@ fiqSp1:		.word __cpu1_fiq_stack_end
 irqSp1:		.word __cpu1_irq_stack_end
 userSp1:	.word __cpu1_stack_end
 
-	/* These routines are not available in zfp.  */
+	/* These routines are not available in Light.  */
 	.weak	__gnat_initialize_slave
 	.weak	__gnat_initialize_cpu_devices
 

@@ -217,7 +217,7 @@ system_stack_base:
 mmu_tcr:
 	.word	__mmu_tcr + (3 << 12) + (1 << 10) + (1 << 8)
 
-	/* These routines are not available in zfp.  */
+	/* These routines are not available in the Light runtime  */
 	.weak	__gnat_initialize_slave
 	.weak	__gnat_initialize_cpu_devices
 

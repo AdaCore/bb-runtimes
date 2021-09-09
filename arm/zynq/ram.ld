@@ -155,8 +155,8 @@ SECTIONS
    . = ALIGN(. + _FIQ_STACK_SIZE, 0x8);
    __cpu0_fiq_stack_end = .;
 
-   /* Use the largest of .interrupt_stacks or the default trap stack sizes.
-      This allows use with either ZFP or Ravenscar run times. */
+   /* Use the largest of .interrupt_stacks or the default trap stack sizes for
+      CPU0. This allows use with the Light and Tasking run times. */
 
    __cpu0_irq_stack_start = .;
    *(.interrupt_stacks)
@@ -181,8 +181,8 @@ SECTIONS
    . = ALIGN(. + _FIQ_STACK_SIZE, 0x8);
    __cpu1_fiq_stack_end = .;
 
-   /* Use the largest of .interrupt_stacks or the default trap stack sizes.
-      This allows use with either ZFP or Ravenscar run times. */
+   /* Use the largest of .interrupt_stacks or the default trap stack sizes for
+      CPU1. This allows use with the Light and Tasking run times. */
 
    __cpu1_irq_stack_start = .;
    . = ALIGN (. + _IRQ_STACK_SIZE, 0x8);

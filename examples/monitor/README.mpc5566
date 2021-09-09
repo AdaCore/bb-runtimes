@@ -18,7 +18,7 @@ Execute 'make' to build all versions. It creates the three versions:
 * monitor-ram.srec: S-record file for the monitor in external SRAM. Used to
   update the monitor without using an external probe. Corresponding ELF file
   is monitor.ram
-Note that the monitor should be built using the ZFP runtime.
+Note that the monitor should be built using the Light runtime.
 
 You cannot update the flash while running the monitor in flash.
 So to update the monitor, use the following sequence:

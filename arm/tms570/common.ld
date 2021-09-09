@@ -151,7 +151,7 @@ SECTIONS
     __fiq_stack_end = .;
 
     /* Use the largest of .interrupt_stacks or the default trap stack sizes.
-       This allows use with either ZFP or Ravenscar run times. */
+       This allows use with either Light or Tasking run times. */
 
     __irq_stack_start = .;
     *(.interrupt_stacks)

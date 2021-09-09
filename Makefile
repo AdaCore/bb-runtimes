@@ -189,20 +189,20 @@ default:
 	@echo "  make srcs         Build runtime sources in ./obj"
 	@echo "  make <board>.build"
 	@echo "                    Build the runtimes for the board"
-	@echo "  make <board>.fullbuild"
-	@echo "                    Build the full runtime for the board"
-	@echo "  make <board>.sfpbuild"
-	@echo "                    Build the sfp runtime for the board"
-	@echo "  make <board>.zfpbuild"
-	@echo "                    Build the zfp runtime for the board"
+	@echo "  make <board>.embeddedbuild"
+	@echo "                    Build the embedded runtime for the board"
+	@echo "  make <board>.taskingbuild"
+	@echo "                    Build the light-tasking runtime for the board"
+	@echo "  make <board>.lightbuild"
+	@echo "                    Build the light runtime for the board"
 	@echo "  make <board>.install"
 	@echo "                    Install the board's rts in gcc"
 	@echo "  make <board>.fullinstall"
-	@echo "                    Install the board's full rts in gcc"
+	@echo "                    Install the board's embedded rts in gcc"
 	@echo "  make <board>.sfpinstall"
-	@echo "                    Install the board's sfp rts in gcc"
+	@echo "                    Install the board's light-tasking rts in gcc"
 	@echo "  make <board>.zfpinstall"
-	@echo "                    Install the board's zfp rts in gcc"
+	@echo "                    Install the board's light rts in gcc"
 
 obj/rts-sources:
 	$(GEN_RTS) \
@@ -227,23 +227,23 @@ install: $(RTS_SRCS)
 	  $(GPRBUILD) -P $$f; \
 	done
 
-%.fullbuild: obj/$(TGT)
-	if [ ! -f obj/$(TGT)/BSPs/ravenscar_full_$*.gpr ]; then \
-	  echo "no embedded runtime for $*"; \
+%.embeddedbuild: obj/$(TGT)
+	if [ ! -f obj/$(TGT)/BSPs/embedded_$*.gpr ]; then \
+	  echo "no Embedded runtime for $*"; \
 	  exit 1; \
 	fi
-	$(GPRBUILD) -P obj/$(TGT)/BSPs/ravenscar_full_$*.gpr
+	$(GPRBUILD) -P obj/$(TGT)/BSPs/embedded_$*.gpr
 
-%.sfpbuild: obj/$(TGT)
-	if [ ! -f obj/$(TGT)/BSPs/ravenscar_sfp_$*.gpr ]; then \
-	  echo "no ravenscar-sfp runtime for $*"; \
+%.taskingbuild: obj/$(TGT)
+	if [ ! -f obj/$(TGT)/BSPs/light_tasking_$*.gpr ]; then \
+	  echo "no Light-Tasking runtime for $*"; \
 	  exit 1; \
 	fi
 	$(GPRBUILD) -P obj/$(TGT)/BSPs/ravenscar_sfp_$*.gpr
 
-%.zfpbuild: obj/$(TGT)
-	if [ ! -f obj/$(TGT)/BSPs/zfp_$*.gpr ]; then \
-	  echo "no ravenscar-sfp runtime for $*"; \
+%.lightbuild: obj/$(TGT)
+	if [ ! -f obj/$(TGT)/BSPs/light_$*.gpr ]; then \
+	  echo "no Light runtime for $*"; \
 	  exit 1; \
 	fi
 	$(GPRBUILD) -P obj/$(TGT)/BSPs/zfp_$*.gpr
@@ -254,11 +254,11 @@ install: $(RTS_SRCS)
 	  $(GPRINSTALL) -p -f -P $$f; \
 	done
 
-%.fullinstall: %.fullbuild
-	$(GPRINSTALL) -P obj/$(TGT)/BSPs/ravenscar_full_$*.gpr
+%.fullinstall: %.embeddedbuild
+	$(GPRINSTALL) -P obj/$(TGT)/BSPs/embedded_$*.gpr
 
-%.sfpinstall: %.sfpbuild
-	$(GPRINSTALL) -P obj/$(TGT)/BSPs/ravenscar_sfp_$*.gpr
+%.sfpinstall: %.taskingbuild
+	$(GPRINSTALL) -P obj/$(TGT)/BSPs/light_tasking_$*.gpr
 
-%.zfpinstall: %.zfpbuild
-	$(GPRINSTALL) -P obj/$(TGT)/BSPs/zfp_$*.gpr
+%.zfpinstall: %.lightbuild
+	$(GPRINSTALL) -P obj/$(TGT)/BSPs/light_$*.gpr

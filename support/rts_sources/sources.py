@@ -21,7 +21,7 @@
 
 # default value is always the first value of the list. So for example for
 # optional features enabled via a "no" or "yes" value, always set 'no' as the
-# first option to disable the feature by default (zfp and ravenscar-sfp cases).
+# first option to disable the feature by default (light and light-tasking cases).
 
 all_scenarios = {
     # Main profile
@@ -133,12 +133,12 @@ all_scenarios = {
 # * a condition takes the forms:
 #     Scenario_Var_Name:accepted_values
 #   with accepted_values being:
-#     a) a simple value (e.g. RTS_Profile:zfp): evaluated to True if
-#        RTS_Profile is set to "zfp"
-#     b) a coma-separated list of values (e.g. RTS_Profile:zfp,ravenscar-sfp):
-#        evaluated to True if RTS_Profile is "zfp" or "ravenscar-sfp"
+#     a) a simple value (e.g. RTS_Profile:light): evaluated to True if
+#        RTS_Profile is set to "light"
+#     b) a coma-separated list of values (e.g. RTS_Profile:light,light-tasking):
+#        evaluated to True if RTS_Profile is "light" or "light-tasking"
 #     c) a negated value, preceded with an exclamation point (e.g.
-#        RTS_Profile:!zfp): evaluated to True if RTS_Profile is not "zfp".
+#        RTS_Profile:!light): evaluated to True if RTS_Profile is not "light".
 # If no condition is defined, then the folder is always used.
 sources = {
     # LIBGNAT

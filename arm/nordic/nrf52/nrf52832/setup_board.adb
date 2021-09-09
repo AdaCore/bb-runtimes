@@ -2,7 +2,7 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---          Copyright (C) 2012-2019, Free Software Foundation, Inc.         --
+--          Copyright (C) 2012-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -380,7 +380,7 @@ begin
    --  The Ravenscar runtime uses LFCLK as its timing source for task delays,
    --  so LFCLK will be started by System.BB.Board_Support.Initialize_Board.
    --
-   --  The ZFP runtime does not use LFCLK, so it is not started in ZFP.
+   --  The Light runtime does not use LFCLK, so it is not started in Light.
    CLOCK_Periph.LFCLKSRC := LFCLKSRC_Register'
      (SRC            => LFCLK_Source,
       Reserved_2_15  => 0,

@@ -259,7 +259,7 @@ package body System.MMU is
          --  page aligned.
          --  The abort is done by stopping through System.Machine_Reset.
          --  Raising an exception is not possible since the last chance
-         --  handler on embedded requires the secondary stack which
+         --  handler on Embedded requires the secondary stack which
          --  is not set up yet.
          System.Machine_Reset.Stop;
       end if;

@@ -35,8 +35,8 @@ So for example --output /opt/gnat/arm-eabi/lib/gnat
 ## rebuild of a runtime
 
 To build a runtime with non default options, use the project file present in
-the runtime folder: runtime_build.gpr for zfp runtimes and ravenscar_build.gpr
-for ravenscar runtimes.
+the runtime folder: runtime_build.gpr for the Light runtimes and
+ravenscar_build.gpr for Tasking and Embedded runtimes.
 
 To build with debug options, use -XBUILD=Debug ; to build with assertions use
 -XBUILD=Assert.

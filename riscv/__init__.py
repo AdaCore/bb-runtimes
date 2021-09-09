@@ -180,8 +180,8 @@ class HiFive1(RiscV32):
 
     @property
     def system_ads(self):
-        # Only ZFP for for this target, the ravenscar run-times are not stable
-        # for the moment.
+        # Only the Light runtime for this target, the tasking and embedded
+        # run-times are not stable for the moment.
         return {'light': 'system-xi-riscv.ads'}
 
     def __init__(self):
@@ -217,7 +217,7 @@ class HiFive1(RiscV32):
 
 class RV32BASE(RiscV32):
     """
-    Generic ZFP run-time meant to be used with the startup generator (crt0 and
+    Generic Light run-time meant to be used with the startup generator (crt0 and
     ld script).
     """
 
@@ -248,7 +248,7 @@ class RV32BASE(RiscV32):
 
     @property
     def system_ads(self):
-        # Only ZFP for for this generic target
+        # Only the Light runtime for for this generic target
         return {'light': 'system-xi-riscv.ads'}
 
     def __init__(self):
@@ -297,7 +297,7 @@ class RV32IMAFDC(RV32BASE):
 
 class RV64BASE(RiscV64):
     """
-    Generic ZFP run-time meant to be used with the startup generator (crt0 and
+    Generic Light run-time meant to be used with the startup generator (crt0 and
     ld script).
     """
 
@@ -324,7 +324,7 @@ class RV64BASE(RiscV64):
 
     @property
     def system_ads(self):
-        # Only ZFP for for this generic target
+        # Only the Light runtime for for this generic target
         return {'light': 'system-xi-riscv.ads'}
 
     def __init__(self):

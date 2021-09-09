@@ -4,8 +4,8 @@ MPC5566 Runtimes
 Runtimes Supported
 ------------------
 
-* ZFP
-* Ravenscar-SFP
+* Light
+* Light-Tasking
 * Embedded
 
 Targets Supported

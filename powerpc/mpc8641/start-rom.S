@@ -45,7 +45,7 @@ _start_rom:
 	/* Initialize PIR register with the CPU ID.  */
 	GET_CPU_ID(%r3)
 	mtspr	PIR, %r3
-	
+
 	/* Different code paths per CPU.  */
 	beq	_cpu0_start
 
@@ -54,9 +54,9 @@ _cpu1_start:
 	lis	%r5, slave_stack_table@h
 	ori	%r5, %r5, slave_stack_table@l
 	cmplwi	%r5, 0
-	
-	/* If not, we are in zfp.  */
-	beq	_cpu1_zfp_mode
+
+	/* If not, we are in Light runtime mode  */
+	beq	_cpu1_light_mode
 
 	/* Load the stack from slave_stack_table. This is generic code and
 	   over-engineered for our case (8641d has only one slave).  */
@@ -77,7 +77,7 @@ _cpu1_start:
 _cpu1_exit:
 	b	_cpu1_exit
 
-_cpu1_zfp_mode:
+_cpu1_light_mode:
   	# Load the stack from the __cpu1_stack_end symbol */
         lis	%r1,__cpu1_stack_end@h
         ori	%r1,%r1,__cpu1_stack_end@l

@@ -31,7 +31,7 @@
 	.thumb
 
 	/* This is the initial vector table and also the one that is used by
-	   the zfp runtime. Ravenscar runtimes install its own table (using
+	   the light runtime. The tasking runtimes install their own table (using
 	   VTOR register) defined in handler.S.  */
 	.section .vectors,"a"
 __vectors0:

@@ -4,8 +4,8 @@ ARM Zynq7000 Runtimes
 Runtimes Supported
 ------------------
 
-* ZFP
-* Ravenscar-SFP
+* Light
+* Light-Tasking
 * Embedded
 
 Targets Supported
@@ -32,7 +32,7 @@ Startup Code
 
 There is one assembly language files for the startup code: start-ram.S.
 
-For the ZFP runtime the crt0.S file is used to initialize the vector
+For the Light runtime the crt0.S file is used to initialize the vector
 table. For the ravenscar-* runtimes, the code in package
 System.BB.CPU_Primitives (gnat/s-bbcppr.adb) then installs GNAT-specific
 handlers that raise exceptions for the traps.

@@ -266,7 +266,7 @@ fiq_stack_size:
 irq_stack_size:
 	.word	_IRQ_STACK_SIZE
 
-	/* These routines are not available in zfp.  */
+	/* These routines are not available in the Light runtime  */
 	.weak	__gnat_initialize_slave
 	.weak	__gnat_initialize_cpu_devices
 

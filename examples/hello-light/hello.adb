@@ -2,7 +2,7 @@
 --                                                                          --
 --                               GNAT EXAMPLE                               --
 --                                                                          --
---                        Copyright (C) 2010, AdaCore                       --
+--                     Copyright (C) 2010-2021, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -31,5 +31,5 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 procedure Hello is
 begin
-   Put_Line ("Hello zfp world");
+   Put_Line ("Hello light world");
 end Hello;

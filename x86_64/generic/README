@@ -14,18 +14,18 @@ This BSP supports the following Intel processor families:
 
 and provides the following run-times:
 
-* zfp-x86_64
-* ravenscar-sfp-x86_64
+* light-x86_64
+* light-tasking-x86_64
 * embedded-x86_64
 
-The Ravenscar run-times only support running on a single core.
+The Light-Tasking and Embedded run-times only support running on a single core.
 
 Required CPU Features
 ---------------------
 
-While the ZFP run-time has the ability to run on any x86-64 processor, the
-Ravenscar run-times require the following CPU features that are only present
-in the supported processor families:
+While the Light run-time has the ability to run on any x86-64 processor, the
+Light-Tasking and Embedded run-times require the following CPU features that
+are only present in the supported processor families:
 
 * Invariant Time-Stamp Counter
 * XSAVEOPT instruction

@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2016-2020, AdaCore
 #
-# Python script to build and install the embedded runtimes for bare metal
+# Python script to build and install the Embedded runtimes for Bare-Metal
 # targets.
 
 import getopt

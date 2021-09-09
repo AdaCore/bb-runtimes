@@ -4,8 +4,8 @@ ARM STM32F0 Runtimes
 Runtimes Supported
 ------------------
 
-* ZFP
-* Ravenscar-SFP
+* Light
+* Light-Tasking
 * Embedded
 
 Targets Supported
@@ -63,9 +63,9 @@ the unique symbols defined in the assembly files, via the entry point
 definitions.
 
 The start-\*.S files are used to define the interrupt vector table
-for both ZFP and Ravenscar runtimes. These files will need to be
-modified to use custom user interrupt handlers on ZFP profiles.
-For Ravenscar runtimes, user interrupt handlers are set up using the
+for both Light, Light-Tasking and Embedded runtimes. These files will need to
+be modified to use custom user interrupt handlers on the Light runtime.
+For Tasking and Embedded runtimes, user interrupt handlers are set up using the
 Attach_Handler aspect on protected procedures.
 
 Floating-point Co-processor

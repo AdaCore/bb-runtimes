@@ -34,7 +34,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This is a ZFP version of this package for AARCH64 PikeOS 5 targets
+--  This is a Light version of this package for AARCH64 PikeOS 5 targets
 
 pragma Restrictions (No_Exception_Propagation);
 --  Only local exception handling is supported in this profile

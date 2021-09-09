@@ -13,7 +13,7 @@ class TargetConfiguration(object):
 
     @property
     def name(self):
-        """Board's name, as used to name the runtime (e.g. zfp-<name>)"""
+        """Board's name, as used to name the runtime (e.g. light-<name>)"""
         raise Exception("not implemented")
 
     @property
@@ -105,17 +105,17 @@ class TargetConfiguration(object):
     def has_libc(self, profile):
         """Whether libc is available and used on the target"""
         if profile == 'embedded':
-            # By default, we provide the newlib with the embedded
+            # By default, we provide the newlib with the Embedded
             # runtimes
             return True
         else:
-            # Otherwise, we don't assume any libc is available on zfp or
-            # ravenscar-sfp profiles
+            # Otherwise, we don't assume any libc is available on Light or
+            # Light-Tasking profiles
             return False
 
     @property
     def use_certifiable_packages(self):
-        """True if the ZFP and Ravenscar SFP runtimes are to use certifiable
+        """True if the Light and Light-Tasking runtimes are to use certifiable
         runtime components. In practise, most packages in these runtimes are
         certifiable with the notable exception of libgcc. When true, our Ada
         implementation of libgcc is used.
@@ -317,7 +317,7 @@ class Target(TargetConfiguration, ArchSupport):
             else:
                 ret += blank + '"-nostartfiles", "-nolibc"'
         else:
-            # In the embedded case, the runtime depends on
+            # In the Embedded case, the runtime depends on
             # functionalities from newlib, such as memory allocation. This
             # runtime also does not support the certifiable packages option.
             # Also, there's interdependencies between libgnarl and libgnat,

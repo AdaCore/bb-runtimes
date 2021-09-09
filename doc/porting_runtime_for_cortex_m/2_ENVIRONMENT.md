@@ -112,9 +112,9 @@ At this stage, you should have
 ```
 build
 └── BSPs
-    ├── ravenscar_full_stm32f4.gpr
-    ├── ravenscar_sfp_stm32f4.gpr
-    ├── zfp_stm32f4.gpr
+    ├── embedded_stm32f4.gpr
+    ├── light_tasking_stm32f4.gpr
+    ├── light_stm32f4.gpr
     ├── README-stm32f4.txt
     ├── cortex-m
     │   ├── src
@@ -131,7 +131,7 @@ build
     │           │   ├── arch/
     │           │   ├── obj/
     │           │   └── user_srcs/
-    │           ├── ravenscar-sfp
+    │           ├── light_tasking
     │           │   ├── adalib/
     │           │   ├── arch/
     │           │   ├── obj/
@@ -139,7 +139,7 @@ build
     │           ├── src
     │           │   ├── crt0/
     │           │   └── gnarl/
-    │           └── zfp
+    │           └── light
     │               ├── adalib/
     │               ├── arch/
     │               ├── obj/
@@ -244,9 +244,9 @@ $ ./build_rts.py --bsps-only --output=build --prefix=arm-eabi/lib/gnat --link my
 ```
 
 and check that the projects and sources have been properly created:
-* build/BSPs/zfp_mystm32.gpr
-* build/BSPs/ravenscar_sfp_mystm32.gpr
-* build/BSPs/ravenscar_full_mystm32.gpr
+* build/BSPs/light_mystm32.gpr
+* build/BSPs/light_tasking_mystm32.gpr
+* build/BSPs/embedded_mystm32.gpr
 * BSPs/cortex-m/stm32/mystm32/...
 
 [Next](3_STM32F469.md) - [Home](README.md)

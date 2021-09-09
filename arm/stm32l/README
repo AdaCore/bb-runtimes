@@ -4,8 +4,8 @@ ARM STM32L Runtimes
 Runtimes Supported
 ------------------
 
-* ZFP
-* Ravenscar-SFP
+* Light
+* Light-Tasking
 
 Targets Supported
 -----------------

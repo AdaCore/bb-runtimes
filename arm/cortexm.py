@@ -121,7 +121,7 @@ class LM3S(ArmV7MTarget):
 
     @property
     def system_ads(self):
-        # Only zfp supported here
+        # Only the Light runtime is supported here
         ret = super(LM3S, self).system_ads
         return {'light': ret['light']}
 
@@ -215,7 +215,7 @@ class Sam(ArmV7MTarget):
         if self.board == 'samv71':
             return ret
         else:
-            # No runtime full
+            # No Embedded runtime
             return {'light': ret['light'],
                     'light-tasking': ret['light-tasking']}
 
@@ -292,7 +292,7 @@ class SmartFusion2(ArmV7MTarget):
 
     @property
     def system_ads(self):
-        # no zfp nor embedded rts
+        # No Light or Embedded runtime
         ret = super(SmartFusion2, self).system_ads
         return {'light-tasking': ret['light-tasking']}
 
