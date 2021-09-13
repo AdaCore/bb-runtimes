@@ -44,6 +44,19 @@ class RTSProfiles(object):
             if not modified:
                 break
 
+    def no_scenario(self, profile='none'):
+        ret = {}
+        ret['RTS_Profile'] = profile
+
+        # Using Certifiable_Packages means libgcc is not linked with. This may
+        # be useful for custom profiles which do not want to link with gcc.
+        if self.config.use_certifiable_packages:
+            ret['Certifiable_Packages'] = 'yes'
+        else:
+            ret['Certifiable_Packages'] = 'no'
+
+        return ret
+
     def zfp_scenarios(self, profile='light'):
         """Returns the list of directories contained in a base ZFP runtime"""
         ret = {}

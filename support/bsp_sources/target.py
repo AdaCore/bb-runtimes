@@ -168,11 +168,16 @@ class Target(TargetConfiguration, ArchSupport):
             # Set the scenario variable values for the base profile
             rts = FilesHolder()
             self.runtimes[profile] = rts
-            if profile == 'light':
+
+            # Setup the base profile
+            base_profile = self.base_profile(profile)
+            if base_profile == 'none':
+                rts.rts_vars = self.rts_options.no_scenario()
+            elif base_profile == 'light':
                 rts.rts_vars = self.rts_options.zfp_scenarios()
-            elif profile == 'light-tasking':
+            elif base_profile == 'light-tasking':
                 rts.rts_vars = self.rts_options.sfp_scenarios()
-            elif 'embedded' == profile:
+            elif base_profile == 'embedded':
                 rts.rts_vars = self.rts_options.full_scenarios()
             else:
                 print('Error: unknown profile %s' % profile)
@@ -207,6 +212,12 @@ class Target(TargetConfiguration, ArchSupport):
     def amend_rts(self, rts_profile, rts):
         """to be overriden by the actual target to refine the runtime"""
         pass
+
+    def base_profile(self, profile):
+        """Return the base profile for the given profile. Custom profiles
+        are required to overide this to point to an existing profile to use as
+        the base for the new profile."""
+        return profile
 
     def other_sources(self, profile):
         """Used to return a list of source dirs to install.
