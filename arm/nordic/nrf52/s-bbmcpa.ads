@@ -32,7 +32,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package defines MCU parameters for the nRF52840
+--  This package defines MCU parameters for the nRF52833
 
 package System.BB.MCU_Parameters is
    pragma No_Elaboration_Code_All;

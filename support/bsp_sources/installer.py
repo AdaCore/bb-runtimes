@@ -199,6 +199,7 @@ class Installer(object):
                     if scenario not in scenario_vars:
                         scenario_vars[scenario] = vals[0]
 
+           
             # Placeholder for user-defined sources
             user_libs = ['%s_user' % d for d in libs]
             for lib in user_libs:
@@ -230,7 +231,6 @@ class Installer(object):
                         langs[lib].append('Asm')
                     if 'Asm_Cpp' not in langs[lib] and ext == '.S':
                         langs[lib].append('Asm_Cpp')
-
             # Copy the ld scripts
             if len(self.tgt.ld_scripts) > 0:
                 dest = os.path.join(rts_path, 'ld')
@@ -244,6 +244,7 @@ class Installer(object):
                 os.makedirs(dest)
 
             # Install target and run-time specific configuration files
+           
             for name, content in self.tgt.config_files.items():
                 with open(os.path.join(rts_path, name), 'w') as fp:
                     fp.write(content)
