@@ -834,7 +834,7 @@ class NRF52833(NRF52):
 
     @property
     def use_semihosting_io(self):
-        return True
+        return False
 
     def __init__(self):
         super(NRF52833, self).__init__()
@@ -849,9 +849,10 @@ class NRF52833(NRF52):
             'arm/nordic/nrf52/nrf52833/svd/i-nrf52-uicr.ads',
             'arm/nordic/nrf52/nrf52833/svd/i-nrf52-nvmc.ads',
             'arm/nordic/nrf52/nrf52833/svd/i-nrf52-rtc.ads',
+            'arm/nordic/nrf52/nrf52833/svd/i-nrf52-uart.ads',
             'arm/nordic/nrf52/nrf52833/svd/i-nrf52-temp.ads',
             'src/s-textio__microbit_v2.adb')
-
+             
         self.add_gnarl_sources(
             'arm/nordic/nrf52/nrf52833/svd/handler.S',
             'arm/nordic/nrf52/nrf52833/svd/a-intnam.ads')
