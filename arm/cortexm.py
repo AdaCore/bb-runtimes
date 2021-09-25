@@ -827,36 +827,6 @@ class NRF52832(NRF52):
             'arm/nordic/nrf52/nrf52832/svd/handler.S',
             'arm/nordic/nrf52/nrf52832/svd/a-intnam.ads')
 
-class NRF52833(NRF52):
-    @property
-    def name(self):
-        return 'nrf52833'
-
-    @property
-    def use_semihosting_io(self):
-        return False
-
-    def __init__(self):
-        super(NRF52833, self).__init__()
-
-        self.add_gnat_sources(
-            'arm/nordic/nrf52/nrf52833/s-bbbopa.ads',
-            'arm/nordic/nrf52/nrf52833/setup_board.adb',
-            'arm/nordic/nrf52/nrf52833/svd/i-nrf52.ads',
-            'arm/nordic/nrf52/nrf52833/svd/i-nrf52-clock.ads',
-            'arm/nordic/nrf52/nrf52833/svd/i-nrf52-ficr.ads',
-            'arm/nordic/nrf52/nrf52833/svd/i-nrf52-gpio.ads',
-            'arm/nordic/nrf52/nrf52833/svd/i-nrf52-uicr.ads',
-            'arm/nordic/nrf52/nrf52833/svd/i-nrf52-nvmc.ads',
-            'arm/nordic/nrf52/nrf52833/svd/i-nrf52-rtc.ads',
-            'arm/nordic/nrf52/nrf52833/svd/i-nrf52-uart.ads',
-            'arm/nordic/nrf52/nrf52833/svd/i-nrf52-temp.ads',
-            'src/s-textio__microbit_v2.adb')
-             
-        self.add_gnarl_sources(
-            'arm/nordic/nrf52/nrf52833/svd/handler.S',
-            'arm/nordic/nrf52/nrf52833/svd/a-intnam.ads')
-
 class Stm32CommonArchSupport(ArchSupport):
     """Holds sources common to all stm32 boards"""
     @property

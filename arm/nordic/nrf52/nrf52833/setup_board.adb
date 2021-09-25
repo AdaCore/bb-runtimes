@@ -62,6 +62,7 @@ procedure Setup_Board is
    --  The HFXO can also be turned on and off later by the main program.
 
    LFCLK_Source : constant LFCLKSRC_SRC_Field := Synth;
+
    --  Selects the source for the LFCLK.
    --  Xtal selects the external 32.768 kHz crystal (LFXO).
    --  Rc selects the internal 32.768 kHz RC oscillator.
