@@ -804,11 +804,11 @@ package Interfaces.NRF52.UART is
    --  Universal Asynchronous Receiver/Transmitter
    type UART_Peripheral is record
       --  Start UART receiver
-      TASKS_STARTRX : aliased Interfaces.NRF52.UInt32;
+      TASKS_STARTRX : aliased TASKS_STARTRX_Register;
       --  Stop UART receiver
       TASKS_STOPRX  : aliased TASKS_STOPRX_Register;
       --  Start UART transmitter
-      TASKS_STARTTX : aliased Interfaces.NRF52.UInt32;
+      TASKS_STARTTX : aliased TASKS_STARTTX_Register;
       --  Stop UART transmitter
       TASKS_STOPTX  : aliased TASKS_STOPTX_Register;
       --  Suspend UART
@@ -818,9 +818,9 @@ package Interfaces.NRF52.UART is
       --  CTS is deactivated (set high). Not Clear To Send.
       EVENTS_NCTS   : aliased EVENTS_NCTS_Register;
       --  Data received in RXD
-      EVENTS_RXDRDY : aliased Interfaces.NRF52.UInt32;
+      EVENTS_RXDRDY : aliased EVENTS_RXDRDY_Register;
       --  Data sent from TXD
-      EVENTS_TXDRDY : aliased Interfaces.NRF52.UInt32;
+      EVENTS_TXDRDY : aliased EVENTS_TXDRDY_Register;
       --  Error detected
       EVENTS_ERROR  : aliased EVENTS_ERROR_Register;
       --  Receiver timeout

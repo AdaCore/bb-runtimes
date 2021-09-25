@@ -44,7 +44,7 @@ package body System.Text_IO is
    begin
 
       --  Clear the RX event for the character we just received
-      UART0_Periph.EVENTS_RXDRDY := 0;
+      UART0_Periph.EVENTS_RXDRDY := (16#0#, 16#0#);
 
       return Ret;
    end Get;
@@ -75,12 +75,12 @@ package body System.Text_IO is
       UART0_Periph.ENABLE.ENABLE := Enabled;
 
       --  Clear events
-      UART0_Periph.EVENTS_RXDRDY := 0;
-      UART0_Periph.EVENTS_TXDRDY := 0;
+      UART0_Periph.EVENTS_RXDRDY := (16#0#, 16#0#);
+      UART0_Periph.EVENTS_TXDRDY := (16#0#, 16#0#);
 
       --  Start TX and RX
-      UART0_Periph.TASKS_STARTRX := 1;
-      UART0_Periph.TASKS_STARTTX := 1;
+      UART0_Periph.TASKS_STARTRX := (16#1#, 16#0#);
+      UART0_Periph.TASKS_STARTTX := (16#1#, 16#0#);
 
       --  Send a first character to start the TXREADY events (See nRF51 Series
       --  Reference Manual Version 3.0 Figure 68: UART transmission)
@@ -95,7 +95,7 @@ package body System.Text_IO is
 
    function Is_Rx_Ready return Boolean is
    begin
-      return UART0_Periph.EVENTS_RXDRDY /= 0;
+      return UART0_Periph.EVENTS_RXDRDY /= (16#0#, 16#0#);
    end Is_Rx_Ready;
 
    -----------------
@@ -104,7 +104,7 @@ package body System.Text_IO is
 
    function Is_Tx_Ready return Boolean is
    begin
-      return UART0_Periph.EVENTS_TXDRDY /= 0;
+      return UART0_Periph.EVENTS_TXDRDY /= (16#0#, 16#0#);
    end Is_Tx_Ready;
 
    ---------
@@ -113,7 +113,7 @@ package body System.Text_IO is
 
    procedure Put (C : Character) is
    begin
-      UART0_Periph.EVENTS_TXDRDY := 0;
+      UART0_Periph.EVENTS_TXDRDY := (16#0#, 16#0#);
 
       --  Send the character
       UART0_Periph.TXD.TXD := Byte (Character'Pos (C));

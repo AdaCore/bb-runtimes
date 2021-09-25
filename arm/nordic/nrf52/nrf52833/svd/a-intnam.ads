@@ -102,5 +102,4 @@ package Ada.Interrupts.Names is
    UARTE1_Interrupt                             : constant Interrupt_ID := 40;
    PWM3_Interrupt                               : constant Interrupt_ID := 45;
    SPIM3_Interrupt                              : constant Interrupt_ID := 47;
-
 end Ada.Interrupts.Names;
