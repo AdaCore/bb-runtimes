@@ -150,6 +150,9 @@ sources = {
             'libgnat/a-charac.ads',
             'libgnat/a-chahan.ads', 'libgnat/a-chahan.adb',
             'libgnat/a-chlat1.ads',
+            'libgnat/a-numeri.ads',
+            'libgnat/a-nubinu.ads',
+            'libgnat/a-nbnbin__ghost.ads',
             'libgnat/a-string.ads',
             'libgnat/a-strbou.ads', 'libgnat/a-strbou.adb',
             'libgnat/a-strfix.ads', 'libgnat/a-strfix.adb',
@@ -879,7 +882,6 @@ sources = {
         'srcs': [
             'libgnat/a-nselfu.ads',
             'hie/a-numaux__ada.ads',
-            'libgnat/a-numeri.ads',
             'libgnat/s-gearop.ads',  'libgnat/s-gearop.adb',
         ],
         'bb_srcs': [
