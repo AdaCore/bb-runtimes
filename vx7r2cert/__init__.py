@@ -56,6 +56,10 @@ class AArch64Vx7r2Cert(Vx7r2Cert64):
             'light': 'system-vxworks7-arm-zfp.ads',
             'light-tasking': 'system-vxworks7-arm-ravenscar-sfp.ads'}
 
+    def amend_rts(self, rts_profile, conf):
+        super(AArch64Vx7r2Cert, self).amend_rts(rts_profile, conf)
+        conf.build_flags['common_flags'] += ['-mno-outline-atomics']
+
 
 class ArmVx7r2Cert(Vx7r2Cert):
     def __init__(self):
