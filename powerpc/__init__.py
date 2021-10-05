@@ -163,6 +163,7 @@ class MPC5200(PPC6XXTarget):
         return {
             'light': 'system-xi-ppc.ads',
             'light-tasking': 'system-xi-ppc-mpc5200-sfp.ads',
+            'embedded': 'system-xi-ppc-mpc5200-full.ads',
         }
 
     def __init__(self):
