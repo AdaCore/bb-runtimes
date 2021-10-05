@@ -163,6 +163,7 @@ class MPC5200(PPC6XXTarget):
         return {
             'zfp': 'system-xi-ppc.ads',
             'ravenscar-sfp': 'system-xi-ppc-mpc5200-sfp.ads',
+            'ravenscar-full': 'system-xi-ppc-mpc5200-full.ads',
         }
 
     def __init__(self):
