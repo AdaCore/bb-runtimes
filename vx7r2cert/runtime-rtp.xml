@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+
+<gprconfig>
+    <configuration>
+        <config><![CDATA[
+            package Linker is
+               for Required_Switches use
+                ("-mrtp", "--specs=${RUNTIME_DIR(Ada)}gnarl/vxworks7-cert-rtp-link.spec");
+            end Linker;
+]]>
+        </config>
+    </configuration>
+</gprconfig>

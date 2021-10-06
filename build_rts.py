@@ -289,6 +289,9 @@ def main():
 
     boards = []
 
+    if len(args.target) == 1 and args.target[0].endswith("vx7r2cert"):
+        args.target.append(args.target[0] + "-rtp")
+
     for arg in args.target:
         board = build_configs(arg)
         boards.append(board)
