@@ -98,7 +98,7 @@ _start_ram:
 	mov	sp,r0
 
 	/* Enable FPU and cache when appropriate */
-    bl _sam_start_common
+	bl _sam_start_common
 
 	/* Clear .bss */
 	movw	r0,#:lower16:__bss_start

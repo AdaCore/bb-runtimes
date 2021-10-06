@@ -187,14 +187,14 @@ class Sam(ArmV7MTarget):
 
     @property
     def has_double_precision_fpu(self):
-        if self.board == 'samv71':
+        if self.board in ('samv71', 'samrh71'):
             return True
         else:
             return False
 
     @property
     def cortex(self):
-        if self.board == 'samv71':
+        if self.board in ('samv71', 'samrh71'):
             return 'cortex-m7'
         else:
             return 'cortex-m4'
@@ -212,7 +212,7 @@ class Sam(ArmV7MTarget):
     def system_ads(self):
         ret = super(Sam, self).system_ads
 
-        if self.board == 'samv71':
+        if self.board in ('samv71', 'samrh71'):
             return ret
         else:
             # No Embedded runtime
@@ -229,7 +229,7 @@ class Sam(ArmV7MTarget):
             return base + ('-mfloat-abi=hard', '-mfpu=%s' % self.fpu, )
 
     def __init__(self, board):
-        assert board in ('sam4s', 'samg55', 'samv71'), \
+        assert board in ('sam4s', 'samg55', 'samv71', 'samrh71'), \
             "Unexpected SAM board %s" % board
         self.board = board
         super(Sam, self).__init__()
@@ -241,7 +241,6 @@ class Sam(ArmV7MTarget):
             'arm/sam/%s/setup_pll.adb' % self.name,
             'arm/sam/%s/s-bbbopa.ads' % self.name,
             'arm/sam/%s/svd/i-sam.ads' % self.name,
-            'arm/sam/%s/svd/i-sam-efc.ads' % self.name,
             'arm/sam/%s/svd/i-sam-pmc.ads' % self.name)
 
         # tasking support
@@ -254,14 +253,18 @@ class Sam(ArmV7MTarget):
             self.add_gnat_sources(
                 'arm/sam/samv71/s-samv71.ads',
                 'arm/sam/%s/svd/i-sam-pio.ads' % self.name,
-                'arm/sam/%s/svd/i-sam-uart.ads' % self.name)
+                'arm/sam/%s/svd/i-sam-uart.ads' % self.name,
+                'arm/sam/%s/svd/i-sam-efc.ads' % self.name)
             self.add_gnarl_sources(
                 'src/s-bbpara__samv71.ads')
+        elif self.board == 'samrh71':
+            self.add_gnarl_sources('src/s-bbpara__samv71.ads')
         else:
             self.add_gnat_sources(
                 'arm/sam/sam4s/s-sam4s.ads',
                 'arm/sam/%s/board_config.ads' % self.name,
-                'arm/sam/%s/svd/i-sam-sysc.ads' % self.name)
+                'arm/sam/%s/svd/i-sam-sysc.ads' % self.name,
+                'arm/sam/%s/svd/i-sam-efc.ads' % self.name)
             self.add_gnarl_sources(
                 'src/s-bbpara__sam4s.ads')
 

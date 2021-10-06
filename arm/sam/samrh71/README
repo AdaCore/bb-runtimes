@@ -1,5 +1,5 @@
-ARM SAMV71 Runtimes
-===================
+Microchip SAMRH71 Runtimes
+==========================
 
 Runtimes Supported
 ------------------
@@ -21,23 +21,13 @@ Clocks Configuration
 
 The system clock source is the main phase-locked loop (PLLA) driven by the
 Master Clock. The Master Clock is sourced from the external crystal. The
-frequency of the external crystal is assumed to be 12MHz. You can adjust the
-settings for the external crystal or the system clock frequency by changing
-the PLL divider constants in package System.BB.Board_Parameters (in the gnat
-directory as file s-bbbopa.ads). For example:
+frequency of the external crystal is assumed to be 10MHz. You can adjust the
+settings for system clock frequency by changing Setup_PLL procedure
+(gnat/setup_pll.adb).
 
-.. code-block:: ada
-
-   Clock_Frequency : constant := 300_000_000;
-
-   PLL_DIVA : constant := 1;
-   PLL_MULA : constant := 25;
-
-Change the values in that package to reflect your specific board, as
-necessary. The runtime system uses them to configure the clocks. Package
-System.BB.Parameters (gnat/s-bbpara.ads) imports the Clock_Frequency value
-for use as timer basis. The shared procedure Setup_PLL configures the PLLA
-(using the defined constants) and main system clocks.
+Package System.BB.Parameters (gnat/s-bbpara.ads) imports the Clock_Frequency
+value for use as timer basis. The shared procedure Setup_PLL configures the
+PLLA (using the defined constants) and main system clocks.
 
 
 Startup Code
@@ -67,10 +57,10 @@ Floating-point Co-processor
 
 Package System.BB.Parameters (gnat/s-bbpara.ads) specifies whether a FPU is
 present, but this is used in conditional code in the context switch routine,
-not to decide whether to enable the FPU. The supported SAMV7 targets all
-have an FPU so the unit is enabled in the common startup code
-(start-common.S). If your target does not have an FPU change the assembly
-code and the System.BB.Parameters package.
+not to decide whether to enable the FPU. The supported SAMRH7 targets all have
+an FPU so the unit is enabled in the common startup code (start-common.S). If
+your target does not have an FPU change the assembly code and the
+System.BB.Parameters package.
 
 Interrupts
 ----------
@@ -112,10 +102,3 @@ SysTick interrupt handler runs at highest priority. See procedure
 Sys_Tick_Handler in package body System.BB.CPU_Primitives
 (gnat/s-bbcppr.adb), which calls through to the handler in the trap vectors
 only when necessary for the sake of efficiency.
-
-The runtime libraries provide a minimal version of package Ada.Text_IO
-supporting character- and string-based input and output routines. These are
-implemented using a board-specific UART. You can change the UART selection
-as well as the configuration (e.g., the baud rate). The source files are
-located in the gnat directory in a package named System.Text_IO
-(gnat/s-textio.adb).
