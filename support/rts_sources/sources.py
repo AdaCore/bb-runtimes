@@ -308,8 +308,9 @@ sources = {
             'hie/s-gcdimo.ads', 'hie/s-gcdimo.adb',
             'hie/s-gudmo4.ads', 'hie/s-gudmo4.adb',
             'hie/s-gtdmo3.ads',
+            'hie/s-gtiud3.ads', 'hie/s-gtiud3.adb',
             'hie/s-gtidi3.ads', 'hie/s-gtidi3.adb',
-            'hie/s-gtumo4__imported.ads']
+            'hie/s-gtumo4.ads']
     },
 
     'full': {
