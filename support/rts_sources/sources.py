@@ -261,7 +261,9 @@ sources = {
     'light/non-tasking': {
         'conditions': ['RTS_Profile:light'],
         'pikeos_srcs': ['hie/a-textio__pikeos-light.adb'],
-        'vx7r2cert_srcs': ['hie/s-parame__zfp_huge.ads']
+        'vx7r2cert_srcs': [
+            'hie/s-parame__zfp_huge.ads',
+            'libgnat/s-thread.ads', 'libgnat/s-thread__ae653.adb']
     },
     'light/aarch64': {
         'conditions': ['CPU_Family:aarch64'],
