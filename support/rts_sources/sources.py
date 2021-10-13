@@ -266,7 +266,7 @@ sources = {
         'pikeos_srcs': ['hie/a-textio__pikeos-light.adb'],
         'vx7r2cert_srcs': [
             'hie/s-parame__zfp_huge.ads',
-            'libgnat/s-thread.ads', 'libgnat/s-thread__ae653.adb']
+            'hie/s-thread.ads', 'hie/s-thread__vxworks7cert.adb']
     },
     'light/aarch64': {
         'conditions': ['CPU_Family:aarch64'],
@@ -297,7 +297,7 @@ sources = {
     'light-tasking': {
         'conditions': ['RTS_Profile:light-tasking'],
         'vx7r2cert_srcs': [
-            'libgnat/s-parame__ae653.ads', 'libgnat/s-parame__vxworks.adb']
+            'hie/s-parame__vxworks7cert.ads', 'libgnat/s-parame__vxworks.adb']
     },
     'gccmath': {
         'conditions': ['RTS_Profile:light,light-tasking', 'Target_Word_Size:64'],
