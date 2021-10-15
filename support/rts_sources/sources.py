@@ -152,7 +152,7 @@ sources = {
             'libgnat/a-chlat1.ads',
             'libgnat/a-numeri.ads',
             'libgnat/a-nubinu.ads',
-            'libgnat/a-nbnbin__ghost.ads',
+            'libgnat/a-nbnbin__ghost.ads', 'libgnat/a-nbnbin__ghost.adb',
             'libgnat/a-string.ads',
             'libgnat/a-strbou.ads', 'libgnat/a-strbou.adb',
             'libgnat/a-strfix.ads', 'libgnat/a-strfix.adb',
