@@ -38,6 +38,8 @@ package System.BB.MCU_Parameters is
    pragma No_Elaboration_Code_All;
    pragma Preelaborate;
 
-   Number_Of_Interrupts : constant := 47;
+--  see NVIC, page 19 in manual
+--  https://infocenter.nordicsemi.com/pdf/nRF52833_PS_v1.3.pdf
+   Number_Of_Interrupts : constant := 48;
 
 end System.BB.MCU_Parameters;

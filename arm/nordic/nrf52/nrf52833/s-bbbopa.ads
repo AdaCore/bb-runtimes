@@ -42,7 +42,8 @@ package System.BB.Board_Parameters is
    -- Hardware clock --
    --------------------
 
-   RTC_Tick_Scaling_Factor : constant := 32; --  32.768 kHz * 32 = 1.048576 MHz
+   RTC_Tick_Scaling_Factor : constant := 32;
+   --  32.768 kHz * 32 = 1.048576 MHz
    --  Use a fairly high scaling factor so that Ada.Real_Time.Time_Unit is
    --  at least 1 microsecond. This improves the long-running accuracy of
    --  periodic tasks where the period is not integer divisible by 32.768 kHz.

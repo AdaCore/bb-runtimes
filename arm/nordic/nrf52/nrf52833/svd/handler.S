@@ -29,55 +29,118 @@ __vectors:
 	.word   __gnat_pend_sv_trap  /* 14 PendSV. */
 	.word   __gnat_sys_tick_trap /* 15 Systick. */
 	/* MCU interrupts */
-	.word __gnat_irq_trap        /* 16 POWER_CLOCK */
-	.word __gnat_irq_trap        /* 17 RADIO */
-	.word __gnat_irq_trap        /* 18 UARTE0_UART0 */
-	.word __gnat_irq_trap        /* 19 SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0 */
-	.word __gnat_irq_trap        /* 20 SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1 */
-	.word __gnat_irq_trap        /* 21 NFCT */
-	.word __gnat_irq_trap        /* 22 GPIOTE */
-	.word __gnat_irq_trap        /* 23 SAADC */
-	.word __gnat_irq_trap        /* 24 TIMER0 */
-	.word __gnat_irq_trap        /* 25 TIMER1 */
-	.word __gnat_irq_trap        /* 26 TIMER2 */
-	.word __gnat_irq_trap        /* 27 RTC0 */
-	.word __gnat_irq_trap        /* 28 TEMP */
-	.word __gnat_irq_trap        /* 29 RNG */
-	.word __gnat_irq_trap        /* 30 ECB */
-	.word __gnat_irq_trap        /* 31 CCM_AAR */
-	.word __gnat_irq_trap        /* 32 WDT */
-	.word __gnat_irq_trap        /* 33 RTC1 */
-	.word __gnat_irq_trap        /* 34 QDEC */
-	.word __gnat_irq_trap        /* 35 COMP_LPCOMP */
-	.word __gnat_irq_trap        /* 36 SWI0_EGU0 */
-	.word __gnat_irq_trap        /* 37 SWI1_EGU1 */
-	.word __gnat_irq_trap        /* 38 SWI2_EGU2 */
-	.word __gnat_irq_trap        /* 39 SWI3_EGU3 */
-	.word __gnat_irq_trap        /* 40 SWI4_EGU4 */
-	.word __gnat_irq_trap        /* 41 SWI5_EGU5 */
-	.word __gnat_irq_trap        /* 42 TIMER3 */
-	.word __gnat_irq_trap        /* 43 TIMER4 */
-	.word __gnat_irq_trap        /* 44 PWM0 */
-	.word __gnat_irq_trap        /* 45 PDM */
-	.word __gnat_irq_trap        /* 46 IRQ 30. */
-	.word __gnat_irq_trap        /* 47 IRQ 31. */
-	.word __gnat_irq_trap        /* 48 MWU 32. */
-	.word __gnat_irq_trap        /* 49 PWM1 33. */
-	.word __gnat_irq_trap        /* 50 PWM2 34. */
-	.word __gnat_irq_trap        /* 51 SPIM2_SPIS2_SPI2 35. */
-	.word __gnat_irq_trap        /* 52 RTC2 36. */
-	.word __gnat_irq_trap        /* 53 I2S 37. */
-	.word __gnat_irq_trap        /* 54 FPU 38. */
-	.word __gnat_irq_trap        /* 55 USBD 39. */
-	.word __gnat_irq_trap        /* 56 UARTE1 40. */
-	.word __gnat_irq_trap        /* 57 IRQ 41. no qspi */
-	.word __gnat_irq_trap        /* 58 IRQ 42. no cryptocell */
-	.word __gnat_irq_trap        /* 59 IRQ 43. */
-	.word __gnat_irq_trap        /* 60 IRQ 44. */
-	.word __gnat_irq_trap        /* 61 PWM3 45. */
-	.word __gnat_irq_trap        /* 62 IRQ 46. */
-	.word __gnat_irq_trap        /* 63 SPIM3 47. */
-	
+	.word __gnat_irq_trap        /* ID 0 POWER_CLOCK */
+	.word __gnat_irq_trap        /* ID 1 RADIO */
+	.word __gnat_irq_trap        /* ID 2 UARTE0_UART0 */
+	.word __gnat_irq_trap        /* ID 3 SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0 */
+	.word __gnat_irq_trap        /* ID 4 SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1 */
+	.word __gnat_irq_trap        /* ID 5 NFCT */
+	.word __gnat_irq_trap        /* ID 6 GPIOTE */
+	.word __gnat_irq_trap        /* ID 7 SAADC */
+	.word __gnat_irq_trap        /* ID 8 TIMER0 */
+	.word __gnat_irq_trap        /* ID 9 TIMER1 */
+	.word __gnat_irq_trap        /* ID 10 TIMER2 */
+	.word __gnat_irq_trap        /* ID 11 RTC0 */
+	.word __gnat_irq_trap        /* ID 12 TEMP */
+	.word __gnat_irq_trap        /* ID 13 RNG */
+	.word __gnat_irq_trap        /* ID 14 ECB */
+	.word __gnat_irq_trap        /* ID 15 CCM_AAR */
+	.word __gnat_irq_trap        /* ID 16 WDT */
+	.word __gnat_irq_trap        /* ID 17 RTC1 */
+	.word __gnat_irq_trap        /* ID 18 QDEC */
+	.word __gnat_irq_trap        /* ID 19 COMP_LPCOMP */
+	.word __gnat_irq_trap        /* ID 20 SWI0_EGU0 */
+	.word __gnat_irq_trap        /* ID 21 SWI1_EGU1 */
+	.word __gnat_irq_trap        /* ID 22 SWI2_EGU2 */
+	.word __gnat_irq_trap        /* ID 23 SWI3_EGU3 */
+	.word __gnat_irq_trap        /* ID 24 SWI4_EGU4 */
+	.word __gnat_irq_trap        /* ID 25 SWI5_EGU5 */
+	.word __gnat_irq_trap        /* ID 26 TIMER3 */
+	.word __gnat_irq_trap        /* ID 27 TIMER4 */
+	.word __gnat_irq_trap        /* ID 28 PWM0 */
+	.word __gnat_irq_trap        /* ID 29 PDM */
+	.word __gnat_irq_trap        /* ID 30 ACL_NVMC */
+	.word __gnat_irq_trap        /* ID 31 PPI */
+	.word __gnat_irq_trap        /* ID 32 MWU */
+	.word __gnat_irq_trap        /* ID 33 PWM1 */
+	.word __gnat_irq_trap        /* ID 34 PWM2 */
+	.word __gnat_irq_trap        /* ID 35 SPIM2_SPIS2_SPI2 . */
+	.word __gnat_irq_trap        /* ID 36 RTC2 */
+	.word __gnat_irq_trap        /* ID 37 I2S */
+	.word __gnat_irq_trap        /* ID 38 FPU */
+	.word __gnat_irq_trap        /* ID 39 USBD */
+	.word __gnat_irq_trap        /* ID 40 UARTE1 */
+	.word __gnat_irq_trap        /* ID 41 no qspi */
+	.word __gnat_irq_trap        /* ID 42 no cryptocell */
+	.word __gnat_irq_trap        /* ID 43 reserved */
+	.word __gnat_irq_trap        /* ID 44 reserved */
+	.word __gnat_irq_trap        /* ID 45 PWM3 */
+	.word __gnat_irq_trap        /* ID 46 reserved */
+	.word __gnat_irq_trap        /* ID 47 SPIM3 */
+	.word __gnat_irq_trap        /* ID 48 reserved */
+	.word __gnat_irq_trap        /* ID 49 reserved */
+	.word __gnat_irq_trap        /* ID 50 reserved */
+	.word __gnat_irq_trap        /* ID 51 reserved */
+	.word __gnat_irq_trap        /* ID 52 reserved */
+	.word __gnat_irq_trap        /* ID 53 reserved */
+	.word __gnat_irq_trap        /* ID 54 reserved */
+	.word __gnat_irq_trap        /* ID 55 reserved */
+	.word __gnat_irq_trap        /* ID 56 reserved */
+	.word __gnat_irq_trap        /* ID 57 reserved */
+	.word __gnat_irq_trap        /* ID 58 reserved */
+	.word __gnat_irq_trap        /* ID 59 reserved */
+	.word __gnat_irq_trap        /* ID 60 reserved */
+	.word __gnat_irq_trap        /* ID 61 reserved */
+	.word __gnat_irq_trap        /* ID 62 reserved */
+	.word __gnat_irq_trap        /* ID 63 reserved */
+	.word __gnat_irq_trap        /* ID 64 reserved */
+	.word __gnat_irq_trap        /* ID 65 reserved */
+	.word __gnat_irq_trap        /* ID 66 reserved */
+	.word __gnat_irq_trap        /* ID 67 reserved */
+	.word __gnat_irq_trap        /* ID 68 reserved */
+	.word __gnat_irq_trap        /* ID 69 reserved */
+	.word __gnat_irq_trap        /* ID 70 reserved */
+	.word __gnat_irq_trap        /* ID 71 reserved */
+	.word __gnat_irq_trap        /* ID 72 reserved */
+	.word __gnat_irq_trap        /* ID 73 reserved */
+	.word __gnat_irq_trap        /* ID 74 reserved */
+	.word __gnat_irq_trap        /* ID 75 reserved */
+	.word __gnat_irq_trap        /* ID 76 reserved */
+	.word __gnat_irq_trap        /* ID 77 reserved */
+	.word __gnat_irq_trap        /* ID 78 reserved */
+	.word __gnat_irq_trap        /* ID 79 reserved */
+	.word __gnat_irq_trap        /* ID 80 reserved */
+	.word __gnat_irq_trap        /* ID 81 reserved */
+	.word __gnat_irq_trap        /* ID 82 reserved */
+	.word __gnat_irq_trap        /* ID 83 reserved */
+	.word __gnat_irq_trap        /* ID 84 reserved */
+	.word __gnat_irq_trap        /* ID 85 reserved */
+	.word __gnat_irq_trap        /* ID 86 reserved */
+	.word __gnat_irq_trap        /* ID 87 reserved */
+	.word __gnat_irq_trap        /* ID 88 reserved */
+	.word __gnat_irq_trap        /* ID 89 reserved */
+	.word __gnat_irq_trap        /* ID 90 reserved */
+	.word __gnat_irq_trap        /* ID 91 reserved */
+	.word __gnat_irq_trap        /* ID 92 reserved */
+	.word __gnat_irq_trap        /* ID 93 reserved */
+	.word __gnat_irq_trap        /* ID 94 reserved */
+	.word __gnat_irq_trap        /* ID 95 reserved */
+	.word __gnat_irq_trap        /* ID 96 reserved */
+	.word __gnat_irq_trap        /* ID 97 reserved */
+	.word __gnat_irq_trap        /* ID 98 reserved */
+	.word __gnat_irq_trap        /* ID 99 reserved */
+	.word __gnat_irq_trap        /* ID 100 reserved */
+	.word __gnat_irq_trap        /* ID 101 reserved */
+	.word __gnat_irq_trap        /* ID 102 reserved */
+	.word __gnat_irq_trap        /* ID 103 reserved */
+	.word __gnat_irq_trap        /* ID 104 reserved */
+	.word __gnat_irq_trap        /* ID 105 reserved */
+	.word __gnat_irq_trap        /* ID 106 reserved */
+	.word __gnat_irq_trap        /* ID 107 reserved */
+	.word __gnat_irq_trap        /* ID 108 reserved */
+	.word __gnat_irq_trap        /* ID 109 reserved */
+	.word __gnat_irq_trap        /* ID 110 reserved */
+	.word __gnat_irq_trap        /* ID 111 reserved */
 	.text
 
 	.thumb_func

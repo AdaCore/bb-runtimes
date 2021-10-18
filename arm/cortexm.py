@@ -762,11 +762,12 @@ class NRF52833(NRF52):
             'arm/nordic/nrf52/nrf52833/svd/i-nrf52-rtc.ads',
             'arm/nordic/nrf52/nrf52833/svd/i-nrf52-uart.ads',
             'arm/nordic/nrf52/nrf52833/svd/i-nrf52-temp.ads',
-			'arm/nordic/nrf52/nrf52833/svd/handler.S',
+            'arm/nordic/nrf52/nrf52833/svd/i-nrf52-approtect.ads',
             'src/s-textio__microbit_v2.adb')
-             
+
         # ravenscar support
         self.add_gnarl_sources(          
+            'arm/nordic/nrf52/nrf52833/svd/handler.S',
             'arm/nordic/nrf52/nrf52833/svd/a-intnam.ads')
 
 class NRF52840(NRF52):

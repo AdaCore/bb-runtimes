@@ -61,7 +61,7 @@ procedure Setup_Board is
    --  When False, the on-chip oscillator is used.
    --  The HFXO can also be turned on and off later by the main program.
 
-   LFCLK_Source : constant LFCLKSRC_SRC_Field := Rc;
+   LFCLK_Source : constant LFCLKSRC_SRC_Field := Synth;
    --  Selects the source for the LFCLK.
    --  Xtal selects the external 32.768 kHz crystal (LFXO).
    --  Rc selects the internal 32.768 kHz RC oscillator.
@@ -236,7 +236,7 @@ begin
    if Use_SWO_Trace then
       CoreDebug_DEMCR := CoreDebug_DEMCR or DEMCR_TRCENA_Mask;
       CLOCK_Periph.TRACECONFIG.TRACEMUX := Serial;
-      GPIO_Periph.PIN_CNF (18) := PIN_CNF_Register'
+      GPIO_Periph1.PIN_CNF (0) := PIN_CNF_Register'
          (DIR            => Output,
           INPUT          => Connect,
           PULL           => Disabled,
@@ -348,7 +348,8 @@ begin
          end loop;
 
          UICR_Periph.PSELRESET (0) := PSELRESET_Register'
-            (PIN           => 21,
+            (PIN           => 18,
+             PORT          => 0,
              Reserved_6_30 => 0,
              CONNECT       => Connected);
          loop
@@ -356,7 +357,8 @@ begin
          end loop;
 
          UICR_Periph.PSELRESET (1) := PSELRESET_Register'
-            (PIN           => 21,
+            (PIN           => 18,
+             PORT          => 0,
              Reserved_6_30 => 0,
              CONNECT       => Connected);
          loop

@@ -71,8 +71,9 @@ package Interfaces.NRF52.UICR is
    --  Description collection[0]: Reserved for customer
    type CUSTOMER_Registers is array (0 .. 31) of Interfaces.NRF52.UInt32;
 
-   subtype PSELRESET_PIN_Field is Interfaces.NRF52.UInt6;
-
+   subtype PSELRESET_PIN_Field is Interfaces.NRF52.UInt5;
+   subtype PSELRESET_PORT_Field is Interfaces.NRF52.Bit;
+   
    --  Connection
    type PSELRESET_CONNECT_Field is
      (--  Connect
@@ -88,7 +89,9 @@ package Interfaces.NRF52.UICR is
    --  chapter for details)
    type PSELRESET_Register is record
       --  GPIO number P0.n onto which Reset is exposed
-      PIN           : PSELRESET_PIN_Field := 16#3F#;
+      PIN           : PSELRESET_PIN_Field := 16#1F#;
+      --  Port number onto which nRESET is exposed
+      PORT          : PSELRESET_PORT_Field := 16#1#;
       --  unspecified
       Reserved_6_30 : Interfaces.NRF52.UInt25 := 16#1FFFFFF#;
       --  Connection
@@ -99,7 +102,8 @@ package Interfaces.NRF52.UICR is
           Bit_Order => System.Low_Order_First;
 
    for PSELRESET_Register use record
-      PIN           at 0 range 0 .. 5;
+      PIN           at 0 range 0 .. 4;
+      PORT          at 0 range 5 .. 5;
       Reserved_6_30 at 0 range 6 .. 30;
       CONNECT       at 0 range 31 .. 31;
    end record;
@@ -113,11 +117,16 @@ package Interfaces.NRF52.UICR is
    type APPROTECT_PALL_Field is
      (--  Enable
       Enabled,
-      --  Disable
+      --  Hardware disable of access port protection for devices where access port
+      --  protection is controlled by hardware and software
+      HwDisabled,
+      --  Hardware disable of access port protection for devices where access port
+      --  protection is controlled by hardware
       Disabled)
      with Size => 8;
    for APPROTECT_PALL_Field use
      (Enabled => 0,
+      HwDisabled => 90,
       Disabled => 255);
 
    --  Access Port protection
@@ -162,19 +171,100 @@ package Interfaces.NRF52.UICR is
       Reserved_1_31 at 0 range 1 .. 31;
    end record;
 
+   --  Configure CPU non-intrusive debug features
+   type DEBUGCTRL_CPUNIDEN_Field is
+     (--  Disable CPU ITM and ETM functionality
+      Disabled,
+      --  Enable CPU ITM and ETM functionality (default behavior)
+      Enabled)
+     with Size => 8;
+   for DEBUGCTRL_CPUNIDEN_Field use
+     (Disabled => 0,
+      Enabled => 255);
+
+   --  Configure CPU flash patch and breakpoint (FPB) unit behavior
+   type DEBUGCTRL_CPUFPBEN_Field is
+     (--  Disable CPU FPB unit. Writes into the FPB registers will be ignored.
+      Disabled,
+      --  Enable CPU FPB unit (default behavior)
+      Enabled)
+     with Size => 8;
+   for DEBUGCTRL_CPUFPBEN_Field use
+     (Disabled => 0,
+      Enabled => 255);
+	  
+   --  Processor debug control
+   type DEBUGCTRL_Register is record
+      --  Configure CPU non-intrusive debug features
+      CPUNIDEN       : DEBUGCTRL_CPUNIDEN_Field := Interfaces.NRF52.UICR.Enabled;
+      --  Configure CPU flash patch and breakpoint (FPB) unit behavior
+      CPUFPBEN       : DEBUGCTRL_CPUFPBEN_Field := Interfaces.NRF52.UICR.Enabled;
+      --  unspecified
+      Reserved_16_31 : Interfaces.NRF52.UInt16 := 16#FFFF#;
+   end record
+     with Volatile_Full_Access, Object_Size => 32,
+          Bit_Order => System.Low_Order_First;
+
+   for DEBUGCTRL_Register use record
+      CPUNIDEN       at 0 range 0 .. 7;
+      CPUFPBEN       at 0 range 8 .. 15;
+      Reserved_16_31 at 0 range 16 .. 31;
+   end record;
+
+   --  Output voltage from REG0 regulator stage.
+   type REGOUT0_VOUT_Field is
+     (--  1.8 V
+      Val_1V8,
+      --  2.1 V
+      Val_2V1,
+      --  2.4 V
+      Val_2V4,
+      --  2.7 V
+      Val_2V7,
+      --  3.0 V
+      Val_3V0,
+      --  3.3 V
+      Val_3V3,
+      --  Default voltage: 1.8 V
+      DEFAULT)
+     with Size => 3;
+   for REGOUT0_VOUT_Field use
+     (Val_1V8 => 0,
+      Val_2V1 => 1,
+      Val_2V4 => 2,
+      Val_2V7 => 3,
+      Val_3V0 => 4,
+      Val_3V3 => 5,
+      DEFAULT => 7);
+
+   --  Output voltage from REG0 regulator stage. The maximum output voltage
+   --  from this stage is given as VDDH - V_VDDH-VDD.
+   type REGOUT0_Register is record
+      --  Output voltage from REG0 regulator stage.
+      VOUT          : REGOUT0_VOUT_Field := Interfaces.NRF52.UICR.DEFAULT;
+      --  unspecified
+      Reserved_3_31 : Interfaces.NRF52.UInt29 := 16#1FFFFFFF#;
+   end record
+     with Volatile_Full_Access, Object_Size => 32,
+          Bit_Order => System.Low_Order_First;
+
+   for REGOUT0_Register use record
+      VOUT          at 0 range 0 .. 2;
+      Reserved_3_31 at 0 range 3 .. 31;
+   end record;
    -----------------
    -- Peripherals --
    -----------------
 
    --  User Information Configuration Registers
    type UICR_Peripheral is record
-      --  Unspecified
+      --  Unspecified (not in SVD file)
       UNUSED0   : aliased Interfaces.NRF52.UInt32;
-      --  Unspecified
+      --  Unspecified (not in SVD file)
       UNUSED1   : aliased Interfaces.NRF52.UInt32;
-      --  Unspecified
+      --  Unspecified (not in SVD file)
       UNUSED2   : aliased Interfaces.NRF52.UInt32;
-      --  Unspecified
+      --  Unspecified (not in SVD file)
       UNUSED3   : aliased Interfaces.NRF52.UInt32;
       --  Description collection[0]: Reserved for Nordic firmware design
       NRFFW     : aliased NRFFW_Registers;
@@ -189,6 +279,11 @@ package Interfaces.NRF52.UICR is
       APPROTECT : aliased APPROTECT_Register;
       --  Setting of pins dedicated to NFC functionality: NFC antenna or GPIO
       NFCPINS   : aliased NFCPINS_Register;
+      --  Processor debug control
+      DEBUGCTRL : aliased DEBUGCTRL_Register;
+      --  Output voltage from REG0 regulator stage. The maximum output voltage
+      --  from this stage is given as VDDH - V_VDDH-VDD.
+      REGOUT0   : aliased REGOUT0_Register;
    end record
      with Volatile;
 
@@ -203,6 +298,8 @@ package Interfaces.NRF52.UICR is
       PSELRESET at 16#200# range 0 .. 63;
       APPROTECT at 16#208# range 0 .. 31;
       NFCPINS   at 16#20C# range 0 .. 31;
+      DEBUGCTRL at 16#210# range 0 .. 31;
+      REGOUT0   at 16#304# range 0 .. 31;
    end record;
 
    --  User Information Configuration Registers
