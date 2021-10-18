@@ -71,10 +71,8 @@ package Interfaces.NRF52.UICR is
    --  Description collection[0]: Reserved for customer
    type CUSTOMER_Registers is array (0 .. 31) of Interfaces.NRF52.UInt32;
 
-
    subtype PSELRESET_PIN_Field is Interfaces.NRF52.UInt5;
    subtype PSELRESET_PORT_Field is Interfaces.NRF52.Bit;
-   
 
    --  Connection
    type PSELRESET_CONNECT_Field is
