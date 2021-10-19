@@ -134,22 +134,17 @@ argv:
         .quad    argv_str
         .quad    0
 
-        .section .bios_replacement,"ax"
-        .global __qemu_entry
+        .section .qemu_boot,"ax"
+        .global __processor_entry
         .code16
-        # Seperate entry for QEMU since we have QEMU load the bios_replacement
-        # section over it's own bios so we do not have to muck around with
-        # the BIOS (e.g.: creating an image for the BIOS to boot, dealing with
-        # the BIOS splash screen, etc). This code replicates _start16 instead
-        # of calling it since we'd need to do a long jump to _start16's memory
-        # segment which is as much effort as just switching to protected mode.
-        # See _start16 for details of this function.
-__qemu_entry:
-        cli
-        lgdt    gdt_pointer
-        mov     $1, %ax
-        movl    %eax, %cr0
-        ljmp    $CODE32_SEG, $setup_32mode
+        # A QEMU specific entry since we do not load the BIOS on QEMU. This is
+        # done so that we do not have to muck around with BIOS, doing things
+        # like creating an image for the BIOS to boot, dealing with the BIOS
+        # splash screen, etc. The entry point for a BIOS-less system is simple:
+        # a long jump to the program's main entry point. The linker will load
+        # this to the top 16 bytes of the real mode's address space.
+__processor_entry:
+        ljmp    $0, $__start16
 
         .section .boottext16,"ax"
         .global __start16
