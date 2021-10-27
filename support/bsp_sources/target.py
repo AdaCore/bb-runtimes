@@ -322,8 +322,16 @@ class Target(TargetConfiguration, ArchSupport):
             # runtime also does not support the certifiable packages option.
             # Also, there's interdependencies between libgnarl and libgnat,
             # so we need to force -lgnarl at link time, always.
+            #
+            # We provide the link arguments for libc ourselves. Inhibit the
+            # gcc mechanism doing so with -nolibc first. Then we need to
+            # account for intricacies in dependencies, e.g. libc depends on
+            # libgcc as everyone, libgcc on libc for strlen, libgnat on libc
+            # for __errno or other, libc on libgnat for sbrk ...
+
             ret += blank + \
-                   '"-nostartfiles", "-lc", "-lgnarl", "-lgnat", "-lgnarl"'
+                '"-nostartfiles", "-nolibc", ' + \
+                '"-lgnarl", "-Wl,--start-group,-lgnat,-lc,-lgcc,--end-group"'
 
         # Add the user script path first, so that they have precedence
         ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld_user"'
