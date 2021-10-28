@@ -327,11 +327,12 @@ class Target(TargetConfiguration, ArchSupport):
             # gcc mechanism doing so with -nolibc first. Then we need to
             # account for intricacies in dependencies, e.g. libc depends on
             # libgcc as everyone, libgcc on libc for strlen, libgnat on libc
-            # for __errno or other, libc on libgnat for sbrk ...
+            # for __errno or other, libc on libgnat for sbrk, libgnat and
+            # libgnarl on each other...
 
             ret += blank + \
                 '"-nostartfiles", "-nolibc", ' + \
-                '"-lgnarl", "-Wl,--start-group,-lgnat,-lc,-lgcc,--end-group"'
+                '"-Wl,--start-group,-lgnarl,-lgnat,-lc,-lgcc,--end-group"'
 
         # Add the user script path first, so that they have precedence
         ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld_user"'
