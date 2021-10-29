@@ -76,13 +76,18 @@ The memory layout is controlled by linker scripts specific to whether the
 program is located in RAM or ROM. The scripts are located in the ld
 directory and are named common-RAM.ld and common-ROM.ld, respectively.
 
-Script selection is controlled by a scenario variable declared in an XML
+Script selection is controlled by the selected memory map. The memory maps
+themselves are selected by a scenario variable declared in an XML
 file named runtime.xml that is located in the runtime root directory. The
 scenario variable is used to specify linker switches.
 
-The memory sections' locations and sizes are specified in memory-map.ld,
-also located in the ld directory. The XML also specifies this file as part
-of the linker switches.
+The memory sections' locations and sizes are specified in in the memory-map-*.ld,
+files. The -RAM and -ROM suffix in the file name selects if the program is located
+in RAM or ROM. No other suffix indicates that this file is intended for devices with
+TrustZone support disabled. A -TZ suffix indicates that the program targets a device
+with TrustZone support enabled and the SECURE and NONSECURe additions locate it
+in the secure or non-secure part of the device respectively.
+The XML also specifies these files as part of the linker switches.
 
 You can modify all of these scripts as required. Alternatively, these
 scripts can be overridden at link time using the LDSCRIPT environment
