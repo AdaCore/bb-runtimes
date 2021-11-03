@@ -973,8 +973,9 @@ class Stm32(ArmV7MTarget):
 
         elif self.mcu in ['stm32f4x1']:
             self.add_gnat_source('arm/stm32/stm32f4x1/s-stm32.adb')
-            self.add_linker_script('arm/stm32/%s/memory-map.ld.tmpl' % self.mcu)
-            
+            self.add_linker_script('arm/stm32/%s/memory-map.ld.tmpl'
+                                   % self.mcu)
+
         elif self.mcu in ['stm32f429x',
                           'stm32f469x']:
             self.add_gnat_source('arm/stm32/stm32f429x/s-stm32.adb')
