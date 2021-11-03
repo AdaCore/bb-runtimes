@@ -834,7 +834,13 @@ stm32_board_configuration = {
 
     'nucleo_f401re':     {'STM32_Main_Clock_Frequency': '168_000_000',
                           'STM32_HSE_Clock_Frequency': '8_000_000',
-                          'STM32_FLASH_Latency': '5'},
+                          'STM32_FLASH_Latency': '5',
+                          'STM32_SRAM_Size': '96K'},
+
+    'nucleo_f411re':     {'STM32_Main_Clock_Frequency': '168_000_000',
+                          'STM32_HSE_Clock_Frequency': '8_000_000',
+                          'STM32_FLASH_Latency': '5',
+                          'STM32_SRAM_Size': '128K'},
 
     'feather_stm32f405': {'STM32_Main_Clock_Frequency': '168_000_000',
                           'STM32_HSE_Clock_Frequency': '12_000_000',
@@ -921,8 +927,8 @@ class Stm32(ArmV7MTarget):
         self.board = board
         if self.board in ['stm32f4', 'feather_stm32f405']:
             self.mcu = 'stm32f40x'
-        elif self.board in ['nucleo_f401re']:
-            self.mcu = 'stm32f401'
+        elif self.board in ['nucleo_f401re', 'nucleo_f411re']:
+            self.mcu = 'stm32f4x1'
         elif self.board in ['stm32f429disco', 'openmv2']:
             self.mcu = 'stm32f429x'
         elif self.board in ['stm32f469disco']:
@@ -943,8 +949,6 @@ class Stm32(ArmV7MTarget):
         self.add_template_config_value('Board_Name', self.board)
         self.add_template_config_value('MCU_Name', self.mcu)
 
-        self.add_linker_script('arm/stm32/%s/memory-map.ld' % self.mcu)
-
         # startup code
         self.add_gnat_sources(
             'arm/stm32/%s/s-bbmcpa.ads' % self.mcu,
@@ -961,17 +965,24 @@ class Stm32(ArmV7MTarget):
 
         if self.mcu in ['stm32f40x']:
             self.add_gnat_source('arm/stm32/stm32f40x/s-stm32.adb')
+            self.add_linker_script('arm/stm32/%s/memory-map.ld' % self.mcu)
 
-        elif self.mcu in ['stm32f401']:
-            self.add_gnat_source('arm/stm32/stm32f401/s-stm32.adb')
-
+        elif self.mcu in ['stm32f4x1']:
+            self.add_gnat_source('arm/stm32/stm32f4x1/s-stm32.adb')
+            self.add_linker_script('arm/stm32/%s/memory-map.ld.tmpl' % self.mcu)
+            
         elif self.mcu in ['stm32f429x',
                           'stm32f469x']:
             self.add_gnat_source('arm/stm32/stm32f429x/s-stm32.adb')
+            self.add_linker_script('arm/stm32/%s/memory-map.ld' % self.mcu)
 
         elif self.mcu in ['stm32f7x',
                           'stm32f7x9']:
             self.add_gnat_source('arm/stm32/stm32f7x/s-stm32.adb')
+            self.add_linker_script('arm/stm32/%s/memory-map.ld' % self.mcu)
+
+        else:
+            self.add_linker_script('arm/stm32/%s/memory-map.ld' % self.mcu)
 
         # ravenscar support
         self.add_gnarl_sources(

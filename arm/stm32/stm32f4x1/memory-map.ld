@@ -37,7 +37,7 @@
 MEMORY
 {
   flash   (rx) : ORIGIN = 0x08000000, LENGTH = 512K
-  sram12 (rwx) : ORIGIN = 0x20000000, LENGTH = 96K
+  sram12 (rwx) : ORIGIN = 0x20000000, LENGTH = "${STM32_SRAM_Size}"
   ccm     (rw) : ORIGIN = 0x10000000, LENGTH = 64K
 }
 
