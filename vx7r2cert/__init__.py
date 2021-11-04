@@ -60,9 +60,13 @@ class AArch64Vx7r2Cert(Vx7r2Cert64):
 
     @property
     def system_ads(self):
-        return {
-            'light': 'system-vxworks7-arm-zfp.ads',
-            'light-tasking': f'system-vxworks7-arm-ravenscar-sfp{self._rtp_suffix}.ads'}
+        if self._is_rtp:
+            return {
+                'light-tasking': 'system-vxworks7-arm-ravenscar-sfp-rtp.ads'}
+        else:
+            return {
+                'light': 'system-vxworks7-arm-zfp.ads',
+                'light-tasking': 'system-vxworks7-arm-ravenscar-sfp.ads'}
 
     def amend_rts(self, rts_profile, conf):
         super(AArch64Vx7r2Cert, self).amend_rts(rts_profile, conf)
@@ -83,9 +87,13 @@ class ArmVx7r2Cert(Vx7r2Cert):
 
     @property
     def system_ads(self):
-        return {
-            'light': 'system-vxworks7-arm-zfp.ads',
-            'light-tasking': f'system-vxworks7-arm-ravenscar-sfp{self._rtp_suffix}.ads'}
+        if self._is_rtp:
+            return {
+                'light-tasking': 'system-vxworks7-arm-ravenscar-sfp-rtp.ads'}
+        else:
+            return {
+                'light': 'system-vxworks7-arm-zfp.ads',
+                'light-tasking': 'system-vxworks7-arm-ravenscar-sfp.ads'}
 
 
 class PPCVx7r2Cert(Vx7r2Cert):
@@ -102,9 +110,13 @@ class PPCVx7r2Cert(Vx7r2Cert):
 
     @property
     def system_ads(self):
-        return {
-            'light': 'system-vxworks7-ppc-zfp.ads',
-            'light-tasking': f'system-vxworks7-ppc-ravenscar-sfp{self._rtp_suffix}.ads'}
+        if self._is_rtp:
+            return {
+                'light-tasking': 'system-vxworks7-ppc-ravenscar-sfp-rtp.ads'}
+        else:
+            return {
+                'light': 'system-vxworks7-ppc-zfp.ads',
+                'light-tasking': 'system-vxworks7-ppc-ravenscar-sfp.ads'}
 
 
 class PPC64Vx7r2Cert(Vx7r2Cert64):
@@ -121,9 +133,13 @@ class PPC64Vx7r2Cert(Vx7r2Cert64):
 
     @property
     def system_ads(self):
-        return {
-            'light': 'system-vxworks7-ppc-zfp.ads',
-            'light-tasking': f'system-vxworks7-ppc-ravenscar-sfp{self._rtp_suffix}.ads'}
+        if self._is_rtp:
+            return {
+                'light-tasking': 'system-vxworks7-ppc-ravenscar-sfp-rtp.ads'}
+        else:
+            return {
+                'light': 'system-vxworks7-ppc-zfp.ads',
+                'light-tasking': 'system-vxworks7-ppc-ravenscar-sfp.ads'}
 
 
 class X86Vx7r2Cert(Vx7r2Cert):
@@ -140,9 +156,13 @@ class X86Vx7r2Cert(Vx7r2Cert):
 
     @property
     def system_ads(self):
-        return {
-            'light': 'system-vxworks7-x86-zfp.ads',
-            'light-tasking': f'system-vxworks7-x86-ravenscar-sfp{self._rtp_suffix}.ads'}
+        if self._is_rtp:
+            return {
+                'light-tasking': 'system-vxworks7-x86-ravenscar-sfp-rtp.ads'}
+        else:
+            return {
+                'light': 'system-vxworks7-x86-zfp.ads',
+                'light-tasking': 'system-vxworks7-x86-ravenscar-sfp.ads'}
 
 
 class X86_64Vx7r2Cert(Vx7r2Cert64):
@@ -159,9 +179,13 @@ class X86_64Vx7r2Cert(Vx7r2Cert64):
 
     @property
     def system_ads(self):
-        return {
-            'light': 'system-vxworks7-x86-zfp.ads',
-            'light-tasking': f'system-vxworks7-x86-ravenscar-sfp{self._rtp_suffix}.ads'}
+        if self._is_rtp:
+            return {
+                'light-tasking': 'system-vxworks7-x86-ravenscar-sfp-rtp.ads'}
+        else:
+            return {
+                'light': 'system-vxworks7-x86-zfp.ads',
+                'light-tasking': 'system-vxworks7-x86-ravenscar-sfp.ads'}
 
 
 class AArch64Vx7r2Cert_RTP(AArch64Vx7r2Cert):
