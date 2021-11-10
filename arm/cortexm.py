@@ -832,14 +832,14 @@ stm32_board_configuration = {
                           'STM32_HSE_Clock_Frequency': '8_000_000',
                           'STM32_FLASH_Latency': '5'},
 
-    'nucleo_f401re':     {'STM32_Main_Clock_Frequency': '168_000_000',
+    'nucleo_f401re':     {'STM32_Main_Clock_Frequency': '84_000_000',
                           'STM32_HSE_Clock_Frequency': '8_000_000',
                           'STM32_FLASH_Latency': '5',
                           'STM32_Linker_RAM_Size': '96K',
                           'STM32_Linker_Flash_Size': '512K',
                           'STM32_Linker_CCM_Size': '64K'},
 
-    'nucleo_f411re':     {'STM32_Main_Clock_Frequency': '168_000_000',
+    'nucleo_f411re':     {'STM32_Main_Clock_Frequency': '100_000_000',
                           'STM32_HSE_Clock_Frequency': '8_000_000',
                           'STM32_FLASH_Latency': '5',
                           'STM32_Linker_RAM_Size': '128K',
