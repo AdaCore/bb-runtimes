@@ -90,6 +90,12 @@ package Ada.Interrupts.Names is
    --  SPI2 global interrupt
    SPI2_Interrupt                : constant Interrupt_ID := 36;
 
+   --  USART1 global interrupt
+   USART1_Interrupt              : constant Interrupt_ID := 37;
+
+   --  USART2 global interrupt
+   USART2_Interrupt              : constant Interrupt_ID := 38;
+
    --  EXTI Line[15:10] interrupts
    EXTI15_10_Interrupt           : constant Interrupt_ID := 40;
 
