@@ -6,7 +6,7 @@
  *                                                                          *
  *                               Assembly File                              *
  *                                                                          *
- *                          Copyright (C) 2013 AdaCore                      *
+ *                     Copyright (C) 2013-2021 AdaCore                      *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -36,7 +36,6 @@
 	.global __start_ram
 
 	.section .traps
-	#include	"memmap.S"
 
 	/* The following provide default definitions for trap vectors that
 	loop back to the trap address, so the system will stop in a safe
@@ -62,6 +61,7 @@ __gnat_dabt_trap:	b	__gnat_dabt_trap
 __gnat_irq_trap:	b	__gnat_irq_trap
 __gnat_fiq_trap:	b	__gnat_fiq_trap
 
+	#include	"memmap.S"
 
 	.type	__start_ram, %function
 __start_ram:
@@ -135,7 +135,7 @@ L_coreInit:
 	fmxr	fpexc, r0
 
 	/* Set VBAR (Vector Base Address Register).  */
-	adr	r0, __traps
+	adrl	r0, __traps
 	mcr	p15, #0, r0, c12, c0, #0
 
 	/* Invalidate TLBs  */
