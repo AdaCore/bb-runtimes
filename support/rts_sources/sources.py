@@ -1344,25 +1344,35 @@ sources = {
             'initflt.c',
             'sysdep-raven-cert-vxworks.c']
     },
-    'gnarl/specs': {
-        'conditions': ['Is_RTP:yes'],
-        'vx7r2cert_srcs': ['vxworks7-cert-rtp-link.spec']
+    'gnarl/specs/arm': {
+        'conditions': ['Is_RTP:yes', 'CPU_Family:aarch64,arm'],
+        'vx7r2cert_srcs': [
+            'vxworks7-cert-rtp-base-link.spec',
+            'vxworks7-cert-rtp-link.spec']
     },
-    'gnarl/specs/default': {
-        'conditions': ['Is_RTP:yes', 'CPU_Family:aarch64,arm,powerpc'],
-        'vx7r2cert_srcs': ['vxworks7-cert-rtp-base-link.spec']
+    'gnarl/specs/ppc': {
+        'conditions': ['Is_RTP:yes', 'CPU_Family:powerpc'],
+        'vx7r2cert_srcs': [
+            'vxworks7-cert-rtp-base-link.spec',
+            'vxworks7-cert-rtp-link__ppcXX.spec']
     },
     'gnarl/specs/ppc64': {
         'conditions': ['Is_RTP:yes', 'CPU_Family:powerpc64'],
-        'vx7r2cert_srcs': ['vxworks7-cert-rtp-base-link__ppc64.spec']
+        'vx7r2cert_srcs': [
+            'vxworks7-cert-rtp-base-link__ppc64.spec',
+            'vxworks7-cert-rtp-link__ppcXX.spec']
     },
     'gnarl/specs/x86': {
         'conditions': ['Is_RTP:yes', 'CPU_Family:x86'],
-        'vx7r2cert_srcs': ['vxworks7-cert-rtp-base-link__x86.spec']
+        'vx7r2cert_srcs': [
+            'vxworks7-cert-rtp-base-link__x86.spec',
+            'vxworks7-cert-rtp-link.spec']
     },
     'gnarl/specs/x86_64': {
         'conditions': ['Is_RTP:yes', 'CPU_Family:x86_64'],
-        'vx7r2cert_srcs': ['vxworks7-cert-rtp-base-link__x86_64.spec']
+        'vx7r2cert_srcs': [
+            'vxworks7-cert-rtp-base-link__x86_64.spec',
+            'vxworks7-cert-rtp-link.spec']
     },
     'gnarl/vx7r2cert': {
         'conditions': ['Is_RTP:no'],
