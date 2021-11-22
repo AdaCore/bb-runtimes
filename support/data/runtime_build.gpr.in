@@ -52,4 +52,18 @@ project Runtime_Build is
        & ("-gnatet=" & Project'Project_Dir & "/ada_target_properties");
   end Compiler;
 
+  package Prove is
+    --  By default, use all available cores and all default provers
+    for Proof_Switches ("Ada") use ("-j0", "--level=2");
+
+    --  Specialize the command-line for more complex units (-j0 is implied)
+    for Proof_Switches ("a-strfix.adb") use ("--level=4");
+    for Proof_Switches ("a-strsea.adb") use ("--level=4");
+    for Proof_Switches ("a-strsup.adb") use ("--level=4");
+    for Proof_Switches ("i-c.adb") use ("--level=4", "--timeout=120");
+    for Proof_Switches ("s-arit64.adb") use ("--level=4", "--prover=all");
+    for Proof_Switches ("s-imgboo.adb") use ("--level=3");
+    for Proof_Switches ("s-valboo.adb") use ("--level=3");
+  end Prove;
+
 end Runtime_Build;
