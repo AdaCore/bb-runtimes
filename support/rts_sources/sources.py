@@ -250,11 +250,9 @@ sources = {
             'hie/s-sssita.ads', 'hie/s-sssita.adb',
             'hie/a-except__zfp.ads', 'hie/a-except__zfp.adb',
             'hie/a-tags__hie.ads', 'hie/a-tags__hie.adb',
-            'hie/s-assert__xi.adb'],
-        'bb_srcs': ['hie/s-memory__zfp.ads'],
-        'pikeos_srcs': ['hie/s-memory__zfp.ads'],
+            'hie/s-assert__xi.adb',
+            'hie/s-memory__light.ads'],
         'vx7r2cert_srcs': [
-            'hie/s-memory__cert.ads', 'hie/s-memory__cert.adb',
             'libgnat/s-traent.ads', 'libgnat/s-traent.adb',
             'hie/s-traceb__cert.ads']
     },
@@ -534,7 +532,7 @@ sources = {
     # Memory operations:
     'alloc/c': {
         'conditions': ['Has_libc:yes', 'RTS_Profile:!embedded'],
-        'bb_srcs': ['hie/s-memory__libc.adb']
+        'srcs': ['hie/s-memory__libc.adb']
     },
     'alloc/no-tasking': {
         'conditions': ['Has_libc:no', 'RTS_Profile:light'],
