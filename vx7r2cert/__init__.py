@@ -3,7 +3,9 @@ from support.bsp_sources.target import Target
 
 
 class Vx7r2Cert(Target):
-    def __init__(self):
+    def __init__(self, is_rtp):
+        self._is_rtp = is_rtp
+        self._rtp_suffix = "-rtp" if self._is_rtp else ""
         super(Vx7r2Cert, self).__init__()
         self.add_gnat_sources('src/s-macres__vx7r2cert.adb')
 
@@ -27,20 +29,26 @@ class Vx7r2Cert(Target):
         return True
 
     def dump_runtime_xml(self, rts_name, rts):
-        return readfile('vx7r2cert/runtime.xml')
+        return readfile(f'vx7r2cert/runtime{self._rtp_suffix}.xml')
+
+    def amend_rts(self, rts_profile, cfg):
+        if self._is_rtp:
+            cfg.rts_vars["Is_RTP"] = "yes"
+            cfg.build_flags['common_flags'] += [
+                    '-mrtp', '-DCERT_RTP', '-D_WRS_VXCERT_RTP']
 
 
 class Vx7r2Cert64(Vx7r2Cert):
-    def __init__(self):
-        super(Vx7r2Cert64, self).__init__()
+    def __init__(self, is_rtp):
+        super(Vx7r2Cert64, self).__init__(is_rtp)
 
     def is_64bit(self):
         return True
 
 
 class AArch64Vx7r2Cert(Vx7r2Cert64):
-    def __init__(self):
-        super(AArch64Vx7r2Cert, self).__init__()
+    def __init__(self, is_rtp=False):
+        super(AArch64Vx7r2Cert, self).__init__(is_rtp)
 
     @property
     def target(self):
@@ -48,13 +56,13 @@ class AArch64Vx7r2Cert(Vx7r2Cert64):
 
     @property
     def name(self):
-        return 'aarch64-vx7r2cert'
+        return f'aarch64-vx7r2cert{self._rtp_suffix}'
 
     @property
     def system_ads(self):
         return {
             'light': 'system-vxworks7-arm-zfp.ads',
-            'light-tasking': 'system-vxworks7-arm-ravenscar-sfp.ads'}
+            'light-tasking': f'system-vxworks7-arm-ravenscar-sfp{self._rtp_suffix}.ads'}
 
     def amend_rts(self, rts_profile, conf):
         super(AArch64Vx7r2Cert, self).amend_rts(rts_profile, conf)
@@ -62,8 +70,8 @@ class AArch64Vx7r2Cert(Vx7r2Cert64):
 
 
 class ArmVx7r2Cert(Vx7r2Cert):
-    def __init__(self):
-        super(ArmVx7r2Cert, self).__init__()
+    def __init__(self, is_rtp=False):
+        super(ArmVx7r2Cert, self).__init__(is_rtp)
 
     @property
     def target(self):
@@ -71,18 +79,18 @@ class ArmVx7r2Cert(Vx7r2Cert):
 
     @property
     def name(self):
-        return 'arm-vx7r2cert'
+        return f'arm-vx7r2cert{self._rtp_suffix}'
 
     @property
     def system_ads(self):
         return {
             'light': 'system-vxworks7-arm-zfp.ads',
-            'light-tasking': 'system-vxworks7-arm-ravenscar-sfp.ads'}
+            'light-tasking': f'system-vxworks7-arm-ravenscar-sfp{self._rtp_suffix}.ads'}
 
 
 class PPCVx7r2Cert(Vx7r2Cert):
-    def __init__(self):
-        super(PPCVx7r2Cert, self).__init__()
+    def __init__(self, is_rtp=False):
+        super(PPCVx7r2Cert, self).__init__(is_rtp)
 
     @property
     def target(self):
@@ -90,18 +98,18 @@ class PPCVx7r2Cert(Vx7r2Cert):
 
     @property
     def name(self):
-        return 'ppc-vx7r2cert'
+        return f'ppc-vx7r2cert{self._rtp_suffix}'
 
     @property
     def system_ads(self):
         return {
             'light': 'system-vxworks7-ppc-zfp.ads',
-            'light-tasking': 'system-vxworks7-ppc-ravenscar-sfp.ads'}
+            'light-tasking': f'system-vxworks7-ppc-ravenscar-sfp{self._rtp_suffix}.ads'}
 
 
 class PPC64Vx7r2Cert(Vx7r2Cert64):
-    def __init__(self):
-        super(PPC64Vx7r2Cert, self).__init__()
+    def __init__(self, is_rtp=False):
+        super(PPC64Vx7r2Cert, self).__init__(is_rtp)
 
     @property
     def target(self):
@@ -109,18 +117,18 @@ class PPC64Vx7r2Cert(Vx7r2Cert64):
 
     @property
     def name(self):
-        return 'ppc64-vx7r2cert'
+        return f'ppc64-vx7r2cert{self._rtp_suffix}'
 
     @property
     def system_ads(self):
         return {
             'light': 'system-vxworks7-ppc-zfp.ads',
-            'light-tasking': 'system-vxworks7-ppc-ravenscar-sfp.ads'}
+            'light-tasking': f'system-vxworks7-ppc-ravenscar-sfp{self._rtp_suffix}.ads'}
 
 
 class X86Vx7r2Cert(Vx7r2Cert):
-    def __init__(self):
-        super(X86Vx7r2Cert, self).__init__()
+    def __init__(self, is_rtp=False):
+        super(X86Vx7r2Cert, self).__init__(is_rtp)
 
     @property
     def target(self):
@@ -128,18 +136,18 @@ class X86Vx7r2Cert(Vx7r2Cert):
 
     @property
     def name(self):
-        return 'x86-vx7r2cert'
+        return f'x86-vx7r2cert{self._rtp_suffix}'
 
     @property
     def system_ads(self):
         return {
             'light': 'system-vxworks7-x86-zfp.ads',
-            'light-tasking': 'system-vxworks7-x86-ravenscar-sfp.ads'}
+            'light-tasking': f'system-vxworks7-x86-ravenscar-sfp{self._rtp_suffix}.ads'}
 
 
 class X86_64Vx7r2Cert(Vx7r2Cert64):
-    def __init__(self):
-        super(X86_64Vx7r2Cert, self).__init__()
+    def __init__(self, is_rtp=False):
+        super(X86_64Vx7r2Cert, self).__init__(is_rtp)
 
     @property
     def target(self):
@@ -147,58 +155,40 @@ class X86_64Vx7r2Cert(Vx7r2Cert64):
 
     @property
     def name(self):
-        return 'x86_64-vx7r2cert'
+        return f'x86_64-vx7r2cert{self._rtp_suffix}'
 
     @property
     def system_ads(self):
         return {
             'light': 'system-vxworks7-x86-zfp.ads',
-            'light-tasking': 'system-vxworks7-x86-ravenscar-sfp.ads'}
+            'light-tasking': f'system-vxworks7-x86-ravenscar-sfp{self._rtp_suffix}.ads'}
 
 
 class AArch64Vx7r2Cert_RTP(AArch64Vx7r2Cert):
     def __init__(self):
-        super(AArch64Vx7r2Cert_RTP, self).__init__()
-
-    def amend_rts(self, rts_profile, cfg):
-        cfg.rts_vars["Is_RTP"] = "yes"
+        super(AArch64Vx7r2Cert_RTP, self).__init__(is_rtp=True)
 
 
 class ArmVx7r2Cert_RTP(ArmVx7r2Cert):
     def __init__(self):
-        super(ArmVx7r2Cert_RTP, self).__init__()
-
-    def amend_rts(self, rts_profile, cfg):
-        cfg.rts_vars["Is_RTP"] = "yes"
+        super(ArmVx7r2Cert_RTP, self).__init__(is_rtp=True)
 
 
 class PPCVx7r2Cert_RTP(PPCVx7r2Cert):
     def __init__(self):
-        super(PPCVx7r2Cert_RTP, self).__init__()
-
-    def amend_rts(self, rts_profile, cfg):
-        cfg.rts_vars["Is_RTP"] = "yes"
+        super(PPCVx7r2Cert_RTP, self).__init__(is_rtp=True)
 
 
 class PPC64Vx7r2Cert_RTP(PPC64Vx7r2Cert):
     def __init__(self):
-        super(PPC64Vx7r2Cert_RTP, self).__init__()
-
-    def amend_rts(self, rts_profile, cfg):
-        cfg.rts_vars["Is_RTP"] = "yes"
+        super(PPC64Vx7r2Cert_RTP, self).__init__(is_rtp=True)
 
 
 class X86Vx7r2Cert_RTP(X86Vx7r2Cert):
     def __init__(self):
-        super(X86Vx7r2Cert_RTP, self).__init__()
-
-    def amend_rts(self, rts_profile, cfg):
-        cfg.rts_vars["Is_RTP"] = "yes"
+        super(X86Vx7r2Cert_RTP, self).__init__(is_rtp=True)
 
 
 class X86_64Vx7r2Cert_RTP(X86_64Vx7r2Cert):
     def __init__(self):
-        super(X86_64Vx7r2Cert_RTP, self).__init__()
-
-    def amend_rts(self, rts_profile, cfg):
-        cfg.rts_vars["Is_RTP"] = "yes"
+        super(X86_64Vx7r2Cert_RTP, self).__init__(is_rtp=True)

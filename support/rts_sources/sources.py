@@ -1331,15 +1331,30 @@ sources = {
             'hie/s-multip__raven-default.ads',
             'hie/s-multip__raven-default.adb',
             'hie/s-musplo.adb',
-            'hie/s-vxwext__cert.ads', 'hie/s-vxwext__cert.adb',
             'libgnarl/s-osinte__vxworks.ads',
             'libgnarl/s-osinte__vxworks.adb',
             'libgnarl/s-tpobmu.adb',
             'libgnat/i-vxwork.ads',
             'clexco.c',
             'initflt.c',
-            'ivec.c',
             'sysdep-raven-cert-vxworks.c']
+    },
+    'gnarl/specs': {
+        'conditions': ['Is_RTP:yes'],
+        'vx7r2cert_srcs': ['vxworks7-cert-rtp-link.spec']
+    },
+    'gnarl/vx7r2cert': {
+        'conditions': ['Is_RTP:no'],
+        'vx7r2cert_srcs': {
+            'hie/s-vxwext__cert.ads', 'hie/s-vxwext__cert.adb',
+            'ivec.c',
+        }
+    },
+    'gnarl/vx7r2cert-rtp': {
+        'conditions': ['Is_RTP:yes'],
+        'vx7r2cert_srcs': {
+            'libgnarl/s-vxwext__rtp.ads', 'hie/s-vxwext__rtp-cert.adb',
+        }
     },
     'gnarl/aarch64': {
         'conditions': ['CPU_Family:aarch64'],
