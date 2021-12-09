@@ -70,7 +70,14 @@ class AArch64Vx7r2Cert(Vx7r2Cert64):
 
     def amend_rts(self, rts_profile, conf):
         super(AArch64Vx7r2Cert, self).amend_rts(rts_profile, conf)
-        conf.build_flags['common_flags'] += ['-mno-outline-atomics']
+        conf.build_flags['common_flags'] += [
+            '-mno-outline-atomics',
+            # The traceback implementation in our restricted runtimes
+            # for this platform relies on all frames having a frame
+            # pointer, so make sure it is always there.
+            # See T709-039 for more info.
+            '-fno-omit-frame-pointer',
+        ]
 
 
 class ArmVx7r2Cert(Vx7r2Cert):
