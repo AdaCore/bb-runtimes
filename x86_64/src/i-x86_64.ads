@@ -29,8 +29,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Interfaces;
-
 package Interfaces.X86_64 with Pure, No_Elaboration_Code_All is
 
    type IO_Port is new Interfaces.Unsigned_16;

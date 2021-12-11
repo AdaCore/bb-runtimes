@@ -28,7 +28,6 @@
 with Ada.Unchecked_Conversion;
 with Interfaces;              use Interfaces;
 with Interfaces.ARM_V7AR;     use Interfaces.ARM_V7AR;
-with System;                  use System;
 with System.MPU_Definitions;  use System.MPU_Definitions;
 with System.Board_Parameters; use System.Board_Parameters;
 

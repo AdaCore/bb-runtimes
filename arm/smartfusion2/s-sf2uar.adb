@@ -2,7 +2,7 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---                    Copyright (C) 2016-2017, AdaCore                      --
+--                    Copyright (C) 2016-2021, AdaCore                      --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -25,7 +25,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with System;
 with Interfaces;                      use Interfaces;
 with Ada.Unchecked_Conversion;
 

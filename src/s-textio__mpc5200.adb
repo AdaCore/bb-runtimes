@@ -33,7 +33,6 @@
 --  This package uses PSC1 and configures it for UART operation with a baud
 --  speed of 115,200, 8 data bits, no parity and 1 stop bit.
 
-with System;
 with Interfaces;
 with System.BB.Board_Parameters;
 

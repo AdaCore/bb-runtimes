@@ -29,7 +29,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Interfaces;           use Interfaces;
 with System.BB.Parameters; use System.BB.Parameters;
 
 package body Interfaces.X86_64.IO_APIC is

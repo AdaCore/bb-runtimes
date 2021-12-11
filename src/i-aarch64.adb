@@ -6,7 +6,7 @@
 --                                                                          --
 --                                   S p e c                                --
 --                                                                          --
---                         Copyright (C) 2017, AdaCore                      --
+--                         Copyright (C) 2021, AdaCore                      --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -31,7 +31,6 @@
 
 with System;               use System;
 with System.Machine_Code;  use System.Machine_Code;
-with Interfaces;           use Interfaces;
 
 package body Interfaces.AArch64 is
 

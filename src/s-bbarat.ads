@@ -2,7 +2,7 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---             Copyright (C) 2018, Free Software Foundation, Inc.           --
+--             Copyright (C) 2021, Free Software Foundation, Inc.           --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -30,7 +30,6 @@
 
 with Interfaces;
 with Interfaces.C;
-with System;
 
 package System.BB.Armv6m_Atomic is
 

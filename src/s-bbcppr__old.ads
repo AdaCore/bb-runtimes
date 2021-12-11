@@ -33,7 +33,6 @@
 
 pragma Restrictions (No_Elaboration_Code);
 
-with System;
 with System.Storage_Elements;
 with System.BB.Parameters;
 
