@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  B o d y                                 --
 --                                                                          --
---                       Copyright (C) 2020, AdaCore                        --
+--                     Copyright (C) 2020-2021, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -223,19 +223,18 @@ package body System.BB.RISCV_PLIC is
    ----------------------------
 
    procedure Set_Priority_Threshold (Priority : Integer) is
-      Thresh : Priority_Register renames
-        Harts_Control (PLIC_Hart_Id).Threshold;
+      Hart : Hart_Control renames Harts_Control (PLIC_Hart_Id);
 
       Int_Priority : constant Integer :=
         Priority - Interrupt_Priority'First + 1;
 
    begin
       if Int_Priority > Integer (Priority_Type'Last) then
-         Thresh := (P => Priority_Type'Last);
+         Hart.Threshold := (P => Priority_Type'Last);
       elsif Int_Priority < Integer (Priority_Type'First) then
-         Thresh := (P => Priority_Type'First);
+         Hart.Threshold := (P => Priority_Type'First);
       else
-         Thresh := (P => Priority_Type (Int_Priority));
+         Hart.Threshold := (P => Priority_Type (Int_Priority));
       end if;
    end Set_Priority_Threshold;
 
