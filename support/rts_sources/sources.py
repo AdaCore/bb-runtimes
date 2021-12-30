@@ -1140,7 +1140,8 @@ sources = {
             'libgnat/a-rbtgbo.adb', 'libgnat/a-rbtgbo.ads',
             'libgnat/a-rbtgso.adb', 'libgnat/a-rbtgso.ads',
             'libgnat/a-iteint.ads',
-            'libgnat/s-atocou__builtin.adb', 'libgnat/s-atocou.ads']
+            'libgnat/s-atocou__builtin.adb', 'libgnat/s-atocou.ads',
+            'libgnat/s-atopri.adb', 'libgnat/s-atopri.ads']
     },
     # Pragma Pack support
     'pack': {
