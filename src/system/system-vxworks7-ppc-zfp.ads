@@ -7,7 +7,7 @@
 --                                 S p e c                                  --
 --                     (VxWorks7/LEVEL A Version PPC)                       --
 --                                                                          --
---          Copyright (C) 1992-2021, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2022, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -75,8 +75,8 @@ package System is
    Max_Binary_Modulus    : constant := 2 ** Standard'Max_Integer_Size;
    Max_Nonbinary_Modulus : constant := 2 ** Integer'Size - 1;
 
-   Max_Base_Digits       : constant := Long_Long_Float'Digits;
-   Max_Digits            : constant := Long_Long_Float'Digits;
+   Max_Base_Digits       : constant := Long_Float'Digits;
+   Max_Digits            : constant := Long_Float'Digits;
 
    Max_Mantissa          : constant := Standard'Max_Integer_Size - 1;
    Fine_Delta            : constant := 2.0 ** (-Max_Mantissa);
