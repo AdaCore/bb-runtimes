@@ -70,6 +70,7 @@ project Runtime_Build is
     for Proof_Switches ("s-valuns.ads") use ("--level=4");
     for Proof_Switches ("s-valllu.ads") use ("--level=4");
     for Proof_Switches ("s-vallllu.ads") use ("--level=4");
+    for Proof_Switches ("s-valuti.adb") use ("--level=3");
 
     --  Bump level for proof of Lemma_Div_Twice which should ideally be
     --  factored out in the future.
