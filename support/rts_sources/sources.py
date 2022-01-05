@@ -1278,12 +1278,10 @@ sources = {
 
     'gnarl/common': {
         'srcs': [
-            'libgnarl/a-interr.ads', 'hie/a-interr__raven.adb',
             'libgnarl/a-retide.ads', 'hie/a-retide__raven.adb',
             'hie/a-sytaco__xi.ads', 'hie/a-sytaco__xi.adb',
             'libgnarl/a-taside.ads', 'hie/a-taside__raven.adb',
             'hie/a-taster.ads', 'hie/a-taster.adb',
-            'hie/s-interr__raven.ads',
             'hie/s-mufalo.ads', 'hie/s-mufalo.adb',
             'hie/s-musplo.ads',
             'hie/s-taprob__raven.ads', 'hie/s-taprob__raven.adb',
@@ -1294,6 +1292,7 @@ sources = {
             'libgnarl/s-tasres.ads',
             'libgnarl/s-tpobmu.ads'],
         'bb_srcs': [
+            'libgnarl/a-interr.ads', 'hie/a-interr__raven.adb',
             'hie/a-exetim.ads', 'hie/a-exetim.adb',
             'hie/a-extiin.ads', 'hie/a-extiin.adb',
             'hie/a-reatim.ads', 'hie/a-reatim.adb',
@@ -1306,7 +1305,7 @@ sources = {
             'hie/s-bbtiev.ads', 'hie/s-bbtiev.adb',
             'hie/s-bbtime.ads',
             'hie/s-bcprmu.ads', 'hie/s-bcprmu.adb',
-            'hie/s-interr.adb',
+            'hie/s-interr__raven.ads', 'hie/s-interr.adb',
             'hie/s-multip.ads', 'hie/s-multip.adb',
             'hie/s-taprop__bb.adb',
             'hie/s-taprop.ads',
@@ -1314,8 +1313,10 @@ sources = {
             'hie/s-tpobmu.adb',
             'hie/s-osinte.ads'],
         'pikeos_srcs': [
+            'libgnarl/a-interr.ads', 'hie/a-interr__raven.adb',
             'hie/a-reatim.ads', 'hie/a-reatim.adb',
             'hie/a-textio__pikeos.adb',
+            'hie/s-interr__raven.ads',
             'hie/s-multip__raven-default.ads',
             'hie/s-multip__raven-default.adb',
             'hie/s-musplo.adb',
@@ -1326,7 +1327,6 @@ sources = {
         'vx7r2cert_srcs': [
             'libgnarl/a-reatim.ads',
             'libgnarl/a-reatim.adb',
-            'hie/s-interr__raven-vxworks.adb',
             'hie/s-soflin__light.ads',
             'hie/s-taprop__raven-cert.ads',
             'hie/s-taprop__vxworks7cert.adb',
