@@ -550,14 +550,20 @@ sources = {
                        'RTS_Profile:light-tasking',
                        'Has_Compare_And_Swap:yes',
                        'Certifiable_Packages:no'],
-        'srcs': ['hie/s-memory__raven.adb']
+        'srcs': [
+            'hie/s-memory__raven.adb',
+            'libgnat/s-atopri.ads',
+            'libgnat/s-atopri.adb']
     },
     'alloc/tasking-noc': {
         'conditions': ['Has_libc:no',
                        'RTS_Profile:light-tasking',
                        'Has_Compare_And_Swap:yes',
                        'Certifiable_Packages:yes'],
-        'srcs': ['hie/s-memory__raven_noc.adb']
+        'srcs': [
+            'hie/s-memory__raven_noc.adb',
+            'libgnat/s-atopri.ads',
+            'libgnat/s-atopri.adb']
     },
     'mem': {
         'conditions': ['Has_libc:no'],
