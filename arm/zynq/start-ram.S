@@ -61,7 +61,7 @@ __gnat_dabt_trap:	b	__gnat_dabt_trap
 __gnat_irq_trap:	b	__gnat_irq_trap
 __gnat_fiq_trap:	b	__gnat_fiq_trap
 
-	#include	"memmap.S"
+#include	"memmap.inc"
 
 	.type	__start_ram, %function
 __start_ram:
@@ -188,14 +188,24 @@ L_coreInit:
 	orr	r1,#0x47		@ SMP, L1 & L2 prefetch, FW
 	mcr	p15,#0,r1,c1,c0,#1
 
+        /* make sure MMU is disabled */
+	mrc	p15,#0,r1,c1,c0,#0	@ read sctlr
+	movw	r2,#0x1 		@ M bit
+	bic	r1,r1,r2
+	mcr	p15,0,r1,c1,c0,0	@ write sctlr
+
 	/* Initialize MMU.  */
+	mov	r1,#0
+	mcr	p15,#0,r1,c2,c0,#2	@ set TTBCR to disable LPAE
 	adrl	r0, __mmu_l0
 	orr	r0,r0,#0x5b		@ RGN=0b11, S=1, IRGN=0b11
 	mcr	p15,#0,r0,c2,c0,#0	@ set TTBR0
+        dsb
+        isb
 	mov	r1,#0
-	mcr	p15,#0,r1,c2,c0,#2	@ set TTBC0
 	mcr	p15,#0,r1,c13,c0,#1	@ set CONTEXTIDR
-	mov	r1,#1
+        movw    r1,#5555
+        movt    r1,#5555
 	mcr	p15,#0,r1,c3,c0,#0	@ set DACR
 
 	/*  Enable MMU, I-Cache and D-Cache.  */

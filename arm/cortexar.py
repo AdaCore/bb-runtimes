@@ -319,7 +319,7 @@ class Zynq7000(CortexARTarget):
         self.add_linker_script('arm/zynq/ram.ld', loader='RAM')
         self.add_gnat_sources(
             'arm/zynq/start-ram.S',
-            'arm/zynq/memmap.S',
+            'arm/zynq/memmap.inc',
             'src/s-textio__zynq.adb',
             'src/s-macres__zynq.adb')
         self.add_gnarl_sources(
