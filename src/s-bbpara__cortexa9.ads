@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -36,7 +36,8 @@
 
 --  This package defines basic parameters used by the low level tasking system
 
---  This is the Cortex A9 (ARMv7) version of this package
+--  This is the Cortex A9 (ARMv7) version of this package, taking clock
+--  values from the Xilinx ZC702 development board.
 
 pragma Restrictions (No_Elaboration_Code);
 
@@ -47,11 +48,17 @@ package System.BB.Parameters is
    -- Hardware clock --
    --------------------
 
-   Clock_Frequency : constant := 333_000_000;
-   --  Frequency of the CPU clock in Hz. We hard-code this hear to allow static
-   --  computation of the required prescaler.
+   Clock_Frequency        : constant := 666_666_688;
+   --  Frequency of the CPU clock in Hz. We hard-code this here to allow static
+   --  computation of the timing events.
 
-   Ticks_Per_Second : constant := Clock_Frequency;
+   Periph_Clock_Frequency : constant := Clock_Frequency / 2;
+   --  PERIPHCLK frequency, handles interrupt controller, global timer, private
+   --  timers and watchdogs. It is synchronous with the CPU clock and is
+   --  CLK / N that must be greater or equal than two. Generally it's two.
+
+   Ticks_Per_Second       : constant := Periph_Clock_Frequency;
+   --  Private timers are clocked by PERIPHCLK
 
    ----------------------
    -- MPCore registers --
@@ -99,7 +106,7 @@ package System.BB.Parameters is
    --  empted. Most of the space is currently required for floating point
    --  state, which is saved lazily.
 
-   --  The TMS570 processor needs to save:
+   --  The Cortex-A9 processor needs to save:
 
    --   * 6 integer registers of 32 bits (r0, r1, PC, CPSR, R12, SP)
    --     for normal processing
