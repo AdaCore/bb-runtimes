@@ -1342,8 +1342,8 @@ sources = {
             'hie/s-multip__raven-default.ads',
             'hie/s-multip__raven-default.adb',
             'hie/s-musplo.adb',
-            'libgnarl/s-osinte__vxworks.ads',
-            'libgnarl/s-osinte__vxworks.adb',
+            'hie/s-osinte__vxworks-light-tasking.ads',
+            'hie/s-osinte__vxworks-light-tasking.adb',
             'libgnarl/s-tpobmu.adb',
             'clexco.c',
             'initflt.c',
@@ -1382,14 +1382,16 @@ sources = {
     'gnarl/vx7r2cert': {
         'conditions': ['Is_RTP:no'],
         'vx7r2cert_srcs': {
-            'hie/s-vxwext__cert.ads', 'hie/s-vxwext__cert.adb',
+            'hie/s-vxwext__light-tasking.ads',
+            'hie/s-vxwext__light-tasking.adb',
             'ivec.c',
         }
     },
     'gnarl/vx7r2cert-rtp': {
         'conditions': ['Is_RTP:yes'],
         'vx7r2cert_srcs': {
-            'libgnarl/s-vxwext__rtp.ads', 'hie/s-vxwext__rtp-cert.adb',
+            'hie/s-vxwext__light-tasking-rtp.ads',
+            'hie/s-vxwext__light-tasking-rtp.adb',
         }
     },
     'gnarl/aarch64': {
