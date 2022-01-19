@@ -42,7 +42,6 @@
 /* Stack sizes */
 _DEFAULT_STACK_SIZE = (20 * 1024);
 
-_SVC_STACK_SIZE   =  256;
 _UNDEF_STACK_SIZE =  256;
 _ABORT_STACK_SIZE =  256;
 _IRQ_STACK_SIZE   = 1024;
@@ -146,10 +145,6 @@ SECTIONS
     __undef_stack_start = .;
     . = ALIGN(__undef_stack_start + _UNDEF_STACK_SIZE, 0x8);
     __undef_stack_end = .;
-
-    __svc_stack_start = .;
-    . = ALIGN(__svc_stack_start + _SVC_STACK_SIZE, 0x8);
-    __svc_stack_end = .;
 
     __fiq_stack_start = .;
     . = ALIGN(__fiq_stack_start + _FIQ_STACK_SIZE, 0x8);

@@ -38,6 +38,8 @@
 	.section .traps
 	#include	"memmap.S"
 
+	.p2align 5
+
 	/* The following provide default definitions for trap vectors that
 	loop back to the trap address, so the system will stop in a safe
 	state. The Ravenscar runtimes now can install their handlers by simply
@@ -50,17 +52,15 @@
         .weak	__gnat_irq_trap		/* Interrupt */
         .weak	__gnat_fiq_trap		/* Fast interrupt */
 
-	.p2align 5
-
 __traps:
 /* 0 */			b	__start_ram
-__gnat_undef_trap:	b	__gnat_undef_trap
-__gnat_svc_trap:	b	__gnat_svc_trap
-__gnat_pabt_trap:	b	__gnat_pabt_trap
-__gnat_dabt_trap:	b	__gnat_dabt_trap
-			nop	/* 0x14: not used.  */
-__gnat_irq_trap:	b	__gnat_irq_trap
-__gnat_fiq_trap:	b	__gnat_fiq_trap
+__gnat_undef_trap:      b	__gnat_undef_trap
+__gnat_svc_trap:        b	__gnat_svc_trap
+__gnat_pabt_trap:       b	__gnat_pabt_trap
+__gnat_dabt_trap:       b	__gnat_dabt_trap
+/* 0x14 */		nop	/* not used.  */
+__gnat_irq_trap:        b	__gnat_irq_trap
+__gnat_fiq_trap:        b	__gnat_fiq_trap
 
 
 	.type	__start_ram, %function
@@ -69,7 +69,8 @@ __start_ram:
 
 	/* Supervisor mode */
 	cps	#19 /* 10011 */
-	ldr	sp, svcSp0
+        /* SVC mode is used to handle irqs: see armgic_irqtrap.s */
+	ldr	sp, irqSp0
 
 	/* Abort mode */
 	cps	#23  /* 10111 */
@@ -89,7 +90,7 @@ __start_ram:
 
 	/* System mode */
 	cps	#31  /* 11111 */
-	ldr	sp, userSp0	/* SYS mode shared stack with User mode */
+	ldr	sp, userSp0     /* SYS mode shared stack with User mode */
 
 	/* Write 0x020202 to the register at 0xf8000a1c.  */
 	movw	r0,#:lower16:0x20202
@@ -225,7 +226,6 @@ L_coreInit:
 
 	bx	lr
 
-svcSp0:		.word __cpu0_svc_stack_end
 abortSp0:	.word __cpu0_abort_stack_end
 undefSp0:	.word __cpu0_undef_stack_end
 fiqSp0:		.word __cpu0_fiq_stack_end
@@ -238,7 +238,7 @@ __start_cpu1:
 
 	/* Supervisor mode */
 	cps	#19 /* 10011 */
-	ldr	sp, svcSp1
+	ldr	sp, irqSp1
 
 	/* Abort mode */
 	cps	#23  /* 10111 */
@@ -272,7 +272,6 @@ __start_cpu1:
 
 	.size	__start_cpu1, . - __start_cpu1
 
-svcSp1:		.word __cpu1_svc_stack_end
 abortSp1:	.word __cpu1_abort_stack_end
 undefSp1:	.word __cpu1_undef_stack_end
 fiqSp1:		.word __cpu1_fiq_stack_end

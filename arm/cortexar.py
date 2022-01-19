@@ -17,8 +17,7 @@ class CortexARArch(ArchSupport):
             'src/i-cache__armv7.adb')
         self.add_gnarl_sources(
             'src/s-bbcpsp__arm.ads',
-            'src/s-bbcppr__new.ads',
-            'src/s-bbcppr__arm.adb')
+            'src/s-bbcppr__new.ads')
 
 
 class CortexARTarget(DFBBTarget):
@@ -91,7 +90,8 @@ class Rpi2Base(CortexARTarget):
             'src/s-macres__rpi2.adb')
         self.add_gnarl_sources(
             'src/a-intnam__rpi2.ads',
-            'src/s-bbbosu__rpi2.adb')
+            'src/s-bbbosu__rpi2.adb',
+            'src/s-bbcppr__arm.adb')
 
 
 class Rpi2(Rpi2Base):
@@ -216,7 +216,8 @@ class TMS570(CortexARTarget):
             'src/a-intnam__%s.ads' % self.variant,
             'src/s-bbpara__%s.ads' % self.variant,
             'src/s-bbbosu__tms570.adb',
-            'src/s-bbsumu__generic.adb')
+            'src/s-bbsumu__generic.adb',
+            'src/s-bbcppr__arm.adb')
 
 
 class ZynqmpR5(CortexARTarget):
@@ -272,11 +273,13 @@ class ZynqmpR5(CortexARTarget):
             'src/s-macres__zynqmp.adb')
 
         self.add_gnarl_sources(
+            'arm/armgic_irqtrap.s',
             'src/a-intnam__zynqmp.ads',
             'src/s-armgic.ads', 'src/s-armgic.adb',
             'src/s-bbpara__zynqmpr5.ads',
             'src/s-bbbosu__zynqmpr5.adb',
-            'src/s-bbsumu__generic.adb')
+            'src/s-bbsumu__generic.adb',
+            'src/s-bbcppr__armgic.adb')
 
 
 class Zynq7000(CortexARTarget):
@@ -323,7 +326,9 @@ class Zynq7000(CortexARTarget):
             'src/s-textio__zynq.adb',
             'src/s-macres__zynq.adb')
         self.add_gnarl_sources(
+            'arm/armgic_irqtrap.s',
             'src/a-intnam__zynq.ads',
             'src/s-bbpara__cortexa9.ads',
             'src/s-armgic.ads', 'src/s-armgic.adb',
-            'src/s-bbbosu__cortexa9.adb')
+            'src/s-bbbosu__cortexa9.adb',
+            'src/s-bbcppr__armgic.adb')

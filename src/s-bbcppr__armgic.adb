@@ -69,34 +69,15 @@ package body System.BB.CPU_Primitives is
           External_Name => "__gnat_dabt_trap";
    pragma Machine_Attribute (Dabt_Handler, "interrupt");
 
-   procedure FIQ_Handler
-     with Export        => True,
-          Convention    => Asm,
-          External_Name => "__gnat_fiq_trap";
-   pragma Machine_Attribute (FIQ_Handler, "interrupt");
+   procedure Irq_User_Handler
+     with Import         => True,
+          Convention     => Ada,
+          External_Name => "__gnat_irq_handler";
 
    procedure IRQ_Handler
      with Export        => True,
           Convention    => Asm,
-          External_Name => "__gnat_irq_trap";
-   pragma Machine_Attribute (IRQ_Handler, "interrupt");
-
-   ---------------------------
-   --  Upper level handlers --
-   ---------------------------
-
-   procedure Irq_User_Handler
-     with Import        => True,
-          Convention    => Ada,
-          External_Name => "__gnat_irq_handler";
-
-   procedure Fiq_User_Handler
-     with Import        => True,
-          Convention    => Ada,
-          External_Name => "__gnat_fiq_handler";
-
-   procedure Common_Handler (Is_FIQ : Boolean)
-     with Inline_Always;
+          External_Name => "__gnat_irq_trap_ada";
 
    ----------------------------
    -- Floating Point Context --
@@ -118,9 +99,13 @@ package body System.BB.CPU_Primitives is
    pragma Volatile_Components (FPU_Context_Table);
 
    function  Is_FPU_Enabled return Boolean with Inline;
-   procedure Set_FPU_Enabled (Enabled : Boolean) with Inline;
+
+   procedure Set_FPU_Enabled (Enabled : Boolean)
+     with Import        => True,
+          Convention    => Asm,
+          External_Name => "__gnat_set_fpu_enabled";
+
    procedure FPU_Context_Switch (To : VFPU_Context_Access) with Inline;
-   function Get_SPSR return Unsigned_32 with Inline;
 
    Default_FPSCR       : Unsigned_32 := 0;
 
@@ -138,47 +123,13 @@ package body System.BB.CPU_Primitives is
       raise Constraint_Error with "data abort";
    end Dabt_Handler;
 
-   --------------
-   -- Get_SPSR --
-   --------------
-
-   function Get_SPSR return Unsigned_32 is
-      SPSR : Unsigned_32;
-   begin
-      Asm ("mrs %0, SPSR",
-           Outputs  => Unsigned_32'Asm_Output ("=r", SPSR),
-           Volatile => True);
-      return SPSR;
-   end Get_SPSR;
-
    -----------------
    -- IRQ_Handler --
    -----------------
 
    procedure IRQ_Handler
    is
-   begin
-      Common_Handler (False);
-   end IRQ_Handler;
-
-   -----------------
-   -- FIQ_Handler --
-   -----------------
-
-   procedure FIQ_Handler
-   is
-   begin
-      Common_Handler (True);
-   end FIQ_Handler;
-
-   --------------------
-   -- Common_Handler --
-   --------------------
-
-   procedure Common_Handler (Is_FIQ : Boolean)
-   is
       use System.BB.Threads.Queues;
-      SPSR     : Unsigned_32;
       CPU_Id   : constant System.Multiprocessors.CPU :=
                    Board_Support.Multiprocessors.Current_CPU;
       IRQ_Ctxt : aliased VFPU_Context_Buffer;
@@ -195,18 +146,8 @@ package body System.BB.CPU_Primitives is
       Running_Thread_Table (CPU_Id).Context.Running :=
         IRQ_Ctxt'Unchecked_Access;
 
-      --  If we are going to do context switches or otherwise allow IRQ's
-      --  from within the interrupt handler, the SPSR register needs to
-      --  be saved too.
-
-      SPSR := Get_SPSR;
-
       --  Call the handler
-      if Is_FIQ then
-         Fiq_User_Handler;
-      else
-         Irq_User_Handler;
-      end if;
+      Irq_User_Handler;
 
       --  Check FPU usage in handler
       if Current_FPU_Context (CPU_Id) = IRQ_Ctxt'Unchecked_Access then
@@ -241,13 +182,7 @@ package body System.BB.CPU_Primitives is
 
          --  The pre-empted thread can now resume
       end if;
-
-      --  Restore the saved SPSR: this will be used upon return from the
-      --  IRQ handler to in turn restore the CPSR (the CPU states).
-      Asm ("msr   SPSR_cxsf, %0",
-         Inputs   => (Unsigned_32'Asm_Input ("r", SPSR)),
-         Volatile => True);
-   end Common_Handler;
+   end IRQ_Handler;
 
    -------------------
    -- Undef_Handler --
@@ -524,16 +459,4 @@ package body System.BB.CPU_Primitives is
       Set_FPU_Enabled (False);
    end Initialize_CPU;
 
-   ---------------------
-   -- Set_FPU_Enabled --
-   ---------------------
-
-   procedure Set_FPU_Enabled (Enabled : Boolean) is
-   begin
-      Asm ("fmxr   fpexc, %0",
-           Inputs    => Unsigned_32'Asm_Input
-                          ("r", (if Enabled then 16#4000_0000# else 0)),
-           Volatile  => True);
-      pragma Assert (Is_FPU_Enabled = Enabled);
-   end Set_FPU_Enabled;
 end System.BB.CPU_Primitives;

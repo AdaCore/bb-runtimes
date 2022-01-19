@@ -58,7 +58,9 @@ __gnat_pabt_trap:
 __gnat_dabt_trap:
 	b       __gnat_dabt_trap
 	nop		/* 14 : unused on the R5*/
+__gnat_irq_trap:
         b       __gnat_irq_trap
+__gnat_fiq_trap:
 	b       __gnat_fiq_trap
 
 .section .boot,"axS"
@@ -78,7 +80,6 @@ _start:
         /* Start initializing CPU registers, including banked registers, for
            all modes. */
 
-        /* After reset, the CPU is in the Supervisor mode (M = 10011) */
         /* init all base registers */
         mov     r0,  #0
         mov     r1,  #0
@@ -93,10 +94,6 @@ _start:
         mov     r10, #0
         mov     r11, #0
         mov     r12, #0
-        /* stack, spsr init */
-        ldr     sp, svcSp
-        mrs     r1, CPSR
-        msr     SPSR_fsxc, r1
 
         /* Switch to FIQ mode (M = 10001) */
         cps     #17
@@ -118,8 +115,17 @@ _start:
 	mov     lr, #0
         /* stack, spsr init */
 	ldr     sp, irqSp
-	mrs     r1, CPSR
-	msr     SPSR_fsxc, r1
+        mrs     r1, CPSR
+        msr     SPSR_fsxc, r1
+
+        /* SVC mode (M = 10011) */
+        cps     #19
+         /* LR is banked */
+	mov     lr, #0
+        /* stack */
+	ldr     sp, irqSp /* The IRQ handler switches to SVC to handle IRQs */
+        mrs     r1, CPSR
+        msr     SPSR_fsxc, r1
 
         /* Abort mode (M = 10111) */
         cps     #23
@@ -291,7 +297,6 @@ _start:
         /* reboot the board if main would return */
         bl      _exit
 
-svcSp:	        .word __svc_stack_end
 abortSp:        .word __abort_stack_end
 undefSp:        .word __undef_stack_end
 fiqSp:          .word __fiq_stack_end

@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -47,11 +47,11 @@ package System.BB.Parameters is
    -- Hardware clock --
    --------------------
 
-   Clock_Frequency : constant := 333_000_000;
-   --  Frequency of the CPU clock in Hz. We hard-code this hear to allow static
-   --  computation of the required prescaler.
+   Clock_Frequency        : constant := 666_666_687;
+   --  Frequency of the CPU clock in Hz. We hard-code this here to allow static
+   --  computation of the timing events.
 
-   Ticks_Per_Second : constant := Clock_Frequency;
+   Ticks_Per_Second : constant := Clock_Frequency / 2;
 
    ----------------------
    -- MPCore registers --
@@ -87,7 +87,6 @@ package System.BB.Parameters is
    Interrupt_Unmask_Priority : constant System.Interrupt_Priority :=
                                  System.Interrupt_Priority'Last;
    --  The priority under which we unmask interrupts.
-   --  Useful when we use FIQ to simulate priorities on ARM.
 
    ------------------------
    -- Context Management --
