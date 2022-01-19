@@ -41,11 +41,10 @@
 
 _DEFAULT_STACK_SIZE = (20 * 1024);
 
-_SVC_STACK_SIZE   =  256;
 _UNDEF_STACK_SIZE =  256;
 _ABORT_STACK_SIZE =  256;
+_FIQ_STACK_SIZE =  256;
 _IRQ_STACK_SIZE   = 2048;
-_FIQ_STACK_SIZE   =  256;
 
 ENTRY(__start_ram);
 
@@ -147,10 +146,6 @@ SECTIONS
    . = ALIGN(. + _UNDEF_STACK_SIZE, 0x8);
    __cpu0_undef_stack_end = .;
 
-   __cpu0_svc_stack_start = .;
-   . = ALIGN(. + _SVC_STACK_SIZE, 0x8);
-   __cpu0_svc_stack_end = .;
-
    __cpu0_fiq_stack_start = .;
    . = ALIGN(. + _FIQ_STACK_SIZE, 0x8);
    __cpu0_fiq_stack_end = .;
@@ -172,14 +167,6 @@ SECTIONS
    __cpu1_undef_stack_start = .;
    . = ALIGN(. + _UNDEF_STACK_SIZE, 0x8);
    __cpu1_undef_stack_end = .;
-
-   __cpu1_svc_stack_start = .;
-   . = ALIGN(. + _SVC_STACK_SIZE, 0x8);
-   __cpu1_svc_stack_end = .;
-
-   __cpu1_fiq_stack_start = .;
-   . = ALIGN(. + _FIQ_STACK_SIZE, 0x8);
-   __cpu1_fiq_stack_end = .;
 
    /* Use the largest of .interrupt_stacks or the default trap stack sizes for
       CPU1. This allows use with the Light and Tasking run times. */
@@ -265,4 +252,3 @@ SECTIONS
   .gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
   /DISCARD/ : { *(.note.GNU-stack) *(.gnu_debuglink) *(.gnu.lto_*) }
 }
-
