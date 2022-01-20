@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2006 The European Space Agency            --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -112,7 +112,7 @@ package body System.BB.Board_Support is
       --  See ug585 table 7.4 for the values.
       GIC.Define_IRQ_Triggers
         ((
-          --  IRQs 32 - 47
+          --  IRQs 47 - 32
           2 => 2#01_01_01_01_01_01_11_01_01_01_01_00_01_01_11_11#,
           --  IRQs 63 - 48
           3 => 2#01_01_01_01_01_01_01_01_11_01_01_01_01_01_01_01#,
@@ -262,10 +262,13 @@ package body System.BB.Board_Support is
       --------------------
 
       function Number_Of_CPUs return CPU is
-         NCPUs : CPU;
+         NCPUs : Unsigned_32;
       begin
-         NCPUs := CPU (1 + (SCU_Configuration and 3));
-         return NCPUs;
+         NCPUs :=
+           Unsigned_32'Min
+             (Unsigned_32 (CPU'Last), 1 + (SCU_Configuration and 3));
+
+         return CPU (NCPUs);
       end Number_Of_CPUs;
 
       -----------
