@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2006 The European Space Agency            --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -67,31 +67,34 @@ package body System.ARM_GIC is
    function Reg_Num_32 (Intnum : GIC_Interrupts) return GIC_Interrupts
    is (Intnum / 32);
 
+   type Reg32 is new Unsigned_32 with Volatile;
+   type Reg8  is new Unsigned_8  with Volatile;
+
    --  32-bit registers set
    --  Accessed by 32 bits chunks
    type Bits32_Register_Array is array
-     (Natural range 0 .. Max_IRQs / 32 - 1) of Unsigned_32
-     with Pack, Volatile;
+     (Natural range 0 .. Max_IRQs / 32 - 1) of Reg32
+     with Pack;
 
    --  Byte registers set
    --  Accessed by 8 bits chunks
    type Byte_Register_Array is array
-     (Natural range 0 .. Max_IRQs - 1) of Unsigned_8
-     with Pack, Volatile;
+     (Natural range 0 .. Max_IRQs - 1) of Reg8
+     with Pack;
 
    --  Byte registers set, accessed by 32-bit chunks
    type Byte_Register_Array32 is array
-     (Natural range 0 .. Max_IRQs / 4 - 1) of Unsigned_32
-     with Pack, Volatile;
+     (Natural range 0 .. Max_IRQs / 4 - 1) of Reg32
+     with Pack;
 
    type GICD_Peripheral is record
-      CTLR       : Unsigned_32;
+      CTLR       : Reg32;
       ISENABLER  : Bits32_Register_Array;
       ICENABLER  : Bits32_Register_Array;
       IPRIORITYR : Byte_Register_Array;
       ITARGETSR  : Byte_Register_Array32;
       ICFGR      : Byte_Register_Array32;
-      SGIR       : Unsigned_32;
+      SGIR       : Reg32;
    end record;
 
    for GICD_Peripheral use record
@@ -105,11 +108,11 @@ package body System.ARM_GIC is
    end record;
 
    type GICC_Peripheral is record
-      CTLR : Unsigned_32;
-      PMR  : Unsigned_32;
-      BPR  : Unsigned_32;
-      IAR  : Unsigned_32;
-      EOIR : Unsigned_32;
+      CTLR : Reg32;
+      PMR  : Reg32;
+      BPR  : Reg32;
+      IAR  : Reg32;
+      EOIR : Reg32;
    end record;
 
    for GICC_Peripheral use record
@@ -121,9 +124,9 @@ package body System.ARM_GIC is
    end record;
 
    GICD : GICD_Peripheral
-     with Volatile, Import, Address => BB.Parameters.GICD_Base_Address;
+     with Import, Address => BB.Parameters.GICD_Base_Address;
    GICC : GICC_Peripheral
-     with Volatile, Import, Address => BB.Parameters.GICC_Base_Address;
+     with Import, Address => BB.Parameters.GICC_Base_Address;
 
    function To_PRI (P : Integer) return PRI with Inline;
    --  Return the PRI mask for the given Ada priority. Note that the zero
@@ -202,12 +205,12 @@ package body System.ARM_GIC is
       for J in Interrupts_Enabled'Range loop
          if Interrupts_Enabled (J) then
             Int_Mask := Int_Mask or 2 ** J;
-            GICD.IPRIORITYR (J) := Interrupts_Priority (J);
+            GICD.IPRIORITYR (J) := Reg8 (Interrupts_Priority (J));
          end if;
       end loop;
 
       if Int_Mask /= 0 then
-         GICD.ISENABLER (0) := Int_Mask;
+         GICD.ISENABLER (0) := Reg32 (Int_Mask);
       end if;
 
       --  Set the Enable Group1 bit to the GICC CTLR register.
@@ -226,6 +229,11 @@ package body System.ARM_GIC is
    begin
       GICD.CTLR := 0;
 
+      --  Disable all shared Interrupts
+      for J in 1 .. GICD.ICENABLER'Last loop
+         GICD.ICENABLER (J) := 16#FFFF_FFFF#;
+      end loop;
+
       --  default priority
       for J in GICD.IPRIORITYR'Range loop
          GICD.IPRIORITYR (J) := 0;
@@ -240,9 +248,6 @@ package body System.ARM_GIC is
          GICD.ITARGETSR (Reg_Num) := GICD.ITARGETSR (0);
       end loop;
 
-      --  Disable all shared Interrupts
-      GICD.ICENABLER := (others => 16#FFFF_FFFF#);
-
       GICD.CTLR := 3;
    end Initialize_GICD;
 
@@ -254,7 +259,7 @@ package body System.ARM_GIC is
    is
    begin
       for J in Config'Range loop
-         GICD.ICFGR (J) := Config (J);
+         GICD.ICFGR (J) := Reg32 (Config (J));
       end loop;
    end Define_IRQ_Triggers;
 
@@ -264,7 +269,7 @@ package body System.ARM_GIC is
 
    procedure IRQ_Handler
    is
-      IAR    : constant Unsigned_32 := GICC.IAR;
+      IAR    : constant Unsigned_32 := Unsigned_32 (GICC.IAR);
       Int_Id : constant Unsigned_32 := IAR and 16#3FF#;
    begin
       if Int_Id = 16#3FF# then
@@ -275,7 +280,7 @@ package body System.ARM_GIC is
       Interrupt_Wrapper (Interrupt_ID (Int_Id));
 
       --  Clear interrupt request
-      GICC.EOIR := IAR;
+      GICC.EOIR := Reg32 (IAR);
    end IRQ_Handler;
 
    -------------------------------
@@ -287,7 +292,7 @@ package body System.ARM_GIC is
       Prio      : Interrupt_Priority)
    is
    begin
-      GICD.IPRIORITYR (Interrupt) := To_PRI (Prio);
+      GICD.IPRIORITYR (Interrupt) := Reg8 (To_PRI (Prio));
       GICD.ISENABLER (Reg_Num_32 (Interrupt)) := 2 ** (Interrupt mod 32);
 
       --  Handlers are registered before the CPUs are awaken (only the CPU 0
@@ -309,7 +314,7 @@ package body System.ARM_GIC is
      return System.Any_Priority
    is
    begin
-      return To_Priority (GICD.IPRIORITYR (Interrupt));
+      return To_Priority (Unsigned_8 (GICD.IPRIORITYR (Interrupt)));
    end Priority_Of_Interrupt;
 
    --------------------------
@@ -318,7 +323,7 @@ package body System.ARM_GIC is
 
    procedure Set_Current_Priority (Priority : Integer) is
    begin
-      GICC.PMR := Unsigned_32 (To_PRI (Priority));
+      GICC.PMR := Reg32 (To_PRI (Priority));
    end Set_Current_Priority;
 
    ----------------
@@ -339,7 +344,7 @@ package body System.ARM_GIC is
    is
    begin
       GICD.SGIR :=
-        2 ** (15 + Natural (CPU_Id)) + Unsigned_32 (Poke_Interrupt);
+        2 ** (15 + Natural (CPU_Id)) + Reg32 (Poke_Interrupt);
    end Poke_CPU;
 
 end System.ARM_GIC;
