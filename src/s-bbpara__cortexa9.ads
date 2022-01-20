@@ -48,7 +48,7 @@ package System.BB.Parameters is
    -- Hardware clock --
    --------------------
 
-   Clock_Frequency        : constant := 666_666_688;
+   Clock_Frequency        : constant := 666_666_687;
    --  Frequency of the CPU clock in Hz. We hard-code this here to allow static
    --  computation of the timing events.
 
@@ -94,7 +94,6 @@ package System.BB.Parameters is
    Interrupt_Unmask_Priority : constant System.Interrupt_Priority :=
                                  System.Interrupt_Priority'Last;
    --  The priority under which we unmask interrupts.
-   --  Useful when we use FIQ to simulate priorities on ARM.
 
    ------------------------
    -- Context Management --
