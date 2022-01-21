@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---                         Copyright (C) 2021, AdaCore                      --
+--                      Copyright (C) 2021-2022, AdaCore                    --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -243,11 +243,35 @@ package body System.MMU is
       Level_3_End               : Symbol with
                                     Import,
                                     External_Name => "__mmu_ram_table_3_end";
+      CPU0_Stack_Start          : Symbol with
+                                    Import,
+                                    External_name => "__cpu0_stack_start";
+      CPU0_Stack_End            : Symbol with
+                                    Import,
+                                    External_Name => "__cpu0_stack_end";
+      CPU1_Stack_End            : Symbol with
+                                    Import,
+                                    External_Name => "__cpu1_stack_end";
+      CPU2_Stack_End            : Symbol with
+                                    Import,
+                                    External_Name => "__cpu2_stack_end";
+      CPU3_Stack_End            : Symbol with
+                                    Import,
+                                    External_Name => "__cpu3_stack_end";
       function Data_Access return Access_Permission is
         (if Set_RO and then Start < Region_Data_Start_Address
          then Read_Only_EL1
          else Read_Write_EL1);
-
+      type Guard_Pages_Type is array (Natural range <>)
+         of Level_3_Output_Address;
+      Guard_Pages : constant Guard_Pages_Type :=
+         (Get_Address (CPU0_Stack_Start'Address) - 1,
+          Get_Address (CPU0_Stack_End'Address),
+          Get_Address (CPU1_Stack_End'Address),
+          Get_Address (CPU2_Stack_End'Address),
+          Get_Address (CPU3_Stack_End'Address));
+      function Is_Guard_Page (Addr : Level_3_Output_Address) return Boolean is
+         (for some P of Guard_Pages => P = Addr);
    begin
       if
          Level_2_End'Address - Level_2'Address /= Level_2'Size / 8
@@ -266,23 +290,31 @@ package body System.MMU is
 
       for T of Level_3 loop
          for J in T'Range loop
-            T (J) := Level_3_Descriptor'
-                       (Valid         => True,
-                        D_Type        => Page,
-                        Attr_Index    => 0,
-                        Non_Secure    => True,
-                        Data_Access   => Data_Access,
-                        Share         => Outer_Shareable,
-                        Access_Flag   => True,
-                        Non_Global    => False,
-                        Block_Address => Get_Address (Start),
-                        Contiguous    => False,
-                        PXN_Block     => Set_NX
-                                         and Start
-                                             >= Region_Data_Start_Address,
-                        XN_Block      => Set_NX
-                                         and Start
-                                             >= Region_Data_Start_Address);
+            declare
+               Current_Address : constant Level_3_Output_Address
+                  := Get_Address (Start);
+               NX : constant Boolean :=
+                  Set_NX and Start >= Region_Data_Start_Address;
+            begin
+               if Is_Guard_Page (Current_Address) then
+                  T (J) := Level_3_Descriptor'(Valid  => False,
+                                               D_Type => Reserved);
+               else
+                  T (J) := Level_3_Descriptor'
+                             (Valid         => True,
+                              D_Type        => Page,
+                              Attr_Index    => 0,
+                              Non_Secure    => True,
+                              Data_Access   => Data_Access,
+                              Share         => Outer_Shareable,
+                              Access_Flag   => True,
+                              Non_Global    => False,
+                              Block_Address => Current_Address,
+                              Contiguous    => False,
+                              PXN_Block     => NX,
+                              XN_Block      => NX);
+               end if;
+            end;
             Start := Start + 4096;
          end loop;
       end loop;

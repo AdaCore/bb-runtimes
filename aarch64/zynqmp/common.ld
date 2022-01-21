@@ -142,29 +142,40 @@ SECTIONS
    __bss_end = .;
 
    /* Separate env stack per CPU and EL levels= */
+   . = ALIGN(0x1000);
+
+   . = . + 0x1000;
    __stack_start = .;
 
    __cpu0_stack_start = .;
    . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
-   . = ALIGN(0x10);
+   . = ALIGN(0x1000);
    __cpu0_stack_end = .;
+
+   . = . + 0x1000;
 
    __cpu1_stack_start = .;
    . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
-   . = ALIGN(0x10);
+   . = ALIGN(0x1000);
    __cpu1_stack_end = .;
+
+   . = . + 0x1000;
 
    __cpu2_stack_start = .;
    . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
-   . = ALIGN(0x10);
+   . = ALIGN(0x1000);
    __cpu2_stack_end = .;
+
+   . = . + 0x1000;
 
    __cpu3_stack_start = .;
    . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
-   . = ALIGN(0x10);
+   . = ALIGN(0x1000);
    __cpu3_stack_end = .;
 
    __stack_end = .;
+
+   . = . + 0x1000;
 
    /* Interrupt stacks: defined in s-bbinte.adb.  */
    __interrupt_stack_start = .;
