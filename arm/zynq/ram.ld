@@ -168,6 +168,10 @@ SECTIONS
    . = ALIGN(. + _UNDEF_STACK_SIZE, 0x8);
    __cpu1_undef_stack_end = .;
 
+   __cpu1_fiq_stack_start = .;
+   . = ALIGN(. + _FIQ_STACK_SIZE, 0x8);
+   __cpu1_fiq_stack_end = .;
+
    /* Use the largest of .interrupt_stacks or the default trap stack sizes for
       CPU1. This allows use with the Light and Tasking run times. */
 
