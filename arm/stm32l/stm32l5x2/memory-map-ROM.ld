@@ -44,5 +44,7 @@ REGION_ALIAS("sram_tx", sram)
 REGION_ALIAS("sram_ro", sram)
 REGION_ALIAS("sram_bs", sram)
 REGION_ALIAS("sram_da", sram)
+REGION_ALIAS("sram_nsc", sram)
+REGION_ALIAS("flash_nsc", flash)
 
 INCLUDE common-ROM.ld

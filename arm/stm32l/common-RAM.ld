@@ -109,6 +109,12 @@ SECTIONS
 
   __bss_words = (__bss_end - __bss_start) >> 2;
 
+  .gnu.sgstubs :{
+    . = ALIGN(8);
+    *(.gnu.sgstubs*)   /* Secure Gateway stubs */
+    . = ALIGN(8);
+  } > sram_nsc
+
   /* DWARF debug sections.
      Symbols in the DWARF debugging sections are relative to the beginning
      of the section so we begin them at 0.  */
