@@ -37,6 +37,8 @@
 
 	.section .traps
 
+	.p2align 5
+
 	/* The following provide default definitions for trap vectors that
 	loop back to the trap address, so the system will stop in a safe
 	state. The Ravenscar runtimes now can install their handlers by simply
@@ -48,19 +50,16 @@
         .weak	__gnat_dabt_trap	/* data abort trap */
         .weak	__gnat_irq_trap		/* Interrupt */
         .weak	__gnat_fiq_trap		/* Fast interrupt */
-        .weak   __gnat_irq_trap_asm
-
-	.p2align 5
 
 __traps:
 /* 0 */			b	__start_ram
-__gnat_undef_trap:	b	__gnat_undef_trap
-__gnat_svc_trap:	b	__gnat_svc_trap
-__gnat_pabt_trap:	b	__gnat_pabt_trap
-__gnat_dabt_trap:	b	__gnat_dabt_trap
-			nop	/* 0x14: not used.  */
-__gnat_irq_trap:	b	__gnat_irq_trap_asm
-__gnat_fiq_trap:	b	__gnat_fiq_trap
+__gnat_undef_trap:      b	__gnat_undef_trap
+__gnat_svc_trap:        b	__gnat_svc_trap
+__gnat_pabt_trap:       b	__gnat_pabt_trap
+__gnat_dabt_trap:       b	__gnat_dabt_trap
+/* 0x14 */		nop	/* not used.  */
+__gnat_irq_trap:        b	__gnat_irq_trap
+__gnat_fiq_trap:        b	__gnat_fiq_trap
 
 #include	"memmap.inc"
 
@@ -70,6 +69,7 @@ __start_ram:
 
 	/* Supervisor mode */
 	cps	#19 /* 10011 */
+        /* SVC mode is used to handle irqs: see armgic_irqtrap.s */
 	ldr	sp, irqSp0
 
 	/* Abort mode */
@@ -85,10 +85,8 @@ __start_ram:
 	ldr	sp, fiqSp0
 
 	/* IRQ mode */
-        /* The stack of the IRQ mode should never be used, see
-           comment in __gnat_irq_trap_asm. */
 	cps	#18  /* 10010 */
-	mov	sp, #0x0
+	ldr	sp, irqSp0
 
 	/* System mode */
 	cps	#31  /* 11111 */
@@ -265,10 +263,8 @@ __start_cpu1:
 	ldr	sp, fiqSp1
 
 	/* IRQ mode */
-        /* The stack of the IRQ mode should never be used, see
-           comment in __gnat_irq_trap_asm. */
 	cps	#18  /* 10010 */
-	mov	sp, #0x0
+	ldr	sp, irqSp1
 
 	/* System mode */
 	cps	#31  /* 11111 */
@@ -285,30 +281,6 @@ __start_cpu1:
 	bl	__gnat_initialize_slave
 
 	.size	__start_cpu1, . - __start_cpu1
-
-	.type	__gnat_irq_trap_asm %function
-__gnat_irq_trap_asm:
-        /* In order to allow nested IRQ support, we need to save the banked
-           registers LR and SPSR, and change CPU mode before allowing
-           IRQs to interrupt us.
-           Otherwise LR[IRQ] might get corrupted, and thus the interrupted
-           handler be corrupted.
-           The runtime uses the SVC mode to run the IRQ handlers.
-        */
-        sub     lr, lr, #4      @ adjust LR to the proper insn to srsfd
-        srsfd   sp!, #19        @ use SRS to save LR_irq and SPSR_irq in one
-                                @ step onto the SVC stack
-        cps     #19             @ switch to SVC mode
-        push    {r0-r3, r12}    @ save scratch registers
-        and     r1, sp, #4      @ ensure that stack is 8-byte aligned
-        sub     sp, sp, r1
-        push    {r1, lr}        @ store adjustment and LR_svc to stack
-        bl      __gnat_irq_trap
-        pop     {r1, lr}        @ restore adjustment and LR_svc
-        add     sp, sp, r1      @ unadjust stack
-        pop     {r0-r3, r12}    @ restore scratch registers
-        rfefd   sp!             @ return using rfe from the irq handler
-	.size	__gnat_irq_trap_asm, . - __gnat_irq_trap_asm
 
 abortSp1:	.word __cpu1_abort_stack_end
 undefSp1:	.word __cpu1_undef_stack_end

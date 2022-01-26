@@ -57,30 +57,27 @@ package body System.BB.CPU_Primitives is
    -- Traps --
    -----------
 
-   procedure Undef_Handler;
+   procedure Undef_Handler
+     with Export        => True,
+          Convention    => Asm,
+          External_Name => "__gnat_undef_trap";
    pragma Machine_Attribute (Undef_Handler, "interrupt");
-   pragma Export (Asm, Undef_Handler, "__gnat_undef_trap");
 
-   procedure Dabt_Handler;
+   procedure Dabt_Handler
+     with Export        => True,
+          Convention    => Asm,
+          External_Name => "__gnat_dabt_trap";
    pragma Machine_Attribute (Dabt_Handler, "interrupt");
-   pragma Export (Asm, Dabt_Handler, "__gnat_dabt_trap");
 
-   procedure Irq_User_Handler;
-   pragma Import (Ada, Irq_User_Handler, "__gnat_irq_handler");
+   procedure Irq_User_Handler
+     with Import         => True,
+          Convention     => Ada,
+          External_Name => "__gnat_irq_handler";
 
-   procedure Fiq_User_Handler;
-   pragma Import (Ada, Fiq_User_Handler, "__gnat_fiq_handler");
-
-   procedure Common_Handler (Is_FIQ : Boolean)
-     with Inline_Always;
-
-   procedure FIQ_Handler;
-   pragma Machine_Attribute (FIQ_Handler, "interrupt");
-   pragma Export (Asm, FIQ_Handler, "__gnat_fiq_trap");
-
-   procedure IRQ_Handler;
-   pragma Machine_Attribute (IRQ_Handler, "interrupt");
-   pragma Export (Asm, IRQ_Handler, "__gnat_irq_trap");
+   procedure IRQ_Handler
+     with Export        => True,
+          Convention    => Asm,
+          External_Name => "__gnat_irq_trap_ada";
 
    ----------------------------
    -- Floating Point Context --
@@ -102,9 +99,13 @@ package body System.BB.CPU_Primitives is
    pragma Volatile_Components (FPU_Context_Table);
 
    function  Is_FPU_Enabled return Boolean with Inline;
-   procedure Set_FPU_Enabled (Enabled : Boolean) with Inline;
+
+   procedure Set_FPU_Enabled (Enabled : Boolean)
+     with Import        => True,
+          Convention    => Asm,
+          External_Name => "__gnat_set_fpu_enabled";
+
    procedure FPU_Context_Switch (To : VFPU_Context_Access) with Inline;
-   function Get_SPSR return Unsigned_32 with Inline;
 
    Default_FPSCR       : Unsigned_32 := 0;
 
@@ -112,19 +113,6 @@ package body System.BB.CPU_Primitives is
    --  This variable contains the last thread that used the floating point unit
    --  for each CPU. Hence, it points to the place where the floating point
    --  state must be stored. Null means no task using it.
-
-   --------------
-   -- Get_SPSR --
-   --------------
-
-   function Get_SPSR return Unsigned_32 is
-      SPSR : Unsigned_32;
-   begin
-      Asm ("mrs %0, SPSR",
-           Outputs  => Unsigned_32'Asm_Output ("=r", SPSR),
-           Volatile => True);
-      return SPSR;
-   end Get_SPSR;
 
    ------------------
    -- Dabt_Handler --
@@ -141,28 +129,7 @@ package body System.BB.CPU_Primitives is
 
    procedure IRQ_Handler
    is
-   begin
-      Common_Handler (False);
-   end IRQ_Handler;
-
-   -----------------
-   -- FIQ_Handler --
-   -----------------
-
-   procedure FIQ_Handler
-   is
-   begin
-      Common_Handler (True);
-   end FIQ_Handler;
-
-   --------------------
-   -- Common_Handler --
-   --------------------
-
-   procedure Common_Handler (Is_FIQ : Boolean)
-   is
       use System.BB.Threads.Queues;
-      SPSR     : Unsigned_32;
       CPU_Id   : constant System.Multiprocessors.CPU :=
                    Board_Support.Multiprocessors.Current_CPU;
       IRQ_Ctxt : aliased VFPU_Context_Buffer;
@@ -179,18 +146,8 @@ package body System.BB.CPU_Primitives is
       Running_Thread_Table (CPU_Id).Context.Running :=
         IRQ_Ctxt'Unchecked_Access;
 
-      --  If we are going to do context switches or otherwise allow IRQ's
-      --  from within the interrupt handler, the SPSR register needs to
-      --  be saved too.
-
-      SPSR := Get_SPSR;
-
       --  Call the handler
-      if Is_FIQ then
-         Fiq_User_Handler;
-      else
-         Irq_User_Handler;
-      end if;
+      Irq_User_Handler;
 
       --  Check FPU usage in handler
       if Current_FPU_Context (CPU_Id) = IRQ_Ctxt'Unchecked_Access then
@@ -225,11 +182,7 @@ package body System.BB.CPU_Primitives is
 
          --  The pre-empted thread can now resume
       end if;
-
-      Asm ("msr   SPSR_cxsf, %0",
-         Inputs   => (Unsigned_32'Asm_Input ("r", SPSR)),
-         Volatile => True);
-   end Common_Handler;
+   end IRQ_Handler;
 
    -------------------
    -- Undef_Handler --
@@ -339,7 +292,7 @@ package body System.BB.CPU_Primitives is
            "mrs   r3, CPSR"      & NL  -- Save CPSR
          & "ldr   r4, [%0]"      & NL  -- Load Running_Thread
          & "cps   #19"           & NL  -- Switch to supervisor mode
-         & "adr   r2, 0f"        & NL  -- Adjust R0 to point past ctx switch
+         & "adr   r2, 0f"        & NL  -- Adjust R2 to point past ctx switch
          & "stm   r4, {r0-r3,sp,lr}^"  & NL  -- Save user registers
          & "str   %1, [%0]"      & NL  -- Set Running_Thread := First_Thread
          & "ldm   %1, {r0-r3,sp,lr}^"  & NL  -- Restore user registers
@@ -506,16 +459,4 @@ package body System.BB.CPU_Primitives is
       Set_FPU_Enabled (False);
    end Initialize_CPU;
 
-   ---------------------
-   -- Set_FPU_Enabled --
-   ---------------------
-
-   procedure Set_FPU_Enabled (Enabled : Boolean) is
-   begin
-      Asm ("fmxr   fpexc, %0",
-           Inputs    => Unsigned_32'Asm_Input
-                          ("r", (if Enabled then 16#4000_0000# else 0)),
-           Volatile  => True);
-      pragma Assert (Is_FPU_Enabled = Enabled);
-   end Set_FPU_Enabled;
 end System.BB.CPU_Primitives;
