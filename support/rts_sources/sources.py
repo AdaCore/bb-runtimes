@@ -1333,7 +1333,6 @@ sources = {
         'vx7r2cert_srcs': [
             'libgnarl/a-reatim.ads',
             'libgnarl/a-reatim.adb',
-            'hie/s-soflin__light.ads',
             'hie/s-taprop__raven-cert.ads',
             'hie/s-taprop__vxworks7cert.adb',
             'hie/s-tpopsp__vxworks7-cert-tls.adb',
