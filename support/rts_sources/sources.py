@@ -226,7 +226,6 @@ sources = {
             'libgnat/g-io.ads', 'hie/g-io__vxworks7cert.adb',
             'hie/s-textio__vxworks7cert.ads', 'hie/s-textio__vxworks7cert.adb',
             'hie/a-textio.ads', 'hie/a-textio__vxworks7cert.adb',
-            'libgnat/s-stchop__limit.ads', 'libgnat/s-stchop__vxworks.adb',
             'vx_stack_info.c',
         ]
     },
