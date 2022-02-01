@@ -84,6 +84,9 @@ project Runtime_Build is
     for Proof_Switches ("s-widuns.ads") use ("--level=4");
     for Proof_Switches ("s-widllu.ads") use ("--level=4");
     for Proof_Switches ("s-widlllu.ads") use ("--level=4");
+    for Proof_Switches ("s-imguns.ads") use ("--level=4");
+    for Proof_Switches ("s-imgllu.ads") use ("--level=4");
+    for Proof_Switches ("s-imglllu.ads") use ("--level=4");
   end Prove;
 
 end Runtime_Build;
