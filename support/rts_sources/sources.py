@@ -297,23 +297,47 @@ sources = {
         'vx7r2cert_srcs': [
             'hie/s-parame__vxworks7cert.ads', 'libgnat/s-parame__vxworks.adb']
     },
-    'gccmath': {
-        'conditions': ['RTS_Profile:light,light-tasking', 'Target_Word_Size:64'],
+
+    'gccmath_common': {
+        'conditions': ['RTS_Profile:light,light-tasking'],
         'srcs': [],
         'vx7r2cert_srcs': [
             'hie/s-gcc.ads',
+            'hie/s-gccshi.ads', 'hie/s-gccshi.adb',
+            'hie/s-gcdimo.ads', 'hie/s-gcdimo.adb',
+            'hie/s-gudmo4.ads', 'hie/s-gudmo4.adb']
+    },
+    'gccmath64': {
+        'conditions': ['RTS_Profile:light,light-tasking', 'Target_Word_Size:64'],
+        'srcs': [],
+        'vx7r2cert_srcs': [
             'hie/s-gcc-ti.ads', 'hie/s-gcc-ti.adb',
+            'hie/s-gctish.ads',
             'hie/s-gtasl3.ads', 'hie/s-gtasl3.adb',
             'hie/s-gtasr3.ads', 'hie/s-gtasr3.adb',
-            'hie/s-gtlsr3.ads', 'hie/s-gtlsr3.adb',
+            'hie/s-gtdmo3.ads', 'hie/s-gtdmo3.adb',
             'hie/s-gtimo3.ads', 'hie/s-gtimo3.adb',
             'hie/s-gtium3.ads', 'hie/s-gtium3.adb',
-            'hie/s-gcdimo.ads', 'hie/s-gcdimo.adb',
-            'hie/s-gudmo4.ads', 'hie/s-gudmo4.adb',
-            'hie/s-gtdmo3.ads',
             'hie/s-gtiud3.ads', 'hie/s-gtiud3.adb',
             'hie/s-gtidi3.ads', 'hie/s-gtidi3.adb',
-            'hie/s-gtumo4.ads']
+            'hie/s-gtlsr3.ads', 'hie/s-gtlsr3.adb',
+            'hie/s-gtumo4.ads', 'hie/s-gtumo4.adb']
+    },
+    'gccmath32': {
+        'conditions': ['RTS_Profile:light,light-tasking', 'Target_Word_Size:32'],
+        'srcs': [],
+        'vx7r2cert_srcs': [
+            'hie/s-gcc-di.ads', 'hie/s-gcc-di.adb',
+            'hie/s-gcdish.ads',
+            'hie/s-gdasl3.ads', 'hie/s-gdasl3.adb',
+            'hie/s-gdasr3.ads', 'hie/s-gdasr3.adb',
+            'hie/s-gddmo3.ads', 'hie/s-gddmo3.adb',
+            'hie/s-gdimo3.ads', 'hie/s-gdimo3.adb',
+            'hie/s-gdium3.ads', 'hie/s-gdium3.adb',
+            'hie/s-gdiud3.ads', 'hie/s-gdiud3.adb',
+            'hie/s-gdidi3.ads', 'hie/s-gdidi3.adb',
+            'hie/s-gdlsr3.ads', 'hie/s-gdlsr3.adb',
+            'hie/s-gdumo4.ads', 'hie/s-gdumo4.adb']
     },
 
     'full': {
@@ -603,14 +627,14 @@ sources = {
         'conditions': ['Certifiable_Packages:yes', 'CPU_Family:arm'],
         'srcs': [
             'hie/s-gcdifl__arm.ads', 'hie/s-gcdifl__arm.adb',
-            'hie/s-gcdish__arm.ads', 'hie/s-gcdish.adb']
+            'hie/s-gcdish__arm.ads', 'hie/s-gcdish__cert.adb']
     },
 
     'libgcc/other_archs': {
         'conditions': ['Certifiable_Packages:yes', 'CPU_Family:!arm'],
         'srcs': [
             'hie/s-gcdifl.ads', 'hie/s-gcdifl.adb',
-            'hie/s-gcdish.ads', 'hie/s-gcdish.adb']
+            'hie/s-gcdish__cert.ads', 'hie/s-gcdish__cert.adb']
     },
 
     # Text_IO
