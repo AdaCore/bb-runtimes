@@ -77,7 +77,7 @@ project Runtime_Build is
 
     --  Bump level for proof of Lemma_Div_Twice which should ideally be
     --  factored out in the future.
-    for Proof_Switches ("g-io.adb") use ("--level=3");
+    for Proof_Switches ("g-io.adb") use ("--level=4");
     for Proof_Switches ("s-widint.ads") use ("--level=4");
     for Proof_Switches ("s-widlli.ads") use ("--level=4");
     for Proof_Switches ("s-widllli.ads") use ("--level=4");
