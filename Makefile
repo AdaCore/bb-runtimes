@@ -52,7 +52,7 @@ endif
 
 ifeq ($(TARGET),$(filter $(TARGET),arm-eabi arm-elf arm))
     TGT=arm-eabi
-    TARGETS=zynq7000 rpi2 rpi2mc sam4s samg55 smartfusion2 openmv2 stm32f4 \
+    TARGETS=zynq7000 rpi2 rpi2mc sam4s samg55 samrh71 smartfusion2 openmv2 stm32f4 \
        stm32f429disco stm32f469disco stm32f746disco stm32756geval \
        stm32f769disco tms570 tms570_sci tms570lc lm3s cortex-m0 cortex-m0p \
        cortex-m1 cortex-m3 cortex-m4 cortex-m4f cortex-m7f cortex-m7df
