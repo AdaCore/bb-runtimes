@@ -87,6 +87,9 @@ project Runtime_Build is
     for Proof_Switches ("s-imguns.ads") use ("--level=4");
     for Proof_Switches ("s-imgllu.ads") use ("--level=4");
     for Proof_Switches ("s-imglllu.ads") use ("--level=4", "--timeout=200");
+    for Proof_Switches ("s-imgint.ads") use ("--level=4", "--prover=all");
+    for Proof_Switches ("s-imglli.ads") use ("--level=4", "--prover=all");
+    for Proof_Switches ("s-imgllli.ads") use ("--level=4", "--prover=all");
   end Prove;
 
 end Runtime_Build;
