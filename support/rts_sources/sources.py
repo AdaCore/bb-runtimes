@@ -1339,7 +1339,6 @@ sources = {
             'libgnarl/s-osinte__vxworks.ads',
             'libgnarl/s-osinte__vxworks.adb',
             'libgnarl/s-tpobmu.adb',
-            'libgnat/i-vxwork.ads',
             'clexco.c',
             'initflt.c',
             'sysdep-raven-cert-vxworks.c']
