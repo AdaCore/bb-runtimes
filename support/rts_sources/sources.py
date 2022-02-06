@@ -911,8 +911,8 @@ sources = {
             'hie/a-nuelfu__cert.ads', 'hie/a-nuelfu__cert.adb',
             'hie/s-gcmain__cert.ads', 'hie/s-gcmain__cert.adb',
             'hie/a-nllefu__cert.ads',
-            'libgnat/a-nalofl.ads',
-            'libgnat/a-nallfl__wraplf.ads',
+            'hie/a-nalofl__light.ads',
+            'hie/a-nallfl__light.ads',
             'libgnat/a-naliop__nolibm.ads']
     },
     'math/long_long_64bit': {
