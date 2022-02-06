@@ -909,12 +909,16 @@ sources = {
             'hie/a-ngelfu__cert.ads', 'hie/a-ngelfu__cert.adb',
             'hie/a-nlelfu__cert.ads',
             'hie/a-nuelfu__cert.ads', 'hie/a-nuelfu__cert.adb',
-            'hie/s-gcmain__cert.ads', 'hie/s-gcmain__cert.adb'
-        ]
+            'hie/s-gcmain__cert.ads', 'hie/s-gcmain__cert.adb',
+            'hie/a-nllefu__cert.ads',
+            'libgnat/a-nalofl.ads',
+            'libgnat/a-nallfl__wraplf.ads',
+            'libgnat/a-naliop__nolibm.ads']
     },
     'math/long_long_64bit': {
         'conditions': ['Add_Math_Lib:!no', 'CPU_Family:!x86,!x86_64'],
-        'srcs': ['libgnat/a-nllefu.ads']
+        'bb_srcs': ['libgnat/a-nllefu.ads'],
+        'pikeos_srcs': ['libgnat/a-nllefu.ads']
     },
     'math/long_long_80bit': {
         'conditions': ['Add_Math_Lib:!no', 'CPU_Family:x86,x86_64'],
@@ -926,10 +930,6 @@ sources = {
             'hie/s-lilodo__ada.ads', 'hie/s-lilodo__ada.adb',
             'hie/s-lldosq__ada.ads', 'hie/s-lldosq__fpu.adb',
             'hie/a-nllefu__ada.ads'],
-        'vx7r2cert_srcs': ['hie/a-nllefu__cert.ads',
-                           'libgnat/a-nalofl.ads',
-                           'libgnat/a-nallfl__wraplf.ads',
-                           'libgnat/a-naliop__nolibm.ads']
     },
     'math/complex': {
         'conditions': ['Add_Math_Lib:!no', 'Add_Complex_Type_Support:yes'],
