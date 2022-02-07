@@ -72,7 +72,7 @@ project Runtime_Build is
     for Proof_Switches ("s-valllli.ads") use ("--level=4");
     for Proof_Switches ("s-valuns.ads") use ("--level=4");
     for Proof_Switches ("s-valllu.ads") use ("--level=4");
-    for Proof_Switches ("s-vallllu.ads") use ("--level=4");
+    for Proof_Switches ("s-vallllu.ads") use ("--level=4", "--timeout=120");
     for Proof_Switches ("s-valuti.adb") use ("--level=3");
 
     --  Bump level for proof of Lemma_Div_Twice which should ideally be
@@ -86,7 +86,7 @@ project Runtime_Build is
     for Proof_Switches ("s-widlllu.ads") use ("--level=4");
     for Proof_Switches ("s-imguns.ads") use ("--level=4");
     for Proof_Switches ("s-imgllu.ads") use ("--level=4");
-    for Proof_Switches ("s-imglllu.ads") use ("--level=4");
+    for Proof_Switches ("s-imglllu.ads") use ("--level=4", "--timeout=200");
   end Prove;
 
 end Runtime_Build;
