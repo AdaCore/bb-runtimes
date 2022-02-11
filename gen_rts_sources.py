@@ -44,7 +44,7 @@ def main():
         '--rts-profile', choices=['light', 'light-tasking', 'embedded'],
         required=True,  help='supported profiles')
     parser.add_argument(
-        '--source-profile', choices=['bb', 'pikeos', 'vx7r2cert'],
+        '--source-profile', choices=['bb', 'pikeos', 'vx7r2cert', 'qnx'],
         default='bb', help='platform specific source selections')
 
     args = parser.parse_args()

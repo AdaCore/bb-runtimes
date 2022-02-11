@@ -226,8 +226,11 @@ sources = {
             'libgnat/g-io.ads', 'hie/g-io__vxworks7cert.adb',
             'hie/s-textio__vxworks7cert.ads', 'hie/s-textio__vxworks7cert.adb',
             'hie/a-textio.ads', 'hie/a-textio__vxworks7cert.adb',
-            'vx_stack_info.c',
-        ]
+            'vx_stack_info.c'],
+        'qnx_srcs': [
+            'libgnat/g-io.ads', 'hie/g-io__qnx.adb',
+            'hie/a-textio.ads', 'hie/a-textio__qnx.adb',
+            'hie/s-textio__qnx.ads', 'hie/s-textio__qnx.adb']
     },
 
     'common/32': {
@@ -264,7 +267,9 @@ sources = {
         'pikeos_srcs': ['hie/a-textio__pikeos-light.adb'],
         'vx7r2cert_srcs': [
             'hie/s-parame__zfp_huge.ads',
-            'hie/s-thread.ads', 'hie/s-thread__vxworks7cert.adb']
+            'hie/s-thread.ads', 'hie/s-thread__vxworks7cert.adb'],
+        'qnx_srcs': [
+            'hie/s-parame__zfp_huge.ads']
     },
     'light/aarch64': {
         'conditions': ['CPU_Family:aarch64'],
@@ -917,7 +922,16 @@ sources = {
             'hie/a-nllefu__cert.ads',
             'hie/a-nalofl__light.ads',
             'hie/a-nallfl__light.ads',
-            'libgnat/a-naliop__nolibm.ads']
+            'libgnat/a-naliop__nolibm.ads'],
+        'qnx_srcs': [
+            'hie/a-ngelfu__cert.ads', 'hie/a-ngelfu__cert.adb',
+            'hie/a-nlelfu__cert.ads',
+            'hie/a-nuelfu__cert.ads', 'hie/a-nuelfu__cert.adb',
+            'hie/s-gcmain__cert.ads', 'hie/s-gcmain__cert.adb',
+            'hie/a-nllefu__cert.ads',
+            'hie/a-nalofl__light.ads',
+            'hie/a-nallfl__light.ads',
+            'libgnat/a-naliop__nolibm.ads'],
     },
     'math/long_long_64bit': {
         'conditions': ['Add_Math_Lib:!no', 'CPU_Family:!x86,!x86_64'],

@@ -55,6 +55,8 @@ from vx7r2cert import AArch64Vx7r2Cert, ArmVx7r2Cert, \
                       PPCVx7r2Cert_RTP, PPC64Vx7r2Cert_RTP, \
                       X86Vx7r2Cert_RTP, X86_64Vx7r2Cert_RTP
 
+from qnx import Aarch64QNX
+
 import argparse
 import os
 import subprocess
@@ -241,6 +243,8 @@ def build_configs(target):
         t = X86Vx7r2Cert_RTP()
     elif target == "x86_64-vx7r2cert-rtp":
         t = X86_64Vx7r2Cert_RTP()
+    elif target == "aarch64-qnx":
+        t = Aarch64QNX()
     else:
         print('Error: undefined target %s' % target)
         sys.exit(2)

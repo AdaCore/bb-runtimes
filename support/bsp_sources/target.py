@@ -308,14 +308,20 @@ class Target(TargetConfiguration, ArchSupport):
         indent = 9
         blank = indent * ' '
 
-        if rts.rts_vars['RTS_Profile'] != "embedded":
+        if self.name == "qnx":
+            # QNX does not require additional linker switches. If -nostartfiles
+            # or -nolibc are used the binary will exit with a Memory fault.
+            # Since we link with libc on this platform we can't use -nostdlib
+            # either.
+            pass
+        elif rts.rts_vars['RTS_Profile'] != "embedded":
             # For the ZFP and Ravenscar SFP runtime we have the choice of
             # either using libgcc or our Ada libgcc replacement. For the
             # later choice we do not link with any of the standard libraries.
             if rts.rts_vars['Certifiable_Packages'] == "yes":
-                ret += blank + '"-nostdlib"'
+                ret += blank + '"-nostdlib",'
             else:
-                ret += blank + '"-nostartfiles", "-nolibc"'
+                ret += blank + '"-nostartfiles", "-nolibc",'
         else:
             # In the Embedded case, the runtime depends on
             # functionalities from newlib, such as memory allocation. This
@@ -332,10 +338,10 @@ class Target(TargetConfiguration, ArchSupport):
 
             ret += blank + \
                 '"-nostartfiles", "-nolibc", ' + \
-                '"-Wl,--start-group,-lgnarl,-lgnat,-lc,-lgcc,--end-group"'
+                '"-Wl,--start-group,-lgnarl,-lgnat,-lc,-lgcc,--end-group",'
 
         # Add the user script path first, so that they have precedence
-        ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld_user"'
+        ret += '\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld_user"'
         # And then our own script(s), if any
         if len(self.ld_scripts) > 0:
             ret += ',\n' + blank + '"-L${RUNTIME_DIR(ada)}/ld"'
