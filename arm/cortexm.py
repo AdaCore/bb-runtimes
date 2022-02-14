@@ -1412,8 +1412,8 @@ class RP2040(CortexM0P):
 
     @property
     def system_ads(self):
-        return {'ravenscar-sfp': 'system-xi-armv6m-sfp.ads',
-                'ravenscar-full': 'system-xi-armv6m-full.ads'}
+        return {'light-tasking': 'system-xi-armv6m-sfp.ads',
+                'embedded': 'system-xi-armv6m-full.ads'}
 
     def __init__(self, smp):
         self.smp = smp
