@@ -295,7 +295,7 @@ sources = {
     },
     'light/x86_64': {
         'conditions': ['CPU_Family:x86_64'],
-        'vx7r2cert_srcs': ['hie/s-traceb__dummy.adb']
+        'vx7r2cert_srcs': ['hie/s-traceb__dwarf.adb']
     },
     'light-tasking': {
         'conditions': ['RTS_Profile:light-tasking'],
