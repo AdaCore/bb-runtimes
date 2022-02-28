@@ -1120,6 +1120,8 @@ sources = {
             'libgnat/a-cgcaso.adb', 'libgnat/a-cgcaso.ads',
             'libgnat/a-chtgbk.adb', 'libgnat/a-chtgbk.ads',
             'libgnat/a-chtgbo.adb', 'libgnat/a-chtgbo.ads',
+            'libgnat/a-chtgfk.adb', 'libgnat/a-chtgfk.ads',
+            'libgnat/a-chtgfo.adb', 'libgnat/a-chtgfo.ads',
             'libgnat/a-chtgke.adb', 'libgnat/a-chtgke.ads',
             'libgnat/a-chtgop.adb', 'libgnat/a-chtgop.ads',
             'libgnat/a-cidlli.adb', 'libgnat/a-cidlli.ads',
