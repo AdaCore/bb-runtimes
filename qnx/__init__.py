@@ -19,7 +19,7 @@ class QNX(Target):
 
     @property
     def is_legacy_format(self):
-        return False
+        return True
 
     @property
     def use_certifiable_packages(self):
