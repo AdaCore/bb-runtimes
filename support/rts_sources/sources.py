@@ -300,7 +300,9 @@ sources = {
     'light-tasking': {
         'conditions': ['RTS_Profile:light-tasking'],
         'vx7r2cert_srcs': [
-            'hie/s-parame__vxworks7cert.ads', 'libgnat/s-parame__vxworks.adb']
+            'hie/s-parame__vxworks7cert.ads', 'libgnat/s-parame__vxworks.adb'],
+        'qnx_srcs' : [
+            'libgnat/s-parame.ads', 'libgnat/s-parame.adb']
     },
     'gccmath': {
         'conditions': ['RTS_Profile:light,light-tasking', 'Target_Word_Size:64'],
@@ -1364,7 +1366,20 @@ sources = {
             'libgnarl/s-tpobmu.adb',
             'clexco.c',
             'initflt.c',
-            'sysdep-raven-cert-vxworks.c']
+            'sysdep-raven-cert-vxworks.c'],
+        'qnx_srcs': [
+            'libgnarl/a-reatim.ads',
+            'libgnarl/a-reatim.adb',
+            'hie/s-multip__raven-default.ads',
+            'hie/s-multip__raven-default.adb',
+            'libgnarl/s-taspri__posix.ads',
+            'hie/s-osinte__qnx-light-tasking.ads',
+            'hie/s-osinte__qnx-light-tasking.adb',
+            'hie/s-taprop__raven-cert.ads', 'hie/s-taprop__qnx.adb',
+            'hie/s-tpopsp__posix-raven-cert.adb',
+            'hie/s-musplo.adb',
+            'libgnarl/s-tpobmu.adb',
+        ]
     },
     'gnarl/specs/arm': {
         'conditions': ['Is_RTP:yes', 'CPU_Family:aarch64,arm'],

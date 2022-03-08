@@ -44,4 +44,5 @@ class Aarch64QNX(QNX):
     @property
     def system_ads(self):
         return {
-            'light': 'system-qnx-aarch64-light.ads'}
+            'light': 'system-qnx-aarch64-light.ads',
+            'light-tasking': 'system-qnx-aarch64-light-tasking.ads'}
