@@ -264,7 +264,9 @@ sources = {
         'vx7r2cert_srcs': [
             'hie/a-elchha__traceback.adb',
             'libgnat/s-traent.ads', 'libgnat/s-traent.adb',
-            'hie/s-traceb__cert.ads']
+            'hie/s-traceb__cert.ads', 'hie/s-traceb__zfp.adb',
+            'hie/s-tracon__zfp.ads'
+        ]
     },
     'light/non-tasking': {
         'conditions': ['RTS_Profile:light'],
@@ -277,34 +279,27 @@ sources = {
     },
     'light/arm': {
         'conditions': ['CPU_Family:arm'],
-        'vx7r2cert_srcs': [
-            'hie/s-traceb__zfp.adb',
-            'hie/s-tracon__zfp.ads', 'hie/s-tracon__zfp-arm.adb']
+        'vx7r2cert_srcs': ['hie/s-tracon__zfp-arm.adb']
     },
     'light/aarch64': {
         'conditions': ['CPU_Family:aarch64'],
-        'vx7r2cert_srcs': [
-            'hie/s-traceb__zfp.adb',
-            'hie/s-tracon__zfp.ads', 'hie/s-tracon__zfp-aarch64.adb']
+        'vx7r2cert_srcs': ['hie/s-tracon__zfp-aarch64.adb']
     },
     'light/ppc': {
-        'conditions': ['CPU_Family:powerpc,powerpc64'],
-        'vx7r2cert_srcs': [
-            'hie/s-traceb__cert-ppc.adb',
-            'hie/s-tracon.ads', 'hie/s-tracon__ppc-vxcert.adb',
-        ]
+        'conditions': ['CPU_Family:powerpc'],
+        'vx7r2cert_srcs': ['hie/s-tracon__zfp-ppc.adb']
+    },
+    'light/ppc64': {
+        'conditions': ['CPU_Family:powerpc64'],
+        'vx7r2cert_srcs': ['hie/s-tracon__zfp-ppc64.adb']
     },
     'light/x86': {
         'conditions': ['CPU_Family:x86'],
-        'vx7r2cert_srcs': [
-            'hie/s-traceb__zfp.adb',
-            'hie/s-tracon__zfp.ads', 'hie/s-tracon__zfp-x86.adb']
+        'vx7r2cert_srcs': ['hie/s-tracon__zfp-x86.adb']
     },
     'light/x86_64': {
         'conditions': ['CPU_Family:x86_64'],
-        'vx7r2cert_srcs': [
-            'hie/s-traceb__zfp.adb',
-            'hie/s-tracon__zfp.ads', 'hie/s-tracon__zfp-x86_64.adb']
+        'vx7r2cert_srcs': ['hie/s-tracon__zfp-x86_64.adb']
     },
     'light-tasking': {
         'conditions': ['RTS_Profile:light-tasking'],
