@@ -204,6 +204,16 @@ class X86_64Vx7r2Cert(Vx7r2Cert64):
                 'light': 'system-vxworks7-x86-zfp.ads',
                 'light-tasking': 'system-vxworks7-x86-ravenscar-sfp.ads'}
 
+    def amend_rts(self, rts_profile, conf):
+        super(X86_64Vx7r2Cert, self).amend_rts(rts_profile, conf)
+        conf.build_flags['common_flags'] += [
+            # The traceback implementation in our restricted runtimes
+            # for this platform relies on all frames having a frame
+            # pointer, so make sure it is always there.
+            # See V217-008 for more info.
+            '-fno-omit-frame-pointer',
+        ]
+
 
 class AArch64Vx7r2Cert_RTP(AArch64Vx7r2Cert):
     def __init__(self):

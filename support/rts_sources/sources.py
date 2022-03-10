@@ -296,11 +296,15 @@ sources = {
     },
     'light/x86': {
         'conditions': ['CPU_Family:x86'],
-        'vx7r2cert_srcs': ['hie/s-traceb__vx653-sim.adb']
+        'vx7r2cert_srcs': [
+            'hie/s-traceb__zfp.adb',
+            'hie/s-tracon__zfp.ads', 'hie/s-tracon__zfp-x86.adb']
     },
     'light/x86_64': {
         'conditions': ['CPU_Family:x86_64'],
-        'vx7r2cert_srcs': ['hie/s-traceb__vx653-sim.adb']
+        'vx7r2cert_srcs': [
+            'hie/s-traceb__zfp.adb',
+            'hie/s-tracon__zfp.ads', 'hie/s-tracon__zfp-x86_64.adb']
     },
     'light-tasking': {
         'conditions': ['RTS_Profile:light-tasking'],
