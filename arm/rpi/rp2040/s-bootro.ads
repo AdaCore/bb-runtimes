@@ -39,15 +39,6 @@ is
    type Unsigned_16 is mod 2**16 with Size => 16;
    type Unsigned_8  is mod 2**8  with Size => 8;
 
-   procedure Initialize
-     with Export   => True,
-     External_Name => "__gnat_initialize_bootrom";
-   --  Lookup and cache the addresses of useful Bootrom functions.
-   --  (e.g. memset, memcpy).
-   --
-   --  This must be called before using any of the following operations:
-   --  memset, memset4, memcpy, memcpy4
-
    -----------------------
    -- Bootrom Functions --
    -----------------------
@@ -65,45 +56,5 @@ is
         Convention    => C,
         External_Name => "__gnat_rom_func_lookup";
    --  called from crt0.S
-
-   function ROM_Data_Lookup
-      (Code : Unsigned_32)
-      return System.Address;
-
-   --------------------------------------------
-   -- Fast Bulk Memory Fill / Copy Functions --
-   --------------------------------------------
-   --  2.8.3.1.2.
-
-   --  TODO
-
-   ---------------------------------
-   -- Fast Floating Point Library --
-   ---------------------------------
-   --  2.8.3.2.
-
-   function FAdd (A, B : Float) return Float
-     with Export    => True,
-     Convention     => C,
-     External_Name  => "__aeabi_fadd",
-     Linker_Section => ".time_critical.aeabi_farithmetic";
-
-   function FSub (A, B : Float) return Float
-     with Export    => True,
-     Convention     => C,
-     External_Name  => "__aeabi_fsub",
-     Linker_Section => ".time_critical.aeabi_farithmetic";
-
-   function FMul (A, B : Float) return Float
-     with Export    => True,
-     Convention     => C,
-     External_Name  => "__aeabi_fmul",
-     Linker_Section => ".time_critical.aeabi_farithmetic";
-
-   function FDiv (A, B : Float) return Float
-     with Export    => True,
-     Convention     => C,
-     External_Name  => "__aeabi_fdiv",
-     Linker_Section => ".time_critical.aeabi_farithmetic";
 
 end System.Bootrom;

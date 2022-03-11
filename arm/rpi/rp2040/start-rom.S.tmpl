@@ -124,7 +124,7 @@ _start_rom:
 	bne	0b
 
 1:
-	bl __gnat_initialize_bootrom
+	bl  __gnat_initialize_bootrom
 	bl	_ada_setup_clocks
 	bl	main
 	bl	_exit
@@ -138,6 +138,13 @@ jump_to_bootrom_wait_for_vector:
     bx r0
 
 	.text
+
+	.thumb_func
+.weak __gnat_initialize_bootrom
+.type __gnat_initialize_bootrom, %function
+__gnat_initialize_bootrom:
+    bx lr
+	.size __gnat_initialize_bootrom, . - __gnat_initialize_bootrom
 
 	.thumb_func
 .weak __gnat_poke_handler
