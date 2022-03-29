@@ -45,5 +45,28 @@ class Aarch64QNX(QNX):
     @property
     def system_ads(self):
         return {
-            'light': 'system-qnx-aarch64-light.ads',
-            'light-tasking': 'system-qnx-aarch64-light-tasking.ads'}
+            'light': 'system-qnx-arm-light.ads',
+            'light-tasking': 'system-qnx-arm-light-tasking.ads'}
+
+
+class ARMQNX(QNX):
+    def __init__(self):
+        super(ARMQNX, self).__init__()
+
+    @property
+    def is_64bit(self):
+        return False
+
+    @property
+    def target(self):
+        return 'arm-qnx'
+
+    @property
+    def name(self):
+        return 'qnx'
+
+    @property
+    def system_ads(self):
+        return {
+            'light': 'system-qnx-arm-light.ads',
+            'light-tasking': 'system-qnx-arm-light-tasking.ads'}

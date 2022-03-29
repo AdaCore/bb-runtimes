@@ -5,7 +5,7 @@
 --                               S Y S T E M                                --
 --                                                                          --
 --                                 S p e c                                  --
---                         (QNX/Aarch64 Version)                            --
+--                        (QNX-ARM/Aarch64 Version)                         --
 --                                                                          --
 --          Copyright (C) 1992-2022, Free Software Foundation, Inc.         --
 --                                                                          --
@@ -50,8 +50,11 @@ pragma Restrictions (No_Implicit_Dynamic_Code);
 pragma Restrictions (No_Finalization);
 --  Controlled types are not supported in this run time
 
-pragma Restrictions (No_Tasking);
---  Tasking is not supported in this run time
+pragma Restrictions (No_Use_Of_Pragma => Attach_Handler);
+pragma Restrictions (No_Specification_Of_Aspect => Attach_Handler);
+--  This pragma is not supported by the Ravenscar Cert profile
+
+pragma Profile (Ravenscar);
 
 package System is
    pragma Pure;
