@@ -30,6 +30,7 @@ class Aarch64QNX(QNX):
     def __init__(self):
         super(Aarch64QNX, self).__init__()
 
+    @property
     def is_64bit(self):
         return True
 
