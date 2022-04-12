@@ -354,6 +354,7 @@ sources = {
             'libgnat/a-nucoar.ads',
             'libgnat/a-nudira.ads', 'libgnat/a-nudira.adb',
             'libgnat/a-nuflra.ads', 'libgnat/a-nuflra.adb',
+            'libgnat/s-retsta.ads',
             'libgnat/a-sbecin.ads', 'libgnat/a-sbecin.adb',
             'libgnat/a-sbhcin.ads', 'libgnat/a-sbhcin.adb',
             'libgnat/a-sblcin.ads', 'libgnat/a-sblcin.adb',
