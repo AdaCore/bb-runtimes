@@ -174,11 +174,11 @@ class Target(TargetConfiguration, ArchSupport):
             if base_profile == 'none':
                 rts.rts_vars = self.rts_options.no_scenario()
             elif base_profile == 'light':
-                rts.rts_vars = self.rts_options.zfp_scenarios()
+                rts.rts_vars = self.rts_options.light_scenarios()
             elif base_profile == 'light-tasking':
-                rts.rts_vars = self.rts_options.sfp_scenarios()
+                rts.rts_vars = self.rts_options.light_tasking_scenarios()
             elif base_profile == 'embedded':
-                rts.rts_vars = self.rts_options.full_scenarios()
+                rts.rts_vars = self.rts_options.embedded_scenarios()
             else:
                 print('Error: unknown profile %s' % profile)
                 sys.exit(2)

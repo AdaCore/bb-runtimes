@@ -57,7 +57,7 @@ class RTSProfiles(object):
 
         return ret
 
-    def zfp_scenarios(self, profile='light'):
+    def light_scenarios(self, profile='light'):
         """Returns the list of directories contained in a base Light runtime"""
         ret = {}
         ret['RTS_Profile'] = profile
@@ -192,9 +192,9 @@ class RTSProfiles(object):
 
         return ret
 
-    def sfp_scenarios(self, profile='light-tasking'):
-        """Returns the list of directories contained in a base Light-Tasking runtime"""
-        ret = self.zfp_scenarios(profile)
+    def light_tasking_scenarios(self, profile='light-tasking'):
+        """Returns the list of directories contained in a base light-tasking runtime"""
+        ret = self.light_scenarios(profile)
         ret['RTS_Profile'] = 'light-tasking'
 
         if self.config.has_timer_64:
@@ -210,9 +210,9 @@ class RTSProfiles(object):
 
         return ret
 
-    def full_scenarios(self):
-        """Returns the list of directories contained in a base full runtime"""
-        ret = self.sfp_scenarios('embedded')
+    def embedded_scenarios(self):
+        """Returns the list of directories contained in a base embedded runtime"""
+        ret = self.light_tasking_scenarios('embedded')
 
         # override the RTS value
         ret['RTS_Profile'] = 'embedded'
