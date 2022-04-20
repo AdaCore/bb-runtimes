@@ -195,6 +195,8 @@ sources = {
             'libgnat/s-imguns.ads',
             'libgnat/s-maccod.ads',
             'hie/s-secsta__zfp.ads', 'hie/s-secsta__zfp.adb',
+            'libgnat/s-spark.ads',
+            'libgnat/s-spcuop.ads', 'libgnat/s-spcuop.adb',
             'libgnat/s-stache.ads', 'libgnat/s-stache.adb',
             'libgnat/s-stoele.ads', 'libgnat/s-stoele.adb',
             'libgnat/s-unstyp.ads',
