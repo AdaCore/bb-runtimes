@@ -68,6 +68,7 @@ class RTSProfiles(object):
         ret['Add_Exponent_LL_Int'] = "yes"
         ret['Add_Exponent_Modular'] = "yes"
         ret['Add_Float_Util'] = "yes"
+        ret['Add_Pack'] = "yes"
 
         ret['Add_Image_Enum'] = 'yes'
         ret['Add_Image_Int'] = "yes"
@@ -105,6 +106,8 @@ class RTSProfiles(object):
             ret['Add_Value_LLL_Int'] = "yes"
             ret['Add_Value_LLL_Decimal'] = "yes"
             ret['Add_Value_LLL_Fixed'] = "yes"
+
+            ret['Add_Pack64'] = "yes"
 
         if self.config.target is not None:
             cpu = self.config.target.split('-')[0]
@@ -218,14 +221,9 @@ class RTSProfiles(object):
         ret['RTS_Profile'] = 'embedded'
         ret['Add_Complex_Type_Support'] = 'yes'
         ret['Add_Image_Wide_Char'] = "yes"
-        ret['Add_Pack'] = "yes"
         ret['Add_Streams'] = "yes"
         ret['Add_Traceback'] = "yes"
         ret['Add_Value_Wide_Char'] = "yes"
-
-        # 64-bit specific packages
-        if self.config.is_64bit:
-            ret['Add_Pack64'] = "yes"
 
         # We don't support certifiable components with Embedded since we
         # our libgcc replacement does not provide exception support.
