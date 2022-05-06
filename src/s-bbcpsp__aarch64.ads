@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2004 The European Space Agency            --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -64,16 +64,16 @@ package System.BB.CPU_Specific is
       --  Floating point context: all registers need to be saved, as FPU
       --  context switch is asynchronous.
 
-      FPSR   : Interfaces.Unsigned_32;  --  Offset: 104
+      FPSR   : Interfaces.Unsigned_32;  --  Offset: 112
       --  Status register
 
-      FPCR   : Interfaces.Unsigned_32;  --  Offset: 108
+      FPCR   : Interfaces.Unsigned_32;  --  Offset: 116
       --  Control register
 
-      V      : SIMD_Registers_Type;     --  Offset: 112
+      V      : SIMD_Registers_Type;     --  Offset: 128
       --  General-purpose FPU registers
 
-      V_Init : Boolean;                 --  Offset: 624
+      V_Init : Boolean;                 --  Offset: 640
       --  Set to true when the structure contains an actually saved context
    end record;
 
