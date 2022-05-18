@@ -263,16 +263,17 @@ sources = {
             'hie/s-parame__zfp_huge.ads',
             'libgnat/s-thread.ads', 'libgnat/s-thread__ae653.adb']
     },
+    'light/arm': {
+        'conditions': ['CPU_Family:arm'],
+        'vx7r2cert_srcs': [
+            'hie/s-traceb__zfp.adb',
+            'hie/s-tracon__zfp.ads', 'hie/s-tracon__zfp-arm.adb']
+    },
     'light/aarch64': {
         'conditions': ['CPU_Family:aarch64'],
         'vx7r2cert_srcs': [
             'hie/s-traceb__zfp.adb',
-            'hie/s-tracon.ads', 'hie/s-tracon__zfp.adb'
-        ]
-    },
-    'light/arm': {
-        'conditions': ['CPU_Family:arm'],
-        'vx7r2cert_srcs': ['hie/s-traceb__dummy.adb']
+            'hie/s-tracon__zfp.ads', 'hie/s-tracon__zfp-aarch64.adb']
     },
     'light/ppc': {
         'conditions': ['CPU_Family:powerpc,powerpc64'],
