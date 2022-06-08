@@ -7,6 +7,11 @@ abstract project Target_Options is
 
   type Build_Type is ("Production", "Debug", "Assert", "Gnatcov");
   Build : Build_Type := external ("BUILD", "Production");
+  type Lib_Type is ("static", "dynamic");
+  Lib : Lib_Type := external ("LIBRARY_TYPE", "static");
+
+  --  GNAT version string
+  Version := "{gnat_version}";
 
   --  COMFLAGS here is common flags (used for C and Ada).
   COMFLAGS := ("{common_flags}");
@@ -34,6 +39,22 @@ abstract project Target_Options is
         --  For coverage
         COMFLAGS := COMFLAGS & ("-O0", "-g", "-fdump-scos",
                                 "-fpreserve-control-flow");
+  end case;
+  --  Linker flags, used for building shared libraries
+  LFLAGS := ();
+  LOPTIONS := ();
+  case Lib is
+     when "static" =>
+        null;
+     when "dynamic" =>
+        --  -nostdlib is required for building the
+        --  shared library. Otherwise it tries to
+        --  link against libgnat (itself).
+        --  Since -nostdlib also removes libgcc
+        --  from the linked libraries we have to
+        --  add -lm again.
+        LFLAGS := LFLAGS & ("-nostdlib");
+        LOPTIONS := LOPTIONS & ("-lm");
   end case;
 
   --  Concatenate with common flags

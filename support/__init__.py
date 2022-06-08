@@ -1,11 +1,32 @@
 import sys
 import os
+import re
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 REPO_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 _SRC_SEARCH_PATH = [REPO_DIR, ]
+
+
+def get_gnat_version(gnat_dir, numeric_only=False):
+    try:
+        with open(os.path.join(os.path.abspath(gnat_dir), "gnatvsn.ads"), 'r') as fd:
+            gnatvsn_content = fd.read()
+    except Exception:
+        print('cannot find gnatvsn.ads')
+        sys.exit(1)
+    m = re.search(r'Gnat_Static_Version_String : ' +
+                  r'constant String := "([^\(\)]+)\(.*\)?";',
+                  gnatvsn_content)
+    if m:
+        version = m.group(1).strip()
+        if numeric_only:
+            return re.sub('[^0-9.]', '', version)
+        return version
+
+    print('cannot find GNAT version in gnatvsn.ads')
+    sys.exit(1)
 
 
 def add_source_search_path(path):
@@ -53,6 +74,8 @@ def is_string(arg):
     This checks the type of arg against basestring on python2 and against
     str on python3"""
     if sys.version_info[0] < 3:
-        return isinstance(arg, basestring)
+        # Ignore F821 (undefined name) as basestring is
+        # only defined in python2
+        return isinstance(arg, basestring)  # noqa: F821
     else:
         return isinstance(arg, str)

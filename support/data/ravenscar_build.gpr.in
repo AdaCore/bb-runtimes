@@ -9,12 +9,18 @@ project Ravenscar_Build is
 
    for Library_Auto_Init use "False";
    for Library_Name use "gnarl";
-   for Library_Kind use "static";
+   for Library_Kind use Runtime_Build'Library_Kind;
+   for Library_Options use Runtime_Build'Library_Options;
+   for Library_Version use "libgnarl.so." & Target_Options.Version;
 
    for Library_Dir use "adalib";
    for Object_Dir use "obj";
 
    for Source_Dirs use ("{source_dirs}");
+
+   package Builder is
+      for Default_Switches ("Ada") use Target_Options.LFLAGS;
+   end Builder;
 
    package Compiler is
       for Default_Switches ("C") use Target_Options.GNARL_CFLAGS;

@@ -7,7 +7,9 @@ project Runtime_Build is
 
   for Library_Auto_Init use "False";
   for Library_Name use "gnat";
-  for Library_Kind use "static";
+  for Library_Kind use Target_Options.Lib;
+  for Library_Options use Target_Options.LOPTIONS;
+  for Library_Version use "libgnat.so." & Target_Options.Version;
 
   for Library_Dir use "adalib";
   for Object_Dir use "obj";
@@ -17,6 +19,10 @@ project Runtime_Build is
   package Naming is
      for Spec_Suffix ("Asm_CPP") use ".inc";
   end Naming;
+
+  package Builder is
+     for Default_Switches ("Ada") use Target_Options.LFLAGS;
+  end Builder;
 
   package Compiler is
      for Default_Switches ("C") use Target_Options.ALL_CFLAGS;

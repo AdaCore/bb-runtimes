@@ -1,6 +1,6 @@
-from support import readfile, getdatafilepath
+from support import readfile, getdatafilepath, get_gnat_version
 from support.bsp_sources.target import Target
-from support.files_holder import _copy
+from support.files_holder import _copy, FilesHolder
 
 import json
 import os
@@ -268,6 +268,7 @@ class Installer(object):
                       'asm_flags', 'c_flags']:
                 build_flags[f] = '",\n        "'.join(rts_obj.build_flags[f])
             cnt = readfile(getdatafilepath('target_options.gpr'))
+            build_flags["gnat_version"] = get_gnat_version(FilesHolder.gnatdir, True)
             # Format
             cnt = cnt.format(**build_flags)
             # Write
