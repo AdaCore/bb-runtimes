@@ -6,7 +6,7 @@
 # Python version starting from 2.6 (yes, it's very old but that's the system
 # python on oldest host).
 
-from support import is_string
+from support import is_string, get_gnat_version
 from support.files_holder import FilesHolder
 
 import os
@@ -272,7 +272,7 @@ class SourceTree(FilesHolder):
             self.__install_dir(d, dest_sources)
 
     def dump_json(self, path, dest_sources):
-        cnt = {}
+        cnt = {"version": get_gnat_version(FilesHolder.gnatdir, True)}
         for lib in ('gnat', 'gnarl'):
             if len(self.rules[lib]) == 0:
                 continue

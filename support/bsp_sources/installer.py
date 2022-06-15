@@ -1,6 +1,6 @@
-from support import readfile, getdatafilepath, get_gnat_version
+from support import readfile, getdatafilepath
 from support.bsp_sources.target import Target
-from support.files_holder import _copy, FilesHolder
+from support.files_holder import _copy
 
 import json
 import os
@@ -45,6 +45,10 @@ class SharedRTSSources(object):
     @property
     def install_dir(self):
         return self._pwd
+
+    @property
+    def version(self):
+        return self.cnt["version"]
 
     def scenarios(self, lib):
         assert lib in self.cnt, \
@@ -268,7 +272,7 @@ class Installer(object):
                       'asm_flags', 'c_flags']:
                 build_flags[f] = '",\n        "'.join(rts_obj.build_flags[f])
             cnt = readfile(getdatafilepath('target_options.gpr'))
-            build_flags["gnat_version"] = get_gnat_version(FilesHolder.gnatdir, True)
+            build_flags["gnat_version"] = runtime_sources.version
             # Format
             cnt = cnt.format(**build_flags)
             # Write
