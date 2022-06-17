@@ -25,15 +25,6 @@ class QNX(Target):
     def use_certifiable_packages(self):
         return True
 
-    def amend_rts(self, rts_profile, cfg):
-        cfg.build_flags['common_flags'] += [
-            # The traceback implementation in our restricted runtimes
-            # for this platform relies on all frames having a frame
-            # pointer, so make sure it is always there.
-            # See V217-008 for more info.
-            '-fno-omit-frame-pointer',
-        ]
-
 
 class Aarch64QNX(QNX):
     def __init__(self):
@@ -56,6 +47,15 @@ class Aarch64QNX(QNX):
         return {
             'light': 'system-qnx-arm-light.ads',
             'light-tasking': 'system-qnx-arm-light-tasking.ads'}
+
+    def amend_rts(self, rts_profile, cfg):
+        cfg.build_flags['common_flags'] += [
+            # The traceback implementation in our restricted runtimes
+            # for this platform relies on all frames having a frame
+            # pointer, so make sure it is always there.
+            # See V217-008 for more info.
+            '-fno-omit-frame-pointer',
+        ]
 
 
 class ARMQNX(QNX):

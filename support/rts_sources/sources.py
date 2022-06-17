@@ -265,8 +265,7 @@ sources = {
         'qnx_srcs': [
             'hie/a-elchha__traceback.adb',
             'libgnat/s-traent.ads', 'libgnat/s-traent.adb',
-            'hie/s-traceb__cert.ads', 'hie/s-traceb__zfp.adb',
-            'hie/s-tracon__zfp.ads'
+            'hie/s-traceb__cert.ads'
         ],
         'vx7r2cert_srcs': [
             'hie/a-elchha__traceback.adb',
@@ -286,12 +285,15 @@ sources = {
     },
     'light/arm': {
         'conditions': ['CPU_Family:arm'],
-        'qnx_srcs': ['hie/s-tracon__zfp-arm.adb'],
+        'qnx_srcs': ['hie/s-traceb__dummy.adb'],
         'vx7r2cert_srcs': ['hie/s-tracon__zfp-arm.adb']
     },
     'light/aarch64': {
         'conditions': ['CPU_Family:aarch64'],
-        'qnx_srcs': ['hie/s-tracon__zfp-aarch64.adb'],
+        'qnx_srcs': [
+            'hie/s-traceb__zfp.adb',
+            'hie/s-tracon__zfp.ads', 'hie/s-tracon__zfp-aarch64.adb'
+        ],
         'vx7r2cert_srcs': ['hie/s-tracon__zfp-aarch64.adb']
     },
     'light/ppc': {
