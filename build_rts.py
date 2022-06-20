@@ -284,6 +284,10 @@ def main():
     parser.add_argument(
         '--build-flags', help="Flags passed to gprbuild")
     parser.add_argument(
+        '--shared', action="store_true",
+        help='Additionally build shared runtime '
+             '(only available on platforms that support shared libraries)')
+    parser.add_argument(
         'target', nargs='+',
         help='List of target boards to generate runtimes for')
     args = parser.parse_args()
@@ -342,6 +346,9 @@ def main():
             if args.build_flags is not None:
                 cmd += args.build_flags.split()
             subprocess.check_call(cmd)
+            if args.shared:
+                cmd.extend(["-f", "-XLIBRARY_TYPE=dynamic"])
+                subprocess.check_call(cmd)
             # Post-process: remove build artifacts from obj directory
             cleanup_ext = ('.o', '.ali', '.stdout', '.stderr', '.d', '.lexch')
             obj_dir = os.path.join(os.path.dirname(prj), 'obj')
