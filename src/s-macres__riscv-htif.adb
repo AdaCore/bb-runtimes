@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---            Copyright (C) 2011-2017, Free Software Foundation, Inc.       --
+--            Copyright (C) 2011-2022, Free Software Foundation, Inc.       --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -60,12 +60,7 @@ package body System.Machine_Reset is
       --  The parameter is just for ISO-C compatibility
 
    begin
-
       RISCV_Host_Target_Interface.Power_Off;
-
-      loop
-         null;
-      end loop;
    end Os_Exit;
 
    ----------
