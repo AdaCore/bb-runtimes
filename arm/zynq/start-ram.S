@@ -189,7 +189,7 @@ L_coreInit:
 	mcr	p15,#0,r1,c1,c0,#1
 
 	/* Initialize MMU.  */
-	adrl	r0, __mmu_l0
+	ldr	r0,=__mmu_l0
 	orr	r0,r0,#0x5b		@ RGN=0b11, S=1, IRGN=0b11
 	mcr	p15,#0,r0,c2,c0,#0	@ set TTBR0
 	mov	r1,#0
