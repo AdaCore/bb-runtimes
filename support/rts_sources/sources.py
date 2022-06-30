@@ -284,12 +284,12 @@ sources = {
             'hie/s-parame__zfp_huge.ads']
     },
     'light/arm': {
-        'conditions': ['CPU_Family:arm'],
+        'conditions': ['CPU_Family:arm', 'RTS_Profile:light,light-tasking'],
         'qnx_srcs': ['hie/s-traceb__dummy.adb'],
         'vx7r2cert_srcs': ['hie/s-tracon__zfp-arm.adb']
     },
     'light/aarch64': {
-        'conditions': ['CPU_Family:aarch64'],
+        'conditions': ['CPU_Family:aarch64', "RTS_Profile:light,light-tasking"],
         'qnx_srcs': [
             'hie/s-traceb__zfp.adb',
             'hie/s-tracon__zfp.ads', 'hie/s-tracon__zfp-aarch64.adb'
@@ -297,19 +297,19 @@ sources = {
         'vx7r2cert_srcs': ['hie/s-tracon__zfp-aarch64.adb']
     },
     'light/ppc': {
-        'conditions': ['CPU_Family:powerpc'],
+        'conditions': ['CPU_Family:powerpc', "RTS_Profile:light,light-tasking"],
         'vx7r2cert_srcs': ['hie/s-tracon__zfp-ppc.adb']
     },
     'light/ppc64': {
-        'conditions': ['CPU_Family:powerpc64'],
+        'conditions': ['CPU_Family:powerpc64', "RTS_Profile:light,light-tasking"],
         'vx7r2cert_srcs': ['hie/s-tracon__zfp-ppc64.adb']
     },
     'light/x86': {
-        'conditions': ['CPU_Family:x86'],
+        'conditions': ['CPU_Family:x86', "RTS_Profile:light,light-tasking"],
         'vx7r2cert_srcs': ['hie/s-tracon__zfp-x86.adb']
     },
     'light/x86_64': {
-        'conditions': ['CPU_Family:x86_64'],
+        'conditions': ['CPU_Family:x86_64', "RTS_Profile:light,light-tasking"],
         'vx7r2cert_srcs': ['hie/s-tracon__zfp-x86_64.adb']
     },
     'light-tasking': {
