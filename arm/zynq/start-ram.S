@@ -136,7 +136,7 @@ L_coreInit:
 	fmxr	fpexc, r0
 
 	/* Set VBAR (Vector Base Address Register).  */
-	adrl	r0, __traps
+	ldr     r0,=__traps
 	mcr	p15, #0, r0, c12, c0, #0
 
 	/* Invalidate TLBs  */
@@ -198,7 +198,7 @@ L_coreInit:
 	/* Initialize MMU.  */
 	mov	r1,#0
 	mcr	p15,#0,r1,c2,c0,#2	@ set TTBCR to disable LPAE
-	adrl	r0, __mmu_l0
+	ldr	r0,=__mmu_l0
 	orr	r0,r0,#0x5b		@ RGN=0b11, S=1, IRGN=0b11
 	mcr	p15,#0,r0,c2,c0,#0	@ set TTBR0
         dsb
