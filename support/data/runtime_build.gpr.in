@@ -61,7 +61,7 @@ project Runtime_Build is
   package Prove is
 
     --  By default, use all available cores and all default provers
-    for Proof_Switches ("Ada") use ("-j0", "--level=2");
+    for Proof_Switches ("Ada") use ("-j0", "--level=2", "--no-axiom-guard");
 
     --  Specialize the command-line for more complex units (-j0 is implied)
     for Proof_Switches ("a-strfix.adb") use ("--level=4");
@@ -73,12 +73,12 @@ project Runtime_Build is
     for Proof_Switches ("s-expmod.adb") use ("--level=3");
     for Proof_Switches ("s-imgboo.adb") use ("--level=3");
     for Proof_Switches ("s-valboo.adb") use ("--level=3");
-    for Proof_Switches ("s-valint.ads") use ("--level=4", "--prover=all");
-    for Proof_Switches ("s-vallli.ads") use ("--level=4", "--prover=all");
-    for Proof_Switches ("s-valllli.ads") use ("--level=4", "--prover=all");
-    for Proof_Switches ("s-valuns.ads") use ("--level=4");
-    for Proof_Switches ("s-valllu.ads") use ("--level=4");
-    for Proof_Switches ("s-vallllu.ads") use ("--level=4", "--timeout=120");
+    for Proof_Switches ("s-valint.ads") use ("--level=2");
+    for Proof_Switches ("s-vallli.ads") use ("--level=2");
+    for Proof_Switches ("s-valllli.ads") use ("--level=3");
+    for Proof_Switches ("s-valuns.ads") use ("--level=3");
+    for Proof_Switches ("s-valllu.ads") use ("--level=3");
+    for Proof_Switches ("s-vallllu.ads") use ("--level=3");
     for Proof_Switches ("s-valuti.adb") use ("--level=3");
 
     --  Bump level for proof of Lemma_Div_Twice which should ideally be
@@ -90,12 +90,12 @@ project Runtime_Build is
     for Proof_Switches ("s-widuns.ads") use ("--level=4");
     for Proof_Switches ("s-widllu.ads") use ("--level=4");
     for Proof_Switches ("s-widlllu.ads") use ("--level=4");
-    for Proof_Switches ("s-imguns.ads") use ("--level=4", "--prover=all");
-    for Proof_Switches ("s-imgllu.ads") use ("--level=4", "--prover=all");
-    for Proof_Switches ("s-imglllu.ads") use ("--level=4", "--prover=all", "--timeout=120");
-    for Proof_Switches ("s-imgint.ads") use ("--level=4", "--prover=all");
-    for Proof_Switches ("s-imglli.ads") use ("--level=4", "--prover=all");
-    for Proof_Switches ("s-imgllli.ads") use ("--level=4", "--prover=all");
+    for Proof_Switches ("s-imguns.ads") use ("--level=2");
+    for Proof_Switches ("s-imgllu.ads") use ("--level=2");
+    for Proof_Switches ("s-imglllu.ads") use ("--level=2");
+    for Proof_Switches ("s-imgint.ads") use ("--level=2");
+    for Proof_Switches ("s-imglli.ads") use ("--level=2");
+    for Proof_Switches ("s-imgllli.ads") use ("--level=3");
   end Prove;
 
 end Runtime_Build;
