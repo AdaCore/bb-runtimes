@@ -86,7 +86,7 @@ class ZynqMP(Aarch64Target):
 
     @property
     def loaders(self):
-        return ('RAM', 'QSPI')
+        return ('RAM', 'QSPI', 'HELIX')
 
     @property
     def system_ads(self):
@@ -108,6 +108,7 @@ class ZynqMP(Aarch64Target):
         self.add_linker_script('aarch64/zynqmp/common.ld')
         self.add_linker_script('aarch64/zynqmp/ram.ld', loader='RAM')
         self.add_linker_script('aarch64/zynqmp/qspi.ld', loader='QSPI')
+        self.add_linker_script('aarch64/zynqmp/helix.ld', loader='HELIX')
         self.add_gnat_sources(
             'aarch64/zynqmp/start.S',
             'aarch64/zynqmp/trap_vector.S',
