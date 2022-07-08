@@ -272,7 +272,7 @@ class SourceTree(FilesHolder):
             self.__install_dir(d, dest_sources)
 
     def dump_json(self, path, dest_sources):
-        cnt = {"version": get_gnat_version(FilesHolder.gnatdir, True)}
+        cnt = {"version": get_gnat_version(FilesHolder.gnatdir)}
         for lib in ('gnat', 'gnarl'):
             if len(self.rules[lib]) == 0:
                 continue

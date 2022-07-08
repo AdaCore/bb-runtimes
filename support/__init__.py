@@ -9,7 +9,7 @@ REPO_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 _SRC_SEARCH_PATH = [REPO_DIR, ]
 
 
-def get_gnat_version(gnat_dir, numeric_only=False):
+def get_gnat_version(gnat_dir):
     try:
         with open(os.path.join(os.path.abspath(gnat_dir), "gnatvsn.ads"), 'r') as fd:
             gnatvsn_content = fd.read()
@@ -17,12 +17,13 @@ def get_gnat_version(gnat_dir, numeric_only=False):
         print('cannot find gnatvsn.ads')
         sys.exit(1)
     m = re.search(r'Gnat_Static_Version_String : ' +
-                  r'constant String := "([^\(\)]+)\(.*\)?";',
+                  r'constant String := "([^\(\)]+)(\(([0-9]+)\))?";',
                   gnatvsn_content)
     if m:
-        version = m.group(1).strip()
-        if numeric_only:
-            return re.sub('[^0-9.]', '', version)
+        version = m.group(1).strip().split(".")[0]
+        date = m.group(3)
+        if date:
+            return f"{version}.{date}"
         return version
 
     print('cannot find GNAT version in gnatvsn.ads')
