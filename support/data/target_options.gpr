@@ -54,7 +54,7 @@ abstract project Target_Options is
         --  from the linked libraries we have to
         --  add -lm again.
         LFLAGS := LFLAGS & ("-nostdlib");
-        LOPTIONS := LOPTIONS & ("-lm");
+        LOPTIONS := LOPTIONS & ("-lm", "-lgcc");
   end case;
 
   --  Concatenate with common flags
