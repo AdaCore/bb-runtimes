@@ -830,6 +830,8 @@ sources = {
     'value/int': {
         'conditions': ['Add_Value_Int:yes'],
         'srcs': [
+            'libgnat/s-vaispe.ads', 'libgnat/s-vaispe.adb',
+            'libgnat/s-vauspe.ads', 'libgnat/s-vauspe.adb',
             'libgnat/s-valint.ads',
             'libgnat/s-valueu.ads', 'libgnat/s-valueu.adb',
             'libgnat/s-valuei.ads', 'libgnat/s-valuei.adb',
