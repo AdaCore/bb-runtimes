@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2006 The European Space Agency            --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -385,18 +385,18 @@ package body System.BB.Board_Support is
          function To_U64 is new Ada.Unchecked_Conversion
            (System.Address, Unsigned_64);
 
-         RST_FPD_APU : Unsigned_16
+         RST_FPD_APU : Unsigned_32
            with Volatile, Import, Address => 16#FD1A0104#;
 
          Addr   : constant Unsigned_64 := To_U64 (Start_Address);
          Addr_L : constant Unsigned_32 := Unsigned_32 (Addr and 16#FFFF_FFFF#);
          Addr_H : constant Unsigned_32 := Unsigned_32 (Shift_Right (Addr, 32));
 
-         Pwron_Rst_Mask : constant Unsigned_16 :=
+         Pwron_Rst_Mask : constant Unsigned_32 :=
                             Shift_Left (1, Natural (CPU_Id) + 9);
-         Rst_Mask       : constant Unsigned_16 :=
+         Rst_Mask       : constant Unsigned_32 :=
                             Shift_Left (1, Natural (CPU_Id) - 1);
-         Rst_Value      : Unsigned_16;
+         Rst_Value      : Unsigned_32;
 
       begin
          --  Make sure the target CPU is powered
