@@ -176,8 +176,10 @@ class SourceTree(FilesHolder):
         if profile != 'embedded':
             if profile == 'light':
                 self.scenarios['RTS_Profile'] = ['light']
-            else:
+            elif profile == 'light-tasking':
                 self.scenarios['RTS_Profile'] = ['light', 'light-tasking']
+            elif profile == 'cert':
+                self.scenarios['RTS_Profile'] = ['light', 'cert']
 
         for key, values in rts_sources.items():
             # filter out folders that are not used by the selected profiles

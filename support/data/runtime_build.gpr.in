@@ -44,6 +44,10 @@ project Runtime_Build is
        & ("-g");
      for Switches ("raise-gcc.c") use Target_Options.ALL_CFLAGS
        & ("-fexceptions");
+     for Switches ("raise-gcc.c") use Target_Options.ALL_CFLAGS
+       & ("-fexceptions");
+     for Switches ("unwind-sjlj-cert.c") use Target_Options.ALL_CFLAGS
+       & ("-fexceptions", "-Wno-error=unused-but-set-variable");
 
      --  Don't inline System.Machine_Reset otherwise we can loose our common
      --  exit system.

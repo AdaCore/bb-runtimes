@@ -41,10 +41,10 @@ def main():
         '--output-sources',
         help='installation location for the runtime sources tree')
     parser.add_argument(
-        '--rts-profile', choices=['light', 'light-tasking', 'embedded'],
+        '--rts-profile', choices=['light', 'light-tasking', 'embedded', 'cert'],
         required=True,  help='supported profiles')
     parser.add_argument(
-        '--source-profile', choices=['bb', 'pikeos', 'vx7r2cert', 'qnx'],
+        '--source-profile', choices=['bb', 'deos', 'pikeos', 'vx7r2cert', 'qnx'],
         default='bb', help='platform specific source selections')
 
     args = parser.parse_args()

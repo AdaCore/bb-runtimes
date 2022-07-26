@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2018, AdaCore
+# Copyright (C) 2016-2022, AdaCore
 #
 # Generates the scenario variables values to bind the rts sources with the
 # BSP to actually create a runtime project.
@@ -234,5 +234,16 @@ class RTSProfiles(object):
             # Embedded requires C memory operations, either via newlib
             # or via our own implementation in Ada
             ret['Add_C_Integration'] = "newlib"
+
+        return ret
+
+    def cert_scenarios(self, profile='cert'):
+        """Returns the list of directories contained in the cert runtime"""
+        ret = self.light_scenarios(profile)
+        ret['RTS_Profile'] = 'cert'
+
+        ret['Add_Pack'] = "no"
+        if self.config.is_64bit:
+            ret['Add_Pack64'] = "no"
 
         return ret

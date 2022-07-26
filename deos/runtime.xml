@@ -1,0 +1,45 @@
+<?xml version="1.0" ?>
+
+<gprconfig>
+    <configuration>
+        <config><![CDATA[
+
+   Desk_Home := external ("DESKHOME");
+
+   for Object_Dir use external("GPR_OBJ_DIR", ".");
+
+   package Compiler is
+     Common_Required_Switches := ("-fsjlj");
+
+     Asm_Required_Switches := ();
+
+     for Leading_Required_Switches ("Ada") use
+        Compiler'Leading_Required_Switches ("Ada") &
+        Common_Required_Switches;
+
+     for Leading_Required_Switches ("C") use
+        Compiler'Leading_Required_Switches ("C") &
+        Common_Required_Switches;
+
+     for Leading_Required_Switches ("Asm") use
+        Compiler'Leading_Required_Switches ("Asm") &
+        Common_Required_Switches;
+
+     for Leading_Required_Switches ("Asm2") use
+        Compiler'Leading_Required_Switches ("Asm2") &
+        Common_Required_Switches;
+
+     for Leading_Required_Switches ("Asm_Cpp") use
+        Compiler'Leading_Required_Switches ("Asm_Cpp") &
+        Common_Required_Switches &
+        Asm_Required_Switches;
+   end Compiler;
+
+   package Linker is
+      for Driver use external("LINK_DEOS", "");
+      for Required_Switches use ("-lgcc-so");
+   end Linker;
+]]>
+        </config>
+    </configuration>
+</gprconfig>

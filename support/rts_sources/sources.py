@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2018, AdaCore
+# Copyright (C) 2016-2022, AdaCore
 #
 # Python script to gather files for the bareboard runtime.
 # Don't use any fancy features.  Ideally, this script should work with any
@@ -8,7 +8,7 @@
 
 
 #
-# Copyright (C) 2016-2018, AdaCore
+# Copyright (C) 2016-2022, AdaCore
 #
 # This file holds the source list and scenario variables of the runtimes
 
@@ -25,7 +25,7 @@
 
 all_scenarios = {
     # Main profile
-    'RTS_Profile': ['light', 'light-tasking', 'embedded'],
+    'RTS_Profile': ['light', 'light-tasking', 'embedded', 'cert'],
     # Runtime RTP support
     'Is_RTP': ['no', 'yes'],
     # CPU architecture
@@ -210,28 +210,36 @@ sources = {
             'libgnat/s-widthu.ads', 'libgnat/s-widthu.adb',
             'libgnat/text_io.ads',
             'libgnat/unchconv.ads',
-            'libgnat/unchdeal.ads',
-            'hie/s-macres.ads'],
+            'libgnat/unchdeal.ads'],
         'bb_srcs': [
             'hie/a-textio.ads',
             'hie/g-io__zfp.ads', 'hie/g-io__zfp.adb',
             'hie/g-io-put__bb.adb',
             'hie/s-bb.ads',
+            'hie/s-macres.ads',
             'hie/s-textio.ads'],
+        'deos_srcs': [
+            'hie/g-io__c.ads',
+            'hie/a-textio__c.ads', 'hie/a-textio__deos.adb',
+            'hie/s-macres.ads',
+             ],
         'pikeos_srcs': [
             'hie/a-textio.ads',
             'hie/g-io__zfp.ads', 'hie/g-io__zfp.adb',
             'hie/g-io-put__bb.adb',
+            'hie/s-macres.ads',
             'hie/s-parame__large.ads', 'hie/s-parame.adb',
             'hie/s-textio.ads'],
         'vx7r2cert_srcs': [
             'libgnat/g-io.ads', 'hie/g-io__vxworks7cert.adb',
             'hie/s-textio__vxworks7cert.ads', 'hie/s-textio__vxworks7cert.adb',
             'hie/a-textio.ads', 'hie/a-textio__vxworks7cert.adb',
+            'hie/s-macres.ads',
             'vx_stack_info.c'],
         'qnx_srcs': [
             'libgnat/g-io.ads', 'hie/g-io__qnx.adb',
             'hie/a-textio.ads', 'hie/a-textio__qnx.adb',
+            'hie/s-macres.ads',
             'hie/s-textio__qnx.ads', 'hie/s-textio__qnx.adb']
     },
 
@@ -252,11 +260,9 @@ sources = {
     },
 
     'light': {
-        'conditions': ['RTS_Profile:light,light-tasking'],
+        'conditions': ['RTS_Profile:light,light-tasking,cert'],
         'srcs': [
-            'hie/a-elchha__zfp.ads',
             'hie/s-sssita.ads', 'hie/s-sssita.adb',
-            'hie/a-except__zfp.ads', 'hie/a-except__zfp.adb',
             'hie/a-tags__hie.ads', 'hie/a-tags__hie.adb',
             'hie/s-assert__xi.adb',
             'hie/s-memory__light.ads'],
@@ -274,8 +280,17 @@ sources = {
             'hie/s-tracon__zfp.ads'
         ]
     },
+    'light/exceptions': {
+        'conditions': ['RTS_Profile:!embedded,!cert'],
+        'srcs': [
+            'hie/a-elchha__zfp.ads',
+            'hie/a-except__zfp.ads', 'hie/a-except__zfp.adb'],
+    },
     'light/non-tasking': {
-        'conditions': ['RTS_Profile:light'],
+        'conditions': ['RTS_Profile:light,cert'],
+        'deos_srcs': [
+            # TODO: Deos specific package
+            'hie/s-thread.ads', 'hie/s-thread__vxworks7cert.adb'],
         'pikeos_srcs': ['hie/a-textio__pikeos-light.adb'],
         'vx7r2cert_srcs': [
             'hie/s-parame__zfp_huge.ads',
@@ -926,6 +941,16 @@ sources = {
             'hie/s-libm__ada.ads', 'hie/s-libm__ada.adb',
             'hie/s-libpre__ada.ads'
         ],
+        'deos_srcs': [
+            'hie/a-ngelfu__cert.ads', 'hie/a-ngelfu__cert.adb',
+            'hie/a-nlelfu__cert.ads',
+            'hie/a-nuelfu__cert.ads',
+            'hie/s-gcmain__cert.ads', 'hie/s-gcmain__cert.adb',
+            'hie/a-nllefu__cert.ads',
+            'hie/a-nuaufl__light.ads',
+            'hie/a-nalofl__light.ads',
+            'hie/a-nallfl__light.ads',
+            'libgnat/a-naliop.ads'],
         'pikeos_srcs': [
             'hie/a-ngelfu__ada.ads', 'hie/a-ngelfu__ada.adb',
             'hie/a-nlelfu__ada.ads',
@@ -1577,4 +1602,47 @@ sources = {
         'conditions': ['RTS_Profile:light', 'Memory_Profile:huge'],
         'bb_srcs': ['hie/s-parame__zfp_huge.ads']
     },
+
+    # Cert
+    'cert': {
+        'conditions': ['RTS_Profile:cert'],
+        'srcs': [
+            'hie/a-calclo__deos.adb',
+            'hie/a-calend.ads', 'hie/a-calend.adb',
+            'libgnat/a-elchha.ads', 'hie/a-elchha__deos.adb',
+            'hie/a-except__cert.ads', 'hie/a-except__cert.adb',
+            'libgnat/a-exctra.ads', 'libgnat/a-exctra.adb',
+            'hie/a-textio__c.ads',
+            'libgnat/calendar.ads',
+            'hie/g-io__c.ads',
+            'hie/s-except__cert.ads', 'hie/a-excach__cert.adb',
+            'hie/s-init.ads',
+            'hie/s-parame__cert.adb',
+            'hie/s-soflin__cert.ads', 'hie/s-soflin__cert.adb',
+            'hie/s-stalib__raven.ads', 'hie/s-stalib__raven.adb',
+            'libgnat/s-traent.ads', 'libgnat/s-traent.adb',
+            'hie/s-traceb__cert.ads',
+            "libgcc/unwind-generic.h", "libgcc/unwind.inc",
+            'libgcc/unwind-pe.h',
+            'raise-gcc.c',
+            'raise.h',
+            'runtime.h',
+            'unwind-sjlj-cert.c',
+             ],
+        'deos_srcs': [
+            'hie/a-textio__deos.adb',
+            'hie/s-init__deos.adb',
+            'hie/s-parame__deos.ads',
+            'hie/s-traceb__zfp.adb',
+            'hie/s-tracon__zfp.ads',
+        ],
+    },
+    'cert/arm': {
+        'conditions': ['CPU_Family:arm', 'RTS_Profile:cert'],
+        'srcs': [
+            'libgnat/s-excmac__arm.adb', 'libgnat/s-excmac__arm.ads',
+            'hie/s-tracon__zfp-arm.adb',
+             ],
+    },
+
 }

@@ -27,6 +27,9 @@ from arm.cortexar import TMS570, Rpi2, Rpi2Mc, Zynq7000, ZynqmpR5
 # Aarch64
 from aarch64 import Rpi3, Rpi3Mc, ZynqMP
 
+# Deos
+from deos import ArmDeos
+
 # leon
 from sparc import Leon2, Leon3, Leon4
 
@@ -152,6 +155,8 @@ def build_configs(target):
         t = CortexM33F()
     elif target == 'cortex-m33df':
         t = CortexM33DF()
+    elif target == 'arm-deos':
+        t = ArmDeos()
     # SPARC/Leon elf
     elif target == 'leon2' or target == 'leon':
         t = Leon2()

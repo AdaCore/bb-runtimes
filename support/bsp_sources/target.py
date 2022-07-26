@@ -179,6 +179,8 @@ class Target(TargetConfiguration, ArchSupport):
                 rts.rts_vars = self.rts_options.light_tasking_scenarios()
             elif base_profile == 'embedded':
                 rts.rts_vars = self.rts_options.embedded_scenarios()
+            elif base_profile == 'cert':
+                rts.rts_vars = self.rts_options.cert_scenarios()
             else:
                 print('Error: unknown profile %s' % profile)
                 sys.exit(2)
