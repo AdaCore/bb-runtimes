@@ -290,11 +290,11 @@ sources = {
         'conditions': ['RTS_Profile:light,cert'],
         'deos_srcs': [
             # TODO: Deos specific package
-            'hie/s-thread.ads', 'hie/s-thread__vxworks7cert.adb'],
+            'hie/s-thread__cert.ads', 'hie/s-thread__cert.adb'],
         'pikeos_srcs': ['hie/a-textio__pikeos-light.adb'],
         'vx7r2cert_srcs': [
             'hie/s-parame__zfp_huge.ads',
-            'hie/s-thread.ads', 'hie/s-thread__vxworks7cert.adb'],
+            'hie/s-thread__light.ads', 'hie/s-thread__light.adb'],
         'qnx_srcs': [
             'hie/s-parame__zfp_huge.ads']
     },
