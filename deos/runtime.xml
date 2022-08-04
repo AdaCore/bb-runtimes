@@ -8,6 +8,14 @@
 
    for Object_Dir use external("GPR_OBJ_DIR", ".");
 
+   package Builder is
+      for Executable_Suffix use ".exe";
+   end Builder;
+
+   package Binder is
+      for Bindfile_Option_Substitution ("-static") use ("");
+   end Binder;
+
    package Compiler is
      Common_Required_Switches :=
        ("-fsjlj",
@@ -47,6 +55,7 @@
 
    package Linker is
       for Driver use external("LINK_DEOS", "");
+      for Leading_Switches ("ada") use (external ("GCC_DIR", ""), external ("TARGET_ARCH", ""), external ("IMAGE_TYPE", ""));
    end Linker;
 ]]>
         </config>
