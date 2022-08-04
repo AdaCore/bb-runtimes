@@ -143,11 +143,11 @@ __sync_interrupt:
         /* FPU access trap: save FPU context and enable FPU registers access */
         b       __gnat_fpen_trap
 1:
-        stp     x20, x21, [sp, #-0x10]!
-        stp     x22, x23, [sp, #-0x10]!
-        stp     x24, x25, [sp, #-0x10]!
-        stp     x26, x27, [sp, #-0x10]!
-        stp     x28, x29, [sp, #-0x10]!
+        stp     x20, x21, [sp, #160]
+        stp     x22, x23, [sp, #176]
+        stp     x24, x25, [sp, #192]
+        stp     x26, x27, [sp, #208]
+        stp     x28, x29, [sp, #224]
         //  Call handler with context and number
         mov     x0, sp
         mov     x1, #5
