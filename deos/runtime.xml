@@ -54,8 +54,8 @@
    end Compiler;
 
    package Linker is
-      for Driver use external("LINK_DEOS", "");
-      for Leading_Switches ("ada") use (external ("GCC_DIR", ""), external ("TARGET_ARCH", ""), external ("IMAGE_TYPE", ""));
+      for Driver use external("LINK_DRIVER", "");
+      for Leading_Switches ("ada") use (external ("LINK_DEOS_PATH", ""), external ("GCC_DIR", ""), external ("TARGET_ARCH", ""), external ("IMAGE_TYPE", ""));
    end Linker;
 ]]>
         </config>
