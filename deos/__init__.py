@@ -67,4 +67,5 @@ class ArmDeos(Deos):
             "-mthumb-interwork",
             "-mno-unaligned-access",
             "-mrestrict-it",
+            "-fPIC",
         ]

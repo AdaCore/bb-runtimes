@@ -194,7 +194,6 @@ sources = {
             'libgnat/s-imgllu.ads',
             'libgnat/s-imguns.ads',
             'libgnat/s-maccod.ads',
-            'hie/s-secsta__zfp.ads', 'hie/s-secsta__zfp.adb',
             'libgnat/s-spark.ads',
             'libgnat/s-spcuop.ads', 'libgnat/s-spcuop.adb',
             'libgnat/s-stache.ads', 'libgnat/s-stache.adb',
@@ -615,6 +614,15 @@ sources = {
             'hie/s-memcop.ads', 'hie/s-memcop.adb',
             'hie/s-memmov.ads', 'hie/s-memmov.adb',
             'hie/s-memset.ads', 'hie/s-memset.adb']
+    },
+
+    'secondary_stack/symbol': {
+        'conditions': ['RTS_Profile:!cert'],
+        'srcs': ['hie/s-secsta__zfp.ads', 'hie/s-secsta__zfp.adb']
+    },
+    'secondary_stack/softlinks': {
+        'conditions': ['RTS_Profile:cert'],
+        'srcs': ['hie/s-secsta__cert.ads', 'hie/s-secsta__cert.adb']
     },
 
     # Integration with C

@@ -9,7 +9,17 @@
    for Object_Dir use external("GPR_OBJ_DIR", ".");
 
    package Compiler is
-     Common_Required_Switches := ("-fsjlj");
+     Common_Required_Switches :=
+       ("-fsjlj",
+        "-mabi=aapcs-linux",
+        "-march=armv7-a",
+        "-mfloat-abi=hard",
+        "-mfpu=vfpv3",
+        "-mthumb",
+        "-mthumb-interwork",
+        "-mno-unaligned-access",
+        "-mrestrict-it",
+        "-fPIC");
 
      Asm_Required_Switches := ();
 
