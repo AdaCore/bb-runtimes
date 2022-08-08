@@ -261,12 +261,15 @@ sources = {
     'light': {
         'conditions': ['RTS_Profile:light,light-tasking,cert'],
         'srcs': [
-            'hie/s-sssita.ads', 'hie/s-sssita.adb',
             'hie/a-tags__hie.ads', 'hie/a-tags__hie.adb',
             'hie/s-assert__xi.adb',
             'hie/s-memory__light.ads'],
-        'bb_srcs': ['hie/a-elchha__zfp.adb'],
-        'pikeos_srcs': ['hie/a-elchha__zfp.adb'],
+        'bb_srcs': [
+            'hie/a-elchha__zfp.adb',
+            'hie/s-sssita.ads', 'hie/s-sssita.adb'],
+        'pikeos_srcs': [
+           'hie/a-elchha__zfp.adb',
+           'hie/s-sssita.ads', 'hie/s-sssita.adb'],
         'qnx_srcs': [
             'hie/a-elchha__traceback.adb',
             'libgnat/s-traent.ads', 'libgnat/s-traent.adb',
