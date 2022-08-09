@@ -264,12 +264,8 @@ sources = {
             'hie/a-tags__hie.ads', 'hie/a-tags__hie.adb',
             'hie/s-assert__xi.adb',
             'hie/s-memory__light.ads'],
-        'bb_srcs': [
-            'hie/a-elchha__zfp.adb',
-            'hie/s-sssita.ads', 'hie/s-sssita.adb'],
-        'pikeos_srcs': [
-           'hie/a-elchha__zfp.adb',
-           'hie/s-sssita.ads', 'hie/s-sssita.adb'],
+        'bb_srcs': ['hie/a-elchha__zfp.adb'],
+        'pikeos_srcs': ['hie/a-elchha__zfp.adb'],
         'qnx_srcs': [
             'hie/a-elchha__traceback.adb',
             'libgnat/s-traent.ads', 'libgnat/s-traent.adb',
@@ -290,10 +286,13 @@ sources = {
     },
     'light/non-tasking': {
         'conditions': ['RTS_Profile:light,cert'],
+        'bb_srcs': [
+            'hie/s-sssita.ads', 'hie/s-sssita.adb'],
         'deos_srcs': [
-            # TODO: Deos specific package
             'hie/s-thread__cert.ads', 'hie/s-thread__cert.adb'],
-        'pikeos_srcs': ['hie/a-textio__pikeos-light.adb'],
+        'pikeos_srcs': [
+            'hie/a-textio__pikeos-light.adb',
+            'hie/s-sssita.ads', 'hie/s-sssita.adb'],
         'vx7r2cert_srcs': [
             'hie/s-parame__zfp_huge.ads',
             'hie/s-thread__light.ads', 'hie/s-thread__light.adb'],
@@ -331,6 +330,8 @@ sources = {
     },
     'light-tasking': {
         'conditions': ['RTS_Profile:light-tasking'],
+        'srcs': [
+            'hie/s-sssita.ads', 'hie/s-sssita.adb'],
         'vx7r2cert_srcs': [
             'hie/s-parame__vxworks7cert.ads', 'libgnat/s-parame__vxworks.adb'],
         'qnx_srcs' : [
