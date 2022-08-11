@@ -297,7 +297,8 @@ sources = {
             'hie/s-parame__zfp_huge.ads',
             'hie/s-thread__light.ads', 'hie/s-thread__light.adb'],
         'qnx_srcs': [
-            'hie/s-parame__zfp_huge.ads']
+            'hie/s-parame__zfp_huge.ads',
+            'hie/s-thread__light.ads', 'hie/s-thread__light.adb']
     },
     'light/arm': {
         'conditions': ['CPU_Family:arm', 'RTS_Profile:light,light-tasking'],
