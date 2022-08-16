@@ -64,12 +64,13 @@ class ArmV6MTarget(Target):
     def has_small_memory(self):
         return True
 
-    def __init__(self):
+    def __init__(self, use_armv6m_atomics=True):
         super(ArmV6MTarget, self).__init__()
 
-        self.add_gnat_sources(
-            'src/s-bbarat.ads',
-            'src/s-bbarat.adb')
+        if use_armv6m_atomics:
+            self.add_gnat_sources(
+                'src/s-bbarat.ads',
+                'src/s-bbarat.adb')
 
 
 class ArmV7MTarget(ArmV6MTarget):
@@ -1157,6 +1158,9 @@ class CortexM0(ArmV6MTarget):
     def system_ads(self):
         return {'light': 'system-xi-arm.ads'}
 
+    def __init__(self, use_armv6m_atomics=True):
+        super(CortexM0, self).__init__(use_armv6m_atomics)
+
 
 class CortexM0P(CortexM0):
     @property
@@ -1168,6 +1172,9 @@ class CortexM0P(CortexM0):
         # The required compiler switches
         return ('-mlittle-endian', '-mthumb', '-mfloat-abi=soft',
                 '-mcpu=cortex-m0plus')
+
+    def __init__(self, use_armv6m_atomics=True):
+        super(CortexM0P, self).__init__(use_armv6m_atomics)
 
 
 class CortexM1(ArmV6MTarget):
@@ -1418,7 +1425,10 @@ class RP2040(CortexM0P):
     def __init__(self, smp):
         self.smp = smp
 
-        super(RP2040, self).__init__()
+        # Don't use the default System.BB.Armv6m_Atomic package as it's not
+        # safe for the SMP runtime. We use a alternative implementation
+        # that uses the RP2040 hardware spinlocks.
+        super(RP2040, self).__init__(use_armv6m_atomics=False)
 
         smp_template_values = {
             # The SMP runtime uses the TIMER for task delays, which runs from
@@ -1479,6 +1489,8 @@ class RP2040(CortexM0P):
             'arm/rpi/rp2040/svd/i-rp2040-watchdog.ads',
             'arm/rpi/rp2040/svd/i-rp2040-xosc.ads',
             'arm/rpi/rp2040/s-bbmcpa.ads.tmpl',
+            'arm/rpi/rp2040/s-bbrpat.ads',
+            'arm/rpi/rp2040/s-bbrpat.adb',
             'arm/rpi/rp2040/start-rom.S.tmpl',
             'arm/rpi/rp2040/s-bootro.ads',
             'arm/rpi/rp2040/s-bootro.adb',

@@ -1,8 +1,8 @@
 ARM RP2040 Runtimes
 ===================
 
-* Ravenscar-SFP
-* Ravenscar-Full
+* light-tasking
+* embedded
 
 Targets Supported
 -----------------
@@ -86,7 +86,6 @@ in the multiprocessor runtime:
 
    end Example;
 
-
 Resources Used
 --------------
 
@@ -99,7 +98,7 @@ trigger a HardFault on the processor that uses it.
 Multiprocessor Runtimes
 ,,,,,,,,,,,,,,,,,,,,,,,
 
-The Ravenscar runtime libraries on the multiprocessor runtime configuration
+The tasking runtime libraries on the multiprocessor runtime configuration
 use the TIMER ALARM_3 interrupt to implement Ada semantics for time, i.e.
 delay statements and package Ada.Real_Time. The ALARM_3 interrupt handler
 runs at the highest priority. This implementation uses a tick-less approach
@@ -107,10 +106,14 @@ to configure the alarm interrupt to trigger exactly at the alarm time,
 thereby avoiding most "useless" tick interrupts. See procedure Set_Alarm in
 package body System.BB.Board_Support (gnarl/s-bbbosu.adb).
 
+The runtime additionally uses SPINLOCK31 to implement the GCC atomic built-in
+functions in a way that ensures atomicity between both cores. See the package
+System.BB.RP2040_Atomics (gnat/s-bbrpat.adb).
+
 Single-processor Runtimes
 ,,,,,,,,,,,,,,,,,,,,,,,,,
 
-The Ravenscar runtime libraries on the single processor runtime configuration
+The tasking runtime libraries on the single processor runtime configuration
 use the SysTick interrupt to implement Ada semantics for time, i.e., delay
 statements and package Ada.Real_Time. The SysTick interrupt handler runs at
 highest priority. See procedure Sys_Tick_Handler in package body
