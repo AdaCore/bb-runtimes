@@ -334,9 +334,13 @@ sources = {
         'srcs': [
             'hie/s-sssita.ads', 'hie/s-sssita.adb'],
         'vx7r2cert_srcs': [
-            'hie/s-parame__vxworks7cert.ads', 'libgnat/s-parame__vxworks.adb'],
+            'hie/s-parame__vxworks7cert.ads',
+            'libgnat/s-parame__vxworks.adb',
+            'hie/s-init__light.ads'],
         'qnx_srcs' : [
-            'libgnat/s-parame.ads', 'libgnat/s-parame.adb']
+            'libgnat/s-parame.ads',
+            'libgnat/s-parame.adb',
+            'hie/s-init__light.ads']
     },
     'gccmath': {
         'conditions': ['RTS_Profile:light,light-tasking', 'Target_Word_Size:64'],
