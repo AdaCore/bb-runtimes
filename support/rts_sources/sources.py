@@ -1633,6 +1633,7 @@ sources = {
             'libgnat/calendar.ads',
             'hie/g-io__c.ads',
             'hie/s-except__cert.ads', 'hie/a-excach__cert.adb',
+            'libgnat/s-excmac__gcc.adb', 'libgnat/s-excmac__gcc.ads',
             'hie/s-init.ads',
             'hie/s-parame__cert.adb',
             'hie/s-soflin__cert.ads', 'hie/s-soflin__cert.adb',
@@ -1657,7 +1658,6 @@ sources = {
     'cert/arm': {
         'conditions': ['CPU_Family:arm', 'RTS_Profile:cert'],
         'srcs': [
-            'libgnat/s-excmac__arm.adb', 'libgnat/s-excmac__arm.ads',
             'hie/s-tracon__zfp-arm.adb',
              ],
     },
