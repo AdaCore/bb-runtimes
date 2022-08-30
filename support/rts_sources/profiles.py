@@ -241,6 +241,7 @@ class RTSProfiles(object):
         """Returns the list of directories contained in the cert runtime"""
         ret = self.light_scenarios(profile)
         ret['RTS_Profile'] = 'cert'
+        ret['Add_IO_Exceptions'] = 'yes'
 
         ret['Add_Pack'] = "no"
         if self.config.is_64bit:

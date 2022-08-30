@@ -219,7 +219,7 @@ sources = {
             'hie/s-textio.ads'],
         'deos_srcs': [
             'hie/g-io__c.ads',
-            'hie/a-textio__c.ads', 'hie/a-textio__deos.adb',
+            'hie/a-textio__deos.ads', 'hie/a-textio__deos.adb',
             'hie/s-macres.ads',
              ],
         'pikeos_srcs': [
@@ -1629,7 +1629,6 @@ sources = {
             'libgnat/a-elchha.ads', 'hie/a-elchha__deos.adb',
             'hie/a-except__cert.ads', 'hie/a-except__cert.adb',
             'libgnat/a-exctra.ads', 'libgnat/a-exctra.adb',
-            'hie/a-textio__c.ads',
             'libgnat/calendar.ads',
             'hie/g-io__c.ads',
             'hie/s-except__cert.ads', 'hie/a-excach__cert.adb',
@@ -1648,7 +1647,6 @@ sources = {
             'unwind-sjlj-cert.c',
              ],
         'deos_srcs': [
-            'hie/a-textio__deos.adb',
             'hie/s-init__deos.adb',
             'hie/s-parame__deos.ads',
             'hie/s-traceb__zfp.adb',

@@ -32,8 +32,11 @@
 package body System.Machine_Reset is
 
    procedure Stop is
+      procedure Os_Exit (Status : Integer)
+        with No_Return, Import, Convention => C,
+             External_Name => "_exit";
    begin
-      loop null; end loop;
+      Os_Exit (0);
    end Stop;
 
 end System.Machine_Reset;
