@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1992-2021, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2022, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -40,7 +40,7 @@ package body System.Text_IO is
    --  UART-1
 
    CR   : Unsigned_32 with Address => Base + 16#00#, Import, Volatile;
-   MR   : Unsigned_32 with Address => Base + 16#00#, Import, Volatile;
+   MR   : Unsigned_32 with Address => Base + 16#04#, Import, Volatile;
    IER  : Unsigned_32 with Address => Base + 16#08#, Import, Volatile;
    IDR  : Unsigned_32 with Address => Base + 16#0C#, Import, Volatile;
    ISR  : Unsigned_32 with Address => Base + 16#14#, Import, Volatile;
