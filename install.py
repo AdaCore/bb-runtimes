@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (C) 2016-2020, AdaCore
 #
@@ -22,7 +22,9 @@ def usage():
     print("  available. The runtimes are installed in the toolchain itself.")
 
 
-ALL_BSP = {'arm-eabi': ['stm32f4', 'nucleo_f401re', 'stm32f429disco',
+ALL_BSP = {'arm-eabi': ['stm32f4',
+                        'nucleo_f401re', 'nucleo_f411re',
+                        'stm32f429disco',
                         'stm32f469disco',
                         'stm32f746disco', 'stm32756geval', 'stm32f769disco',
                         'samg55', 'sam4s', 'samv71', 'openmv2', 'rpi2',

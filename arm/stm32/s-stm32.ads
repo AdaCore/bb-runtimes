@@ -171,7 +171,7 @@ package System.STM32 is
 
    subtype HSECLK_Range is Integer range   1_000_000 ..  26_000_000;
    subtype PLLIN_Range  is Integer range     950_000 ..   2_000_000;
-   subtype PLLVC0_Range is Integer range 192_000_000 .. 432_000_000;
+   subtype PLLVC0_Range is Integer range 168_000_000 .. 432_000_000;
    subtype PLLOUT_Range is Integer range  24_000_000 .. 216_000_000;
    subtype SYSCLK_Range is Integer range           1 .. 216_000_000;
    subtype HCLK_Range   is Integer range           1 .. 216_000_000;
