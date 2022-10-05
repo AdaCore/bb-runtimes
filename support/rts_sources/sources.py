@@ -967,7 +967,7 @@ sources = {
             'hie/a-nuaufl__light.ads',
             'hie/a-nalofl__light.ads',
             'hie/a-nallfl__light.ads',
-            'libgnat/a-naliop.ads'],
+            'libgnat/a-naliop__nolibm.ads'],
         'pikeos_srcs': [
             'hie/a-ngelfu__ada.ads', 'hie/a-ngelfu__ada.adb',
             'hie/a-nlelfu__ada.ads',
