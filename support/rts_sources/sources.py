@@ -342,6 +342,15 @@ sources = {
             'libgnat/s-parame.adb',
             'hie/s-init__light.ads']
     },
+    'light-tasking/atomics': {
+        'conditions': ['RTS_Profile:light-tasking', 'CPU_Family:!powerpc'],
+        'vx7r2cert_srcs': [
+            'libgnat/s-atopri.ads',
+            'libgnat/s-atopri.adb'],
+        'qnx_srcs': [
+            'libgnat/s-atopri.ads',
+            'libgnat/s-atopri.adb']
+    },
     'gccmath': {
         'conditions': ['RTS_Profile:light,light-tasking', 'Target_Word_Size:64'],
         'srcs': [],

@@ -5,7 +5,7 @@
 --                               S Y S T E M                                --
 --                                                                          --
 --                                 S p e c                                  --
---                (VxWorks7  / CERT Ravenscar Version X86)                  --
+--                 (VxWorks 7 CERT Ravenscar Version PPC)                   --
 --                                                                          --
 --          Copyright (C) 1992-2022, Free Software Foundation, Inc.         --
 --                                                                          --
@@ -34,7 +34,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  Level A certifiable VxWorks version
+--  Level A certifiable Ravenscar VxWorks 7 version
 
 pragma Restrictions (No_Exception_Propagation);
 --  Disable exceptions propagation since only the last chance handler is
@@ -113,7 +113,7 @@ package System is
    --  Other System-Dependent Declarations
 
    type Bit_Order is (High_Order_First, Low_Order_First);
-   Default_Bit_Order : constant Bit_Order := Low_Order_First;
+   Default_Bit_Order : constant Bit_Order := High_Order_First;
    pragma Warnings (Off, Default_Bit_Order); -- kill constant condition warning
 
    --  Priority-related Declarations (RM D.1)
@@ -176,10 +176,10 @@ private
    Support_Long_Shifts       : constant Boolean := True;
    Always_Compatible_Rep     : constant Boolean := True;
    Suppress_Standard_Library : constant Boolean := True;
-   Use_Ada_Main_Program_Name : constant Boolean := True;
+   Use_Ada_Main_Program_Name : constant Boolean := False;
    Frontend_Exceptions       : constant Boolean := False;
    ZCX_By_Default            : constant Boolean := False;
 
-   Executable_Extension : constant String := ".out";
+   Executable_Extension : constant String := ".vxe";
 
 end System;

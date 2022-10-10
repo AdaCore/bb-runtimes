@@ -152,11 +152,11 @@ class PPC64Vx7r2Cert(Vx7r2Cert64):
     def system_ads(self):
         if self._is_rtp:
             return {
-                'light-tasking': 'system-vxworks7-ppc-ravenscar-sfp-rtp.ads'}
+                'light-tasking': 'system-vxworks7-ppc64-ravenscar-sfp-rtp.ads'}
         else:
             return {
                 'light': 'system-vxworks7-ppc-zfp.ads',
-                'light-tasking': 'system-vxworks7-ppc-ravenscar-sfp.ads'}
+                'light-tasking': 'system-vxworks7-ppc64-ravenscar-sfp.ads'}
 
 
 class X86Vx7r2Cert(Vx7r2Cert):
