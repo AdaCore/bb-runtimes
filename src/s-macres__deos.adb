@@ -31,12 +31,28 @@
 
 package body System.Machine_Reset is
 
-   procedure Stop is
-      procedure Os_Exit (Status : Integer)
+   procedure Runtime_Exit (Status : Integer)
+     with No_Return, Export, Convention => C,
+          External_Name => "exit";
+
+   procedure Runtime_Exit (Status : Integer) is
+      procedure Call_Destructors
+        with Import, Convention => C, External_Name => "_fini";
+
+      procedure OS_Exit (Status : Integer)
         with No_Return, Import, Convention => C,
              External_Name => "_exit";
    begin
-      Os_Exit (0);
+      --  Call the destructors so that we have the opportunity to run
+      --  post-test cleanup.
+
+      Call_Destructors;
+      OS_Exit (Status);
+   end Runtime_Exit;
+
+   procedure Stop is
+   begin
+      Runtime_Exit (0);
    end Stop;
 
 end System.Machine_Reset;
