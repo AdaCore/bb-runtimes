@@ -31,9 +31,18 @@
 
 package body System.Machine_Reset is
 
+   procedure Abort_Exit
+     with No_Return, Export, Convention => C,
+          External_Name => "abort";
+
    procedure Runtime_Exit (Status : Integer)
      with No_Return, Export, Convention => C,
           External_Name => "exit";
+
+   procedure Abort_Exit is
+   begin
+      Runtime_Exit (-1);
+   end Abort_Exit;
 
    procedure Runtime_Exit (Status : Integer) is
       procedure Call_Destructors
