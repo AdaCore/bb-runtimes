@@ -2,8 +2,9 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---                    Copyright (C) 2022, Daniel King                       --
---                      Copyright (C) 2022, AdaCore                         --
+--            Copyright (C) AdaCore and other contributors, 2022            --
+--      See https://github.com/AdaCore/bb-runtimes/graphs/contributors      --
+--                           for more information                           --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
