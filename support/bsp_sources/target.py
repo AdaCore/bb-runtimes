@@ -160,6 +160,16 @@ class Target(TargetConfiguration, ArchSupport):
                             'asm_flags': [],
                             'c_flags': ['-DIN_RTS', '-Dinhibit_libc']}
 
+        # Add the following compiler switches to runtime.xml for all targets:
+        #
+        #   -fno-tree-loop-distribute-patterns:
+        #     This optimization looks for code patterns that can be replaced
+        #     with library calls, for example memset and strlen. This creates
+        #     a hidden runtime dependency that is considered undesirable by many
+        #     of our customers. strlen is particularly problematic, as its not
+        #     provided in our light and light-tasking runtimes.
+        self.global_compiler_switches = ('-fno-tree-loop-distribute-patterns',)
+
         readme = self.readme_file
         if readme:
             self.config_files.update({'README': readfile(readme)})
@@ -209,7 +219,7 @@ class Target(TargetConfiguration, ArchSupport):
 
     @property
     def compiler_switches(self):
-        return []
+        return ()
 
     def amend_rts(self, rts_profile, rts):
         """to be overriden by the actual target to refine the runtime"""
@@ -271,9 +281,11 @@ class Target(TargetConfiguration, ArchSupport):
             loaders[0]
 
         ret += '   package Compiler is\n'
-        if len(self.compiler_switches) > 0:
+
+        compiler_switches = self.compiler_switches + self.global_compiler_switches
+        if len(compiler_switches) > 0:
             ret += '      Common_Required_Switches := ("%s");\n' % \
-                   '", "'.join(self.compiler_switches)
+                   '", "'.join(compiler_switches)
         else:
             ret += '      Common_Required_Switches := ();\n'
 
