@@ -35,7 +35,7 @@ with Interfaces;
 
 package body System.MMU is
 
-   Set_NX : constant Boolean := False;
+   Set_NX : constant Boolean := True;
    --  Select if the data region should be non executable.
 
    Set_RO : constant Boolean := False;

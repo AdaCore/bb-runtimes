@@ -90,9 +90,9 @@ class ZynqMP(Aarch64Target):
 
     @property
     def system_ads(self):
-        return {'light': 'system-xi-arm.ads',
-                'light-tasking': 'system-xi-arm-gic-sfp.ads',
-                'embedded': 'system-xi-arm-gic-full.ads'}
+        return {'light': 'system-xi-arm-nxstack-light.ads',
+                'light-tasking': 'system-xi-arm-nxstack-light-tasking.ads',
+                'embedded': 'system-xi-arm-nxstack-embedded.ads'}
 
     @property
     def compiler_switches(self):
