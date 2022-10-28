@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2006 The European Space Agency            --
---                     Copyright (C) 2003-2020, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -251,12 +251,19 @@ package body System.BB.Board_Support is
          Diff     : constant Unsigned_64  := (if Now < Ticks
                                               then Unsigned_64 (Ticks - Now)
                                               else 1);
+         INTFLAG_Value : Unsigned_32 with Unreferenced;
       begin
          if Ticks = BB.Time.Time'Last then
             Clear_Alarm_Interrupt;
          end if;
 
-         RTI.INTFLAG := 2**3; --  Clear any pending alarms
+         --  Clear any pending alarms. As per TI Application Note
+         --  SPNA218-April 2015 Section 4.5.2, read back the interrupt
+         --  flag to avoid phantom interrupts.
+
+         RTI.INTFLAG := 2**3;
+         INTFLAG_Value := RTI.INTFLAG;
+
          RTI.GCTRL   := 2;    --  Turn off timer/counter 0
          RTI.UC0     := 0;    --  Start at 0
          RTI.FRC0    := 0;
@@ -296,9 +303,16 @@ package body System.BB.Board_Support is
       ---------------------------
 
       procedure Clear_Alarm_Interrupt is
+         INTFLAG_Value : Unsigned_32 with Unreferenced;
       begin
          RTI.GCTRL := 2;      --  Turn off timer/counter 0
+
+         --  Clear any pending alarms. As per TI Application Note
+         --  SPNA218-April 2015 Section 4.5.2, read back the interrupt
+         --  flag to avoid phantom interrupts.
+
          RTI.INTFLAG := 2**3;
+         INTFLAG_Value := RTI.INTFLAG;
       end Clear_Alarm_Interrupt;
 
       ---------------------------
