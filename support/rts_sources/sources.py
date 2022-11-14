@@ -159,7 +159,6 @@ sources = {
             'libgnat/a-strmap.ads', 'libgnat/a-strmap.adb',
             'libgnat/a-stmaco.ads',
             'libgnat/a-strsea.ads', 'libgnat/a-strsea.adb',
-            'libgnat/a-strsup.ads', 'libgnat/a-strsup.adb',
             'libgnat/a-unccon.ads',
             'libgnat/a-uncdea.ads',
             'libgnat/gnat.ads',
@@ -261,6 +260,7 @@ sources = {
     'light': {
         'conditions': ['RTS_Profile:light,light-tasking,cert'],
         'srcs': [
+            'hie/a-strsup__light.ads', 'hie/a-strsup__light.adb',
             'hie/a-tags__hie.ads', 'hie/a-tags__hie.adb',
             'hie/s-assert__xi.adb',
             'hie/s-memory__light.ads'],
@@ -415,6 +415,7 @@ sources = {
             'libgnat/a-stfiha.ads',
             'libgnat/a-strhas.adb', 'libgnat/a-strhas.ads',
             'libgnat/a-storio.ads', 'libgnat/a-storio.adb',
+            'libgnat/a-strsup.ads', 'libgnat/a-strsup.adb',
             'libgnat/a-strunb.ads', 'libgnat/a-strunb.adb',
             'libgnat/a-sttebu.ads', 'libgnat/a-sttebu.adb',
             'libgnat/a-stunau.ads', 'libgnat/a-stunau.adb',
