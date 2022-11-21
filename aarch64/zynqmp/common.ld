@@ -187,6 +187,7 @@ SECTIONS
    __heap_start = .;
    __heap_end = ORIGIN(REGION_DATA) + LENGTH(REGION_DATA);
   } > REGION_DATA
+  __region_data_end = ORIGIN(REGION_DATA) + LENGTH(REGION_DATA);
 
    __bss_dwords = (__bss_end - __bss_start) >> 3;
 

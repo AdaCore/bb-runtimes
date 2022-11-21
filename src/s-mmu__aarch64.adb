@@ -237,6 +237,11 @@ package body System.MMU is
                                     External_Name => "__region_data_start";
       Region_Data_Start_Address : constant Address :=
                                     Region_Data_Start'Address;
+      Region_Data_End           : Symbol with
+                                    Import,
+                                    External_Name => "__region_data_end";
+      Region_Data_End_Address   : constant Address :=
+                                    Region_Data_End'Address;
       Level_2_End               : Symbol with
                                     Import,
                                     External_Name => "__mmu_ram_table_2_end";
@@ -277,6 +282,7 @@ package body System.MMU is
          Level_2_End'Address - Level_2'Address /= Level_2'Size / 8
          or else Level_3_End'Address - Level_3'Address /= Level_3'Size / 8
          or else Region_Data_Start_Address mod 4096 /= 0
+         or else Region_Data_End_Address mod 4096 /= 0
       then
          --  Abort if the memory regions assigned to the translation tables
          --  do not fit their sizes or if the start of the data region is not
@@ -296,7 +302,9 @@ package body System.MMU is
                NX : constant Boolean :=
                   Set_NX and Start >= Region_Data_Start_Address;
             begin
-               if Is_Guard_Page (Current_Address) then
+               if Is_Guard_Page (Current_Address)
+                  or Start >= Region_Data_End_Address
+               then
                   T (J) := Level_3_Descriptor'(Valid  => False,
                                                D_Type => Reserved);
                else
@@ -319,31 +327,45 @@ package body System.MMU is
          end loop;
       end loop;
 
+      Start := Address'First;
       for J in Level_2'Range loop
          for K in Level_2 (J)'Range loop
-            Level_2 (J) (K) := Level_2_Descriptor'
-                                 (Valid             => True,
-                                  D_Type            => Table,
-                                  Table_Address     =>
-                                    Get_Address (Level_3
-                                                   (J * 512 + K)'Address),
-                                  PXN_Table         => False,
-                                  XN_Table          => False,
-                                  Data_Access_Table => Read_Write_EL1,
-                                  Non_Secure_Table  => True);
+            if Start < Region_Data_End_Address then
+               Level_2 (J) (K) := Level_2_Descriptor'
+                                    (Valid             => True,
+                                     D_Type            => Table,
+                                     Table_Address     =>
+                                       Get_Address (Level_3
+                                                      (J * 512 + K)'Address),
+                                     PXN_Table         => False,
+                                     XN_Table          => False,
+                                     Data_Access_Table => Read_Write_EL1,
+                                     Non_Secure_Table  => True);
+            else
+               Level_2 (J) (K) := Level_2_Descriptor'(Valid  => False,
+                                                      D_Type => Block);
+            end if;
+            Start := Start + 512 * 4096;
          end loop;
       end loop;
 
+      Start := Address'First;
       for J in 0 .. 1 loop
-         Level_1 (J) := Level_2_Descriptor'
-                          (Valid             => True,
-                           D_Type            => Table,
-                           Table_Address     =>
-                             Get_Address (Level_2 (J)'Address),
-                           PXN_Table         => False,
-                           XN_Table          => False,
-                           Data_Access_Table => Read_Write_EL1,
-                           Non_Secure_Table  => True);
+         if Start < Region_Data_End_Address then
+            Level_1 (J) := Level_2_Descriptor'
+                             (Valid             => True,
+                              D_Type            => Table,
+                              Table_Address     =>
+                                Get_Address (Level_2 (J)'Address),
+                              PXN_Table         => False,
+                              XN_Table          => False,
+                              Data_Access_Table => Read_Write_EL1,
+                              Non_Secure_Table  => True);
+         else
+            Level_1 (J) := Level_2_Descriptor'(Valid  => False,
+                                               D_Type => Block);
+         end if;
+         Start := Start + 4096 * 512 ** 2;
       end loop;
    end Initialize;
 
