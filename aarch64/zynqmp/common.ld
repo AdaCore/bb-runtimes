@@ -141,9 +141,16 @@ SECTIONS
    . = ALIGN(0x10);
    __bss_end = .;
 
-   /* Separate env stack per CPU and EL levels= */
+   /* Separate env stack per CPU and EL levels.
+    *
+    * Note: 4KB guard pages are located before and after each stack. Modifying
+    * the guard pages requires updating s-mmu.adb, otherwise the stack and BSS
+    * section may write into unmapped memory and cause an exception on program
+    * initialization.
+    */
    . = ALIGN(0x1000);
 
+   /* Guard page */
    . = . + 0x1000;
    __stack_start = .;
 
@@ -152,6 +159,7 @@ SECTIONS
    . = ALIGN(0x1000);
    __cpu0_stack_end = .;
 
+   /* Guard page */
    . = . + 0x1000;
 
    __cpu1_stack_start = .;
@@ -159,6 +167,7 @@ SECTIONS
    . = ALIGN(0x1000);
    __cpu1_stack_end = .;
 
+   /* Guard page */
    . = . + 0x1000;
 
    __cpu2_stack_start = .;
@@ -166,6 +175,7 @@ SECTIONS
    . = ALIGN(0x1000);
    __cpu2_stack_end = .;
 
+   /* Guard page */
    . = . + 0x1000;
 
    __cpu3_stack_start = .;
@@ -175,6 +185,7 @@ SECTIONS
 
    __stack_end = .;
 
+   /* Guard page */
    . = . + 0x1000;
 
    /* Interrupt stacks: defined in s-bbinte.adb.  */
