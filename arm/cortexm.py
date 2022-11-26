@@ -4,6 +4,11 @@ from support.bsp_sources.target import Target
 
 import re
 
+try:
+    "".removesuffix("")
+    string_removesuffix = str.removesuffix
+except AttributeError:
+    string_removesuffix = lambda source, suffix: source[:-len(suffix)] if source.endswith(suffix) else source
 
 class CortexMArch(ArchSupport):
     @property
@@ -1614,7 +1619,7 @@ class RP2040Target(RP2040):
         # Check if the base name (without -smp suffix) is one of the
         # targets supported by this class
         self._name = name
-        base_name = name.removesuffix('-smp')
+        base_name = string_removesuffix(name, '-smp')
         if base_name not in self._target_properties:
             raise RuntimeError(f"Unknown RP2040 target: {name}")
 
