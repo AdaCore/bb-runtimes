@@ -192,7 +192,7 @@ package body System.MMU is
    begin
       System.Machine_Code.Asm ("mrs %0, ttbr0_el1",
                                Outputs =>  Address'Asm_Output
-                                              ("=g", Level_1_Table),
+                                              ("=r", Level_1_Table),
                                Volatile => True);
       return Level_1_Table;
    end Get_Level_1_Table;
