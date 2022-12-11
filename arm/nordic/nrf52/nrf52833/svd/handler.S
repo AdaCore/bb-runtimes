@@ -77,7 +77,7 @@ __vectors:
 	.word __gnat_irq_trap        /* 61 PWM3 45. */
 	.word __gnat_irq_trap        /* 62 IRQ 46. */
 	.word __gnat_irq_trap        /* 63 SPIM3 47. */
-	
+
 	.text
 
 	.thumb_func

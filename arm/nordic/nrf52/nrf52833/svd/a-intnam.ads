@@ -100,7 +100,11 @@ package Ada.Interrupts.Names is
    FPU_Interrupt                                : constant Interrupt_ID := 38;
    USBD_Interrupt                               : constant Interrupt_ID := 39;
    UARTE1_Interrupt                             : constant Interrupt_ID := 40;
+   Unused_Interrupt_1                           : constant Interrupt_ID := 41;
+   Unused_Interrupt_2                           : constant Interrupt_ID := 42;
+   Unused_Interrupt_3                           : constant Interrupt_ID := 43;
+   Unused_Interrupt_4                           : constant Interrupt_ID := 44;
    PWM3_Interrupt                               : constant Interrupt_ID := 45;
+   Unused_Interrupt_5                           : constant Interrupt_ID := 46;
    SPIM3_Interrupt                              : constant Interrupt_ID := 47;
-
 end Ada.Interrupts.Names;
