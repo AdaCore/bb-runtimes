@@ -328,7 +328,7 @@ class SourceTree(FilesHolder):
         for d in matched:
             pruned[d] = dirs[d]
         for d in pruned:
-            del(dirs[d])
+            del (dirs[d])
 
         if len(dirs) == 0:
             # restore the pruned items
@@ -357,7 +357,7 @@ class SourceTree(FilesHolder):
                     ret["%s:%s" % (next_var, value)] = subret
 
             # remove variable from env, before moving to the next one
-            del(env[next_var])
+            del (env[next_var])
 
         # restore the pruned items
         for d, rule in pruned.items():

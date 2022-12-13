@@ -105,7 +105,7 @@ class Leon3(LeonTarget):
         ret = super(Leon3, self).system_ads
         if self.smp:
             # zfp runtime makes no sense in the context of SMP variant
-            del(ret['zfp'])
+            del (ret['zfp'])
         return ret
 
     @property

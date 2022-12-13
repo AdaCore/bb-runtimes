@@ -199,7 +199,6 @@ class Installer(object):
                     if scenario not in scenario_vars:
                         scenario_vars[scenario] = vals[0]
 
-           
             # Placeholder for user-defined sources
             user_libs = ['%s_user' % d for d in libs]
             for lib in user_libs:
@@ -244,7 +243,6 @@ class Installer(object):
                 os.makedirs(dest)
 
             # Install target and run-time specific configuration files
-           
             for name, content in self.tgt.config_files.items():
                 with open(os.path.join(rts_path, name), 'w') as fp:
                     fp.write(content)

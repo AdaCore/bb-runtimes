@@ -19,7 +19,7 @@ def _apply_template_config(content, template_config):
             "key '%s' not defined in template configuration" % key
         return str(template_config.get(key))
 
-    return(re.sub(r'\"\$\{([^\$\"\}]*)\}\"', lookup, content))
+    return (re.sub(r'\"\$\{([^\$\"\}]*)\}\"', lookup, content))
 
 
 def _copy(src, dst, template_config=None):
