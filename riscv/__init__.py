@@ -76,7 +76,7 @@ class PolarFireSOC(RiscV64):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-march=rv64imafdc_zicsr_zifencei', '-mabi=lp64d')
+        return ('-march=rv64imafdc', '-mabi=lp64d')
 
     @property
     def system_ads(self):
@@ -168,7 +168,7 @@ class HiFive1(RiscV32):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-march=rv32imac_zicsr_zifencei', '-mabi=ilp32')
+        return ('-march=rv32imac', '-mabi=ilp32')
 
     @property
     def has_small_memory(self):
@@ -225,22 +225,22 @@ class RV32BASE(RiscV32):
     def compiler_switches(self):
         # The required compiler switches
         if self.name == "rv32i":
-            return ('-march=rv32i_zicsr_zifencei', '-mabi=ilp32')
+            return ('-march=rv32i', '-mabi=ilp32')
 
         elif self.name == "rv32im":
-            return ('-march=rv32im_zicsr_zifencei', '-mabi=ilp32')
+            return ('-march=rv32im', '-mabi=ilp32')
 
         elif self.name == "rv32iac":
-            return ('-march=rv32iac_zicsr_zifencei', '-mabi=ilp32')
+            return ('-march=rv32iac', '-mabi=ilp32')
 
         elif self.name == "rv32imac":
-            return ('-march=rv32imac_zicsr_zifencei', '-mabi=ilp32')
+            return ('-march=rv32imac', '-mabi=ilp32')
 
         elif self.name == "rv32imafc":
-            return ('-march=rv32imafc_zicsr_zifencei', '-mabi=ilp32f')
+            return ('-march=rv32imafc', '-mabi=ilp32f')
 
         elif self.name == "rv32imafdc":
-            return ('-march=rv32imafdc_zicsr_zifencei', '-mabi=ilp32d')
+            return ('-march=rv32imafdc', '-mabi=ilp32d')
 
     @property
     def has_small_memory(self):
@@ -305,22 +305,22 @@ class RV64BASE(RiscV64):
     def compiler_switches(self):
         # The required compiler switches
         if self.name == "rv64im":
-            return ('-march=rv64im_zicsr_zifencei', '-mabi=lp64')
+            return ('-march=rv64im', '-mabi=lp64')
 
         elif self.name == "rv64imc":
-            return ('-march=rv64imc_zicsr_zifencei', '-mabi=lp64')
+            return ('-march=rv64imc', '-mabi=lp64')
 
         elif self.name == "rv64imac":
-            return ('-march=rv64imac_zicsr_zifencei', '-mabi=lp64')
+            return ('-march=rv64imac', '-mabi=lp64')
 
         elif self.name == "rv64imafc":
-            return ('-march=rv64imafc_zicsr_zifencei', '-mabi=lp64f')
+            return ('-march=rv64imafc', '-mabi=lp64f')
 
         elif self.name == "rv64imfc":
-            return ('-march=rv64imfc_zicsr_zifencei', '-mabi=lp64f')
+            return ('-march=rv64imfc', '-mabi=lp64f')
 
         elif self.name == "rv64imafdc":
-            return ('-march=rv64imafdc_zicsr_zifencei', '-mabi=lp64d')
+            return ('-march=rv64imafdc', '-mabi=lp64d')
 
     @property
     def system_ads(self):
