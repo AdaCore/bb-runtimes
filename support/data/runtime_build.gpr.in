@@ -64,8 +64,10 @@ project Runtime_Build is
 
   package Prove is
 
+    for Proof_Dir use "proof";
+
     --  By default, use all available cores and all default provers
-    for Proof_Switches ("Ada") use ("-j0", "--level=2", "--function-sandboxing=off");
+    for Proof_Switches ("Ada") use ("-j0", "--level=2", "--function-sandboxing=off", "--counterexamples=off");
 
     --  Specialize the command-line for more complex units (-j0 is implied)
     for Proof_Switches ("a-strfix.adb") use ("--level=4");
