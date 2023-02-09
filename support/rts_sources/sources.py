@@ -343,6 +343,15 @@ sources = {
             'libgnat/s-parame.adb',
             'hie/s-init__light.ads']
     },
+    'light-tasking/atomics': {
+        'conditions': ['RTS_Profile:light-tasking', 'CPU_Family:!powerpc'],
+        'vx7r2cert_srcs': [
+            'libgnat/s-atopri.ads',
+            'libgnat/s-atopri.adb'],
+        'qnx_srcs': [
+            'libgnat/s-atopri.ads',
+            'libgnat/s-atopri.adb']
+    },
     'gccmath': {
         'conditions': ['RTS_Profile:light,light-tasking', 'Target_Word_Size:64'],
         'srcs': [],
@@ -601,14 +610,20 @@ sources = {
                        'RTS_Profile:light-tasking',
                        'Has_Compare_And_Swap:yes',
                        'Certifiable_Packages:no'],
-        'srcs': ['hie/s-memory__raven.adb']
+        'srcs': [
+            'hie/s-memory__raven.adb',
+            'libgnat/s-atopri.ads',
+            'libgnat/s-atopri.adb']
     },
     'alloc/tasking-noc': {
         'conditions': ['Has_libc:no',
                        'RTS_Profile:light-tasking',
                        'Has_Compare_And_Swap:yes',
                        'Certifiable_Packages:yes'],
-        'srcs': ['hie/s-memory__raven_noc.adb']
+        'srcs': [
+            'hie/s-memory__raven_noc.adb',
+            'libgnat/s-atopri.ads',
+            'libgnat/s-atopri.adb']
     },
     'mem': {
         'conditions': ['Has_libc:no'],
@@ -1215,53 +1230,8 @@ sources = {
             'libgnat/a-rbtgbo.adb', 'libgnat/a-rbtgbo.ads',
             'libgnat/a-rbtgso.adb', 'libgnat/a-rbtgso.ads',
             'libgnat/a-iteint.ads',
-            'libgnat/s-atocou__builtin.adb', 'libgnat/s-atocou.ads']
-    },
-    'atomics': {
-        'conditions': [
-            'RTS_Profile:light-tasking,embedded',
-            'Has_Compare_And_Swap:yes',
-        ],
-        'srcs': ['libgnat/s-atopri.adb'],
-        'vx7r2cert_srcs': ['libgnat/s-atopri.adb'],
-        'qnx_srcs': ['libgnat/s-atopri.adb'],
-    },
-    'atomics/64': {
-        'conditions': [
-            'RTS_Profile:light-tasking,embedded',
-            'CPU_Family:aarch64,powerpc64,x86_64',
-            'Has_Compare_And_Swap:yes',
-        ],
-        'srcs': ['libgnat/s-atopri.ads'],
-        'vx7r2cert_srcs': ['libgnat/s-atopri.ads'],
-        'qnx_srcs': ['libgnat/s-atopri.ads'],
-    },
-    'atomics/arm': {
-        'conditions': [
-            'RTS_Profile:light-tasking,embedded',
-            'CPU_Family:arm',
-            'Has_Compare_And_Swap:yes',
-        ],
-        'srcs': ['libgnat/s-atopri__32.ads'],
-    },
-    'atomics/ppc': {
-        'conditions': [
-            'RTS_Profile:light-tasking,embedded',
-            'CPU_Family:powerpc',
-            'Has_Compare_And_Swap:yes',
-            'Target_Word_Size:32',
-        ],
-        'srcs': ['libgnat/s-atopri__32.ads'],
-        'vx7r2cert_srcs': ['libgnat/s-atopri__32.ads'],
-    },
-    'atomics/x86': {
-        'conditions': [
-            'RTS_Profile:light-tasking,embedded',
-            'CPU_Family:x86',
-            'Has_Compare_And_Swap:yes',
-            'Target_Word_Size:32',
-        ],
-        'vx7r2cert_srcs': ['libgnat/s-atopri.ads'],
+            'libgnat/s-atocou__builtin.adb', 'libgnat/s-atocou.ads',
+            'libgnat/s-atopri.adb', 'libgnat/s-atopri.ads']
     },
     # Pragma Pack support
     'pack': {
