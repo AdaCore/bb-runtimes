@@ -343,15 +343,6 @@ sources = {
             'libgnat/s-parame.adb',
             'hie/s-init__light.ads']
     },
-    'light-tasking/atomics': {
-        'conditions': ['RTS_Profile:light-tasking', 'CPU_Family:!powerpc'],
-        'vx7r2cert_srcs': [
-            'libgnat/s-atopri.ads',
-            'libgnat/s-atopri.adb'],
-        'qnx_srcs': [
-            'libgnat/s-atopri.ads',
-            'libgnat/s-atopri.adb']
-    },
     'gccmath': {
         'conditions': ['RTS_Profile:light,light-tasking', 'Target_Word_Size:64'],
         'srcs': [],
@@ -610,20 +601,14 @@ sources = {
                        'RTS_Profile:light-tasking',
                        'Has_Compare_And_Swap:yes',
                        'Certifiable_Packages:no'],
-        'srcs': [
-            'hie/s-memory__raven.adb',
-            'libgnat/s-atopri.ads',
-            'libgnat/s-atopri.adb']
+        'srcs': ['hie/s-memory__raven.adb']
     },
     'alloc/tasking-noc': {
         'conditions': ['Has_libc:no',
                        'RTS_Profile:light-tasking',
                        'Has_Compare_And_Swap:yes',
                        'Certifiable_Packages:yes'],
-        'srcs': [
-            'hie/s-memory__raven_noc.adb',
-            'libgnat/s-atopri.ads',
-            'libgnat/s-atopri.adb']
+        'srcs': ['hie/s-memory__raven_noc.adb']
     },
     'mem': {
         'conditions': ['Has_libc:no'],
@@ -1229,9 +1214,27 @@ sources = {
             'libgnat/a-rbtgbk.adb', 'libgnat/a-rbtgbk.ads',
             'libgnat/a-rbtgbo.adb', 'libgnat/a-rbtgbo.ads',
             'libgnat/a-rbtgso.adb', 'libgnat/a-rbtgso.ads',
-            'libgnat/a-iteint.ads',
-            'libgnat/s-atocou__builtin.adb', 'libgnat/s-atocou.ads',
-            'libgnat/s-atopri.adb', 'libgnat/s-atopri.ads']
+            'libgnat/a-iteint.ads']
+    },
+    # Atomic support
+    'atomics': {
+        'srcs': [
+            'libgnat/s-atopri.adb',
+            'libgnat/s-atocou__builtin.adb',
+            'libgnat/s-atocou.ads',
+        ],
+    },
+    'atomics/64': {
+        'conditions': [
+            'CPU_Family:aarch64,powerpc64,x86,x86_64,riscv64',
+        ],
+        'srcs': ['libgnat/s-atopri.ads'],
+    },
+    'atomics/32': {
+        'conditions': [
+            'CPU_Family:arm,powerpc,leon,riscv32',
+        ],
+        'srcs': ['libgnat/s-atopri__32.ads'],
     },
     # Pragma Pack support
     'pack': {
