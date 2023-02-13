@@ -1,7 +1,7 @@
 import copy
 import sys
 
-from support import readfile, is_string
+from support import readfile, is_string, Compiler, target_compiler
 from support.files_holder import FilesHolder
 from support.bsp_sources.archsupport import ArchSupport
 from support.rts_sources.profiles import RTSProfiles
@@ -153,22 +153,29 @@ class Target(TargetConfiguration, ArchSupport):
         self.rts_options = RTSProfiles(self)
 
         self.build_flags = {'source_dirs': None,
-                            'common_flags': ['-fcallgraph-info=su,da',
-                                             '-ffunction-sections',
+                            'common_flags': ['-ffunction-sections',
                                              '-fdata-sections'],
                             'common_gnarl_flags': [],
                             'asm_flags': [],
                             'c_flags': ['-DIN_RTS', '-Dinhibit_libc']}
+        # GNAT-LLVM doesn't support -fcallgraph-info
+        if target_compiler() != Compiler.gnat_llvm:
+            self.build_flags['common_flags'].append('-fcallgraph-info=su,da')
 
         # Add the following compiler switches to runtime.xml for all targets:
         #
-        #   -fno-tree-loop-distribute-patterns:
+        #   -fno-tree-loop-distribute-patterns (GNAT only):
         #     This optimization looks for code patterns that can be replaced
         #     with library calls, for example memset and strlen. This creates
         #     a hidden runtime dependency that is considered undesirable by many
         #     of our customers. strlen is particularly problematic, as its not
         #     provided in our light and light-tasking runtimes.
-        self.global_compiler_switches = ('-fno-tree-loop-distribute-patterns',)
+        if target_compiler() == Compiler.gnat:
+            self.global_compiler_switches = (
+                '-fno-tree-loop-distribute-patterns',
+            )
+        else:
+            self.global_compiler_switches = ()
 
         readme = self.readme_file
         if readme:

@@ -34,8 +34,14 @@ project Runtime_Build is
      for Switches ("s-traceb.adb") use Target_Options.ALL_ADAFLAGS
        & ("-g")
        & ("-fno-optimize-sibling-calls", "-fno-inline-functions-called-once");
+     --  GNAT-LLVM currently can't compile a-except.adb with optimizations
+     --  enabled; it warns that "optimization breaks taking addresses of
+     --  labels". We can return to -O1 after either fixing the problem in
+     --  GNAT-LLVM or changing the functions Code_Address_For_AAA/ZZZ in
+     --  a-except.adb in such a way that they don't take the address of a label
+     --  anymore.
      for Switches ("a-except.adb") use Target_Options.ALL_ADAFLAGS
-       & ("-g", "-O1", "-fno-inline", "-fno-toplevel-reorder");
+       & ("-g", "-O0", "-fno-inline", "-fno-toplevel-reorder");
      for Switches ("s-excdeb.adb") use Target_Options.ALL_ADAFLAGS
        & ("-g", "-O0");
      for Switches ("s-assert.adb") use Target_Options.ALL_ADAFLAGS

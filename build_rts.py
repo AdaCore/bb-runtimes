@@ -7,6 +7,7 @@
 # Python version starting from 2.6 (yes, it's very old but that's the system
 # python on oldest host).
 
+from support import Compiler, set_target_compiler
 from support.files_holder import FilesHolder
 from support.bsp_sources.installer import Installer
 from support.docgen import docgen
@@ -278,6 +279,9 @@ def main():
         '--gen-doc', action="store_true",
         help='Generate the documentation')
     parser.add_argument(
+        '--compiler', default='GNAT',
+        help='The compiler to generate flags for (gnat or gnat_llvm, defaults to gnat)')
+    parser.add_argument(
         '-o', '--output', default='install',
         help='Where built runtimes will be installed')
     parser.add_argument(
@@ -303,6 +307,8 @@ def main():
         FilesHolder.link = True
     if args.force:
         Installer.overwrite = True
+
+    set_target_compiler(Compiler[args.compiler])
 
     boards = []
 
