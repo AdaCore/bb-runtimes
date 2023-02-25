@@ -2,7 +2,7 @@
 --                                                                          --
 --                         GNAT RUN-TIME COMPONENTS                         --
 --                                                                          --
---                    Copyright (C) 2016-2017, AdaCore                      --
+--                    Copyright (C) 2016-2023, AdaCore                      --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -309,8 +309,7 @@ package body Trap_Dump is
       end loop;
    end Mem_Dump32;
 
-   procedure Dump (Regs : Registers_List_Acc; Id : Natural)
-   is
+   procedure Dump (Regs : Registers_List_Acc; Id : Natural) is
       function To_Unsigned_64 is new Ada.Unchecked_Conversion
         (Registers_List_Acc, Unsigned_64);
       EL : Unsigned_32;
@@ -336,7 +335,7 @@ package body Trap_Dump is
          Put_02 (I);
          Put (':');
          Put_Hex8 (Regs.Xr (I));
-         if (I mod 4 = 3) or I = 30 then
+         if I mod 4 = 3 or I = 30 then
             New_Line;
          end if;
       end loop;
