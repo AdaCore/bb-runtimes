@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2006 The European Space Agency            --
---                     Copyright (C) 2003-2022, AdaCore                     --
+--                     Copyright (C) 2003-2023, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -396,17 +396,17 @@ package body System.BB.Board_Support is
       -- Set_Current_Priority --
       --------------------------
 
-      procedure Set_Current_Priority (Priority : Integer)
-      is
+      procedure Set_Current_Priority (Priority : Integer) is
       begin
          --  On the TMS570, FIQs cannot be masked by the processor. So, we need
          --  to disable them at the controller when required.
 
-         if (Priority = FIQ_Prio) xor FIQ_Masked then
+         if Priority = FIQ_Prio
+           xor FIQ_Masked
+         then
             if Priority = FIQ_Prio then
                VIM.REQENACLR (0) := VIM.FIRQPR (0);
                FIQ_Masked := True;
-
             else
                VIM.REQENASET (0) := VIM.FIRQPR (0);
                FIQ_Masked := False;

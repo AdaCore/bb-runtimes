@@ -335,7 +335,9 @@ package body Trap_Dump is
          Put_02 (I);
          Put (':');
          Put_Hex8 (Regs.Xr (I));
-         if I mod 4 = 3 or I = 30 then
+         if   I mod 4 = 3
+           or I = 30
+         then
             New_Line;
          end if;
       end loop;
