@@ -340,7 +340,7 @@ sources = {
             'hie/s-init__light.ads'],
         'qnx_srcs' : [
             'libgnat/s-parame.ads',
-            'libgnat/s-parame.adb',
+            'libgnat/s-parame__qnx.adb',
             'hie/s-init__light.ads']
     },
     'gccmath': {
