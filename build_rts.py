@@ -279,7 +279,7 @@ def main():
         '--gen-doc', action="store_true",
         help='Generate the documentation')
     parser.add_argument(
-        '--compiler', default='GNAT',
+        '--compiler', default='gnat',
         help='The compiler to generate flags for (gnat or gnat_llvm, defaults to gnat)')
     parser.add_argument(
         '-o', '--output', default='install',
