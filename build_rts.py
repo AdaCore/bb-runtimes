@@ -49,7 +49,7 @@ from visium import Visium
 from x86_64 import X8664Generic
 
 # native
-from native import X86Native, X8664Native
+from native import Aarch64Native, X86Native, X8664Native
 
 # vx7r2cert
 from vx7r2cert import AArch64Vx7r2Cert, ArmVx7r2Cert, \
@@ -226,6 +226,8 @@ def build_configs(target):
         t = X86Native()
     elif target in ('x86_64-linux', 'x86_64-windows', 'x86_64-windows64'):
         t = X8664Native()
+    elif target in ('aarch64-linux',):
+        t = Aarch64Native()
     # vx7r2cert
     elif target == "aarch64-vx7r2cert":
         t = AArch64Vx7r2Cert()

@@ -1,27 +1,19 @@
 from support.bsp_sources.target import DFBBTarget
 
 
-class X86Native(DFBBTarget):
-    @property
-    def name(self):
-        return 'native-x86'
+class Native(DFBBTarget):
+    def __init__(self):
+        super().__init__()
+        self.add_gnat_sources(
+            'src/s-macres__native.adb',
+            'src/s-textio__stdio.adb')
 
     @property
     def target(self):
         return None
 
-    def __init__(self):
-        super(X86Native, self).__init__()
-        self.add_gnat_sources(
-            'src/s-macres__native.adb',
-            'src/s-textio__stdio.adb')
-
     def has_libc(self, profile):
         return True
-
-    @property
-    def system_ads(self):
-        return {'light': 'system-xi-x86.ads'}
 
     def dump_runtime_xml(self, rts_name, rts):
         return ('<?xml version="1.0" ?>\n'
@@ -31,10 +23,20 @@ class X86Native(DFBBTarget):
                 '</gprconfig>\n')
 
     def amend_rts(self, rts_profile, cfg):
-        super(X86Native, self).amend_rts(rts_profile, cfg)
+        super().amend_rts(rts_profile, cfg)
 
 
-class X8664Native(X86Native):
+class X86Native(Native):
+    @property
+    def name(self):
+        return 'native-x86'
+
+    @property
+    def system_ads(self):
+        return {'light': 'system-xi-x86.ads'}
+
+
+class X8664Native(Native):
     @property
     def name(self):
         return 'native-x86_64'
@@ -46,3 +48,17 @@ class X8664Native(X86Native):
     @property
     def system_ads(self):
         return {'light': 'system-xi-x86_64.ads'}
+
+
+class Aarch64Native(Native):
+    @property
+    def name(self):
+        return 'native-aarch64'
+
+    @property
+    def is_64bit(self):
+        return True
+
+    @property
+    def system_ads(self):
+        return {'light': 'system-xi-arm.ads'}
