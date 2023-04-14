@@ -103,6 +103,8 @@ from vx7r2cert import (
 
 from qnx import Aarch64QNX, ARMQNX
 
+from freertos import ArmV7AFP_FreeRTOS
+
 import argparse
 import os
 import subprocess
@@ -121,6 +123,9 @@ def build_configs(target):
         t = ArmPikeOS5()
     elif target == "ppc-pikeos5":
         t = PPCPikeOS5()
+    # FreeRTOS
+    elif target == "arm-freertos-v7a-fp":
+        t = ArmV7AFP_FreeRTOS()
     # AArch64 elf
     elif target == "morello":
         t = Morello(uart_io=True)
