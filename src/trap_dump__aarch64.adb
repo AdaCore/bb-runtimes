@@ -27,8 +27,8 @@
 
 with System.Text_IO; use System.Text_IO;
 with System.Machine_Reset;
+with System.Storage_Elements; use System.Storage_Elements;
 with Interfaces.AArch64; use Interfaces.AArch64;
-with Ada.Unchecked_Conversion;
 
 package body Trap_Dump is
    Lock_Magic : constant Unsigned_32 := 16#0badcafe#;
@@ -310,8 +310,6 @@ package body Trap_Dump is
    end Mem_Dump32;
 
    procedure Dump (Regs : Registers_List_Acc; Id : Natural) is
-      function To_Unsigned_64 is new Ada.Unchecked_Conversion
-        (Registers_List_Acc, Unsigned_64);
       EL : Unsigned_32;
       C : Character;
    begin
@@ -352,7 +350,7 @@ package body Trap_Dump is
       Put ("  EL: ");
       Put_Hex1 (Unsigned_8 (EL / 4));
       Put ("  SP: ");
-      Put_Hex8 (To_Unsigned_64 (Regs));
+      Put_Hex8 (Unsigned_64 (To_Integer (Regs.all'Address)));
       Put ("  CPU: ");
       Put_Hex1 (Unsigned_8 (Get_MPIDR_EL1 and 3) + 1);
       New_Line;

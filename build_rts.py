@@ -26,7 +26,7 @@ from arm.cortexm import Stm32, Stm32l, Sam, SmartFusion2, LM3S, Microbit, \
 from arm.cortexar import TMS570, Rpi2, Rpi2Mc, Zynq7000, ZynqmpR5
 
 # Aarch64
-from aarch64 import Rpi3, Rpi3Mc, ZynqMP
+from aarch64 import Morello, Rpi3, Rpi3Mc, ZynqMP
 
 # Deos
 from deos import ArmDeos
@@ -80,6 +80,8 @@ def build_configs(target):
     elif target == 'ppc-pikeos5':
         t = PPCPikeOS5()
     # AArch64 elf
+    elif target == 'morello':
+        t = Morello()
     elif target == 'rpi3':
         t = Rpi3()
     elif target == 'rpi3mc':
