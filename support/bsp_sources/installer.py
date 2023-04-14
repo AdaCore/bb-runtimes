@@ -290,9 +290,12 @@ class Installer(object):
                     target_directive = 'for Target use "%s";' % self.tgt.target
                 source_dirs = ['gnat_user', 'gnat']
                 languages = langs['gnat']
+                runtime_spark_units = \
+                    readfile(getdatafilepath('runtime_spark_units.lst')).splitlines()
                 fp.write(template.format(
                     target_directive=target_directive,
                     source_dirs='", "'.join(source_dirs),
+                    runtime_spark_units='", "'.join(runtime_spark_units),
                     languages='", "'.join(languages)))
             if 'gnarl' in libs:
                 ravenscar_build = os.path.join(rts_path, "ravenscar_build.gpr")

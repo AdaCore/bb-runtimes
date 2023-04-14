@@ -104,4 +104,8 @@ project Runtime_Build is
     for Proof_Switches ("s-imgllli.ads") use ("--level=3");
   end Prove;
 
+  package CodePeer is
+    for Excluded_Source_Files use ("{runtime_spark_units}");
+  end CodePeer;
+
 end Runtime_Build;
