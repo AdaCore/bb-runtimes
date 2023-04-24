@@ -9,6 +9,8 @@
                  "--specs=${RUNTIME_DIR(Ada)}gnarl/vxworks7-cert-rtp-base-link.spec",
                  "--specs=${RUNTIME_DIR(Ada)}gnarl/vxworks7-cert-rtp-link.spec");
             end Linker;
+
+            %(compiler)s
 ]]>
         </config>
     </configuration>

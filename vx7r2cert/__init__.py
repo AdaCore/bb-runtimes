@@ -29,7 +29,25 @@ class Vx7r2Cert(Target):
         return True
 
     def dump_runtime_xml(self, rts_name, rts):
-        return readfile(f'vx7r2cert/runtime{self._rtp_suffix}.xml')
+
+        compiler_package = """
+            -- Prevent optimizations turning some loop patterns into
+            -- libc calls, e.g. string length computations into strlen,
+            -- as these introduce undesirable (for cert) dependencies
+            -- against external symbols.
+            package Compiler is
+              Common_Required_Switches :=
+                ("-fno-tree-loop-distribute-patterns");
+              for Leading_Required_Switches ("Ada") use
+                Compiler'Leading_Required_Switches ("Ada") &
+                Common_Required_Switches;
+              for Leading_Required_Switches ("C") use
+                Compiler'Leading_Required_Switches ("C") &
+                Common_Required_Switches;
+            end Compiler;
+        """
+        return readfile(f'vx7r2cert/runtime{self._rtp_suffix}.xml') % {
+            "compiler": compiler_package}
 
     def amend_rts(self, rts_profile, cfg):
         if self._is_rtp:
