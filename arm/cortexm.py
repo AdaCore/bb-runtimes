@@ -71,6 +71,9 @@ class ArmV6MTarget(Target):
             'src/s-bbarat.ads',
             'src/s-bbarat.adb')
 
+        if self.use_semihosting_io:
+            self.add_gnat_sources('src/s-sgshca__cortexm.adb')
+
 
 class ArmV7MTarget(ArmV6MTarget):
     @property

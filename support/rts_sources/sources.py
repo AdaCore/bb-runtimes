@@ -45,7 +45,7 @@ all_scenarios = {
     'Memory_Profile': ['small', 'large', 'huge'],
     # 32-bit or 64-bit timers available on the hardware
     'Timer': ['n/a', 'timer32', 'timer64'],
-    # Choose between Serial I/O or semihosting (Cortex-M specific)
+    # Choose between Serial I/O or semihosting (Arm specific)
     'Text_IO': ['serial', 'semihosting'],
     # How does the runtime integrate C support
     'Add_C_Integration': ['no', 'ada_clib', 'newlib'],
