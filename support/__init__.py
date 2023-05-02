@@ -21,8 +21,8 @@ def get_gnat_version(gnat_dir):
     except Exception:
         print('cannot find gnatvsn.ads')
         sys.exit(1)
-    m = re.search(r'Gnat_Static_Version_String : ' +
-                  r'constant String := "([^\(\)]+)(\(([0-9]+)\))?";',
+    m = re.search(r'Library_Version : ' +
+                  r'constant String := "([0-9]+)(\.([0-9]+))?";',
                   gnatvsn_content)
     if m:
         version = m.group(1).strip().split(".")[0]
