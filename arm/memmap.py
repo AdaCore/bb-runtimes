@@ -1,8 +1,52 @@
 #! /usr/bin/env python
 #
-# Copyright (C) 2016, AdaCore
+# Copyright (C) 2016-2023, AdaCore
 #
 # Python script to generate MMU tables.
+#
+# This script parses an XML file describing the memory layout and generates
+# assembly code containing the MMU tables.
+#
+# The input XML file contains a top-level <memmap> element containing one or
+# more <region> child elements. Each <region> element has the following
+# attributes, all of which have strings as values:
+#  * name: A name to identify the region. This is used for debug purposes.
+#  * virt: The virtual address of the region. This can be a hexadecimal number
+#          such as "0x80000000".
+#  * size: The size of the region in bytes. This can be a hexadecimal number.
+#  * access: Specifies the read/write/execute permissions of the region.
+#            The format contains 6 characters in the format: "rwxrwx".
+#            To disable a permission, replace it with a dash '-'.
+#            For EL1 MMU tables the first three rwx characters specify the
+#            permissions at EL1, and the second three rwx characters specify
+#            the permissions at EL0.
+#            Examples (for EL1 MMU tables):
+#              * "rw-rw-" specifies read/write permissions at EL1 and EL0.
+#              * "r-x---" specifies read/execute permissions at EL1 only.
+#            For EL2 MMU tables, the second three rwx characters are ignored.
+#  * cache: Specifies the caching mode. This can be "wc" (writeback caching)
+#           or "nc" (no caching).
+#  * cap_load: (Morello only). Sets the value of the LC bits for the region.
+#              Valid values are:
+#                * "zero_tag": Clear the capability valid tag when loading a
+#                              capability from the region.
+#                * "no_effect": No effect.
+#                * "fault_tgen_1": If CCTLR_ELx.TGENy is 1, fault loads of
+#                                  valid capabilities; otherwise no effect.
+#                * "fault_tgen_0": If CCTLR_ELx.TGENy is 0, fault loads of
+#                                  valid capabilities; otherwise no effect.
+#  * cap_store: (Morello only). Sets the value of the SC/CDBM bits for the
+#               region. Valid values are:
+#                 * "fault": Fault stores of valid capabilities.
+#                 * "track": Track stores of valid capabilities.
+#                 * "no_effect": No effect.
+#
+# Here's an example of a region on AArch64 which describes the 2 GB RAM
+# region starting at 0x80000000, with read/write/execute permissions
+# at EL1 only:
+#    <region access="rwx---" cache="wb"
+#      virt="0x80000000" size="0x80000000" name="ram"/>
+
 
 import getopt
 import sys
@@ -20,7 +64,7 @@ class Arch(object):
     def pageshift(self):
         return 12
 
-    def insert(self, name, virt, phys, size, cache, access):
+    def insert(self, name, virt, phys, size, cache, access, cap_load, cap_store):
         pass
 
     def generate(self, prefix):
@@ -38,7 +82,7 @@ class arm_mmu(Arch):
             self.pageshift = 20
         self.pagesize = 1 << self.pageshift
 
-    def insert(self, name, virt, phys, size, cache, access):
+    def insert(self, name, virt, phys, size, cache, access, cap_load, cap_store):
         # Convert cache
         if cache == 'wb':
             tex = 7
@@ -177,7 +221,7 @@ class aarch64_mmu(Arch):
         # Translation table (initially empty)
         self.tt = self.aarch64_pgd(self, 0, 48 - self.log2_entries)
 
-    def insert(self, name, virt, phys, size, cache, access):
+    def insert(self, name, virt, phys, size, cache, access, cap_load, cap_store):
 
         cont = 0    # Not contiguous (by default)
 
@@ -185,6 +229,54 @@ class aarch64_mmu(Arch):
         if self.mode is None or self.mode == "el1" or self.mode == "el2":
             # Convert cache
             attridx = {'wb': 0, 'nc': 1}[cache]
+
+            # Permitted values of cap_load for stage1 translation.
+            # These map to the LC field.
+            # See Section 2.14.1 of the "Arm Architecture Reference
+            # Manual Supplement Morello for A-profile Architecture"
+            # (version A.k)
+            cap_load_values_stage1 = [
+                'zero_tag',     # Zero Capability Tags
+                'no_effect',    # No effect
+                'fault_tgen_1', # If CCTLR_ELx.TGENy is 1, fault loads
+                                # of valid capabilities; otherwise no effect.
+                'fault_tgen_0'  # If CCTLR_ELx.TGENy is 0, fault loads
+                                # of valid capabilities; otherwise no effect.
+            ]
+
+            # Permitted vales of cap_store for stage 1 and 2 translation.
+            # These map to the SC and CDBM fields (treated as a single
+            # 2 bit field).
+            # See Section 2.14.1 of the "Arm Architecture Reference
+            # Manual Supplement Morello for A-profile Architecture"
+            # (version A.k)
+            cap_store_values = [
+                'fault',     # Fault stores of valid capabilities
+                'track',     # Track stores of valid capabilities
+                'no_effect', # No effect
+            ]
+
+            # Choose defaults
+            if cap_load is None:
+                cap_load = cap_load_values_stage1[0]  # default to zeroing tags
+
+            if cap_store is None:
+                cap_store = cap_store_values[0]  # default to faulting
+
+            if cap_load not in cap_load_values_stage1:
+                print("invalid value '%s' of cap_load for region %s" % (
+                    cap_load, name))
+                print("valid values are: %s" % cap_load_values_stage1)
+                exit(1)
+
+            if cap_store not in cap_store_values:
+                print("invalid value '%s' of cap_store for region %s" % (
+                    cap_store, name))
+                print("valid values are: %s" % cap_store_values)
+                exit(1)
+
+            lc = cap_load_values_stage1.index(cap_load)
+            sc_cdbm = cap_store_values.index(cap_store)
 
             if self.mode == "el2":
                 uxn = 0 if access[2] == 'x' else 1
@@ -214,7 +306,8 @@ class aarch64_mmu(Arch):
             SH = 2		# Shareability
             NS = 1      # Not secure
 
-            upper = (uxn << 54) | (pxn << 53) | (cont << 52)
+            upper = (lc << 61) | (sc_cdbm << 59) | (uxn << 54) \
+                | (pxn << 53) | (cont << 52)
             lower = (nG << 11) | (AF << 10) | (SH << 8) | (AP << 6) \
                 | (NS << 5) | (attridx << 2)
         elif self.mode == "stage2":
@@ -351,13 +444,15 @@ def parse_addr(str):
 
 
 class mmu_region(object):
-    def __init__(self, name, virt, phys, size, cache, access):
+    def __init__(self, name, virt, phys, size, cache, access, cap_load, cap_store):
         self.name = name
         self.virt = virt
         self.phys = phys
         self.size = size
         self.cache = cache
         self.access = access
+        self.cap_load = cap_load
+        self.cap_store = cap_store
 
 
 def parse_memmap(mmu, root):
@@ -385,8 +480,10 @@ def parse_memmap(mmu, root):
 
         cache = child.attrib['cache']
         access = child.attrib['access']
+        cap_load = child.attrib.get('cap_load', None)
+        cap_store = child.attrib.get('cap_store', None)
 
-        res.append(mmu_region(name, virt, phys, size, cache, access))
+        res.append(mmu_region(name, virt, phys, size, cache, access, cap_load, cap_store))
 
     return res
 
@@ -470,7 +567,7 @@ def main():
     regions = parse_memmap(mmu, root)
 
     for r in regions:
-        mmu.insert(r.name, r.virt, r.phys, r.size, r.cache, r.access)
+        mmu.insert(r.name, r.virt, r.phys, r.size, r.cache, r.access, r.cap_load, r.cap_store)
 
     mmu.generate("__mmu")
 
