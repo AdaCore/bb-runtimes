@@ -939,7 +939,6 @@ sources = {
         'srcs': [
             'libgnat/a-nselfu.ads',
             'hie/a-numaux__ada.ads',
-            'libgnat/s-gearop.ads',  'libgnat/s-gearop.adb',
         ],
         'bb_srcs': [
             'hie/a-ngelfu__ada.ads', 'hie/a-ngelfu__ada.adb',
@@ -1030,11 +1029,10 @@ sources = {
     'math/full': {
         'conditions': ['Add_Math_Lib:!no', 'RTS_Profile:embedded'],
         'srcs': [
-            'libgnat/a-ngcoar.ads',
-            'libgnat/a-ngcoar.adb',
-            'libgnat/a-ngrear.ads',
-            'libgnat/a-ngrear.adb',
-            'libgnat/a-nurear.ads']
+            'libgnat/a-ngcoar.ads', 'libgnat/a-ngcoar.adb',
+            'libgnat/a-ngrear.ads', 'libgnat/a-ngrear.adb',
+            'libgnat/a-nurear.ads'
+            'libgnat/s-gearop.ads', 'libgnat/s-gearop.adb']
     },
     'math/softsp': {
         'conditions': ['Add_Math_Lib:softfloat,hardfloat_dp'],
