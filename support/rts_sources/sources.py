@@ -1031,7 +1031,7 @@ sources = {
         'srcs': [
             'libgnat/a-ngcoar.ads', 'libgnat/a-ngcoar.adb',
             'libgnat/a-ngrear.ads', 'libgnat/a-ngrear.adb',
-            'libgnat/a-nurear.ads'
+            'libgnat/a-nurear.ads',
             'libgnat/s-gearop.ads', 'libgnat/s-gearop.adb']
     },
     'math/softsp': {
