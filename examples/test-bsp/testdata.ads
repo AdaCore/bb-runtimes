@@ -31,6 +31,7 @@ pragma Warnings (Off);
 with System.BB.CPU_Primitives; use System.BB.CPU_Primitives;
 with System.BB.Board_Support; use System.BB.Board_Support;
 with System.BB.Parameters; use System.BB.Parameters;
+with System.BB.Time;
 pragma Warnings (On);
 package Testdata is
 
@@ -58,9 +59,9 @@ package Testdata is
    Running_Thread : access Context_Buffer;
    pragma Import (Asm, Running_Thread, "__gnat_running_thread_table");
 
-   subtype Interrupt_ID is Natural range 0 .. Number_Of_Interrupt_ID;
+   subtype Interrupt_ID is Natural range 0 .. 255;
 
-   Last_Alarm     : Timer_Interval := 0;
+   Last_Alarm     : System.BB.Time.Time := 0;
    pragma Volatile (Last_Alarm);
    subtype Alarm_Count is Natural range 0 .. 2000;
    Alarms         : Alarm_Count := 0;
