@@ -36,6 +36,7 @@
 
 MEMORY
 {
+  htif (rwx) : ORIGIN = 0x01000000, LENGTH = 0x1000
   ram  (rwx) : ORIGIN = 0x80000000, LENGTH = 128M
 }
 

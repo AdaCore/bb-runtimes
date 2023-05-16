@@ -29,7 +29,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with System;
 with Interfaces; use Interfaces;
 
 package body RISCV_Host_Target_Interface is
@@ -66,11 +65,13 @@ package body RISCV_Host_Target_Interface is
       Device  at 0 range 56 .. 63;
    end record;
 
+   --  Those two symbols are defined in start-ram.S in a section
+   --  controlled by the linker script.
    To_Host   : HTIF_Register
-     with Import, Size => 64, Address => System'To_Address (0);
+     with Import, Size => 64, External_Name => "tohost";
 
    From_Host : HTIF_Register
-     with Import, Size => 64, Address => System'To_Address (8);
+     with Import, Size => 64, External_Name => "fromhost";
 
    Console_Input_Buffer : HTIF_Payload := HTIF_Payload'Last;
    --  Store one character from the host.
