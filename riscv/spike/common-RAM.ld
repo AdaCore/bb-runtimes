@@ -47,12 +47,11 @@ ENTRY(_start_ram);
 
 SECTIONS
 {
-  /* The Host/Target Interface is located at address 0 */
-  . = 0;
+  /* The Host/Target Interface is located at address defined by htif.  */
   .host_target_interface :
   {
     KEEP(*(.host_target_interface))
-  }
+  } > htif
 
   .text :
   {
