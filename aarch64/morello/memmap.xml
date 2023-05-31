@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<memmap arch="aarch64" pageshift="12">
+  <!-- DRAM0, 2GB -->
+  <region access="rwx---" cache="wb" cap_load="no_effect" cap_store="no_effect"
+	  virt="0x80000000" size="0x80000000" name="ram"/>
+
+  <!-- Expansion AXI1 -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0x60000000" size="0x20000000" name="axi1"/>
+
+  <!-- Subsystem Peripherals -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0x2A000000" size="0x18000000" name="io"/>
+
+  <!-- Expansion AXI0 -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0x20000000" size="0x0A000000" name="axi0"/>
+
+  <!-- Expansion AXI (IOFPGA TLX manager IF) -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0x08000000" size="0x18000000" name="eaxi"/>
+
+</memmap>

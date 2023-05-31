@@ -29,7 +29,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Unchecked_Conversion;
 with System.Machine_Code; use System.Machine_Code;
 use System;
 
@@ -38,30 +37,35 @@ package body Interfaces.Cache is
 
    --  Binding of aarch64 instructions:
 
-   procedure DC_CIVAC (Addr : Unsigned_64) with Inline_Always;
-   procedure DC_IVAC (Addr : Unsigned_64) with Inline_Always;
+   procedure DC_CIVAC (Addr : System.Address) with Inline_Always;
+   procedure DC_IVAC (Addr : System.Address) with Inline_Always;
    procedure DSB with Inline_Always;
 
    procedure Set_CSSELR_EL1 (Val : Unsigned_32) with Inline_Always;
 
    --  Utility
 
-   function To_U64 is new Ada.Unchecked_Conversion
-     (Address, Unsigned_64);
+   Cache_Line : constant := 64;
+
+   function Align_To_Cache_Line
+     (Addr : System.Address)
+      return System.Address is
+        (Addr - Storage_Offset (Addr mod Cache_Line));
+   --  Align an address to the start of cache line that contains the address
 
    --  Intermediate subprograms
 
-   procedure DCache_Invalidate_Line (Addr : Unsigned_64) with Inline_Always;
-   procedure DCache_Flush_Line (Addr : Unsigned_64) with Inline_Always;
+   procedure DCache_Invalidate_Line (Addr : System.Address) with Inline_Always;
+   procedure DCache_Flush_Line (Addr : System.Address) with Inline_Always;
 
    --------------
    -- DC_CIVAC --
    --------------
 
-   procedure DC_CIVAC (Addr : Unsigned_64) is
+   procedure DC_CIVAC (Addr : System.Address) is
    begin
       Asm ("dc civac, %0",
-           Inputs => Unsigned_64'Asm_Input ("r", Addr),
+           Inputs => System.Address'Asm_Input ("r", Addr),
            Volatile => True);
    end DC_CIVAC;
 
@@ -69,10 +73,10 @@ package body Interfaces.Cache is
    -- DC_IVAC --
    -------------
 
-   procedure DC_IVAC (Addr : Unsigned_64) is
+   procedure DC_IVAC (Addr : System.Address) is
    begin
       Asm ("dc ivac, %0",
-           Inputs => Unsigned_64'Asm_Input ("r", Addr),
+           Inputs => System.Address'Asm_Input ("r", Addr),
            Volatile => True);
    end DC_IVAC;
 
@@ -100,7 +104,7 @@ package body Interfaces.Cache is
    -- DCache_Invalidate_Line --
    ----------------------------
 
-   procedure DCache_Invalidate_Line (Addr : Unsigned_64)
+   procedure DCache_Invalidate_Line (Addr : System.Address)
    is
    begin
       --  Select L1 D-cache
@@ -117,7 +121,7 @@ package body Interfaces.Cache is
    -- DCache_Flush_Line --
    -----------------------
 
-   procedure DCache_Flush_Line (Addr : Unsigned_64)
+   procedure DCache_Flush_Line (Addr : System.Address)
    is
    begin
       --  Select L1 D-cache
@@ -138,12 +142,10 @@ package body Interfaces.Cache is
      (Start  : System.Address;
       Len    : System.Storage_Elements.Storage_Count)
    is
-      Cache_Line : constant := 64;
-      Start_Addr : constant Unsigned_64 := To_U64 (Start);
-      Tmp_Addr   : Unsigned_64 := Start_Addr and (not (Cache_Line - 1));
+      Tmp_Addr   : System.Address := Align_To_Cache_Line (Start);
       --  Start address aligned on a cache line
-      End_Addr   : constant Unsigned_64 := To_U64 (Start + Len);
-      Tmp_End    : constant Unsigned_64 := End_Addr and (not (Cache_Line - 1));
+      End_Addr   : constant System.Address := Start + Len;
+      Tmp_End    : constant System.Address := Align_To_Cache_Line (End_Addr);
       --  End address aligned on a cache line
 
    begin
@@ -156,7 +158,7 @@ package body Interfaces.Cache is
 
       --  If the cache lines span outside the range, flush instead of
       --  invalidate, else we could lose neighbouring data
-      if Tmp_Addr /= To_U64 (Start) then
+      if Tmp_Addr /= Start then
          DCache_Flush_Line (Tmp_Addr);
          Tmp_Addr := Tmp_Addr + Cache_Line;
       end if;
@@ -181,9 +183,8 @@ package body Interfaces.Cache is
      (Start : System.Address;
       Len   : System.Storage_Elements.Storage_Count)
    is
-      Cache_Line : constant := 64;
-      Tmp_Addr   : Unsigned_64 := To_U64 (Start);
-      End_Addr   : constant Unsigned_64 := To_U64 (Start + Len);
+      Tmp_Addr   : System.Address := Align_To_Cache_Line (Start);
+      End_Addr   : constant System.Address := Start + Len;
 
    begin
       if Len = 0 then
@@ -192,11 +193,6 @@ package body Interfaces.Cache is
 
       --  Mask IRQs/FIQs during cache maintenance
       Asm ("msr DAIFSet, #3", Volatile => True);
-
-      if (Tmp_Addr and (Cache_Line - 1)) /= 0 then
-         --  Unaligned start address
-         Tmp_Addr := Tmp_Addr and (not (Cache_Line - 1));
-      end if;
 
       while Tmp_Addr < End_Addr loop
          DCache_Flush_Line (Tmp_Addr);

@@ -102,6 +102,11 @@ class TargetConfiguration(object):
         """
         return True
 
+    @property
+    def has_cheri(self):
+        """True if the hardware supports CHERI instructions"""
+        return False
+
     def has_libc(self, profile):
         """Whether libc is available and used on the target"""
         if profile == 'embedded':

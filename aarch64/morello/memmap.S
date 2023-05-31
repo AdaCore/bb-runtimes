@@ -1,0 +1,1039 @@
+// Automatically generated from memmap.xml
+//  cmd line: memmap.py --el1 --arch aarch64 memmap.xml
+
+// First level: 1 (w/ 4 entries), max VA: 2**32
+	.p2align 12
+__mmu_l2_00002a000:
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0x0060000008000665  // for 0x08000000, eaxi
+	.dword 0x0060000008200665  // for 0x08200000, eaxi
+	.dword 0x0060000008400665  // for 0x08400000, eaxi
+	.dword 0x0060000008600665  // for 0x08600000, eaxi
+	.dword 0x0060000008800665  // for 0x08800000, eaxi
+	.dword 0x0060000008a00665  // for 0x08a00000, eaxi
+	.dword 0x0060000008c00665  // for 0x08c00000, eaxi
+	.dword 0x0060000008e00665  // for 0x08e00000, eaxi
+	.dword 0x0060000009000665  // for 0x09000000, eaxi
+	.dword 0x0060000009200665  // for 0x09200000, eaxi
+	.dword 0x0060000009400665  // for 0x09400000, eaxi
+	.dword 0x0060000009600665  // for 0x09600000, eaxi
+	.dword 0x0060000009800665  // for 0x09800000, eaxi
+	.dword 0x0060000009a00665  // for 0x09a00000, eaxi
+	.dword 0x0060000009c00665  // for 0x09c00000, eaxi
+	.dword 0x0060000009e00665  // for 0x09e00000, eaxi
+	.dword 0x006000000a000665  // for 0x0a000000, eaxi
+	.dword 0x006000000a200665  // for 0x0a200000, eaxi
+	.dword 0x006000000a400665  // for 0x0a400000, eaxi
+	.dword 0x006000000a600665  // for 0x0a600000, eaxi
+	.dword 0x006000000a800665  // for 0x0a800000, eaxi
+	.dword 0x006000000aa00665  // for 0x0aa00000, eaxi
+	.dword 0x006000000ac00665  // for 0x0ac00000, eaxi
+	.dword 0x006000000ae00665  // for 0x0ae00000, eaxi
+	.dword 0x006000000b000665  // for 0x0b000000, eaxi
+	.dword 0x006000000b200665  // for 0x0b200000, eaxi
+	.dword 0x006000000b400665  // for 0x0b400000, eaxi
+	.dword 0x006000000b600665  // for 0x0b600000, eaxi
+	.dword 0x006000000b800665  // for 0x0b800000, eaxi
+	.dword 0x006000000ba00665  // for 0x0ba00000, eaxi
+	.dword 0x006000000bc00665  // for 0x0bc00000, eaxi
+	.dword 0x006000000be00665  // for 0x0be00000, eaxi
+	.dword 0x006000000c000665  // for 0x0c000000, eaxi
+	.dword 0x006000000c200665  // for 0x0c200000, eaxi
+	.dword 0x006000000c400665  // for 0x0c400000, eaxi
+	.dword 0x006000000c600665  // for 0x0c600000, eaxi
+	.dword 0x006000000c800665  // for 0x0c800000, eaxi
+	.dword 0x006000000ca00665  // for 0x0ca00000, eaxi
+	.dword 0x006000000cc00665  // for 0x0cc00000, eaxi
+	.dword 0x006000000ce00665  // for 0x0ce00000, eaxi
+	.dword 0x006000000d000665  // for 0x0d000000, eaxi
+	.dword 0x006000000d200665  // for 0x0d200000, eaxi
+	.dword 0x006000000d400665  // for 0x0d400000, eaxi
+	.dword 0x006000000d600665  // for 0x0d600000, eaxi
+	.dword 0x006000000d800665  // for 0x0d800000, eaxi
+	.dword 0x006000000da00665  // for 0x0da00000, eaxi
+	.dword 0x006000000dc00665  // for 0x0dc00000, eaxi
+	.dword 0x006000000de00665  // for 0x0de00000, eaxi
+	.dword 0x006000000e000665  // for 0x0e000000, eaxi
+	.dword 0x006000000e200665  // for 0x0e200000, eaxi
+	.dword 0x006000000e400665  // for 0x0e400000, eaxi
+	.dword 0x006000000e600665  // for 0x0e600000, eaxi
+	.dword 0x006000000e800665  // for 0x0e800000, eaxi
+	.dword 0x006000000ea00665  // for 0x0ea00000, eaxi
+	.dword 0x006000000ec00665  // for 0x0ec00000, eaxi
+	.dword 0x006000000ee00665  // for 0x0ee00000, eaxi
+	.dword 0x006000000f000665  // for 0x0f000000, eaxi
+	.dword 0x006000000f200665  // for 0x0f200000, eaxi
+	.dword 0x006000000f400665  // for 0x0f400000, eaxi
+	.dword 0x006000000f600665  // for 0x0f600000, eaxi
+	.dword 0x006000000f800665  // for 0x0f800000, eaxi
+	.dword 0x006000000fa00665  // for 0x0fa00000, eaxi
+	.dword 0x006000000fc00665  // for 0x0fc00000, eaxi
+	.dword 0x006000000fe00665  // for 0x0fe00000, eaxi
+	.dword 0x0060000010000665  // for 0x10000000, eaxi
+	.dword 0x0060000010200665  // for 0x10200000, eaxi
+	.dword 0x0060000010400665  // for 0x10400000, eaxi
+	.dword 0x0060000010600665  // for 0x10600000, eaxi
+	.dword 0x0060000010800665  // for 0x10800000, eaxi
+	.dword 0x0060000010a00665  // for 0x10a00000, eaxi
+	.dword 0x0060000010c00665  // for 0x10c00000, eaxi
+	.dword 0x0060000010e00665  // for 0x10e00000, eaxi
+	.dword 0x0060000011000665  // for 0x11000000, eaxi
+	.dword 0x0060000011200665  // for 0x11200000, eaxi
+	.dword 0x0060000011400665  // for 0x11400000, eaxi
+	.dword 0x0060000011600665  // for 0x11600000, eaxi
+	.dword 0x0060000011800665  // for 0x11800000, eaxi
+	.dword 0x0060000011a00665  // for 0x11a00000, eaxi
+	.dword 0x0060000011c00665  // for 0x11c00000, eaxi
+	.dword 0x0060000011e00665  // for 0x11e00000, eaxi
+	.dword 0x0060000012000665  // for 0x12000000, eaxi
+	.dword 0x0060000012200665  // for 0x12200000, eaxi
+	.dword 0x0060000012400665  // for 0x12400000, eaxi
+	.dword 0x0060000012600665  // for 0x12600000, eaxi
+	.dword 0x0060000012800665  // for 0x12800000, eaxi
+	.dword 0x0060000012a00665  // for 0x12a00000, eaxi
+	.dword 0x0060000012c00665  // for 0x12c00000, eaxi
+	.dword 0x0060000012e00665  // for 0x12e00000, eaxi
+	.dword 0x0060000013000665  // for 0x13000000, eaxi
+	.dword 0x0060000013200665  // for 0x13200000, eaxi
+	.dword 0x0060000013400665  // for 0x13400000, eaxi
+	.dword 0x0060000013600665  // for 0x13600000, eaxi
+	.dword 0x0060000013800665  // for 0x13800000, eaxi
+	.dword 0x0060000013a00665  // for 0x13a00000, eaxi
+	.dword 0x0060000013c00665  // for 0x13c00000, eaxi
+	.dword 0x0060000013e00665  // for 0x13e00000, eaxi
+	.dword 0x0060000014000665  // for 0x14000000, eaxi
+	.dword 0x0060000014200665  // for 0x14200000, eaxi
+	.dword 0x0060000014400665  // for 0x14400000, eaxi
+	.dword 0x0060000014600665  // for 0x14600000, eaxi
+	.dword 0x0060000014800665  // for 0x14800000, eaxi
+	.dword 0x0060000014a00665  // for 0x14a00000, eaxi
+	.dword 0x0060000014c00665  // for 0x14c00000, eaxi
+	.dword 0x0060000014e00665  // for 0x14e00000, eaxi
+	.dword 0x0060000015000665  // for 0x15000000, eaxi
+	.dword 0x0060000015200665  // for 0x15200000, eaxi
+	.dword 0x0060000015400665  // for 0x15400000, eaxi
+	.dword 0x0060000015600665  // for 0x15600000, eaxi
+	.dword 0x0060000015800665  // for 0x15800000, eaxi
+	.dword 0x0060000015a00665  // for 0x15a00000, eaxi
+	.dword 0x0060000015c00665  // for 0x15c00000, eaxi
+	.dword 0x0060000015e00665  // for 0x15e00000, eaxi
+	.dword 0x0060000016000665  // for 0x16000000, eaxi
+	.dword 0x0060000016200665  // for 0x16200000, eaxi
+	.dword 0x0060000016400665  // for 0x16400000, eaxi
+	.dword 0x0060000016600665  // for 0x16600000, eaxi
+	.dword 0x0060000016800665  // for 0x16800000, eaxi
+	.dword 0x0060000016a00665  // for 0x16a00000, eaxi
+	.dword 0x0060000016c00665  // for 0x16c00000, eaxi
+	.dword 0x0060000016e00665  // for 0x16e00000, eaxi
+	.dword 0x0060000017000665  // for 0x17000000, eaxi
+	.dword 0x0060000017200665  // for 0x17200000, eaxi
+	.dword 0x0060000017400665  // for 0x17400000, eaxi
+	.dword 0x0060000017600665  // for 0x17600000, eaxi
+	.dword 0x0060000017800665  // for 0x17800000, eaxi
+	.dword 0x0060000017a00665  // for 0x17a00000, eaxi
+	.dword 0x0060000017c00665  // for 0x17c00000, eaxi
+	.dword 0x0060000017e00665  // for 0x17e00000, eaxi
+	.dword 0x0060000018000665  // for 0x18000000, eaxi
+	.dword 0x0060000018200665  // for 0x18200000, eaxi
+	.dword 0x0060000018400665  // for 0x18400000, eaxi
+	.dword 0x0060000018600665  // for 0x18600000, eaxi
+	.dword 0x0060000018800665  // for 0x18800000, eaxi
+	.dword 0x0060000018a00665  // for 0x18a00000, eaxi
+	.dword 0x0060000018c00665  // for 0x18c00000, eaxi
+	.dword 0x0060000018e00665  // for 0x18e00000, eaxi
+	.dword 0x0060000019000665  // for 0x19000000, eaxi
+	.dword 0x0060000019200665  // for 0x19200000, eaxi
+	.dword 0x0060000019400665  // for 0x19400000, eaxi
+	.dword 0x0060000019600665  // for 0x19600000, eaxi
+	.dword 0x0060000019800665  // for 0x19800000, eaxi
+	.dword 0x0060000019a00665  // for 0x19a00000, eaxi
+	.dword 0x0060000019c00665  // for 0x19c00000, eaxi
+	.dword 0x0060000019e00665  // for 0x19e00000, eaxi
+	.dword 0x006000001a000665  // for 0x1a000000, eaxi
+	.dword 0x006000001a200665  // for 0x1a200000, eaxi
+	.dword 0x006000001a400665  // for 0x1a400000, eaxi
+	.dword 0x006000001a600665  // for 0x1a600000, eaxi
+	.dword 0x006000001a800665  // for 0x1a800000, eaxi
+	.dword 0x006000001aa00665  // for 0x1aa00000, eaxi
+	.dword 0x006000001ac00665  // for 0x1ac00000, eaxi
+	.dword 0x006000001ae00665  // for 0x1ae00000, eaxi
+	.dword 0x006000001b000665  // for 0x1b000000, eaxi
+	.dword 0x006000001b200665  // for 0x1b200000, eaxi
+	.dword 0x006000001b400665  // for 0x1b400000, eaxi
+	.dword 0x006000001b600665  // for 0x1b600000, eaxi
+	.dword 0x006000001b800665  // for 0x1b800000, eaxi
+	.dword 0x006000001ba00665  // for 0x1ba00000, eaxi
+	.dword 0x006000001bc00665  // for 0x1bc00000, eaxi
+	.dword 0x006000001be00665  // for 0x1be00000, eaxi
+	.dword 0x006000001c000665  // for 0x1c000000, eaxi
+	.dword 0x006000001c200665  // for 0x1c200000, eaxi
+	.dword 0x006000001c400665  // for 0x1c400000, eaxi
+	.dword 0x006000001c600665  // for 0x1c600000, eaxi
+	.dword 0x006000001c800665  // for 0x1c800000, eaxi
+	.dword 0x006000001ca00665  // for 0x1ca00000, eaxi
+	.dword 0x006000001cc00665  // for 0x1cc00000, eaxi
+	.dword 0x006000001ce00665  // for 0x1ce00000, eaxi
+	.dword 0x006000001d000665  // for 0x1d000000, eaxi
+	.dword 0x006000001d200665  // for 0x1d200000, eaxi
+	.dword 0x006000001d400665  // for 0x1d400000, eaxi
+	.dword 0x006000001d600665  // for 0x1d600000, eaxi
+	.dword 0x006000001d800665  // for 0x1d800000, eaxi
+	.dword 0x006000001da00665  // for 0x1da00000, eaxi
+	.dword 0x006000001dc00665  // for 0x1dc00000, eaxi
+	.dword 0x006000001de00665  // for 0x1de00000, eaxi
+	.dword 0x006000001e000665  // for 0x1e000000, eaxi
+	.dword 0x006000001e200665  // for 0x1e200000, eaxi
+	.dword 0x006000001e400665  // for 0x1e400000, eaxi
+	.dword 0x006000001e600665  // for 0x1e600000, eaxi
+	.dword 0x006000001e800665  // for 0x1e800000, eaxi
+	.dword 0x006000001ea00665  // for 0x1ea00000, eaxi
+	.dword 0x006000001ec00665  // for 0x1ec00000, eaxi
+	.dword 0x006000001ee00665  // for 0x1ee00000, eaxi
+	.dword 0x006000001f000665  // for 0x1f000000, eaxi
+	.dword 0x006000001f200665  // for 0x1f200000, eaxi
+	.dword 0x006000001f400665  // for 0x1f400000, eaxi
+	.dword 0x006000001f600665  // for 0x1f600000, eaxi
+	.dword 0x006000001f800665  // for 0x1f800000, eaxi
+	.dword 0x006000001fa00665  // for 0x1fa00000, eaxi
+	.dword 0x006000001fc00665  // for 0x1fc00000, eaxi
+	.dword 0x006000001fe00665  // for 0x1fe00000, eaxi
+	.dword 0x0060000020000665  // for 0x20000000, axi0
+	.dword 0x0060000020200665  // for 0x20200000, axi0
+	.dword 0x0060000020400665  // for 0x20400000, axi0
+	.dword 0x0060000020600665  // for 0x20600000, axi0
+	.dword 0x0060000020800665  // for 0x20800000, axi0
+	.dword 0x0060000020a00665  // for 0x20a00000, axi0
+	.dword 0x0060000020c00665  // for 0x20c00000, axi0
+	.dword 0x0060000020e00665  // for 0x20e00000, axi0
+	.dword 0x0060000021000665  // for 0x21000000, axi0
+	.dword 0x0060000021200665  // for 0x21200000, axi0
+	.dword 0x0060000021400665  // for 0x21400000, axi0
+	.dword 0x0060000021600665  // for 0x21600000, axi0
+	.dword 0x0060000021800665  // for 0x21800000, axi0
+	.dword 0x0060000021a00665  // for 0x21a00000, axi0
+	.dword 0x0060000021c00665  // for 0x21c00000, axi0
+	.dword 0x0060000021e00665  // for 0x21e00000, axi0
+	.dword 0x0060000022000665  // for 0x22000000, axi0
+	.dword 0x0060000022200665  // for 0x22200000, axi0
+	.dword 0x0060000022400665  // for 0x22400000, axi0
+	.dword 0x0060000022600665  // for 0x22600000, axi0
+	.dword 0x0060000022800665  // for 0x22800000, axi0
+	.dword 0x0060000022a00665  // for 0x22a00000, axi0
+	.dword 0x0060000022c00665  // for 0x22c00000, axi0
+	.dword 0x0060000022e00665  // for 0x22e00000, axi0
+	.dword 0x0060000023000665  // for 0x23000000, axi0
+	.dword 0x0060000023200665  // for 0x23200000, axi0
+	.dword 0x0060000023400665  // for 0x23400000, axi0
+	.dword 0x0060000023600665  // for 0x23600000, axi0
+	.dword 0x0060000023800665  // for 0x23800000, axi0
+	.dword 0x0060000023a00665  // for 0x23a00000, axi0
+	.dword 0x0060000023c00665  // for 0x23c00000, axi0
+	.dword 0x0060000023e00665  // for 0x23e00000, axi0
+	.dword 0x0060000024000665  // for 0x24000000, axi0
+	.dword 0x0060000024200665  // for 0x24200000, axi0
+	.dword 0x0060000024400665  // for 0x24400000, axi0
+	.dword 0x0060000024600665  // for 0x24600000, axi0
+	.dword 0x0060000024800665  // for 0x24800000, axi0
+	.dword 0x0060000024a00665  // for 0x24a00000, axi0
+	.dword 0x0060000024c00665  // for 0x24c00000, axi0
+	.dword 0x0060000024e00665  // for 0x24e00000, axi0
+	.dword 0x0060000025000665  // for 0x25000000, axi0
+	.dword 0x0060000025200665  // for 0x25200000, axi0
+	.dword 0x0060000025400665  // for 0x25400000, axi0
+	.dword 0x0060000025600665  // for 0x25600000, axi0
+	.dword 0x0060000025800665  // for 0x25800000, axi0
+	.dword 0x0060000025a00665  // for 0x25a00000, axi0
+	.dword 0x0060000025c00665  // for 0x25c00000, axi0
+	.dword 0x0060000025e00665  // for 0x25e00000, axi0
+	.dword 0x0060000026000665  // for 0x26000000, axi0
+	.dword 0x0060000026200665  // for 0x26200000, axi0
+	.dword 0x0060000026400665  // for 0x26400000, axi0
+	.dword 0x0060000026600665  // for 0x26600000, axi0
+	.dword 0x0060000026800665  // for 0x26800000, axi0
+	.dword 0x0060000026a00665  // for 0x26a00000, axi0
+	.dword 0x0060000026c00665  // for 0x26c00000, axi0
+	.dword 0x0060000026e00665  // for 0x26e00000, axi0
+	.dword 0x0060000027000665  // for 0x27000000, axi0
+	.dword 0x0060000027200665  // for 0x27200000, axi0
+	.dword 0x0060000027400665  // for 0x27400000, axi0
+	.dword 0x0060000027600665  // for 0x27600000, axi0
+	.dword 0x0060000027800665  // for 0x27800000, axi0
+	.dword 0x0060000027a00665  // for 0x27a00000, axi0
+	.dword 0x0060000027c00665  // for 0x27c00000, axi0
+	.dword 0x0060000027e00665  // for 0x27e00000, axi0
+	.dword 0x0060000028000665  // for 0x28000000, axi0
+	.dword 0x0060000028200665  // for 0x28200000, axi0
+	.dword 0x0060000028400665  // for 0x28400000, axi0
+	.dword 0x0060000028600665  // for 0x28600000, axi0
+	.dword 0x0060000028800665  // for 0x28800000, axi0
+	.dword 0x0060000028a00665  // for 0x28a00000, axi0
+	.dword 0x0060000028c00665  // for 0x28c00000, axi0
+	.dword 0x0060000028e00665  // for 0x28e00000, axi0
+	.dword 0x0060000029000665  // for 0x29000000, axi0
+	.dword 0x0060000029200665  // for 0x29200000, axi0
+	.dword 0x0060000029400665  // for 0x29400000, axi0
+	.dword 0x0060000029600665  // for 0x29600000, axi0
+	.dword 0x0060000029800665  // for 0x29800000, axi0
+	.dword 0x0060000029a00665  // for 0x29a00000, axi0
+	.dword 0x0060000029c00665  // for 0x29c00000, axi0
+	.dword 0x0060000029e00665  // for 0x29e00000, axi0
+	.dword 0x006000002a000665  // for 0x2a000000, io
+	.dword 0x006000002a200665  // for 0x2a200000, io
+	.dword 0x006000002a400665  // for 0x2a400000, io
+	.dword 0x006000002a600665  // for 0x2a600000, io
+	.dword 0x006000002a800665  // for 0x2a800000, io
+	.dword 0x006000002aa00665  // for 0x2aa00000, io
+	.dword 0x006000002ac00665  // for 0x2ac00000, io
+	.dword 0x006000002ae00665  // for 0x2ae00000, io
+	.dword 0x006000002b000665  // for 0x2b000000, io
+	.dword 0x006000002b200665  // for 0x2b200000, io
+	.dword 0x006000002b400665  // for 0x2b400000, io
+	.dword 0x006000002b600665  // for 0x2b600000, io
+	.dword 0x006000002b800665  // for 0x2b800000, io
+	.dword 0x006000002ba00665  // for 0x2ba00000, io
+	.dword 0x006000002bc00665  // for 0x2bc00000, io
+	.dword 0x006000002be00665  // for 0x2be00000, io
+	.dword 0x006000002c000665  // for 0x2c000000, io
+	.dword 0x006000002c200665  // for 0x2c200000, io
+	.dword 0x006000002c400665  // for 0x2c400000, io
+	.dword 0x006000002c600665  // for 0x2c600000, io
+	.dword 0x006000002c800665  // for 0x2c800000, io
+	.dword 0x006000002ca00665  // for 0x2ca00000, io
+	.dword 0x006000002cc00665  // for 0x2cc00000, io
+	.dword 0x006000002ce00665  // for 0x2ce00000, io
+	.dword 0x006000002d000665  // for 0x2d000000, io
+	.dword 0x006000002d200665  // for 0x2d200000, io
+	.dword 0x006000002d400665  // for 0x2d400000, io
+	.dword 0x006000002d600665  // for 0x2d600000, io
+	.dword 0x006000002d800665  // for 0x2d800000, io
+	.dword 0x006000002da00665  // for 0x2da00000, io
+	.dword 0x006000002dc00665  // for 0x2dc00000, io
+	.dword 0x006000002de00665  // for 0x2de00000, io
+	.dword 0x006000002e000665  // for 0x2e000000, io
+	.dword 0x006000002e200665  // for 0x2e200000, io
+	.dword 0x006000002e400665  // for 0x2e400000, io
+	.dword 0x006000002e600665  // for 0x2e600000, io
+	.dword 0x006000002e800665  // for 0x2e800000, io
+	.dword 0x006000002ea00665  // for 0x2ea00000, io
+	.dword 0x006000002ec00665  // for 0x2ec00000, io
+	.dword 0x006000002ee00665  // for 0x2ee00000, io
+	.dword 0x006000002f000665  // for 0x2f000000, io
+	.dword 0x006000002f200665  // for 0x2f200000, io
+	.dword 0x006000002f400665  // for 0x2f400000, io
+	.dword 0x006000002f600665  // for 0x2f600000, io
+	.dword 0x006000002f800665  // for 0x2f800000, io
+	.dword 0x006000002fa00665  // for 0x2fa00000, io
+	.dword 0x006000002fc00665  // for 0x2fc00000, io
+	.dword 0x006000002fe00665  // for 0x2fe00000, io
+	.dword 0x0060000030000665  // for 0x30000000, io
+	.dword 0x0060000030200665  // for 0x30200000, io
+	.dword 0x0060000030400665  // for 0x30400000, io
+	.dword 0x0060000030600665  // for 0x30600000, io
+	.dword 0x0060000030800665  // for 0x30800000, io
+	.dword 0x0060000030a00665  // for 0x30a00000, io
+	.dword 0x0060000030c00665  // for 0x30c00000, io
+	.dword 0x0060000030e00665  // for 0x30e00000, io
+	.dword 0x0060000031000665  // for 0x31000000, io
+	.dword 0x0060000031200665  // for 0x31200000, io
+	.dword 0x0060000031400665  // for 0x31400000, io
+	.dword 0x0060000031600665  // for 0x31600000, io
+	.dword 0x0060000031800665  // for 0x31800000, io
+	.dword 0x0060000031a00665  // for 0x31a00000, io
+	.dword 0x0060000031c00665  // for 0x31c00000, io
+	.dword 0x0060000031e00665  // for 0x31e00000, io
+	.dword 0x0060000032000665  // for 0x32000000, io
+	.dword 0x0060000032200665  // for 0x32200000, io
+	.dword 0x0060000032400665  // for 0x32400000, io
+	.dword 0x0060000032600665  // for 0x32600000, io
+	.dword 0x0060000032800665  // for 0x32800000, io
+	.dword 0x0060000032a00665  // for 0x32a00000, io
+	.dword 0x0060000032c00665  // for 0x32c00000, io
+	.dword 0x0060000032e00665  // for 0x32e00000, io
+	.dword 0x0060000033000665  // for 0x33000000, io
+	.dword 0x0060000033200665  // for 0x33200000, io
+	.dword 0x0060000033400665  // for 0x33400000, io
+	.dword 0x0060000033600665  // for 0x33600000, io
+	.dword 0x0060000033800665  // for 0x33800000, io
+	.dword 0x0060000033a00665  // for 0x33a00000, io
+	.dword 0x0060000033c00665  // for 0x33c00000, io
+	.dword 0x0060000033e00665  // for 0x33e00000, io
+	.dword 0x0060000034000665  // for 0x34000000, io
+	.dword 0x0060000034200665  // for 0x34200000, io
+	.dword 0x0060000034400665  // for 0x34400000, io
+	.dword 0x0060000034600665  // for 0x34600000, io
+	.dword 0x0060000034800665  // for 0x34800000, io
+	.dword 0x0060000034a00665  // for 0x34a00000, io
+	.dword 0x0060000034c00665  // for 0x34c00000, io
+	.dword 0x0060000034e00665  // for 0x34e00000, io
+	.dword 0x0060000035000665  // for 0x35000000, io
+	.dword 0x0060000035200665  // for 0x35200000, io
+	.dword 0x0060000035400665  // for 0x35400000, io
+	.dword 0x0060000035600665  // for 0x35600000, io
+	.dword 0x0060000035800665  // for 0x35800000, io
+	.dword 0x0060000035a00665  // for 0x35a00000, io
+	.dword 0x0060000035c00665  // for 0x35c00000, io
+	.dword 0x0060000035e00665  // for 0x35e00000, io
+	.dword 0x0060000036000665  // for 0x36000000, io
+	.dword 0x0060000036200665  // for 0x36200000, io
+	.dword 0x0060000036400665  // for 0x36400000, io
+	.dword 0x0060000036600665  // for 0x36600000, io
+	.dword 0x0060000036800665  // for 0x36800000, io
+	.dword 0x0060000036a00665  // for 0x36a00000, io
+	.dword 0x0060000036c00665  // for 0x36c00000, io
+	.dword 0x0060000036e00665  // for 0x36e00000, io
+	.dword 0x0060000037000665  // for 0x37000000, io
+	.dword 0x0060000037200665  // for 0x37200000, io
+	.dword 0x0060000037400665  // for 0x37400000, io
+	.dword 0x0060000037600665  // for 0x37600000, io
+	.dword 0x0060000037800665  // for 0x37800000, io
+	.dword 0x0060000037a00665  // for 0x37a00000, io
+	.dword 0x0060000037c00665  // for 0x37c00000, io
+	.dword 0x0060000037e00665  // for 0x37e00000, io
+	.dword 0x0060000038000665  // for 0x38000000, io
+	.dword 0x0060000038200665  // for 0x38200000, io
+	.dword 0x0060000038400665  // for 0x38400000, io
+	.dword 0x0060000038600665  // for 0x38600000, io
+	.dword 0x0060000038800665  // for 0x38800000, io
+	.dword 0x0060000038a00665  // for 0x38a00000, io
+	.dword 0x0060000038c00665  // for 0x38c00000, io
+	.dword 0x0060000038e00665  // for 0x38e00000, io
+	.dword 0x0060000039000665  // for 0x39000000, io
+	.dword 0x0060000039200665  // for 0x39200000, io
+	.dword 0x0060000039400665  // for 0x39400000, io
+	.dword 0x0060000039600665  // for 0x39600000, io
+	.dword 0x0060000039800665  // for 0x39800000, io
+	.dword 0x0060000039a00665  // for 0x39a00000, io
+	.dword 0x0060000039c00665  // for 0x39c00000, io
+	.dword 0x0060000039e00665  // for 0x39e00000, io
+	.dword 0x006000003a000665  // for 0x3a000000, io
+	.dword 0x006000003a200665  // for 0x3a200000, io
+	.dword 0x006000003a400665  // for 0x3a400000, io
+	.dword 0x006000003a600665  // for 0x3a600000, io
+	.dword 0x006000003a800665  // for 0x3a800000, io
+	.dword 0x006000003aa00665  // for 0x3aa00000, io
+	.dword 0x006000003ac00665  // for 0x3ac00000, io
+	.dword 0x006000003ae00665  // for 0x3ae00000, io
+	.dword 0x006000003b000665  // for 0x3b000000, io
+	.dword 0x006000003b200665  // for 0x3b200000, io
+	.dword 0x006000003b400665  // for 0x3b400000, io
+	.dword 0x006000003b600665  // for 0x3b600000, io
+	.dword 0x006000003b800665  // for 0x3b800000, io
+	.dword 0x006000003ba00665  // for 0x3ba00000, io
+	.dword 0x006000003bc00665  // for 0x3bc00000, io
+	.dword 0x006000003be00665  // for 0x3be00000, io
+	.dword 0x006000003c000665  // for 0x3c000000, io
+	.dword 0x006000003c200665  // for 0x3c200000, io
+	.dword 0x006000003c400665  // for 0x3c400000, io
+	.dword 0x006000003c600665  // for 0x3c600000, io
+	.dword 0x006000003c800665  // for 0x3c800000, io
+	.dword 0x006000003ca00665  // for 0x3ca00000, io
+	.dword 0x006000003cc00665  // for 0x3cc00000, io
+	.dword 0x006000003ce00665  // for 0x3ce00000, io
+	.dword 0x006000003d000665  // for 0x3d000000, io
+	.dword 0x006000003d200665  // for 0x3d200000, io
+	.dword 0x006000003d400665  // for 0x3d400000, io
+	.dword 0x006000003d600665  // for 0x3d600000, io
+	.dword 0x006000003d800665  // for 0x3d800000, io
+	.dword 0x006000003da00665  // for 0x3da00000, io
+	.dword 0x006000003dc00665  // for 0x3dc00000, io
+	.dword 0x006000003de00665  // for 0x3de00000, io
+	.dword 0x006000003e000665  // for 0x3e000000, io
+	.dword 0x006000003e200665  // for 0x3e200000, io
+	.dword 0x006000003e400665  // for 0x3e400000, io
+	.dword 0x006000003e600665  // for 0x3e600000, io
+	.dword 0x006000003e800665  // for 0x3e800000, io
+	.dword 0x006000003ea00665  // for 0x3ea00000, io
+	.dword 0x006000003ec00665  // for 0x3ec00000, io
+	.dword 0x006000003ee00665  // for 0x3ee00000, io
+	.dword 0x006000003f000665  // for 0x3f000000, io
+	.dword 0x006000003f200665  // for 0x3f200000, io
+	.dword 0x006000003f400665  // for 0x3f400000, io
+	.dword 0x006000003f600665  // for 0x3f600000, io
+	.dword 0x006000003f800665  // for 0x3f800000, io
+	.dword 0x006000003fa00665  // for 0x3fa00000, io
+	.dword 0x006000003fc00665  // for 0x3fc00000, io
+	.dword 0x006000003fe00665  // for 0x3fe00000, io
+	.p2align 12
+__mmu_l2_000060000:
+	.dword 0x0060000040000665  // for 0x40000000, io
+	.dword 0x0060000040200665  // for 0x40200000, io
+	.dword 0x0060000040400665  // for 0x40400000, io
+	.dword 0x0060000040600665  // for 0x40600000, io
+	.dword 0x0060000040800665  // for 0x40800000, io
+	.dword 0x0060000040a00665  // for 0x40a00000, io
+	.dword 0x0060000040c00665  // for 0x40c00000, io
+	.dword 0x0060000040e00665  // for 0x40e00000, io
+	.dword 0x0060000041000665  // for 0x41000000, io
+	.dword 0x0060000041200665  // for 0x41200000, io
+	.dword 0x0060000041400665  // for 0x41400000, io
+	.dword 0x0060000041600665  // for 0x41600000, io
+	.dword 0x0060000041800665  // for 0x41800000, io
+	.dword 0x0060000041a00665  // for 0x41a00000, io
+	.dword 0x0060000041c00665  // for 0x41c00000, io
+	.dword 0x0060000041e00665  // for 0x41e00000, io
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0
+	.dword 0x0060000060000665  // for 0x60000000, axi1
+	.dword 0x0060000060200665  // for 0x60200000, axi1
+	.dword 0x0060000060400665  // for 0x60400000, axi1
+	.dword 0x0060000060600665  // for 0x60600000, axi1
+	.dword 0x0060000060800665  // for 0x60800000, axi1
+	.dword 0x0060000060a00665  // for 0x60a00000, axi1
+	.dword 0x0060000060c00665  // for 0x60c00000, axi1
+	.dword 0x0060000060e00665  // for 0x60e00000, axi1
+	.dword 0x0060000061000665  // for 0x61000000, axi1
+	.dword 0x0060000061200665  // for 0x61200000, axi1
+	.dword 0x0060000061400665  // for 0x61400000, axi1
+	.dword 0x0060000061600665  // for 0x61600000, axi1
+	.dword 0x0060000061800665  // for 0x61800000, axi1
+	.dword 0x0060000061a00665  // for 0x61a00000, axi1
+	.dword 0x0060000061c00665  // for 0x61c00000, axi1
+	.dword 0x0060000061e00665  // for 0x61e00000, axi1
+	.dword 0x0060000062000665  // for 0x62000000, axi1
+	.dword 0x0060000062200665  // for 0x62200000, axi1
+	.dword 0x0060000062400665  // for 0x62400000, axi1
+	.dword 0x0060000062600665  // for 0x62600000, axi1
+	.dword 0x0060000062800665  // for 0x62800000, axi1
+	.dword 0x0060000062a00665  // for 0x62a00000, axi1
+	.dword 0x0060000062c00665  // for 0x62c00000, axi1
+	.dword 0x0060000062e00665  // for 0x62e00000, axi1
+	.dword 0x0060000063000665  // for 0x63000000, axi1
+	.dword 0x0060000063200665  // for 0x63200000, axi1
+	.dword 0x0060000063400665  // for 0x63400000, axi1
+	.dword 0x0060000063600665  // for 0x63600000, axi1
+	.dword 0x0060000063800665  // for 0x63800000, axi1
+	.dword 0x0060000063a00665  // for 0x63a00000, axi1
+	.dword 0x0060000063c00665  // for 0x63c00000, axi1
+	.dword 0x0060000063e00665  // for 0x63e00000, axi1
+	.dword 0x0060000064000665  // for 0x64000000, axi1
+	.dword 0x0060000064200665  // for 0x64200000, axi1
+	.dword 0x0060000064400665  // for 0x64400000, axi1
+	.dword 0x0060000064600665  // for 0x64600000, axi1
+	.dword 0x0060000064800665  // for 0x64800000, axi1
+	.dword 0x0060000064a00665  // for 0x64a00000, axi1
+	.dword 0x0060000064c00665  // for 0x64c00000, axi1
+	.dword 0x0060000064e00665  // for 0x64e00000, axi1
+	.dword 0x0060000065000665  // for 0x65000000, axi1
+	.dword 0x0060000065200665  // for 0x65200000, axi1
+	.dword 0x0060000065400665  // for 0x65400000, axi1
+	.dword 0x0060000065600665  // for 0x65600000, axi1
+	.dword 0x0060000065800665  // for 0x65800000, axi1
+	.dword 0x0060000065a00665  // for 0x65a00000, axi1
+	.dword 0x0060000065c00665  // for 0x65c00000, axi1
+	.dword 0x0060000065e00665  // for 0x65e00000, axi1
+	.dword 0x0060000066000665  // for 0x66000000, axi1
+	.dword 0x0060000066200665  // for 0x66200000, axi1
+	.dword 0x0060000066400665  // for 0x66400000, axi1
+	.dword 0x0060000066600665  // for 0x66600000, axi1
+	.dword 0x0060000066800665  // for 0x66800000, axi1
+	.dword 0x0060000066a00665  // for 0x66a00000, axi1
+	.dword 0x0060000066c00665  // for 0x66c00000, axi1
+	.dword 0x0060000066e00665  // for 0x66e00000, axi1
+	.dword 0x0060000067000665  // for 0x67000000, axi1
+	.dword 0x0060000067200665  // for 0x67200000, axi1
+	.dword 0x0060000067400665  // for 0x67400000, axi1
+	.dword 0x0060000067600665  // for 0x67600000, axi1
+	.dword 0x0060000067800665  // for 0x67800000, axi1
+	.dword 0x0060000067a00665  // for 0x67a00000, axi1
+	.dword 0x0060000067c00665  // for 0x67c00000, axi1
+	.dword 0x0060000067e00665  // for 0x67e00000, axi1
+	.dword 0x0060000068000665  // for 0x68000000, axi1
+	.dword 0x0060000068200665  // for 0x68200000, axi1
+	.dword 0x0060000068400665  // for 0x68400000, axi1
+	.dword 0x0060000068600665  // for 0x68600000, axi1
+	.dword 0x0060000068800665  // for 0x68800000, axi1
+	.dword 0x0060000068a00665  // for 0x68a00000, axi1
+	.dword 0x0060000068c00665  // for 0x68c00000, axi1
+	.dword 0x0060000068e00665  // for 0x68e00000, axi1
+	.dword 0x0060000069000665  // for 0x69000000, axi1
+	.dword 0x0060000069200665  // for 0x69200000, axi1
+	.dword 0x0060000069400665  // for 0x69400000, axi1
+	.dword 0x0060000069600665  // for 0x69600000, axi1
+	.dword 0x0060000069800665  // for 0x69800000, axi1
+	.dword 0x0060000069a00665  // for 0x69a00000, axi1
+	.dword 0x0060000069c00665  // for 0x69c00000, axi1
+	.dword 0x0060000069e00665  // for 0x69e00000, axi1
+	.dword 0x006000006a000665  // for 0x6a000000, axi1
+	.dword 0x006000006a200665  // for 0x6a200000, axi1
+	.dword 0x006000006a400665  // for 0x6a400000, axi1
+	.dword 0x006000006a600665  // for 0x6a600000, axi1
+	.dword 0x006000006a800665  // for 0x6a800000, axi1
+	.dword 0x006000006aa00665  // for 0x6aa00000, axi1
+	.dword 0x006000006ac00665  // for 0x6ac00000, axi1
+	.dword 0x006000006ae00665  // for 0x6ae00000, axi1
+	.dword 0x006000006b000665  // for 0x6b000000, axi1
+	.dword 0x006000006b200665  // for 0x6b200000, axi1
+	.dword 0x006000006b400665  // for 0x6b400000, axi1
+	.dword 0x006000006b600665  // for 0x6b600000, axi1
+	.dword 0x006000006b800665  // for 0x6b800000, axi1
+	.dword 0x006000006ba00665  // for 0x6ba00000, axi1
+	.dword 0x006000006bc00665  // for 0x6bc00000, axi1
+	.dword 0x006000006be00665  // for 0x6be00000, axi1
+	.dword 0x006000006c000665  // for 0x6c000000, axi1
+	.dword 0x006000006c200665  // for 0x6c200000, axi1
+	.dword 0x006000006c400665  // for 0x6c400000, axi1
+	.dword 0x006000006c600665  // for 0x6c600000, axi1
+	.dword 0x006000006c800665  // for 0x6c800000, axi1
+	.dword 0x006000006ca00665  // for 0x6ca00000, axi1
+	.dword 0x006000006cc00665  // for 0x6cc00000, axi1
+	.dword 0x006000006ce00665  // for 0x6ce00000, axi1
+	.dword 0x006000006d000665  // for 0x6d000000, axi1
+	.dword 0x006000006d200665  // for 0x6d200000, axi1
+	.dword 0x006000006d400665  // for 0x6d400000, axi1
+	.dword 0x006000006d600665  // for 0x6d600000, axi1
+	.dword 0x006000006d800665  // for 0x6d800000, axi1
+	.dword 0x006000006da00665  // for 0x6da00000, axi1
+	.dword 0x006000006dc00665  // for 0x6dc00000, axi1
+	.dword 0x006000006de00665  // for 0x6de00000, axi1
+	.dword 0x006000006e000665  // for 0x6e000000, axi1
+	.dword 0x006000006e200665  // for 0x6e200000, axi1
+	.dword 0x006000006e400665  // for 0x6e400000, axi1
+	.dword 0x006000006e600665  // for 0x6e600000, axi1
+	.dword 0x006000006e800665  // for 0x6e800000, axi1
+	.dword 0x006000006ea00665  // for 0x6ea00000, axi1
+	.dword 0x006000006ec00665  // for 0x6ec00000, axi1
+	.dword 0x006000006ee00665  // for 0x6ee00000, axi1
+	.dword 0x006000006f000665  // for 0x6f000000, axi1
+	.dword 0x006000006f200665  // for 0x6f200000, axi1
+	.dword 0x006000006f400665  // for 0x6f400000, axi1
+	.dword 0x006000006f600665  // for 0x6f600000, axi1
+	.dword 0x006000006f800665  // for 0x6f800000, axi1
+	.dword 0x006000006fa00665  // for 0x6fa00000, axi1
+	.dword 0x006000006fc00665  // for 0x6fc00000, axi1
+	.dword 0x006000006fe00665  // for 0x6fe00000, axi1
+	.dword 0x0060000070000665  // for 0x70000000, axi1
+	.dword 0x0060000070200665  // for 0x70200000, axi1
+	.dword 0x0060000070400665  // for 0x70400000, axi1
+	.dword 0x0060000070600665  // for 0x70600000, axi1
+	.dword 0x0060000070800665  // for 0x70800000, axi1
+	.dword 0x0060000070a00665  // for 0x70a00000, axi1
+	.dword 0x0060000070c00665  // for 0x70c00000, axi1
+	.dword 0x0060000070e00665  // for 0x70e00000, axi1
+	.dword 0x0060000071000665  // for 0x71000000, axi1
+	.dword 0x0060000071200665  // for 0x71200000, axi1
+	.dword 0x0060000071400665  // for 0x71400000, axi1
+	.dword 0x0060000071600665  // for 0x71600000, axi1
+	.dword 0x0060000071800665  // for 0x71800000, axi1
+	.dword 0x0060000071a00665  // for 0x71a00000, axi1
+	.dword 0x0060000071c00665  // for 0x71c00000, axi1
+	.dword 0x0060000071e00665  // for 0x71e00000, axi1
+	.dword 0x0060000072000665  // for 0x72000000, axi1
+	.dword 0x0060000072200665  // for 0x72200000, axi1
+	.dword 0x0060000072400665  // for 0x72400000, axi1
+	.dword 0x0060000072600665  // for 0x72600000, axi1
+	.dword 0x0060000072800665  // for 0x72800000, axi1
+	.dword 0x0060000072a00665  // for 0x72a00000, axi1
+	.dword 0x0060000072c00665  // for 0x72c00000, axi1
+	.dword 0x0060000072e00665  // for 0x72e00000, axi1
+	.dword 0x0060000073000665  // for 0x73000000, axi1
+	.dword 0x0060000073200665  // for 0x73200000, axi1
+	.dword 0x0060000073400665  // for 0x73400000, axi1
+	.dword 0x0060000073600665  // for 0x73600000, axi1
+	.dword 0x0060000073800665  // for 0x73800000, axi1
+	.dword 0x0060000073a00665  // for 0x73a00000, axi1
+	.dword 0x0060000073c00665  // for 0x73c00000, axi1
+	.dword 0x0060000073e00665  // for 0x73e00000, axi1
+	.dword 0x0060000074000665  // for 0x74000000, axi1
+	.dword 0x0060000074200665  // for 0x74200000, axi1
+	.dword 0x0060000074400665  // for 0x74400000, axi1
+	.dword 0x0060000074600665  // for 0x74600000, axi1
+	.dword 0x0060000074800665  // for 0x74800000, axi1
+	.dword 0x0060000074a00665  // for 0x74a00000, axi1
+	.dword 0x0060000074c00665  // for 0x74c00000, axi1
+	.dword 0x0060000074e00665  // for 0x74e00000, axi1
+	.dword 0x0060000075000665  // for 0x75000000, axi1
+	.dword 0x0060000075200665  // for 0x75200000, axi1
+	.dword 0x0060000075400665  // for 0x75400000, axi1
+	.dword 0x0060000075600665  // for 0x75600000, axi1
+	.dword 0x0060000075800665  // for 0x75800000, axi1
+	.dword 0x0060000075a00665  // for 0x75a00000, axi1
+	.dword 0x0060000075c00665  // for 0x75c00000, axi1
+	.dword 0x0060000075e00665  // for 0x75e00000, axi1
+	.dword 0x0060000076000665  // for 0x76000000, axi1
+	.dword 0x0060000076200665  // for 0x76200000, axi1
+	.dword 0x0060000076400665  // for 0x76400000, axi1
+	.dword 0x0060000076600665  // for 0x76600000, axi1
+	.dword 0x0060000076800665  // for 0x76800000, axi1
+	.dword 0x0060000076a00665  // for 0x76a00000, axi1
+	.dword 0x0060000076c00665  // for 0x76c00000, axi1
+	.dword 0x0060000076e00665  // for 0x76e00000, axi1
+	.dword 0x0060000077000665  // for 0x77000000, axi1
+	.dword 0x0060000077200665  // for 0x77200000, axi1
+	.dword 0x0060000077400665  // for 0x77400000, axi1
+	.dword 0x0060000077600665  // for 0x77600000, axi1
+	.dword 0x0060000077800665  // for 0x77800000, axi1
+	.dword 0x0060000077a00665  // for 0x77a00000, axi1
+	.dword 0x0060000077c00665  // for 0x77c00000, axi1
+	.dword 0x0060000077e00665  // for 0x77e00000, axi1
+	.dword 0x0060000078000665  // for 0x78000000, axi1
+	.dword 0x0060000078200665  // for 0x78200000, axi1
+	.dword 0x0060000078400665  // for 0x78400000, axi1
+	.dword 0x0060000078600665  // for 0x78600000, axi1
+	.dword 0x0060000078800665  // for 0x78800000, axi1
+	.dword 0x0060000078a00665  // for 0x78a00000, axi1
+	.dword 0x0060000078c00665  // for 0x78c00000, axi1
+	.dword 0x0060000078e00665  // for 0x78e00000, axi1
+	.dword 0x0060000079000665  // for 0x79000000, axi1
+	.dword 0x0060000079200665  // for 0x79200000, axi1
+	.dword 0x0060000079400665  // for 0x79400000, axi1
+	.dword 0x0060000079600665  // for 0x79600000, axi1
+	.dword 0x0060000079800665  // for 0x79800000, axi1
+	.dword 0x0060000079a00665  // for 0x79a00000, axi1
+	.dword 0x0060000079c00665  // for 0x79c00000, axi1
+	.dword 0x0060000079e00665  // for 0x79e00000, axi1
+	.dword 0x006000007a000665  // for 0x7a000000, axi1
+	.dword 0x006000007a200665  // for 0x7a200000, axi1
+	.dword 0x006000007a400665  // for 0x7a400000, axi1
+	.dword 0x006000007a600665  // for 0x7a600000, axi1
+	.dword 0x006000007a800665  // for 0x7a800000, axi1
+	.dword 0x006000007aa00665  // for 0x7aa00000, axi1
+	.dword 0x006000007ac00665  // for 0x7ac00000, axi1
+	.dword 0x006000007ae00665  // for 0x7ae00000, axi1
+	.dword 0x006000007b000665  // for 0x7b000000, axi1
+	.dword 0x006000007b200665  // for 0x7b200000, axi1
+	.dword 0x006000007b400665  // for 0x7b400000, axi1
+	.dword 0x006000007b600665  // for 0x7b600000, axi1
+	.dword 0x006000007b800665  // for 0x7b800000, axi1
+	.dword 0x006000007ba00665  // for 0x7ba00000, axi1
+	.dword 0x006000007bc00665  // for 0x7bc00000, axi1
+	.dword 0x006000007be00665  // for 0x7be00000, axi1
+	.dword 0x006000007c000665  // for 0x7c000000, axi1
+	.dword 0x006000007c200665  // for 0x7c200000, axi1
+	.dword 0x006000007c400665  // for 0x7c400000, axi1
+	.dword 0x006000007c600665  // for 0x7c600000, axi1
+	.dword 0x006000007c800665  // for 0x7c800000, axi1
+	.dword 0x006000007ca00665  // for 0x7ca00000, axi1
+	.dword 0x006000007cc00665  // for 0x7cc00000, axi1
+	.dword 0x006000007ce00665  // for 0x7ce00000, axi1
+	.dword 0x006000007d000665  // for 0x7d000000, axi1
+	.dword 0x006000007d200665  // for 0x7d200000, axi1
+	.dword 0x006000007d400665  // for 0x7d400000, axi1
+	.dword 0x006000007d600665  // for 0x7d600000, axi1
+	.dword 0x006000007d800665  // for 0x7d800000, axi1
+	.dword 0x006000007da00665  // for 0x7da00000, axi1
+	.dword 0x006000007dc00665  // for 0x7dc00000, axi1
+	.dword 0x006000007de00665  // for 0x7de00000, axi1
+	.dword 0x006000007e000665  // for 0x7e000000, axi1
+	.dword 0x006000007e200665  // for 0x7e200000, axi1
+	.dword 0x006000007e400665  // for 0x7e400000, axi1
+	.dword 0x006000007e600665  // for 0x7e600000, axi1
+	.dword 0x006000007e800665  // for 0x7e800000, axi1
+	.dword 0x006000007ea00665  // for 0x7ea00000, axi1
+	.dword 0x006000007ec00665  // for 0x7ec00000, axi1
+	.dword 0x006000007ee00665  // for 0x7ee00000, axi1
+	.dword 0x006000007f000665  // for 0x7f000000, axi1
+	.dword 0x006000007f200665  // for 0x7f200000, axi1
+	.dword 0x006000007f400665  // for 0x7f400000, axi1
+	.dword 0x006000007f600665  // for 0x7f600000, axi1
+	.dword 0x006000007f800665  // for 0x7f800000, axi1
+	.dword 0x006000007fa00665  // for 0x7fa00000, axi1
+	.dword 0x006000007fc00665  // for 0x7fc00000, axi1
+	.dword 0x006000007fe00665  // for 0x7fe00000, axi1
+	.p2align 12
+__mmu_l1_000080000:
+	.dword __mmu_l2_00002a000 + 0x3
+	.dword __mmu_l2_000060000 + 0x3
+	.dword 0x3000000080000621  // for 0x80000000, ram
+	.dword 0x30000000c0000621  // for 0xc0000000, ram
+__mmu_tcr = 0x00000020

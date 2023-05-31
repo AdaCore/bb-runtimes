@@ -153,6 +153,11 @@ class RTSProfiles(object):
         else:
             ret['Has_libc'] = 'no'
 
+        if self.config.has_cheri:
+            ret['Has_CHERI'] = 'yes'
+        else:
+            ret['Has_CHERI'] = 'no'
+
         if self.config.use_certifiable_packages:
             ret['Certifiable_Packages'] = 'yes'
         else:

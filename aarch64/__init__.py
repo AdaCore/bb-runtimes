@@ -21,6 +21,18 @@ class Aarch64Arch(ArchSupport):
             'aarch64/context_switch.S')
 
 
+class MorelloArch(ArchSupport):
+    @property
+    def name(self):
+        return "aarch64"
+
+    def __init__(self):
+        super(MorelloArch, self).__init__()
+        self.add_gnat_sources(
+            'src/i-aarch64.ads', 'src/i-aarch64.adb',
+            'src/i-cache.ads',
+            'src/i-cache__aarch64.adb')
+
 class Aarch64Target(DFBBTarget):
     @property
     def target(self):
@@ -69,6 +81,23 @@ class Aarch64Target(DFBBTarget):
                 ('"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
                  '        "-nostartfiles"'))
         return cnt
+
+
+class MorelloTarget(Aarch64Target):
+
+    @property
+    def parent(self):
+        return MorelloArch
+
+    @property
+    def compiler_switches(self):
+        return ('-march=morello+c64', '-mabi=purecap')
+
+    @property
+    def system_ads(self):
+        return {
+            'light': 'system-xi-arm.ads'
+        }
 
 
 class ZynqMP(Aarch64Target):
@@ -186,3 +215,46 @@ class Rpi3Mc(Rpi3Base):
             'aarch64/rpi3-mc/memmap.S',
             'src/s-textio__rpi2-pl011.adb')
         self.add_gnarl_source('src/s-bbpara__rpi2-hyp.ads')
+
+
+class Morello(MorelloTarget):
+    @property
+    def name(self):
+        return 'morello'
+
+    @property
+    def loaders(self):
+        return ('RAM', )
+
+    @property
+    def use_semihosting_io(self):
+        return True
+
+    @property
+    def has_cheri(self):
+        return True
+
+    def __init__(self):
+        super(Morello, self).__init__()
+        self.add_gnat_sources(
+            'aarch64/morello/start.S',
+            'aarch64/morello/memmap.S',
+            'aarch64/morello/trap_vector.S',
+            'aarch64/morello/reloc_symbols.S',
+            'aarch64/morello/s-morell.ads',
+            'aarch64/morello/s-morini.adb',
+            'aarch64/morello/s-morini.ads',
+            'src/trap_dump__aarch64.ads',
+            'src/trap_dump__aarch64.adb',
+        )
+
+        if self.use_semihosting_io:
+            self.add_gnat_sources(
+                'src/s-macres__semihosting.adb',
+                'src/s-sgshca__cortexar_c64.adb',
+            )
+        else:
+            self.add_gnat_source('src/s-macres__none.adb')
+
+        self.add_linker_script('aarch64/morello/common.ld')
+        self.add_linker_script('aarch64/morello/ram.ld', loader='RAM')

@@ -41,6 +41,8 @@ all_scenarios = {
     'Has_libc': ['no', 'yes'],
     # Whether an implementation of compare and swap is available
     'Has_Compare_And_Swap': ['yes', 'no'],
+    # Whether the target supports CHERI instructions
+    'Has_CHERI': ['no', 'yes'],
     # RAM profile
     'Memory_Profile': ['small', 'large', 'huge'],
     # 32-bit or 64-bit timers available on the hardware
@@ -256,6 +258,11 @@ sources = {
             'libgnat/s-imgllli.ads', 'libgnat/s-imglllu.ads',
             'libgnat/s-widllli.ads',
             'libgnat/s-widlllu.ads']
+    },
+
+    'common/cheri': {
+        'conditions': ['Has_CHERI:yes'],
+        'srcs': ['libgnat/i-cheri.ads', 'libgnat/i-cheri.adb']
     },
 
     'light': {
@@ -587,8 +594,12 @@ sources = {
         'srcs': ['hie/s-memory__libc.adb']
     },
     'alloc/no-tasking': {
-        'conditions': ['Has_libc:no', 'RTS_Profile:light'],
+        'conditions': ['Has_libc:no', 'RTS_Profile:light', 'Has_CHERI:no'],
         'srcs': ['hie/s-memory__zfp.adb']
+    },
+    'alloc/no-tasking-cheri': {
+        'conditions': ['Has_libc:no', 'RTS_Profile:light', 'Has_CHERI:yes'],
+        'srcs': ['hie/s-memory__zfp_cheri.adb']
     },
     'alloc/no-cas': {
         'conditions': ['Has_libc:no',
@@ -613,16 +624,33 @@ sources = {
     'mem': {
         'conditions': ['Has_libc:no'],
         'srcs': [
-            'hie/s-memtyp.ads',
             'hie/s-memcom.ads', 'hie/s-memcom.adb',
-            'hie/s-memcop.ads', 'hie/s-memcop.adb',
-            'hie/s-memmov.ads', 'hie/s-memmov.adb',
+            'hie/s-memcop.ads',
+            'hie/s-memmov.ads',
             'hie/s-memset.ads', 'hie/s-memset.adb']
+    },
+    'mem/no-cheri': {
+        'conditions': ['Has_libc:no', 'Has_CHERI:no'],
+        'srcs': [
+            'hie/s-memtyp.ads',
+            'hie/s-memcop.adb',
+            'hie/s-memmov.adb']
+    },
+    'mem/cheri': {
+        'conditions': ['Has_libc:no', 'Has_CHERI:yes'],
+        'srcs': [
+            'hie/s-memtyp__cheri.ads',
+            'hie/s-memcop__cheri.adb',
+            'hie/s-memmov__cheri.adb']
     },
 
     'secondary_stack/symbol': {
-        'conditions': ['RTS_Profile:!cert'],
+        'conditions': ['RTS_Profile:!cert', 'Has_CHERI:no'],
         'srcs': ['hie/s-secsta__zfp.ads', 'hie/s-secsta__zfp.adb']
+    },
+    'secondary_stack/symbol-cheri': {
+        'conditions': ['RTS_Profile:!cert', 'Has_CHERI:yes'],
+        'srcs': ['hie/s-secsta__zfp.ads', 'hie/s-secsta__cheri.adb']
     },
     'secondary_stack/softlinks': {
         'conditions': ['RTS_Profile:cert'],
