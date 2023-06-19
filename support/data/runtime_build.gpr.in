@@ -80,12 +80,13 @@ project Runtime_Build is
     for Proof_Switches ("s-imgboo.adb") use ("--level=3");
     for Proof_Switches ("s-valboo.adb") use ("--level=3");
     for Proof_Switches ("s-valint.ads") use ("--level=2");
-    for Proof_Switches ("s-vallli.ads") use ("--level=3");
-    for Proof_Switches ("s-valllli.ads") use ("--level=3");
-    for Proof_Switches ("s-valuns.ads") use ("--level=4");
-    for Proof_Switches ("s-valllu.ads") use ("--level=4");
+    for Proof_Switches ("s-vallli.ads") use ("--level=2");
+    for Proof_Switches ("s-valllli.ads") use ("--level=2");
+    for Proof_Switches ("s-valuns.ads") use ("--level=2");
+    for Proof_Switches ("s-valllu.ads") use ("--level=3");
     for Proof_Switches ("s-vallllu.ads") use ("--level=4");
     for Proof_Switches ("s-valuti.adb") use ("--level=3");
+    for Proof_Switches ("s-vsllli.ads") use ("--level=3");
 
     --  Bump level for proof of Lemma_Div_Twice which should ideally be
     --  factored out in the future.
