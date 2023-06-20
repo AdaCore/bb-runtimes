@@ -115,7 +115,7 @@ SECTIONS
 
   .data.rel.ro :
   {
-    *(.data.rel.ro)
+    *(.data.rel.ro .data.rel.ro.*)
   } > REGION_DATA
 
   .got :
