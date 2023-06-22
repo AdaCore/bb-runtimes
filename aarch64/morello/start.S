@@ -396,7 +396,7 @@ __start_master_cpu:
 __start_master_cpu_constrained_pcc:
 
         bl      main
-        b       _exit
+        b       __gnat_stop
 0:      b       0b
         .size __start_master_cpu_constrained_pcc, . - __start_master_cpu_constrained_pcc
 
