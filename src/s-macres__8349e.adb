@@ -82,5 +82,9 @@ package body System.Machine_Reset is
    -- Stop --
    ----------
 
-   procedure Stop renames Os_Exit;
+   procedure Stop is
+   begin
+      Os_Exit;
+   end Stop;
+
 end System.Machine_Reset;
