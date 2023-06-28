@@ -75,7 +75,7 @@ project Runtime_Build is
     for Proof_Switches ("a-strsup.adb") use ("--level=4", "--timeout=30");
     for Proof_Switches ("i-c.adb") use ("--level=4", "--timeout=120");
     for Proof_Switches ("s-arit32.adb") use ("--level=3", "--prover=all");
-    for Proof_Switches ("s-arit64.adb") use ("--level=3", "--prover=z3,cvc5,cvc4,altergo,colibri");
+    for Proof_Switches ("s-arit64.adb") use ("--level=3", "--prover=all");
     for Proof_Switches ("s-expmod.adb") use ("--level=2");
     for Proof_Switches ("s-imgboo.adb") use ("--level=3");
     for Proof_Switches ("s-valboo.adb") use ("--level=3");
