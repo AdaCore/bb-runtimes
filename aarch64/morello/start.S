@@ -36,6 +36,17 @@
         .global __start
         .global __vectors
 
+#define NUM_PE_PER_CPU      1
+#define NUM_CPU_PER_CLUSTER 2
+#define NUM_PE_PER_CLUSTER  (NUM_PE_PER_CPU * NUM_CPU_PER_CLUSTER)
+
+#define GICD_CTLR    0x30000000
+#define GICD_IGROUPR 0x30000080
+
+#define ICC_SRE_EL3 s3_6_c12_c12_5
+#define ICC_SRE_EL2 s3_4_c12_c9_5
+#define ICC_PMR     s3_0_c4_c6_0
+
 /* Set the type of the heap symbols (defined in common.ld) to allow the linker
  * to derive appropriate capability permissions (read/write) for the symbols.
  * This avoids the linker needing to guess the permissions, which triggers
@@ -88,9 +99,16 @@ __start:
         mov     x29, #0
         mov     x30, #0
 
-        /* Read processor number */
-        mrs     x7, mpidr_el1
-        and     x7, x7, #3
+        /* Read processor number into x7, converting the affinity fields
+         * into a number in the range 0 .. 3 */
+        mrs     x3, mpidr_el1
+        ubfx	x7, x3, #0, #8  /* Aff0 (PE number) */
+        ubfx	x0, x3, #8, #8  /* Aff1 (core number) */
+        ubfx	x1, x3, #16, #8 /* Aff2 (cluster number) */
+        mov     x2, #NUM_PE_PER_CPU
+        mov     x3, #NUM_PE_PER_CLUSTER
+        madd    x7, x0, x2, x7
+        madd    x7, x1, x3, x7
 
         /* Boot conditions : check the current EL */
         mrs     x1, currentel
@@ -176,6 +194,32 @@ __start_el3:
         msr     scr_el3, x0
         isb
 
+        /* Disable security to allow non-secure access to some GIC registers */
+        mov     x0, #GICD_CTLR
+        mov     x1, #(1 << 6) /* set DS=1 */
+        str     x1, [x0]
+
+        /* Enable lower ELs to access to the GIC CPU interface registers. */
+        mov     x0, #(1 << 3)
+        msr     ICC_SRE_EL3, x0
+
+        /* Running in non-secure mode: all interrupts are group 1 */
+        ldr     w2, =GICD_IGROUPR
+        mov     w1, #0xFFFFFFFF
+        mov     x0, #32
+__int_grp1_loop:
+        cmp     w0, #0
+        beq     1f
+        str     w1, [x2]
+        add     x2, x2, #4
+        sub     x0, x0, #1
+        b       __int_grp1_loop
+1:
+
+        /* Make sure the interrupt priority mask allows non-secure priorities */
+        mov     x1, #0x80
+        msr     ICC_PMR, x1
+
         /* MDCR_EL3: all 0: do not trap debug accesses */
         msr     mdcr_el3, xzr
 
@@ -246,6 +290,10 @@ __start_el2:
         mov     x0,#(1 << 31)
         orr     x0, x0, #(1 << 29) /* Disable HVC */
         msr     hcr_el2,x0
+
+        /* Enable lower ELs to access to the GIC CPU interface registers. */
+        mov     x0, #(1 << 3)
+        msr     ICC_SRE_EL2, x0
 
         /* Switch to C64 mode */
         bx      #4
@@ -386,8 +434,6 @@ __start_master_cpu:
         bl      __gnat_process_dynamic_relocations
 
         /* Setup the heap */
-        ldr     x0, heap_segment        /* __heap_start */
-        ldr     x1, heap_segment + 8    /* __heap_end   */
         bl      __gnat_heap_init
 
         /* Constrain the PCC */
@@ -594,10 +640,6 @@ data_segment:
         .dword   __data_load
         .dword   __data_start
         .dword   __data_dwords
-
-heap_segment:
-        .dword  __heap_start
-        .dword  __heap_end
 
 /* Store function pointer capabilities with constrained bounds.
  * The linker generates entries in the relocation tables with
