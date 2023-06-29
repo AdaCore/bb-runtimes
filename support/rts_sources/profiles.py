@@ -83,6 +83,7 @@ class RTSProfiles(object):
         ret['Add_Image_Char'] = "yes"
         ret['Add_Image_Util'] = "yes"
 
+        ret['Add_Value_Spec'] = 'yes'
         ret['Add_Value_Bool'] = "yes"
         ret['Add_Value_Enum'] = "yes"
         ret['Add_Value_Decimal'] = "yes"
