@@ -36,8 +36,15 @@
         .global __start
         .global __vectors
 
-        .globl _heap_start
-        .globl _heap_end
+/* Set the type of the heap symbols (defined in common.ld) to allow the linker
+ * to derive appropriate capability permissions (read/write) for the symbols.
+ * This avoids the linker needing to guess the permissions, which triggers
+ * a warning.
+ */
+        .global __heap_start
+        .global __heap_end
+        .type __heap_start,%object
+        .type __heap_end,%object
 
 #include "memmap.S"
 
