@@ -75,7 +75,6 @@ with System.Machine_Code;    use System.Machine_Code;
 package body System.BB.CPU_Primitives is
 
    package SSE renames System.Storage_Elements;
-   use type SSE.Storage_Offset;
 
    pragma Warnings (Off, "*bits of * unused");
    --  Suppress warning for unused bits in a record as this occurs often in
@@ -1042,12 +1041,16 @@ package body System.BB.CPU_Primitives is
       Size          : Storage_Elements.Storage_Offset;
       Stack_Pointer : out Address)
    is
-      use System.Storage_Elements;
+      use type SSE.Storage_Offset;
    begin
-      --  Round down Stack Pointer to next aligned address to point to last
-      --  valid stack address.
+      Stack_Pointer := Base + Size;
 
-      Stack_Pointer := Base + (Size - (Size mod CPU_Specific.Stack_Alignment));
+      --  Round the stack pointer down to the nearest stack alignment
+
+      Stack_Pointer :=
+        Stack_Pointer -
+          (Stack_Pointer
+             mod SSE.Storage_Offset (CPU_Specific.Stack_Alignment));
    end Initialize_Stack;
 
    ------------------------
@@ -1068,7 +1071,8 @@ package body System.BB.CPU_Primitives is
          return;
       end if;
 
-      --  We cheat as we don't know the stack size nor the stack base
+      --  Call Initialize_Stack with a zero size to correctly align the stack
+      --  pointer that was passed.
 
       Initialize_Stack (Stack_Pointer, 0, Initial_SP);
 
@@ -2280,10 +2284,10 @@ package body System.BB.CPU_Primitives is
    begin
       --  Move the argument from R12, where it was stored as part of the
       --  creation of the task, to RDI (the first parameter passing register).
-      --  Jump to the task procedure whose address is in R13
+      --  Call the task procedure whose address is in R13.
       Asm
         ("movq  %%r12, %%rdi"                                            & NL &
-         "jmp   *%%r13",
+         "call   *%%r13",
          Volatile => True);
    end Thread_Start;
 
