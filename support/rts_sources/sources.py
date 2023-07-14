@@ -614,14 +614,24 @@ sources = {
         'conditions': ['Has_libc:no',
                        'RTS_Profile:light-tasking',
                        'Has_Compare_And_Swap:yes',
-                       'Certifiable_Packages:no'],
+                       'Certifiable_Packages:no',
+                       'Has_CHERI:no'],
         'srcs': ['hie/s-memory__raven.adb']
+    },
+    'alloc/tasking-cheri': {
+        'conditions': ['Has_libc:no',
+                       'RTS_Profile:light-tasking',
+                       'Has_Compare_And_Swap:yes',
+                       'Certifiable_Packages:no',
+                       'Has_CHERI:yes'],
+        'srcs': ['hie/s-memory__raven_cheri.adb']
     },
     'alloc/tasking-noc': {
         'conditions': ['Has_libc:no',
                        'RTS_Profile:light-tasking',
                        'Has_Compare_And_Swap:yes',
-                       'Certifiable_Packages:yes'],
+                       'Certifiable_Packages:yes',
+                       'Has_CHERI:no'],
         'srcs': ['hie/s-memory__raven_noc.adb']
     },
     'mem': {
