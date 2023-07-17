@@ -32,11 +32,6 @@ class MorelloArch(ArchSupport):
             'src/i-aarch64.ads', 'src/i-aarch64.adb',
             'src/i-cache.ads',
             'src/i-cache__aarch64.adb')
-        self.add_gnarl_sources(
-            'src/s-bbcpsp__morello.ads',
-            'src/s-bbcppr__new.ads',
-            'src/s-bbcppr__morello.adb',
-            'aarch64/morello/context_switch.S')
 
 class Aarch64Target(DFBBTarget):
     @property
@@ -101,8 +96,7 @@ class MorelloTarget(Aarch64Target):
     @property
     def system_ads(self):
         return {
-            'light': 'system-xi-arm.ads',
-            'light-tasking': 'system-xi-arm-sfp.ads'
+            'light': 'system-xi-arm.ads'
         }
 
 
@@ -157,7 +151,7 @@ class ZynqMP(Aarch64Target):
         self.add_gnarl_sources(
             'src/a-intnam__zynqmp.ads',
             'src/s-bbbosu__armv8a.adb',
-            'src/s-armgic__400.ads', 'src/s-armgic__400.adb',
+            'src/s-armgic.ads', 'src/s-armgic.adb',
             'src/s-bbpara__zynqmp.ads')
 
 
@@ -252,12 +246,6 @@ class Morello(MorelloTarget):
             'aarch64/morello/s-morini.ads',
             'src/trap_dump__aarch64.ads',
             'src/trap_dump__aarch64.adb',
-        )
-        self.add_gnarl_sources(
-            'src/a-intnam__morello.ads',
-            'src/s-bbbosu__morello.adb',
-            'src/s-armgic__600.ads', 'src/s-armgic__600.adb',
-            'src/s-bbpara__morello.ads'
         )
 
         if self.use_semihosting_io:
