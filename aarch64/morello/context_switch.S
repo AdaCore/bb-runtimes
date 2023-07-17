@@ -40,8 +40,8 @@ __gnat_context_switch:
 __gnat_start_thread:
 	//  Comes from the context switch
 	//  C19: PCC
-	//  C20: Arg
-	mov	c0, c20
+	//  X20: Arg
+	mov	x0, x20
 	mov	x30, #0	// Clear LR
 	mov	x29, #0	// Clear FP
 	br	c19

@@ -70,8 +70,8 @@
         //  generic registers
         //  c0-c18            (19*16 = 304)
         //  c29-c30           (32   -> 336)
-        //  spsr, celr, cpacr (32   -> 384)
-        .set IFRAME_SIZE, 384
+        //  spsr, elr, cpacr  (32   -> 368)
+        .set IFRAME_SIZE, 368
 
         //  fpu registers context size:
         //  vfp_init_flag     (1           -> 0  .. 3)
@@ -172,8 +172,8 @@ __irq_interrupt:
         stp     c18, c29, [csp, #288]
         str     c30, [csp, #320]
         mrs     x4, spsr_el1
-        mrs     c5, celr_el1
-        stp     c4, c5, [csp, #336]
+        mrs     x5, elr_el1
+        stp     x4, x5, [csp, #336]
 
         // 2) load stack pointer if needed
         // if sp in __interrupt_stack_start .. __interrupt_stack_end, then we
@@ -223,7 +223,7 @@ __irq_interrupt:
         add     csp, csp, #IFRAME_FPU_SIZE /* free the irq fpu context */
 
         //  6) Switch back to the previous stack
-        add     c7, csp, #64             /* x7 <- before the frame created @3 */
+        add     c7, csp, #32              /* x7 <- before the frame created @3 */
         ldr     c1, [csp, #16]
         mov     csp, c1
 
@@ -257,9 +257,9 @@ __irq_interrupt:
 
 1:
         //  8) restore registers
-        ldp     c4, c5, [csp, #336]
+        ldp     x4, x5, [csp, #336]
         msr     spsr_el1, x4
-        msr     celr_el1, c5
+        msr     elr_el1, x5
         ldr     c30, [csp, #320]
         ldp     c18, c29, [csp, #288]
         ldp     c16, c17, [csp, #256]
