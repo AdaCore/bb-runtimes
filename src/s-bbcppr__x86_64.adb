@@ -987,6 +987,19 @@ package body System.BB.CPU_Primitives is
       --  We don't need to save the vector and floating point states as the
       --  exception handlers should not touch these registers.
 
+      --  At this point it is safe to use limited Ada code since we've saved
+      --  the caller-saved registers. Just note that there's no stack frame
+      --  allocated for this procedure, so local stack objects should not be
+      --  used. Instead we jump to proper Ada procedures. Before doing so, we
+      --  need to push a NULL return address onto the stack so the unwinder
+      --  knows to stop here in this function.
+
+      Asm
+        ("movq   $0, %%rax"                                              & NL &
+         "pushq  %%rax",
+         Clobber  => "rax, memory",
+         Volatile => True);
+
       --  Handle the exception in proper Ada code
 
       Process_Exception (Vector, Code);
@@ -994,6 +1007,11 @@ package body System.BB.CPU_Primitives is
       --  Exception has been successfully handled. Time to clean up and exit.
       --  Since processing an exception will not modify the task queues no
       --  need to check if we need to context switch to another task.
+
+      --  Ada code is no longer allowed at this point. Remove the NULL return
+      --  address from the stack.
+
+      Asm ("addq  $8, %%rsp", Clobber  => "memory", Volatile => True);
 
       Asm
         ("popq  %%r11"                                                   & NL &
@@ -1570,8 +1588,16 @@ package body System.BB.CPU_Primitives is
 
       --  At this point it is safe to use limited Ada code since we've saved
       --  the caller-saved registers. Just note that there's no stack frame
-      --  allocated for this procedure, so we do very little here and just jump
-      --  off to a proper Ada procedure.
+      --  allocated for this procedure, so local stack objects should not be
+      --  used. Instead we jump to proper Ada procedures. Before doing so, we
+      --  need to push a NULL return address onto the stack so the unwinder
+      --  knows to stop here in this function.
+
+      Asm
+        ("movq   $0, %%rax"                                              & NL &
+         "pushq  %%rax",
+         Clobber  => "rax, memory",
+         Volatile => True);
 
       --  Handle the interrupt at the runtime level
 
@@ -1590,6 +1616,11 @@ package body System.BB.CPU_Primitives is
       if System.BB.Threads.Queues.Context_Switch_Needed then
          Context_Switch;
       end if;
+
+      --  Ada code is no longer allowed at this point. Remove the NULL return
+      --  address from the stack.
+
+      Asm ("addq  $8, %%rsp", Clobber  => "memory", Volatile => True);
 
       --  Time to restore the state of the interrupted task and return to it
 
