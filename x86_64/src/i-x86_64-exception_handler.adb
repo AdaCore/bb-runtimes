@@ -44,30 +44,30 @@ package body Interfaces.X86_64.Exception_Handler is
       Put ("FATAL PROCESSOR EXCEPTION RAISED: ");
       case ID is
          when NMI_Interrupt =>
-            Put ("unhandled NMI interrupt");
+            Put ("unhandled NMI interrupt.");
          when Invalid_Opcode_Exception =>
-            Put ("Invalid Opcode");
+            Put ("Invalid Opcode.");
          when Device_Not_Available_Exception =>
-            Put ("Device Not Available");
+            Put ("Device Not Available.");
          when Double_Fault_Exception =>
-            Put ("Double Fault");
+            Put ("Double Fault.");
          when Invalid_TSS_Exception =>
-            Put ("Invalid TSS");
+            Put ("Invalid TSS.");
          when General_Protection_Exception =>
-            Put ("General Protection Exception");
+            Put ("General Protection Exception.");
          when Alignment_Check_Exception =>
-            Put ("Alignment Check Exception");
+            Put ("Alignment Check Exception.");
          when Machine_Check_Exception =>
-            Put ("Machine Check Exception");
+            Put ("Machine Check Exception.");
          when Virtualization_Exception =>
-            Put ("Virtualization Exception");
+            Put ("Virtualization Exception.");
          when Control_Protection_Exception =>
-            Put ("Control Protection Exception");
+            Put ("Control Protection Exception.");
          when others =>
-            Put ("Unknown exception raised. Number " & ID'Image);
+            Put ("Unknown exception raised. Number " & ID'Image & ".");
       end case;
 
-      Put ("Error Code: " & Code'Image);
+      Put (" Error Code: " & Code'Image);
       New_Line;
       Put_Line ("Rebooting...");
       Os_Abort;
