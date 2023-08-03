@@ -847,9 +847,11 @@ package body System.ARM_GIC is
 
       Set_ICC_BPR1_EL1 (3);
 
-      --  Disable banked interrupts by default
+      --  Disable and clear banked interrupts by default
 
-      GICD.ICENABLER (0) := 16#FFFF_FFFF#;
+      GICD.ICENABLER (0)           := 16#FFFF_FFFF#;
+      GICR (CPU_Id).SGI.ICPENDR0   := 16#FFFF_FFFF#;
+      GICR (CPU_Id).SGI.ICACTIVER0 := 16#FFFF_FFFF#;
 
       --  All SGIs and PPIs are non-secure group 1
 
@@ -987,9 +989,16 @@ package body System.ARM_GIC is
    is
       Reg_Index   : constant Natural := Interrupt / 4;
       Field_Index : constant Natural := Interrupt mod 4;
+      Prio        : PRI;
 
    begin
-      return To_Priority (GICD.IPRIORITYR (Reg_Index)(Field_Index));
+      if Interrupt in Banked_Interrupt then
+         Prio := GICR (Current_CPU).SGI.IPRIORITYR (Reg_Index)(Field_Index);
+      else
+         Prio := GICD.IPRIORITYR (Reg_Index)(Field_Index);
+      end if;
+
+      return To_Priority (Prio);
    end Priority_Of_Interrupt;
 
    --------------------------
