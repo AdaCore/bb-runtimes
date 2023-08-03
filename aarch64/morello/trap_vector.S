@@ -115,7 +115,10 @@ __fpu_fault_restore:
         ldp     c18, c19, [csp, #288]
         ldr     c30, [csp, #480]
         //  No need to restore callee saved registers
-        ldp     c0, c1, [csp], #512
+        //  Don't use the post-increment version of ldp as it doesn't preserve
+        //  the capability metadata in the CSP register
+        ldp     c0, c1, [csp]
+        add     csp, csp, #512
         eret
 
 __sync_interrupt_low:
