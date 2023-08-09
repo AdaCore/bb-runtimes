@@ -1609,8 +1609,16 @@ sources = {
     'gnarl/sfp': {
         'conditions': ['RTS_Profile:light-tasking'],
         'srcs': [
-            'hie/s-taskin__raven.ads',
-            'hie/s-tposen__raven.ads', 'hie/s-tposen__raven.adb']
+            'hie/s-reldel.ads',                'hie/s-reldel.adb',
+            'hie/s-taskin__light-tasking.ads',
+            'hie/s-tasque.ads',                'hie/s-tasque.adb',
+            'hie/s-tpoben__bb.ads',            'hie/s-tpoben__bb.adb',
+            'hie/s-tposen__raven.ads',         'hie/s-tposen__raven.adb',
+            'hie/s-tpobop__light-tasking.ads', 'hie/s-tpobop__light-tasking.adb',
+            'libgnarl/a-synbar.adb',           'libgnarl/a-synbar.ads',
+            'libgnat/s-restri.ads',            'libgnat/s-restri.adb',
+            'libgnat/s-rident.ads',
+        ]
     },
 
     # Embedded Runtime
