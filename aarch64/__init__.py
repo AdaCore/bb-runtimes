@@ -132,7 +132,7 @@ class ZynqMP(Aarch64Target):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mcpu=cortex-a53')
+        return ('-mcpu=cortex-a53',)
 
     def amend_rts(self, rts_profile, cfg):
         super(ZynqMP, self).amend_rts(rts_profile, cfg)
@@ -169,7 +169,7 @@ class Rpi3Base(Aarch64Target):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ('-mlittle-endian', '-mcpu=cortex-a53')
+        return ('-mcpu=cortex-a53',)
 
     @property
     def readme_file(self):
