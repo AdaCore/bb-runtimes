@@ -241,7 +241,8 @@ sources = {
             'hie/s-macres.ads',
             'vx_stack_info.c'],
         'qnx_srcs': [
-            'libgnat/g-io.ads', 'hie/g-io__qnx.adb',
+            'hie/g-io__zfp.ads', 'hie/g-io__zfp.adb',
+            'hie/g-io-put.adb',
             'hie/a-textio.ads', 'hie/a-textio__qnx.adb',
             'hie/s-macres.ads',
             'hie/s-textio__qnx.ads', 'hie/s-textio__qnx.adb']
