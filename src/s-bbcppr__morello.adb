@@ -44,6 +44,7 @@ with System.BB.Threads.Queues;
 with System.BB.Board_Support;
 with Interfaces;
 with Interfaces.AArch64;     use Interfaces.AArch64;
+with Interfaces.CHERI;       use Interfaces.CHERI;
 
 package body System.BB.CPU_Primitives is
    use System.BB.Threads;
@@ -111,6 +112,34 @@ package body System.BB.CPU_Primitives is
      (Ctxt      : FPU_Context_Access;
       Prev_Ctxt : FPU_Context_Access);
    pragma Export (Asm, IRQ_Post_Handler, "__gnat_irq_post_handler");
+
+   procedure Raise_Capability_Bound_Exception with
+     No_Return,
+     Export,
+     Convention    => C,
+     External_Name => "__gnat_raise_cap_bound_exception";
+   --  Raise an exception for a capability bound fault
+
+   procedure Raise_Capability_Permission_Exception with
+     No_Return,
+     Export,
+     Convention    => C,
+     External_Name => "__gnat_raise_cap_permission_exception";
+   --  Raise an exception for a capability permission fault
+
+   procedure Raise_Capability_Sealed_Exception with
+     No_Return,
+     Export,
+     Convention    => C,
+     External_Name => "__gnat_raise_cap_sealed_exception";
+   --  Raise an exception for a capability sealed fault
+
+   procedure Raise_Capability_Tag_Exception with
+     No_Return,
+     Export,
+     Convention    => C,
+     External_Name => "__gnat_raise_cap_tag_exception";
+   --  Raise an exception for a capability tag fault
 
    ------------------------
    -- Pre_Context_Switch --
@@ -498,5 +527,47 @@ package body System.BB.CPU_Primitives is
    begin
       null;
    end Install_Error_Handlers;
+
+   --------------------------------------
+   -- Raise_Capability_Bound_Exception --
+   --------------------------------------
+
+   --  Ada.Exceptions.Raise_Exception is used instead of an explicit "raise"
+   --  statement to avoid the source file information being printed in the
+   --  exception message, which would be misleading to where the exception
+   --  actually originated.
+
+   procedure Raise_Capability_Bound_Exception is
+   begin
+      Ada.Exceptions.Raise_Exception (Capability_Bound_Error'Identity, "");
+   end Raise_Capability_Bound_Exception;
+
+   -------------------------------------------
+   -- Raise_Capability_Permission_Exception --
+   -------------------------------------------
+
+   procedure Raise_Capability_Permission_Exception is
+   begin
+      Ada.Exceptions.Raise_Exception
+        (Capability_Permission_Error'Identity, "");
+   end Raise_Capability_Permission_Exception;
+
+   ---------------------------------------
+   -- Raise_Capability_Sealed_Exception --
+   ---------------------------------------
+
+   procedure Raise_Capability_Sealed_Exception is
+   begin
+      Ada.Exceptions.Raise_Exception (Capability_Sealed_Error'Identity, "");
+   end Raise_Capability_Sealed_Exception;
+
+   ------------------------------------
+   -- Raise_Capability_Tag_Exception --
+   ------------------------------------
+
+   procedure Raise_Capability_Tag_Exception is
+   begin
+      Ada.Exceptions.Raise_Exception (Capability_Tag_Error'Identity, "");
+   end Raise_Capability_Tag_Exception;
 
 end System.BB.CPU_Primitives;
