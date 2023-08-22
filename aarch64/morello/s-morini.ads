@@ -38,15 +38,8 @@ package System.Morello.Initialization with
    --  The subprograms in this package are called before elaboration
 is
 
-   procedure Initialize_Global_Capabilities with
-     Export, External_Name => "__gnat_init_global_caps";
-   --  Walk through the __cap_table and generate a capability for each entry
-
-   procedure Process_Dynamic_Relocations with
-     Export, External_Name => "__gnat_process_dynamic_relocations";
-   --  Process dynamic relocations (.rela.dyn entries).
-   --
-   --  This processes only R_MORELLO_RELATIVE relocations which are used
-   --  to initialize some global capabilities.
+   procedure Initialize_Morello with
+     Export, External_Name => "__gnat_init_morello";
+   --  Initialize all global capabilities
 
 end System.Morello.Initialization;

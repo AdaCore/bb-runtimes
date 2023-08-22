@@ -53,6 +53,42 @@ package body System.Morello.Initialization is
 
    type Unsigned_56 is mod 2**56 with Size => 56;
 
+   EH_Frame_Hdr : constant Character with
+     Import, Convention => C, External_Name => "__eh_frame_hdr";
+
+   EH_Frame_Hdr_Limit : constant Character with
+     Import, Convention => C, External_Name => "__eh_frame_hdr_limit";
+   --  Marks the upper limit of the bounds for __eh_frame_hdr_cap
+
+   EH_Frame_Hdr_Cap : System.Address with
+     Export, Convention => C, External_Name => "__eh_frame_hdr_cap";
+   --  A capability that points to __eh_frame_hdr with bounds up to
+   --  __eh_tables_end.
+   --
+   --  The linker script must ensure that all exception handling frames/tables
+   --  are located between these two symbols.
+
+   procedure Initialize_Global_Capabilities;
+   --  Walk through the __cap_table and generate a capability for each entry
+
+   procedure Process_Dynamic_Relocations;
+   --  Process dynamic relocations (.rela.dyn entries).
+   --
+   --  This processes only R_MORELLO_RELATIVE relocations which are used
+   --  to initialize some global capabilities.
+
+   procedure Initialize_Exception_Handling_Frame_Header_Capability;
+   --  Create a capability that points to __eh_frame_hdr with bounds up to
+   --  __eh_frame_hdr_limit.
+   --
+   --  By default, the __eh_frame_hdr symbol defined in the linker script only
+   --  has bounds for the section it's defined in (.eh_frame_hdr). The unwinder
+   --  uses this pointer to access the various exception handling data in other
+   --  sections (.eh_frame, .gcc_except_table, and some parts of
+   --  .data.rel.ro), but they are are not within the bounds of __eh_frame_hdr.
+   --  This procedure creates a capability with sufficient bounds for the
+   --  unwinder to use to access those tables.
+
    ----------------------
    -- Capability Table --
    ----------------------
@@ -184,6 +220,21 @@ package body System.Morello.Initialization is
      not (CHERI.Permit_Seal or CHERI.Permit_Execute);
    --  Pointers to read/write data cannot be executed or sealed
 
+   -----------------------------------------------------------
+   -- Initialize_Exception_Handling_Frame_Header_Capability --
+   -----------------------------------------------------------
+
+   procedure Initialize_Exception_Handling_Frame_Header_Capability is
+      Base  : constant Integer_Address := To_Integer (EH_Frame_Hdr'Address);
+      Limit : constant Integer_Address :=
+                To_Integer (EH_Frame_Hdr_Limit'Address);
+   begin
+      EH_Frame_Hdr_Cap := CHERI.Capability_With_Address_And_Bounds
+        (Cap     => CHERI.Get_DDC and RO_Data_Permissions,
+         Address => Base,
+         Length  => CHERI.Bounds_Length (Limit - Base));
+   end Initialize_Exception_Handling_Frame_Header_Capability;
+
    ------------------------------------
    -- Initialize_Global_Capabilities --
    ------------------------------------
@@ -250,6 +301,17 @@ package body System.Morello.Initialization is
       end loop;
 
    end Initialize_Global_Capabilities;
+
+   ------------------------
+   -- Initialize_Morello --
+   ------------------------
+
+   procedure Initialize_Morello is
+   begin
+      Initialize_Global_Capabilities;
+      Process_Dynamic_Relocations;
+      Initialize_Exception_Handling_Frame_Header_Capability;
+   end Initialize_Morello;
 
    ---------------------------------
    -- Process_Dynamic_Relocations --

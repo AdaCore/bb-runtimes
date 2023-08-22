@@ -37,6 +37,7 @@
 --  This package implements Morello architecture specific support for the GNAT
 --  Ravenscar run time.
 
+with Ada.Exceptions;
 with System.Machine_Code;    use System.Machine_Code;
 with System.Multiprocessors;
 with System.BB.CPU_Specific; use System.BB.CPU_Specific;

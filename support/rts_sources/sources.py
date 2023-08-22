@@ -1184,8 +1184,18 @@ sources = {
         'requires': ['Add_IO_Exceptions:yes'],
         'srcs': [
             'libgnat/a-stream.ads', 'libgnat/a-stream.adb',
-            'libgnat/s-stratt.ads', 'libgnat/s-stratt.adb',
+            'libgnat/s-stratt.ads',
             'libgnat/s-statxd.ads', 'libgnat/s-statxd.adb']
+    },
+    'streams/no_cheri': {
+        'conditions': ['Add_Streams:yes', 'Has_CHERI:no'],
+        'requires': ['Add_IO_Exceptions:yes'],
+        'srcs': ['libgnat/s-stratt.adb']
+    },
+    'streams/cheri': {
+        'conditions': ['Add_Streams:yes', 'Has_CHERI:yes'],
+        'requires': ['Add_IO_Exceptions:yes'],
+        'srcs': ['libgnat/s-stratt__cheri.adb']
     },
 
     # Zero-cost-exception support
