@@ -49,7 +49,7 @@ pragma Restrictions (No_Implicit_Dynamic_Code);
 pragma Restrictions (No_Finalization);
 --  Controlled types are not supported in this run time
 
-pragma Profile (Ravenscar);
+pragma Profile (Jorvik);
 --  This is a Ravenscar run time
 
 pragma Restrictions (No_Task_At_Interrupt_Priority);
