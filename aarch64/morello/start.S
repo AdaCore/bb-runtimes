@@ -242,10 +242,11 @@ __int_grp1_loop:
 /* Entry point for EL2 (starts in A64 mode) */
 __start_el2:
 
-        /* FPEN = 0b11  Enable FPU (don't trap accesses)
-         * CEN  = 0b11  Enable Morello features (don't trap accesses)
+        /* TFP = 0  Enable FPU (don't trap accesses)
+         * TC  = 0  Enable Morello features (don't trap accesses)
+         * bits 0..7 | 12..13 = RES1
          */
-        mov     x0, #0x3C0000
+        mov     x0, #0x30FF
         msr     cptr_el2, x0
         isb
 
