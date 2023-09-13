@@ -430,9 +430,8 @@ __start_master_cpu:
         cbnz    x1, 0b
 1:
 
-        /* Initialize the GOT and process relocations */
-        bl      __gnat_init_global_caps
-        bl      __gnat_process_dynamic_relocations
+        /* Init global caps (e.g. setup the GOT and process relocations) */
+        bl      __gnat_init_morello
 
         /* Setup the heap */
         bl      __gnat_heap_init

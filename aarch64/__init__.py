@@ -102,7 +102,8 @@ class MorelloTarget(Aarch64Target):
     def system_ads(self):
         return {
             'light': 'system-xi-arm.ads',
-            'light-tasking': 'system-xi-arm-gic-sfp.ads'
+            'light-tasking': 'system-xi-arm-gic-sfp.ads',
+            'embedded': 'system-xi-arm-gic-full.ads'
         }
 
 

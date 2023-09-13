@@ -51,6 +51,12 @@ ENTRY(__vectors);
  * | .text                          |
  * |                                |
  * +--------------------------------+
+ * | read only data sections        |
+ * |                                |
+ * +--------------------------------+
+ * | .got                           |
+ * |                                |
+ * +--------------------------------+
  * | .data                          | initialized data goes here
  * |                                |
  * +--------------------------------+
@@ -88,13 +94,24 @@ SECTIONS
     *(.rodata .rodata.* .gnu.linkonce.r*)
   } > REGION_CODE
 
+  .cap_relocs :
+  {
+    __cap_relocs_start = .;
+    *(__cap_relocs)
+    __cap_relocs_end = .;
+  } > REGION_CODE
+
+  /* The __eh_frame_hdr and __eh_frame_hdr_limit symbols define the bounds of
+     __eh_frame_hdr_cap, which is used by the unwinder to access exception
+     table data. All EH sections must be placed between these two symbols. */
+
   .eh_frame_hdr :
   {
      __eh_frame_hdr = .;
     *(.eh_frame_hdr)
   } > REGION_CODE
 
-  .eh_frame         :
+  .eh_frame :
   {
     KEEP (*(.eh_frame))
   } > REGION_CODE
@@ -104,18 +121,20 @@ SECTIONS
     *(.gcc_except_table .gcc_except_table.*)
   } > REGION_CODE
 
-  .cap_relocs :
-  {
-    __cap_relocs_start = .;
-    *(__cap_relocs)
-    __cap_relocs_end = .;
-  } > REGION_CODE
-
   . = ALIGN(0x1000);
 
   .data.rel.ro :
   {
-    *(.data.rel.ro .data.rel.ro.*)
+    *(.data.rel.ro)
+    *(.data.rel.ro.local.DW.*)
+
+    /* The unwinder needs access to some parts of .data.rel.ro, for example
+       the relocation for __gnat_personality_v0, but it does not need access to
+       other relocations so we place those symbols after the upper limit */
+
+    __eh_frame_hdr_limit = .;
+
+    *(.data.rel.ro.*)
   } > REGION_DATA
 
   .got :
