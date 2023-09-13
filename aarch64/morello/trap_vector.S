@@ -121,6 +121,23 @@ __fpu_fault_restore:
         add     csp, csp, #512
         eret
 
+
+__cap_fault_restore:
+        // restore
+        ldp     c0, c1, [csp]
+        ldp     c2, c3, [csp, #32]
+        ldp     c4, c5, [csp, #64]
+        ldp     c6, c7, [csp, #96]
+        ldp     c8, c9, [csp, #128]
+        ldp     c10, c11, [csp, #160]
+        ldp     c12, c13, [csp, #192]
+        ldp     c14, c15, [csp, #224]
+        ldp     c16, c17, [csp, #256]
+        ldp     c18, c19, [csp, #288]
+        ldr     c30, [csp, #480]
+        add     csp, csp, #512
+        eret
+
 __sync_interrupt_low:
 __sync_interrupt:
         // Save all caller-saved registers (32 * 16 = 512)
@@ -146,6 +163,53 @@ __sync_interrupt:
         /* FPU access trap: save FPU context and enable FPU registers access */
         b       __gnat_fpen_trap
 1:
+        /* Check if the synchronous trap is due to a Data Abort */
+        cmp     x1, #37
+        bne     2f
+
+        /* Read the Data Fault Status Code */
+        ubfx    x1, x0, #0, #6
+
+        /* Check if the Data Abort is due to a Capability tag fault */
+        cmp     x1, #40
+        bne     1f
+        adrp    c0,__gnat_raise_cap_tag_exception
+        add     c0, c0, #:lo12:__gnat_raise_cap_tag_exception
+        sub     c0, c0, #1
+        msr     celr_el1, c0
+        b       __cap_fault_restore
+
+1:
+        /* Check if the Data Abort is due to a Capability sealed fault */
+        cmp     x1, #41
+        bne     1f
+        adrp    c0,__gnat_raise_cap_sealed_exception
+        add     c0, c0, #:lo12:__gnat_raise_cap_sealed_exception
+        sub     c0, c0, #1
+        msr     celr_el1, c0
+        b       __cap_fault_restore
+
+1:
+        /* Check if the Data Abort is due to a Capability bound fault */
+        cmp     x1, #42
+        bne     1f
+        adrp    c0,__gnat_raise_cap_bound_exception
+        add     c0, c0, #:lo12:__gnat_raise_cap_bound_exception
+        sub     c0, c0, #1
+        msr     celr_el1, c0
+        b       __cap_fault_restore
+
+1:
+        /* Check if the Data Abort is due to a Capability permission fault */
+        cmp     x1, #43
+        bne     2f
+        adrp    c0,__gnat_raise_cap_permission_exception
+        add     c0, c0, #:lo12:__gnat_raise_cap_permission_exception
+        sub     c0, c0, #1
+        msr     celr_el1, c0
+        b       __cap_fault_restore
+
+2:
         stp     c20, c21, [csp, #320]
         stp     c22, c23, [csp, #352]
         stp     c24, c25, [csp, #384]
