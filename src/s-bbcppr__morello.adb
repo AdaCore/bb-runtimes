@@ -114,33 +114,26 @@ package body System.BB.CPU_Primitives is
       Prev_Ctxt : FPU_Context_Access);
    pragma Export (Asm, IRQ_Post_Handler, "__gnat_irq_post_handler");
 
-   procedure Raise_Capability_Bound_Exception with
-     No_Return,
-     Export,
-     Convention    => C,
-     External_Name => "__gnat_raise_cap_bound_exception";
+   procedure Raise_Capability_Bound_Exception with No_Return;
    --  Raise an exception for a capability bound fault
 
-   procedure Raise_Capability_Permission_Exception with
-     No_Return,
-     Export,
-     Convention    => C,
-     External_Name => "__gnat_raise_cap_permission_exception";
+   procedure Raise_Capability_Permission_Exception with No_Return;
    --  Raise an exception for a capability permission fault
 
-   procedure Raise_Capability_Sealed_Exception with
-     No_Return,
-     Export,
-     Convention    => C,
-     External_Name => "__gnat_raise_cap_sealed_exception";
+   procedure Raise_Capability_Sealed_Exception with No_Return;
    --  Raise an exception for a capability sealed fault
 
-   procedure Raise_Capability_Tag_Exception with
-     No_Return,
+   procedure Raise_Capability_Tag_Exception with No_Return;
+   --  Raise an exception for a capability tag fault
+
+   function Synchronous_Exception_Handler return System.Address with
      Export,
      Convention    => C,
-     External_Name => "__gnat_raise_cap_tag_exception";
-   --  Raise an exception for a capability tag fault
+     External_Name => "__gnat_synchronous_exception_handler";
+   --  Handle synchronous exceptions raised by the CPU. If required, the
+   --  handler will return the address of an exception specific handler to be
+   --  run in the faulting task's context. This allows certain synchronous
+   --  exceptions to raise Ada exceptions within faulting tasks.
 
    ------------------------
    -- Pre_Context_Switch --
@@ -570,5 +563,75 @@ package body System.BB.CPU_Primitives is
    begin
       Ada.Exceptions.Raise_Exception (Capability_Tag_Error'Identity, "");
    end Raise_Capability_Tag_Exception;
+
+   -----------------------------------
+   -- Synchronous_Exception_Handler --
+   -----------------------------------
+
+   function Synchronous_Exception_Handler return System.Address is
+      use System.Storage_Elements;
+
+      ESR : constant Unsigned_32 := Get_ESR_EL1;
+
+      EC   : constant Unsigned_32 := Shift_Right (ESR, 26);
+      DFSC : constant Unsigned_32 := ESR and 2#11_1111#;
+
+      EC_Data_Abort : constant Unsigned_32 := 2#10_0101#;
+
+      DFSC_Capability_Tag_Fault        : constant Unsigned_32 := 2#10_1000#;
+      DFSC_Capability_Sealed_Fault     : constant Unsigned_32 := 2#10_1001#;
+      DFSC_Capability_Bound_Fault      : constant Unsigned_32 := 2#10_1010#;
+      DFSC_Capability_Permission_Fault : constant Unsigned_32 := 2#10_1011#;
+
+      Handler       : System.Address;
+      Unsealing_Cap : Capability;
+
+   begin
+      if EC = EC_Data_Abort then
+         case DFSC is
+            when DFSC_Capability_Tag_Fault =>
+               Handler := Raise_Capability_Tag_Exception'Address;
+
+            when DFSC_Capability_Sealed_Fault =>
+               Handler := Raise_Capability_Sealed_Exception'Address;
+
+            when DFSC_Capability_Bound_Fault =>
+               Handler := Raise_Capability_Bound_Exception'Address;
+
+            when DFSC_Capability_Permission_Fault =>
+               Handler := Raise_Capability_Permission_Exception'Address;
+
+            when others =>
+               Handler := Null_Address;
+         end case;
+
+      else
+         Handler := Null_Address;
+      end if;
+
+      if Handler /= Null_Address then
+         --  Function pointers are sealed entries (sentries) on Morello.
+         --  They would normally be unsealed automatically during a branch
+         --  instruction, but an exception return (ERET) does not unseal
+         --  so we need to do it manually. We use the program counter
+         --  capability (PCC) as the unsealing capability since it has the
+         --  necessary permissions and is readily accessible.
+
+         Unsealing_Cap := Capability_With_Address
+                              (Get_PCC, Integer_Address (Type_Sentry));
+
+         Handler := Unseal (Handler, Unsealing_Cap);
+
+         --  Clear the instruction set state from the handler address
+         --  (i.e.: the lowest two bits) as per the exception return
+         --  requirement I_BRTMS documented in Arm Architecture Reference
+         --  Manual Supplement Morello for A-profile Architecture 2.13.2.
+
+         Handler := Capability_With_Address
+                        (Handler, Get_Address (Handler) and not 2#11#);
+      end if;
+
+      return Handler;
+   end Synchronous_Exception_Handler;
 
 end System.BB.CPU_Primitives;
