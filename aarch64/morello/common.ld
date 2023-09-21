@@ -109,6 +109,11 @@ SECTIONS
   {
      __eh_frame_hdr = .;
     *(.eh_frame_hdr)
+
+    /* Ensure that this section is not empty on runtimes without exception
+       tables. Otherwise, references to __eh_frame_hdr fail to link
+       due to an out of range relocation error. */
+    . = . + 16;
   } > REGION_CODE
 
   .eh_frame :
