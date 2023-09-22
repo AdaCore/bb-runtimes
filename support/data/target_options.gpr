@@ -41,7 +41,6 @@ abstract project Target_Options is
                                 "-fpreserve-control-flow");
   end case;
   --  Linker flags, used for building shared libraries
-  LFLAGS := ();
   LOPTIONS := ();
   case Lib is
      when "static" =>
@@ -52,9 +51,8 @@ abstract project Target_Options is
         --  link against libgnat (itself).
         --  Since -nostdlib also removes libgcc
         --  from the linked libraries we have to
-        --  add -lm again.
-        LFLAGS := LFLAGS & ("-nostdlib");
-        LOPTIONS := LOPTIONS & ("-lgcc");
+        --  add -lgcc again.
+        LOPTIONS := LOPTIONS & ("-nostdlib", "-lgcc");
   end case;
 
   --  Concatenate with common flags

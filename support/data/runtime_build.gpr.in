@@ -20,10 +20,6 @@ project Runtime_Build is
      for Spec_Suffix ("Asm_CPP") use ".inc";
   end Naming;
 
-  package Builder is
-     for Default_Switches ("Ada") use Target_Options.LFLAGS;
-  end Builder;
-
   package Compiler is
      for Default_Switches ("C") use Target_Options.ALL_CFLAGS;
      for Default_Switches ("Ada") use Target_Options.ALL_ADAFLAGS;
