@@ -101,10 +101,10 @@ __vectors:
         b       __serror_interrupt_low
 
 
-/* Default task abort handler. This can be overriden only when the non-tasking
-   runtime is used */
-        .weak   __gnat_get_task_abort_handler
-__gnat_get_task_abort_handler:
+/* Default synchronous exception handler. This can be overriden only when the
+   non-tasking runtime is used */
+        .weak   __gnat_synchronous_exception_handler
+__gnat_synchronous_exception_handler:
         mov     x0, #0
         ret
 
