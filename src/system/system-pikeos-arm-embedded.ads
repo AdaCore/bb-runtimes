@@ -42,7 +42,7 @@ pragma Restrictions (No_Exception_Registration);
 --  in this run time.
 
 pragma Profile (Jorvik);
---  This is a Ravenscar run time
+--  This is a bare metal tasking runtime
 
 package System is
    pragma Pure;
