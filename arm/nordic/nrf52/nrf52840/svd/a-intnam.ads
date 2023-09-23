@@ -13,14 +13,14 @@
 --  this list of conditions and the following disclaimer.
 --
 --  2. Redistributions in binary form, except as embedded into a Nordic
---  Semiconductor ASA integrated circuit in a product or a software update for
---  such product, must reproduce the above copyright notice, this list of
---  conditions and the following disclaimer in the documentation and/or other
---  materials provided with the distribution.
+--  Semiconductor ASA integrated circuit in a product or a software update
+--  for such product, must reproduce the above copyright notice, this list
+--  of conditions and the following disclaimer in the documentation and/or
+--  other materials provided with the distribution.
 --
 --  3. Neither the name of Nordic Semiconductor ASA nor the names of its
---  contributors may be used to endorse or promote products derived from this
---  software without specific prior written permission.
+--  contributors may be used to endorse or promote products derived from
+--  this software without specific prior written permission.
 --
 --  4. This software, with or without modification, must only be used with a
 --  Nordic Semiconductor ASA integrated circuit.
@@ -41,14 +41,10 @@
 --  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 
---  This spec has been automatically generated from nrf52.svd and then modified
---  according to interrupt table in manual
---  https://infocenter.nordicsemi.com/pdf/nRF52833_PS_v1.3.pdf page 22/23.
+--  This spec has been automatically generated from nrf52840.svd
 
---  Note that GPIO pin interrupts are always done via GPIOTE
---  https://devzone.nordicsemi.com/f/nordic-q-a/47973/
---  how-to-implement-interrupt-using-gpio-not-gpiote-peripheral.
-
+--  This is a version for the nRF52840 reference description for radio MCU with
+--  ARM 32-bit Cortex-M4 Microcontroller  MCU
 package Ada.Interrupts.Names is
 
    --  All identifiers in this unit are implementation defined
@@ -91,8 +87,6 @@ package Ada.Interrupts.Names is
    TIMER4_Interrupt                             : constant Interrupt_ID := 27;
    PWM0_Interrupt                               : constant Interrupt_ID := 28;
    PDM_Interrupt                                : constant Interrupt_ID := 29;
-   ACL_NVMC_Interrupt                           : constant Interrupt_ID := 30;
-   PPI_Interrupt                                : constant Interrupt_ID := 31;
    MWU_Interrupt                                : constant Interrupt_ID := 32;
    PWM1_Interrupt                               : constant Interrupt_ID := 33;
    PWM2_Interrupt                               : constant Interrupt_ID := 34;
@@ -102,12 +96,9 @@ package Ada.Interrupts.Names is
    FPU_Interrupt                                : constant Interrupt_ID := 38;
    USBD_Interrupt                               : constant Interrupt_ID := 39;
    UARTE1_Interrupt                             : constant Interrupt_ID := 40;
-   Unused_Interrupt_1                           : constant Interrupt_ID := 41;
-   Unused_Interrupt_2                           : constant Interrupt_ID := 42;
-   Unused_Interrupt_3                           : constant Interrupt_ID := 43;
-   Unused_Interrupt_4                           : constant Interrupt_ID := 44;
+   QSPI_Interrupt                               : constant Interrupt_ID := 41;
+   CRYPTOCELL_Interrupt                         : constant Interrupt_ID := 42;
    PWM3_Interrupt                               : constant Interrupt_ID := 45;
-   Unused_Interrupt_5                           : constant Interrupt_ID := 46;
    SPIM3_Interrupt                              : constant Interrupt_ID := 47;
 
 end Ada.Interrupts.Names;
