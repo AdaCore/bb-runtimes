@@ -41,12 +41,14 @@
 --  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 
---  This spec has been automatically generated from nrf52.svd and than modified
+--  This spec has been automatically generated from nrf52.svd and then modified
 --  according to interrupt table in manual
---  https://infocenter.nordicsemi.com/pdf/nRF52833_PS_v1.3.pdf page 22/23
+--  https://infocenter.nordicsemi.com/pdf/nRF52833_PS_v1.3.pdf page 22/23.
 
---  This is a version for the nRF52833 reference description for radio MCU with
---  ARM 32-bit Cortex-M4 Microcontroller  MCU
+--  Note that GPIO pin interrupts are always done via GPIOTE
+--  https://devzone.nordicsemi.com/f/nordic-q-a/47973/
+--  how-to-implement-interrupt-using-gpio-not-gpiote-peripheral.
+
 package Ada.Interrupts.Names is
 
    --  All identifiers in this unit are implementation defined
@@ -107,4 +109,5 @@ package Ada.Interrupts.Names is
    PWM3_Interrupt                               : constant Interrupt_ID := 45;
    Unused_Interrupt_5                           : constant Interrupt_ID := 46;
    SPIM3_Interrupt                              : constant Interrupt_ID := 47;
+   
 end Ada.Interrupts.Names;
