@@ -39,7 +39,7 @@ pragma Restrictions (No_Exception_Registration);
 --  it is only required by exception stream attributes which are not supported
 --  in this run time.
 
-pragma Profile (GNAT_Extended_Ravenscar);
+pragma Profile (Jorvik);
 --  This is a bare metal tasking runtime
 
 package System is
