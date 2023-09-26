@@ -18,10 +18,6 @@ project Ravenscar_Build is
 
    for Source_Dirs use ("{source_dirs}");
 
-   package Builder is
-      for Default_Switches ("Ada") use Target_Options.LFLAGS;
-   end Builder;
-
    package Compiler is
       for Default_Switches ("C") use Target_Options.GNARL_CFLAGS;
       for Default_Switches ("Ada") use Target_Options.GNARL_ADAFLAGS;
