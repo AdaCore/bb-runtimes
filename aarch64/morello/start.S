@@ -611,9 +611,9 @@ __dcache_loop_way:
         lsl     x7, x4, x2
         orr     x9, x9, x7          /* map set number to cisw value */
         tbz     w1, #0, 1f          /* invalidate */
-        dc      isw, c9
+        dc      isw, x9
         b       2f
-1:      dc      cisw, c9            /* clean & invalidate */
+1:      dc      cisw, x9            /* clean & invalidate */
 2:      subs    x6, x6, #1          /* ways := ways - 1 */
         b.ge    __dcache_loop_way
         subs    x4, x4, #1          /* set := set - 1 */
