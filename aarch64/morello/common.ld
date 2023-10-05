@@ -131,15 +131,8 @@ SECTIONS
   .data.rel.ro :
   {
     *(.data.rel.ro)
-    *(.data.rel.ro.local.DW.*)
-
-    /* The unwinder needs access to some parts of .data.rel.ro, for example
-       the relocation for __gnat_personality_v0, but it does not need access to
-       other relocations so we place those symbols after the upper limit */
-
-    __eh_frame_hdr_limit = .;
-
     *(.data.rel.ro.*)
+    __eh_frame_hdr_limit = .;
   } > REGION_DATA
 
   .got :
