@@ -62,3 +62,23 @@ svd-nrf52840:
 	mv handler.S ../svd && \
 	cd ../../..
 	rm -rf nrf52/nrf52840/svdtmp
+
+svd-nrf52833:
+	rm -rf nrf52/nrf52833/svd nrf52/nrf52833/svdtmp
+	$(SVD2ADA_DIR)/svd2ada $(SVD2ADA_DIR)/CMSIS-SVD/Nordic/nrf52833.svd -p Interfaces.NRF52 -o nrf52/nrf52833/svdtmp
+	cd nrf52/nrf52833/svdtmp && \
+	echo $(CURDIR) && \
+	mkdir ../svd && \
+	mv i-nrf52.ads ../svd && \
+	mv i-nrf52-clock.ads ../svd && \
+	mv i-nrf52-ficr.ads ../svd && \
+	mv i-nrf52-gpio.ads ../svd && \
+	mv i-nrf52-nvmc.ads ../svd && \
+	mv i-nrf52-rtc.ads ../svd && \
+	mv i-nrf52-temp.ads ../svd && \
+	mv i-nrf52-uart.ads ../svd && \
+	mv i-nrf52-uicr.ads ../svd && \
+	mv a-intnam.ads ../svd && \
+	mv handler.S ../svd && \
+	cd ../../..
+	rm -rf nrf52/nrf52833/svdtmp

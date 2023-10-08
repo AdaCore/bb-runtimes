@@ -2,11 +2,11 @@
 --                                                                          --
 --                  GNAT RUN-TIME LIBRARY (GNARL) COMPONENTS                --
 --                                                                          --
---              S Y S T E M . B B . M C U _ P A R A M E T E R S             --
+--            S Y S T E M . B B . B O A R D _ P A R A M E T E R S           --
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---                      Copyright (C) 2019, AdaCore                         --
+--                   Copyright (C) 2016-2020, AdaCore                       --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -32,15 +32,37 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package defines MCU parameters for the nRF52 family
+--  This package defines board parameters for the nRF52833 board
 
-package System.BB.MCU_Parameters is
+package System.BB.Board_Parameters is
    pragma No_Elaboration_Code_All;
-   pragma Preelaborate;
+   pragma Pure;
 
---  The nRF52833 has 48 interrupts, page 19 in manual. First ID is 0, last 47
---  https://infocenter.nordicsemi.com/pdf/nRF52833_PS_v1.3.pdf.
+   --------------------
+   -- Hardware clock --
+   --------------------
 
-   Number_Of_Interrupts : constant := 47;
+   RTC_Tick_Scaling_Factor : constant := 32;
+   --  32.768 kHz * 32 = 1.048576 MHz
+   --  Use a fairly high scaling factor so that Ada.Real_Time.Time_Unit is
+   --  at least 1 microsecond. This improves the long-running accuracy of
+   --  periodic tasks where the period is not integer divisible by 32.768 kHz.
+   --
+   --  The maximum permitted scaling factor is 255, otherwise the 24-bit RTC
+   --  period (@ 32 kHz) cannot be scaled to the 32-bit range of
+   --  Timer_Interval.
 
-end System.BB.MCU_Parameters;
+   Main_Clock_Frequency : constant := 32_768 * RTC_Tick_Scaling_Factor;
+   --  On the nRF52 we use the RTC peripheral as the system tick, instead of
+   --  the Cortex-M4 SysTick because the SysTick is powered down when the CPU
+   --  enters sleep mode (via the "wfi" instruction). Since we still want to
+   --  be able to put the CPU to sleep (to save power) we instead use the
+   --  low-power RTC peripheral, which runs at 32.768 kHz.
+   --
+   --  In this runtime, the minimum allowed frequency is 50_000 Hz so that
+   --  Ada.Real_Time.Time_Unit does not exceed 20 us as required by
+   --  Ada RM D.8 (30). Since the RTC's actual period is 30.518 us we multiply
+   --  the RTC frequency by RTC_Tick_Scaling_Factor so that Time_Unit meets the
+   --  requirement in Ada RM D.8 (30).
+
+end System.BB.Board_Parameters;

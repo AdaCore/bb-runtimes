@@ -39,8 +39,8 @@ pragma Restrictions (No_Exception_Registration);
 --  it is only required by exception stream attributes which are not supported
 --  in this run time.
 
-pragma Profile (GNAT_Extended_Ravenscar);
---  This is a Ravenscar run time
+pragma Profile (Jorvik);
+--  This is a bare metal tasking runtime
 
 pragma Restrictions (No_Task_At_Interrupt_Priority);
 --  On Cortex-M, it is not possible to have tasks at Interrupt_Priority, as
@@ -70,7 +70,7 @@ package System is
    Max_Base_Digits       : constant := Long_Long_Float'Digits;
    Max_Digits            : constant := Long_Long_Float'Digits;
 
-   Max_Mantissa          : constant := 63;
+   Max_Mantissa          : constant := Standard'Max_Integer_Size - 1;
    Fine_Delta            : constant := 2.0 ** (-Max_Mantissa);
 
    Tick                  : constant := 0.000_001;
