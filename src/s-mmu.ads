@@ -35,7 +35,8 @@ is
 
    procedure Initialize with
       Export,
-      Convention    => C,
-      External_Name => "__initialize_mmu";
+      Convention     => C,
+      External_Name  => "__initialize_mmu",
+      Linker_Section => ".boot";
 
 end System.MMU;
