@@ -178,7 +178,8 @@ package body System.MMU is
 
    type Level_3_Tables is array (Natural range <>) of Level_3_Table;
 
-   function Get_Level_1_Table return Address;
+   function Get_Level_1_Table return Address with
+     Inline_Always;
    --  Retrieve the address of the level 1 translation table from the
    --  TTBR0_EL1 register.
 
