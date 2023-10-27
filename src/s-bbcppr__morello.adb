@@ -312,6 +312,7 @@ package body System.BB.CPU_Primitives is
       V := Get_CPACR_EL1;
       V := V and not CPACR_FPEN;
       Set_CPACR_EL1 (V);
+      ISB;
    end Disable_FPU;
 
    ----------------
@@ -324,6 +325,7 @@ package body System.BB.CPU_Primitives is
       V := Get_CPACR_EL1;
       V := V or CPACR_FPEN;
       Set_CPACR_EL1 (V);
+      ISB;
    end Enable_FPU;
 
    ---------------------
