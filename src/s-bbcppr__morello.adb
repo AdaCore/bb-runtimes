@@ -533,7 +533,8 @@ package body System.BB.CPU_Primitives is
 
    procedure Raise_Capability_Bound_Exception is
    begin
-      Ada.Exceptions.Raise_Exception (Capability_Bound_Error'Identity, "");
+      Ada.Exceptions.Raise_Exception
+        (Capability_Bound_Error'Identity, "Capability bound fault");
    end Raise_Capability_Bound_Exception;
 
    -------------------------------------------
@@ -543,7 +544,7 @@ package body System.BB.CPU_Primitives is
    procedure Raise_Capability_Permission_Exception is
    begin
       Ada.Exceptions.Raise_Exception
-        (Capability_Permission_Error'Identity, "");
+        (Capability_Permission_Error'Identity, "Capability permission fault");
    end Raise_Capability_Permission_Exception;
 
    ---------------------------------------
@@ -552,7 +553,8 @@ package body System.BB.CPU_Primitives is
 
    procedure Raise_Capability_Sealed_Exception is
    begin
-      Ada.Exceptions.Raise_Exception (Capability_Sealed_Error'Identity, "");
+      Ada.Exceptions.Raise_Exception
+        (Capability_Sealed_Error'Identity, "Capability sealed fault");
    end Raise_Capability_Sealed_Exception;
 
    ------------------------------------
@@ -561,7 +563,8 @@ package body System.BB.CPU_Primitives is
 
    procedure Raise_Capability_Tag_Exception is
    begin
-      Ada.Exceptions.Raise_Exception (Capability_Tag_Error'Identity, "");
+      Ada.Exceptions.Raise_Exception
+        (Capability_Tag_Error'Identity, "Capability tag fault");
    end Raise_Capability_Tag_Exception;
 
    -----------------------------------
