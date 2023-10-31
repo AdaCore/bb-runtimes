@@ -30,9 +30,27 @@
 ------------------------------------------------------------------------------
 
 package body System.Machine_Reset is
-   procedure Os_Exit (Status : Integer);
-   pragma Export (C, Os_Exit, "_exit");
-   pragma No_Return (Os_Exit);
+
+   procedure Os_Exit (Status : Integer) with
+     No_Return,
+     Export,
+     Convention    => C,
+     External_Name => "_exit";
+
+   procedure Os_Abort with
+     No_Return,
+     Export,
+     Convention    => C,
+     External_Name => "abort";
+
+   --------------
+   -- Os_Abort --
+   --------------
+
+   procedure Os_Abort is
+   begin
+      Os_Exit (1);
+   end Os_Abort;
 
    -------------
    -- Os_Exit --
