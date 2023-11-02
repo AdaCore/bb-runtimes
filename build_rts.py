@@ -23,7 +23,7 @@ from arm.cortexm import Stm32, Stm32l, Sam, SmartFusion2, LM3S, Microbit, \
      CortexM7F, CortexM7DF, CortexM23, CortexM33F, CortexM33DF
 
 # Cortex-A/R runtimes
-from arm.cortexar import TMS570, Rpi2, Rpi2Mc, Zynq7000, ZynqmpR5
+from arm.cortexar import AM64xR5, TMS570, Rpi2, Rpi2Mc, Zynq7000, ZynqmpR5
 
 # Aarch64
 from aarch64 import Morello, Rpi3, Rpi3Mc, ZynqMP
@@ -89,6 +89,8 @@ def build_configs(target):
     elif target == 'zynqmp':
         t = ZynqMP()
     # ARM elf
+    elif target == 'am64xr5':
+        t = AM64xR5()
     elif target == 'zynq7000':
         t = Zynq7000()
     elif target == 'zynqmpr5':

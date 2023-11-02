@@ -1,0 +1,274 @@
+TI AM64x/AM263x Arm Cortex-R5 Runtime
+=====================================
+
+Runtimes Supported
+------------------
+
+* Light-Tasking
+
+Targets Supported
+-----------------
+
+* TI AM64x/AM263x Arm Cortex-R5F Subsystem (R5FSS)
+    - The runtime can run on any R5FSS CPU without modification.
+    - Symmetric multiprocessing (SMP) is not supported.
+    - Separate applications can be run on different CPUs.
+
+Using the runtimes
+------------------
+
+As a prerequisite, GNAT Pro for ARM ELF needs to be installed. To then use the
+runtime copy it to the `<arm-elf gnat install>/arm-eabi/lib/gnat/` folder.
+You can then select the runtime in GNAT Studio from the Toolchain pane of the
+Project Properties dialog box or set the following in your GPR file:
+
+   for Runtime ("ada") use "light-tasking-am64xr5";
+
+Alternatively, you can locate the runtime in another directory and then in the
+project file provide the full or relative path from the project file:
+
+   for Runtime ("ada") use "/path/to/runtime/light-tasking-am64xr5";
+
+Rebuilding the Runtime
+----------------------
+
+If you need to make changes to the runtime's BSP you can rebuild it as follows:
+
+For the Light-Tasking runtime: gprbuild -P ravenscar_build.gpr
+
+Note: if you were provided the runtime in a certification context, please reach
+out to AdaCore before modifying the runtime.
+
+Resources used by the runtime
+-----------------------------
+
+- The Global Timebase Counter as the source for Ada.Real_Time.Clock;
+- Timers 0 and 1 as the alarm source for R5FSS0 CPU 0 and 1 respectively;
+- Timers 2 and 3 as the alarm source for R5FSS1 CPU 0 and 1 respectively;
+- The local Vectored Interrupt Manager (VIM) controller for interrupt support;
+- UART0 for Ada.Text_IO.
+
+Interrupt sources TIMER0_INTR_PEND_0, TIMER1_INTR_PEND_0, TIMER2_INTR_PEND_0,
+TIMER3_INTR_PEND_0 are reserved for runtime use and should not be used by user
+applications.
+
+See the respective sections below for further details on each resource used by
+the GNAT runtime.
+
+System Clocks
+-------------
+
+The AM64x/AM263x R5FSS runtime uses two clock sources:
+
+* Global Timebase Counter (GTC): high resolution counter used for
+  Ada.Real_Time.Clock.
+* Timers: used for delays and timing events.
+
+The GTC is a read-only monotonic clock shared among all CPUs. The runtime will
+enable the GTC if it's not enabled. User software should not disable the GTC nor
+modify the GTC after the runtime starts, instead configuration of the GTC
+should be performed by the SBL. The GTC clock frequency is defined in the
+runtime package System.BB.Board_Parameters (`s-bbbopa.ads`) in the gnat
+directory by the constant GTC_Frequency. By default, the GTC_Frequency is
+defined as 225 MHz and can be updated by users by modifying this value and
+rebuilding the runtime.
+
+Timers 0 and 1 are used as the alarm source when the runtime is run on R5FSS0
+CPU 0 and CPU 1 respectively, while Timers 2 and 3 are used as the alarm source
+for R5FSS1 CPU 0 and CPU 1. The runtime will determine the appropriate Timer
+to use at runtime, no configuration is necessary. The runtime configures each
+Timer to use HFOSC0_CLKOUT as its clock input source. The frequency of
+HFOSC0_CLKOUT is defined in System.BB.Board_Parameters as 25 MHz and can be
+changed by users to suit their board if required.
+
+Startup Code
+------------
+
+The TI AM64x/AM263x R5FSS runtime provides low-level startup code in `crt0.S`
+that contains the entry point of the application to be called from your
+bootloader and performs the low-level runtime initialization required before
+high-level Ada code is called. The startup code performs the following
+operations:
+
+ * initialization of core registers;
+ * Enabling of the FPU;
+ * Clearing the BSS section;
+ * Loading of the DATA section to RAM if required;
+ * Configuration of the MPU.
+
+Outside of the startup code, the runtime will also configure the CPU's
+respective Timer and local VIM. All other SoC initialization and configuration
+needs to be carried out by the Secondary Bootloader (SBL) prior to passing
+control over to the application. The SBL is also required to load the
+application into memory if required. Any peripherals the application may use
+should be configured by the SBL or the application directly prior to their use.
+
+The configuration of the MPU is located in System.Board_Parameters
+(`s-boapar`). This package can be modified directly by non-certification users
+to suit your needs. For certification users who cannot modify the runtime you
+should configure the MPU directly yourself by implementing your own version of
+the parameterless function `__gnat_mpu_init` in your application. At link time
+your application will use your version of `__gnat_mpu_init` instead of the
+runtime provided version.
+
+In limited circumstances, `crt0.S` may be replaced with your own code that
+performs the above requirement and directly calls `main`, but please contact
+AdaCore if you need to modify the FPU settings as doing so may affect the
+conformance of the runtime to the Ada Standard.
+
+Memory
+------
+
+The application memory is broken down into three primary memory regions:
+
+ * Boot and Vector Code ("Boot Region")
+ * Code, read-only data and the initial read-write data ("Code Region")
+ * Data and bss (zeroed data) sections ("Data Region")
+
+A set of default linker scripts are provided with the runtime that locate
+the Boot Region at the start of TCM A and the Code and Data regions into MSRAM.
+These linker scripts can be found in the `ld` directory and consist of the
+following scripts:
+
+ * `memmap.ld`: defines the layout of the AM64x/AM263x memory.
+ * `ram.ld`: maps AM64x/AM263x memory to the memory regions defined above. This
+   is the main linker script that includes the other two scripts.
+ * `common.ld`: defines the application entry point and sections. It uses the
+   memory regions defined in `ram.ld` to allow this script to be used in
+   different scenarios without modification.
+
+While you can modify these scripts directly, it's recommended to copy the
+scripts you need to modify to your project folder and modify them there. This
+allows you to preserve your scripts between runtime updates and is required if
+you will be using the runtime to run applications on different cores (as each
+application will need to be mapped to different memory locations).
+
+To use your own linker scripts, specify the main linker script via the `-T`
+linker switch and use the `-XLOADER=USER` switch when building your application
+with GPRbuild.
+
+When relocating the primary memory regions, please keep in mind the following
+guidance for each region.
+
+Boot Region
+~~~~~~~~~~~~
+
+The Boot Region contains the exception vector table, start code and hardware
+exception handlers. The exception vector table appears at the start of this
+region and consequently the region needs to be mapped to 0x00000000 if the
+R5FSS core is booted from TCM. The AM64x/AM263x also supports remapping the
+boot vector elsewhere in the SoC memory map by programming the
+CTRLMMR_SEC_CLSTR0_CORE0_BOOTVECT_LO and CTRLMMR_SEC_CLSTR0_CORE0_BOOTVECT_HI
+registers. In this scenario, the Boot Region should be placed at the start of
+this boot vector address.
+
+This region needs to be loaded into memory by the SBL.
+
+Code Region
+~~~~~~~~~~~
+
+The Code Region contains the application code, read-only data and the initial
+state of the data section. This region can be located in RAM or read-only
+memory like FLASH. If located in RAM it is the bootloader's responsibility to
+load the Code Region to memory.
+
+Data Region
+~~~~~~~~~~~
+
+The Data Region contains the data and bss sections. The region needs to be
+located in RAM, which can either be the SoC's internal TCM or SRAM, or external
+DDR memory. During runtime startup the runtime will zero the bss section and
+copy the initial state of the data section from the Code Region if the two
+regions are not located together. There is no need for the SBL to load the
+Data Region into RAM.
+
+Caches
+~~~~~~
+
+The runtime enables the data and instruction cache during initialization.
+
+Interrupts
+----------
+
+External Interrupts
+~~~~~~~~~~~~~~~~~~~
+
+The AM64x/AM263x R5FSS runtime supports connecting IRQ interrupts generated by
+the CPU's Vectored Interrupt Manager (VIM) to protected procedure handlers as
+documented in the Ada Reference Manual C.3.1. The list of interrupt names can
+be found in the package Ada.Interrupts.Names (`gnarl/a-intnam.ads`).
+
+Due to the design of the VIM, all interrupts are mapped to a single Ada
+Interrupt Priority and nested priorities are not supported. Interrupts handled
+by the runtime use a dedicated stack and the FPU is enabled, allowing the
+use of floating-point instructions within an interrupt handler. The runtime
+will initialize the CPU's VIM during runtime initialization and the VIM is
+configured to use the vector interface (VIC).
+
+Additional interrupt functionality is provided through the GNAT.Interrupts
+(`gnarl/g-interr.ads`) package:
+
+ * Enabling and disabling interrupts at the VIM;
+ * Raising a software interrupt (for testing);
+ * Setting the type of interrupt event (level (default) or pulse);
+ * Setting the priority of the interrupt at the VIM.
+
+Note that since the runtime does not support nested priorities, the VIM
+interrupt priorities are only used to determine which interrupt has precedence
+to be serviced when there are multiple pending interrupts.
+
+Additionally, GNAT.Interrupts supports direct attachment of IRQ and FIQ
+interrupt handlers to the VIM that bypasses the GNAT runtime. This allows users
+to provide low latency handlers. Direct attachment of handlers comes with the
+following limitations:
+
+  * Nesting of interrupts is not supported;
+  * Interrupts must not be reenabled while in a handler;
+  * Handler *must* not make any runtime calls, including calling protected
+    subprograms;
+  * Handler should not use the FPU;
+  * Users are responsible for saving and restoring register state, and
+    returning from the interrupt. This can be done by using the "interrupt"
+    machine attribute on the handler procedure;
+  * Users must follow TI's documentation on "Servicing IRQ Through Vector
+    Interface" for IRQ handlers and "Servicing FIQ" for FIQ handlers.
+    Use the provided procedures Clear_VIM_Status and Clear_Priority_Mask to
+    clear the interrupt status and VIM priority.
+
+Cortex R5 Core Interrupts
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Undefined instruction exceptions, prefetch abort and data abort exceptions
+will call the GNAT Last Chance Handler with a message indicating which
+exception was raised. By default, the Last Chance Handler will print out this
+exception message and loop. It is expected that the default Last Chance Handler
+is replaced with your application specific Last Chance Handler.
+
+Power Management
+----------------
+
+The runtime will place the CPU into standby mode if there are no tasks eligible
+to run.
+
+Text_IO
+-------
+
+The runtime provides a minimal version of the Ada.Text_IO package supporting
+character- and string-based input and output routines for basic I/O needs. It
+is recommended to implement your own I/O packages based around your I/O
+channel of choice.
+
+The bodies of the Ada.Text_IO routines call through to a device-specific I/O
+package named System.Text_IO. See the package body in the file `s-textio.adb`
+in the gnat directory for more details.
+
+System.Text_IO on the AM64x/AM263x R5FSS runtime is configured by default to
+use UART0. UART0 is configured for 115200 baud rate, one stop bit, no parity
+using the 48 MHz clock source.
+
+Note: System.Text_IO does not provide any synchronised access to UART0 across
+R5FSS and A53SS CPUs. If you deploy multiple applications using the runtime,
+ensure only one application uses Ada.Text_IO. If your other applications
+require Text_IO services, have these applications interface directly with
+different I/O peripherals, or use the AM64x/AM243x IPC facilities to relay
+messages through the application designated to communicate with UART0.

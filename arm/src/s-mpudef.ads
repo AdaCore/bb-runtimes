@@ -124,12 +124,12 @@ package System.MPU_Definitions is
       Privileged_RO_User_RO) with Size => 3;
 
    for Access_Control_AP use
-     (Privileged_NA_User_NA   => 2#000#,
-      Privileged_RW_User_NA  => 2#001#,
-      Privileged_RW_User_RO  => 2#010#,
+     (Privileged_NA_User_NA => 2#000#,
+      Privileged_RW_User_NA => 2#001#,
+      Privileged_RW_User_RO => 2#010#,
       Privileged_RW_User_RW => 2#011#,
-      Privileged_RO_User_NA   => 2#101#,
-      Privileged_RO_User_RO   => 2#110#);
+      Privileged_RO_User_NA => 2#101#,
+      Privileged_RO_User_RO => 2#110#);
 
    --  TEX S C B bits:
 
@@ -164,21 +164,28 @@ package System.MPU_Definitions is
    type Unsigned_19 is mod 2 ** 19 with Size => 19;
 
    type Size_And_Enable_Reg is record
-      Reserved_1         : I.Unsigned_16 := 0;
       Sub_Region_Disable : I.Unsigned_8  := 0;
-      Reserved_2         : Unsigned_2    := 0;
       Size               : Region_Size;
       Enable             : Boolean;
-   end record with Pack, Size => 32;
+   end record with Size => 32;
+
+   for Size_And_Enable_Reg use record
+      Sub_Region_Disable at 0 range 8 .. 15;
+      Size               at 0 range 1 .. 5;
+      Enable             at 0 range 0 .. 0;
+   end record;
 
    type Access_Control_Reg is record
-      Reserved_1 : Unsigned_19       := 0;
       XN         : Access_Control_XN;
-      Reserved_2 : Unsigned_1        := 0;
       AP         : Access_Control_AP;
-      Reserved_3 : Unsigned_2        := 0;
       TEX_S_C_B  : Access_Control_TEX_S_C_B;
-   end record with Pack, Size => 32;
+   end record with Size => 32;
+
+   for Access_Control_Reg use record
+      XN         at 0 range 12 .. 12;
+      AP         at 0 range 8 .. 10;
+      TEX_S_C_B  at 0 range 0 .. 5;
+   end record;
 
    type MPU_Region_Configuration is record
       Base_Address    : I.Unsigned_32;
