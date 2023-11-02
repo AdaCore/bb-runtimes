@@ -50,6 +50,65 @@ class CortexARTarget(DFBBTarget):
             conf.build_flags['common_gnarl_flags'] += ['-mgeneral-regs-only']
 
 
+class AM64xR5(CortexARTarget):
+    @property
+    def name(self):
+        return 'am64xr5'
+
+    @property
+    def has_small_memory(self):
+        return True
+
+    @property
+    def loaders(self):
+        return ('RAM',)
+
+    @property
+    def cpu(self):
+        return 'cortex-r5'
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ('-mlittle-endian', '-mfloat-abi=hard',
+                '-mcpu=%s' % self.cpu, '-mfpu=vfpv3-d16', '-marm')
+
+    @property
+    def readme_file(self):
+        return 'arm/am64xr5/README'
+
+    @property
+    def system_ads(self):
+        return {'light-tasking': 'system-xi-arm-light-tasking-no-irq-nesting.ads'}
+
+    def add_linker_scripts(self):
+        self.add_linker_script('arm/am64xr5/common.ld')
+        self.add_linker_script('arm/am64xr5/memmap.ld')
+        self.add_linker_script('arm/am64xr5/ram.ld', loader='RAM')
+
+    def __init__(self):
+        super(AM64xR5, self).__init__()
+
+        self.add_linker_scripts()
+
+        self.add_gnat_sources(
+            'arm/am64xr5/crt0.S',
+            'arm/src/s-mpudef.ads',
+            'arm/src/s-mpuini.ads', 'arm/src/s-mpuini.adb',
+            'src/s-boapar__am64xr5.ads',
+            'src/s-macres__none.adb',
+            'src/s-textio__16C750.adb')
+
+        self.add_gnarl_sources(
+            'src/a-intnam__am64xr5.ads',
+            'src/g-interr__ti_vim.ads', 'src/g-interr__ti_vim.adb',
+            'src/s-bbpara__am64xr5.ads', 'src/s-bbbosu__am64xr5.adb',
+            'src/s-bbsumu__generic.adb',
+            'src/s-bbcppr__arm.adb',
+            'src/s-ti.ads',
+            'src/s-tvinma.ads', 'src/s-tvinma.adb')
+
+
 class Rpi2Base(CortexARTarget):
     @property
     def loaders(self):
@@ -265,8 +324,8 @@ class ZynqmpR5(CortexARTarget):
 
         self.add_gnat_sources(
             'arm/zynqmpr5/crt0.S',
-            'arm/zynqmpr5/s-mpudef.ads',
-            'arm/zynqmpr5/s-mpuini.ads', 'arm/zynqmpr5/s-mpuini.adb',
+            'arm/src/s-mpudef.ads',
+            'arm/src/s-mpuini.ads', 'arm/src/s-mpuini.adb',
             'src/s-boapar__zynqmpr5.ads')
         self.add_gnat_sources(
             'src/s-textio__zynqmp.adb',
