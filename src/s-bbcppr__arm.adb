@@ -191,6 +191,7 @@ package body System.BB.CPU_Primitives is
       Set_FPU_Enabled (False);
 
       --  Prepare the IRQ handler FPU context
+
       IRQ_Ctxt.V_Init := False;
       Running_Thread_Table (CPU_Id).Context.Running :=
         IRQ_Ctxt'Unchecked_Access;
@@ -202,6 +203,7 @@ package body System.BB.CPU_Primitives is
       SPSR := Get_SPSR;
 
       --  Call the handler
+
       if Is_FIQ then
          Fiq_User_Handler;
       else
@@ -209,6 +211,7 @@ package body System.BB.CPU_Primitives is
       end if;
 
       --  Check FPU usage in handler
+
       if Current_FPU_Context (CPU_Id) = IRQ_Ctxt'Unchecked_Access then
          --  FPU was used.
          --  Invalidate the current FPU context as we're leaving the IRQ

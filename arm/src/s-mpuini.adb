@@ -25,7 +25,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Unchecked_Conversion;
 with Interfaces;              use Interfaces;
 with Interfaces.ARM_V7AR;     use Interfaces.ARM_V7AR;
 with System.MPU_Definitions;  use System.MPU_Definitions;
@@ -63,17 +62,16 @@ package body System.MPU_Init is
 
       --  Disable the unused regions
 
-      for Index in MPU_Config'Last + 1 .. Num_Rgn loop
+      for Index in MPU_Config'Last + 1 .. Num_Rgn - 1 loop
          CP15.Set_MPU_Region_Number (Index);
          CP15.Set_MPU_Region_Base_Address    (16#0000_0000#);
          CP15.Set_MPU_Region_Size_And_Enable (0);
          CP15.Set_MPU_Region_Access_Control  (0);
       end loop;
 
-      --  Enable MPU with background region activated (respectively bits 0 and
-      --  17 of SCTLR)
+      --  Enable MPU (bit 0 of SCTLR)
       SCTLR := CP15.Get_SCTLR;
-      SCTLR := SCTLR or 1 or (2 ** 17);
+      SCTLR := SCTLR or 1;
       Barriers.DSB;
       CP15.Set_SCTLR (SCTLR);
       Barriers.ISB;

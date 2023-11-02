@@ -33,7 +33,6 @@
 --  maintainance, access to control registers...)
 
 with System;
---  @design used for the type ``Address``
 
 package Interfaces.ARM_V7AR is
    pragma No_Elaboration_Code_All;

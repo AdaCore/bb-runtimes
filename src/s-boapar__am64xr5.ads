@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2023, AdaCore                     --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -35,9 +35,15 @@
 ------------------------------------------------------------------------------
 
 --  This package defines basic parameters used by the non tasking part of
---  the runtime.
+--  the runtime. It contains MPU configuration.
 
---  This is the ZynqMP Cortex-R5 (ARMv7-R) version of this package
+--  This is the TI AM64x/AM243x Cortex-R5 version of this package using the
+--  following MPU layout:
+--    * ATCM (first 32KB at 16#0000_0000#)
+--    * BTCM (first 32KB at 16#4101_0000#)
+--    * MSRAM (full 2MB non shared access)
+--    * DDR (full 2GB non shared access)
+--    * Background region read/write accessable
 
 with System.MPU_Definitions;
 
@@ -48,116 +54,89 @@ package System.Board_Parameters is
 
    MPU_Config : constant System.MPU_Definitions.MPU_Region_Config_Table :=
      (
-      --  Background region
+      --  Background region (access to most MAIN peripherals via memory bus)
+
       0 => (Base_Address    => 16#0000_0000#,
             Size_And_Enable =>
-              (Sub_Region_Disable => 2#1111_1111#,
-               Size               => MD.Size_4GiB,
+              (Sub_Region_Disable => 0,
+               Size               => MD.Size_2GiB,
                Enable             => True),
             Access_Control  =>
               (XN                 => MD.Execute_Never,
-               AP                 => MD.Privileged_NA_User_NA,
+               AP                 => MD.Privileged_RW_User_RO,
                TEX_S_C_B          => MD.Strongly_Ordered)),
-      --  DDR
+
+      --  ATCM (configured for dual core mode)
+
       1 => (Base_Address => 16#0000_0000#,
             Size_And_Enable =>
               (Sub_Region_Disable => 0,
-               Size               => MD.Size_1GiB,
+               Size               => MD.Size_32KiB,
                Enable             => True),
             Access_Control  =>
               (XN                 => MD.Execute_All,
-               AP                 => MD.Privileged_RW_User_RW,
-               TEX_S_C_B          => MD.Outer_Inner_WB_WA_NS)),
-      --  Strongly ordered memory for PL interface
-      2 => (Base_Address => 16#8000_0000#,
+               AP                 => MD.Privileged_RW_User_RO,
+               TEX_S_C_B          => MD.Outer_Inner_NC_NS)),
+
+      --  MAIN peripherals (via VBUSP peripheral port)
+
+      2 => (Base_Address    => 16#2000_0000#,
             Size_And_Enable =>
               (Sub_Region_Disable => 0,
-               Size               => MD.Size_1GiB,
+               Size               => MD.Size_64MiB,
                Enable             => True),
             Access_Control  =>
               (XN                 => MD.Execute_Never,
-               AP                 => MD.Privileged_RW_User_RW,
+               AP                 => MD.Privileged_RW_User_RO,
                TEX_S_C_B          => MD.Strongly_Ordered)),
-      --  QSPI
-      3 => (Base_Address => 16#C000_0000#,
+
+      --  BTCM (configured for dual core mode)
+
+      3 => (Base_Address => 16#4101_0000#,
             Size_And_Enable =>
               (Sub_Region_Disable => 0,
-               Size               => MD.Size_512MiB,
+               Size               => MD.Size_32KiB,
                Enable             => True),
             Access_Control  =>
               (XN                 => MD.Execute_All,
-               AP                 => MD.Privileged_RO_User_RO,
-               TEX_S_C_B          => MD.Non_Shareable_Device)),
-      --  PCIe Low
-      4 => (Base_Address => 16#E000_0000#,
+               AP                 => MD.Privileged_RW_User_RO,
+               TEX_S_C_B          => MD.Outer_Inner_NC_NS)),
+
+      --  OSPI (FLASH) Memory. For production change the address and size to
+      --  match the memory region the application should have access to.
+
+      4 => (Base_Address => 16#6000_0000#,
             Size_And_Enable =>
               (Sub_Region_Disable => 0,
                Size               => MD.Size_256MiB,
                Enable             => True),
             Access_Control  =>
-              (XN                 => MD.Execute_Never,
-               AP                 => MD.Privileged_RW_User_RW,
-               TEX_S_C_B          => MD.Non_Shareable_Device)),
-      --  STM_CORESIGHT
-      5 => (Base_Address => 16#F800_0000#,
-            Size_And_Enable =>
-              (Sub_Region_Disable => 0,
-               Size               => MD.Size_16MiB,
-               Enable             => True),
-            Access_Control  =>
-              (XN                 => MD.Execute_Never,
-               AP                 => MD.Privileged_RW_User_RW,
-               TEX_S_C_B          => MD.Non_Shareable_Device)),
-      --  RPU_A53_GIC
-      6 => (Base_Address => 16#F900_0000#,
-            Size_And_Enable =>
-              (Sub_Region_Disable => 0,
-               Size               => MD.Size_1MiB,
-               Enable             => True),
-            Access_Control  =>
-              (XN                 => MD.Execute_Never,
-               AP                 => MD.Privileged_RW_User_RW,
-               TEX_S_C_B          => MD.Non_Shareable_Device)),
-      --  FPS slaves
-      7 => (Base_Address => 16#FD00_0000#,
-            Size_And_Enable =>
-              (Sub_Region_Disable => 0,
-               Size               => MD.Size_16MiB,
-               Enable             => True),
-            Access_Control  =>
-              (XN                 => MD.Execute_Never,
-               AP                 => MD.Privileged_RW_User_RW,
-               TEX_S_C_B          => MD.Non_Shareable_Device)),
-      --  Upper LPS slaves
-      8 => (Base_Address => 16#FE00_0000#,
-            Size_And_Enable =>
-              (Sub_Region_Disable => 0,
-               Size               => MD.Size_16MiB,
-               Enable             => True),
-            Access_Control  =>
-              (XN                 => MD.Execute_Never,
-               AP                 => MD.Privileged_RW_User_RW,
-               TEX_S_C_B          => MD.Non_Shareable_Device)),
-      --  Lower LPS slaves
-      9 => (Base_Address => 16#FF00_0000#,
-            Size_And_Enable =>
-              (Sub_Region_Disable => 0,
-               Size               => MD.Size_16MiB,
-               Enable             => True),
-            Access_Control  =>
-              (XN                 => MD.Execute_Never,
-               AP                 => MD.Privileged_RW_User_RW,
-               TEX_S_C_B          => MD.Non_Shareable_Device)),
-      --  OCM Ram
-      10 => (Base_Address => 16#FFFC_0000#,
-             Size_And_Enable =>
-               (Sub_Region_Disable => 0,
-                Size               => MD.Size_256KiB,
-                Enable             => True),
-             Access_Control  =>
-               (XN                 => MD.Execute_Never,
-                AP                 => MD.Privileged_RW_User_RW,
-                TEX_S_C_B          => MD.Outer_Inner_WB_WA_NS))
-     );
+              (XN                 => MD.Execute_All,
+               AP                 => MD.Privileged_RO_User_RO,
+               TEX_S_C_B          => MD.Outer_Inner_WB_WA_NS)),
 
+      --  MSRAM
+
+      5 => (Base_Address => 16#7000_0000#,
+            Size_And_Enable =>
+              (Sub_Region_Disable => 0,
+               Size               => MD.Size_2MiB,
+               Enable             => True),
+            Access_Control  =>
+              (XN                 => MD.Execute_All,
+               AP                 => MD.Privileged_RW_User_RO,
+               TEX_S_C_B          => MD.Outer_Inner_WB_WA_NS)),
+
+      --  DDR
+
+      6 => (Base_Address => 16#8000_0000#,
+            Size_And_Enable =>
+              (Sub_Region_Disable => 0,
+               Size               => MD.Size_2GiB,
+               Enable             => True),
+            Access_Control  =>
+              (XN                 => MD.Execute_All,
+               AP                 => MD.Privileged_RW_User_RW,
+               TEX_S_C_B          => MD.Non_Shareable_Device))
+     );
 end System.Board_Parameters;
