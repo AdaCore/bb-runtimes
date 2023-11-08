@@ -1,4 +1,4 @@
-from support import readfile, getdatafilepath
+from support import readfile, getdatafilepath, Compiler, target_compiler
 from support.bsp_sources.target import Target
 from support.files_holder import _copy
 
@@ -139,11 +139,17 @@ class Installer(object):
                     break
         if ret is None:
             # gprls did not work, try to find out manually the proper location
-            gcc = shutil.which('%s-gcc' % self.tgt.target)
-            if gcc is not None:
-                gcc_root = os.path.dirname(os.path.dirname(gcc))
+            compiler_name_pattern = (
+                '%s-llvm-gcc' if target_compiler() == Compiler.gnat_llvm else '%s-gcc'
+            )
+            compiler = shutil.which(compiler_name_pattern % self.tgt.target)
+            if compiler is not None:
+                compiler_root = os.path.dirname(os.path.dirname(compiler))
+                lib_dir = (
+                    'gnat-llvm' if target_compiler() == Compiler.gnat_llvm else 'gnat'
+                )
                 tentative = os.path.join(
-                    gcc_root, self.tgt.target, 'lib', 'gnat', rts_json_file)
+                    compiler_root, self.tgt.target, 'lib', lib_dir, rts_json_file)
                 if os.path.exists(tentative):
                     ret = os.path.normpath(tentative)
         assert ret is not None, "Cannot find %s" % rts_json_file
