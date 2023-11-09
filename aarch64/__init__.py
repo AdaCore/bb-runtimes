@@ -101,15 +101,15 @@ class MorelloTarget(Aarch64Target):
 
     @property
     def system_ads(self):
-        result = {
-            'light': 'system-xi-arm.ads',
-            'light-tasking': 'system-xi-arm-gic-sfp.ads',
+        return {
+            'light': 'system-xi-arm-nxstack-light.ads',
+            'light-tasking': 'system-xi-arm-nxstack-light-tasking.ads'
         }
 
         # GNAT-LLVM can't build the embedded Morello runtime yet, so we exclude it for
         # the time being.
         if target_compiler() != Compiler.gnat_llvm:
-            result['embedded'] = 'system-xi-arm-gic-full.ads'
+            result['embedded'] = 'system-xi-arm-nxstack-embedded.ads'
 
         return result
 
