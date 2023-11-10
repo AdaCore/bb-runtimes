@@ -101,7 +101,7 @@ class MorelloTarget(Aarch64Target):
 
     @property
     def system_ads(self):
-        return {
+        result = {
             'light': 'system-xi-arm-nxstack-light.ads',
             'light-tasking': 'system-xi-arm-nxstack-light-tasking.ads'
         }
