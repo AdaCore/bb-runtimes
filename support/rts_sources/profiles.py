@@ -151,6 +151,11 @@ class RTSProfiles(object):
         else:
             ret['Has_FPU'] = 'no'
 
+        if self.config.has_command_line_arguments:
+            ret['Add_Command_Line'] = 'yes'
+        else:
+            ret['Add_Command_Line'] = 'no'
+
         if self.config.has_libc(profile):
             ret['Has_libc'] = 'yes'
         else:
