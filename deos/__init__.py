@@ -8,6 +8,10 @@ class Deos(Target):
         self.add_gnat_sources("src/s-macres__deos.adb")
 
     @property
+    def has_command_line_arguments(self):
+        return True
+
+    @property
     def has_single_precision_fpu(self):
         return True
 

@@ -5,6 +5,10 @@ from support.bsp_sources.target import Target
 
 class PikeOS(Target):
     @property
+    def has_command_line_arguments(self):
+        return True
+
+    @property
     def has_double_precision_fpu(self):
         return True
 
