@@ -81,7 +81,9 @@ def build_configs(target):
         t = PPCPikeOS5()
     # AArch64 elf
     elif target == 'morello':
-        t = Morello()
+        t = Morello(uart_io=True)
+    elif target == 'morello-semihosting':
+        t = Morello(uart_io=False)
     elif target == 'rpi3':
         t = Rpi3()
     elif target == 'rpi3mc':

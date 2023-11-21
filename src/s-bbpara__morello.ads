@@ -38,10 +38,10 @@
 
 --  This is the Arm Morello version of this package
 
-pragma Restrictions (No_Elaboration_Code);
-
-package System.BB.Parameters is
-   pragma Pure;
+package System.BB.Parameters with
+   Pure,
+   No_Elaboration_Code_All
+is
 
    --------------------
    -- Hardware clock --
@@ -134,5 +134,18 @@ package System.BB.Parameters is
 
    Multiprocessor : constant Boolean := Max_Number_Of_CPUs /= 1;
    --  Are we on a multiprocessor board?
+
+   ----------
+   -- UART --
+   ----------
+
+   PL011_Base : constant := 16#2A40_0000#;
+   --  APUART0
+
+   --  F_UARTCLK = 50_000_000, baud = 115_200
+   --  (F_UARTCLK / 16) / baud ~= 27 + 8/64
+
+   PL011_IBRD : constant := 27;
+   PL011_FBRD : constant := 8;
 
 end System.BB.Parameters;

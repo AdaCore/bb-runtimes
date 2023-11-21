@@ -234,7 +234,10 @@ class Rpi3Mc(Rpi3Base):
 class Morello(MorelloTarget):
     @property
     def name(self):
-        return 'morello'
+        if self.use_semihosting_io:
+            return 'morello-semihosting'
+        else:
+            return 'morello'
 
     @property
     def loaders(self):
@@ -242,14 +245,17 @@ class Morello(MorelloTarget):
 
     @property
     def use_semihosting_io(self):
-        return True
+        return not self.uart_io
 
     @property
     def has_cheri(self):
         return True
 
-    def __init__(self):
+    def __init__(self, uart_io):
+        self.uart_io = uart_io
+
         super(Morello, self).__init__()
+
         self.add_gnat_sources(
             'aarch64/morello/start.S',
             'aarch64/morello/memmap.S',
@@ -258,6 +264,7 @@ class Morello(MorelloTarget):
             'aarch64/morello/s-morell.ads',
             'aarch64/morello/s-morini.adb',
             'aarch64/morello/s-morini.ads',
+            'src/s-bbpara__morello.ads',
             'src/trap_dump__aarch64.ads',
             'src/trap_dump__aarch64.adb',
         )
@@ -265,7 +272,6 @@ class Morello(MorelloTarget):
             'src/a-intnam__morello.ads',
             'src/s-bbbosu__morello.adb',
             'src/s-armgic__600.ads', 'src/s-armgic__600.adb',
-            'src/s-bbpara__morello.ads'
         )
 
         if self.use_semihosting_io:
@@ -274,7 +280,10 @@ class Morello(MorelloTarget):
                 'src/s-sgshca__cortexar_c64.adb',
             )
         else:
-            self.add_gnat_source('src/s-macres__none.adb')
+            self.add_gnat_sources(
+                'src/s-macres__none.adb',
+                'src/s-textio__pl011.adb',
+            )
 
         self.add_linker_script('aarch64/morello/common.ld')
         self.add_linker_script('aarch64/morello/ram.ld', loader='RAM')

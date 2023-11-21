@@ -320,6 +320,7 @@ __start_el1:
          */
         mov     x0, #0x3C0000
         msr     cpacr_el1, x0
+        isb
 
         /* SBL     = 1  BL instructions don't seal caps c30
          * PERMVCT = 0  Access to CNTVCT_EL0 at EL3 needs PCC system perms
