@@ -128,6 +128,12 @@ SECTIONS
 
   . = ALIGN(0x1000);
 
+  .rela.dyn :
+  {
+    *(.rela.dyn)
+    *(.rela.dyn.*)
+  } > REGION_DATA
+
   .data.rel.ro :
   {
     *(.data.rel.ro)
