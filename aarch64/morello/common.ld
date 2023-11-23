@@ -146,9 +146,9 @@ SECTIONS
     *(.got)
   } > REGION_DATA
 
-  __data_load = .;
-  .data : AT (__data_load)
+  .data :
   {
+    __data_load = .;
     __data = .;
     __data_start = .;
     *(.data .gnu.linkonce.d*)
