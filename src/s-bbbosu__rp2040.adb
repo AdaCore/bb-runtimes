@@ -79,9 +79,16 @@ package body System.BB.Board_Support is
 
    NVIC_ISPR0 : constant Address := NVIC_Base + 16#200#;
 
+   NVIC_ICPR0 : constant Address := NVIC_Base + 16#280#;
+   --  Writing a bit mask to this register clears the interrupt pending bit
+
    NVIC_ISER : Word
      with Volatile, Address => NVIC_ISER0;
    --  NVIC Interrupt Set-Enable Register (ISER)
+
+   NVIC_ICPR : Word
+     with Volatile, Address => NVIC_ICPR0;
+   --  NVIC Interrupt Clear Pending Register (ISER)
 
    NVIC_ISPR : Word
      with Volatile, Address => NVIC_ISPR0;
@@ -234,6 +241,7 @@ package body System.BB.Board_Support is
 
          --  Clear pending timer interrupt if any
          Time.Clear_Alarm_Interrupt;
+         NVIC_ICPR := NVIC_ISER or 2**Alarm_Interrupt_ID;
 
          --  Enable interrupt
          NVIC_ISER                 := NVIC_ISER or 2**Alarm_Interrupt_ID;
