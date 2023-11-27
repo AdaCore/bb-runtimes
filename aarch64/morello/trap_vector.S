@@ -37,11 +37,6 @@
         .globl __sync_interrupt
         .globl __irq_interrupt
         .globl __fiq_interrupt
-        .globl interrupt_stack_table
-        .globl __serror_interrupt_low
-        .globl __sync_interrupt_low
-        .globl __irq_interrupt_low
-        .globl __fiq_interrupt_low
 
         .org 0
         .section .vectors, "a"
