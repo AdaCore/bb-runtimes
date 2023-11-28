@@ -10,6 +10,10 @@ class Vx7r2Cert(Target):
         self.add_gnat_sources('src/s-macres__vx7r2cert.adb')
 
     @property
+    def has_command_line_arguments(self):
+        return True
+
+    @property
     def has_single_precision_fpu(self):
         return True
 

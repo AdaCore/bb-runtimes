@@ -114,6 +114,7 @@ all_scenarios = {
     'Add_Pack64': ['no', 'yes'],
     # Various support packages
     'Add_Case_Util': ['no', 'yes'],
+    'Add_Command_Line': ['no', 'yes'],
     'Add_Float_Util': ['no', 'yes'],
     'Add_Image_Util': ['no', 'yes'],
     'Add_IO_Exceptions': ['no', 'yes'],
@@ -223,24 +224,28 @@ sources = {
             'hie/s-macres.ads',
             'hie/s-textio.ads'],
         'deos_srcs': [
+            'exit.c',
             'hie/g-io__c.ads',
             'hie/a-textio__deos.ads', 'hie/a-textio__deos.adb',
             'hie/s-macres.ads',
              ],
         'pikeos_srcs': [
             'hie/a-textio.ads',
+            'exit.c',
             'hie/g-io__zfp.ads', 'hie/g-io__zfp.adb',
             'hie/g-io-put__bb.adb',
             'hie/s-macres.ads',
             'hie/s-parame__large.ads', 'hie/s-parame.adb',
             'hie/s-textio.ads'],
         'vx7r2cert_srcs': [
+            'exit.c',
             'libgnat/g-io.ads', 'hie/g-io__vxworks7cert.adb',
             'hie/s-textio__vxworks7cert.ads', 'hie/s-textio__vxworks7cert.adb',
             'hie/a-textio.ads', 'hie/a-textio__vxworks7cert.adb',
             'hie/s-macres.ads',
             'vx_stack_info.c'],
         'qnx_srcs': [
+            'exit.c',
             'hie/g-io__zfp.ads', 'hie/g-io__zfp.adb',
             'hie/g-io-put.adb',
             'hie/a-textio.ads', 'hie/a-textio__qnx.adb',
@@ -354,6 +359,15 @@ sources = {
             'libgnat/s-parame__qnx.adb',
             'hie/s-init__light.ads']
     },
+
+    # Command Line
+    'command_line': {
+        'conditions': ['Add_Command_Line:yes'],
+        'srcs': ['libgnat/a-comlin.ads', 'libgnat/a-comlin.adb',
+                 'argv.c',
+                 'runtime.h']
+    },
+
     'gccmath': {
         'conditions': ['RTS_Profile:light,light-tasking', 'Target_Word_Size:64'],
         'srcs': [],
