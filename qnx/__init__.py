@@ -6,6 +6,10 @@ class QNX(Target):
         super(QNX, self).__init__()
         self.add_gnat_sources('src/s-macres__qnx.adb')
 
+    @property
+    def has_command_line_arguments(self):
+        return True
+
     def has_libc(self, profile):
         return True
 
@@ -24,7 +28,6 @@ class QNX(Target):
     @property
     def use_certifiable_packages(self):
         return True
-
 
 class Aarch64QNX(QNX):
     def __init__(self):

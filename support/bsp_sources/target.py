@@ -90,6 +90,11 @@ class TargetConfiguration(object):
         return False
 
     @property
+    def has_command_line_arguments(self):
+        """True if the OS supports command line arguments"""
+        return False
+
+    @property
     def has_compare_and_swap(self):
         """True if the hardware supports an atomic compare-and-swap function.
 
@@ -162,7 +167,7 @@ class Target(TargetConfiguration, ArchSupport):
                                              '-fdata-sections'],
                             'common_gnarl_flags': [],
                             'asm_flags': [],
-                            'c_flags': ['-DIN_RTS', '-Dinhibit_libc']}
+                            'c_flags': ['-DIN_RTS', '-Dinhibit_libc', '-DLIGHT_RUNTIME']}
         # GNAT-LLVM doesn't support -fcallgraph-info
         if target_compiler() != Compiler.gnat_llvm:
             self.build_flags['common_flags'].append('-fcallgraph-info=su,da')
