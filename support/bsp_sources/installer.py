@@ -277,7 +277,7 @@ class Installer(object):
             for f in ['common_flags', 'common_gnarl_flags',
                       'asm_flags', 'c_flags']:
                 build_flags[f] = '",\n        "'.join(rts_obj.build_flags[f])
-            cnt = readfile(getdatafilepath('target_options.gpr'))
+            cnt = readfile(getdatafilepath('target_options.gpr.in'))
             build_flags["gnat_version"] = runtime_sources.version
             # Format
             cnt = cnt.format(**build_flags)
