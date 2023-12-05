@@ -168,6 +168,7 @@ class Target(TargetConfiguration, ArchSupport):
                             'common_flags': ['-ffunction-sections',
                                              '-fdata-sections'],
                             'common_gnarl_flags': [],
+                            'common_debug_flags': ['-g'],
                             'asm_flags': [],
                             'c_flags': ['-DIN_RTS', '-Dinhibit_libc', '-DLIGHT_RUNTIME']}
         # GNAT-LLVM doesn't support -fcallgraph-info
