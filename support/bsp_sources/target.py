@@ -162,6 +162,8 @@ class Target(TargetConfiguration, ArchSupport):
 
         self.rts_options = RTSProfiles(self)
 
+        # Flags for keys in target_options.gpr.in must end in _flags. This is
+        # to avoid duplicating the list of flags in support/bsp_sources/installer.py.
         self.build_flags = {'source_dirs': None,
                             'common_flags': ['-ffunction-sections',
                                              '-fdata-sections'],

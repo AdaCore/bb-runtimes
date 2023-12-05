@@ -273,10 +273,10 @@ class Installer(object):
 
             # And generate the project files used to build the rts
 
-            build_flags = {}
-            for f in ['common_flags', 'common_gnarl_flags',
-                      'asm_flags', 'c_flags']:
-                build_flags[f] = '",\n        "'.join(rts_obj.build_flags[f])
+            build_flags = {
+                f: '",\n        "'.join(rts_obj.build_flags[f])
+                for f in rts_obj.build_flags if f.endswith('_flags')
+            }
             cnt = readfile(getdatafilepath('target_options.gpr.in'))
             build_flags["gnat_version"] = runtime_sources.version
             # Format
