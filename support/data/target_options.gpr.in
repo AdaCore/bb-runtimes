@@ -16,6 +16,7 @@ abstract project Target_Options is
   --  COMFLAGS here is common flags (used for C and Ada).
   COMFLAGS := ("{common_flags}");
   COMGNARLFLAGS := ("{common_gnarl_flags}");
+  COMDEBUGFLAGS := ("{common_debug_flags}");
 
   --  Per language flags (COMFLAGS will be added later)
   ADAFLAGS := ("-gnatg", "-nostdinc", "-fno-delete-null-pointer-checks");
@@ -28,8 +29,8 @@ abstract project Target_Options is
         ADAFLAGS := ADAFLAGS & ("-gnatp", "-gnatn2");
      when "Debug" =>
         --  Disable optimization and add debug symbols
-        COMFLAGS := COMFLAGS & ("-O0", "-g");
-        ASMFLAGS := ASMFLAGS & ("-g");
+        COMFLAGS := COMFLAGS & COMDEBUGFLAGS & ("-O0");
+        ASMFLAGS := ASMFLAGS & COMDEBUGFLAGS;
      when "Assert" =>
         --  Possibly enable assertions. This might use too much memory on
         --  some systems or could be too slow.
@@ -37,8 +38,8 @@ abstract project Target_Options is
         ADAFLAGS := ADAFLAGS & ("-gnata");
      when "Gnatcov" =>
         --  For coverage
-        COMFLAGS := COMFLAGS & ("-O0", "-g", "-fdump-scos",
-                                "-fpreserve-control-flow");
+        COMFLAGS := COMFLAGS & COMDEBUGFLAGS &
+          ("-O0", "-fdump-scos", "-fpreserve-control-flow");
   end case;
   --  Linker flags, used for building shared libraries
   LOPTIONS := ();
