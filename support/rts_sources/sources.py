@@ -524,6 +524,7 @@ sources = {
             'libgnat/s-except.ads', 'libgnat/s-except.adb',
             'libgnat/s-exctab.ads', 'libgnat/s-exctab.adb',
             'libgnat/s-finmas.ads', 'libgnat/s-finmas.adb',
+            'libgnat/s-finpri.ads', 'libgnat/s-finpri.adb',
             'libgnat/s-finroo.ads', 'libgnat/s-finroo.adb',
             'libgnat/s-fore_d.ads', 'libgnat/s-fore_d.adb',
             'libgnat/s-fore_f.ads', 'libgnat/s-fore_f.adb',
