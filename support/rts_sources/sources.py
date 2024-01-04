@@ -81,6 +81,9 @@ all_scenarios = {
     'Add_Image_Char': ['no', 'yes'],
     'Add_Image_Wide_Char': ['no', 'yes'],
     # 'Value:
+    'Add_Value_Spec': ['no', 'yes'],
+    'Add_Value_LL_Spec': ['no', 'yes'],
+    'Add_Value_LLL_Spec': ['no', 'yes'],
     'Add_Value_Bool': ['no', 'yes'],
     'Add_Value_Enum': ['no', 'yes'],
     'Add_Value_Int': ['no', 'yes'],
@@ -694,7 +697,9 @@ sources = {
             'libgnat/s-imagen.ads', 'libgnat/s-imagen.adb',
             'libgnat/s-imen16.ads',
             'libgnat/s-imen32.ads',
-            'libgnat/s-imenu8.ads']
+            'libgnat/s-imenu8.ads'
+        ],
+        'requires': ['Add_Value_Spec:yes'],
     },
     'image/decimal': {
         'conditions': ['Add_Image_Decimal:yes'],
@@ -746,19 +751,21 @@ sources = {
         'conditions': ['Add_Image_Int:yes'],
         'srcs': [
             'libgnat/s-imagew.ads', 'libgnat/s-imagew.adb',
-            'libgnat/s-imgwiu.ads']
+            'libgnat/s-imgwiu.ads',
+        ],
+        'requires': ['Add_Value_Spec:yes'],
     },
     'image/int_ll': {
         'conditions': ['Add_Image_LL_Int:yes'],
         'srcs': [
             'libgnat/s-imgllw.ads'],
-        'requires': ['Add_Image_Int:yes']
+        'requires': ['Add_Image_Int:yes', 'Add_Value_LL_Spec:yes']
     },
     'image/int_lll': {
         'conditions': ['Add_Image_LLL_Int:yes'],
         'srcs': [
             'libgnat/s-imglllw.ads'],
-        'requires': ['Add_Image_Int:yes']
+        'requires': ['Add_Image_Int:yes', 'Add_Value_LLL_Spec:yes']
     },
     'image/based_int': {
         'conditions': ['Add_Image_Based_Int:yes'],
@@ -796,6 +803,30 @@ sources = {
         'requires': ['Add_Image_Int:yes']
     },
     # 'Value support
+    'value/spec': {
+        'conditions': ['Add_Value_Spec:yes'],
+        'srcs': [
+            'libgnat/s-valspe.ads', 'libgnat/s-valspe.adb',
+            'libgnat/s-vaispe.ads', 'libgnat/s-vaispe.adb',
+            'libgnat/s-vauspe.ads', 'libgnat/s-vauspe.adb',
+            'libgnat/s-vs_int.ads',
+            'libgnat/s-vs_uns.ads',
+        ],
+    },
+    'value/spec_ll': {
+        'conditions': ['Add_Value_LL_Spec:yes'],
+        'srcs': [
+            'libgnat/s-vs_lli.ads',
+            'libgnat/s-vs_llu.ads',
+        ],
+    },
+    'value/spec_lll': {
+        'conditions': ['Add_Value_LLL_Spec:yes'],
+        'srcs': [
+            'libgnat/s-vsllli.ads',
+            'libgnat/s-vslllu.ads',
+        ],
+    },
     'value/Boolean': {
         'conditions': ['Add_Value_Bool:yes'],
         'srcs': [
@@ -863,27 +894,28 @@ sources = {
     'value/int': {
         'conditions': ['Add_Value_Int:yes'],
         'srcs': [
-            'libgnat/s-vaispe.ads', 'libgnat/s-vaispe.adb',
-            'libgnat/s-vauspe.ads', 'libgnat/s-vauspe.adb',
             'libgnat/s-valint.ads',
             'libgnat/s-valueu.ads', 'libgnat/s-valueu.adb',
             'libgnat/s-valuei.ads', 'libgnat/s-valuei.adb',
-            'libgnat/s-valuns.ads'],
+            'libgnat/s-valuns.ads',
+        ],
         'requires': ['Add_Value_Utils:yes']
     },
     'value/int_ll': {
         'conditions': ['Add_Value_LL_Int:yes'],
         'srcs': [
             'libgnat/s-vallli.ads',
-            'libgnat/s-valllu.ads'],
-        'requires': ['Add_Value_Utils:yes']
+            'libgnat/s-valllu.ads',
+        ],
+        'requires': ['Add_Value_Utils:yes', 'Add_Value_LL_Spec:yes']
     },
     'value/int_lll': {
         'conditions': ['Add_Value_LLL_Int:yes'],
         'srcs': [
             'libgnat/s-valllli.ads',
-            'libgnat/s-vallllu.ads'],
-        'requires': ['Add_Value_Utils:yes']
+            'libgnat/s-vallllu.ads',
+        ],
+        'requires': ['Add_Value_Utils:yes', 'Add_Value_LLL_Spec:yes']
     },
     'value/char': {
         'conditions': ['Add_Value_Char:yes'],
@@ -900,8 +932,9 @@ sources = {
     'value/utils': {
         'conditions': ['Add_Value_Utils:yes'],
         'srcs': [
-            'libgnat/s-valuti.ads', 'libgnat/s-valuti.adb'],
-        'requires': ['Add_Case_Util:yes']
+            'libgnat/s-valuti.ads', 'libgnat/s-valuti.adb',
+        ],
+        'requires': ['Add_Case_Util:yes', 'Add_Value_Spec:yes']
     },
     # Utility packages
     'utils/float_fma': {
