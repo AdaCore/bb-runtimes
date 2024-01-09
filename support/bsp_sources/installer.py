@@ -38,7 +38,7 @@ def install_files(flist, dest):
 class SharedRTSSources(object):
     def __init__(self, json_file):
         self._pwd = os.path.dirname(json_file)
-        with open(json_file, 'r') as fp:
+        with open(json_file, "r") as fp:
             cnt = fp.read()
         self.cnt = json.loads(cnt)
 
@@ -51,14 +51,16 @@ class SharedRTSSources(object):
         return self.cnt["version"]
 
     def scenarios(self, lib):
-        assert lib in self.cnt, \
+        assert lib in self.cnt, (
             "The runtime sources don't provide support for lib%s" % lib
-        return self.cnt[lib]['scenarios']
+        )
+        return self.cnt[lib]["scenarios"]
 
     def sources(self, lib):
-        assert lib in self.cnt, \
+        assert lib in self.cnt, (
             "The runtime sources don't provide support for lib%s" % lib
-        return self.SharedSourcesItem(self.cnt[lib]['sources'], self._pwd)
+        )
+        return self.SharedSourcesItem(self.cnt[lib]["sources"], self._pwd)
 
     class SharedSourcesItem(object):
         def __init__(self, raw_data, base):
@@ -67,23 +69,29 @@ class SharedRTSSources(object):
 
         @property
         def source_dirs(self):
-            if '_srcs' in self.cnt:
-                return [os.path.normpath(os.path.join(self.base, d))
-                        for d in self.cnt['_srcs']]
+            if "_srcs" in self.cnt:
+                return [
+                    os.path.normpath(os.path.join(self.base, d))
+                    for d in self.cnt["_srcs"]
+                ]
             else:
                 return []
 
         def __iter__(self):
             for k, v in self.cnt.items():
-                if k == '_srcs':
+                if k == "_srcs":
                     continue
-                scenario, condition = k.split(':')
-                yield (scenario, condition,
-                       SharedRTSSources.SharedSourcesItem(v, self.base))
+                scenario, condition = k.split(":")
+                yield (
+                    scenario,
+                    condition,
+                    SharedRTSSources.SharedSourcesItem(v, self.base),
+                )
 
 
 class Installer(object):
     """Responsible for generating the BSP source tree and the RTS project"""
+
     overwrite = False
 
     def __init__(self, target):
@@ -95,10 +103,9 @@ class Installer(object):
         return self.tgt.target is None
 
     def _find_rts_sources(self, destination, descriptor):
-        """Find the runtime sources and the json file that describes them.
-        """
+        """Find the runtime sources and the json file that describes them."""
         # First look in the relative path
-        rts_json_file = 'rts-sources.json'
+        rts_json_file = "rts-sources.json"
 
         ret = None
         if descriptor is not None:
@@ -115,21 +122,22 @@ class Installer(object):
             # if we find the file somewhere in the project search path
             if not self.is_native:
                 res = subprocess.check_output(
-                    ['gprls', '-v', '--target=%s' % self.tgt.target],
-                    stderr=subprocess.STDOUT).decode()
+                    ["gprls", "-v", "--target=%s" % self.tgt.target],
+                    stderr=subprocess.STDOUT,
+                ).decode()
             else:
                 res = subprocess.check_output(
-                    ['gprls', '-v'],
-                    stderr=subprocess.STDOUT).decode()
+                    ["gprls", "-v"], stderr=subprocess.STDOUT
+                ).decode()
             in_prj_search_path = False
             ret = None
             for line in res.splitlines():
                 if not in_prj_search_path:
-                    if line == 'Project Search Path:':
+                    if line == "Project Search Path:":
                         in_prj_search_path = True
                     continue
                 line = line.strip()
-                if line == '<Current_Directory>':
+                if line == "<Current_Directory>":
                     continue
                 if len(line) == 0:
                     break
@@ -140,16 +148,17 @@ class Installer(object):
         if ret is None:
             # gprls did not work, try to find out manually the proper location
             compiler_name_pattern = (
-                '%s-llvm-gcc' if target_compiler() == Compiler.gnat_llvm else '%s-gcc'
+                "%s-llvm-gcc" if target_compiler() == Compiler.gnat_llvm else "%s-gcc"
             )
             compiler = shutil.which(compiler_name_pattern % self.tgt.target)
             if compiler is not None:
                 compiler_root = os.path.dirname(os.path.dirname(compiler))
                 lib_dir = (
-                    'gnat-llvm' if target_compiler() == Compiler.gnat_llvm else 'gnat'
+                    "gnat-llvm" if target_compiler() == Compiler.gnat_llvm else "gnat"
                 )
                 tentative = os.path.join(
-                    compiler_root, self.tgt.target, 'lib', lib_dir, rts_json_file)
+                    compiler_root, self.tgt.target, "lib", lib_dir, rts_json_file
+                )
                 if os.path.exists(tentative):
                     ret = os.path.normpath(tentative)
         assert ret is not None, "Cannot find %s" % rts_json_file
@@ -163,8 +172,7 @@ class Installer(object):
         """
         ret = rts_source_item.source_dirs
         for scenario, condition, sub in rts_source_item:
-            if scenario in scenarios and \
-                    scenarios[scenario] == condition:
+            if scenario in scenarios and scenarios[scenario] == condition:
                 ret += self._get_rts_dirs(sub, scenarios)
         return ret
 
@@ -180,18 +188,20 @@ class Installer(object):
 
         for rts_base_name, rts_obj in self.tgt.runtimes.items():
             if self.tgt.is_native or self.tgt.is_legacy_format:
-                rtsname = 'rts-%s' % rts_base_name
+                rtsname = "rts-%s" % rts_base_name
                 if self.tgt.name.endswith("vx7r2cert-rtp"):
                     rtsname += "-rtp"
             else:
-                rtsname = '%s-%s' % (rts_base_name, self.tgt.name)
+                rtsname = "%s-%s" % (rts_base_name, self.tgt.name)
             rts_path = os.path.join(destination, rtsname)
             if os.path.exists(rts_path):
                 if not self.overwrite:
                     print("ERROR: a runtime already exists in")
                     print("  %s" % rts_path)
-                    print("remove the runtime, use a different installation"
-                          " path or use --force to overwrite")
+                    print(
+                        "remove the runtime, use a different installation"
+                        " path or use --force to overwrite"
+                    )
                     sys.exit(1)
                 else:
                     # remove everything there
@@ -200,10 +210,10 @@ class Installer(object):
                     shutil.rmtree(rts_path)
             scenario_vars = rts_obj.rts_vars
 
-            if 'embedded' in rts_base_name or 'tasking' in rts_base_name:
-                libs = ('gnat', 'gnarl')
+            if "embedded" in rts_base_name or "tasking" in rts_base_name:
+                libs = ("gnat", "gnarl")
             else:
-                libs = ('gnat', )
+                libs = ("gnat",)
 
             # Amend the scenario variables with the default values
             for lib in libs:
@@ -212,7 +222,7 @@ class Installer(object):
                         scenario_vars[scenario] = vals[0]
 
             # Placeholder for user-defined sources
-            user_libs = ['%s_user' % d for d in libs]
+            user_libs = ["%s_user" % d for d in libs]
             for lib in user_libs:
                 dest = os.path.join(rts_path, lib)
                 os.makedirs(dest)
@@ -220,11 +230,10 @@ class Installer(object):
             # Now copy the full set of sources to use for the runtime
             langs = {}
             for lib in libs:
-                langs[lib] = ['Ada']
+                langs[lib] = ["Ada"]
                 dest = os.path.join(rts_path, lib)
                 # Install sources from the shared rts sources
-                dirs = self._get_rts_dirs(
-                    runtime_sources.sources(lib), scenario_vars)
+                dirs = self._get_rts_dirs(runtime_sources.sources(lib), scenario_vars)
                 install_files(dirs, dest)
                 # and install sources from the BSP
                 for pair in self.tgt.get_sources(lib):
@@ -236,85 +245,92 @@ class Installer(object):
                 # _build.gpr project.
                 for fname in os.listdir(dest):
                     _, ext = os.path.splitext(fname)
-                    if 'C' not in langs[lib] and (ext == '.c' or ext == '.h'):
-                        langs[lib].append('C')
-                    if 'Asm' not in langs[lib] and ext == '.s':
-                        langs[lib].append('Asm')
-                    if 'Asm_Cpp' not in langs[lib] and ext == '.S':
-                        langs[lib].append('Asm_Cpp')
+                    if "C" not in langs[lib] and (ext == ".c" or ext == ".h"):
+                        langs[lib].append("C")
+                    if "Asm" not in langs[lib] and ext == ".s":
+                        langs[lib].append("Asm")
+                    if "Asm_Cpp" not in langs[lib] and ext == ".S":
+                        langs[lib].append("Asm_Cpp")
 
             # Copy the ld scripts
             if len(self.tgt.ld_scripts) > 0:
-                dest = os.path.join(rts_path, 'ld')
+                dest = os.path.join(rts_path, "ld")
                 if not os.path.isdir(dest):
                     os.makedirs(dest)
                 for script in self.tgt.ld_scripts:
                     script.install(dest)
             # Add user-defined placeholder for ld scripts
-            dest = os.path.join(rts_path, 'ld_user')
+            dest = os.path.join(rts_path, "ld_user")
             if not os.path.isdir(dest):
                 os.makedirs(dest)
 
             # Install target and run-time specific configuration files
             for name, content in self.tgt.config_files.items():
-                with open(os.path.join(rts_path, name), 'w') as fp:
+                with open(os.path.join(rts_path, name), "w") as fp:
                     fp.write(content)
             for name, content in rts_obj.config_files.items():
-                with open(os.path.join(rts_path, name), 'w') as fp:
+                with open(os.path.join(rts_path, name), "w") as fp:
                     fp.write(content)
-            with open(os.path.join(rts_path, 'runtime.xml'), 'w') as fp:
+            with open(os.path.join(rts_path, "runtime.xml"), "w") as fp:
                 fp.write(self.tgt.dump_runtime_xml(rts_base_name, rts_obj))
-            with open(os.path.join(rts_path, 'ada_source_path'), 'w') as fp:
+            with open(os.path.join(rts_path, "ada_source_path"), "w") as fp:
                 # Make sure the user-defined sources come first to preempt
                 # default sources when needed
-                fp.write('%s\n' % '\n'.join(list(user_libs) + list(libs)))
-            with open(os.path.join(rts_path, 'ada_object_path'), 'w') as fp:
-                fp.write('adalib\n')
+                fp.write("%s\n" % "\n".join(list(user_libs) + list(libs)))
+            with open(os.path.join(rts_path, "ada_object_path"), "w") as fp:
+                fp.write("adalib\n")
 
             # And generate the project files used to build the rts
 
             build_flags = {
                 f: '",\n        "'.join(rts_obj.build_flags[f])
-                for f in rts_obj.build_flags if f.endswith('_flags')
+                for f in rts_obj.build_flags
+                if f.endswith("_flags")
             }
-            cnt = readfile(getdatafilepath('target_options.gpr.in'))
+            cnt = readfile(getdatafilepath("target_options.gpr.in"))
             build_flags["gnat_version"] = runtime_sources.version
             # Format
             cnt = cnt.format(**build_flags)
             # Write
-            with open(os.path.join(rts_path, 'target_options.gpr'), 'w') as fp:
+            with open(os.path.join(rts_path, "target_options.gpr"), "w") as fp:
                 fp.write(cnt)
 
             runtime_build = os.path.join(rts_path, "runtime_build.gpr")
-            runtime_build_tmpl = getdatafilepath('runtime_build.gpr.in')
-            with open(runtime_build_tmpl, 'r') as fp:
+            runtime_build_tmpl = getdatafilepath("runtime_build.gpr.in")
+            with open(runtime_build_tmpl, "r") as fp:
                 template = fp.read()
-            with open(runtime_build, 'w') as fp:
+            with open(runtime_build, "w") as fp:
                 if self.is_native:
-                    target_directive = ''
+                    target_directive = ""
                 else:
                     target_directive = 'for Target use "%s";' % self.tgt.target
-                source_dirs = ['gnat_user', 'gnat']
-                languages = langs['gnat']
-                runtime_spark_units = \
-                    readfile(getdatafilepath('runtime_spark_units.lst')).splitlines()
-                fp.write(template.format(
-                    target_directive=target_directive,
-                    source_dirs='", "'.join(source_dirs),
-                    runtime_spark_units='", "'.join(runtime_spark_units),
-                    languages='", "'.join(languages)))
-            if 'gnarl' in libs:
-                ravenscar_build = os.path.join(rts_path, "ravenscar_build.gpr")
-                ravenscar_build_tmpl = getdatafilepath(
-                    "ravenscar_build.gpr.in")
-                with open(ravenscar_build_tmpl, 'r') as fp:
-                    template = fp.read()
-                source_dirs = ['gnarl_user', 'gnarl']
-                languages = langs['gnarl']
-                with open(ravenscar_build, 'w') as fp:
-                    fp.write(template.format(
+                source_dirs = ["gnat_user", "gnat"]
+                languages = langs["gnat"]
+                runtime_spark_units = readfile(
+                    getdatafilepath("runtime_spark_units.lst")
+                ).splitlines()
+                fp.write(
+                    template.format(
+                        target_directive=target_directive,
                         source_dirs='", "'.join(source_dirs),
-                        languages='", "'.join(languages)))
+                        runtime_spark_units='", "'.join(runtime_spark_units),
+                        languages='", "'.join(languages),
+                    )
+                )
+            if "gnarl" in libs:
+                ravenscar_build = os.path.join(rts_path, "ravenscar_build.gpr")
+                ravenscar_build_tmpl = getdatafilepath("ravenscar_build.gpr.in")
+                with open(ravenscar_build_tmpl, "r") as fp:
+                    template = fp.read()
+                source_dirs = ["gnarl_user", "gnarl"]
+                languages = langs["gnarl"]
+                with open(ravenscar_build, "w") as fp:
+                    fp.write(
+                        template.format(
+                            source_dirs='", "'.join(source_dirs),
+                            languages='", "'.join(languages),
+                        )
+                    )
                 projects.append(ravenscar_build)
             else:
                 projects.append(runtime_build)
@@ -330,7 +346,6 @@ class Installer(object):
                     install_files(src_list, dest)
             extra_prjs = self.tgt.other_projects(rts_base_name)
             if extra_prjs is not None:
-                projects += [os.path.join(rts_path, prj)
-                             for prj in extra_prjs]
+                projects += [os.path.join(rts_path, prj) for prj in extra_prjs]
 
         return projects

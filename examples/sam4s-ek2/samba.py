@@ -11,29 +11,29 @@ import getopt
 
 class IOError(Exception):
     """Serial IO error"""
+
     pass
+
 
 verbose = 1
 speed = termios.B115200
 
-options, argv = getopt.getopt(sys.argv[1:], 'vs:')
+options, argv = getopt.getopt(sys.argv[1:], "vs:")
 
-allspeeds = {'9600': termios.B9600,
-             '57600': termios.B57600,
-             '115200': termios.B115200}
+allspeeds = {"9600": termios.B9600, "57600": termios.B57600, "115200": termios.B115200}
 
 for opt, arg in options:
-    if opt in ('-v'):
+    if opt in ("-v"):
         verbose = 1
-    elif opt in ('-s'):
+    elif opt in ("-s"):
         if arg in allspeeds:
             speed = allspeeds[arg]
         else:
-            print 'Unknown speed: ', arg
+            print("Unknown speed: ", arg)
             sys.exit(1)
 
 if not len(argv) in (1, 2):
-    print 'Usage: ' + sys.argv[0] + ' [-s speed] device [file]'
+    print("Usage: " + sys.argv[0] + " [-s speed] device [file]")
     sys.exit(1)
 
 dev = argv[0]
@@ -52,9 +52,9 @@ def set_baud(br):
 
 
 def send_byte(c):
-#    print hex(ord(c))
+    #    print(hex(ord(c)))
     if os.write(fd, c) != 1:
-        print 'Failed to send a char'
+        print("Failed to send a char")
         raise IOError
 
 
@@ -65,24 +65,25 @@ def send_str(s):
 
 def send_cmd(s):
     send_str(s)
-    res = ''
+    res = ""
     while True:
         c = os.read(fd, 1)
-        if c == '':
+        if c == "":
             break
         res += c
     if verbose:
-        print 'Got', len(res), binascii.hexlify(res)
+        print("Got", len(res), binascii.hexlify(res))
     if len(res) < 3:
-        print 'Too short reply'
-        return ''
-    if res[0:2] != '\n\r':
-        print 'Wrong command reply'
+        print("Too short reply")
+        return ""
+    if res[0:2] != "\n\r":
+        print("Wrong command reply")
         raise IOError
-    if res[-1] != '>':
-        print 'Wrong command reply'
+    if res[-1] != ">":
+        print("Wrong command reply")
         raise IOError
     return res[2:-1]
+
 
 if len(argv) == 2:
     # Read file to download
@@ -93,58 +94,59 @@ if len(argv) == 2:
     set_baud(termios.B115200)
 
     if verbose:
-        print 'Binary mode'
-    send_cmd('B#')
+        print("Binary mode")
+    send_cmd("B#")
 
     if verbose:
-        print 'Show version'
-    print send_cmd('V#')
+        print("Show version")
+    print(send_cmd("V#"))
 
     if verbose:
-        print 'Send file'
-    send_str('S20000800,%x#' % len(buf))
+        print("Send file")
+    send_str("S20000800,%x#" % len(buf))
     send_cmd(buf)
 
     if verbose:
-        print 'Execute'
-    send_cmd('G20000800#')
+        print("Execute")
+    send_cmd("G20000800#")
     sys.exit(0)
 
     # Load address
     if verbose:
-        print 'Sending start address'
-    send_str('\x40\x00\x00\x00')
+        print("Sending start address")
+    send_str("\x40\x00\x00\x00")
 
     # Length
     if verbose:
-        print 'Sending length'
-    send_str(struct.pack('>I', len(buf)))
+        print("Sending length")
+    send_str(struct.pack(">I", len(buf)))
 
     # Content
     if verbose:
-        print 'Sending binary'
+        print("Sending binary")
     send_str(buf)
 
 set_baud(speed)
 if verbose:
-    print 'Terminal...'
+    print("Terminal...")
 
 
 def terminal():
     while 1:
         i, o, e = select.select([stdin, fd], [], [])
         for s in i:
-#            print '[',s,':',
+            #            print('[',s,':',)
             c = os.read(s, 1)
-#            print hex(ord(c)),']'
+            #            print(hex(ord(c)),']')
             if s == fd:
                 if ord(c) == 26:  # ^Z
-                    print '[Rebooted]'
-#                   return
+                    print("[Rebooted]")
+                #                   return
                 sys.stdout.write(c)
                 sys.stdout.flush()
             elif s == stdin:
                 os.write(fd, c)
+
 
 try:
     stdin = sys.stdin.fileno()
@@ -158,7 +160,7 @@ try:
     terminal()
 
     # Flush input
-    print 'Flushing'
+    print("Flushing")
     while 1:
         i, o, e = select.select([fd], [], [], 0.1)
         if len(i) == 0:

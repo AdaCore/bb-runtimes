@@ -8,22 +8,25 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 # The set of compilers that we can assemble runtimes for.
 Compiler = Enum("Compiler", ["gnat", "gnat_llvm"])
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 REPO_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-_SRC_SEARCH_PATH = [REPO_DIR, ]
+_SRC_SEARCH_PATH = [
+    REPO_DIR,
+]
 _TARGET_COMPILER = Compiler.gnat
 
 
 def get_gnat_version(gnat_dir):
     try:
-        with open(os.path.join(os.path.abspath(gnat_dir), "gnatvsn.ads"), 'r') as fd:
+        with open(os.path.join(os.path.abspath(gnat_dir), "gnatvsn.ads"), "r") as fd:
             gnatvsn_content = fd.read()
     except Exception:
-        print('cannot find gnatvsn.ads')
+        print("cannot find gnatvsn.ads")
         sys.exit(1)
-    m = re.search(r'Library_Version : ' +
-                  r'constant String := "([0-9]+)(\.([0-9]+))?";',
-                  gnatvsn_content)
+    m = re.search(
+        r"Library_Version : " + r'constant String := "([0-9]+)(\.([0-9]+))?";',
+        gnatvsn_content,
+    )
     if m:
         version = m.group(1).strip().split(".")[0]
         date = m.group(3)
@@ -31,7 +34,7 @@ def get_gnat_version(gnat_dir):
             return f"{version}.{date}"
         return version
 
-    print('cannot find GNAT version in gnatvsn.ads')
+    print("cannot find GNAT version in gnatvsn.ads")
     sys.exit(1)
 
 
@@ -67,7 +70,7 @@ def getdatafilepath(filename):
 
 def readfile(filename):
     """Reads the content of filename, relative to the bb-runtimes directory"""
-    fp = open(fullpath(filename), 'r')
+    fp = open(fullpath(filename), "r")
     res = fp.read()
     fp.close()
     return res

@@ -34,9 +34,9 @@ class Rule(object):
             return
 
         for rule in rules:
-            assert ':' in rule, "Syntax error: wrong rule '%s'" % rule
+            assert ":" in rule, "Syntax error: wrong rule '%s'" % rule
 
-            var, value = rule.split(':')
+            var, value = rule.split(":")
             var = var.strip()
             value = value.strip()
 
@@ -46,22 +46,24 @@ class Rule(object):
 
             # make sure to record all scenario variables that are actually
             # useful
-            cases = [s.strip() for s in value.split(',')]
+            cases = [s.strip() for s in value.split(",")]
 
-            if cases[0][0] == '!':
+            if cases[0][0] == "!":
                 negate = True
                 n_cases = []
                 for case in cases:
-                    assert case.startswith('!'), \
-                        ('negation needs to apply '
-                         'to every item in the list: %s' % rule)
+                    assert case.startswith("!"), (
+                        "negation needs to apply "
+                        "to every item in the list: %s" % rule
+                    )
                     n_cases.append(case[1:])
                 cases = n_cases
             else:
                 negate = False
 
-            assert var not in self._scenarios, \
-                "duplicated scenario variable in %s" % str(rules)
+            assert (
+                var not in self._scenarios
+            ), "duplicated scenario variable in %s" % str(rules)
 
             self._scenarios[var] = []
 
@@ -132,7 +134,7 @@ class Rule(object):
 
     def partial_match(self, variables):
         """If all variables match the rule (but not necessarily all the rules),
-         then return True"""
+        then return True"""
         for var in variables:
             if var not in self._scenarios:
                 # some extra variable is defined. We wanted a full match so
@@ -145,15 +147,17 @@ class Rule(object):
     def corresponding_scenario(self):
         ret = {}
         for var in self._scenarios:
-            assert len(self._scenarios[var]) == 1,\
-                ("Cannot generate automatically a dependency,"
-                 " when several choices are possible: %s:%s" % (
-                    var, str(self._scenarios[var])))
+            assert len(self._scenarios[var]) == 1, (
+                "Cannot generate automatically a dependency,"
+                " when several choices are possible: %s:%s"
+                % (var, str(self._scenarios[var]))
+            )
             ret[var] = self._scenarios[var][0]
         return ret
 
 
 # Definitions of shared source files.
+
 
 class SourceTree(FilesHolder):
     def __init__(self, sources, profile, rts_sources, rts_scenarios):
@@ -168,54 +172,55 @@ class SourceTree(FilesHolder):
         """
         super(SourceTree, self).__init__()
         self.scenarios = deepcopy(rts_scenarios)
-        self.lib_scenarios = {'gnat': [], 'gnarl': []}
-        self.rules = {'gnat': {}, 'gnarl': {}}
+        self.lib_scenarios = {"gnat": [], "gnarl": []}
+        self.rules = {"gnat": {}, "gnarl": {}}
         self.deps = {}
         SourceTree.__singleton = self
 
-        if profile != 'embedded':
-            if profile == 'light':
-                self.scenarios['RTS_Profile'] = ['light']
-            elif profile == 'light-tasking':
-                self.scenarios['RTS_Profile'] = ['light', 'light-tasking']
-            elif profile == 'cert':
-                self.scenarios['RTS_Profile'] = ['light', 'cert']
+        if profile != "embedded":
+            if profile == "light":
+                self.scenarios["RTS_Profile"] = ["light"]
+            elif profile == "light-tasking":
+                self.scenarios["RTS_Profile"] = ["light", "light-tasking"]
+            elif profile == "cert":
+                self.scenarios["RTS_Profile"] = ["light", "cert"]
 
         for key, values in rts_sources.items():
             # filter out folders that are not used by the selected profiles
-            if profile == 'light':
-                if 'gnarl' in key.split('/'):
+            if profile == "light":
+                if "gnarl" in key.split("/"):
                     continue
-            if profile in ('light', 'light-tasking'):
-                if 'full' in key.split('/'):
+            if profile in ("light", "light-tasking"):
+                if "full" in key.split("/"):
                     continue
-                if key == 'containers':
+                if key == "containers":
                     continue
 
-            if 'srcs' in values:
-                srcs = values['srcs']
+            if "srcs" in values:
+                srcs = values["srcs"]
             else:
                 srcs = []
             if sources in values:
                 srcs += values[sources]
             if len(srcs) > 0:
-                if 'conditions' not in values:
+                if "conditions" not in values:
                     self.add_rule(key, None)
                 else:
-                    self.add_rule(key, values['conditions'])
-                if 'requires' in values:
-                    self.deps[key] = Rule(
-                        values['requires'], self.scenarios, False)
+                    self.add_rule(key, values["conditions"])
+                if "requires" in values:
+                    self.deps[key] = Rule(values["requires"], self.scenarios, False)
                 self.add_sources(key, srcs)
         # Sort the scenario variables from most used to less used
-        self.lib_scenarios['gnat'] = sorted(
-            self.lib_scenarios['gnat'],
+        self.lib_scenarios["gnat"] = sorted(
+            self.lib_scenarios["gnat"],
             key=lambda x: Rule.count_scenario(x),
-            reverse=True)
-        self.lib_scenarios['gnarl'] = sorted(
-            self.lib_scenarios['gnarl'],
+            reverse=True,
+        )
+        self.lib_scenarios["gnarl"] = sorted(
+            self.lib_scenarios["gnarl"],
             key=lambda x: Rule.count_scenario(x),
-            reverse=True)
+            reverse=True,
+        )
 
     def update_pairs(self, dir, pairs):
         # overload the parent method: this one allows updating pairs in a
@@ -240,14 +245,13 @@ class SourceTree(FilesHolder):
         if is_string(rules):
             rules = [rules]
 
-        if directory.split('/')[0] == 'gnarl':
-            collection = self.rules['gnarl']
-            used_scenarios = self.lib_scenarios['gnarl']
+        if directory.split("/")[0] == "gnarl":
+            collection = self.rules["gnarl"]
+            used_scenarios = self.lib_scenarios["gnarl"]
         else:
-            collection = self.rules['gnat']
-            used_scenarios = self.lib_scenarios['gnat']
-        assert directory not in collection, \
-            "directory %s defined twice" % directory
+            collection = self.rules["gnat"]
+            used_scenarios = self.lib_scenarios["gnat"]
+        assert directory not in collection, "directory %s defined twice" % directory
 
         # add the rule object to the current set of rules
         rule = Rule(rules, scenarios=self.scenarios, as_new_rule=True)
@@ -268,36 +272,36 @@ class SourceTree(FilesHolder):
         if not os.path.exists(dest_sources):
             os.makedirs(dest_sources)
         dirs = []
-        dirs += self.rules['gnat'].keys()
-        dirs += self.rules['gnarl'].keys()
+        dirs += self.rules["gnat"].keys()
+        dirs += self.rules["gnarl"].keys()
         for d in dirs:
             self.__install_dir(d, dest_sources)
 
     def dump_json(self, path, dest_sources):
         cnt = {"version": get_gnat_version(FilesHolder.gnatdir)}
-        for lib in ('gnat', 'gnarl'):
+        for lib in ("gnat", "gnarl"):
             if len(self.rules[lib]) == 0:
                 continue
             cnt[lib] = {}
             lib_cnt = cnt[lib]
-            lib_cnt['scenarios'] = {}
+            lib_cnt["scenarios"] = {}
 
             for name in sorted(self.lib_scenarios[lib]):
                 values = self.scenarios[name]
-                lib_cnt['scenarios'][name] = values
-            lib_cnt['sources'] = self.dump_sources_json(
+                lib_cnt["scenarios"][name] = values
+            lib_cnt["sources"] = self.dump_sources_json(
                 dest_sources,
                 os.path.dirname(path),
                 libname=lib,
                 scenarios=deepcopy(self.lib_scenarios[lib]),
                 dirs=deepcopy(self.rules[lib]),
-                env={})
+                env={},
+            )
 
-        with open(path, 'w') as fp:
+        with open(path, "w") as fp:
             fp.write(dumps(cnt, indent=2, sort_keys=True))
 
-    def dump_sources_json(self, dest_sources, dest_json,
-                          libname, scenarios, dirs, env):
+    def dump_sources_json(self, dest_sources, dest_json, libname, scenarios, dirs, env):
         if len(dirs) == 0:
             return None
 
@@ -311,7 +315,7 @@ class SourceTree(FilesHolder):
                 matched.append(d)
 
         if len(matched) > 0:
-            ret['_srcs'] = ['%s/%s' % (relpath, m) for m in matched]
+            ret["_srcs"] = ["%s/%s" % (relpath, m) for m in matched]
 
         if len(scenarios) == 0:
             return ret
@@ -325,7 +329,7 @@ class SourceTree(FilesHolder):
         for d in matched:
             pruned[d] = dirs[d]
         for d in pruned:
-            del(dirs[d])
+            del dirs[d]
 
         if len(dirs) == 0:
             # restore the pruned items
@@ -348,13 +352,13 @@ class SourceTree(FilesHolder):
             for value in self.scenarios[next_var]:
                 env[next_var] = value
                 subret = self.dump_sources_json(
-                    dest_sources, dest_json,
-                    libname, scenarios[j + 1:], dirs, env)
+                    dest_sources, dest_json, libname, scenarios[j + 1 :], dirs, env
+                )
                 if subret is not None and len(subret) > 0:
                     ret["%s:%s" % (next_var, value)] = subret
 
             # remove variable from env, before moving to the next one
-            del(env[next_var])
+            del env[next_var]
 
         # restore the pruned items
         for d, rule in pruned.items():
@@ -364,7 +368,7 @@ class SourceTree(FilesHolder):
 
     def __install_dir(self, dirname, dest_sources):
         if dirname not in self.dirs:
-            print('undefined shared directory %s' % dirname)
+            print("undefined shared directory %s" % dirname)
 
         destdir = os.path.join(dest_sources, dirname)
 
