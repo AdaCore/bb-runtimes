@@ -22,23 +22,46 @@ def usage():
     print("  available. The runtimes are installed in the toolchain itself.")
 
 
-ALL_BSP = {'arm-eabi': ['stm32f4', 'nucleo_f401re', 'stm32f429disco',
-                        'stm32f469disco',
-                        'stm32f746disco', 'stm32756geval', 'stm32f769disco',
-                        'samg55', 'sam4s', 'samrh71', 'samv71', 'openmv2', 'rpi2',
-                        'feather_stm32f405', 'stm32f051r8-hsi', 'nrf52832',
-                        'nrf52840', 'cortex-m0', 'cortex-m0p', 'cortex-m1',
-                        'cortex-m3', 'cortex-m4', 'cortex-m4f', 'cortex-m7f',
-                        'cortex-m7df', 'cortex-m23', 'cortex-m33f',
-                        'cortex-m33df', 'rpi-pico', 'rpi-pico-smp',
-                        ],
-           'aarch64-elf': ['rpi3']}
+ALL_BSP = {
+    "arm-eabi": [
+        "stm32f4",
+        "nucleo_f401re",
+        "stm32f429disco",
+        "stm32f469disco",
+        "stm32f746disco",
+        "stm32756geval",
+        "stm32f769disco",
+        "samg55",
+        "sam4s",
+        "samrh71",
+        "samv71",
+        "openmv2",
+        "rpi2",
+        "feather_stm32f405",
+        "stm32f051r8-hsi",
+        "nrf52832",
+        "nrf52840",
+        "cortex-m0",
+        "cortex-m0p",
+        "cortex-m1",
+        "cortex-m3",
+        "cortex-m4",
+        "cortex-m4f",
+        "cortex-m7f",
+        "cortex-m7df",
+        "cortex-m23",
+        "cortex-m33f",
+        "cortex-m33df",
+        "rpi-pico",
+        "rpi-pico-smp",
+    ],
+    "aarch64-elf": ["rpi3"],
+}
 
 
 def main():
     try:
-        opts, args = getopt.getopt(
-            sys.argv[1:], "", ["arch=", "prefix=", "help"])
+        opts, args = getopt.getopt(sys.argv[1:], "", ["arch=", "prefix=", "help"])
     except getopt.GetoptError as e:
         print("error: " + str(e))
         usage()
@@ -48,19 +71,19 @@ def main():
     arch = None
 
     for opt, arg in opts:
-        if opt == '--help':
+        if opt == "--help":
             usage()
             sys.exit()
-        elif opt == '--arch':
+        elif opt == "--arch":
             arch = arg
-        elif opt == '--prefix':
+        elif opt == "--prefix":
             prefix = os.path.abspath(arg)
 
     assert arch is None or arch in ALL_BSP, "unsupported arch %s" % arch
 
-    cmd = [sys.executable, './build_rts.py', '--build', '--force']
+    cmd = [sys.executable, "./build_rts.py", "--build", "--force"]
     if prefix is not None:
-        cmd.append('--output=%s' % prefix)
+        cmd.append("--output=%s" % prefix)
     if arch is None:
         for k, v in ALL_BSP.items():
             cmd += v
@@ -70,5 +93,5 @@ def main():
     subprocess.check_call(cmd)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

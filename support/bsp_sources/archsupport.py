@@ -6,15 +6,16 @@ from support.files_holder import FilesHolder, FilePair
 
 class LdScript(FilePair):
     def __init__(self, dst, src, loaders, template_config):
-        super(LdScript, self).__init__(dst=dst, src=src,
-                                       template_config=template_config)
+        super(LdScript, self).__init__(
+            dst=dst, src=src, template_config=template_config
+        )
         if loaders is None:
             self._loaders = None
         elif is_string(loaders):
             if len(loaders) == 0:
                 self._loaders = tuple()
             else:
-                self._loaders = (loaders, )
+                self._loaders = (loaders,)
         elif isinstance(loaders, list):
             self._loaders = tuple(loaders)
         elif isinstance(loaders, tuple):
@@ -28,7 +29,7 @@ class LdScript(FilePair):
 
     def add_loader(self, loader):
         if self._loaders is None:
-            self._loaders = (loader, )
+            self._loaders = (loader,)
         else:
             self._loaders += (loader,)
 
@@ -81,33 +82,32 @@ class ArchSupport(FilesHolder):
         return ret
 
     def add_gnat_source(self, source):
-        self.add_source('gnat', source)
+        self.add_source("gnat", source)
 
     def add_gnat_sources(self, *args):
         for arg in args:
             self.add_gnat_source(arg)
 
     def add_gnarl_source(self, source):
-        self.add_source('gnarl', source)
+        self.add_source("gnarl", source)
 
     def add_gnarl_sources(self, *args):
         for arg in args:
             self.add_gnarl_source(arg)
 
-    def add_linker_script(self, script, dst=None, loader=''):
-        """Adds a new linker script to the BSP.
-        """
+    def add_linker_script(self, script, dst=None, loader=""):
+        """Adds a new linker script to the BSP."""
         assert is_string(script)
 
         if dst is None:
             # not a pair: just copy the script without renaming it
-            obj = LdScript(os.path.basename(script), script, loader,
-                           self._template_config)
+            obj = LdScript(
+                os.path.basename(script), script, loader, self._template_config
+            )
         else:
             obj = LdScript(dst, script, loader, self._template_config)
 
-        assert obj not in self.ld_scripts, \
-            "duplicated ld script name %s" % str(obj)
+        assert obj not in self.ld_scripts, "duplicated ld script name %s" % str(obj)
 
         self._ld_scripts.append(obj)
 
@@ -117,9 +117,7 @@ class ArchSupport(FilesHolder):
         if loader is None, then the switch is applicable whatever the current
         loader used.
         """
-        self._ld_switches.append({
-            'switch': switch,
-            'loader': loader})
+        self._ld_switches.append({"switch": switch, "loader": loader})
 
     def get_sources(self, lib):
         if self._parent is not None:

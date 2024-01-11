@@ -11,22 +11,24 @@ class LeonArch(ArchSupport):
 
     def __init__(self):
         super(LeonArch, self).__init__()
-        self.add_linker_switch('-Wl,-u_start', loader=None)
+        self.add_linker_switch("-Wl,-u_start", loader=None)
         self.add_gnat_sources(
-            'sparc/leon/crt0.S',
-            'sparc/leon/hw_init.S',
-            'sparc/src/sparc.h',
-            'src/s-macres__leon.adb')
+            "sparc/leon/crt0.S",
+            "sparc/leon/hw_init.S",
+            "sparc/src/sparc.h",
+            "src/s-macres__leon.adb",
+        )
         self.add_gnarl_sources(
-            'src/s-bbcppr__old.ads',
-            'src/s-bbcppr__sparc.adb',
-            'src/s-bcpith__sparc.adb',
-            'src/s-bbcpsp__leon.ads',
-            'sparc/src/context_switch.S',
-            'sparc/src/trap_handler.S',
-            'sparc/src/interrupt_masking.S',
-            'src/s-bbcaco.ads',
-            'src/s-bbcaco__leon.adb')
+            "src/s-bbcppr__old.ads",
+            "src/s-bbcppr__sparc.adb",
+            "src/s-bcpith__sparc.adb",
+            "src/s-bbcpsp__leon.ads",
+            "sparc/src/context_switch.S",
+            "sparc/src/trap_handler.S",
+            "sparc/src/interrupt_masking.S",
+            "src/s-bbcaco.ads",
+            "src/s-bbcaco__leon.adb",
+        )
 
 
 class LeonTarget(DFBBTarget):
@@ -37,25 +39,26 @@ class LeonTarget(DFBBTarget):
     @property
     def system_ads(self):
         return {
-            'light': 'system-xi-sparc.ads',
-            'light-tasking': 'system-xi-sparc-ravenscar.ads',
-            'embedded': 'system-xi-sparc-full.ads'
+            "light": "system-xi-sparc.ads",
+            "light-tasking": "system-xi-sparc-ravenscar.ads",
+            "embedded": "system-xi-sparc-full.ads",
         }
 
     def amend_rts(self, rts_profile, conf):
         super(LeonTarget, self).amend_rts(rts_profile, conf)
-        if rts_profile == 'embedded':
+        if rts_profile == "embedded":
             # Use leon-zcx.specs to link with -lc.
             conf.config_files.update(
-                {'link-zcx.spec': readfile('sparc/leon/leon-zcx.specs')})
+                {"link-zcx.spec": readfile("sparc/leon/leon-zcx.specs")}
+            )
 
     def dump_runtime_xml(self, rts_name, rts):
         cnt = super(LeonTarget, self).dump_runtime_xml(rts_name, rts)
-        cnt = cnt.replace(' "-nolibc",', '')
-        if rts_name == 'embedded':
+        cnt = cnt.replace(' "-nolibc",', "")
+        if rts_name == "embedded":
             cnt = cnt.replace(
-                '"-nostartfiles",',
-                '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec",')
+                '"-nostartfiles",', '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec",'
+            )
         return cnt
 
 
@@ -66,26 +69,25 @@ class Leon2(LeonTarget):
 
     @property
     def target(self):
-        return 'leon-elf'
+        return "leon-elf"
 
     @property
     def c_switches(self):
         # The required compiler switches
-        return ('-DLEON', '-DLEON2')
+        return ("-DLEON", "-DLEON2")
 
     def __init__(self):
         super(Leon2, self).__init__()
 
-        self.add_linker_script('sparc/leon/leon.ld', loader=None)
-        self.add_gnat_sources(
-            'src/s-textio__leon.adb',
-            'src/s-bbbopa__leon.ads')
+        self.add_linker_script("sparc/leon/leon.ld", loader=None)
+        self.add_gnat_sources("src/s-textio__leon.adb", "src/s-bbbopa__leon.ads")
         self.add_gnarl_sources(
-            'src/s-bbsumu__generic.adb',
-            'src/s-bbsule__leon.ads',
-            'src/s-bbbosu__leon.adb',
-            'src/s-bbpara__leon.ads',
-            'src/a-intnam__leon.ads')
+            "src/s-bbsumu__generic.adb",
+            "src/s-bbsule__leon.ads",
+            "src/s-bbbosu__leon.adb",
+            "src/s-bbpara__leon.ads",
+            "src/a-intnam__leon.ads",
+        )
 
 
 class Leon3(LeonTarget):
@@ -98,14 +100,14 @@ class Leon3(LeonTarget):
 
     @property
     def target(self):
-        return 'leon3-elf'
+        return "leon3-elf"
 
     @property
     def system_ads(self):
         ret = super(Leon3, self).system_ads
         if self.smp:
             # The Light runtime makes no sense in the context of SMP variant
-            del(ret['light'])
+            del ret["light"]
         return ret
 
     @property
@@ -115,9 +117,9 @@ class Leon3(LeonTarget):
     @property
     def c_switches(self):
         # The required compiler switches
-        res = ('-DLEON', '-DLEON3')
+        res = ("-DLEON", "-DLEON3")
         if self.need_fix_ut699:
-            res += ('-DFIX_UT699',)
+            res += ("-DFIX_UT699",)
         return res
 
     @property
@@ -127,12 +129,12 @@ class Leon3(LeonTarget):
             # see R409-022: -mcpu=leon3 makes gcc generate CASA instruction
             # when expanding compare_and_swap_4 intrinsic, which is invalid
             # SPARCv8 insn on most leon3.
-            ret += ('-mcpu=leon',)
+            ret += ("-mcpu=leon",)
         else:
-            ret += ('-mcpu=leon3',)
+            ret += ("-mcpu=leon3",)
 
         if self.need_fix_ut699:
-            ret += ('-mfix-ut699',)
+            ret += ("-mfix-ut699",)
         return ret
 
     @property
@@ -150,25 +152,27 @@ class Leon3(LeonTarget):
 
     @property
     def readme_file(self):
-        return 'sparc/leon3/README'
+        return "sparc/leon3/README"
 
     def __init__(self, smp):
         self.smp = smp
         super(Leon3, self).__init__()
 
-        self.add_linker_script('sparc/leon3/leon.ld', loader=None)
+        self.add_linker_script("sparc/leon3/leon.ld", loader=None)
         self.add_gnat_sources(
-            'src/s-textio__leon3.adb',
-            'src/s-bbbopa__leon3-%s.ads' % ('smp' if smp else 'up', ),
-            'src/i-leon3.ads',
-            'src/i-leon3-uart.ads',
-            'src/i-leon3-cache.ads')
+            "src/s-textio__leon3.adb",
+            "src/s-bbbopa__leon3-%s.ads" % ("smp" if smp else "up",),
+            "src/i-leon3.ads",
+            "src/i-leon3-uart.ads",
+            "src/i-leon3-cache.ads",
+        )
         self.add_gnarl_sources(
-            'src/i-leon3-timers.ads',
-            'src/i-leon3-irqmp.ads',
-            'src/s-bbbosu__leon3.adb',
-            'src/s-bbpara__leon.ads',
-            'src/a-intnam__leon3.ads')
+            "src/i-leon3-timers.ads",
+            "src/i-leon3-irqmp.ads",
+            "src/s-bbbosu__leon3.adb",
+            "src/s-bbpara__leon.ads",
+            "src/a-intnam__leon3.ads",
+        )
 
 
 class Leon4(Leon3):
@@ -186,5 +190,5 @@ class Leon4(Leon3):
     def __init__(self, smp):
         super(Leon4, self).__init__(smp)
         self.update_pair(
-            's-bbbopa.ads',
-            'src/s-bbbopa__leon4-%s.ads' % ('smp' if smp else 'up', ))
+            "s-bbbopa.ads", "src/s-bbbopa__leon4-%s.ads" % ("smp" if smp else "up",)
+        )

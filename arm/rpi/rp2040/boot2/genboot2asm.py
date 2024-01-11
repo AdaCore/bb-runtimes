@@ -13,31 +13,21 @@ MAX_BOOT2_LENGTH = 256 - 4
 
 # The RP2040 uses a slightly unusual CRC configuration
 # See Section 2.8.1.3.1 of the RP2040 Datasheet
-crc32 = crcmod.mkCrcFun(
-    poly=0x104c11db7,
-    initCrc=0xFFFFFFFF,
-    rev=False,
-    xorOut=0
-)
+crc32 = crcmod.mkCrcFun(poly=0x104C11DB7, initCrc=0xFFFFFFFF, rev=False, xorOut=0)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "BINFILE",
-        nargs=1,
-        help="Binary file to pad, CRC, and convert to asm"
+        "BINFILE", nargs=1, help="Binary file to pad, CRC, and convert to asm"
     )
     parser.add_argument(
-        "-o", "--output",
-        nargs='*',
-        default=[],
-        help="Output asm source file"
+        "-o", "--output", nargs="*", default=[], help="Output asm source file"
     )
 
     args = parser.parse_args()
 
-    with open(args.BINFILE[0], 'rb') as f:
+    with open(args.BINFILE[0], "rb") as f:
         raw_boot2 = f.read()
 
     raw_boot2_len = len(raw_boot2)
@@ -48,7 +38,7 @@ if __name__ == "__main__":
         print(
             "error: Input file size exceeds maximum .boot2 length"
             f"({raw_boot2_len} > {MAX_BOOT2_LENGTH})",
-            file=sys.stderr
+            file=sys.stderr,
         )
         sys.exit(-1)
 
@@ -58,19 +48,19 @@ if __name__ == "__main__":
 
     # Add the CRC32 (little-endian format)
     crc = crc32(padded_boot2)
-    padded_boot2_with_crc32 = padded_boot2 + struct.pack('<I', crc)
+    padded_boot2_with_crc32 = padded_boot2 + struct.pack("<I", crc)
 
     # Write the output
     for filename in args.output:
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             print(f"Generating output file: {filename}")
             f.write('.section .boot2, "a"\n')
-            f.write('.global __boot2\n')
-            f.write('__boot2:\n')
+            f.write(".global __boot2\n")
+            f.write("__boot2:\n")
 
             # Write 16 bytes per line
             for i in range(0, len(padded_boot2_with_crc32), 16):
-                chunk = padded_boot2_with_crc32[i:i + 16]
+                chunk = padded_boot2_with_crc32[i : i + 16]
                 f.write(".byte ")
                 f.write(", ".join(f"0x{byte:02x}" for byte in chunk))
-                f.write('\n')
+                f.write("\n")

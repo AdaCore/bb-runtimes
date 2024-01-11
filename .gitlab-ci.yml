@@ -1,0 +1,5 @@
+black:
+  services:
+    - image:e3
+  script:
+    - black --check --diff .

@@ -1,0 +1,7 @@
+repos:
+  - repo: https://github.com/ambv/black
+    rev: 23.1.0
+    hooks:
+    - id: black
+      types_or: [file]
+      files: \.py$

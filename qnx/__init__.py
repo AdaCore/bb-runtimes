@@ -4,7 +4,7 @@ from support.bsp_sources.target import Target
 class QNX(Target):
     def __init__(self):
         super(QNX, self).__init__()
-        self.add_gnat_sources('src/s-macres__qnx.adb')
+        self.add_gnat_sources("src/s-macres__qnx.adb")
 
     @property
     def has_command_line_arguments(self):
@@ -29,6 +29,7 @@ class QNX(Target):
     def use_certifiable_packages(self):
         return True
 
+
 class Aarch64QNX(QNX):
     def __init__(self):
         super(Aarch64QNX, self).__init__()
@@ -39,25 +40,26 @@ class Aarch64QNX(QNX):
 
     @property
     def target(self):
-        return 'aarch64-qnx'
+        return "aarch64-qnx"
 
     @property
     def name(self):
-        return 'qnx'
+        return "qnx"
 
     @property
     def system_ads(self):
         return {
-            'light': 'system-qnx-arm-light.ads',
-            'light-tasking': 'system-qnx-arm-light-tasking.ads'}
+            "light": "system-qnx-arm-light.ads",
+            "light-tasking": "system-qnx-arm-light-tasking.ads",
+        }
 
     def amend_rts(self, rts_profile, cfg):
-        cfg.build_flags['common_flags'] += [
+        cfg.build_flags["common_flags"] += [
             # The traceback implementation in our restricted runtimes
             # for this platform relies on all frames having a frame
             # pointer, so make sure it is always there.
             # See V217-008 for more info.
-            '-fno-omit-frame-pointer',
+            "-fno-omit-frame-pointer",
         ]
 
 
@@ -71,14 +73,15 @@ class ARMQNX(QNX):
 
     @property
     def target(self):
-        return 'arm-qnx'
+        return "arm-qnx"
 
     @property
     def name(self):
-        return 'qnx'
+        return "qnx"
 
     @property
     def system_ads(self):
         return {
-            'light': 'system-qnx-arm-light.ads',
-            'light-tasking': 'system-qnx-arm-light-tasking.ads'}
+            "light": "system-qnx-arm-light.ads",
+            "light-tasking": "system-qnx-arm-light-tasking.ads",
+        }

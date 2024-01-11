@@ -6,7 +6,7 @@ import re
 from support import fullpath, is_string
 
 
-TEMPLATE_EXT = '.tmpl'
+TEMPLATE_EXT = ".tmpl"
 
 
 def _apply_template_config(content, template_config):
@@ -15,25 +15,25 @@ def _apply_template_config(content, template_config):
     # double-quotes (") to avoid invalid characters in Ada source code.
     def lookup(match):
         key = match.group(1)
-        assert key in template_config, \
+        assert key in template_config, (
             "key '%s' not defined in template configuration" % key
+        )
         return str(template_config.get(key))
 
-    return(re.sub(r'\"\$\{([^\$\"\}]*)\}\"', lookup, content))
+    return re.sub(r"\"\$\{([^\$\"\}]*)\}\"", lookup, content)
 
 
 def _copy(src, dst, template_config=None):
     "Copy (or symlink) src to dst"
 
-    src_is_template = (src.endswith(TEMPLATE_EXT) and
-                       template_config is not None)
+    src_is_template = src.endswith(TEMPLATE_EXT) and template_config is not None
 
     # Remove template extension from destination filename, if any
     if dst.endswith(TEMPLATE_EXT):
-        dst = dst[:-len(TEMPLATE_EXT)]
+        dst = dst[: -len(TEMPLATE_EXT)]
 
     # The run-time sources are encoded in ASCII
-    source_encoding = 'us-ascii'
+    source_encoding = "us-ascii"
 
     if not os.path.isfile(src):
         print("runtime file " + src + " does not exists")
@@ -42,19 +42,18 @@ def _copy(src, dst, template_config=None):
     already_exists = False
 
     if os.path.isfile(dst) or src_is_template:
-        with open(src, 'r', encoding=source_encoding) as fp:
+        with open(src, "r", encoding=source_encoding) as fp:
             src_cnt = fp.read()
 
         # Apply template configuration
         if src_is_template:
             if FilesHolder.verbose:
-                print("Apply template config to %s: %s" %
-                      (src, str(template_config)))
+                print("Apply template config to %s: %s" % (src, str(template_config)))
             src_cnt = _apply_template_config(src_cnt, template_config)
 
         # Check if destination file already exists with same content
         if os.path.isfile(dst):
-            with open(dst, 'r') as fp:
+            with open(dst, "r") as fp:
                 dst_cnt = fp.read()
 
             if dst_cnt != src_cnt:
@@ -74,9 +73,12 @@ def _copy(src, dst, template_config=None):
             os.symlink(os.path.abspath(src), dst)
         elif src_is_template:
             # Write source from template file
-            with open(dst, 'w',
-                      newline='',  # Disable newline to os.linesep translation
-                      encoding=source_encoding) as fp:
+            with open(
+                dst,
+                "w",
+                newline="",  # Disable newline to os.linesep translation
+                encoding=source_encoding,
+            ) as fp:
                 fp.write(src_cnt)
         else:
             # Copy non templated source file
@@ -91,18 +93,20 @@ class FilePair(object):
         # Full path to the source file
         self._src = None
 
-        if '/' not in src:
+        if "/" not in src:
             # Files without path elements are in gnat
             assert FilesHolder.manifest, "Error: MANIFEST file not found"
-            assert src in FilesHolder.manifest, \
+            assert src in FilesHolder.manifest, (
                 "Error: source file %s not in MANIFEST" % src
+            )
             self._src = os.path.join(FilesHolder.gnatdir, src)
 
-        elif src.split('/')[0] in ('hie', 'libgnarl', 'libgnat'):
+        elif src.split("/")[0] in ("hie", "libgnarl", "libgnat"):
             # BB-specific file in gnat/hie
             self._src = os.path.join(FilesHolder.gnatdir, src)
-            assert os.path.exists(self._src), \
+            assert os.path.exists(self._src), (
                 "Error: source file %s not found in gnat" % src
+            )
 
         else:
             # Look into the current repository
@@ -112,8 +116,7 @@ class FilePair(object):
                 # Look into gcc
                 self._src = os.path.join(FilesHolder.gccdir, src)
 
-        assert os.path.exists(self._src), \
-            "Error: source file '%s' not found" % src
+        assert os.path.exists(self._src), "Error: source file '%s' not found" % src
 
     def __eq__(self, other):
         if is_string(other):
@@ -148,8 +151,8 @@ class FilesHolder(object):
     @staticmethod
     def gcc_version():
         if FilesHolder._gcc_version is None:
-            base_ver = os.path.join(FilesHolder.gccdir, 'gcc', 'BASE-VER')
-            with open(base_ver, 'r') as fp:
+            base_ver = os.path.join(FilesHolder.gccdir, "gcc", "BASE-VER")
+            with open(base_ver, "r") as fp:
                 for line in fp:
                     line = line.strip()
                     if len(line) > 0:
@@ -166,18 +169,18 @@ class FilesHolder(object):
             manifest_file = os.path.join(self.gnatdir, "MANIFEST.GNAT")
             FilesHolder.manifest = []
             if os.path.isfile(manifest_file):
-                f = open(manifest_file, 'r')
+                f = open(manifest_file, "r")
                 for line in f:
                     line = line.strip()
-                    if line and not line.startswith('--'):
+                    if line and not line.startswith("--"):
                         FilesHolder.manifest.append(line)
 
     def add_source_alias(self, dir, dst, src):
         """Add source.
 
-         DIR is the target directory the file will be copied to
-         DST is the install basename of the file to copy
-         SRC is the full name of the file to copy"""
+        DIR is the target directory the file will be copied to
+        DST is the install basename of the file to copy
+        SRC is the full name of the file to copy"""
         if dir not in self.dirs:
             self.dirs[dir] = []
         self.dirs[dir].append(FilePair(dst, src, self._template_config))
@@ -185,26 +188,26 @@ class FilesHolder(object):
     def add_source(self, dir, src):
         """Add source.
 
-         DIR is the target directory the file will be copied to
-         SRC is the full name of the file to copy"""
+        DIR is the target directory the file will be copied to
+        SRC is the full name of the file to copy"""
         base = os.path.basename(src)
 
         # A file could be a template file (eg: s-bbpara__cortexm0p.ads.tmpl)
         # in which case retain both the real extension (eg: ads) and the
         # template extension
         if base.endswith(TEMPLATE_EXT):
-            _, ext, _ = base.rsplit('.', 2)
+            _, ext, _ = base.rsplit(".", 2)
         else:
             # A file could have `.` in its name. (eg: pikeos4.2-cert-app.c)
-            _, ext = base.rsplit('.', 1)
+            _, ext = base.rsplit(".", 1)
 
         # Check if the basename of the source file contains two consecutive
         # underscores. This is by naming convention a file variant whose
         # variant part needs to be removed before installation.
         # Example:
         # s-textio__myboard.adb should be installed as s-textio.adb
-        if '__' in base:
-            base, _ = base.split('__')
+        if "__" in base:
+            base, _ = base.split("__")
             base = "%s.%s" % (base, ext)
         self.add_source_alias(dir, base, src)
 
@@ -213,16 +216,18 @@ class FilesHolder(object):
 
         DIR is the target directory the files will be copied to
         SOURCES is a list of source files"""
-        assert isinstance(sources, list) or isinstance(sources, tuple), \
-            "incorrect parameter %s" % str(sources)
+        assert isinstance(sources, list) or isinstance(
+            sources, tuple
+        ), "incorrect parameter %s" % str(sources)
         for src in sources:
             self.add_source(dir, src)
 
     def add_template_config_value(self, key, value):
         """Adds key/value that will be used to instantiate templated source"""
 
-        assert isinstance(key, str) and isinstance(value, str), \
-            "template key and value must be strings"
+        assert isinstance(key, str) and isinstance(
+            value, str
+        ), "template key and value must be strings"
 
         if key in self._template_config:
             assert False, "config key already defined  %s" % key
@@ -243,10 +248,14 @@ class FilesHolder(object):
         assert False, "No such source %s" % name
 
     def update_pair(self, dest, src):
-        assert is_string(dest), \
-            "dest is not a string: %s (src is %s)" % (str(dest), str(src))
-        assert src is None or is_string(src), \
-            "src is not a string: %s (dest is %s)" % (str(src), str(dest))
+        assert is_string(dest), "dest is not a string: %s (src is %s)" % (
+            str(dest),
+            str(src),
+        )
+        assert src is None or is_string(src), "src is not a string: %s (dest is %s)" % (
+            str(src),
+            str(dest),
+        )
 
         for d in self.dirs:
             if dest in self.dirs[d]:
@@ -280,18 +289,20 @@ class FilesHolder(object):
         # Full path to the source file
         src = None
 
-        if '/' not in srcfile:
+        if "/" not in srcfile:
             # Files without path elements are in gnat
             assert FilesHolder.manifest, "Error: MANIFEST file not found"
-            assert srcfile in FilesHolder.manifest, \
+            assert srcfile in FilesHolder.manifest, (
                 "Error: source file %s not in MANIFEST" % srcfile
+            )
             src = os.path.join(self.gnatdir, srcfile)
 
-        elif srcfile.split('/')[0] in ('hie', 'libgnarl', 'libgnat'):
+        elif srcfile.split("/")[0] in ("hie", "libgnarl", "libgnat"):
             # BB-specific file in gnat/hie
             src = os.path.join(self.gnatdir, srcfile)
-            assert os.path.exists(src), \
+            assert os.path.exists(src), (
                 "Error: source file %s not found in gnat" % srcfile
+            )
 
         else:
             # Look into the current repository

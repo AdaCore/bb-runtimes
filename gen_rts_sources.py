@@ -19,33 +19,39 @@ def main():
     # global link, gccdir, gnatdir, verbose, create_common
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbose", action="store_true", help="verbose output")
     parser.add_argument(
-        '-v', '--verbose', action="store_true",
-        help="verbose output")
+        "-l", "--link", action="store_true", help="use symlinks when installing files"
+    )
+    parser.add_argument("--gcc-dir", help="gcc sources dir")
+    parser.add_argument("--gnat-dir", help="gnat sources dir")
     parser.add_argument(
-        '-l', '--link', action="store_true",
-        help="use symlinks when installing files")
+        "--output",
+        help=(
+            "installation location. By default the runtime descriptor is "
+            "installed in <output>/lib/gnat while the sources are installed "
+            "in <output>/include/rts-sources"
+        ),
+    )
     parser.add_argument(
-        '--gcc-dir', help='gcc sources dir')
+        "--output-descriptor",
+        help="installation location for the runtime sources descriptor",
+    )
     parser.add_argument(
-        '--gnat-dir', help='gnat sources dir')
+        "--output-sources", help="installation location for the runtime sources tree"
+    )
     parser.add_argument(
-        '--output', help=(
-            'installation location. By default the runtime descriptor is '
-            'installed in <output>/lib/gnat while the sources are installed '
-            'in <output>/include/rts-sources'))
+        "--rts-profile",
+        choices=["light", "light-tasking", "embedded", "cert"],
+        required=True,
+        help="supported profiles",
+    )
     parser.add_argument(
-        '--output-descriptor',
-        help='installation location for the runtime sources descriptor')
-    parser.add_argument(
-        '--output-sources',
-        help='installation location for the runtime sources tree')
-    parser.add_argument(
-        '--rts-profile', choices=['light', 'light-tasking', 'embedded', 'cert'],
-        required=True,  help='supported profiles')
-    parser.add_argument(
-        '--source-profile', choices=['bb', 'deos', 'pikeos', 'vx7r2cert', 'qnx'],
-        default='bb', help='platform specific source selections')
+        "--source-profile",
+        choices=["bb", "deos", "pikeos", "vx7r2cert", "qnx"],
+        default="bb",
+        help="platform specific source selections",
+    )
 
     args = parser.parse_args()
 
@@ -61,17 +67,17 @@ def main():
     if args.output is not None:
         dest = os.path.abspath(args.output)
     else:
-        dest = os.path.abspath('install')
+        dest = os.path.abspath("install")
 
     if args.output_descriptor is not None:
         dest_json = os.path.abspath(args.output_descriptor)
     else:
-        dest_json = os.path.join(dest, 'lib', 'gnat', 'rts-sources.json')
+        dest_json = os.path.join(dest, "lib", "gnat", "rts-sources.json")
 
     if args.output_sources is not None:
         dest_srcs = os.path.abspath(args.output_sources)
     else:
-        dest_srcs = os.path.join(dest, 'include', 'rts-sources')
+        dest_srcs = os.path.join(dest, "include", "rts-sources")
 
     if not os.path.exists(os.path.dirname(dest_json)):
         os.makedirs(os.path.dirname(dest_json))
@@ -84,10 +90,13 @@ def main():
     # create the rts sources object. This uses a slightly different set
     # on pikeos.
     rts_srcs = SourceTree(
-        sources=args.source_profile + "_srcs", profile=args.rts_profile,
-        rts_sources=sources, rts_scenarios=all_scenarios)
+        sources=args.source_profile + "_srcs",
+        profile=args.rts_profile,
+        rts_sources=sources,
+        rts_scenarios=all_scenarios,
+    )
     rts_srcs.install_tree(dest_json=dest_json, dest_sources=dest_srcs)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -15,18 +15,18 @@ def docgen(boards, target, dest):
 
     # Copy support files
     PWD = os.path.dirname(__file__)
-    src = os.path.join(PWD, 'data', 'doc')
-    for base in ('Makefile', 'reconfigurablerts.rst'):
+    src = os.path.join(PWD, "data", "doc")
+    for base in ("Makefile", "reconfigurablerts.rst"):
         srcfile = os.path.join(src, base)
         shutil.copy(srcfile, dest)
-    conf = os.path.join(src, 'conf.py')
-    with open(conf, 'r') as fp:
+    conf = os.path.join(src, "conf.py")
+    with open(conf, "r") as fp:
         cnt = fp.read()
-    cnt = cnt.replace('@target@', target)
-    conf = os.path.join(dest, 'conf.py')
-    with open(conf, 'w') as fp:
+    cnt = cnt.replace("@target@", target)
+    conf = os.path.join(dest, "conf.py")
+    with open(conf, "w") as fp:
         fp.write(cnt)
-    gnatvsn = os.path.join(gnatdir, 'gnatvsn.ads')
+    gnatvsn = os.path.join(gnatdir, "gnatvsn.ads")
     if os.path.exists(gnatvsn):
         shutil.copy(gnatvsn, dest)
 
@@ -66,11 +66,11 @@ def docgen(boards, target, dest):
         fp.write("%s\n" % title)
         fp.write("%s\n\n" % ("=" * len(title)))
         if target is not None:
-            fp.write(("The %s compiler comes with"
-                      " the following run-times:\n\n") % target)
+            fp.write(
+                ("The %s compiler comes with" " the following run-times:\n\n") % target
+            )
         else:
-            fp.write(("This package adds support for"
-                      " the following run-times:\n\n"))
+            fp.write(("This package adds support for" " the following run-times:\n\n"))
         for board in sorted(runtimes.keys()):
             fp.write("* %s" % board)
             if board in readmes.keys():
@@ -78,7 +78,7 @@ def docgen(boards, target, dest):
                 fp.write(" (see :ref:`%s`)" % ref)
             fp.write("\n\n")
             for rts in sorted(runtimes[board]):
-                fp.write('  - %s\n' % rts)
+                fp.write("  - %s\n" % rts)
             fp.write("\n\n")
 
         # General description of runtime location, usage, and rebuild procedure
