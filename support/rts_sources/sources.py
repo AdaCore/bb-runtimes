@@ -688,8 +688,6 @@ sources = {
             "libgnat/s-except.adb",
             "libgnat/s-exctab.ads",
             "libgnat/s-exctab.adb",
-            "libgnat/s-finmas.ads",
-            "libgnat/s-finmas.adb",
             "libgnat/s-finpri.ads",
             "libgnat/s-finpri.adb",
             "libgnat/s-finroo.ads",
