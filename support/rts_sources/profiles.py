@@ -136,7 +136,7 @@ class RTSProfiles(object):
             elif cpu in ("x86_64",):
                 ret["CPU_Family"] = "x86_64"
                 ret["Has_FMA"] = "no"
-            elif cpu in ("riscv32",):
+            elif cpu in ("riscv32", "r7"):
                 ret["CPU_Family"] = "riscv32"
                 ret["Has_FMA"] = "yes" if self.config.has_fpu else "no"
             elif cpu in ("riscv64",):
