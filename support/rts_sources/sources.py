@@ -1523,9 +1523,11 @@ sources = {
         "srcs": [
             "libgnat/s-excmac__gcc.ads",
             "libgnat/s-excmac__gcc.adb",
-            "libgcc/unwind-dw2-fde.h",
+            # TODO
+            # "libgcc/unwind-dw2-fde.h",
         ],
-        "bb_srcs": ["hie/unwind-dw2-fde-bb.c"],
+        # TODO
+        # "bb_srcs": ["hie/unwind-dw2-fde-bb.c"],
     },
     "full/zcx-aarch64": {
         "conditions": ["RTS_Profile:embedded", "CPU_Family:aarch64"],

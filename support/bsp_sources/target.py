@@ -372,6 +372,8 @@ class Target(TargetConfiguration, ArchSupport):
                 blank
                 + '"-nostartfiles", "-nolibc", '
                 + '"-Wl,--start-group,-lgnarl,-lgnat,-lc,-lgcc,-lgcc_eh,--end-group",'
+                if target_compiler() != Compiler.gnat_llvm
+                else '"-Wl,--start-group,-lgnarl,-lgnat,-lc,-lunwind,--end-group",'
             )
 
         # Add the user script path first, so that they have precedence
