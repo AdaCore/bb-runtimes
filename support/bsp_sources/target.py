@@ -1,7 +1,7 @@
 import copy
 import sys
 
-from support import readfile, is_string, Compiler, target_compiler
+from support import readfile, is_string, using_llvm_compiler
 from support.files_holder import FilesHolder
 from support.bsp_sources.archsupport import ArchSupport
 from support.rts_sources.profiles import RTSProfiles
@@ -176,7 +176,7 @@ class Target(TargetConfiguration, ArchSupport):
             "c_flags": ["-DIN_RTS", "-Dinhibit_libc", "-DLIGHT_RUNTIME"],
         }
         # GNAT-LLVM doesn't support -fcallgraph-info
-        if target_compiler() != Compiler.gnat_llvm:
+        if using_llvm_compiler():
             self.build_flags["common_flags"].append("-fcallgraph-info=su,da")
 
         # Add the following compiler switches to runtime.xml for all targets:
@@ -187,7 +187,7 @@ class Target(TargetConfiguration, ArchSupport):
         #     a hidden runtime dependency that is considered undesirable by many
         #     of our customers. strlen is particularly problematic, as its not
         #     provided in our light and light-tasking runtimes.
-        if target_compiler() == Compiler.gnat:
+        if using_llvm_compiler():
             self.global_compiler_switches = ("-fno-tree-loop-distribute-patterns",)
         else:
             self.global_compiler_switches = ()
@@ -372,7 +372,7 @@ class Target(TargetConfiguration, ArchSupport):
                 blank
                 + '"-nostartfiles", "-nolibc", '
                 + '"-Wl,--start-group,-lgnarl,-lgnat,-lc,-lgcc,-lgcc_eh,--end-group",'
-                if target_compiler() != Compiler.gnat_llvm
+                if using_llvm_compiler()
                 else '"-Wl,--start-group,-lgnarl,-lgnat,-lc,-lunwind,--end-group",'
             )
 

@@ -1,5 +1,5 @@
 # BSP support for ARM64
-from support import Compiler, target_compiler
+from support import using_llvm_compiler
 from support.bsp_sources.archsupport import ArchSupport
 from support.bsp_sources.target import DFBBTarget
 
@@ -117,7 +117,7 @@ class MorelloTarget(Aarch64Target):
 
         # GNAT-LLVM can't build the embedded Morello runtime yet, so we exclude it for
         # the time being.
-        if target_compiler() != Compiler.gnat_llvm:
+        if using_llvm_compiler():
             result["embedded"] = "system-xi-arm-nxstack-embedded.ads"
 
         return result

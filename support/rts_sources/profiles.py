@@ -5,6 +5,7 @@
 # BSP to actually create a runtime project.
 
 import sys
+from support import using_llvm_compiler
 from support.rts_sources import Rule
 from support.rts_sources.sources import all_scenarios, sources
 
@@ -61,6 +62,8 @@ class RTSProfiles(object):
         """Returns the list of directories contained in a base Light runtime"""
         ret = {}
         ret["RTS_Profile"] = profile
+        ret["Compiler_Backend"] = "llvm" if using_llvm_compiler() else "gcc"
+
         ret["Add_Arith64"] = "yes"
         ret["Add_Case_Util:yes"] = "yes"
         ret["Add_Exponent_Float"] = "yes"
