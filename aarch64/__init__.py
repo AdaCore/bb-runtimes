@@ -117,7 +117,7 @@ class MorelloTarget(Aarch64Target):
 
         # GNAT-LLVM can't build the embedded Morello runtime yet, so we exclude it for
         # the time being.
-        if using_llvm_compiler():
+        if not using_llvm_compiler():
             result["embedded"] = "system-xi-arm-nxstack-embedded.ads"
 
         return result
