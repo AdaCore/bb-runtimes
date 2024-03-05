@@ -99,3 +99,7 @@ def set_target_compiler(comp):
 
 def target_compiler():
     return _TARGET_COMPILER
+
+
+def using_llvm_compiler():
+    return target_compiler() == Compiler.gnat_llvm

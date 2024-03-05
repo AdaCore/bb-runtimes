@@ -26,6 +26,7 @@
 all_scenarios = {
     # Main profile
     "RTS_Profile": ["light", "light-tasking", "embedded", "cert"],
+    "Compiler_Backend": ["gcc", "llvm"],
     # Runtime RTP support
     "Is_RTP": ["no", "yes"],
     # CPU architecture
@@ -1523,8 +1524,15 @@ sources = {
         "srcs": [
             "libgnat/s-excmac__gcc.ads",
             "libgnat/s-excmac__gcc.adb",
-            "libgcc/unwind-dw2-fde.h",
         ],
+    },
+    "full/zcx-dw2-gcc": {
+        "conditions": [
+            "RTS_Profile:embedded",
+            "CPU_Family:!arm",
+            "Compiler_Backend:gcc",
+        ],
+        "srcs": ["libgcc/unwind-dw2-fde.h"],
         "bb_srcs": ["hie/unwind-dw2-fde-bb.c"],
     },
     "full/zcx-aarch64": {
