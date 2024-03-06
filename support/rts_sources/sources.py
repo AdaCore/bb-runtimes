@@ -797,7 +797,6 @@ sources = {
             "libgnat/s-wwdwch.adb",
             "hie/tconfig.h",
             "hie/tsystem.h",
-            "libgcc/unwind-pe.h",
         ],
         "bb_srcs": [
             "hie/adaint-xi.c",
@@ -809,6 +808,10 @@ sources = {
             "hie/s-init__bb.adb",
         ],
         "pikeos_srcs": ["hie/s-init__pikeos.adb"],
+    },
+    "full/gcc": {
+        "conditions": ["RTS_Profile:embedded", "Compiler_Backend:gcc"],
+        "srcs": ["libgcc/unwind-pe.h"],
     },
     "full/32": {
         "conditions": ["RTS_Profile:embedded", "Target_Word_Size:32"],
