@@ -371,9 +371,11 @@ class Target(TargetConfiguration, ArchSupport):
             ret += (
                 blank
                 + '"-nostartfiles", "-nolibc", '
-                + '"-Wl,--start-group,-lgnarl,-lgnat,-lc,-lgcc,-lgcc_eh,--end-group",'
-                if not using_llvm_compiler()
-                else '"-Wl,--start-group,-lgnarl,-lgnat,-lc,-lunwind,--end-group",'
+                + (
+                    '"-Wl,--start-group,-lgnarl,-lgnat,-lc,-lgcc,-lgcc_eh,--end-group",'
+                    if not using_llvm_compiler()
+                    else '"-Wl,--start-group,-lgnarl,-lgnat,-lc,-lunwind,--end-group",'
+                )
             )
 
         # Add the user script path first, so that they have precedence

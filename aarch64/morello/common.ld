@@ -116,9 +116,14 @@ SECTIONS
     . = . + 16;
   } > REGION_CODE
 
+  __eh_frame_hdr_start = SIZEOF(.eh_frame_hdr) > 0 ? ADDR(.eh_frame_hdr) : 0;
+  __eh_frame_hdr_end = SIZEOF(.eh_frame_hdr) > 0 ? . : 0;
+
   .eh_frame :
   {
+    __eh_frame_start = .;
     KEEP (*(.eh_frame))
+    __eh_frame_end = .;
   } > REGION_CODE
 
   .gcc_except_table :
@@ -127,12 +132,6 @@ SECTIONS
   } > REGION_CODE
 
   . = ALIGN(0x1000);
-
-  .rela.dyn :
-  {
-    *(.rela.dyn)
-    *(.rela.dyn.*)
-  } > REGION_DATA
 
   .data.rel.ro :
   {
@@ -144,6 +143,12 @@ SECTIONS
   .got :
   {
     *(.got)
+  } > REGION_DATA
+
+  .rela.dyn :
+  {
+    *(.rela.dyn)
+    *(.rela.dyn.*)
   } > REGION_DATA
 
   .data :
