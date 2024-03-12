@@ -68,6 +68,24 @@ package body System.Morello.Initialization is
    --  The linker script must ensure that all exception handling frames/tables
    --  are located between these two symbols.
 
+   function Get_EH_Frame_Cap return System.Address is
+     (EH_Frame_Hdr_Cap)
+     with
+       Export,
+       Convention => C,
+       External_Name => "__get_eh_frame_capability";
+   --  Return a capability with sufficient permissions to access the .eh_frame
+   --  section. Used by the LLVM unwinder.
+
+   function Get_EH_Frame_Hdr_Cap return System.Address is
+     (EH_Frame_Hdr_Cap)
+     with
+       Export,
+       Convention => C,
+       External_Name => "__get_eh_frame_hdr_capability";
+   --  Return a capability with sufficient permissions to access the
+   --  .eh_frame_hdr section. Used by the LLVM unwinder.
+
    procedure Initialize_Global_Capabilities;
    --  Walk through the __cap_table and generate a capability for each entry
 
