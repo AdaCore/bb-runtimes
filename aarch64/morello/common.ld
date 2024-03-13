@@ -126,6 +126,20 @@ SECTIONS
     __eh_frame_end = .;
   } > REGION_CODE
 
+  /* LLVM puts a reference to the personality function in this section. We
+     place the section here to make sure that it is within the bounds of
+     __eh_frame_hdr_cap, so that the exception-handling code can read the
+     reference. */
+
+  .data.DW.ref :
+  {
+    *(.data.DW.ref.*)
+  } > REGION_DATA
+
+  /* The following sections are located in the GNU_RELRO segment. The GNU_RELRO
+     segment should be contiguous, so do not place non-GNU_RELRO segments in
+     between. */
+
   .gcc_except_table :
   {
     *(.gcc_except_table .gcc_except_table.*)
@@ -144,6 +158,8 @@ SECTIONS
   {
     *(.got)
   } > REGION_DATA
+
+  /* End of GNU_RELRO segment */
 
   .rela.dyn :
   {
