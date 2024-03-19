@@ -139,7 +139,10 @@ __sync_interrupt:
         stp     c16, c17, [csp, #256]
         stp     c18, c19, [csp, #288]
         str     c30, [csp, #480]
-        adr     c30, __fault_restore
+
+        /* The LSB is set in the address here to ensure that branching to c30
+         * enters C64 mode, not A64C mode */
+        adr     c30, __fault_restore + 1
 
         /* Check if the synchronous trap is due to floating point access */
         mrs     x0, esr_el1
