@@ -151,7 +151,6 @@ SECTIONS
   {
     *(.data.rel.ro)
     *(.data.rel.ro.*)
-    __eh_frame_hdr_limit = .;
   } > REGION_DATA
 
   .got :
@@ -176,6 +175,7 @@ SECTIONS
     . = ALIGN(0x10);
     __data_end = .;
     __data_dwords = (__data_end - __data_start) >> 3;
+    __eh_frame_hdr_limit = .;
   } > REGION_DATA
 
   .bss (NOLOAD): {
