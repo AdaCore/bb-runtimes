@@ -109,6 +109,10 @@ class MorelloTarget(Aarch64Target):
         return MorelloArch
 
     @property
+    def target(self):
+        return "morello-elf"
+
+    @property
     def compiler_switches(self):
         return ("-march=morello+c64", "-mabi=purecap")
 

@@ -118,7 +118,7 @@ class RTSProfiles(object):
         if self.config.target is not None:
             cpu = self.config.target.split("-")[0]
 
-            if cpu in ("aarch64",):
+            if cpu in ("aarch64", "morello"):
                 ret["CPU_Family"] = "aarch64"
                 ret["Has_FMA"] = "yes" if self.config.has_fpu else "no"
             elif cpu in ("arm",):
