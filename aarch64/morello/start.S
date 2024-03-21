@@ -449,6 +449,10 @@ __start_master_cpu:
         .type __start_master_cpu_constrained_pcc, @function
 __start_master_cpu_constrained_pcc:
 
+        /* The DDC is no longer needed, so set it to null to prevent misuse */
+        mov     x0, #0
+        msr     ddc, c0
+
         bl      main
         b       __gnat_stop
 0:      b       0b
@@ -458,6 +462,11 @@ __start_master_cpu_constrained_pcc:
    constrained to the minimum required bounds. */
         .type __start_slave_cpu_constrained_pcc, @function
 __start_slave_cpu_constrained_pcc:
+
+        /* The DDC is no longer needed, so set it to null to prevent misuse */
+        mov     x0, #0
+        msr     ddc, c0
+
         mov     x29, xzr
         mov     x19, x7
         /* Initialize cpu-specific devices */
