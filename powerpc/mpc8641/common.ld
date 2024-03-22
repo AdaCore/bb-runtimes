@@ -63,7 +63,7 @@ SECTIONS
     __sdata2_end = .;
   } > REGION_DATA
 
-  .sbss2 :
+  .sbss2 (NOLOAD):
   {
     __sbss2_start = .;
     *(.sbss2 .sbss2.* .gnu.linkonce.sb2.*)
@@ -87,7 +87,7 @@ SECTIONS
     __data_end = .;
   } > REGION_DATA
 
-  .sbss :
+  .sbss (NOLOAD):
   {
     __sbss_start = .;
     *(.dynsbss)
@@ -96,7 +96,7 @@ SECTIONS
     __sbss_end = .;
   } > REGION_DATA
 
-  .stacks :
+  .stacks (NOLOAD):
   {
    . = ALIGN(8);
    __interrupt_stack_start = .;
@@ -117,7 +117,7 @@ SECTIONS
    __stack_end = .;
   } > REGION_DATA
 
-  .bss :
+  .bss (NOLOAD):
   {
    __bss_start = .;
    *(.dynbss)
