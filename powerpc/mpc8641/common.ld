@@ -71,7 +71,8 @@ SECTIONS
     __sbss2_end = .;
   } > REGION_DATA
 
-  __data_load = LOADADDR(.sdata2) + SIZEOF(.sdata2);
+  /* Ensure __data_load has the same alignment than .data section. */
+  __data_load = ALIGN(LOADADDR(.sdata2) + SIZEOF(.sdata2), ALIGNOF(.data));
   .data : AT(__data_load)
   {
     __data = .;
