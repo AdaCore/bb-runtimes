@@ -27,7 +27,7 @@
 #############################################################################
 
 	.section ".text"
-        .global _start_rom
+        .global _start
 
 #define MSSCR0	1014
 #define PIR	1023
@@ -38,7 +38,7 @@
 	mfspr	reg, MSSCR0;  \
 	rlwinm.	reg, reg, _PPC_MSSCR0_BIT_ID + 1, 31, 31
 
-_start_rom:
+_start:
 	/* Init FPU.  */
         bl	_setup_cpu
 
@@ -139,11 +139,11 @@ _cpu0_start:
         # Try to stop the machine
         bl	_exit
 
-	.size _start_rom, . - _start_rom
+	.size _start, . - _start
 
 	.section ".reset","ax"
 _reset:
-	b	_start_rom
+	b	_start
 	.size _reset, . - _reset
 
 	.weak	__gnat_initialize_slave
