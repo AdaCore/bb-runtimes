@@ -109,12 +109,17 @@ _cpu0_start:
         subf	%r10,%r11,%r10
 	lis	%r8,(__sdata2_load - 1)@ha
 	la	%r8,(__sdata2_load - 1)@l(%r8)
+	# Don't perform the copy when the datas are already loaded
+	# at the right address.
+	cmpw    %r8, %r11
+	beq  2f
 	mtctr	%r10
 	b	1f
 0:      lbzu	%r4,1(%r8)
 	stbu	%r4,1(%r11)
 1:
 	bdnz	0b
+2:
 
         # Copy data
 	lis	%r11,(__data_start - 1)@ha
@@ -124,12 +129,17 @@ _cpu0_start:
         subf	%r10,%r11,%r10
 	lis	%r8,(__data_load - 1)@ha
 	la	%r8,(__data_load - 1)@l(%r8)
+	# Don't perform the copy when the datas are already loaded
+	# at the right address.
+	cmpw    %r8, %r11
+	beq  2f
 	mtctr	%r10
 	b	1f
 0:      lbzu	%r4,1(%r8)
 	stbu	%r4,1(%r11)
 1:
 	bdnz	0b
+2:
 
         bl	_setup
 
