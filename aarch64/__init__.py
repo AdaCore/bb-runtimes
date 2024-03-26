@@ -85,9 +85,11 @@ class Aarch64Target(DFBBTarget):
         # the registers only when they are used by apps. This means that if
         # a FPU register is used out of context, then we're doomed.
         conf.build_flags["common_gnarl_flags"] += [
-            "-mgeneral-regs-only"
-            if not using_llvm_compiler()
-            else "-mno-implicit-float"
+            (
+                "-mgeneral-regs-only"
+                if not using_llvm_compiler()
+                else "-mno-implicit-float"
+            )
         ]
 
     def dump_runtime_xml(self, rts_name, rts):

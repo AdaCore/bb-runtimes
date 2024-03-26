@@ -264,7 +264,7 @@ class aarch64_mmu(Arch):
                 "no_effect",  # No effect
                 "fault_tgen_1",  # If CCTLR_ELx.TGENy is 1, fault loads
                 # of valid capabilities; otherwise no effect.
-                "fault_tgen_0"  # If CCTLR_ELx.TGENy is 0, fault loads
+                "fault_tgen_0",  # If CCTLR_ELx.TGENy is 0, fault loads
                 # of valid capabilities; otherwise no effect.
             ]
 
