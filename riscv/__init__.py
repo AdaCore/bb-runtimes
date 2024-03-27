@@ -229,29 +229,16 @@ class RV32BASE(RiscV32):
     """
 
     @property
-    def compiler_switches(self):
-        # The required compiler switches
-        if self.name == "rv32i":
-            return ("-march=rv32i", "-mabi=ilp32")
-
-        elif self.name == "rv32im":
-            return ("-march=rv32im", "-mabi=ilp32")
-
-        elif self.name == "rv32iac":
-            return ("-march=rv32iac", "-mabi=ilp32")
-
-        elif self.name == "rv32imac":
-            return ("-march=rv32imac", "-mabi=ilp32")
-
-        elif self.name == "rv32imafc":
-            return ("-march=rv32imafc", "-mabi=ilp32f")
-
-        elif self.name == "rv32imafdc":
-            return ("-march=rv32imafdc", "-mabi=ilp32d")
-
-    @property
     def has_small_memory(self):
         return True
+
+    @property
+    def has_single_precision_fpu(self):
+        return False
+
+    @property
+    def has_double_precision_fpu(self):
+        return False
 
     @property
     def system_ads(self):
@@ -271,11 +258,19 @@ class RV32I(RV32BASE):
     def name(self):
         return "rv32i"
 
+    @property
+    def compiler_switches(self):
+        return ("-march=rv32i", "-mabi=ilp32")
+
 
 class RV32IM(RV32BASE):
     @property
     def name(self):
         return "rv32im"
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv32im", "-mabi=ilp32")
 
 
 class RV32IAC(RV32BASE):
@@ -283,11 +278,19 @@ class RV32IAC(RV32BASE):
     def name(self):
         return "rv32iac"
 
+    @property
+    def compiler_switches(self):
+        return ("-march=rv32iac", "-mabi=ilp32")
+
 
 class RV32IMAC(RV32BASE):
     @property
     def name(self):
         return "rv32imac"
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv32imac", "-mabi=ilp32")
 
 
 class RV32IMAFC(RV32BASE):
@@ -295,11 +298,31 @@ class RV32IMAFC(RV32BASE):
     def name(self):
         return "rv32imafc"
 
+    @property
+    def compiler_switches(self):
+        return ("-march=rv32imafc", "-mabi=ilp32f")
+
+    @property
+    def has_single_precision_fpu(self):
+        return True
+
 
 class RV32IMAFDC(RV32BASE):
     @property
     def name(self):
         return "rv32imafdc"
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv32imafdc", "-mabi=ilp32d")
+
+    @property
+    def has_single_precision_fpu(self):
+        return True
+
+    @property
+    def has_double_precision_fpu(self):
+        return True
 
 
 class RV64BASE(RiscV64):
@@ -309,25 +332,12 @@ class RV64BASE(RiscV64):
     """
 
     @property
-    def compiler_switches(self):
-        # The required compiler switches
-        if self.name == "rv64im":
-            return ("-march=rv64im", "-mabi=lp64")
+    def has_single_precision_fpu(self):
+        return False
 
-        elif self.name == "rv64imc":
-            return ("-march=rv64imc", "-mabi=lp64")
-
-        elif self.name == "rv64imac":
-            return ("-march=rv64imac", "-mabi=lp64")
-
-        elif self.name == "rv64imafc":
-            return ("-march=rv64imafc", "-mabi=lp64f")
-
-        elif self.name == "rv64imfc":
-            return ("-march=rv64imfc", "-mabi=lp64f")
-
-        elif self.name == "rv64imafdc":
-            return ("-march=rv64imafdc", "-mabi=lp64d")
+    @property
+    def has_double_precision_fpu(self):
+        return False
 
     @property
     def system_ads(self):
@@ -347,11 +357,19 @@ class RV64IM(RV64BASE):
     def name(self):
         return "rv64im"
 
+    @property
+    def compiler_switches(self):
+        return ("-march=rv64im", "-mabi=lp64")
+
 
 class RV64IMC(RV64BASE):
     @property
     def name(self):
         return "rv64imc"
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv64imc", "-mabi=lp64")
 
 
 class RV64IMAC(RV64BASE):
@@ -359,11 +377,23 @@ class RV64IMAC(RV64BASE):
     def name(self):
         return "rv64imac"
 
+    @property
+    def compiler_switches(self):
+        return ("-march=rv64imac", "-mabi=lp64")
+
 
 class RV64IMAFC(RV64BASE):
     @property
     def name(self):
         return "rv64imafc"
+
+    @property
+    def has_single_precision_fpu(self):
+        return True
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv64imafc", "-mabi=lp64f")
 
 
 class RV64IMFC(RV64BASE):
@@ -371,8 +401,28 @@ class RV64IMFC(RV64BASE):
     def name(self):
         return "rv64imfc"
 
+    @property
+    def has_single_precision_fpu(self):
+        return True
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv64imfc", "-mabi=lp64f")
+
 
 class RV64IMAFDC(RV64BASE):
     @property
     def name(self):
         return "rv64imafdc"
+
+    @property
+    def has_single_precision_fpu(self):
+        return True
+
+    @property
+    def has_double_precision_fpu(self):
+        return True
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv64imafdc", "-mabi=lp64d")
