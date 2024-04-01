@@ -1,0 +1,202 @@
+Arm Morello Runtimes
+====================
+
+GNAT provides the following runtimes for the Arm Morello Development Platform
+
+  * light-morello
+  * light-tasking-morello
+  * embedded-morello
+  * light-morello-semihosting
+  * light-tasking-semihosting
+  * embedded-morello-semihosting
+
+The regular Morello runtimes are configured to use UART0 for Ada.Text_IO while
+the semihosting runtimes (the runtimes that end with "-semihosting") use
+semihosting instead. Either runtime can be used with the Arm Morello
+Development Platform depending on your Text_IO needs, while only the
+semihosting runtimes can be used with GNATemulator.
+
+
+Getting Started
+---------------
+
+To use the Morello runtimes, configure your project to use the `morello-elf`
+toolchain and your desired runtime. This can be done through the GNAT Studio
+Project Properities page or by adding the following to your GPR file:
+
+   for Target use "morello-elf";
+   for Runtime ("Ada") use "<your runtime choice>";
+
+After building your application you can run it either in GNATemulator or
+on the Arm Morello Development Platform.
+
+GNATemulator
+~~~~~~~~~~~~
+
+Applications built with the Morello semihosting GNAT runtimes can be run in
+GNATemulator through GNAT Studio or from the command line with:
+
+   morello-elf-gnatemu <executable>
+
+Arm Morello Development Platform
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+<Dan to add to the good stuff here>
+
+
+Resources used by the runtime
+-----------------------------
+
+- The GIC600 interrupt controller for interrupt support;
+- Armv8-A Generic Timer
+- UART0 or Semihosting for Ada.Text_IO depending on the runtime.
+
+See the respective sections below for further details on each resource used by
+the GNAT runtime.
+
+System Clocks
+-------------
+
+The Morello GNAT runtimes do not configure the processor clocks as they are
+configured by the System Control Processor on boot. Refer to the Arm Morello
+System Development Platform Technical Reference Manual for more information
+on clock configuration.
+
+The Morello runtimes do need to know the clock speed of the Processor Clock
+and Global Timestamp Timer. If you modify either clock speed from their default
+(Processor Clock: 2.5 GHz; Global Timestamp Timer: 62.5 MHz), please update
+``s-bbpara.ads`` and rebuild the runtime.
+
+
+Startup Code
+------------
+
+The Morello runtimes provide low-level startup code in ``start.S``
+that contains the entry point of the application to be called from your
+bootloader and performs the low-level runtime initialization required before
+high-level Ada code is called. The startup code performs the following
+operations:
+
+ * initialization of core registers;
+ * Enabling of the FPU;
+ * Clearing the BSS section;
+ * Loading of the DATA section to RAM if required;
+ * Configuration of the MMU.
+
+Outside of the startup code, the runtime will also configure the CPU's
+Clocks and GIC. All other SoC initialization and configuration needs to be
+carried out by the Secondary Bootloader (SBL) prior to passing
+control over to the application. The SBL is also required to load the
+application into memory if required. Any peripherals the application may use
+should be configured by the SBL or the application directly prior to their use.
+
+The configuration of the MMU is performed by the System.MMU package
+(``smmu.adb``). By default, the MMU configured to allow access to the memory
+regisons defined in the linker script. The default MMU configuration can be
+replaced by providing your own implementation of
+
+   procedure Initialize with
+      Export,
+      Convention     => C,
+      External_Name  => "__initialize_mmu",
+      Linker_Section => ".boot";
+
+
+In limited circumstances, `start.S` may be replaced with your own code that
+performs the above requirement and directly calls `main`, but please contact
+AdaCore if you need to modify the FPU settings as doing so may affect the
+conformance of the runtime to the Ada Standard.
+
+
+Memory
+------
+
+The application memory is broken down into two primary memory regions:
+
+ * Code, read-only data and the initial read-write data ("Code Region")
+ * Data and bss (zeroed data) sections ("Data Region")
+
+A set of default linker scripts are provided with the runtimes locate the Code
+and Data regions into RAM. These linker scripts can be found in the `ld`
+directory and consist of the following:
+
+ * ``ram.ld``: defines the layout of the Arm Morello Development Platform and
+   maps the memory regions defined above to the platform's RAM. Currently the
+   linker script only provides a maps for the platform's RAM.
+
+ * ``common.ld``: defines the application entry point and sections. It uses the
+   memory regions defined in `ram.ld` to allow this script to be used in
+   different scenarios without modification.
+
+While you can modify these scripts directly, it's recommended to copy the
+scripts you need to modify to your project folder and modify them there. This
+allows you to preserve your scripts between runtime updates and is required if
+you will be using the runtime to run applications on different cores (as each
+application will need to be mapped to different memory locations).
+
+To use your own linker scripts, specify the main linker script via the `-T`
+linker switch and use the `-XLOADER=USER` switch when building your application
+with GPRbuild.
+
+When relocating the primary memory regions, please keep in mind the following
+guidance for each region.
+
+Code Region
+~~~~~~~~~~~
+
+The Code Region contains the application code, read-only data and the initial
+state of the data section. This region can be located in RAM or read-only
+memory like FLASH. If located in RAM, it is the bootloader's responsibility to
+load the Code Region to memory.
+
+Data Region
+~~~~~~~~~~~
+
+The Data Region contains the data and bss sections. This region needs to be
+located in RAM. During runtime startup the runtime will zero the bss section
+and copy the initial state of the data section from the Code Region if the two
+regions are not located together. There is no need for the bootloader to load
+the Data Region to RAM if the Code Region is located in ROM.
+
+Caches
+~~~~~~
+
+The runtime enables the data and instruction cache during initialization.
+
+
+Interrupts
+----------
+
+External Interrupts
+~~~~~~~~~~~~~~~~~~~
+
+The Morello GNAT runtimes support connecting IRQ interrupts generated by
+the processor's GIC600 to protected procedure handlers as documented in the
+Ada Reference Manual C.3.1. The list of interrupt names can be found in the
+package Ada.Interrupts.Names (`gnarl/a-intnam.ads`). The runtimes support
+nested priorities with 16 interrupt priorities levels mapping to Ada Priorities
+241-255.
+
+
+Power Management
+----------------
+
+The runtime will place the CPU into standby mode if there are no tasks eligible
+to run.
+
+Text_IO
+-------
+
+The runtime provides a minimal version of the Ada.Text_IO package supporting
+character- and string-based input and output routines for basic I/O needs. It
+is recommended to implement your own I/O packages based around your I/O
+channel of choice.
+
+The bodies of the Ada.Text_IO routines call through to a device-specific I/O
+package named System.Text_IO. See the package body in the file `s-textio.adb`
+in the gnat directory for more details.
+
+System.Text_IO on the standard Morello runtimes uses UART0. UART0 is configured
+for <Dan to fill in the blank>. System.Text_IO on the semihosting Morello
+runtimes use Arm semihosting to print output using the debugger semihosting
+capabilities.
