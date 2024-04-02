@@ -241,13 +241,12 @@ class MPC8641(PPC6XXTarget):
 
     def __init__(self):
         super(MPC8641, self).__init__()
-        self.add_linker_script("powerpc/mpc8641/qemu-rom.ld", loader="ROM")
-        self.add_linker_switch("-Wl,-u_start_rom", loader="ROM")
+        self.add_linker_script("powerpc/mpc8641/common.ld")
+        self.add_linker_script("powerpc/mpc8641/rom.ld", loader="ROM")
         self.add_linker_script("powerpc/mpc8641/ram.ld", loader="RAM")
-        self.add_linker_switch("-Wl,-u_start_ram", loader="RAM")
 
         self.add_gnat_sources(
-            "powerpc/mpc8641/start-rom.S",
+            "powerpc/mpc8641/start.S",
             "powerpc/mpc8641/setup.S",
             "src/s-macres__p2020.adb",
             "src/s-bbbopa__8641d.ads",

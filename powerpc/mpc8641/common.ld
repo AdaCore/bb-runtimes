@@ -1,8 +1,3 @@
-OUTPUT_FORMAT("elf32-powerpc", "elf32-powerpc",
-              "elf32-powerpc")
-OUTPUT_ARCH(powerpc:common)
-ENTRY(_start_rom)
-
 _DEFAULT_STACK_SIZE = 64 * 1024;
 __heap_size = 1024 * 1024;
 
@@ -10,15 +5,18 @@ SECTIONS
 {
 
   /* First instruction is fetched at this address */
-  . = 0xfff00100;
-  .reset : AT (0xfff00100)
+  .reset :
   {
    KEEP(*(.reset))
-  }
+  } > RESET
 
-  /* Start of ROM.  */
-  . = 0xfe000000;
+  /* Leave room for exception vectors.  */
+  .vectors (NOLOAD):
+  {
+    . = 0x2000;
+  } > REGION_DATA
 
+  . = ORIGIN(ROMABLE_REGION);
   /* Code sections, merged into text segment: */
   .text :
   {
@@ -26,7 +24,7 @@ SECTIONS
     *(.text .text.* .gnu.linkonce.t.*)
     *(.gnu.warning)
     *(.glink)
-  } = 0
+  } > ROMABLE_REGION = 0
 
   /* Read-only sections, merged into rodata segment: */
   .rodata :
@@ -36,30 +34,26 @@ SECTIONS
     *(.rodata1)
     *(.got2)
     . = ALIGN(4);
-  } = 0
+  } > ROMABLE_REGION = 0
 
   /* init, ctors and dtors sections.  Assume we really need them
      when they happen to be generated, so KEEP to prevent garbage
      collection of per-object pieces.  */
 
-  .init  : { KEEP(*(.init)) }
-  .ctors : { KEEP(SORT_BY_NAME(*)(.ctors)) }
-  .dtors : { KEEP(SORT_BY_NAME(*)(.dtors)) }
+  .init  : { KEEP(*(.init)) } > ROMABLE_REGION
+  .ctors : { KEEP(SORT_BY_NAME(*)(.ctors)) } > ROMABLE_REGION
+  .dtors : { KEEP(SORT_BY_NAME(*)(.dtors)) } > ROMABLE_REGION
 
   .eh_frame_hdr :
   {
      __eh_frame_hdr = .;
     *(.eh_frame_hdr)
-  }
+  } > ROMABLE_REGION
 
-  .eh_frame  : { KEEP (*(.eh_frame)) }
-  .gcc_except_table : { *(.gcc_except_table .gcc_except_table.*) }
+  .eh_frame  : { KEEP (*(.eh_frame)) } > ROMABLE_REGION
+  .gcc_except_table : { *(.gcc_except_table .gcc_except_table.*) } > ROMABLE_REGION
 
-  __rom_end = .;
-
-  /* Leave room for exception vectors.  */
-  . = 0x2000;
-  __sdata2_load = __rom_end;
+  __sdata2_load = .;
   .sdata2 : AT (__sdata2_load)
   {
     __sdata2_start = .;
@@ -67,17 +61,18 @@ SECTIONS
     *(.sdata2 .sdata2.* .gnu.linkonce.s2.*)
     . = ALIGN(4);
     __sdata2_end = .;
-  }
-  .sbss2 :
+  } > REGION_DATA
+
+  .sbss2 (NOLOAD):
   {
     __sbss2_start = .;
     *(.sbss2 .sbss2.* .gnu.linkonce.sb2.*)
     . = ALIGN(4);
     __sbss2_end = .;
-  }
+  } > REGION_DATA
 
-  __data_load = LOADADDR(.sdata2) + SIZEOF(.sdata2);
-
+  /* Ensure __data_load has the same alignment than .data section. */
+  __data_load = ALIGN(LOADADDR(.sdata2) + SIZEOF(.sdata2), ALIGNOF(.data));
   .data : AT(__data_load)
   {
     __data = .;
@@ -90,18 +85,18 @@ SECTIONS
     *(.sdata .sdata.* .gnu.linkonce.s.*)
     . = ALIGN(4);
     __data_end = .;
-  }
+  } > REGION_DATA
 
-  .sbss :
+  .sbss (NOLOAD):
   {
     __sbss_start = .;
     *(.dynsbss)
     *(.sbss .sbss.* .gnu.linkonce.sb.*)
     *(.scommon)
     __sbss_end = .;
-  }
+  } > REGION_DATA
 
-  .stacks :
+  .stacks (NOLOAD):
   {
    . = ALIGN(8);
    __interrupt_stack_start = .;
@@ -120,9 +115,9 @@ SECTIONS
    __cpu0_stack_end = .;
 
    __stack_end = .;
-  }
+  } > REGION_DATA
 
-  .bss :
+  .bss (NOLOAD):
   {
    __bss_start = .;
    *(.dynbss)
@@ -138,7 +133,7 @@ SECTIONS
    __heap_end = .;
 
    _end = .;
-  }
+  } > REGION_DATA
 
   /* DWARF debug sections.
      Symbols in the DWARF debugging sections are relative to the beginning
