@@ -65,7 +65,7 @@ class RTSProfiles(object):
         ret["Compiler_Backend"] = "llvm" if using_llvm_compiler() else "gcc"
 
         ret["Add_Arith64"] = "yes"
-        ret["Add_Case_Util:yes"] = "yes"
+        ret["Add_Case_Util"] = "yes"
         ret["Add_Exponent_Float"] = "yes"
         ret["Add_Exponent_Int"] = "yes"
         ret["Add_Exponent_LL_Int"] = "yes"
