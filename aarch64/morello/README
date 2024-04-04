@@ -1,8 +1,8 @@
 Arm Morello Runtimes
 ====================
 
-GNAT provides the following runtimes for the Arm Morello System Development
-Platform (SDP).
+GNAT Pro provides the following runtimes for the Arm Morello System Development
+Platform (SDP):
 
   * light-morello
   * light-tasking-morello
@@ -10,6 +10,8 @@ Platform (SDP).
   * light-morello-semihosting
   * light-tasking-semihosting
   * embedded-morello-semihosting
+
+All runtimes operate in pure capability mode.
 
 The regular Morello runtimes are configured to use UART0 for Ada.Text_IO while
 the semihosting runtimes (the runtimes that end with "-semihosting") use
@@ -23,7 +25,7 @@ Getting Started
 
 To use the Morello runtimes, configure your project to use the `morello-elf`
 toolchain and your desired runtime. This can be done through the GNAT Studio
-Project Properities page or by adding the following to your GPR file:
+Project Properties page or by adding the following to your GPR file:
 
    for Target use "morello-elf";
    for Runtime ("Ada") use "<your runtime choice>";
@@ -31,107 +33,110 @@ Project Properities page or by adding the following to your GPR file:
 After building your application you can run it either in GNATemulator or
 on the Arm Morello SDP.
 
+
 GNATemulator
 ~~~~~~~~~~~~
 
-Applications built with the Morello semihosting GNAT runtimes can be run in
+Programs built with the Morello semihosting GNAT runtimes can be run in
 GNATemulator through GNAT Studio or from the command line with:
 
    morello-elf-gnatemu <executable>
 
+
 Arm Morello System Development Platform
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Bare-metal applications can be run on the Arm Morello SDP as a BL33 image
-running at EL2. The BL33 image is booted by the Trusted Firmware-A (TF-A)
-bootloader on the Morello SDP and is created using the Morello toolchain hosted
-at https://git.morello-project.org/morello
+The Arm Morello System Development Platform (SDP) can run Morello ELF programs
+by creating an Application Processor (AP) image. The Morello Project
+(https://git.morello-project.org/morello) provides the tools to build this
+image as a BL33 payload that the SDP's Trusted Firmware-A (TF-A) bootloader
+will run at EL2. The following instructions are based on the Morello Project's
+documentation found at https://git.morello-project.org/morello/docs. When
+navigating the Morello Project, select the branch corresponding to the Morello
+Project release you are using. This documentation is based on the Morello
+Project 1.6 release.
 
-Generating the Application Processor Image
-""""""""""""""""""""""""""""""""""""""""""
+Prerequisites
+"""""""""""""
 
-The following instructions describe the steps to produce the application
-processor (AP) image using the Morello toolchain. These instructions are
-derived from the Morello tooclhain documentation which can be found at:
-https://git.morello-project.org/morello/docs/-/tree/morello/release-1.5?ref_type=heads
+Review the Morello Project's host prerequisites at https://git.morello-project.org/morello/docs/-/blob/morello/release-1.6/common/prerequisites.rst
+and install the Morello LLVM toolchain (required to build an AP image). The
+Morello LLVM toolchain can be downloaded from the Morello Project with:
 
-First, the host prerequisites for the Morello toolchain must be met. Refer to
-Section 2 in the following link for the list of prerequisites:
-https://git.morello-project.org/morello/docs/-/blob/morello/release-1.5/user-guide.rst#id6
 
-The Morello LLVM toolchain is also required to build the AP image. This can be
-obtained by cloning the morello/baremetal-release-1.5 branch from the
-Morello project's llvm-project-releases repository at:
-https://git.morello-project.org/morello/llvm-project-releases/-/tree/morello/baremetal-release-1.5?ref_type=heads
+   git clone -b morello/baremetal-release-<release number> https://git.morello-project.org/morello/llvm-project-releases.git
 
-   git clone https://git.morello-project.org/morello/llvm-project-releases.git
-   cd llvm-project-releases
-   git checkout morello/baremetal-release-1.5
+Where <release number> is the Morello Project version. For example for release
+1.6:
 
-Once the prerequisites are met, a Morello workspace can be created and synced
-to obtain the sources necessary to build the AP image:
+   git clone -b morello/baremetal-release-1.6 https://git.morello-project.org/morello/llvm-project-releases.git
+
+To ease the creation of the AP image, set the $MORELLO_LLVM_PROJECT environment variable:
+
+   export MORELLO_LLVM_PROJECT=$PWD/llvm-project-releases
+
+Building the Application Processor Image
+""""""""""""""""""""""""""""""""""""""""
+
+To build the AP image, first create a Morello workspace replacing <release number>
+with the appropriate release number:
 
    mkdir workspace
-   cd workspace
+   export MORELLO_WORKSPACE=$PWD/workspace
+   cd $MORELLO_WORKSPACE
    repo init \
      -u https://git.morello-project.org/morello/manifest.git \
-     -b morello/release-1.5 \
+     -b morello/integration-<release number> \
      -g bsp
    repo sync
 
-The next step is to convert the executable output by GNAT into binary format:
+Next convert the Ada ELF program into binary format with objcopy:
 
    morello-elf-objcopy -Obinary <executable> <executable>.bin
+   export PRJ_EXECUTABLE=$PWD/<executable>.bin
 
-where `<executable>` is the path to your executable that was built by GNAT.
+where `<executable>` is the path to your executable that was built by GPRbuild.
 
-The AP image can now be produced using the Morello toolchain by running the
-following commands in your <morello_workspace>:
+From the Morello workspace, the AP image can now be built by running:
 
    make -C "bsp/arm-tf" \
      PLAT=morello TARGET_PLATFORM=soc ENABLE_MORELLO_CAP=1 \
-     CC="<llvm_project_release>/bin/clang" clean
+     CC=$MORELLO_LLVM_PROJECT/bin/clang clean
 
-   MBEDTLS_DIR="<morello_workspace>/bsp/deps/mbedtls" \
-     CROSS_COMPILE="<morello_workspace>/tools/clang/bin/llvm-" \
+   MBEDTLS_DIR=$MORELLO_WORKSPACE/bsp/deps/mbedtls \
+     CROSS_COMPILE=$MORELLO_WORKSPACE/tools/clang/bin/llvm- \
      make -C "bsp/arm-tf" \
-     CC="<llvm_project_release>/bin/clang" \
-     LD="<llvm_project_release>/bin/ld.lld" \
+     CC=$MORELLO_LLVM_PROJECT/bin/clang \
+     LD=$MORELLO_LLVM_PROJECT/bin/ld.lld \
      PLAT=morello ARCH=aarch64 TARGET_PLATFORM=soc ENABLE_MORELLO_CAP=1 \
      E=0 TRUSTED_BOARD_BOOT=1 GENERATE_COT=1 ARM_ROTPK_LOCATION="devel_rsa" \
      ROT_KEY="plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem" \
-     BL33="<executable>.bin" \
-     OPENSSL_DIR="<morello_workspace>/output/soc/intermediates/host_openssl/install" \
+     BL33=$PRJ_EXECUTABLE \
+     OPENSSL_DIR=$MORELLO_WORKSPACE/output/soc/intermediates/host_openssl/install \
      all fip
 
-where:
-* `<morello_workspace>` is the path to the Morello workspace.
-* `<llvm_project_release>` is the path to the llvm-project-release repository
-  that was cloned.
-* `<executable>.bin` is the path to the binary executable that was output by
-  `morello-elf-objcopy`.
+The AP image file `fip.bin` will be created at
+`$MORELLO_WORKSPACE/bsp/arm-tf/build/morello/release/fip.bin`
 
-The AP image file (`fip.bin`) will be output at
-`<morello_workspace>/bsp/arm-tf/build/morello/release/fip.bin`
+Running the AP image
+""""""""""""""""""""
 
-Loading the AP Image onto the Arm Morello Software Development Platform
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+To run the resulting AP image on the Morello SDP copy the AP image `fip.bin` to
+the SDP's microSD card by:
 
-To load the AP image (`fip.bin`) onto the Arm Morello SDP's
-microSD card:
-
-#.  Connect the power cable to the Arm Morello SDP
-#.  Connect a USB cable from your workstation to the DBG USB port on the back
+1.  Connect the power cable to the Arm Morello SDP.
+2.  Connect a USB cable from your workstation to the DBG USB port on the back
     panel of the Arm Morello SDP.
-#.  Turn on the Arm Morello SDP. After a short delay the board
-    should power on and the microSD card should appear as a USB mass storage
-    device.
-#.  Open a file browser and navigate to the SOFTWARE directory on the mounted
+3.  Turn on the Arm Morello SDP. After a short delay the board should power on
+    and the microSD card should appear as a USB mass storage device.
+4.  Open a file browser and navigate to the SOFTWARE directory on the mounted
     microSD card.
-#.  Replace the fip.bin file with the fip.bin that was created in the previous
+5.  Replace the fip.bin file with the fip.bin that was created in the previous
     section.
-#.  Eject the microSD card's USB mass storage device to flush any pending writes.
-#.  Reboot the Arm Morello SDP.
+6.  Eject the microSD card's USB mass storage device to flush any pending writes.
+7.  Reboot the SDP.
+
+The SPD will boot with the AP image.
 
 Resources used by the runtime
 -----------------------------
@@ -166,7 +171,7 @@ bootloader and performs the low-level runtime initialization required before
 high-level Ada code is called. The startup code performs the following
 operations:
 
- * initialization of core registers;
+ * Initialization of core registers;
  * Enabling of the FPU;
  * Clearing the BSS section;
  * Loading of the DATA section to RAM if required;
@@ -181,7 +186,7 @@ should be configured by the SBL or the application directly prior to their use.
 
 The configuration of the MMU is performed by the System.MMU package
 (``smmu.adb``). By default, the MMU configured to allow access to the memory
-regisons defined in the linker script. The default MMU configuration can be
+regions defined in the linker script. The default MMU configuration can be
 replaced by providing your own implementation of
 
    procedure Initialize with
@@ -205,13 +210,13 @@ The application memory is broken down into two primary memory regions:
  * Code, read-only data and the initial read-write data ("Code Region")
  * Data and bss (zeroed data) sections ("Data Region")
 
-A set of default linker scripts are provided with the runtimes locate the Code
-and Data regions into RAM. These linker scripts can be found in the `ld`
+A set of default linker scripts are provided with the runtimes that load the
+Code and Data regions into RAM. These linker scripts can be found in the `ld`
 directory and consist of the following:
 
  * ``ram.ld``: defines the layout of the Arm Morello SDP and
    maps the memory regions defined above to the platform's RAM. Currently the
-   linker script only provides a maps for the platform's RAM.
+   linker script only provides a map for the platform's RAM.
 
  * ``common.ld``: defines the application entry point and sections. It uses the
    memory regions defined in `ram.ld` to allow this script to be used in
@@ -253,8 +258,8 @@ Caches
 The runtime enables the data and instruction cache during initialization.
 
 
-Interrupts
-----------
+Exceptions and Interrupts
+-------------------------
 
 External Interrupts
 ~~~~~~~~~~~~~~~~~~~
@@ -263,9 +268,30 @@ The Morello GNAT runtimes support connecting IRQ interrupts generated by
 the processor's GIC600 to protected procedure handlers as documented in the
 Ada Reference Manual C.3.1. The list of interrupt names can be found in the
 package Ada.Interrupts.Names (`gnarl/a-intnam.ads`). The runtimes support
-nested priorities with 16 interrupt priorities levels mapping to Ada Priorities
+nested priorities with 16 interrupt priority levels mapping to Ada Priorities
 241-255.
 
+CHERI Exceptions
+~~~~~~~~~~~~~~~~
+
+The Morello SoC performs CHERI run-time checks at the hardware level and raises
+processor exceptions when a run-time check fails. The Morello runtimes handle
+these exceptions and raise one of the following Ada exceptions in response at
+the source location where the exception occurred:
+
+* `Interfaces.CHERI.Capability_Bound_Error` is raised when an out-of-bounds
+  access was attempted.
+* `Interfaces.CHERI.Capability_Permission_Error` is raised when an attempted
+   access exceeds the permissions granted by a capability.
+* `Interfaces.CHERI.Capability_Sealed_Error` is raised when a sealed capability
+   was dereferenced.
+* `Interfaces.CHERI.Capability_Tag_Error` is raised when an invalid capability
+   was dereferenced.
+
+The embedded runtimes support exception propagation and allow these exceptions
+to be caught and handled like regular Ada exceptions. The light and
+light-tasking runtimes do not support exception propagation and so the
+occurrence of any CHERI exception invokes the Last Chance Handler.
 
 Power Management
 ----------------
@@ -289,37 +315,3 @@ System.Text_IO on the standard Morello runtimes uses UART0. UART0 is configured
 for 115200 baud with 8 data bits, one stop bit, and no parity. System.Text_IO
 on the semihosting Morello runtimes use Arm semihosting to print output using
 the debugger semihosting capabilities.
-
-CHERI
------
-
-Applications built using the GNAT Morello runtimes operate in pure capability
-mode using the C64 instruction set.
-
-Interfaces.CHERI
-~~~~~~~~~~~~~~~~
-
-The runtime provides the package Interfaces.CHERI which defines operations for
-manipulating CHERI capabilities. In GNAT for Morello the type `System.Address`
-is the 128-bit capability type.
-
-CHERI Exceptions
-~~~~~~~~~~~~~~~~
-
-The Morello SoC performs CHERI run-time checks at the hardware level and raises
-a processor exception when a run-time check fails. The Morello runtimes handle
-the processor exception and raise one of the following Ada exceptions:
-
-* `Interfaces.CHERI.Capability_Bound_Error` is raised when an out-of-bounds
-  access was attempted.
-* `Interfaces.CHERI.Capability_Permission_Error` is raised when an attempted
-   access exceeds the permissions granted by a capability.
-* `Interfaces.CHERI.Capability_Sealed_Error` is raised when a sealed capability
-   was dereferenced.
-* `Interfaces.CHERI.Capability_Tag_Error` is raised when an invalid capability
-   was dereferenced.
-
-The embedded runtimes support exception propagation and allow these exceptions
-to be caught and handled like regular Ada exceptions. The light and
-light-tasking runtimes do not support exception propagation and so the
-occurrence of any CHERI exception invokes the Last Chance Handler.
