@@ -1,7 +1,8 @@
 Arm Morello Runtimes
 ====================
 
-GNAT provides the following runtimes for the Arm Morello Development Platform
+GNAT provides the following runtimes for the Arm Morello System Development
+Platform (SDP).
 
   * light-morello
   * light-tasking-morello
@@ -12,9 +13,9 @@ GNAT provides the following runtimes for the Arm Morello Development Platform
 
 The regular Morello runtimes are configured to use UART0 for Ada.Text_IO while
 the semihosting runtimes (the runtimes that end with "-semihosting") use
-semihosting instead. Either runtime can be used with the Arm Morello
-Development Platform depending on your Text_IO needs, while only the
-semihosting runtimes can be used with GNATemulator.
+semihosting instead. Either runtime can be used with the Arm Morello SDP
+depending on your Text_IO needs, while only the semihosting runtimes can be
+used with GNATemulator.
 
 
 Getting Started
@@ -28,7 +29,7 @@ Project Properities page or by adding the following to your GPR file:
    for Runtime ("Ada") use "<your runtime choice>";
 
 After building your application you can run it either in GNATemulator or
-on the Arm Morello Development Platform.
+on the Arm Morello SDP.
 
 GNATemulator
 ~~~~~~~~~~~~
@@ -38,13 +39,13 @@ GNATemulator through GNAT Studio or from the command line with:
 
    morello-elf-gnatemu <executable>
 
-Arm Morello Development Platform
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Arm Morello System Development Platform
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Bare-metal applications can be run on the Arm Morello Development Platform as
-a BL33 image running at EL2. The BL33 image is booted by the Trusted Firmware-A
-(TF-A) bootloader on the Morello Development Platform and is created using the
-Morello toolchain hosted at https://git.morello-project.org/morello
+Bare-metal applications can be run on the Arm Morello SDP as a BL33 image
+running at EL2. The BL33 image is booted by the Trusted Firmware-A (TF-A)
+bootloader on the Morello SDP and is created using the Morello toolchain hosted
+at https://git.morello-project.org/morello
 
 Generating the Application Processor Image
 """"""""""""""""""""""""""""""""""""""""""
@@ -113,16 +114,16 @@ where:
 The AP image file (`fip.bin`) will be output at
 `<morello_workspace>/bsp/arm-tf/build/morello/release/fip.bin`
 
-Loading the AP Image onto the Arm Morello Development Platform
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Loading the AP Image onto the Arm Morello Software Development Platform
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-To load the AP image (`fip.bin`) onto the Arm Morello Development Platform's
+To load the AP image (`fip.bin`) onto the Arm Morello SDP's
 microSD card:
 
-#.  Connect the power cable to the Arm Morello Development Platform
+#.  Connect the power cable to the Arm Morello SDP
 #.  Connect a USB cable from your workstation to the DBG USB port on the back
-    panel of the Arm Morello Development Platform.
-#.  Turn on the Arm Morello Development Platform. After a short delay the board
+    panel of the Arm Morello SDP.
+#.  Turn on the Arm Morello SDP. After a short delay the board
     should power on and the microSD card should appear as a USB mass storage
     device.
 #.  Open a file browser and navigate to the SOFTWARE directory on the mounted
@@ -130,7 +131,7 @@ microSD card:
 #.  Replace the fip.bin file with the fip.bin that was created in the previous
     section.
 #.  Eject the microSD card's USB mass storage device to flush any pending writes.
-#.  Reboot the Arm Morello Development Platform.
+#.  Reboot the Arm Morello SDP.
 
 Resources used by the runtime
 -----------------------------
@@ -208,7 +209,7 @@ A set of default linker scripts are provided with the runtimes locate the Code
 and Data regions into RAM. These linker scripts can be found in the `ld`
 directory and consist of the following:
 
- * ``ram.ld``: defines the layout of the Arm Morello Development Platform and
+ * ``ram.ld``: defines the layout of the Arm Morello SDP and
    maps the memory regions defined above to the platform's RAM. Currently the
    linker script only provides a maps for the platform's RAM.
 
