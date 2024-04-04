@@ -289,3 +289,37 @@ System.Text_IO on the standard Morello runtimes uses UART0. UART0 is configured
 for 115200 baud with 8 data bits, one stop bit, and no parity. System.Text_IO
 on the semihosting Morello runtimes use Arm semihosting to print output using
 the debugger semihosting capabilities.
+
+CHERI
+-----
+
+Applications built using the GNAT Morello runtimes operate in pure capability
+mode using the C64 instruction set.
+
+Interfaces.CHERI
+~~~~~~~~~~~~~~~~
+
+The runtime provides the package Interfaces.CHERI which defines operations for
+manipulating CHERI capabilities. In GNAT for Morello the type `System.Address`
+is the 128-bit capability type.
+
+CHERI Exceptions
+~~~~~~~~~~~~~~~~
+
+The Morello SoC performs CHERI run-time checks at the hardware level and raises
+a processor exception when a run-time check fails. The Morello runtimes handle
+the processor exception and raise one of the following Ada exceptions:
+
+* `Interfaces.CHERI.Capability_Bound_Error` is raised when an out-of-bounds
+  access was attempted.
+* `Interfaces.CHERI.Capability_Permission_Error` is raised when an attempted
+   access exceeds the permissions granted by a capability.
+* `Interfaces.CHERI.Capability_Sealed_Error` is raised when a sealed capability
+   was dereferenced.
+* `Interfaces.CHERI.Capability_Tag_Error` is raised when an invalid capability
+   was dereferenced.
+
+The embedded runtimes support exception propagation and allow these exceptions
+to be caught and handled like regular Ada exceptions. The light and
+light-tasking runtimes do not support exception propagation and so the
+occurrence of any CHERI exception invokes the Last Chance Handler.
