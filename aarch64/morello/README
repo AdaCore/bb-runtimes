@@ -41,8 +41,96 @@ GNATemulator through GNAT Studio or from the command line with:
 Arm Morello Development Platform
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-<Dan to add to the good stuff here>
+Bare-metal applications can be run on the Arm Morello Development Platform as
+a BL33 image running at EL2. The BL33 image is booted by the Trusted Firmware-A
+(TF-A) bootloader on the Morello Development Platform and is created using the
+Morello toolchain hosted at https://git.morello-project.org/morello
 
+Generating the Application Processor Image
+""""""""""""""""""""""""""""""""""""""""""
+
+The following instructions describe the steps to produce the application
+processor (AP) image using the Morello toolchain. These instructions are
+derived from the Morello tooclhain documentation which can be found at:
+https://git.morello-project.org/morello/docs/-/tree/morello/release-1.5?ref_type=heads
+
+First, the host prerequisites for the Morello toolchain must be met. Refer to
+Section 2 in the following link for the list of prerequisites:
+https://git.morello-project.org/morello/docs/-/blob/morello/release-1.5/user-guide.rst#id6
+
+The Morello LLVM toolchain is also required to build the AP image. This can be
+obtained by cloning the morello/baremetal-release-1.5 branch from the
+Morello project's llvm-project-releases repository at:
+https://git.morello-project.org/morello/llvm-project-releases/-/tree/morello/baremetal-release-1.5?ref_type=heads
+
+   git clone https://git.morello-project.org/morello/llvm-project-releases.git
+   cd llvm-project-releases
+   git checkout morello/baremetal-release-1.5
+
+Once the prerequisites are met, a Morello workspace can be created and synced
+to obtain the sources necessary to build the AP image:
+
+   mkdir workspace
+   cd workspace
+   repo init \
+     -u https://git.morello-project.org/morello/manifest.git \
+     -b morello/release-1.5 \
+     -g bsp
+   repo sync
+
+The next step is to convert the executable output by GNAT into binary format:
+
+   morello-elf-objcopy -Obinary <executable> <executable>.bin
+
+where `<executable>` is the path to your executable that was built by GNAT.
+
+The AP image can now be produced using the Morello toolchain by running the
+following commands in your <morello_workspace>:
+
+   make -C "bsp/arm-tf" \
+     PLAT=morello TARGET_PLATFORM=soc ENABLE_MORELLO_CAP=1 \
+     CC="<llvm_project_release>/bin/clang" clean
+
+   MBEDTLS_DIR="<morello_workspace>/bsp/deps/mbedtls" \
+     CROSS_COMPILE="<morello_workspace>/tools/clang/bin/llvm-" \
+     make -C "bsp/arm-tf" \
+     CC="<llvm_project_release>/bin/clang" \
+     LD="<llvm_project_release>/bin/ld.lld" \
+     PLAT=morello ARCH=aarch64 TARGET_PLATFORM=soc ENABLE_MORELLO_CAP=1 \
+     E=0 TRUSTED_BOARD_BOOT=1 GENERATE_COT=1 ARM_ROTPK_LOCATION="devel_rsa" \
+     ROT_KEY="plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem" \
+     BL33="<executable>.bin" \
+     OPENSSL_DIR="<morello_workspace>/output/soc/intermediates/host_openssl/install" \
+     all fip
+
+where:
+* `<morello_workspace>` is the path to the Morello workspace.
+* `<llvm_project_release>` is the path to the llvm-project-release repository
+  that was cloned.
+* `<executable>.bin` is the path to the binary executable that was output by
+  `morello-elf-objcopy`.
+
+The AP image file (`fip.bin`) will be output at
+`<morello_workspace>/bsp/arm-tf/build/morello/release/fip.bin`
+
+Loading the AP Image onto the Arm Morello Development Platform
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+To load the AP image (`fip.bin`) onto the Arm Morello Development Platform's
+microSD card:
+
+#.  Connect the power cable to the Arm Morello Development Platform
+#.  Connect a USB cable from your workstation to the DBG USB port on the back
+    panel of the Arm Morello Development Platform.
+#.  Turn on the Arm Morello Development Platform. After a short delay the board
+    should power on and the microSD card should appear as a USB mass storage
+    device.
+#.  Open a file browser and navigate to the SOFTWARE directory on the mounted
+    microSD card.
+#.  Replace the fip.bin file with the fip.bin that was created in the previous
+    section.
+#.  Eject the microSD card's USB mass storage device to flush any pending writes.
+#.  Reboot the Arm Morello Development Platform.
 
 Resources used by the runtime
 -----------------------------
@@ -197,6 +285,6 @@ package named System.Text_IO. See the package body in the file `s-textio.adb`
 in the gnat directory for more details.
 
 System.Text_IO on the standard Morello runtimes uses UART0. UART0 is configured
-for <Dan to fill in the blank>. System.Text_IO on the semihosting Morello
-runtimes use Arm semihosting to print output using the debugger semihosting
-capabilities.
+for 115200 baud with 8 data bits, one stop bit, and no parity. System.Text_IO
+on the semihosting Morello runtimes use Arm semihosting to print output using
+the debugger semihosting capabilities.
