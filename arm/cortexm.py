@@ -739,6 +739,40 @@ class NRF52(ArmV7MTarget):
             'src/s-bcpcst__pendsv.adb')
 
 
+class NRF52833(NRF52):
+    @property
+    def name(self):
+        return "nrf52833"
+
+    @property
+    def use_semihosting_io(self):
+        return True
+
+    def __init__(self):
+        super(NRF52833, self).__init__()
+
+        self.add_gnat_sources(
+            "arm/nordic/nrf52/nrf52833/s-bbbopa.ads",
+            "arm/nordic/nrf52/nrf52833/setup_board.adb",
+            "arm/nordic/nrf52/nrf52833/svd/i-nrf52.ads",
+            "arm/nordic/nrf52/nrf52833/svd/i-nrf52-clock.ads",
+            "arm/nordic/nrf52/nrf52833/svd/i-nrf52-ficr.ads",
+            "arm/nordic/nrf52/nrf52833/svd/i-nrf52-gpio.ads",
+            "arm/nordic/nrf52/nrf52833/svd/i-nrf52-uicr.ads",
+            "arm/nordic/nrf52/nrf52833/svd/i-nrf52-nvmc.ads",
+            "arm/nordic/nrf52/nrf52833/svd/i-nrf52-rtc.ads",
+            "arm/nordic/nrf52/nrf52833/svd/i-nrf52-uart.ads",
+            "arm/nordic/nrf52/nrf52833/svd/i-nrf52-temp.ads",
+            "arm/nordic/nrf52/nrf52833/svd/i-nrf52-approtect.ads",
+        )
+
+        # ravenscar support
+        self.add_gnarl_sources(
+            "arm/nordic/nrf52/nrf52833/svd/handler.S",
+            "arm/nordic/nrf52/nrf52833/svd/a-intnam.ads",
+        )
+
+
 class NRF52840(NRF52):
     @property
     def name(self):
