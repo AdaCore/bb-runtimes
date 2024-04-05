@@ -49,7 +49,7 @@ pragma Restrictions (No_Implicit_Dynamic_Code);
 pragma Restrictions (No_Finalization);
 --  Controlled types are not supported in this run time
 
-pragma Profile (Ravenscar);
+pragma Profile (Jorvik);
 --  This is a Ravenscar run time
 
 pragma Restrictions (No_Task_At_Interrupt_Priority);
@@ -80,7 +80,7 @@ package System is
    Max_Base_Digits       : constant := Long_Long_Float'Digits;
    Max_Digits            : constant := Long_Long_Float'Digits;
 
-   Max_Mantissa          : constant := 63;
+   Max_Mantissa          : constant := Standard'Max_Integer_Size - 1;
    Fine_Delta            : constant := 2.0 ** (-Max_Mantissa);
 
    Tick                  : constant := 0.000_001;

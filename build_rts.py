@@ -25,6 +25,7 @@ from arm.cortexm import (
     Microbit,
     NRF52840,
     NRF52832,
+    NRF52833,
     MicrosemiM1,
     Stm32F0,
     RP2040Target,
@@ -175,6 +176,8 @@ def build_configs(target):
         t = LM3S()
     elif target == "microbit":
         t = Microbit()
+    elif target == "nrf52833":
+        t = NRF52833()
     elif target == "nrf52840":
         t = NRF52840()
     elif target == "nrf52832":

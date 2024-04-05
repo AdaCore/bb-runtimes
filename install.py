@@ -40,6 +40,7 @@ ALL_BSP = {
         "feather_stm32f405",
         "stm32f051r8-hsi",
         "nrf52832",
+        "nrf52833",
         "nrf52840",
         "cortex-m0",
         "cortex-m0p",
