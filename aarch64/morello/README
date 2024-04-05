@@ -11,13 +11,11 @@ Platform (SDP):
   * light-tasking-semihosting
   * embedded-morello-semihosting
 
-All runtimes operate in pure capability mode.
-
 The regular Morello runtimes are configured to use UART0 for Ada.Text_IO while
 the semihosting runtimes (the runtimes that end with "-semihosting") use
-semihosting instead. Either runtime can be used with the Arm Morello SDP
-depending on your Text_IO needs, while only the semihosting runtimes can be
-used with GNATemulator.
+semihosting instead.
+
+All runtimes operate in pure capability mode and can be used in GNATemulator.
 
 
 Getting Started
@@ -37,8 +35,8 @@ on the Arm Morello SDP.
 GNATemulator
 ~~~~~~~~~~~~
 
-Programs built with the Morello semihosting GNAT runtimes can be run in
-GNATemulator through GNAT Studio or from the command line with:
+Programs built with the Morello run-times can be run in GNATemulator through
+GNAT Studio or from the command line with:
 
    morello-elf-gnatemu <executable>
 
@@ -306,6 +304,9 @@ The runtime provides a minimal version of the Ada.Text_IO package supporting
 character- and string-based input and output routines for basic I/O needs. It
 is recommended to implement your own I/O packages based around your I/O
 channel of choice.
+
+*Note: the semihosting run-times only support text output when running in
+GNATemulator.*
 
 The bodies of the Ada.Text_IO routines call through to a device-specific I/O
 package named System.Text_IO. See the package body in the file `s-textio.adb`
