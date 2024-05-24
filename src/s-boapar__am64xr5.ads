@@ -137,6 +137,6 @@ package System.Board_Parameters is
             Access_Control  =>
               (XN                 => MD.Execute_All,
                AP                 => MD.Privileged_RW_User_RW,
-               TEX_S_C_B          => MD.Non_Shareable_Device))
+               TEX_S_C_B          => MD.Outer_Inner_WB_WA_NS))
      );
 end System.Board_Parameters;
