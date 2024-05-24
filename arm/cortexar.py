@@ -388,6 +388,10 @@ class Zynq7000(CortexARTarget):
         return "vfpv3"
 
     @property
+    def has_huge_memory(self):
+        return True
+
+    @property
     def compiler_switches(self):
         # The required compiler switches
         return (
