@@ -5,7 +5,7 @@ from support.bsp_sources.archsupport import ArchSupport
 class ArmFreeRTOS(Target):
     def __init__(self):
         super().__init__()
-        self.add_gnat_sources("src/s-macres__zynq.adb")
+        self.add_gnat_sources("src/s-macres__native.adb")
         self.add_linker_switch("-Wl,-r", loader=None)
         self.add_linker_switch("-nostdlib", loader=None)
 
