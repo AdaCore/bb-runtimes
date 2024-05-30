@@ -380,6 +380,7 @@ sources = {
         "conditions": ["RTS_Profile:light,cert"],
         "bb_srcs": ["hie/s-sssita.ads", "hie/s-sssita.adb"],
         "deos_srcs": ["hie/s-thread__cert.ads", "hie/s-thread__cert.adb"],
+        "freertos_srcs": ["hie/s-sssita.ads", "hie/s-sssita.adb"],
         "pikeos_srcs": [
             "hie/a-textio__pikeos-light.adb",
             "hie/s-sssita.ads",
