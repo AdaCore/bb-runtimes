@@ -13,6 +13,9 @@ class ArmFreeRTOS(Target):
     def target(self):
         return "arm-eabi"
 
+    def has_libc(self, profile):
+        return True
+
     @property
     def system_ads(self):
         return {
