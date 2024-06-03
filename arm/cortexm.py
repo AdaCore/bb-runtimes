@@ -1283,6 +1283,10 @@ class CortexM3(ArmV7MTarget):
         return "cortex-m3"
 
     @property
+    def has_single_precision_fpu(self):
+        return False
+
+    @property
     def has_fpu(self):
         return True
 
@@ -1306,6 +1310,10 @@ class CortexM4(ArmV7MTarget):
         return "cortex-m4"
 
     @property
+    def has_single_precision_fpu(self):
+        return False
+
+    @property
     def has_fpu(self):
         return True
 
@@ -1327,6 +1335,10 @@ class CortexM4F(CortexM4):
     @property
     def name(self):
         return "cortex-m4f"
+
+    @property
+    def has_single_precision_fpu(self):
+        return True
 
     @property
     def compiler_switches(self):
@@ -1373,6 +1385,10 @@ class CortexM7DF(CortexM7F):
     @property
     def name(self):
         return "cortex-m7df"
+
+    @property
+    def has_double_precision_fpu(self):
+        return True
 
     @property
     def compiler_switches(self):
