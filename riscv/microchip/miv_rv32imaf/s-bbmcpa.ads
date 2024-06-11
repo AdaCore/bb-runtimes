@@ -2,11 +2,11 @@
 --                                                                          --
 --                  GNAT RUN-TIME LIBRARY (GNARL) COMPONENTS                --
 --                                                                          --
---            S Y S T E M . B B . B O A R D _ P A R A M E T E R S           --
+--              S Y S T E M . B B . M C U _ P A R A M E T E R S             --
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---                   Copyright (C) 2016-2019, AdaCore                       --
+--                   Copyright (C) 2018-2019, AdaCore                       --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -32,18 +32,12 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-package System.BB.Board_Parameters is
+--  This package defines MCU parameters for the PolarFire Cortex-M1
+
+package System.BB.MCU_Parameters is
    pragma No_Elaboration_Code_All;
-   pragma Pure;
+   pragma Preelaborate;
 
-   --------------------
-   -- Hardware clock --
-   --------------------
+   Number_Of_Interrupts : constant := 32;
 
-   System_Clock : constant := 50_000_000;
-   --  Clock provided to the soft core
-
-   Clock_Frequency : constant := System_Clock;
-
-   UART_Base_Address : constant := 16#42000000#;
-end System.BB.Board_Parameters;
+end System.BB.MCU_Parameters;
