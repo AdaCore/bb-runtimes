@@ -1,12 +1,12 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                         GNAT RUN-TIME COMPONENTS                         --
+--                  GNAT RUN-TIME LIBRARY (GNARL) COMPONENTS                --
 --                                                                          --
---                   S Y S T E M .  M A C H I N E _ R E S E T               --
+--              S Y S T E M . B B . M C U _ P A R A M E T E R S             --
 --                                                                          --
---                                 B o d y                                  --
+--                                  S p e c                                 --
 --                                                                          --
---            Copyright (C) 2015-2021, Free Software Foundation, Inc.       --
+--                   Copyright (C) 2018-2019, AdaCore                       --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -27,49 +27,17 @@
 -- GNAT was originally developed  by the GNAT team at  New York University. --
 -- Extensive contributions were provided by Ada Core Technologies Inc.      --
 --                                                                          --
+-- The port of GNARL to bare board targets was initially developed by the   --
+-- Real-Time Systems Group at the Technical University of Madrid.           --
+--                                                                          --
 ------------------------------------------------------------------------------
 
-package body System.Machine_Reset is
+--  This package defines MCU parameters for the PolarFire Cortex-M1
 
-   procedure Os_Exit (Status : Integer) with
-     No_Return,
-     Export,
-     Convention    => C,
-     External_Name => "_exit";
+package System.BB.MCU_Parameters is
+   pragma No_Elaboration_Code_All;
+   pragma Preelaborate;
 
-   procedure Os_Abort with
-     No_Return,
-     Export,
-     Convention    => C,
-     External_Name => "abort";
+   Number_Of_Interrupts : constant := 32;
 
-   --------------
-   -- Os_Abort --
-   --------------
-
-   procedure Os_Abort is
-   begin
-      Os_Exit (1);
-   end Os_Abort;
-
-   -------------
-   -- Os_Exit --
-   -------------
-
-   procedure Os_Exit (Status : Integer) is
-      pragma Unreferenced (Status);
-   begin
-      loop
-         null;
-      end loop;
-   end Os_Exit;
-
-   ----------
-   -- Stop --
-   ----------
-
-   procedure Stop is
-   begin
-      Os_Exit (0);
-   end Stop;
-end System.Machine_Reset;
+end System.BB.MCU_Parameters;

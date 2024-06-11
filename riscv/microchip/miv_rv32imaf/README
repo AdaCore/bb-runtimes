@@ -1,0 +1,117 @@
+Microsemi MIV_RV32IMAF_L1_AHB Runtimes
+======================================
+
+This BSP supports the Microsemi MIV_RV32IMAF_L1_AHB softcore processor for
+the Microsemi FPGAs.
+
+Required FPGA IP
+----------------
+
+* MIV_RV32IMAF_L1_AHB
+* CoreUARTapb (for Ada.Text_IO)
+
+Runtimes Supported
+------------------
+
+* Light
+* Light Tasking
+* Embedded
+
+Using the runtimes
+------------------
+
+As a prerequisite, GNAT Pro for RISC-V32 ELF needs to be installed. To use the
+runtime, copy the runtime to the compiler installation or another location:
+
+(1) Compiler Installation
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Copy the runtime to the `<riscv32-elf gnat install>/riscv32-elf/lib/gnat/`
+folder. You can then select the runtime in GNAT Studio from the Toolchain pane
+of the Project Properties dialog box or set the following in your GPR file:
+
+   for Runtime ("ada") use "light-tasking-am64xr5";
+
+(2) Other Locations
+~~~~~~~~~~~~~~~~~~
+
+Move the runtime into another directory and then in the project file provide
+the full or relative path from the project file:
+
+   for Runtime ("ada") use "/path/to/runtime/embedded-miv_rv32imaf";
+
+Alternatively, you can set the GPR_RUNTIME_PATH to the folder containing the
+runtime to be able to just specify the runtime name.
+
+Rebuilding the Runtime
+----------------------
+
+If you need to make changes to the runtime's BSP you can rebuild with GPRbuild.
+
+For the Light runtime: gprbuild -P runtime_build.gpr
+
+For the Light-Tasking and Embedded runtimes: gprbuild -P ravenscar_build.gpr
+
+Note: if you were provided the runtime in a certification context, please reach
+out to AdaCore before modifying the runtime.
+
+Resources Used
+--------------
+
+The Light-Tasking and Embedded runtimes use the RISC-V mtime and mtimecmp
+registers to implement Ada semantics for time, i.e., delay statements and
+package Ada.Real_Time.
+
+Ada.Text_IO is configured to utilise the Microsemi CoreUARTapb IP. See the
+Text I/O section for more details.
+
+Memory Layout
+-------------
+
+The runtime is configured for the following memory space:
+
+  ram (rwx)    : ORIGIN = 0x80000000, LENGTH = 512K
+  ram_io (rwx) : ORIGIN = 0x70000000, LENGTH = 512K
+
+The size of each region can be modified by updating the linker script in
+ld/memory-map.ld.
+
+A single loader option is provided: RAM. The RAM loader stores and runs the
+program out of RAM at the memory address 0x80000000. Both the memory-map.ld
+and common-RAM.ld may be modified to suit the application.
+
+System Clock
+------------
+
+The runtime is configured for a 80 MHz clock. If your MIV_RV32IMAF_L1_AHB is
+fed with a different clock rate, update the System_Clock constant in
+System.BB.Board_Parameters (gnat/s-bbbopa.ads) and rebuild the runtime.
+
+Interrupts
+----------
+
+The runtime supports 32 IRQ interrupts. Interrupt priorities are not supported
+by the Light Tasking and Embedded runtimes. The interrupt names are located in
+Ada.Interrupts.Names (gnarl/a-intnam.ads).
+
+Text I/O
+--------
+
+The runtime provides a minimal version of the Ada.Text_IO package supporting
+character- and string-based input and output routines for basic I/O needs. It
+is recommended to implement your own I/O packages based around your I/O
+channel of choice.
+
+The bodies of the Ada.Text_IO routines call through to a device-specific I/O
+package named System.Text_IO. See the package body in the file `s-textio.adb`
+in the gnat directory for more details.
+
+System.Text_IO is configured to use CoreUARTapb at address 16#6010_0000#, with
+a 115200 baud rate, one stop bit, no parity using system clock source. It
+implements a simple polling UART driver.
+
+The base address of the CoreUARTapb can be changed in System.BB.Parameters
+(gnat/s-bbbopa.ads). The CoreUARTapb configuration in System.Text_IO package
+may be modified as required.
+
+The user is free to use the CoreUARTapb device if Ada.Text_IO is not used.

@@ -617,11 +617,12 @@ class MicrosemiM1(CortexM1CommonArchSupport):
         self.add_linker_script('arm/cortex-m1/microsemi/memory-map.ld')
 
         self.add_gnat_sources(
-            'arm/cortex-m1/microsemi/s-bbbopa.ads',
-            'arm/cortex-m1/microsemi/s-bbmcpa.ads',
-            'arm/cortex-m1/microsemi/s-textio.adb',
-            'arm/cortex-m1/microsemi/svd/i-microsemi.ads',
-            'arm/cortex-m1/microsemi/svd/i-microsemi-coreuartapb.ads')
+            "arm/cortex-m1/microsemi/s-bbbopa.ads",
+            "arm/cortex-m1/microsemi/s-bbmcpa.ads",
+            "src/s-textio__coreuartapb.adb",
+            "src/i-microsemi-coreuartapb.ads",
+            "src/i-microsemi.ads",
+        )
 
         self.add_gnarl_sources(
             'arm/cortex-m1/microsemi/a-intnam.ads')

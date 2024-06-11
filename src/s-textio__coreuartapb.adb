@@ -46,7 +46,7 @@ package body System.Text_IO is
 
       --  Divider for Baudrate
       CoreUARTapb_Periph.Control_1.Baud_Value :=
-         Byte (System.BB.Board_Parameters.Clock_Frequency /
+         Byte (System.BB.Board_Parameters.System_Clock /
                 (16 * Baud_Rate) - 1);
 
       CoreUARTapb_Periph.Control_2.Bit8 := True;
@@ -92,6 +92,6 @@ package body System.Text_IO is
    -- Use_Cr_Lf_For_New_Line --
    ----------------------------
 
-   function Use_Cr_Lf_For_New_Line return Boolean is (True);
+   function Use_Cr_Lf_For_New_Line return Boolean is (False);
 
 end System.Text_IO;

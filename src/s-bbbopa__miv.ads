@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---                   Copyright (C) 2016-2019, AdaCore                       --
+--                    Copyright (C) 2012-2020, AdaCore                      --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -32,6 +32,9 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+--  This package defines board parameters for the Mi-V soft cores from
+--  Microchip
+
 package System.BB.Board_Parameters is
    pragma No_Elaboration_Code_All;
    pragma Pure;
@@ -40,10 +43,44 @@ package System.BB.Board_Parameters is
    -- Hardware clock --
    --------------------
 
-   System_Clock : constant := 50_000_000;
-   --  Clock provided to the soft core
+   Clock_Scale : constant := 1;
+   --  Scaling factor for clock frequency. This is used to provide a clock
+   --  frequency that results in a definition of Time_Unit less than 20
+   --  microseconds (as Ada RM D.8 (30) requires).
 
-   Clock_Frequency : constant := System_Clock;
+   System_Clock : constant := 80_000_000;
+   --  Clock feed into the Mi-V soft core
 
-   UART_Base_Address : constant := 16#42000000#;
+   Timer_Frequency : constant Positive := System_Clock / 100;
+   --  Frequency of the mtime clock
+
+   Clock_Frequency : constant Positive := Timer_Frequency * Clock_Scale;
+   --  Scaled clock frequency
+
+   --  Core-Local Interruptor
+
+   CLINT_Base_Address    : constant := 16#4400_0000#;
+   CLINT_Mtime_Offset    : constant := 16#BFF8#;
+   CLINT_Mtimecmp_Offset : constant := 16#4000#;
+
+   Mtime_Base_Address : constant :=
+     CLINT_Base_Address + CLINT_Mtime_Offset;
+   --  Address of the memory mapped mtime register
+
+   Mtimecmp_Base_Address : constant :=
+     CLINT_Base_Address + CLINT_Mtimecmp_Offset;
+   --  Address of the memory mapped mtimecmp register
+
+   --  Platform Level Interrupt Controller
+
+   PLIC_Base_Address     : constant := 16#4000_0000#;
+   PLIC_Nbr_Of_Harts     : constant := 1;
+   PLIC_Nbr_Of_Sources   : constant := 32;
+   PLIC_Hart_Id          : constant := 0;
+   PLIC_Priority_Bits    : constant := 1;
+
+   --  Peripheral addresses
+
+   UART_Base_Address : constant := 16#6010_0000#;
+
 end System.BB.Board_Parameters;

@@ -38,7 +38,7 @@ from sparc import Leon2, Leon3, Leon4
 from powerpc import MPC5200, MPC8641, MPC8349e, Virtex5, P2020, P5566, P5634
 
 # riscv
-from riscv import Spike, PolarFireSOC, HiFive1, \
+from riscv import Spike, PolarFireSOC, HiFive1, MIV_RV32IMAF,\
      RV32I, RV32IM, RV32IAC, RV32IMAC, RV32IMAFC, RV32IMAFDC, \
      RV64IM, RV64IMC, RV64IMAC, RV64IMAFC, RV64IMFC, RV64IMAFDC
 
@@ -194,7 +194,9 @@ def build_configs(target):
         t = Spike()
     elif target == 'hifive1':
         t = HiFive1()
-    elif target == 'polarfiresoc':
+    elif target == "miv_rv32imaf":
+        t = MIV_RV32IMAF()
+    elif target == "polarfiresoc":
         t = PolarFireSOC()
     elif target == "rv32i":
         t = RV32I()

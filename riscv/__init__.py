@@ -151,6 +151,19 @@ class RiscV32(DFBBTarget):
     def has_timer_64(self):
         return True
 
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(RiscV32, self).dump_runtime_xml(rts_name, rts)
+        if rts_name == "embedded":
+            cnt = cnt.replace(
+                '"-nostartfiles"', '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"'
+            )
+        return cnt
+
+    def amend_rts(self, rts_profile, conf):
+        super(DFBBTarget, self).amend_rts(rts_profile, conf)
+        if rts_profile == "embedded":
+            conf.config_files.update({"link-zcx.spec": readfile("riscv/link-zcx.spec")})
+
 
 class HiFive1(RiscV32):
     @property
@@ -213,6 +226,84 @@ class HiFive1(RiscV32):
             'riscv/src/trap_handler.S',
             'riscv/src/s-bbripl.ads',
             'riscv/sifive/fe310/s-bbripl.adb')
+
+
+class MIV_RV32IMAF(RiscV32):
+    @property
+    def name(self):
+        return "miv_rv32imaf"
+
+    @property
+    def has_single_precision_fpu(self):
+        return True
+
+    @property
+    def has_double_precision_fpu(self):
+        return False
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ("-march=rv32imaf_zicsr", "-mabi=ilp32f")
+
+    @property
+    def has_small_memory(self):
+        return True
+
+    @property
+    def loaders(self):
+        return ("RAM",)
+
+    @property
+    def system_ads(self):
+        return {
+            "light": "system-xi-riscv.ads",
+            "light-tasking": "system-xi-riscv-one-irq-prio-light-tasking.ads",
+            "embedded": "system-xi-riscv-one-irq-prio-full.ads",
+        }
+
+    @property
+    def readme_file(self):
+        return "riscv/microchip/miv_rv32imaf/README"
+
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(MIV_RV32IMAF, self).dump_runtime_xml(rts_name, rts)
+        if rts_name == 'embedded':
+            cnt = cnt.replace('-lc', '-lsupc++,-lc')
+        return cnt
+
+    def __init__(self):
+        super(MIV_RV32IMAF, self).__init__()
+        self.add_linker_script("riscv/microchip/miv_rv32imaf/memory-map.ld")
+        self.add_linker_script(
+            "riscv/microchip/miv_rv32imaf/common-RAM.ld", loader="RAM"
+        )
+        self.add_gnat_sources(
+            "riscv/microchip/miv_rv32imaf/start-ram.S",
+            "riscv/sifive/fe310/svd/i-fe310.ads",
+            "riscv/sifive/fe310/svd/i-fe310-plic.ads",
+            "src/s-bbbopa__miv.ads",
+            "src/s-macres__none.adb",
+            "src/s-textio__coreuartapb.adb",
+            "src/i-microsemi-coreuartapb.ads",
+            "src/i-microsemi.ads",
+            "riscv/src/riscv_def.h",
+        )
+        self.add_gnarl_sources(
+            "riscv/microchip/miv_rv32imaf/a-intnam.ads",
+            "src/s-bbpara__riscv.ads",
+            "src/s-bbbosu__riscv.adb",
+            "src/s-bbsuti__riscv_clint.adb",
+            "src/s-bbsumu__generic.adb",
+            "src/s-bbcppr__new.ads",
+            "src/s-bbcppr__riscv.adb",
+            "src/s-bbcpsp__riscv.ads",
+            "src/s-bbcpsp__riscv.adb",
+            "riscv/src/context_switch.S",
+            "riscv/src/trap_handler.S",
+            "riscv/src/s-bbripl.ads",
+            "riscv/microchip/miv_rv32imaf/s-bbripl.adb",
+        )
 
 
 class RV32BASE(RiscV32):
