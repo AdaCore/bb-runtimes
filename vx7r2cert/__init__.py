@@ -133,6 +133,47 @@ class AArch64Vx7r2Cert(Vx7r2Cert64):
         super(AArch64Vx7r2Cert, self).__init__(is_rtp)
 
 
+class MorelloVx7r2Cert(AArch64Vx7r2Cert):
+    @property
+    def target(self):
+        return "morello-vx7r2"
+
+    @property
+    def name(self):
+        return f"morello-vx7r2cert{self._rtp_suffix}"
+
+    @property
+    def compiler_switches(self):
+        if self._is_rtp:
+            return ("-march=morello+c64", "-mabi=purecap")
+        else:
+            # Until the kernel supports purecap mode, just build a regular
+            # aarch64 kernel runtimes. This saves us from having to make a
+            # special morello exception in built_rts.py to exclude the kernel
+            # runtimes.
+            return ()
+
+    @property
+    def has_cheri(self):
+        return True
+
+    @property
+    def system_ads(self):
+        if self._is_rtp:
+            return {
+                "light": "system-vxworks7-arm-light-rtp.ads",
+                "light-tasking": "system-vxworks7-arm-ravenscar-sfp-rtp.ads",
+            }
+        else:
+            return {
+                "light": "system-vxworks7-arm-zfp.ads",
+                "light-tasking": "system-vxworks7-arm-ravenscar-sfp.ads",
+            }
+
+    def __init__(self, is_rtp=False):
+        super(MorelloVx7r2Cert, self).__init__(is_rtp)
+
+
 class ArmVx7r2Cert(Vx7r2Cert):
     @property
     def target(self):
@@ -275,6 +316,22 @@ class X86_64Vx7r2Cert(Vx7r2Cert64):
 class AArch64Vx7r2Cert_RTP(AArch64Vx7r2Cert):
     def __init__(self):
         super(AArch64Vx7r2Cert_RTP, self).__init__(is_rtp=True)
+
+
+class MorelloVx7r2Cert_RTP(MorelloVx7r2Cert):
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(MorelloVx7r2Cert_RTP, self).dump_runtime_xml(rts_name, rts)
+        # While Morello VxWorks Cert can't build a GOS_SAFETY profile VSB,
+        # link with the regular RTP libraries. Note: gprconfig_kb
+        # unfortunately forces -nostdlib, which is why we need to be explicit
+        # with the system library links.
+        return cnt.replace(
+            '"-l:certRtp.o"', '"-l:crt0.o", "-lc", "-lc_internal_s", "-lgcc"'
+        )
+
+    def __init__(self):
+        super(MorelloVx7r2Cert_RTP, self).__init__(is_rtp=True)
+        self.add_linker_switch("-Wl,--defsym=__wrs_rtp_base=0x80000000")
 
 
 class ArmVx7r2Cert_RTP(ArmVx7r2Cert):
