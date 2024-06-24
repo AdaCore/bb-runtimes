@@ -23,6 +23,10 @@ class Vx7r2Cert(Target):
     def is_legacy_format(self):
         return True
 
+    @property
+    def is_os_target(self):
+        return True
+
     def has_libc(self, profile):
         return True
 

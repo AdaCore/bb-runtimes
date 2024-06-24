@@ -45,6 +45,14 @@ class TargetConfiguration(object):
         return self.is_pikeos
 
     @property
+    def is_os_target(self):
+        """Whether the target is an operating system
+
+        By default we assume we are targeting a bare-metal system."""
+
+        return False
+
+    @property
     def is_native(self):
         return self.target is None or "native" in self.target
 
@@ -277,27 +285,32 @@ class Target(TargetConfiguration, ArchSupport):
         ret += "<gprconfig>\n"
         ret += "  <configuration>\n"
         ret += "    <config><![CDATA[\n"
-        if self.loaders is not None:
-            # Add USER loader so users can always specify their own linker
-            # script. To ensure the USER loader is always used for this
-            # purpose it cannot be defined by a target
-            assert "USER" not in self.loaders, "target cannot define USER loader"
 
-            loaders = list(self.loaders) + ["USER"]
-        else:
-            assert len(self.ld_scripts) <= 1, (
-                "target configuration error: no loader specified and several"
-                " ld scripts are defined"
-            )
-            if len(self.ld_scripts) == 1:
-                loaders = ["DEFAULT", "USER"]
-                self.ld_scripts[0].add_loader("DEFAULT")
+        # Add LOADER selection for bare-metal targets
+
+        if not self.is_os_target:
+            if self.loaders is not None:
+                # Add USER loader so users can always specify their own linker
+                # script. To ensure the USER loader is always used for this
+                # purpose it cannot be defined by a target
+                assert "USER" not in self.loaders, "target cannot define USER loader"
+
+                loaders = list(self.loaders) + ["USER"]
             else:
-                loaders = ["USER"]
+                assert len(self.ld_scripts) <= 1, (
+                    "target configuration error: no loader specified and several"
+                    " ld scripts are defined"
+                )
+                if len(self.ld_scripts) == 1:
+                    loaders = ["DEFAULT", "USER"]
+                    self.ld_scripts[0].add_loader("DEFAULT")
+                else:
+                    loaders = ["USER"]
 
-        ret += '   type Loaders is ("%s");\n' % '", "'.join(loaders)
-        ret += '   Loader : Loaders := external("LOADER", "%s");\n\n' % loaders[0]
+            ret += '   type Loaders is ("%s");\n' % '", "'.join(loaders)
+            ret += '   Loader : Loaders := external("LOADER", "%s");\n\n' % loaders[0]
 
+        # Add Compiler pacakge
         ret += "   package Compiler is\n"
 
         compiler_switches = self.compiler_switches + self.global_compiler_switches
@@ -327,6 +340,7 @@ class Target(TargetConfiguration, ArchSupport):
             ret += ";\n"
         ret += "   end Compiler;\n\n"
 
+        # Add Linker package
         switches = []
         for sw in self.ld_switches:
             if sw["loader"] is None or sw["loader"] == "":
@@ -340,14 +354,13 @@ class Target(TargetConfiguration, ArchSupport):
         indent = 9
         blank = indent * " "
 
-        if self.name == "qnx":
-            # QNX does not require additional linker switches. If -nostartfiles
-            # or -nolibc are used the binary will exit with a Memory fault.
-            # Since we link with libc on this platform we can't use -nostdlib
-            # either.
+        # Runtime specific linker switches
+        if self.is_os_target:
+            # For OS targets, runtime specific switches are defined in the
+            # target packages.
             pass
         elif rts.rts_vars["RTS_Profile"] != "embedded":
-            # For the ZFP and Ravenscar SFP runtime we have the choice of
+            # For the Light and Light Tasking runtimes we have the choice of
             # either using libgcc or our Ada libgcc replacement. For the
             # later choice we do not link with any of the standard libraries.
             if rts.rts_vars["Certifiable_Packages"] == "yes":
@@ -355,11 +368,11 @@ class Target(TargetConfiguration, ArchSupport):
             else:
                 ret += blank + '"-nostartfiles", "-nolibc",'
         else:
-            # In the Embedded case, the runtime depends on
-            # functionalities from newlib, such as memory allocation. This
-            # runtime also does not support the certifiable packages option.
-            # Also, there's interdependencies between libgnarl and libgnat,
-            # so we need to force -lgnarl at link time, always.
+            # In the Embedded case, the runtime depends on functionalities
+            # from newlib, such as memory allocation. This runtime also does
+            # not support the certifiable packages option. Also, there's
+            # interdependencies between libgnarl and libgnat, so we need to
+            # force -lgnarl at link time, always.
             #
             # We provide the link arguments for libc ourselves. Inhibit the
             # gcc mechanism doing so with -nolibc first. Then we need to
@@ -378,54 +391,63 @@ class Target(TargetConfiguration, ArchSupport):
                 )
             )
 
-        # Add the user script path first, so that they have precedence
-        ret += "\n" + blank + '"-L${RUNTIME_DIR(ada)}/ld_user"'
-        # And then our own script(s), if any
-        if len(self.ld_scripts) > 0:
-            ret += ",\n" + blank + '"-L${RUNTIME_DIR(ada)}/ld"'
+        # Add linker paths (only needed for bare-metal runtimes)
+        if not self.is_os_target:
+            # Add the user script path first, so that they have precedence
+            ret += "\n" + blank + '"-L${RUNTIME_DIR(ada)}/ld_user"'
+            # And then our own script(s), if any
+            if len(self.ld_scripts) > 0:
+                ret += ",\n" + blank + '"-L${RUNTIME_DIR(ada)}/ld"'
 
+        # Add remaining linker switches
         if len(switches) > 0:
-            ret += ",\n" + blank
+            if not ret.endswith(",\n"):
+                ret += ",\n"
+            ret += blank
             ret += (",\n" + blank).join(switches)
             blank = indent * " "
+        if ret.endswith(",\n"):
+            ret = ret[:-2]
         ret += ") &\n" + blank + "Compiler.Common_Required_Switches;\n"
         indent = 6
         blank = indent * " "
 
-        if loaders is not None:
-            ret += "\n" + blank
-            ret += "case Loader is\n"
-            indent += 3
-            blank = indent * " "
-
-            for loader in loaders:
-                ret += blank
-                ret += 'when "%s" =>\n' % loader
-                if loader == "USER":
-                    continue
+        # Add LOADER specific options (only needed for bare-metal runtimes)
+        if not self.is_os_target:
+            if loaders is not None:
+                ret += "\n" + blank
+                ret += "case Loader is\n"
                 indent += 3
                 blank = indent * " "
 
-                switches = []
-                for val in self.ld_scripts:
-                    if val.loaders is None or loader in val.loaders:
-                        switches.append('"-T", "%s"' % val.name)
-                for sw in self.ld_switches:
-                    if is_string(sw["loader"]) and sw["loader"] == loader:
-                        switches.append('"%s"' % sw["switch"])
-                    if isinstance(sw["loader"], list) and loader in sw["loader"]:
-                        switches.append('"%s"' % sw["switch"])
-                if len(switches) > 0:
+                for loader in loaders:
                     ret += blank
-                    ret += "for Required_Switches use Linker'Required_Switches"
-                    ret += " &\n" + blank + "  "
-                    ret += "(%s);\n" % (",\n   " + blank).join(switches)
+                    ret += 'when "%s" =>\n' % loader
+                    if loader == "USER":
+                        continue
+                    indent += 3
+                    blank = indent * " "
+
+                    switches = []
+                    for val in self.ld_scripts:
+                        if val.loaders is None or loader in val.loaders:
+                            switches.append('"-T", "%s"' % val.name)
+                    for sw in self.ld_switches:
+                        if is_string(sw["loader"]) and sw["loader"] == loader:
+                            switches.append('"%s"' % sw["switch"])
+                        if isinstance(sw["loader"], list) and loader in sw["loader"]:
+                            switches.append('"%s"' % sw["switch"])
+                    if len(switches) > 0:
+                        ret += blank
+                        ret += "for Required_Switches use Linker'Required_Switches"
+                        ret += " &\n" + blank + "  "
+                        ret += "(%s);\n" % (",\n   " + blank).join(switches)
+                    indent -= 3
+                    blank = indent * " "
+
                 indent -= 3
                 blank = indent * " "
-
-            indent -= 3
-            blank = indent * " "
-            ret += "%send case;\n" % blank
+                ret += "%send case;\n" % blank
 
         ret += (
             "   end Linker;\n"

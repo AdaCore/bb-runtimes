@@ -20,6 +20,10 @@ class PikeOS(Target):
     def pikeos_target(self):
         raise Exception("not implemented")
 
+    @property
+    def is_os_target(self):
+        return True
+
     def has_libc(self, profile):
         # PikeOS is considered Bare Metal, and we don't provide newlib on
         # this target
