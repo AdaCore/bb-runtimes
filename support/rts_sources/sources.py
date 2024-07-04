@@ -274,6 +274,16 @@ sources = {
             "hie/a-textio__deos.adb",
             "hie/s-macres.ads",
         ],
+        "freertos_srcs": [
+            "hie/s-textio__freertos.ads",
+            "hie/s-textio__freertos.adb",
+            "hie/s-macres.ads",
+            "hie/a-textio__c.ads",
+            "hie/a-textio__c.adb",
+            "hie/g-io__zfp.ads",
+            "hie/g-io__zfp.adb",
+            "hie/g-io-put.adb",
+        ],
         "pikeos_srcs": [
             "hie/a-textio.ads",
             "exit.c",
@@ -341,6 +351,7 @@ sources = {
             "hie/s-memory__light.ads",
         ],
         "bb_srcs": ["hie/a-elchha__zfp.adb"],
+        "freertos_srcs": ["hie/a-elchha__zfp.adb"],
         "pikeos_srcs": ["hie/a-elchha__zfp.adb"],
         "qnx_srcs": [
             "hie/a-elchha__traceback.adb",
@@ -369,6 +380,7 @@ sources = {
         "conditions": ["RTS_Profile:light,cert"],
         "bb_srcs": ["hie/s-sssita.ads", "hie/s-sssita.adb"],
         "deos_srcs": ["hie/s-thread__cert.ads", "hie/s-thread__cert.adb"],
+        "freertos_srcs": ["hie/s-sssita.ads", "hie/s-sssita.adb"],
         "pikeos_srcs": [
             "hie/a-textio__pikeos-light.adb",
             "hie/s-sssita.ads",
@@ -1292,6 +1304,23 @@ sources = {
             "hie/a-nallfl__light.ads",
             "libgnat/a-naliop__nolibm.ads",
         ],
+        "freertos_srcs": [
+            "hie/a-ngelfu__ada.ads",
+            "hie/a-ngelfu__ada.adb",
+            "hie/a-nlelfu__ada.ads",
+            "hie/a-nuelfu__ada.ads",
+            "hie/s-gcmain__ada.ads",
+            "hie/s-gcmain__ada.adb",
+            "hie/s-libdou__ada.ads",
+            "hie/s-libdou__ada.adb",
+            "hie/s-libsin__ada.ads",
+            "hie/s-libsin__ada.adb",
+            "hie/s-lidosq__ada.ads",
+            "hie/s-lisisq__ada.ads",
+            "hie/s-libm__ada.ads",
+            "hie/s-libm__ada.adb",
+            "hie/s-libpre__ada.ads",
+        ],
         "pikeos_srcs": [
             "hie/a-ngelfu__ada.ads",
             "hie/a-ngelfu__ada.adb",
@@ -1339,6 +1368,7 @@ sources = {
     "math/long_long_64bit": {
         "conditions": ["Add_Math_Lib:!no", "CPU_Family:!x86,!x86_64"],
         "bb_srcs": ["libgnat/a-nllefu.ads"],
+        "freertos_srcs": ["libgnat/a-nllefu.ads"],
         "pikeos_srcs": ["libgnat/a-nllefu.ads"],
     },
     "math/long_long_80bit": {
@@ -1390,21 +1420,25 @@ sources = {
     "math/softsp": {
         "conditions": ["Add_Math_Lib:softfloat,hardfloat_dp"],
         "bb_srcs": ["hie/s-lisisq__ada.adb"],
+        "freertos_srcs": ["hie/s-lisisq__ada.adb"],
         "pikeos_srcs": ["hie/s-lisisq__ada.adb"],
     },
     "math/softdp": {
         "conditions": ["Add_Math_Lib:softfloat,hardfloat_sp"],
         "bb_srcs": ["hie/s-lidosq__ada.adb"],
+        "freertos_srcs": ["hie/s-lidosq__ada.adb"],
         "pikeos_srcs": ["hie/s-lidosq__ada.adb"],
     },
     "math/hardsp": {
         "conditions": ["Add_Math_Lib:hardfloat,hardfloat_sp"],
         "bb_srcs": ["hie/s-lisisq__fpu.adb"],
+        "freertos_srcs": ["hie/s-lisisq__fpu.adb"],
         "pikeos_srcs": ["hie/s-lisisq__fpu.adb"],
     },
     "math/harddp": {
         "conditions": ["Add_Math_Lib:hardfloat,hardfloat_dp"],
         "bb_srcs": ["hie/s-lidosq__fpu.adb"],
+        "freertos_srcs": ["hie/s-lidosq__fpu.adb"],
         "pikeos_srcs": ["hie/s-lidosq__fpu.adb"],
     },
     # Arithmetic
@@ -2188,14 +2222,17 @@ sources = {
     "gnat/parameters/light-small": {
         "conditions": ["RTS_Profile:light", "Memory_Profile:small"],
         "bb_srcs": ["hie/s-parame__zfp_small.ads"],
+        "freertos_srcs": ["hie/s-parame__zfp_small.ads"],
     },
     "gnat/parameters/light-large": {
         "conditions": ["RTS_Profile:light", "Memory_Profile:large"],
         "bb_srcs": ["hie/s-parame__zfp.ads"],
+        "freertos_srcs": ["hie/s-parame__zfp.ads"],
     },
     "gnat/parameters/light-huge": {
         "conditions": ["RTS_Profile:light", "Memory_Profile:huge"],
         "bb_srcs": ["hie/s-parame__zfp_huge.ads"],
+        "freertos_srcs": ["hie/s-parame__zfp_huge.ads"],
     },
     # Cert
     "cert": {
