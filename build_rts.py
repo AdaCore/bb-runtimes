@@ -88,12 +88,14 @@ from native import Aarch64Native, X86Native, X8664Native
 # vx7r2cert
 from vx7r2cert import (
     AArch64Vx7r2Cert,
+    MorelloVx7r2Cert,
     ArmVx7r2Cert,
     PPCVx7r2Cert,
     PPC64Vx7r2Cert,
     X86Vx7r2Cert,
     X86_64Vx7r2Cert,
     AArch64Vx7r2Cert_RTP,
+    MorelloVx7r2Cert_RTP,
     ArmVx7r2Cert_RTP,
     PPCVx7r2Cert_RTP,
     PPC64Vx7r2Cert_RTP,
@@ -286,6 +288,8 @@ def build_configs(target):
     # vx7r2cert
     elif target == "aarch64-vx7r2cert":
         t = AArch64Vx7r2Cert()
+    elif target == "morello-vx7r2cert":
+        t = MorelloVx7r2Cert()
     elif target == "arm-vx7r2cert":
         t = ArmVx7r2Cert()
     elif target == "ppc-vx7r2cert":
@@ -298,6 +302,8 @@ def build_configs(target):
         t = X86_64Vx7r2Cert()
     elif target == "aarch64-vx7r2cert-rtp":
         t = AArch64Vx7r2Cert_RTP()
+    elif target == "morello-vx7r2cert-rtp":
+        t = MorelloVx7r2Cert_RTP()
     elif target == "arm-vx7r2cert-rtp":
         t = ArmVx7r2Cert_RTP()
     elif target == "ppc-vx7r2cert-rtp":

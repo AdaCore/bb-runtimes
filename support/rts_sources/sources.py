@@ -2035,41 +2035,6 @@ sources = {
             "libgnarl/s-tpobmu.adb",
         ],
     },
-    "gnarl/specs/arm": {
-        "conditions": ["Is_RTP:yes", "CPU_Family:aarch64,arm"],
-        "vx7r2cert_srcs": [
-            "hie/vxworks7-cert-rtp-base-link.spec",
-            "hie/vxworks7-cert-rtp-link.spec",
-        ],
-    },
-    "gnarl/specs/ppc": {
-        "conditions": ["Is_RTP:yes", "CPU_Family:powerpc"],
-        "vx7r2cert_srcs": [
-            "hie/vxworks7-cert-rtp-base-link.spec",
-            "hie/vxworks7-cert-rtp-link__ppcXX.spec",
-        ],
-    },
-    "gnarl/specs/ppc64": {
-        "conditions": ["Is_RTP:yes", "CPU_Family:powerpc64"],
-        "vx7r2cert_srcs": [
-            "hie/vxworks7-cert-rtp-base-link__ppc64.spec",
-            "hie/vxworks7-cert-rtp-link__ppcXX.spec",
-        ],
-    },
-    "gnarl/specs/x86": {
-        "conditions": ["Is_RTP:yes", "CPU_Family:x86"],
-        "vx7r2cert_srcs": [
-            "hie/vxworks7-cert-rtp-base-link__x86.spec",
-            "hie/vxworks7-cert-rtp-link.spec",
-        ],
-    },
-    "gnarl/specs/x86_64": {
-        "conditions": ["Is_RTP:yes", "CPU_Family:x86_64"],
-        "vx7r2cert_srcs": [
-            "hie/vxworks7-cert-rtp-base-link__x86_64.spec",
-            "hie/vxworks7-cert-rtp-link.spec",
-        ],
-    },
     "gnarl/vx7r2cert": {
         "conditions": ["Is_RTP:no"],
         "vx7r2cert_srcs": {
