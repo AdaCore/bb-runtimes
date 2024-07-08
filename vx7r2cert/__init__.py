@@ -3,12 +3,6 @@ from support.bsp_sources.target import Target
 
 
 class Vx7r2Cert(Target):
-    def __init__(self, is_rtp):
-        self._is_rtp = is_rtp
-        self._rtp_suffix = "-rtp" if self._is_rtp else ""
-        super(Vx7r2Cert, self).__init__()
-        self.add_gnat_sources("src/s-macres__vx7r2cert.adb")
-
     @property
     def has_command_line_arguments(self):
         return True
@@ -32,26 +26,21 @@ class Vx7r2Cert(Target):
     def has_libc(self, profile):
         return True
 
-    def dump_runtime_xml(self, rts_name, rts):
-        compiler_package = """
-            -- Prevent optimizations turning some loop patterns into
-            -- libc calls, e.g. string length computations into strlen,
-            -- as these introduce undesirable (for cert) dependencies
-            -- against external symbols.
-            package Compiler is
-              Common_Required_Switches :=
-                ("-fno-tree-loop-distribute-patterns");
-              for Leading_Required_Switches ("Ada") use
-                Compiler'Leading_Required_Switches ("Ada") &
-                Common_Required_Switches;
-              for Leading_Required_Switches ("C") use
-                Compiler'Leading_Required_Switches ("C") &
-                Common_Required_Switches;
-            end Compiler;
-        """
-        return readfile(f"vx7r2cert/runtime{self._rtp_suffix}.xml") % {
-            "compiler": compiler_package
-        }
+    @property
+    def loaders(self):
+        if self._is_rtp:
+            # We reuse the existing LOADER infrastructure to select between
+            # full and partial linking options.
+            return ("FULL_LINK", "PARTIAL_LINK")
+        else:
+            return None
+
+    @property
+    def compiler_switches(self):
+        if self._is_rtp:
+            return ("-mrtp",)
+        else:
+            return ()
 
     def amend_rts(self, rts_profile, cfg):
         if self._is_rtp:
@@ -61,6 +50,41 @@ class Vx7r2Cert(Target):
                 "-DCERT_RTP",
                 "-D_WRS_VXCERT_RTP",
             ]
+
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(Vx7r2Cert, self).dump_runtime_xml(rts_name, rts)
+
+        if self._is_rtp:
+            cnt = cnt.replace(
+                "   package Linker is",
+                '   VSB_Dir := external ("VSB_DIR");\n\n   package Linker is\n',
+            )
+            cnt = cnt.replace("_vsb_dir_env_", '" & VSB_DIR & "')
+
+        return cnt
+
+    def __init__(self, is_rtp):
+        self._is_rtp = is_rtp
+        self._rtp_suffix = "-rtp" if self._is_rtp else ""
+        super(Vx7r2Cert, self).__init__()
+
+        self.add_gnat_sources("src/s-macres__vx7r2cert.adb")
+
+        if self._is_rtp:
+            # Provide the required switches to perform a full RTP link.
+            # Switches for partial link are performed by the GNATbench
+            # makefiles.
+            self.add_linker_switch("-nodefaultlibs", loader="FULL_LINK")
+            self.add_linker_switch("-nostartfiles", loader="FULL_LINK")
+            self.add_linker_switch("-l:certRtp.o", loader="FULL_LINK")
+            self.add_linker_switch(
+                "-L_vsb_dir_env_/usr/lib/common/objcert", loader="FULL_LINK"
+            )
+            self.add_linker_switch(
+                "-T_vsb_dir_env_/usr/ldscripts/rtp.ld", loader="FULL_LINK"
+            )
+        else:
+            self.add_linker_switch("-nostdlib")
 
 
 class Vx7r2Cert64(Vx7r2Cert):
@@ -72,9 +96,6 @@ class Vx7r2Cert64(Vx7r2Cert):
 
 
 class AArch64Vx7r2Cert(Vx7r2Cert64):
-    def __init__(self, is_rtp=False):
-        super(AArch64Vx7r2Cert, self).__init__(is_rtp)
-
     @property
     def target(self):
         return "aarch64-vx7r2"
@@ -104,11 +125,11 @@ class AArch64Vx7r2Cert(Vx7r2Cert64):
             "-fno-omit-frame-pointer",
         ]
 
+    def __init__(self, is_rtp=False):
+        super(AArch64Vx7r2Cert, self).__init__(is_rtp)
+
 
 class ArmVx7r2Cert(Vx7r2Cert):
-    def __init__(self, is_rtp=False):
-        super(ArmVx7r2Cert, self).__init__(is_rtp)
-
     @property
     def target(self):
         return "arm-vx7r2"
@@ -137,11 +158,11 @@ class ArmVx7r2Cert(Vx7r2Cert):
             "-fno-omit-frame-pointer",
         ]
 
+    def __init__(self, is_rtp=False):
+        super(ArmVx7r2Cert, self).__init__(is_rtp)
+
 
 class PPCVx7r2Cert(Vx7r2Cert):
-    def __init__(self, is_rtp=False):
-        super(PPCVx7r2Cert, self).__init__(is_rtp)
-
     @property
     def target(self):
         return "ppc-vx7r2"
@@ -160,11 +181,11 @@ class PPCVx7r2Cert(Vx7r2Cert):
                 "light-tasking": "system-vxworks7-ppc-ravenscar-sfp.ads",
             }
 
+    def __init__(self, is_rtp=False):
+        super(PPCVx7r2Cert, self).__init__(is_rtp)
+
 
 class PPC64Vx7r2Cert(Vx7r2Cert64):
-    def __init__(self, is_rtp=False):
-        super(PPC64Vx7r2Cert, self).__init__(is_rtp)
-
     @property
     def target(self):
         return "ppc64-vx7r2"
@@ -183,11 +204,11 @@ class PPC64Vx7r2Cert(Vx7r2Cert64):
                 "light-tasking": "system-vxworks7-ppc64-ravenscar-sfp.ads",
             }
 
+    def __init__(self, is_rtp=False):
+        super(PPC64Vx7r2Cert, self).__init__(is_rtp)
+
 
 class X86Vx7r2Cert(Vx7r2Cert):
-    def __init__(self, is_rtp=False):
-        super(X86Vx7r2Cert, self).__init__(is_rtp)
-
     @property
     def target(self):
         return "x86-vx7r2"
@@ -206,11 +227,11 @@ class X86Vx7r2Cert(Vx7r2Cert):
                 "light-tasking": "system-vxworks7-x86-ravenscar-sfp.ads",
             }
 
+    def __init__(self, is_rtp=False):
+        super(X86Vx7r2Cert, self).__init__(is_rtp)
+
 
 class X86_64Vx7r2Cert(Vx7r2Cert64):
-    def __init__(self, is_rtp=False):
-        super(X86_64Vx7r2Cert, self).__init__(is_rtp)
-
     @property
     def target(self):
         return "x86_64-vx7r2"
@@ -239,6 +260,13 @@ class X86_64Vx7r2Cert(Vx7r2Cert64):
             "-fno-omit-frame-pointer",
         ]
 
+    def __init__(self, is_rtp=False):
+        super(X86_64Vx7r2Cert, self).__init__(is_rtp)
+
+
+# RTP note: the -Wl,--defsym=__wrs_rtp_base= linker switch is defined in the
+# gprconfig_kb database.
+
 
 class AArch64Vx7r2Cert_RTP(AArch64Vx7r2Cert):
     def __init__(self):
@@ -253,11 +281,13 @@ class ArmVx7r2Cert_RTP(ArmVx7r2Cert):
 class PPCVx7r2Cert_RTP(PPCVx7r2Cert):
     def __init__(self):
         super(PPCVx7r2Cert_RTP, self).__init__(is_rtp=True)
+        self.add_linker_switch("-lgnu", loader="FULL_LINK")
 
 
 class PPC64Vx7r2Cert_RTP(PPC64Vx7r2Cert):
     def __init__(self):
         super(PPC64Vx7r2Cert_RTP, self).__init__(is_rtp=True)
+        self.add_linker_switch("-lgnu", loader="FULL_LINK")
 
 
 class X86Vx7r2Cert_RTP(X86Vx7r2Cert):
