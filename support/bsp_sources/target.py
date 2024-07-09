@@ -286,9 +286,14 @@ class Target(TargetConfiguration, ArchSupport):
         ret += "  <configuration>\n"
         ret += "    <config><![CDATA[\n"
 
-        # Add LOADER selection for bare-metal targets
-
-        if not self.is_os_target:
+        # Add LOADER selection. For bare metal targets we always have loaders
+        # (the linker scripts used to load the program to memory). OS targets
+        # may or may not use loaders. If they do, it may be used to influence
+        # the linking behaviour rather than purely specifying linker scripts.
+        if self.is_os_target:
+            if self.loaders is not None:
+                loaders = list(self.loaders)
+        else:
             if self.loaders is not None:
                 # Add USER loader so users can always specify their own linker
                 # script. To ensure the USER loader is always used for this
@@ -307,6 +312,7 @@ class Target(TargetConfiguration, ArchSupport):
                 else:
                     loaders = ["USER"]
 
+        if self.loaders is not None:
             ret += '   type Loaders is ("%s");\n' % '", "'.join(loaders)
             ret += '   Loader : Loaders := external("LOADER", "%s");\n\n' % loaders[0]
 
@@ -412,42 +418,41 @@ class Target(TargetConfiguration, ArchSupport):
         indent = 6
         blank = indent * " "
 
-        # Add LOADER specific options (only needed for bare-metal runtimes)
-        if not self.is_os_target:
-            if loaders is not None:
-                ret += "\n" + blank
-                ret += "case Loader is\n"
+        # Add LOADER specific options
+        if self.loaders is not None:
+            ret += "\n" + blank
+            ret += "case Loader is\n"
+            indent += 3
+            blank = indent * " "
+
+            for loader in loaders:
+                ret += blank
+                ret += 'when "%s" =>\n' % loader
+                if loader == "USER":
+                    continue
                 indent += 3
                 blank = indent * " "
 
-                for loader in loaders:
+                switches = []
+                for val in self.ld_scripts:
+                    if val.loaders is None or loader in val.loaders:
+                        switches.append('"-T", "%s"' % val.name)
+                for sw in self.ld_switches:
+                    if is_string(sw["loader"]) and sw["loader"] == loader:
+                        switches.append('"%s"' % sw["switch"])
+                    if isinstance(sw["loader"], list) and loader in sw["loader"]:
+                        switches.append('"%s"' % sw["switch"])
+                if len(switches) > 0:
                     ret += blank
-                    ret += 'when "%s" =>\n' % loader
-                    if loader == "USER":
-                        continue
-                    indent += 3
-                    blank = indent * " "
-
-                    switches = []
-                    for val in self.ld_scripts:
-                        if val.loaders is None or loader in val.loaders:
-                            switches.append('"-T", "%s"' % val.name)
-                    for sw in self.ld_switches:
-                        if is_string(sw["loader"]) and sw["loader"] == loader:
-                            switches.append('"%s"' % sw["switch"])
-                        if isinstance(sw["loader"], list) and loader in sw["loader"]:
-                            switches.append('"%s"' % sw["switch"])
-                    if len(switches) > 0:
-                        ret += blank
-                        ret += "for Required_Switches use Linker'Required_Switches"
-                        ret += " &\n" + blank + "  "
-                        ret += "(%s);\n" % (",\n   " + blank).join(switches)
-                    indent -= 3
-                    blank = indent * " "
-
+                    ret += "for Required_Switches use Linker'Required_Switches"
+                    ret += " &\n" + blank + "  "
+                    ret += "(%s);\n" % (",\n   " + blank).join(switches)
                 indent -= 3
                 blank = indent * " "
-                ret += "%send case;\n" % blank
+
+            indent -= 3
+            blank = indent * " "
+            ret += "%send case;\n" % blank
 
         ret += (
             "   end Linker;\n"
