@@ -290,9 +290,11 @@ class Target(TargetConfiguration, ArchSupport):
         # (the linker scripts used to load the program to memory). OS targets
         # may or may not use loaders. If they do, it may be used to influence
         # the linking behaviour rather than purely specifying linker scripts.
+        target_loaders = None
+
         if self.is_os_target:
             if self.loaders is not None:
-                loaders = list(self.loaders)
+                target_loaders = list(self.loaders)
         else:
             if self.loaders is not None:
                 # Add USER loader so users can always specify their own linker
@@ -300,21 +302,24 @@ class Target(TargetConfiguration, ArchSupport):
                 # purpose it cannot be defined by a target
                 assert "USER" not in self.loaders, "target cannot define USER loader"
 
-                loaders = list(self.loaders) + ["USER"]
+                target_loaders = list(self.loaders) + ["USER"]
             else:
                 assert len(self.ld_scripts) <= 1, (
                     "target configuration error: no loader specified and several"
                     " ld scripts are defined"
                 )
                 if len(self.ld_scripts) == 1:
-                    loaders = ["DEFAULT", "USER"]
+                    target_loaders = ["DEFAULT", "USER"]
                     self.ld_scripts[0].add_loader("DEFAULT")
                 else:
-                    loaders = ["USER"]
+                    target_loaders = ["USER"]
 
-        if self.loaders is not None:
-            ret += '   type Loaders is ("%s");\n' % '", "'.join(loaders)
-            ret += '   Loader : Loaders := external("LOADER", "%s");\n\n' % loaders[0]
+        if target_loaders is not None:
+            ret += '   type Loaders is ("%s");\n' % '", "'.join(target_loaders)
+            ret += (
+                '   Loader : Loaders := external("LOADER", "%s");\n\n'
+                % target_loaders[0]
+            )
 
         # Add Compiler pacakge
         ret += "   package Compiler is\n"
@@ -419,13 +424,13 @@ class Target(TargetConfiguration, ArchSupport):
         blank = indent * " "
 
         # Add LOADER specific options
-        if self.loaders is not None:
+        if target_loaders is not None:
             ret += "\n" + blank
             ret += "case Loader is\n"
             indent += 3
             blank = indent * " "
 
-            for loader in loaders:
+            for loader in target_loaders:
                 ret += blank
                 ret += 'when "%s" =>\n' % loader
                 if loader == "USER":
