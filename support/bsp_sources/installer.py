@@ -172,7 +172,7 @@ class Installer(object):
                 ret += self._get_rts_dirs(sub, scenarios)
         return ret
 
-    def install(self, destination, rts_descriptor=None):
+    def install(self, destination, rts_descriptor=None, profiles=None):
         # Build target directories
         destination = os.path.abspath(destination)
         if not os.path.exists(destination):
@@ -183,6 +183,11 @@ class Installer(object):
         projects = []
 
         for rts_base_name, rts_obj in self.tgt.runtimes.items():
+            # If we have been given a list of profiles, skip the profiles that
+            # are not in the list.
+            if profiles is not None and rts_base_name not in profiles:
+                continue
+
             if self.tgt.is_native or self.tgt.is_legacy_format:
                 rtsname = "rts-%s" % rts_base_name
                 if self.tgt.name.endswith("vx7r2cert-rtp"):

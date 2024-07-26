@@ -339,7 +339,7 @@ class Target(TargetConfiguration, ArchSupport):
 
         ret += "\n"
 
-        for lang in ("Ada", "C", "Asm", "Asm2", "Asm_Cpp"):
+        for lang in ("Ada", "C", "C++", "Asm", "Asm2", "Asm_Cpp"):
             w = "      "
             ret += w + 'for Leading_Required_Switches ("%s") use\n' % lang
             w = "         "
