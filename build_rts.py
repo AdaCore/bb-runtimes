@@ -370,6 +370,11 @@ def main():
     parser.add_argument(
         "target", nargs="+", help="List of target boards to generate runtimes for"
     )
+    parser.add_argument(
+        "--profiles",
+        type=str,
+        help="Comma seperated list of profiles to generate runtimes for",
+    )
     args = parser.parse_args()
 
     if args.verbose:
@@ -417,7 +422,11 @@ def main():
         print("install runtime sources for %s" % board.name)
         sys.stdout.flush()
         installer = Installer(board)
-        projects += installer.install(dest, rts_descriptor=args.rts_src_descriptor)
+        projects += installer.install(
+            dest,
+            rts_descriptor=args.rts_src_descriptor,
+            profiles=args.profiles.split(","),
+        )
 
     # and build them
     if args.build:
