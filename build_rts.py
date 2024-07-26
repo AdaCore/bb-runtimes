@@ -425,7 +425,7 @@ def main():
         projects += installer.install(
             dest,
             rts_descriptor=args.rts_src_descriptor,
-            profiles=args.profiles.split(","),
+            profiles=args.profiles.split(",") if args.profiles is not None else None,
         )
 
     # and build them
