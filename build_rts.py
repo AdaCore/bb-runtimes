@@ -59,9 +59,10 @@ from powerpc import MPC5200, MPC8641, MPC8349e, Virtex5, P2020, P5566, P5634
 
 # riscv
 from riscv import (
-    Spike,
-    PolarFireSOC,
     HiFive1,
+    MIV_RV32IMAF,
+    PolarFireSOC,
+    Spike,
     RV32I,
     RV32IM,
     RV32IAC,
@@ -249,6 +250,8 @@ def build_configs(target):
         t = Spike()
     elif target == "hifive1":
         t = HiFive1()
+    elif target == "miv_rv32imaf":
+        t = MIV_RV32IMAF()
     elif target == "polarfiresoc":
         t = PolarFireSOC()
     elif target == "rv32i":
