@@ -7,8 +7,6 @@
 pragma Ada_2012;
 pragma Style_Checks (Off);
 
-with System;
-
 --  Microsemi FPGA IP
 package Interfaces.Microsemi is
    pragma Preelaborate;
@@ -79,11 +77,4 @@ package Interfaces.Microsemi is
      with Size => 30;
    type UInt31 is mod 2**31
      with Size => 31;
-
-   --------------------
-   -- Base addresses --
-   --------------------
-
-   CoreUARTapb_Base : constant System.Address := System'To_Address (16#42000000#);
-
 end Interfaces.Microsemi;
