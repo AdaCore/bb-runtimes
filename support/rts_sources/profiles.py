@@ -141,10 +141,10 @@ class RTSProfiles(object):
                 ret["Has_FMA"] = "no"
             elif cpu in ("riscv32", "r7"):
                 ret["CPU_Family"] = "riscv32"
-                ret["Has_FMA"] = "yes" if self.config.has_fpu else "no"
+                ret["Has_FMA"] = "yes" if self.config.has_double_precision_fpu else "no"
             elif cpu in ("riscv64",):
                 ret["CPU_Family"] = "riscv64"
-                ret["Has_FMA"] = "yes" if self.config.has_fpu else "no"
+                ret["Has_FMA"] = "yes" if self.config.has_double_precision_fpu else "no"
             else:
                 print("Unexpected cpu %s" % cpu)
                 sys.exit(2)
