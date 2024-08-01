@@ -13,9 +13,6 @@ package Ada.Interrupts.Names is
    -- Interrupts --
    ----------------
 
-   --  System tick
-   Sys_Tick_Interrupt : constant Interrupt_ID := -1;
-
    --  Target Specific Names
 
    Timer_0 : constant Interrupt_ID := 8;
