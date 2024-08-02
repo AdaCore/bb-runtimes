@@ -30,7 +30,7 @@ Copy the runtime to the `<riscv32-elf gnat install>/riscv32-elf/lib/gnat/`
 folder. You can then select the runtime in GNAT Studio from the Toolchain pane
 of the Project Properties dialog box or set the following in your GPR file:
 
-   for Runtime ("ada") use "light-tasking-am64xr5";
+   for Runtime ("ada") use "embedded-miv_rv32imaf";
 
 (2) Other Locations
 ~~~~~~~~~~~~~~~~~~
