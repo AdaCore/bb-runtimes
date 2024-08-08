@@ -33,7 +33,7 @@ class X86Native(Native):
 
     @property
     def system_ads(self):
-        return {"light": "system-xi-x86.ads"}
+        return {"light": "system-native-x86-light.ads"}
 
 
 class X8664Native(Native):
@@ -47,7 +47,7 @@ class X8664Native(Native):
 
     @property
     def system_ads(self):
-        return {"light": "system-xi-x86_64.ads"}
+        return {"light": "system-native-x86-light.ads"}
 
 
 class Aarch64Native(Native):
@@ -61,4 +61,4 @@ class Aarch64Native(Native):
 
     @property
     def system_ads(self):
-        return {"light": "system-xi-arm.ads"}
+        return {"light": "system-native-arm-light.ads"}
