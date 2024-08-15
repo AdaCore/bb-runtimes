@@ -5,6 +5,7 @@ class Linux(DFBBTarget):
     def __init__(self):
         super().__init__()
         self.add_gnat_sources("src/s-macres__native.adb")
+        self.add_gnarl_sources("linux/adaint.c")
 
     def has_libc(self, profile):
         return True
@@ -34,7 +35,10 @@ class X86Linux(Linux):
 
     @property
     def system_ads(self):
-        return {"light": "system-native-x86-light.ads"}
+        return {
+            "light": "system-native-x86-light.ads",
+            "light-tasking": "system-native-x86-light-tasking.ads",
+        }
 
 
 class X8664Linux(Linux):
@@ -48,7 +52,10 @@ class X8664Linux(Linux):
 
     @property
     def system_ads(self):
-        return {"light": "system-native-x86-light.ads"}
+        return {
+            "light": "system-native-x86-light.ads",
+            "light-tasking": "system-native-x86-light-tasking.ads",
+        }
 
 
 class Aarch64Linux(Linux):
@@ -62,4 +69,7 @@ class Aarch64Linux(Linux):
 
     @property
     def system_ads(self):
-        return {"light": "system-native-arm-light.ads"}
+        return {
+            "light": "system-native-arm-light.ads",
+            "light-tasking": "system-native-arm-light-tasking.ads",
+        }

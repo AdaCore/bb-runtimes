@@ -5,9 +5,9 @@
 --                               S Y S T E M                                --
 --                                                                          --
 --                                 S p e c                                  --
---                              (ARM Version)                               --
+--                            (x86-64 Version)                              --
 --                                                                          --
---          Copyright (C) 1992-2024, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2023, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -49,8 +49,12 @@ pragma Restrictions (No_Implicit_Dynamic_Code);
 pragma Restrictions (No_Finalization);
 --  Controlled types are not supported in this run time
 
-pragma Restrictions (No_Tasking);
---  Tasking is not supported in this run time
+pragma Restrictions (No_Use_Of_Pragma => Attach_Handler);
+pragma Restrictions (No_Specification_Of_Aspect => Attach_Handler);
+--  This pragma is not supported by the Ravenscar Cert profile
+
+pragma Profile (Jorvik);
+--  This is a bare metal tasking runtime
 
 package System is
    pragma Pure;
@@ -78,7 +82,7 @@ package System is
    Max_Mantissa          : constant := Standard'Max_Integer_Size - 1;
    Fine_Delta            : constant := 2.0 ** (-Max_Mantissa);
 
-   Tick                  : constant := 0.0;
+   Tick                  : constant := 0.000_001;
 
    --  Storage-related Declarations
 
@@ -113,14 +117,24 @@ package System is
 
    --  Priority-related Declarations (RM D.1)
 
-   Max_Priority           : constant Positive := 30;
-   Max_Interrupt_Priority : constant Positive := 31;
+   --  0 .. 98 corresponds to the system priority range 1 .. 99.
+   --
+   --  If the scheduling policy is SCHED_FIFO or SCHED_RR the runtime makes use
+   --  of the entire range provided by the system.
+   --
+   --  If the scheduling policy is SCHED_OTHER the only valid system priority
+   --  is 1 and other values are simply ignored.
 
-   subtype Any_Priority       is Integer      range  0 .. 31;
-   subtype Priority           is Any_Priority range  0 .. 30;
-   subtype Interrupt_Priority is Any_Priority range 31 .. 31;
+   Max_Priority           : constant Positive := 97;
+   Max_Interrupt_Priority : constant Positive := 98;
 
-   Default_Priority : constant Priority := 15;
+   subtype Any_Priority       is Integer      range  0 .. 98;
+   subtype Priority           is Any_Priority range  0 .. 97;
+   subtype Interrupt_Priority is Any_Priority range 98 .. 98;
+
+   Default_Priority : constant Priority := 48;
+   --  By default, the priority assigned is the one in the middle of the
+   --  Priority range.
 
 private
 
