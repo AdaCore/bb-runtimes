@@ -447,6 +447,11 @@ sources = {
             "libgnat/s-parame__vxworks.adb",
             "hie/s-init__light.ads",
         ],
+        "linux_srcs": [
+            "libgnat/s-parame.ads",
+            "libgnat/s-parame__qnx.adb",
+            "hie/s-init__light.ads",
+        ],
         "qnx_srcs": [
             "libgnat/s-parame.ads",
             "libgnat/s-parame__qnx.adb",
@@ -2048,6 +2053,22 @@ sources = {
             "hie/s-tpobmu.adb",
             "hie/s-osinte.ads",
         ],
+        "linux_srcs": [
+            "libgnarl/a-reatim.ads",
+            "libgnarl/a-reatim.adb",
+            "hie/s-multip__raven-default.ads",
+            "hie/s-multip__raven-default.adb",
+            "libgnarl/s-taspri__posix.ads",
+            "hie/s-osinte__linux-light-tasking.ads",
+            "hie/s-osinte__linux-light-tasking.adb",
+            "hie/s-taprop__raven-cert.ads",
+            "hie/s-taprop__linux-light-tasking.adb",
+            "hie/s-tpopsp__posix-raven-cert.adb",
+            "hie/s-musplo.adb",
+            "libgnarl/s-tpobmu.adb",
+            "libgnarl/s-linux.ads",
+            "libgnat/s-oslock__posix.ads",
+        ],
         "pikeos_srcs": [
             "libgnarl/a-interr.ads",
             "hie/a-interr__raven.adb",
@@ -2113,6 +2134,7 @@ sources = {
     },
     "gnarl/aarch64": {
         "conditions": ["CPU_Family:aarch64"],
+        "linux_srcs": ["hie/s-oscons__linux-aarch64.ads"],
         "vx7r2cert_srcs": ["libgnarl/s-vxwork__aarch64.ads"],
     },
     "gnarl/arm": {
@@ -2124,7 +2146,13 @@ sources = {
         "vx7r2cert_srcs": ["libgnarl/s-vxwork__ppc.ads"],
     },
     "gnarl/x86": {
-        "conditions": ["CPU_Family:x86,x86_64"],
+        "conditions": ["CPU_Family:x86"],
+        "linux_srcs": ["hie/s-oscons__linux-x86.ads"],
+        "vx7r2cert_srcs": ["libgnarl/s-vxwork__x86.ads"],
+    },
+    "gnarl/x86_64": {
+        "conditions": ["CPU_Family:x86_64"],
+        "linux_srcs": ["hie/s-oscons__linux-x86_64.ads"],
         "vx7r2cert_srcs": ["libgnarl/s-vxwork__x86.ads"],
     },
     "gnarl/pikeos3": {
