@@ -2188,6 +2188,8 @@ sources = {
             "hie/s-taskin__full.ads",
             "hie/s-tposen__xi-full.adb",
             "hie/s-tposen__xi-full.ads",
+            "libgnarl/s-putaim.adb",
+            "libgnarl/s-putaim.ads",
         ],
         "bb_srcs": ["hie/s-btstch.ads", "hie/s-btstch.adb"],
     },
