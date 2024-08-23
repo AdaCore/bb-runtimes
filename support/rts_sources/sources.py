@@ -284,6 +284,16 @@ sources = {
             "hie/g-io__zfp.adb",
             "hie/g-io-put.adb",
         ],
+        "linux_srcs": [
+            "hie/a-textio.ads",
+            "hie/a-textio__libc.adb",
+            "hie/g-io__zfp.ads",
+            "hie/g-io__zfp.adb",
+            "hie/g-io-put.adb",
+            "hie/s-macres.ads",
+            "hie/s-textio__libc.ads",
+            "hie/s-textio__libc.adb",
+        ],
         "pikeos_srcs": [
             "hie/a-textio.ads",
             "exit.c",
@@ -312,10 +322,10 @@ sources = {
             "hie/g-io__zfp.adb",
             "hie/g-io-put.adb",
             "hie/a-textio.ads",
-            "hie/a-textio__qnx.adb",
+            "hie/a-textio__libc.adb",
             "hie/s-macres.ads",
-            "hie/s-textio__qnx.ads",
-            "hie/s-textio__qnx.adb",
+            "hie/s-textio__libc.ads",
+            "hie/s-textio__libc.adb",
         ],
     },
     "common/32": {
@@ -352,6 +362,7 @@ sources = {
         ],
         "bb_srcs": ["hie/a-elchha__zfp.adb"],
         "freertos_srcs": ["hie/a-elchha__zfp.adb"],
+        "linux_srcs": ["hie/a-elchha__zfp.adb"],
         "pikeos_srcs": ["hie/a-elchha__zfp.adb"],
         "qnx_srcs": [
             "hie/a-elchha__traceback.adb",
@@ -381,6 +392,7 @@ sources = {
         "bb_srcs": ["hie/s-sssita.ads", "hie/s-sssita.adb"],
         "deos_srcs": ["hie/s-thread__cert.ads", "hie/s-thread__cert.adb"],
         "freertos_srcs": ["hie/s-sssita.ads", "hie/s-sssita.adb"],
+        "linux_srcs": ["hie/s-sssita.ads", "hie/s-sssita.adb"],
         "pikeos_srcs": [
             "hie/a-textio__pikeos-light.adb",
             "hie/s-sssita.ads",
@@ -1357,6 +1369,19 @@ sources = {
             "hie/s-libm__ada.adb",
             "hie/s-libpre__ada.ads",
         ],
+        "linux_srcs": [
+            "hie/a-ngelfu__cert.ads",
+            "hie/a-ngelfu__cert.adb",
+            "hie/a-nlelfu__cert.ads",
+            "hie/a-nuelfu__cert.ads",
+            "hie/s-gcmain__cert.ads",
+            "hie/s-gcmain__cert.adb",
+            "hie/a-nllefu__cert.ads",
+            "hie/a-nuaufl__light.ads",
+            "hie/a-nalofl__light.ads",
+            "hie/a-nallfl__light.ads",
+            "libgnat/a-naliop.ads",
+        ],
         "pikeos_srcs": [
             "hie/a-ngelfu__ada.ads",
             "hie/a-ngelfu__ada.adb",
@@ -2224,16 +2249,19 @@ sources = {
         "conditions": ["RTS_Profile:light", "Memory_Profile:small"],
         "bb_srcs": ["hie/s-parame__zfp_small.ads"],
         "freertos_srcs": ["hie/s-parame__zfp_small.ads"],
+        "linux_srcs": ["hie/s-parame__zfp_small.ads"],
     },
     "gnat/parameters/light-large": {
         "conditions": ["RTS_Profile:light", "Memory_Profile:large"],
         "bb_srcs": ["hie/s-parame__zfp.ads"],
         "freertos_srcs": ["hie/s-parame__zfp.ads"],
+        "linux_srcs": ["hie/s-parame__zfp.ads"],
     },
     "gnat/parameters/light-huge": {
         "conditions": ["RTS_Profile:light", "Memory_Profile:huge"],
         "bb_srcs": ["hie/s-parame__zfp_huge.ads"],
         "freertos_srcs": ["hie/s-parame__zfp_huge.ads"],
+        "linux_srcs": ["hie/s-parame__zfp_huge.ads"],
     },
     # Cert
     "cert": {
