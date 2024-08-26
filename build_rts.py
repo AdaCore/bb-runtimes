@@ -283,11 +283,11 @@ def build_configs(target):
         t = X8664Generic()
     # native platforms
     elif target in ("x86-linux", "x86-windows"):
-        t = X86Native()
+        t = X86Native(target)
     elif target in ("x86_64-linux", "x86_64-windows", "x86_64-windows64"):
-        t = X8664Native()
+        t = X8664Native(target)
     elif target in ("aarch64-linux",):
-        t = Aarch64Native()
+        t = Aarch64Native(target)
     # vx7r2cert
     elif target == "aarch64-vx7r2cert":
         t = AArch64Vx7r2Cert()

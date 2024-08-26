@@ -2,9 +2,14 @@ from support.bsp_sources.target import DFBBTarget
 
 
 class Native(DFBBTarget):
-    def __init__(self):
+    def __init__(self, target):
         super().__init__()
         self.add_gnat_sources("src/s-macres__native.adb")
+        # Use the bb source of s-textio for Windows as a custom
+        # source profile is not yet supported.
+        # eng/toolchain/bb-runtimes#78
+        if "windows" in target:
+            self.add_gnat_sources("src/s-textio__stdio.adb")
 
     @property
     def target(self):
