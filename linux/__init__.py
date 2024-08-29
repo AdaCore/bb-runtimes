@@ -1,22 +1,17 @@
 from support.bsp_sources.target import DFBBTarget
 
 
-class Native(DFBBTarget):
-    def __init__(self, target):
+class Linux(DFBBTarget):
+    def __init__(self):
         super().__init__()
         self.add_gnat_sources("src/s-macres__native.adb")
-        # Use the bb source of s-textio for Windows as a custom
-        # source profile is not yet supported.
-        # eng/toolchain/bb-runtimes#78
-        if "windows" in target:
-            self.add_gnat_sources("src/s-textio__stdio.adb")
-
-    @property
-    def target(self):
-        return None
 
     def has_libc(self, profile):
         return True
+
+    @property
+    def name(self):
+        return self.target
 
     def dump_runtime_xml(self, rts_name, rts):
         return (
@@ -27,24 +22,25 @@ class Native(DFBBTarget):
             "</gprconfig>\n"
         )
 
-    def amend_rts(self, rts_profile, cfg):
-        super().amend_rts(rts_profile, cfg)
-
-
-class X86Native(Native):
     @property
-    def name(self):
-        return "native-x86"
+    def is_legacy_format(self):
+        return True
+
+
+class X86Linux(Linux):
+    @property
+    def target(self):
+        return "x86-linux"
 
     @property
     def system_ads(self):
         return {"light": "system-native-x86-light.ads"}
 
 
-class X8664Native(Native):
+class X8664Linux(Linux):
     @property
-    def name(self):
-        return "native-x86_64"
+    def target(self):
+        return "x86_64-linux"
 
     @property
     def is_64bit(self):
@@ -55,10 +51,10 @@ class X8664Native(Native):
         return {"light": "system-native-x86-light.ads"}
 
 
-class Aarch64Native(Native):
+class Aarch64Linux(Linux):
     @property
-    def name(self):
-        return "native-aarch64"
+    def target(self):
+        return "aarch64-linux"
 
     @property
     def is_64bit(self):
