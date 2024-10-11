@@ -46,6 +46,7 @@ with System.BB.Board_Support;
 with Interfaces;
 with Interfaces.AArch64;     use Interfaces.AArch64;
 with Interfaces.CHERI;       use Interfaces.CHERI;
+with Interfaces.CHERI.Exceptions; use Interfaces.CHERI.Exceptions;
 
 package body System.BB.CPU_Primitives is
    use System.BB.Threads;

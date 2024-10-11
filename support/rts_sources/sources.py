@@ -348,7 +348,11 @@ sources = {
     },
     "common/cheri": {
         "conditions": ["Has_CHERI:yes"],
-        "srcs": ["libgnat/i-cheri.ads", "libgnat/i-cheri.adb"],
+        "srcs": [
+            "libgnat/i-cheri.ads",
+            "libgnat/i-cheri.adb",
+            "libgnat/i-cheri-exceptions.ads",
+        ],
     },
     "light": {
         "conditions": ["RTS_Profile:light,light-tasking,cert"],

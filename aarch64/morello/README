@@ -277,14 +277,14 @@ processor exceptions when a run-time check fails. The Morello runtimes handle
 these exceptions and raise one of the following Ada exceptions in response at
 the source location where the exception occurred:
 
-* `Interfaces.CHERI.Capability_Bound_Error` is raised when an out-of-bounds
-  access was attempted.
-* `Interfaces.CHERI.Capability_Permission_Error` is raised when an attempted
-   access exceeds the permissions granted by a capability.
-* `Interfaces.CHERI.Capability_Sealed_Error` is raised when a sealed capability
-   was dereferenced.
-* `Interfaces.CHERI.Capability_Tag_Error` is raised when an invalid capability
-   was dereferenced.
+* `Interfaces.CHERI.Exceptions.Capability_Bound_Error` is raised when an
+  out-of-bounds access was attempted.
+* `Interfaces.CHERI.Exceptions.Capability_Permission_Error` is raised when an
+  attempted access exceeds the permissions granted by a capability.
+* `Interfaces.CHERI.Exceptions.Capability_Sealed_Error` is raised when a sealed
+  capability was dereferenced.
+* `Interfaces.CHERI.Exceptions.Capability_Tag_Error` is raised when an invalid
+  capability was dereferenced.
 
 The embedded runtimes support exception propagation and allow these exceptions
 to be caught and handled like regular Ada exceptions. The light and
