@@ -41,6 +41,7 @@ with System.BB.Parameters;       use System.BB.Parameters;
 with System.BB.MCU_Parameters;
 with System.BB.Board_Parameters; use System.BB.Board_Parameters;
 with System.STM32;               use System.STM32;
+with System.Machine_Reset;
 
 procedure Setup_Pll is
    procedure Initialize_Clocks;
@@ -157,11 +158,15 @@ procedure Setup_Pll is
            "Cannot generate requested clock");
 
       --  Cannot be checked at compile time, depends on APB1_PRE and APB2_PRE
-      pragma Assert
-        (HCLK not in HCLK_Range
-           or else PCLK1 not in PCLK1_Range
-           or else PCLK2 not in PCLK2_Range,
-         "Invalid AHB/APB prescalers configuration");
+      if HCLK not in HCLK_Range
+         or else PCLK1 not in PCLK1_Range
+         or else PCLK2 not in PCLK2_Range
+      then
+         --  Invalid AHB/APB prescalers configuration.
+         --  We cannot raise an exception here as the runtime is not fully
+         --  initialized yet.
+         System.Machine_Reset.Stop;
+      end if;
 
       --  PWR clock enable
 
