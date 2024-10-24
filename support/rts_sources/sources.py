@@ -453,7 +453,6 @@ sources = {
         ],
         "linux_srcs": [
             "libgnat/s-parame.ads",
-            "libgnat/s-parame__qnx.adb",
             "hie/s-init__light.ads",
         ],
         "qnx_srcs": [
@@ -2134,7 +2133,10 @@ sources = {
     },
     "gnarl/aarch64": {
         "conditions": ["CPU_Family:aarch64"],
-        "linux_srcs": ["hie/s-oscons__linux-aarch64.ads"],
+        "linux_srcs": [
+            "hie/s-oscons__linux-aarch64.ads",
+            "libgnat/s-parame__aarch64-linux.adb",
+        ],
         "vx7r2cert_srcs": ["libgnarl/s-vxwork__aarch64.ads"],
     },
     "gnarl/arm": {
@@ -2147,12 +2149,18 @@ sources = {
     },
     "gnarl/x86": {
         "conditions": ["CPU_Family:x86"],
-        "linux_srcs": ["hie/s-oscons__linux-x86.ads"],
+        "linux_srcs": [
+            "hie/s-oscons__linux-x86.ads",
+            "libgnat/s-parame.adb",
+        ],
         "vx7r2cert_srcs": ["libgnarl/s-vxwork__x86.ads"],
     },
     "gnarl/x86_64": {
         "conditions": ["CPU_Family:x86_64"],
-        "linux_srcs": ["hie/s-oscons__linux-x86_64.ads"],
+        "linux_srcs": [
+            "hie/s-oscons__linux-x86_64.ads",
+            "libgnat/s-parame.adb",
+        ],
         "vx7r2cert_srcs": ["libgnarl/s-vxwork__x86.ads"],
     },
     "gnarl/pikeos3": {
