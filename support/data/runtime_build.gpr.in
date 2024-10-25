@@ -64,12 +64,13 @@ project Runtime_Build is
     for Proof_Switches ("Ada") use ("-j0", "--level=2", "--function-sandboxing=off", "--counterexamples=off");
 
     --  Specialize the command-line for more complex units (-j0 is implied)
+    for Proof_Switches ("a-strmap.adb") use ("--level=3");
     for Proof_Switches ("a-strfix.adb") use ("--level=4");
     for Proof_Switches ("a-strsea.adb") use ("--level=4");
     for Proof_Switches ("a-strsup.adb") use ("--level=4", "--timeout=30");
     for Proof_Switches ("i-c.adb") use ("--level=4", "--timeout=120");
     for Proof_Switches ("s-arit32.adb") use ("--level=3", "--prover=all");
-    for Proof_Switches ("s-arit64.adb") use ("--level=3", "--prover=all");
+    for Proof_Switches ("s-arit64.adb") use ("--level=4", "--prover=all");
     for Proof_Switches ("s-expmod.adb") use ("--level=2");
     for Proof_Switches ("s-imgboo.adb") use ("--level=3");
     for Proof_Switches ("s-valboo.adb") use ("--level=3");
