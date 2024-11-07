@@ -154,7 +154,7 @@ SECTIONS
       CPU0. This allows use with the Light and Tasking run times. */
 
    __cpu0_irq_stack_start = .;
-   *(.interrupt_stacks)
+   *(.noinit.interrupt_stacks)
    . = MAX(., __cpu0_irq_stack_start + _IRQ_STACK_SIZE);
    . = ALIGN(0x8);
    __cpu0_irq_stack_end = .;

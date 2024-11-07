@@ -113,7 +113,7 @@ SECTIONS
 
    /* Interrupt stacks. Statically allocated in System.BB.Interrupts */
    __interrupt_stack_start = .;
-   *(.interrupt_stacks)
+   *(.noinit.interrupt_stacks)
    . = ALIGN(0x10); /* Align stack to 128 bits as required in the ABI */
    __interrupt_stack_end = .;
 

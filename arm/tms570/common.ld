@@ -154,7 +154,7 @@ SECTIONS
        This allows use with either Light or Tasking run times. */
 
     __irq_stack_start = .;
-    *(.interrupt_stacks)
+    *(.noinit.interrupt_stacks)
     . = MAX(., __irq_stack_start + _IRQ_STACK_SIZE);
     . = ALIGN(0x8);
     __irq_stack_end = .;
