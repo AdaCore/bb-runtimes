@@ -95,13 +95,19 @@ class Aarch64Target(DFBBTarget):
     def dump_runtime_xml(self, rts_name, rts):
         cnt = super(Aarch64Target, self).dump_runtime_xml(rts_name, rts)
         if rts_name == "embedded":
-            cnt = cnt.replace(
-                '"-nostartfiles"',
-                (
-                    '"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
-                    '        "-nostartfiles"'
-                ),
-            )
+            if using_llvm_compiler():
+                cnt = cnt.replace(
+                    '"-nolibc"',
+                    '"-Wl,--eh-frame-hdr", "-nolibc"',
+                )
+            else:
+                cnt = cnt.replace(
+                    '"-nostartfiles"',
+                    (
+                        '"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
+                        '         "-nostartfiles"'
+                    ),
+                )
         return cnt
 
 
@@ -309,3 +315,6 @@ class Morello(MorelloTarget):
 
         self.add_linker_script("aarch64/morello/common.ld")
         self.add_linker_script("aarch64/morello/ram.ld", loader="RAM")
+
+        if using_llvm_compiler():
+            self.add_linker_switch("-nostartfiles")

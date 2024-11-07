@@ -374,8 +374,13 @@ class Target(TargetConfiguration, ArchSupport):
             # For the Light and Light Tasking runtimes we have the choice of
             # either using libgcc or our Ada libgcc replacement. For the
             # later choice we do not link with any of the standard libraries.
+            #
+            # LLVM doesn't use start files on most bareboard targets, so we
+            # don't pass "-nostartfiles" to avoid a linker warning.
             if rts.rts_vars["Certifiable_Packages"] == "yes":
                 ret += blank + '"-nostdlib",'
+            elif using_llvm_compiler():
+                ret += blank + '"-nolibc",'
             else:
                 ret += blank + '"-nostartfiles", "-nolibc",'
         else:
@@ -385,22 +390,30 @@ class Target(TargetConfiguration, ArchSupport):
             # interdependencies between libgnarl and libgnat, so we need to
             # force -lgnarl at link time, always.
             #
-            # We provide the link arguments for libc ourselves. Inhibit the
-            # gcc mechanism doing so with -nolibc first. Then we need to
-            # account for intricacies in dependencies, e.g. libc depends on
-            # libgcc as everyone, libgcc on libc for strlen, libgnat on libc
-            # for __errno or other, libc on libgnat for sbrk, libgnat and
-            # libgnarl on each other...
+            # With gcc, we provide the link arguments for libc ourselves.
+            # Inhibit the gcc mechanism doing so with -nolibc first. Then we
+            # need to account for intricacies in dependencies, e.g. libc
+            # depends on libgcc as everyone, libgcc on libc for strlen,
+            # libgnat on libc for __errno or other, libc on libgnat for sbrk,
+            # libgnat and libgnarl on each other...
+            #
+            # The LLVM linker doesn't depend on the order of archive files on
+            # the command line because it remembers defined symbols in
+            # addition to undefined symbols when scanning archives (see
+            # https://lld.llvm.org/NewLLD.html, "Efficient archive file
+            # handling"). We stills want "-nolibc" because it disables
+            # automatic linking of libm.
 
-            ret += (
-                blank
-                + '"-nostartfiles", "-nolibc", '
-                + (
-                    '"-Wl,--start-group,-lgnarl,-lgnat,-lc,-lgcc,-lgcc_eh,--end-group",'
-                    if not using_llvm_compiler()
-                    else '"-Wl,--start-group,-lgnarl,-lgnat,-lc,-lunwind,--end-group",'
+            if not using_llvm_compiler():
+                ret += (
+                    blank
+                    + '"-nostartfiles", "-nolibc", '
+                    + '"-Wl,--start-group,'
+                    + "-lgnarl,-lgnat,-lc,-lgcc,-lgcc_eh,"
+                    + '--end-group",'
                 )
-            )
+            else:
+                ret += blank + '"-nolibc", "-lgnarl", "-lgnat", "-lc", "-lunwind",'
 
         # Add linker paths (only needed for bare-metal runtimes)
         if not self.is_os_target:
