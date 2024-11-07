@@ -200,7 +200,7 @@ SECTIONS
 
    /* Interrupt stacks. Statically allocated in System.BB.Interrupts */
    __interrupt_stack_start = .;
-   *(.interrupt_stacks)
+   *(.noinit.interrupt_stacks)
    . = ALIGN(64); /* Align stacks to 512 bits in case we need to store AVX-512 registers */
    __interrupt_stack_end = .;
 

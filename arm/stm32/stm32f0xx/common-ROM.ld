@@ -101,7 +101,7 @@ SECTIONS
    __bss_end = .;
 
    __interrupt_stack_start = .;
-   *(.interrupt_stacks)
+   *(.noinit.interrupt_stacks)
    . = ALIGN(0x8);
    __interrupt_stack_end = .;
 

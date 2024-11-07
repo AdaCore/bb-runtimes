@@ -69,7 +69,7 @@ SECTIONS
   {
    . = ALIGN(8);
    __interrupt_stack_start = .;
-   *(.interrupt_stacks)
+   *(.noinit.interrupt_stacks)
    __interrupt_stack_end = .;
 
    __stack_start = .;
