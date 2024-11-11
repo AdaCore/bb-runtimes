@@ -52,8 +52,9 @@ abstract project Target_Options is
         --  link against libgnat (itself).
         --  Since -nostdlib also removes libgcc
         --  from the linked libraries we have to
-        --  add -lgcc again.
-        LOPTIONS := LOPTIONS & ("-nostdlib", "-lgcc");
+        --  add -lc and -lgcc again.
+        --  Also add -pthread in case it is not already included in -lc.
+        LOPTIONS := LOPTIONS & ("-nostdlib", "-lc", "-lgcc", "-pthread");
   end case;
 
   --  Concatenate with common flags
