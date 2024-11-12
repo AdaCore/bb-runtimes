@@ -128,6 +128,11 @@ ifeq ($(TARGET),$(filter $(TARGET),ppc-pikeos5))
     TARGETS=ppc-pikeos5
 endif
 
+ifeq ($(TARGET),$(filter $(TARGET),ppc-lynx178))
+    TGT=powerpc-xcoff-lynxos178
+    TARGETS=ppc-lynx178
+endif
+
 ifeq ($(TARGETS), none)
   ifeq ($(TARGET),)
     $(error Error: TARGET is not defined)

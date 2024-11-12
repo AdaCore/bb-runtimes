@@ -48,7 +48,16 @@ def main():
     )
     parser.add_argument(
         "--source-profile",
-        choices=["bb", "deos", "freertos", "linux", "pikeos", "vx7r2cert", "qnx"],
+        choices=[
+            "bb",
+            "deos",
+            "freertos",
+            "linux",
+            "lynx",
+            "pikeos",
+            "vx7r2cert",
+            "qnx",
+        ],
         default="bb",
         help="platform specific source selections",
     )
