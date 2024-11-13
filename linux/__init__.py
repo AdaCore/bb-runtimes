@@ -4,7 +4,7 @@ from support.bsp_sources.target import DFBBTarget
 class Linux(DFBBTarget):
     def __init__(self):
         super().__init__()
-        self.add_gnat_sources("src/s-macres__native.adb")
+        self.add_gnat_sources("src/s-macres__libc.adb")
         self.add_gnarl_sources("linux/adaint.c")
 
     def has_libc(self, profile):

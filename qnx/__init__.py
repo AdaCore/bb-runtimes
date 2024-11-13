@@ -4,7 +4,7 @@ from support.bsp_sources.target import Target
 class QNX(Target):
     def __init__(self):
         super(QNX, self).__init__()
-        self.add_gnat_sources("src/s-macres__qnx.adb")
+        self.add_gnat_sources("src/s-macres__libc.adb")
 
     @property
     def has_command_line_arguments(self):
