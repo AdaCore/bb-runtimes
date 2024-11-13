@@ -53,8 +53,7 @@ abstract project Target_Options is
         --  Since -nostdlib also removes libgcc
         --  from the linked libraries we have to
         --  add -lc and -lgcc again.
-        --  Also add -pthread in case it is not already included in -lc.
-        LOPTIONS := LOPTIONS & ("-nostdlib", "-lc", "-lgcc", "-pthread");
+        LOPTIONS := LOPTIONS & ("-nostdlib", "-lc", "-lgcc");
   end case;
 
   --  Concatenate with common flags
