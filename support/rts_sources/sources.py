@@ -2012,7 +2012,6 @@ sources = {
             "hie/s-tasdeb__raven.adb",
             "libgnarl/s-tasinf.ads",
             "libgnarl/s-tasinf.adb",
-            "hie/s-taskin.adb",
             "libgnarl/s-tasres.ads",
             "libgnarl/s-tpobmu.ads",
         ],
@@ -2250,6 +2249,19 @@ sources = {
             "hie/s-tpoben__bb.adb",
             "hie/s-tpobop__bb.ads",
             "hie/s-tpobop__bb.adb",
+        ],
+    },
+    # CHERI-specific GNARL sources
+    "gnarl/common-no-cheri": {
+        "conditions": ["Has_CHERI:no"],
+        "srcs": [
+            "hie/s-taskin.adb",
+        ],
+    },
+    "gnarl/common-cheri": {
+        "conditions": ["Has_CHERI:yes"],
+        "srcs": [
+            "hie/s-taskin__cheri.adb",
         ],
     },
     # Timing support
