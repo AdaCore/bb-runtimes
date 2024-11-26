@@ -49,7 +49,8 @@ from visium import Visium
 from x86_64 import X8664Generic
 
 # native
-from native import Aarch64Native, X86Native, X8664Native
+from linux import Aarch64Linux, X86Linux, X8664Linux
+from windows import X86Windows, X8664Windows
 
 # vx7r2cert
 from vx7r2cert import AArch64Vx7r2Cert, ArmVx7r2Cert, \
@@ -224,12 +225,16 @@ def build_configs(target):
     elif target == 'x86_64':
         t = X8664Generic()
     # native platforms
-    elif target in ('x86-linux', 'x86-windows'):
-        t = X86Native()
-    elif target in ('x86_64-linux', 'x86_64-windows', 'x86_64-windows64'):
-        t = X8664Native()
-    elif target in ('aarch64-linux',):
-        t = Aarch64Native()
+    elif target == "aarch64-linux":
+        t = Aarch64Linux()
+    elif target == "x86-linux":
+        t = X86Linux()
+    elif target == "x86_64-linux":
+        t = X8664Linux()
+    elif target == "x86-windows":
+        t = X86Windows()
+    elif target in ("x86_64-windows", "x86_64-windows64"):
+        t = X8664Windows()
     # vx7r2cert
     elif target == "aarch64-vx7r2cert":
         t = AArch64Vx7r2Cert()
