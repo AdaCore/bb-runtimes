@@ -4,7 +4,7 @@ from support.bsp_sources.target import DFBBTarget
 class Windows(DFBBTarget):
     def __init__(self):
         super().__init__()
-        self.add_gnat_sources("src/s-macres__native.adb", "src/s-textio__stdio.adb")
+        self.add_gnat_sources("src/s-macres__libc.adb", "src/s-textio__stdio.adb")
 
     @property
     def name(self):
