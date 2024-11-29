@@ -32,7 +32,7 @@ class PikeOS(Target):
     def __init__(self):
         super(PikeOS, self).__init__()
         self.add_linker_script("pikeos/memory.ld")
-        self.add_gnat_sources("src/s-textio__pikeos.adb", "src/s-macres__native.adb")
+        self.add_gnat_sources("src/s-textio__pikeos.adb", "src/s-macres__libc.adb")
         self.add_gnarl_source("src/a-intnam__dummy.ads")
 
     def dump_runtime_xml(self, rts_name, rts):
