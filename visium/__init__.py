@@ -20,7 +20,7 @@ class Visium(DFBBTarget):
 
     def __init__(self):
         super(Visium, self).__init__()
-        self.add_gnat_sources("src/s-macres__native.adb", "src/s-textio__stdio.adb")
+        self.add_gnat_sources("src/s-macres__libc.adb", "src/s-textio__stdio.adb")
 
     def dump_runtime_xml(self, rts_name, rts):
         return readfile("visium/mcm/runtime.xml")
