@@ -11,14 +11,6 @@ class Lynx(Target):
         return True
 
     @property
-    def has_single_precision_fpu(self):
-        return True
-
-    @property
-    def has_double_precision_fpu(self):
-        return True
-
-    @property
     def is_os_target(self):
         return True
 
@@ -34,6 +26,12 @@ class Lynx(Target):
 class PPCLynx(Lynx):
     def __init__(self):
         super().__init__()
+
+    @property
+    def has_double_precision_fpu(self):
+        # Disable FPU support. Otherwise, `__builtins_*` could fallbacks
+        # on missing features of LynxOS libm.
+        return False
 
     @property
     def target(self):
