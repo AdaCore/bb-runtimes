@@ -35,11 +35,19 @@
 	   VTOR register) defined in handler.S.  */
 	.section .vectors,"a"
 __vectors0:
-	.word   __stack_end /* stack top address */
-	.word   _start_rom  /* 1 Reset */
-	.word   hang        /* 2 NMI */
-	.word   hang        /* 3 HardFault */
-	.word   hang        /* 4 MemManage */
+	.word   __stack_end     /* stack top address */
+	.word   _start_rom      /* 1 Reset */
+	.word   hang            /* 2 NMI */
+	.word   hang            /* 3 HardFault */
+	.word   hang		/* 4 MemManage */
+	.word	hang		/* 5 BusFault  */
+	.word	hang		/* 6 UsageFault */
+	.word	0, 0, 0, 0	/* 7, 8, 9, 10 : Reserved */
+	.word	hang		/* 11 SVC_Handler  */
+	.word	hang		/* 12 DebugMon */
+	.word	0		/* 13 Reserved	*/
+	.word	hang		/* 14 PendSV */
+	.word	hang		/* 15 SysTick */
 
 	.text
 
