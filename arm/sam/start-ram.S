@@ -34,58 +34,20 @@
 	   the light runtime. The tasking runtimes install their own table (using
 	   VTOR register) defined in handler.S.  */
 	.section .vectors,"a"
-	.globl	__vectors0
 __vectors0:
-	b.w	_start_ram	/* stack top address */
-	.word	_start_ram	/* 1 Reset */
-	.word   hang		/* 2 NMI */
-	.word   hang		/* 3 HardFault */
-	.word   hang		/* 4 MemManage */
+	.word   __stack_end     /* stack top address */
+	.word   _start_ram      /* 1 Reset */
+	.word	hang		/* 2 NMI */
+	.word	hang		/* 3 HardFault */
+	.word	hang		/* 4 MemManage */
 	.word	hang		/* 5 BusFault  */
 	.word	hang		/* 6 UsageFault */
 	.word	0, 0, 0, 0	/* 7, 8, 9, 10 : Reserved */
 	.word	hang		/* 11 SVC_Handler  */
 	.word	hang		/* 12 DebugMon */
-	.word	0		/* 13 Reserved  */
+	.word	0		/* 13 Reserved	*/
 	.word	hang		/* 14 PendSV */
-	.word	SysTick_Handler
-
-	.word	SUPC_IrqHandler		/* 0  Supply Controller */
-	.word	RSTC_IrqHandler		/* 1  Reset Controller */
-	.word	RTC_IrqHandler		/* 2  Real Time Clock */
-	.word	RTT_IrqHandler		/* 3  Real Time Timer */
-	.word	WDT_IrqHandler		/* 4  Watchdog Timer */
-	.word	PMC_IrqHandler		/* 5  PMC */
-	.word	EEFC_IrqHandler		/* 6  EEFC */
-	.word	IrqHandlerNotUsed	/* 7  Reserved */
-	.word	UART0_IrqHandler	/* 8  UART0 */
-	.word	UART1_IrqHandler	/* 9  UART1 */
-	.word	SMC_IrqHandler		/* 10 SMC */
-	.word	PIOA_IrqHandler		/* 11 Parallel IO Controller A */
-	.word	PIOB_IrqHandler		/* 12 Parallel IO Controller B */
-	.word	PIOC_IrqHandler		/* 13 Parallel IO Controller C */
-	.word	USART0_IrqHandler	/* 14 USART 0 */
-	.word	USART1_IrqHandler	/* 15 USART 1 */
-	.word	USART2_IrqHandler	/* 16 USART 2 */
-	.word	IrqHandlerNotUsed	/* 17 Reserved */
-	.word	MCI_IrqHandler		/* 18 MCI */
-	.word	TWI0_IrqHandler		/* 19 TWI 0 */
-	.word	TWI1_IrqHandler		/* 20 TWI 1 */
-	.word	SPI_IrqHandler		/* 21 SPI */
-	.word	SSC_IrqHandler		/* 22 SSC */
-	.word	TC0_IrqHandler		/* 23 Timer Counter 0 */
-	.word	TC1_IrqHandler		/* 24 Timer Counter 1 */
-	.word	TC2_IrqHandler		/* 25 Timer Counter 2 */
-	.word	TC3_IrqHandler		/* 26 Timer Counter 3 */
-	.word	TC4_IrqHandler		/* 27 Timer Counter 4 */
-	.word	TC5_IrqHandler		/* 28 Timer Counter 5 */
-	.word	ADC_IrqHandler		/* 29 ADC controller */
-	.word	DAC_IrqHandler		/* 30 DAC controller */
-	.word	PWM_IrqHandler		/* 31 PWM */
-	.word	CRCCU_IrqHandler	/* 32 CRC Calculation Unit */
-	.word	ACC_IrqHandler		/* 33 Analog Comparator */
-	.word	USBD_IrqHandler		/* 34 USB Device Port */
-	.word	IrqHandlerNotUsed	/* 35 not used */
+	.word	hang		/* 15 SysTick */
 
 	.text
 
