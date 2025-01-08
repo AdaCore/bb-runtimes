@@ -76,8 +76,6 @@ class RTSProfiles(object):
         ret["Add_Image_Enum"] = "yes"
         ret["Add_Image_Int"] = "yes"
         ret["Add_Image_LL_Int"] = "yes"
-        ret["Add_Image_Based_Int"] = "yes"
-        ret["Add_Image_LL_Based_Int"] = "yes"
         ret["Add_Image_Decimal"] = "yes"
         ret["Add_Image_LL_Decimal"] = "yes"
         ret["Add_Image_Fixed"] = "yes"
@@ -104,7 +102,6 @@ class RTSProfiles(object):
             ret["Add_Exponent_LLL_Int"] = "yes"
 
             ret["Add_Image_LLL_Int"] = "yes"
-            ret["Add_Image_LLL_Based_Int"] = "yes"
             ret["Add_Image_LLL_Decimal"] = "yes"
             ret["Add_Image_LLL_Fixed"] = "yes"
 
