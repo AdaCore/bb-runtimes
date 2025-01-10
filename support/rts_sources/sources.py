@@ -1098,7 +1098,6 @@ sources = {
         "srcs": [
             "libgnat/s-imager.ads",
             "libgnat/s-imager.adb",
-            "libgnat/s-imgrea.ads",
             "libgnat/s-imgflt.ads",
             "libgnat/s-imglfl.ads",
             "libgnat/s-imgllf.ads",
