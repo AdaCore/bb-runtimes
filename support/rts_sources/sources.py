@@ -1098,7 +1098,6 @@ sources = {
         "srcs": [
             "libgnat/s-imager.ads",
             "libgnat/s-imager.adb",
-            "libgnat/s-imgrea.ads",
             "libgnat/s-imgflt.ads",
             "libgnat/s-imglfl.ads",
             "libgnat/s-imgllf.ads",
@@ -1123,24 +1122,6 @@ sources = {
         "conditions": ["Add_Image_LLL_Int:yes"],
         "srcs": ["libgnat/s-imglllw.ads"],
         "requires": ["Add_Image_Int:yes", "Add_Value_LLL_Spec:yes"],
-    },
-    "image/based_int": {
-        "conditions": ["Add_Image_Based_Int:yes"],
-        "srcs": [
-            "libgnat/s-imageb.ads",
-            "libgnat/s-imageb.adb",
-            "libgnat/s-imgbiu.ads",
-        ],
-    },
-    "image/based_int_ll": {
-        "conditions": ["Add_Image_LL_Based_Int:yes"],
-        "srcs": ["libgnat/s-imgllb.ads"],
-        "requires": ["Add_Image_Based_Int:yes"],
-    },
-    "image/based_int_lll": {
-        "conditions": ["Add_Image_LLL_Based_Int:yes"],
-        "srcs": ["libgnat/s-imglllb.ads"],
-        "requires": ["Add_Image_Based_Int:yes"],
     },
     "image/char": {
         "conditions": ["Add_Image_Char:yes"],
