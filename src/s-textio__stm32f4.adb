@@ -107,7 +107,12 @@ package body System.Text_IO is
 
    procedure Put (C : Character) is
    begin
-      USART1_Periph.DR.DR := Character'Pos (C);
+      USART1_Periph.DR :=
+        (DR     => Character'Pos (C),
+         others => 0);
+      --  By assigning all fields of the DR register we can be sure that the
+      --  compiler does not use the read-modify-write sequence, which resets
+      --  the SR.RXNE flag.
    end Put;
 
    ----------------------------
