@@ -310,7 +310,7 @@ sources = {
         ],
         "vx7r2cert_srcs": [
             "exit.c",
-            "libgnat/g-io.ads",
+            "hie/g-io__zfp.ads",
             "hie/g-io__vxworks7cert.adb",
             "hie/s-textio__vxworks7cert.ads",
             "hie/s-textio__vxworks7cert.adb",
