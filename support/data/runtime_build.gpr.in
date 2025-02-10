@@ -56,51 +56,6 @@ project Runtime_Build is
        & ("-gnatet=" & Project'Project_Dir & "/ada_target_properties");
   end Compiler;
 
-  package Prove is
-
-    for Proof_Dir use "proof";
-
-    --  By default, use all available cores and all default provers
-    for Proof_Switches ("Ada") use ("-j0", "--level=2", "--function-sandboxing=off", "--counterexamples=off");
-
-    --  Specialize the command-line for more complex units (-j0 is implied)
-    for Proof_Switches ("a-strmap.adb") use ("--level=3");
-    for Proof_Switches ("a-strfix.adb") use ("--level=4");
-    for Proof_Switches ("a-strsea.adb") use ("--level=4");
-    for Proof_Switches ("a-strsup.adb") use ("--level=4", "--timeout=30");
-    for Proof_Switches ("i-c.adb") use ("--level=4", "--timeout=120");
-    for Proof_Switches ("s-arit32.adb") use ("--level=3", "--prover=all");
-    for Proof_Switches ("s-arit64.adb") use ("--level=4", "--prover=all");
-    for Proof_Switches ("s-expmod.adb") use ("--level=2");
-    for Proof_Switches ("s-imgboo.adb") use ("--level=3");
-    for Proof_Switches ("s-valboo.adb") use ("--level=3");
-    for Proof_Switches ("s-valint.ads") use ("--level=2");
-    for Proof_Switches ("s-vallli.ads") use ("--level=2");
-    for Proof_Switches ("s-valllli.ads") use ("--level=2");
-    for Proof_Switches ("s-valuns.ads") use ("--level=2");
-    for Proof_Switches ("s-valllu.ads") use ("--level=3");
-    for Proof_Switches ("s-vallllu.ads") use ("--level=4");
-    for Proof_Switches ("s-valuti.adb") use ("--level=3");
-    for Proof_Switches ("s-vs_lli.ads") use ("--level=3");
-    for Proof_Switches ("s-vsllli.ads") use ("--level=4");
-
-    --  Bump level for proof of Lemma_Div_Twice which should ideally be
-    --  factored out in the future.
-    for Proof_Switches ("g-io.adb") use ("--level=4");
-    for Proof_Switches ("s-widint.ads") use ("--level=2");
-    for Proof_Switches ("s-widlli.ads") use ("--level=2");
-    for Proof_Switches ("s-widllli.ads") use ("--level=2");
-    for Proof_Switches ("s-widuns.ads") use ("--level=2");
-    for Proof_Switches ("s-widllu.ads") use ("--level=2");
-    for Proof_Switches ("s-widlllu.ads") use ("--level=2");
-    for Proof_Switches ("s-imguns.ads") use ("--level=2");
-    for Proof_Switches ("s-imgllu.ads") use ("--level=2");
-    for Proof_Switches ("s-imglllu.ads") use ("--level=2");
-    for Proof_Switches ("s-imgint.ads") use ("--level=2");
-    for Proof_Switches ("s-imglli.ads") use ("--level=2");
-    for Proof_Switches ("s-imgllli.ads") use ("--level=3");
-  end Prove;
-
   package CodePeer is
     for Excluded_Source_Files use ("{runtime_spark_units}");
   end CodePeer;

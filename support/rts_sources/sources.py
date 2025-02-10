@@ -91,9 +91,6 @@ all_scenarios = {
     "Add_Image_Char": ["no", "yes"],
     "Add_Image_Wide_Char": ["no", "yes"],
     # 'Value:
-    "Add_Value_Spec": ["no", "yes"],
-    "Add_Value_LL_Spec": ["no", "yes"],
-    "Add_Value_LLL_Spec": ["no", "yes"],
     "Add_Value_Bool": ["no", "yes"],
     "Add_Value_Enum": ["no", "yes"],
     "Add_Value_Int": ["no", "yes"],
@@ -167,8 +164,6 @@ sources = {
             "libgnat/a-chlat1.ads",
             "libgnat/a-numeri.ads",
             "libgnat/a-nubinu.ads",
-            "libgnat/a-nbnbig.ads",
-            "libgnat/a-nbnbig.adb",
             "libgnat/a-string.ads",
             "libgnat/a-strbou.ads",
             "libgnat/a-strbou.adb",
@@ -235,9 +230,6 @@ sources = {
             "libgnat/s-imguns.ads",
             "libgnat/s-maccod.ads",
             "libgnat/s-retsta.ads",
-            "libgnat/s-spark.ads",
-            "libgnat/s-spcuop.ads",
-            "libgnat/s-spcuop.adb",
             "libgnat/s-stache.ads",
             "libgnat/s-stache.adb",
             "libgnat/s-stoele.ads",
@@ -1053,7 +1045,6 @@ sources = {
             "libgnat/s-imen32.ads",
             "libgnat/s-imenu8.ads",
         ],
-        "requires": ["Add_Value_Spec:yes"],
     },
     "image/decimal": {
         "conditions": ["Add_Image_Decimal:yes"],
@@ -1111,17 +1102,16 @@ sources = {
             "libgnat/s-imagew.adb",
             "libgnat/s-imgwiu.ads",
         ],
-        "requires": ["Add_Value_Spec:yes"],
     },
     "image/int_ll": {
         "conditions": ["Add_Image_LL_Int:yes"],
         "srcs": ["libgnat/s-imgllw.ads"],
-        "requires": ["Add_Image_Int:yes", "Add_Value_LL_Spec:yes"],
+        "requires": ["Add_Image_Int:yes"],
     },
     "image/int_lll": {
         "conditions": ["Add_Image_LLL_Int:yes"],
         "srcs": ["libgnat/s-imglllw.ads"],
-        "requires": ["Add_Image_Int:yes", "Add_Value_LLL_Spec:yes"],
+        "requires": ["Add_Image_Int:yes"],
     },
     "image/char": {
         "conditions": ["Add_Image_Char:yes"],
@@ -1136,34 +1126,6 @@ sources = {
         "conditions": ["Add_Image_Util:yes"],
         "srcs": ["libgnat/s-imguti.ads", "libgnat/s-imguti.adb"],
         "requires": ["Add_Image_Int:yes"],
-    },
-    # 'Value support
-    "value/spec": {
-        "conditions": ["Add_Value_Spec:yes"],
-        "srcs": [
-            "libgnat/s-valspe.ads",
-            "libgnat/s-valspe.adb",
-            "libgnat/s-vaispe.ads",
-            "libgnat/s-vaispe.adb",
-            "libgnat/s-vauspe.ads",
-            "libgnat/s-vauspe.adb",
-            "libgnat/s-vs_int.ads",
-            "libgnat/s-vs_uns.ads",
-        ],
-    },
-    "value/spec_ll": {
-        "conditions": ["Add_Value_LL_Spec:yes"],
-        "srcs": [
-            "libgnat/s-vs_lli.ads",
-            "libgnat/s-vs_llu.ads",
-        ],
-    },
-    "value/spec_lll": {
-        "conditions": ["Add_Value_LLL_Spec:yes"],
-        "srcs": [
-            "libgnat/s-vsllli.ads",
-            "libgnat/s-vslllu.ads",
-        ],
     },
     "value/Boolean": {
         "conditions": ["Add_Value_Bool:yes"],
@@ -1254,7 +1216,7 @@ sources = {
             "libgnat/s-vallli.ads",
             "libgnat/s-valllu.ads",
         ],
-        "requires": ["Add_Value_Utils:yes", "Add_Value_LL_Spec:yes"],
+        "requires": ["Add_Value_Utils:yes"],
     },
     "value/int_lll": {
         "conditions": ["Add_Value_LLL_Int:yes"],
@@ -1262,7 +1224,7 @@ sources = {
             "libgnat/s-valllli.ads",
             "libgnat/s-vallllu.ads",
         ],
-        "requires": ["Add_Value_Utils:yes", "Add_Value_LLL_Spec:yes"],
+        "requires": ["Add_Value_Utils:yes"],
     },
     "value/char": {
         "conditions": ["Add_Value_Char:yes"],
@@ -1280,7 +1242,7 @@ sources = {
             "libgnat/s-valuti.ads",
             "libgnat/s-valuti.adb",
         ],
-        "requires": ["Add_Case_Util:yes", "Add_Value_Spec:yes"],
+        "requires": ["Add_Case_Util:yes"],
     },
     # Utility packages
     "utils/float_fma": {
