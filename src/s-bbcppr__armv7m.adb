@@ -212,7 +212,7 @@ package body System.BB.CPU_Primitives is
    end record;
 
    AIRCR_Write_Key : constant := 16#05FA#;
-   AIRCR_Read_Key  : constant := 16#0FA5#;
+   AIRCR_Read_Key  : constant := 16#FA05#;
 
    AIRCR : AIRCR_Register with Volatile, Import, Address => 16#E000_ED0C#;
 
