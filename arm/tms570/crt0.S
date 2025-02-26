@@ -48,12 +48,18 @@
 
 	.section .traps
 
-        .weak	__gnat_undef_trap	/* Undefined instruction trap */
+	.weak	__gnat_undef_trap	/* Undefined instruction trap */
+	.type   __gnat_undef_trap, %function
 	.weak	__gnat_svc_trap		/* Supervisor call trap */
+	.type   __gnat_svc_trap, %function
 	.weak	__gnat_pabt_trap	/* prefetch abort trap	*/
+	.type   __gnat_pabt_trap, %function
 	.weak	__gnat_dabt_trap	/* data abort trap */
+	.type   __gnat_dabt_trap, %function
 	.weak	__gnat_irq_trap 	/* IRQ trap */
+	.type   __gnat_irq_trap, %function
 	.weak	__gnat_fiq_trap	        /* FIQ trap */
+	.type   __gnat_fiq_trap, %function
 
 	/* The following provide default definitions for trap vectors that
 	loop back to the trap address, so the system will stop in a safe

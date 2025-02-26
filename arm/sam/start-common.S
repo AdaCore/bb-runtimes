@@ -33,7 +33,7 @@
 	.text
 	.thumb_func
 	.globl	_sam_start_common
-        .type _sam_start_common, #function
+	.type _sam_start_common, %function
 _sam_start_common:
 
         /************************

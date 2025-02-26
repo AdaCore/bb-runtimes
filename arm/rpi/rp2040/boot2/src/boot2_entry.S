@@ -35,6 +35,7 @@
  * flash vector table. */
 .section .text
 .global _boot2_entry
+.type _boot2_entry, %function
 _boot2_entry:
 
     /* Preserve LR during call to the Ada code for comparison later */

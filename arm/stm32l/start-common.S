@@ -33,7 +33,7 @@
 	.text
 	.thumb_func
 	.globl	_stm32_start_common
-        .type _stm32_start_common, #function
+	.type _stm32_start_common, %function
 _stm32_start_common:
 
         /************************

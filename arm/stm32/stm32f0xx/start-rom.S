@@ -91,6 +91,7 @@ __vectors:
 	.text
 	.thumb_func
 	.globl _start_rom
+	.type _start_rom, %function
 _start_rom:
 	/* Copy .data */
 	ldr	r0,=__data_start

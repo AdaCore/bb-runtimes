@@ -34,6 +34,7 @@
 
 	.thumb_func
 	.globl _start_ram
+	.type _start_ram, %function
 _start_ram:
 	/* Init stack */
 	ldr	sp,.LinitSp
@@ -55,10 +56,20 @@ _start_ram:
 	bl	_exit
 
 	.global __aeabi_ldiv0
+	.type __aeabi_ldiv0, %function
+
 	.global __aeabi_idiv0
+	.type __aeabi_idiv0, %function
+
 	.global __aeabi_unwind_cpp_pr0
+	.type __aeabi_unwind_cpp_pr0, %function
+
 	.global __aeabi_unwind_cpp_pr1
+	.type __aeabi_unwind_cpp_pr1, %function
+
 	.global __aeabi_unwind_cpp_pr2
+	.type __aeabi_unwind_cpp_pr2, %function
+
 	.thumb_func
 __aeabi_unwind_cpp_pr0:
 __aeabi_unwind_cpp_pr1:

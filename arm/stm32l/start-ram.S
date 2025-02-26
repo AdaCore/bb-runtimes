@@ -42,6 +42,7 @@ __vectors0:
 
 	.thumb_func
 	.globl _start_ram
+	.type _start_ram, %function
 _start_ram:
 	/* Init stack */
 	ldr	sp,.LinitSp

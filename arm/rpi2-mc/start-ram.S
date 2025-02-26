@@ -34,7 +34,9 @@
 
 /* Startup code */
 	.global __start_ram
+	.type	__start_ram, %function
 	.global	__start_slave_cpu
+	.type	__start_slave_cpu, %function
 
 	.section .traps,"ax"
 	/* The following provide default definitions for trap vectors that
@@ -61,7 +63,6 @@ __gnat_dabt_trap:	b	__gnat_dabt_trap
 __gnat_irq_trap:	b	__gnat_irq_trap
 __gnat_fiq_trap:	b	__gnat_fiq_trap
 
-	.type	__start_ram, %function
 __start_ram:
 __start_slave_cpu:
 	// Stay in HYP mode
