@@ -45,11 +45,17 @@
 	exporting the relevant symbols. */
 
 	.weak	__gnat_undef_trap	/* Undefined instruction trap */
+	.type	__gnat_undef_trap, %function
 	.weak	__gnat_svc_trap		/* Supervisor call trap */
+	.type	__gnat_svc_trap, %function
 	.weak	__gnat_pabt_trap	/* prefetch abort trap	*/
-        .weak	__gnat_dabt_trap	/* data abort trap */
-        .weak	__gnat_irq_trap		/* Interrupt */
-        .weak	__gnat_fiq_trap		/* Fast interrupt */
+	.type	__gnat_pabt_trap, %function
+	.weak	__gnat_dabt_trap	/* data abort trap */
+	.type	__gnat_pabt_trap, %function
+	.weak	__gnat_irq_trap		/* Interrupt */
+	.type	__gnat_irq_trap, %function
+	.weak	__gnat_fiq_trap		/* Fast interrupt */
+	.type	__gnat_fiq_trap, %function
 
 __traps:
 /* 0 */			b	__start_ram

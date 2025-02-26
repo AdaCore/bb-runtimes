@@ -33,8 +33,8 @@
 	.text
 	.thumb_func
 	.globl	_nrf5_start_common
+	.type _nrf5_start_common, %function
 _nrf5_start_common:
-        .type _nrf5_start_common, #function
 
         /************************
         * Enable debug Monitor *

@@ -34,7 +34,9 @@
 
 /* Startup code */
 	.global __start_ram
+	.type	__start_ram, %function
 	.global	__start_slave_cpu
+	.type	__start_slave_cpu, %function
 
 	.section .traps,"ax"
 	/* The following provide default definitions for trap vectors that
@@ -43,11 +45,17 @@
 	exporting the relevant symbols. */
 
 	.weak	__gnat_undef_trap	/* Undefined instruction trap */
+	.type   __gnat_undef_trap, %function
 	.weak	__gnat_svc_trap		/* Supervisor call trap */
+	.type   __gnat_svc_trap, %function
 	.weak	__gnat_pabt_trap	/* prefetch abort trap	*/
-        .weak	__gnat_dabt_trap	/* data abort trap */
-        .weak	__gnat_irq_trap		/* Interrupt */
-        .weak	__gnat_fiq_trap		/* Fast interrupt */
+	.type   __gnat_pabt_trap, %function
+	.weak	__gnat_dabt_trap	/* data abort trap */
+	.type	__gnat_dabt_trap, %function
+	.weak	__gnat_irq_trap		/* Interrupt */
+	.type	__gnat_irq_trap, %function
+	.weak	__gnat_fiq_trap		/* Fast interrupt */
+	.type	__gnat_fiq_trap, %function
 
 	.p2align 5
 
@@ -61,7 +69,6 @@ __gnat_dabt_trap:	b	__gnat_dabt_trap
 __gnat_irq_trap:	b	__gnat_irq_trap
 __gnat_fiq_trap:	b	__gnat_fiq_trap
 
-	.type	__start_ram, %function
 __start_ram:
 __start_slave_cpu:
 	/* Switch from HYP to SVC mode.  */
@@ -268,7 +275,9 @@ irq_stack_size:
 
 	/* These routines are not available in the Light runtime  */
 	.weak	__gnat_initialize_slave
+	.type	__gnat_initialize_slave, %function
 	.weak	__gnat_initialize_cpu_devices
+	.type	__gnat_initialize_cpu_devices, %function
 
 	.p2align 14
 __tt0:

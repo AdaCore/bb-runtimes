@@ -53,6 +53,7 @@ __vectors0:
 
 	.thumb_func
 	.globl _start_rom
+	.type _start_rom, %function
 _start_rom:
 	/* Set stack */
 	movw	r0,#:lower16:__stack_end

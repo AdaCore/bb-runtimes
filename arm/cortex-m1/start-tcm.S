@@ -97,6 +97,7 @@ __vectors:
         .text
         .thumb_func
         .globl _start_tcm
+        .type _start_tcm, %function
 _start_tcm:
 		/* Copy all data sections to DTCM. We need to do this before ITCM is
 		   remapped over the SARM region. */

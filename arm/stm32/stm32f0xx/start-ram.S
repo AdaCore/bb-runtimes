@@ -91,6 +91,7 @@ __vectors:
 	.text
 	.thumb_func
 	.globl _start_ram
+	.type _start_ram, %function
 _start_ram:
 	/* Clear .bss */
 	ldr	r0,=__bss_start

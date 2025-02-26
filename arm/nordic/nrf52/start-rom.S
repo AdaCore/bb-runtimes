@@ -45,6 +45,7 @@ __vectors0:
 
 	.thumb_func
 	.globl _start_rom
+	.type  _start_rom, %function
 _start_rom:
         /* Enable FPU and cache when appropriate */
         bl _nrf5_start_common
