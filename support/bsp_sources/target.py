@@ -164,13 +164,15 @@ class Target(TargetConfiguration, ArchSupport):
 
         # Flags for keys in target_options.gpr.in must end in _flags. This is
         # to avoid duplicating the list of flags in support/bsp_sources/installer.py.
-        self.build_flags = {'source_dirs': None,
-                            'common_flags': ['-ffunction-sections',
-                                             '-fdata-sections'],
-                            'common_gnarl_flags': [],
-                            'common_debug_flags': ['-g'],
-                            'asm_flags': [],
-                            'c_flags': ['-DIN_RTS', '-Dinhibit_libc', '-DLIGHT_RUNTIME']}
+        self.build_flags = {
+            "source_dirs": None,
+            "common_flags": ["-ffunction-sections", "-fdata-sections"],
+            "common_gnarl_flags": [],
+            "common_debug_flags": ["-g"],
+            "asm_flags": [],
+            "c_flags": ["-DIN_RTS", "-Dinhibit_libc", "-DLIGHT_RUNTIME"],
+            "shared_linker_flags": [],
+        }
         # GNAT-LLVM doesn't support -fcallgraph-info
         if target_compiler() != Compiler.gnat_llvm:
             self.build_flags['common_flags'].append('-fcallgraph-info=su,da')
@@ -265,6 +267,10 @@ class Target(TargetConfiguration, ArchSupport):
     def other_projects(self, profile):
         """List of projects to build in the runtime"""
         return None
+
+    def pre_build_step(self):
+        """Actions required before building the runtime"""
+        pass
 
     ###############
     # runtime.xml #

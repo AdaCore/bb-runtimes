@@ -351,6 +351,8 @@ def main():
     # Install the runtimes sources
     projects = []
     for board in boards:
+        # Actions needed before building the runtime
+        board.pre_build_step()
         print("install runtime sources for %s" % board.name)
         sys.stdout.flush()
         installer = Installer(board)
