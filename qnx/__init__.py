@@ -1,3 +1,7 @@
+import os
+import subprocess
+import shutil
+
 from support.bsp_sources.target import Target
 
 
@@ -33,6 +37,26 @@ class QNX(Target):
     def use_certifiable_packages(self):
         return True
 
+    def pre_build_step(self):
+        # For QNX, create a dummy shared library with the name
+        # of the shared last chance handler.
+        # We copy the library within the compiler installation
+        # for two reasons. First, the library needs to be visible
+        # to libgnat. Second, we do not want the library to become
+        # part of the installation of the runtime.
+        install_dir = os.path.dirname(
+            os.path.dirname(shutil.which("aarch64-nto-qnx-gcc"))
+        )
+        subprocess.check_call(
+            [
+                "aarch64-nto-qnx-gcc",
+                "-shared",
+                "-o",
+                os.path.join(install_dir, "aarch64-nto-qnx", "lib", "libada_lch.so"),
+                "/dev/null",
+            ]
+        )
+
 
 class Aarch64QNX(QNX):
     def __init__(self):
@@ -64,6 +88,11 @@ class Aarch64QNX(QNX):
             # pointer, so make sure it is always there.
             # See V217-008 for more info.
             "-fno-omit-frame-pointer",
+        ]
+        cfg.build_flags["shared_linker_flags"] += [
+            # Add an explicit dependency on libada_lch so that the last
+            # chance handler is loaded when we use the Ada runtime.
+            "-lada_lch",
         ]
 
 
