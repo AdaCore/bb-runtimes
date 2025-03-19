@@ -1,6 +1,7 @@
 import os
 import subprocess
 import shutil
+import tempfile
 
 from support.bsp_sources.target import Target
 
@@ -37,23 +38,18 @@ class QNX(Target):
     def use_certifiable_packages(self):
         return True
 
-    def pre_build_step(self):
+    def pre_build_step(self, obj_dir):
         # For QNX, create a dummy shared library with the name
         # of the shared last chance handler.
-        # We copy the library within the compiler installation
-        # for two reasons. First, the library needs to be visible
-        # to libgnat. Second, we do not want the library to become
-        # part of the installation of the runtime.
-        install_dir = os.path.dirname(
-            os.path.dirname(shutil.which("aarch64-nto-qnx-gcc"))
-        )
+        # Use a temporary file to create an empty file.
+        tf = tempfile.NamedTemporaryFile()
         subprocess.check_call(
             [
                 "aarch64-nto-qnx-gcc",
                 "-shared",
                 "-o",
-                os.path.join(install_dir, "aarch64-nto-qnx", "lib", "libada_lch.so"),
-                "/dev/null",
+                os.path.join(obj_dir, "libada_lch.so"),
+                tf.name,
             ]
         )
 

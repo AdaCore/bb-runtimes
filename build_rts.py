@@ -432,8 +432,6 @@ def main():
     # Install the runtimes sources
     projects = []
     for board in boards:
-        # Actions needed before building the runtime
-        board.pre_build_step()
         print("install runtime sources for %s" % board.name)
         sys.stdout.flush()
         installer = Installer(board)
@@ -442,6 +440,13 @@ def main():
             rts_descriptor=args.rts_src_descriptor,
             profiles=args.profiles.split(",") if args.profiles is not None else None,
         )
+        # Objects needed before building the runtime
+        obj_dir = os.path.join(os.path.dirname(projects[0]), "obj")
+        if not os.path.isdir(obj_dir):
+            if os.path.exists(obj_dir):
+                raise RuntimeError("obj should be a directory")
+            os.makedirs(obj_dir)
+        board.pre_build_step(obj_dir)
 
     # and build them
     if args.build:
@@ -453,10 +458,10 @@ def main():
                 cmd += args.build_flags.split()
             subprocess.check_call(cmd)
             if args.shared:
-                cmd.extend(["-f", "-XLIBRARY_TYPE=dynamic"])
+                cmd.extend(["-f", "-XLIBRARY_TYPE=dynamic", "-largs", "-L."])
                 subprocess.check_call(cmd)
             # Post-process: remove build artifacts from obj directory
-            cleanup_ext = (".o", ".ali", ".stdout", ".stderr", ".d", ".lexch")
+            cleanup_ext = (".o", ".ali", ".stdout", ".stderr", ".d", ".lexch", ".so")
             obj_dir = os.path.join(os.path.dirname(prj), "obj")
             for fname in os.listdir(obj_dir):
                 _, ext = os.path.splitext(fname)
