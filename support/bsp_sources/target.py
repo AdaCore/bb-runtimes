@@ -276,7 +276,7 @@ class Target(TargetConfiguration, ArchSupport):
         """List of projects to build in the runtime"""
         return None
 
-    def pre_build_step(self):
+    def pre_build_step(self, obj_dir):
         """Actions required before building the runtime"""
         pass
 
