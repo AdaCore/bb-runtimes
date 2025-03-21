@@ -38,7 +38,7 @@ class QNX(Target):
         # For QNX, create a dummy shared library with the name
         # of the shared last chance handler.
         # Use a temporary file to create an empty file.
-        tf = tempfile.NamedTemporaryFile()
+        tf = tempfile.NamedTemporaryFile(mode="rt")
         subprocess.check_call(
             [
                 "aarch64-nto-qnx-gcc",
