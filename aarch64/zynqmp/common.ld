@@ -51,6 +51,9 @@ ENTRY(__vectors);
  * | .text                          |
  * |                                |
  * +--------------------------------+
+ * | .got                           |
+ * |                                |
+ * +--------------------------------+
  * | .data                          | initialized data goes here
  * |                                |
  * +--------------------------------+
@@ -111,6 +114,11 @@ SECTIONS
   . = ALIGN(0x1000);
 
   __region_data_start = .;
+
+  .got :
+  {
+    *(.got)
+  } > REGION_DATA
 
   .mmu_ram_table_2 : ALIGN(0x1000)
   {
