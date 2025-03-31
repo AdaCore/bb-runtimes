@@ -182,6 +182,7 @@ class Target(TargetConfiguration, ArchSupport):
             "common_debug_flags": ["-g"],
             "asm_flags": [],
             "c_flags": ["-DIN_RTS", "-Dinhibit_libc", "-DLIGHT_RUNTIME"],
+            "shared_linker_flags": [],
         }
         # GNAT-LLVM doesn't support -fcallgraph-info
         if not using_llvm_compiler():
@@ -274,6 +275,10 @@ class Target(TargetConfiguration, ArchSupport):
     def other_projects(self, profile):
         """List of projects to build in the runtime"""
         return None
+
+    def pre_build_step(self, obj_dir):
+        """Actions required before building the runtime"""
+        pass
 
     ###############
     # runtime.xml #
