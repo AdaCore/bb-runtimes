@@ -109,7 +109,7 @@ from qnx import Aarch64QNX, ARMQNX
 
 from freertos import ArmV7AFP_FreeRTOS
 
-from lynx import PPCLynx
+from lynx import PPCLynx, Aarch64Lynx
 
 import argparse
 import os
@@ -331,6 +331,8 @@ def build_configs(target):
     # LynxOS
     elif target == "ppc-lynx178":
         t = PPCLynx()
+    elif target == "aarch64-lynx178":
+        t = Aarch64Lynx()
     else:
         print("Error: undefined target %s" % target)
         sys.exit(2)

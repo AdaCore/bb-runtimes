@@ -133,6 +133,11 @@ ifeq ($(TARGET),$(filter $(TARGET),ppc-lynx178))
     TARGETS=ppc-lynx178
 endif
 
+ifeq ($(TARGET),$(filter $(TARGET),aarch64-lynx178))
+    TGT=aarch64-lynx-lynx178
+    TARGETS=aarch64-lynx178
+endif
+
 ifeq ($(TARGETS), none)
   ifeq ($(TARGET),)
     $(error Error: TARGET is not defined)

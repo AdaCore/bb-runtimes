@@ -46,3 +46,38 @@ class PPCLynx(Lynx):
         return {
             "light": "system-lynxos178-ppc.ads",
         }
+
+
+class Aarch64Lynx(Lynx):
+    def __init__(self):
+        super().__init__()
+
+    @property
+    def has_single_precision_fpu(self):
+        return True
+
+    @property
+    def has_double_precision_fpu(self):
+        return True
+
+    @property
+    def target(self):
+        return "aarch64-lynx178"
+
+    @property
+    def name(self):
+        return "lynx"
+
+    @property
+    def system_ads(self):
+        return {
+            "light": "system-lynxos178-aarch64-light.ads",
+        }
+
+    def amend_rts(self, rts_profile, cfg):
+        cfg.build_flags["common_flags"] += [
+            # Force "dev" build mode instead of the default "unikernel".
+            "-DBUILD_MODE=3",
+            # The customer behind that initial port required -fPIC support.
+            "-fPIC",
+        ]
