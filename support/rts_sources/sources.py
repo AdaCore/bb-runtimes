@@ -668,6 +668,8 @@ sources = {
             "libgnat/g-busorg.adb",
             "libgnat/g-bytswa.ads",
             "libgnat/g-bytswa.adb",
+            "libgnat/g-cautns.ads",
+            "libgnat/g-cautns.adb",
             "libgnat/g-casuti.ads",
             "libgnat/g-casuti.adb",
             "libgnat/g-comver.ads",
@@ -1274,6 +1276,10 @@ sources = {
             "libgnat/s-powlfl.ads",
             "libgnat/s-powllf.ads",
         ],
+    },
+    "utils/case_util_nss": {
+        "conditions": ["Add_Case_Util:yes"],
+        "srcs": ["libgnat/s-cautns.ads", "libgnat/s-cautns.adb"],
     },
     "utils/case_util": {
         "conditions": ["Add_Case_Util:yes"],
