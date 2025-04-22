@@ -228,9 +228,6 @@ __start_el2:
         orr     x0, x0, #(1<<29) /* Disable HVC */
         msr     hcr_el2,x0
 
-        # Configure EL1 translation MMU
-        bl      __configure_mmu
-
         # Switch to el1, set AIF
         mov     x0, #(0x1c0 + 5)
         msr     spsr_el2, x0
@@ -254,15 +251,8 @@ __start_el1:
         mov     x0, #(1 << 20)
         msr     cpacr_el1, x0
 
-        # Enable MMU and cache if not already done
-        # test SCTLR_EL1.M bit to see the if mmu is already configured
-        mrs     x0, sctlr_el1
-        and     x0, x0, #1
-        cmp     x0, #1
-        beq     1f
         bl      __configure_mmu
 
-1:
         # Initialize MMU tables
         bl      __initialize_mmu
         tlbi    vmalle1
