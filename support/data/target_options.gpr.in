@@ -54,6 +54,9 @@ abstract project Target_Options is
         --  from the linked libraries we have to
         --  add -lc and -lgcc again.
         LOPTIONS := LOPTIONS & ("-nostdlib", "-lc", "-lgcc");
+
+        --  Add target-specific options, if needed
+        LOPTIONS := LOPTIONS & ("{shared_linker_flags}");
   end case;
 
   --  Concatenate with common flags
