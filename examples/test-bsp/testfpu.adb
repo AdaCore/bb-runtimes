@@ -30,7 +30,9 @@ pragma Warnings (Off);
 with System.BB.CPU_Primitives; use System.BB.CPU_Primitives;
 pragma Warnings (On);
 
+pragma Warnings (Off);
 with Text_IO; use Text_IO;
+pragma Warnings (On);
 with Testdata; use Testdata;
 
 procedure Testfpu (Arg : access Float) is
