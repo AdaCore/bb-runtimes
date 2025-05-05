@@ -285,7 +285,7 @@ sources = {
         "lynx_srcs": [
             "exit.c",
             "hie/a-textio.ads",
-            "hie/a-textio__ppclynx178.adb",
+            "hie/a-textio__lynxos178.adb",
             "hie/g-io__zfp.ads",
             "hie/g-io__zfp.adb",
             "hie/g-io-put.adb",
