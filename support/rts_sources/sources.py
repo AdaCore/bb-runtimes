@@ -470,6 +470,11 @@ sources = {
             "libgnat/s-parame.ads",
             "hie/s-init__light.ads",
         ],
+        "lynx_srcs": [
+            "libgnat/s-parame.ads",
+            "libgnat/s-parame.adb",
+            "hie/s-init__light.ads",
+        ],
         "qnx_srcs": [
             "libgnat/s-parame.ads",
             "libgnat/s-parame__qnx.adb",
@@ -2073,6 +2078,21 @@ sources = {
             "libgnarl/s-tpobmu.adb",
             "libgnarl/s-linux.ads",
             "libgnat/s-oslock__posix.ads",
+        ],
+        "lynx_srcs": [
+            "libgnarl/a-reatim.ads",
+            "libgnarl/a-reatim.adb",
+            "hie/s-multip__raven-default.ads",
+            "hie/s-multip__raven-default.adb",
+            "hie/s-osinte__lynxos178-light-tasking.ads",
+            "hie/s-osinte__lynxos178-light-tasking.adb",
+            "hie/s-taprop__raven-cert.ads",
+            "hie/s-tpopsp__posix-raven-cert.adb",
+            "hie/s-taprop__lynxos178-light-tasking.adb",
+            "hie/s-oslock__lynxos178-light-tasking.ads",
+            "hie/s-musplo.adb",
+            "libgnarl/s-tpobmu.adb",
+            "libgnarl/s-taspri__lynxos.ads",
         ],
         "pikeos_srcs": [
             "libgnarl/a-interr.ads",

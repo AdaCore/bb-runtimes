@@ -72,6 +72,7 @@ class Aarch64Lynx(Lynx):
     def system_ads(self):
         return {
             "light": "system-lynxos178-aarch64-light.ads",
+            "light-tasking": "system-lynxos178-aarch64-light-tasking.ads",
         }
 
     def amend_rts(self, rts_profile, cfg):
