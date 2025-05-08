@@ -46,10 +46,6 @@ class SharedRTSSources(object):
     def install_dir(self):
         return self._pwd
 
-    @property
-    def version(self):
-        return self.cnt["version"]
-
     def scenarios(self, lib):
         assert lib in self.cnt, \
             "The runtime sources don't provide support for lib%s" % lib
@@ -170,7 +166,7 @@ class Installer(object):
 
         # Retrieve runtime sources
         runtime_sources = self._find_rts_sources(destination, rts_descriptor)
-        projects = []
+        runtimes = []
 
         for rts_base_name, rts_obj in self.tgt.runtimes.items():
             if self.tgt.is_native or self.tgt.is_legacy_format:
@@ -272,7 +268,6 @@ class Installer(object):
                 for f in rts_obj.build_flags if f.endswith('_flags')
             }
             cnt = readfile(getdatafilepath('target_options.gpr.in'))
-            build_flags["gnat_version"] = runtime_sources.version
             # Format
             cnt = cnt.format(**build_flags)
             # Write
@@ -303,15 +298,21 @@ class Installer(object):
                     "ravenscar_build.gpr.in")
                 with open(ravenscar_build_tmpl, 'r') as fp:
                     template = fp.read()
-                source_dirs = ['gnarl_user', 'gnarl']
-                languages = langs['gnarl']
-                with open(ravenscar_build, 'w') as fp:
-                    fp.write(template.format(
-                        source_dirs='", "'.join(source_dirs),
-                        languages='", "'.join(languages)))
-                projects.append(ravenscar_build)
-            else:
-                projects.append(runtime_build)
+                source_dirs = ["gnarl_user", "gnarl"]
+                languages = langs["gnarl"]
+                with open(ravenscar_build, "w") as fp:
+                    fp.write(
+                        template.format(
+                            source_dirs='", "'.join(source_dirs),
+                            languages='", "'.join(languages),
+                        )
+                    )
+            runtimes.append(rts_path)
+
+            # Install build script
+            build_script_tmpl = readfile(getdatafilepath("build.py.in"))
+            with open(os.path.join(rts_path, "build.py"), "w") as fp:
+                fp.write(build_script_tmpl)
 
             # Finally install extra sources and projects if requested by the
             # target
@@ -322,9 +323,5 @@ class Installer(object):
                     if not os.path.exists(dest):
                         os.makedirs(dest)
                     install_files(src_list, dest)
-            extra_prjs = self.tgt.other_projects(rts_base_name)
-            if extra_prjs is not None:
-                projects += [os.path.join(rts_path, prj)
-                             for prj in extra_prjs]
 
-        return projects
+        return runtimes
