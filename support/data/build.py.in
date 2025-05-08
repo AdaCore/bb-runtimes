@@ -1,0 +1,66 @@
+import argparse
+import glob
+import os
+import re
+import subprocess
+import sys
+
+runtime_path = os.path.dirname(os.path.abspath(__file__))
+
+def get_runtime_version():
+    system_ali = os.path.join(runtime_path, "adalib", "system.ali")
+    with open(system_ali, "r") as ali:
+        return re.match("V \"GNAT Lib v([0-9]{2}\\.?[^\"]*)", ali.readline()).group(1)
+
+def main(shared, build_flags):
+    projects = glob.glob("*.gpr", root_dir=runtime_path)
+    projects.remove("target_options.gpr")
+    projects.remove("runtime_build.gpr")
+    if "ravenscar_build.gpr" in projects:
+        projects.remove("ravenscar_build.gpr")
+        projects.append("ravenscar_build.gpr")
+    else:
+        projects.append("runtime_build.gpr")
+
+    print(f"Building runtime {runtime_path}")
+    obj_dir = os.path.join(runtime_path, "obj")
+    for prj in projects:
+        print(f"Building project {prj}")
+        sys.stdout.flush()
+        cmd = ["gprbuild", "-j0", "-p", "-v", "-P", os.path.join(runtime_path, prj)]
+        if build_flags is not None:
+            cmd += build_flags.split()
+        subprocess.check_call(cmd)
+        if shared:
+            cmd.extend(["-f", "-XLIBRARY_TYPE=dynamic", "-largs", "-L" + obj_dir])
+            subprocess.check_call(cmd)
+        cleanup_ext = (".o", ".ali", ".stdout", ".stderr", ".d", ".lexch", ".so")
+        for fname in os.listdir(obj_dir):
+            _, ext = os.path.splitext(fname)
+            if ext in cleanup_ext:
+                os.unlink(os.path.join(obj_dir, fname))
+    if shared:
+        shared_objects = glob.glob("*.so", root_dir=os.path.join(runtime_path, "adalib"))
+        runtime_version = get_runtime_version()
+        for so in shared_objects:
+            if runtime_version not in so:
+                so = os.path.join(runtime_path, "adalib", so)
+                versioned_so = f"{so[:-3]}-{runtime_version}.so"
+                if os.path.exists(versioned_so):
+                    if os.path.isfile(versioned_so):
+                        os.remove(versioned_so)
+                    else:
+                        raise os.IsADirectoryError(f"Cannot remove {versioned_so}, is a directory")
+                os.symlink(so, versioned_so)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--shared",
+        action="store_true",
+        help="Additionally build shared runtime "
+        "(only available on platforms that support shared libraries)",
+    )
+    parser.add_argument("--build-flags", help="Flags passed to gprbuild")
+    args = parser.parse_args()
+    main(args.shared, args.build_flags)

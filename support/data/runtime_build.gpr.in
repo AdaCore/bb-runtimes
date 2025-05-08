@@ -9,7 +9,6 @@ project Runtime_Build is
   for Library_Name use "gnat";
   for Library_Kind use Target_Options.Lib;
   for Library_Options use Target_Options.LOPTIONS;
-  for Library_Version use "libgnat-" & Target_Options.Version & ".so";
 
   for Library_Dir use "adalib";
   for Object_Dir use "obj";
