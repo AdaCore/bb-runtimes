@@ -370,7 +370,12 @@ sources = {
         "bb_srcs": ["hie/a-elchha__zfp.adb"],
         "freertos_srcs": ["hie/a-elchha__zfp.adb"],
         "linux_srcs": ["hie/a-elchha__zfp.adb"],
-        "lynx_srcs": ["hie/a-elchha__zfp.adb"],
+        "lynx_srcs": [
+            "hie/a-elchha__traceback.adb",
+            "libgnat/s-traent.ads",
+            "libgnat/s-traent.adb",
+            "hie/s-traceb__cert.ads",
+        ],
         "pikeos_srcs": ["hie/a-elchha__zfp.adb"],
         "qnx_srcs": [
             "hie/a-elchha__traceback.adb",
@@ -425,6 +430,11 @@ sources = {
     },
     "light/aarch64": {
         "conditions": ["CPU_Family:aarch64", "RTS_Profile:light,light-tasking"],
+        "lynx_srcs": [
+            "hie/s-traceb__zfp.adb",
+            "hie/s-tracon__zfp.ads",
+            "hie/s-tracon__zfp-aarch64.adb",
+        ],
         "qnx_srcs": [
             "hie/s-traceb__zfp.adb",
             "hie/s-tracon__zfp.ads",
