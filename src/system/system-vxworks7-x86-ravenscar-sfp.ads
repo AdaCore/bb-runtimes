@@ -7,7 +7,7 @@
 --                                 S p e c                                  --
 --                (VxWorks7  / CERT Ravenscar Version X86)                  --
 --                                                                          --
---          Copyright (C) 1992-2023, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2025, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -179,7 +179,6 @@ private
    Always_Compatible_Rep     : constant Boolean := True;
    Suppress_Standard_Library : constant Boolean := True;
    Use_Ada_Main_Program_Name : constant Boolean := True;
-   Frontend_Exceptions       : constant Boolean := False;
    ZCX_By_Default            : constant Boolean := False;
 
    Executable_Extension : constant String := ".out";

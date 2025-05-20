@@ -167,7 +167,6 @@ private
    Always_Compatible_Rep     : constant Boolean := True;
    Suppress_Standard_Library : constant Boolean := False;
    Use_Ada_Main_Program_Name : constant Boolean := False;
-   Frontend_Exceptions       : constant Boolean := False;
    ZCX_By_Default            : constant Boolean := True;
 
    --  Select the appropriate entry point, linker script, and libraries for a
