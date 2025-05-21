@@ -80,6 +80,4 @@ class Aarch64Lynx(Lynx):
             # Build against "production" mode.
             "-DPRODUCTION=2",
             "-DBUILD_MODE=2",
-            # The customer behind that initial port required -fPIC support.
-            "-fPIC",
         ]
