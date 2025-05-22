@@ -7,7 +7,7 @@
 --                                 S p e c                                  --
 --                            (PPC e500v2 Version)                          --
 --                                                                          --
---          Copyright (C) 1992-2023, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2025, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -143,8 +143,6 @@ private
    Denorm                    : constant Boolean := True;
    Duration_32_Bits          : constant Boolean := False;
    Exit_Status_Supported     : constant Boolean := False;
-   Fractional_Fixed_Ops      : constant Boolean := False;
-   Frontend_Layout           : constant Boolean := False;
    Machine_Overflows         : constant Boolean := True;
    Machine_Rounds            : constant Boolean := True;
    Preallocated_Stacks       : constant Boolean := True;
@@ -159,7 +157,6 @@ private
    Always_Compatible_Rep     : constant Boolean := True;
    Suppress_Standard_Library : constant Boolean := False;
    Use_Ada_Main_Program_Name : constant Boolean := False;
-   Frontend_Exceptions       : constant Boolean := False;
    ZCX_By_Default            : constant Boolean := True;
 
 end System;
