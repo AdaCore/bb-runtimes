@@ -76,8 +76,9 @@ class Aarch64Lynx(Lynx):
 
     def amend_rts(self, rts_profile, cfg):
         cfg.build_flags["common_flags"] += [
-            # Force "dev" build mode instead of the default "unikernel".
-            "-DBUILD_MODE=3",
+            # Build against "production" mode.
+            "-DPRODUCTION=2",
+            "-DBUILD_MODE=2",
             # The customer behind that initial port required -fPIC support.
             "-fPIC",
         ]

@@ -288,10 +288,10 @@ sources = {
             "hie/a-textio__lynxos178.adb",
             "hie/g-io__zfp.ads",
             "hie/g-io__zfp.adb",
-            "hie/g-io-put.adb",
+            "hie/g-io-put__lynxos178.adb",
             "hie/s-macres.ads",
             "hie/s-textio__libc.ads",
-            "hie/s-textio__libc.adb",
+            "hie/s-textio__lynxos178.adb",
         ],
         "pikeos_srcs": [
             "hie/a-textio.ads",
