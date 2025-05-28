@@ -102,7 +102,7 @@ package System.BB.Parameters is
    -- CPUS --
    ----------
 
-   Max_Number_Of_CPUs : constant := 4;
+   Max_Number_Of_CPUs : constant := 2;
    --  Maximum number of CPUs avaialble on the target.
    --  Note: the actual number of CPUs can be lower than this number, in
    --  which case the runtime will adjust the CPUs according to the actual
