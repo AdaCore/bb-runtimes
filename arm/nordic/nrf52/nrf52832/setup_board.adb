@@ -141,63 +141,63 @@ procedure Setup_Board is
    --  is applicable ("COMP: Reference ladder not correctly calibrated").
 
    function Errata_12 return Boolean is
-      (((Undocumented_Reg_1 and 16#FF#) = 6)
-       and ((Undocumented_Reg_2 and 16#F#) = 0)
-       and ((Undocumented_Reg_3 and 16#F0#) in 16#30# | 16#40# | 16#50#))
+      ((Undocumented_Reg_1 and 16#FF#) = 6
+       and (Undocumented_Reg_2 and 16#F#) = 0
+       and (Undocumented_Reg_3 and 16#F0#) in 16#30# | 16#40# | 16#50#)
      with Inline_Always;
 
    function Errata_16 return Boolean is
-      (((Undocumented_Reg_1 and 16#FF#) = 6)
-       and ((Undocumented_Reg_2 and 16#F#) = 0)
-       and ((Undocumented_Reg_3 and 16#F0#) = 16#30#))
+      ((Undocumented_Reg_1 and 16#FF#) = 6
+       and (Undocumented_Reg_2 and 16#F#) = 0
+       and (Undocumented_Reg_3 and 16#F0#) = 16#30#)
      with Inline_Always;
 
    function Errata_31 return Boolean is
-      (((Undocumented_Reg_1 and 16#FF#) = 6)
-       and ((Undocumented_Reg_2 and 16#F#) = 0)
-       and ((Undocumented_Reg_3 and 16#F0#) in 16#30# | 16#40# | 16#50#))
+      ((Undocumented_Reg_1 and 16#FF#) = 6
+       and (Undocumented_Reg_2 and 16#F#) = 0
+       and (Undocumented_Reg_3 and 16#F0#) in 16#30# | 16#40# | 16#50#)
      with Inline_Always;
 
    function Errata_32 return Boolean is
-      (((Undocumented_Reg_1 and 16#FF#) = 6)
-       and ((Undocumented_Reg_2 and 16#F#) = 0)
-       and ((Undocumented_Reg_3 and 16#F0#) = 16#30#))
+      ((Undocumented_Reg_1 and 16#FF#) = 6
+       and (Undocumented_Reg_2 and 16#F#) = 0
+       and (Undocumented_Reg_3 and 16#F0#) = 16#30#)
      with Inline_Always;
 
    function Errata_36 return Boolean is
-      (((Undocumented_Reg_1 and 16#FF#) = 6)
-       and ((Undocumented_Reg_2 and 16#F#) = 0)
-       and ((Undocumented_Reg_3 and 16#F0#) in 16#30# | 16#40# | 16#50#))
+      ((Undocumented_Reg_1 and 16#FF#) = 6
+       and (Undocumented_Reg_2 and 16#F#) = 0
+       and (Undocumented_Reg_3 and 16#F0#) in 16#30# | 16#40# | 16#50#)
      with Inline_Always;
 
    function Errata_37 return Boolean is
-      (((Undocumented_Reg_1 and 16#FF#) = 6)
-       and ((Undocumented_Reg_2 and 16#F#) = 0)
-       and ((Undocumented_Reg_3 and 16#F0#) = 16#30#))
+      ((Undocumented_Reg_1 and 16#FF#) = 6
+       and (Undocumented_Reg_2 and 16#F#) = 0
+       and (Undocumented_Reg_3 and 16#F0#) = 16#30#)
      with Inline_Always;
 
    function Errata_57 return Boolean is
-      (((Undocumented_Reg_1 and 16#FF#) = 6)
-       and ((Undocumented_Reg_2 and 16#F#) = 0)
-       and ((Undocumented_Reg_3 and 16#F0#) = 16#30#))
+      ((Undocumented_Reg_1 and 16#FF#) = 6
+       and (Undocumented_Reg_2 and 16#F#) = 0
+       and (Undocumented_Reg_3 and 16#F0#) = 16#30#)
      with Inline_Always;
 
    function Errata_66 return Boolean is
-      (((Undocumented_Reg_1 and 16#FF#) = 6)
-       and ((Undocumented_Reg_2 and 16#F#) = 0)
-       and ((Undocumented_Reg_3 and 16#F0#) = 16#50#))
+      ((Undocumented_Reg_1 and 16#FF#) = 6
+       and (Undocumented_Reg_2 and 16#F#) = 0
+       and (Undocumented_Reg_3 and 16#F0#) = 16#50#)
      with Inline_Always;
 
    function Errata_108 return Boolean is
-      (((Undocumented_Reg_1 and 16#FF#) = 6)
-       and ((Undocumented_Reg_2 and 16#F#) = 0)
-       and ((Undocumented_Reg_3 and 16#F0#) in 16#30# | 16#40# | 16#50#))
+      ((Undocumented_Reg_1 and 16#FF#) = 6
+       and (Undocumented_Reg_2 and 16#F#) = 0
+       and (Undocumented_Reg_3 and 16#F0#) in 16#30# | 16#40# | 16#50#)
      with Inline_Always;
 
    function Errata_136 return Boolean is
-      (((Undocumented_Reg_1 and 16#FF#) = 6)
-       and ((Undocumented_Reg_2 and 16#F#) = 0)
-       and ((Undocumented_Reg_3 and 16#F0#) in 16#30# | 16#40# | 16#50#))
+      ((Undocumented_Reg_1 and 16#FF#) = 6
+       and (Undocumented_Reg_2 and 16#F#) = 0
+       and (Undocumented_Reg_3 and 16#F0#) in 16#30# | 16#40# | 16#50#)
      with Inline_Always;
 
    function Errata_182 return Boolean is
