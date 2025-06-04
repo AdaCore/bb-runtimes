@@ -51,7 +51,7 @@ def main(shared, build_flags):
                         os.remove(versioned_so)
                     else:
                         raise os.IsADirectoryError(f"Cannot remove {versioned_so}, is a directory")
-                os.symlink(so, versioned_so)
+                os.symlink(os.path.basename(so), versioned_so)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
