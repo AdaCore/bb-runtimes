@@ -79,8 +79,7 @@ package System is
    Max_Mantissa          : constant := Standard'Max_Integer_Size - 1;
    Fine_Delta            : constant := 2.0 ** (-Max_Mantissa);
 
-   --  TODO: check
-   Tick                  : constant := 0.01;
+   Tick                  : constant := 0.000_000_001; --  1 ns
 
    --  Storage-related Declarations
 
@@ -114,7 +113,6 @@ package System is
    pragma Warnings (Off, Default_Bit_Order); -- kill constant condition warning
 
    --  Priority-related Declarations (RM D.1)
-   --  TODO: check
 
    --  17 is the system determined default priority for user applications
    --  running on LynxOS.
