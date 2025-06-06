@@ -50,8 +50,11 @@ pragma Restrictions (No_Implicit_Dynamic_Code);
 pragma Restrictions (No_Finalization);
 --  Controlled types are not supported in this run time
 
-pragma Restrictions (No_Tasking);
---  Tasking is not supported in this run time
+pragma Restrictions (No_Use_Of_Pragma => Attach_Handler);
+pragma Restrictions (No_Specification_Of_Aspect => Attach_Handler);
+--  This pragma is not supported by the Ravenscar Cert profile
+
+pragma Profile (Jorvik);
 
 package System is
    pragma Pure;
@@ -177,6 +180,7 @@ private
    Always_Compatible_Rep     : constant Boolean := False;
    Suppress_Standard_Library : constant Boolean := True;
    Use_Ada_Main_Program_Name : constant Boolean := False;
+   Frontend_Exceptions       : constant Boolean := False;
    ZCX_By_Default            : constant Boolean := True;
 
 end System;
