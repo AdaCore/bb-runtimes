@@ -69,6 +69,10 @@ class Aarch64Lynx(Lynx):
         return "lynx"
 
     @property
+    def is_64bit(self):
+        return True
+
+    @property
     def system_ads(self):
         return {
             "light": "system-lynxos178-aarch64-light.ads",
