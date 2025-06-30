@@ -8,7 +8,7 @@
 --                                                                          --
 --        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
 --             Copyright (C) 2003-2005 The European Space Agency            --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2025, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -356,7 +356,15 @@ package body System.BB.Board_Support is
       IRQ_Number       : Interrupt_ID;
       Exception_Number : Word;
 
+      PRIMASK : Word;
    begin
+      Asm ("mrs %0, PRIMASK",
+           Outputs => Word'Asm_Output ("=&r", PRIMASK),
+           Volatile => True);
+      Asm ("msr PRIMASK, %0",
+           Inputs  => Word'Asm_Input  ("r", 1),
+           Volatile => True);
+
       --  The exception number is read from the IPSR
 
       Asm ("mrs %0, ipsr",
@@ -371,6 +379,12 @@ package body System.BB.Board_Support is
       IRQ_Number := Interrupt_ID'Base (Exception_Number) - (Trap_Vectors - 1);
 
       Interrupt_Wrapper (IRQ_Number);
+
+      --  Restore interrupt mask
+
+      Asm ("msr PRIMASK, %0",
+           Inputs => Word'Asm_Input ("r", PRIMASK),
+           Volatile => True);
    end Interrupt_Handler;
 
    ------------------------------
