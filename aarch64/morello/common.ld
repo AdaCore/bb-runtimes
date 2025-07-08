@@ -171,7 +171,7 @@ SECTIONS
     __data_load = .;
     __data = .;
     __data_start = .;
-    *(.data .gnu.linkonce.d*)
+    *(.data .data.* .gnu.linkonce.d*)
     . = ALIGN(0x10);
     __data_end = .;
     __data_dwords = (__data_end - __data_start) >> 3;
