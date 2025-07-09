@@ -11,7 +11,6 @@ project Ravenscar_Build is
    for Library_Name use "gnarl";
    for Library_Kind use Runtime_Build'Library_Kind;
    for Library_Options use Runtime_Build'Library_Options;
-   for Library_Version use "libgnarl-" & Target_Options.Version & ".so";
 
    for Library_Dir use "adalib";
    for Object_Dir use "obj";

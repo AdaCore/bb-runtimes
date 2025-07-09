@@ -14,27 +14,6 @@ _SRC_SEARCH_PATH = [REPO_DIR, ]
 _TARGET_COMPILER = Compiler.gnat
 
 
-def get_gnat_version(gnat_dir):
-    try:
-        with open(os.path.join(os.path.abspath(gnat_dir), "gnatvsn.ads"), 'r') as fd:
-            gnatvsn_content = fd.read()
-    except Exception:
-        print('cannot find gnatvsn.ads')
-        sys.exit(1)
-    m = re.search(r'Library_Version : ' +
-                  r'constant String := "([0-9]+)(\.([0-9]+))?";',
-                  gnatvsn_content)
-    if m:
-        version = m.group(1).strip().split(".")[0]
-        date = m.group(3)
-        if date:
-            return f"{version}.{date}"
-        return version
-
-    print('cannot find GNAT version in gnatvsn.ads')
-    sys.exit(1)
-
-
 def add_source_search_path(path):
     """Adds an additional default search path for source files"""
     abspath = os.path.abspath(path)
