@@ -10,9 +10,6 @@ abstract project Target_Options is
   type Lib_Type is ("static", "dynamic");
   Lib : Lib_Type := external ("LIBRARY_TYPE", "static");
 
-  --  GNAT version string
-  Version := external ("GNAT_VERSION", "{gnat_version}");
-
   --  COMFLAGS here is common flags (used for C and Ada).
   COMFLAGS := ("{common_flags}");
   COMGNARLFLAGS := ("{common_gnarl_flags}");

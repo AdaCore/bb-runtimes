@@ -112,6 +112,7 @@ from freertos import ArmV7AFP_FreeRTOS
 from lynx import PPCLynx, Aarch64Lynx
 
 import argparse
+import importlib
 import os
 import subprocess
 import sys
@@ -432,12 +433,12 @@ def main():
         os.makedirs(dest)
 
     # Install the runtimes sources
-    projects = []
+    runtimes = []
     for board in boards:
         print("install runtime sources for %s" % board.name)
         sys.stdout.flush()
         installer = Installer(board)
-        projects += installer.install(
+        runtimes += installer.install(
             dest,
             rts_descriptor=args.rts_src_descriptor,
             profiles=args.profiles.split(",") if args.profiles is not None else None,
@@ -445,29 +446,36 @@ def main():
 
     # and build them
     if args.build:
-        for prj in projects:
+        for rt in runtimes:
             # Objects needed before building the runtime
-            obj_dir = os.path.join(os.path.dirname(prj), "obj")
+            obj_dir = os.path.join(rt, "obj")
             if not os.path.isdir(obj_dir):
                 if os.path.exists(obj_dir):
                     raise RuntimeError("obj should be a directory")
                 os.makedirs(obj_dir)
             board.pre_build_step(obj_dir)
-            print("building project %s" % prj)
-            sys.stdout.flush()
-            cmd = ["gprbuild", "-j0", "-p", "-v", "-P", prj]
-            if args.build_flags is not None:
-                cmd += args.build_flags.split()
-            subprocess.check_call(cmd)
-            if args.shared:
-                cmd.extend(["-f", "-XLIBRARY_TYPE=dynamic", "-largs", "-L" + obj_dir])
-                subprocess.check_call(cmd)
-            # Post-process: remove build artifacts from obj directory
-            cleanup_ext = (".o", ".ali", ".stdout", ".stderr", ".d", ".lexch", ".so")
-            for fname in os.listdir(obj_dir):
-                _, ext = os.path.splitext(fname)
-                if ext in cleanup_ext:
-                    os.unlink(os.path.join(obj_dir, fname))
+
+            # Import and call runtime-specific build script
+
+            # Add the runtime path to the Python path. To ensure the correct module is
+            # loaded the runtime location is inserted as the first element of the path.
+            sys.path.insert(0, rt)
+            import build as rts_build
+
+            # Reload the imported module. This is important as by default Python caches modules
+            # by name. If the module is not reloaded explicitly Python will reuse the same module
+            # that has been imported first over and over again, even if it has been removed with
+            # del.
+            importlib.reload(rts_build)
+
+            # Call the build script
+            rts_build.main(args.shared, args.build_flags)
+
+            # Delete the module
+            del rts_build
+
+            # Remove the runtime from the Python path
+            sys.path.remove(rt)
 
     print("runtimes successfully installed in %s" % dest)
 
