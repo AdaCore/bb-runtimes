@@ -2061,6 +2061,8 @@ sources = {
             "hie/s-taprop.ads",
             "hie/s-taspri.ads",
             "hie/s-tpobmu.adb",
+            "hie/s-trahoo.ads",
+            "hie/s-trahoo.adb",
             "hie/s-osinte.ads",
         ],
         "linux_srcs": [
