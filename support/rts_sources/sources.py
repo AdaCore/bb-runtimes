@@ -1375,9 +1375,9 @@ sources = {
             "hie/s-gcmain__cert.ads",
             "hie/s-gcmain__cert.adb",
             "hie/a-nllefu__cert.ads",
-            "hie/a-nuaufl__light.ads",
+            "hie/a-nuaufl__light-float.ads",
             "hie/a-nalofl__light.ads",
-            "hie/a-nallfl__light.ads",
+            "hie/a-nallfl__light-long-double.ads",
             "libgnat/a-naliop.ads",
         ],
         "lynx_srcs": [
