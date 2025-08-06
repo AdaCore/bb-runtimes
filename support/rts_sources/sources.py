@@ -1377,7 +1377,6 @@ sources = {
             "hie/a-nllefu__cert.ads",
             "hie/a-nuaufl__light-float.ads",
             "hie/a-nalofl__light.ads",
-            "hie/a-nallfl__light-long-double.ads",
             "libgnat/a-naliop.ads",
         ],
         "lynx_srcs": [
@@ -1441,6 +1440,7 @@ sources = {
         "conditions": ["Add_Math_Lib:!no", "CPU_Family:!x86,!x86_64"],
         "bb_srcs": ["libgnat/a-nllefu.ads"],
         "freertos_srcs": ["libgnat/a-nllefu.ads"],
+        "linux_srcs": ["hie/a-nallfl__light.ads"],
         "pikeos_srcs": ["libgnat/a-nllefu.ads"],
     },
     "math/long_long_80bit": {
@@ -1451,6 +1451,9 @@ sources = {
             "hie/s-lldosq__ada.ads",
             "hie/s-lldosq__fpu.adb",
             "hie/a-nllefu__ada.ads",
+        ],
+        "linux_srcs": [
+            "hie/a-nallfl__light-long-double.ads",
         ],
         "pikeos_srcs": [
             "hie/s-lilodo__ada.ads",
