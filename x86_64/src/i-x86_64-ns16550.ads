@@ -77,6 +77,7 @@ package Interfaces.X86_64.NS16550 with Pure, No_Elaboration_Code_All is
       Impending_Error   at 0 range 7 .. 7;
    end record;
 
+   procedure Initialize (Port : IO_Port);
    procedure Set_Line_Control (Data : Line_Control; Port : IO_Port);
    function Get_Line_Status (Port : IO_Port) return Line_Status;
    function Read_Data (Port : IO_Port) return Character;

@@ -52,8 +52,7 @@ package body System.Text_IO is
 
    procedure Initialize is
    begin
-      --  Rely on the COM port's default initialisation
-
+      Initialize (COM1_Port);
       Initialized := True;
    end Initialize;
 
