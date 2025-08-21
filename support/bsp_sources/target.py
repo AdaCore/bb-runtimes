@@ -240,6 +240,24 @@ class Target(TargetConfiguration, ArchSupport):
             rts.build_flags = copy.deepcopy(self.build_flags)
             rts.config_files = {}
 
+            if not self.is_os_target and not self.has_cheri:
+                # Ensure that the spec file is available for bare-metal
+                # targets to support C++ constructors/destructors and
+                # exception handling tables when supporting exception
+                # propagation.
+                if base_profile in ["light", "light-tasking"]:
+                    rts.config_files.update(
+                        {
+                            "link-noexceptions.spec": readfile(
+                                "support/data/link-noexceptions.spec"
+                            )
+                        }
+                    )
+                elif base_profile == "embedded":
+                    rts.config_files.update(
+                        {"link-zcx.spec": readfile("support/data/link-zcx.spec")}
+                    )
+
             # Update the runtimes objects according to target specifications
             self.amend_rts(profile, rts)
             # Check that dependencies are met
@@ -326,7 +344,7 @@ class Target(TargetConfiguration, ArchSupport):
                 % target_loaders[0]
             )
 
-        # Add Compiler pacakge
+        # Add Compiler package
         ret += "   package Compiler is\n"
 
         compiler_switches = self.compiler_switches + self.global_compiler_switches
@@ -379,15 +397,21 @@ class Target(TargetConfiguration, ArchSupport):
             # For the Light and Light Tasking runtimes we have the choice of
             # either using libgcc or our Ada libgcc replacement. For the
             # later choice we do not link with any of the standard libraries.
-            #
-            # LLVM doesn't use start files on most bareboard targets, so we
-            # don't pass "-nostartfiles" to avoid a linker warning.
             if rts.rts_vars["Certifiable_Packages"] == "yes":
                 ret += blank + '"-nostdlib",'
-            elif using_llvm_compiler():
-                ret += blank + '"-nolibc",'
             else:
-                ret += blank + '"-nostartfiles", "-nolibc",'
+                ret += blank + '"-nolibc",'
+
+            # Add spec file for bare-metal targets to support C++
+            # constructors/destructors and exception handling tables for
+            # exception propagation.
+            if not self.has_cheri:
+                ret += (
+                    "\n"
+                    + blank
+                    + '"--specs=${RUNTIME_DIR(Ada)}/link-noexceptions.spec",'
+                )
+
         else:
             # In the Embedded case, the runtime depends on functionalities
             # from newlib, such as memory allocation. This runtime also does
@@ -412,13 +436,18 @@ class Target(TargetConfiguration, ArchSupport):
             if not using_llvm_compiler():
                 ret += (
                     blank
-                    + '"-nostartfiles", "-nolibc", '
+                    + '"-nolibc", '
                     + '"-Wl,--start-group,'
                     + "-lgnarl,-lgnat,-lc,-lgcc,-lgcc_eh,"
                     + '--end-group",'
                 )
             else:
                 ret += blank + '"-nolibc", "-lgnarl", "-lgnat", "-lc", "-lunwind",'
+
+            # Add spec file for bare-metal targets to support C++
+            # constructors/destructors.
+            if not self.has_cheri:
+                ret += "\n" + blank + '"--specs=${RUNTIME_DIR(Ada)}/link-zcx.spec",'
 
         # Add linker paths (only needed for bare-metal runtimes)
         if not self.is_os_target:

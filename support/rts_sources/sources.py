@@ -124,6 +124,7 @@ all_scenarios = {
     "Add_Image_Util": ["no", "yes"],
     "Add_IO_Exceptions": ["no", "yes"],
     "Add_Value_Utils": ["no", "yes"],
+    "Add_Ctors_Dtors": ["no", "yes"],
 }
 
 # Sources
@@ -1039,6 +1040,22 @@ sources = {
             "hie/s-gcdish.ads",
             "hie/s-gcdish.adb",
         ],
+    },
+    # run-time support for C++ constructors/destructors
+    "ctors_dtors": {
+        "conditions": ["Add_Ctors_Dtors:yes"],
+        "srcs": [
+            "hie/s-libc.ads",
+            "hie/s-libc.adb",
+        ],
+    },
+    "ctors_dtors/c": {
+        "conditions": ["Add_Ctors_Dtors:yes", "CPU_Family:powerpc,leon"],
+        "srcs": ["hie/s-liinfi__c.adb"],
+    },
+    "ctors_dtors/default": {
+        "conditions": ["Add_Ctors_Dtors:yes", "CPU_Family:!powerpc,!leon"],
+        "srcs": ["hie/s-liinfi.adb"],
     },
     # Text_IO
     "system_io": {

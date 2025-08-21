@@ -107,27 +107,24 @@ class PPC6XXTarget(DFBBTarget):
             "embedded": "system-xi-ppc-full.ads",
         }
 
-    def dump_runtime_xml(self, rts_name, rts):
-        cnt = super(PPC6XXTarget, self).dump_runtime_xml(rts_name, rts)
-        if rts_name == "embedded":
-            cnt = cnt.replace(
-                '"-nostartfiles"',
-                (
-                    '"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
-                    '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"'
-                ),
-            )
-        return cnt
-
     def amend_rts(self, rts_profile, conf):
         super(PPC6XXTarget, self).amend_rts(rts_profile, conf)
         # kill shrink-wrap-separate when building the runtime as this prevents
         # the frame to be properly built and thus prevents gdb from unwinding
         # the runtime (see R220-013).
         conf.build_flags["common_flags"] += ["-fno-shrink-wrap-separate"]
+        # PowerPC uses ncrti.o and ncrtn.o which are the EABI compliant
         if rts_profile == "embedded":
             conf.config_files.update(
                 {"link-zcx.spec": readfile("powerpc/prep/link-zcx.spec")}
+            )
+        else:
+            conf.config_files.update(
+                {
+                    "link-noexceptions.spec": readfile(
+                        "powerpc/prep/link-noexceptions.spec"
+                    )
+                }
             )
 
     def __init__(self):

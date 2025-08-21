@@ -6,7 +6,7 @@
 #                                                                           #
 #                               Assembly File                               #
 #                                                                           #
-#                        Copyright (C) 2020 AdaCore                         #
+#                      Copyright (C) 2020-2025 AdaCore                      #
 #                                                                           #
 #  GNAT is free software;  you can  redistribute it  and/or modify it under #
 #  terms of the  GNU General Public License as published  by the Free Soft- #
@@ -298,8 +298,36 @@ __start64:
         # GCC expects the direction flag to be cleared
         cld
 
+        # Run global constructors
+        call    __libc_init_array
+
         # Call main
         call    main
 
+        # Save returned value before calling the global destructors
+        mov     %bx, %ax
+
+        # Cleanup global destructors
+        call    __libc_fini_array
+
+        # Restore exit status code
+        mov     %ax, %bx
+
         # Stop the machine
-        call    _exit
+        call    exit
+
+        # __libc_init_array and __libc_fini_array call _init and _fini,
+        # but the crti.o and crtn.o objects are not available.
+        .globl _init
+        .type _init,@function
+        .weak _init
+        .section ".init"
+_init:
+        ret
+
+        .globl _fini
+        .type _fini,@function
+        .weak _fini
+        .section ".fini"
+_fini:
+        ret

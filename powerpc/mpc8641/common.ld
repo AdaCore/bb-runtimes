@@ -32,6 +32,7 @@ SECTIONS
     . = ALIGN(4);
     *(.rodata .rodata.* .gnu.linkonce.r.*)
     *(.rodata1)
+    *(.got)
     *(.got2)
     . = ALIGN(4);
   } > ROMABLE_REGION = 0
@@ -41,8 +42,22 @@ SECTIONS
      collection of per-object pieces.  */
 
   .init  : { KEEP(*(.init)) } > ROMABLE_REGION
-  .ctors : { KEEP(SORT_BY_NAME(*)(.ctors)) } > ROMABLE_REGION
-  .dtors : { KEEP(SORT_BY_NAME(*)(.dtors)) } > ROMABLE_REGION
+
+  .ctors :
+  {
+    PROVIDE_HIDDEN (___CTOR_LIST__ = .);
+    KEEP(*(.ctors))
+    PROVIDE_HIDDEN (___CTOR_END__ = .);
+  } > ROMABLE_REGION
+
+  .dtors :
+  {
+    PROVIDE_HIDDEN (___DTOR_LIST__ = .);
+    KEEP(*(.dtors*))
+    PROVIDE_HIDDEN (___DTOR_END__ = .);
+  } > ROMABLE_REGION
+
+  .fini  : { KEEP(*(.fini)) } > ROMABLE_REGION
 
   .eh_frame_hdr :
   {
@@ -52,6 +67,26 @@ SECTIONS
 
   .eh_frame  : { KEEP (*(.eh_frame)) } > ROMABLE_REGION
   .gcc_except_table : { *(.gcc_except_table .gcc_except_table.*) } > ROMABLE_REGION
+
+  .preinit_array (ALIGN(4)) : {
+     PROVIDE_HIDDEN (__preinit_array_start = .);
+     KEEP (*(.preinit_array))
+     PROVIDE_HIDDEN (__preinit_array_end = .);
+  } > ROMABLE_REGION
+
+  .init_array (ALIGN(4)) : {
+     PROVIDE_HIDDEN (__init_array_start = .);
+     KEEP (*(SORT(.init_array.*)))
+     KEEP (*(.init_array))
+     PROVIDE_HIDDEN (__init_array_end = .);
+  } > ROMABLE_REGION
+
+  .fini_array (ALIGN(4)) : {
+     PROVIDE_HIDDEN (__fini_array_start = .);
+     KEEP (*(SORT(.fini_array.*)))
+     KEEP (*(.fini_array))
+     PROVIDE_HIDDEN (__fini_array_end = .);
+  } > ROMABLE_REGION
 
   __sdata2_load = .;
   .sdata2 : AT (__sdata2_load)

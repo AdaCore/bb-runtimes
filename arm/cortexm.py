@@ -1,6 +1,7 @@
 # This module contains cortex-m bsp support
 from support.bsp_sources.archsupport import ArchSupport
 from support.bsp_sources.target import Target
+from support import readfile
 
 import re
 
@@ -70,6 +71,15 @@ class ArmV6MTarget(Target):
 
         if self.use_semihosting_io:
             self.add_gnat_sources("src/s-sgshca__cortexm.adb")
+
+    def amend_rts(self, rts_profile, conf):
+        super(ArmV6MTarget, self).amend_rts(rts_profile, conf)
+        # Exception propagation uses ARM unwind tables in .ARM.exidx and
+        # not the DWARF .eh_frame.
+        if "embedded" in rts_profile:
+            conf.config_files.update(
+                {"link-zcx.spec": readfile("arm/src/link-zcx.spec")}
+            )
 
 
 class ArmV7MTarget(ArmV6MTarget):

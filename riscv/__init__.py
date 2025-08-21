@@ -27,19 +27,6 @@ class RiscV64(DFBBTarget):
     def system_ads(self):
         return {"light": "system-xi-riscv.ads"}
 
-    def dump_runtime_xml(self, rts_name, rts):
-        cnt = super(RiscV64, self).dump_runtime_xml(rts_name, rts)
-        if rts_name == "embedded":
-            cnt = cnt.replace(
-                '"-nostartfiles"', '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"'
-            )
-        return cnt
-
-    def amend_rts(self, rts_profile, conf):
-        super(DFBBTarget, self).amend_rts(rts_profile, conf)
-        if rts_profile == "embedded":
-            conf.config_files.update({"link-zcx.spec": readfile("riscv/link-zcx.spec")})
-
 
 class Spike(RiscV64):
     @property
@@ -156,19 +143,6 @@ class RiscV32(DFBBTarget):
     @property
     def has_timer_64(self):
         return True
-
-    def dump_runtime_xml(self, rts_name, rts):
-        cnt = super(RiscV32, self).dump_runtime_xml(rts_name, rts)
-        if rts_name == "embedded":
-            cnt = cnt.replace(
-                '"-nostartfiles"', '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"'
-            )
-        return cnt
-
-    def amend_rts(self, rts_profile, conf):
-        super(DFBBTarget, self).amend_rts(rts_profile, conf)
-        if rts_profile == "embedded":
-            conf.config_files.update({"link-zcx.spec": readfile("riscv/link-zcx.spec")})
 
 
 class HiFive1(RiscV32):

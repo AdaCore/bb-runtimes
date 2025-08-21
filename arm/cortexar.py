@@ -1,6 +1,7 @@
 # BSP support for Cortex-A/R
 from support.bsp_sources.archsupport import ArchSupport
 from support.bsp_sources.target import DFBBTarget
+from support import readfile
 
 
 class CortexARArch(ArchSupport):
@@ -47,6 +48,13 @@ class CortexARTarget(DFBBTarget):
             # the registers only when they are used by apps. This means that if
             # a FPU register is used out of context, then we're doomed.
             conf.build_flags["common_gnarl_flags"] += ["-mgeneral-regs-only"]
+
+        if "embedded" in rts_profile:
+            # Exception propagation uses ARM unwind tables in .ARM.exidx and
+            # not the DWARF .eh_frame.
+            conf.config_files.update(
+                {"link-zcx.spec": readfile("arm/src/link-zcx.spec")}
+            )
 
 
 class AM64xR5(CortexARTarget):
