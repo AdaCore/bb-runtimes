@@ -206,6 +206,13 @@ class RTSProfiles(object):
         else:
             ret["Target_Word_Size"] = "32"
 
+        # C++ constructors/destructors package
+        if self.config.is_os_target or self.config.has_cheri:
+            # not for OSs (it has libc) or morello (it does not support C++)
+            ret["Add_Ctors_Dtors"] = "no"
+        else:
+            ret["Add_Ctors_Dtors"] = "yes"
+
         return ret
 
     def light_tasking_scenarios(self, profile="light-tasking"):
@@ -242,6 +249,9 @@ class RTSProfiles(object):
         # We don't support certifiable components with Embedded since we
         # our libgcc replacement does not provide exception support.
         ret["Certifiable_Packages"] = "no"
+
+        # use libc
+        ret["Add_Ctors_Dtors"] = "no"
 
         if not self.config.is_pikeos:
             # PikeOS provides its own C library

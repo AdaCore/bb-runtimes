@@ -1,6 +1,7 @@
 # BSP support for x86_64
 from support.bsp_sources.archsupport import ArchSupport
 from support.bsp_sources.target import DFBBTarget
+from support import readfile
 
 
 class X8664Arch(ArchSupport):
@@ -49,18 +50,6 @@ class X8664Target(DFBBTarget):
             "light-tasking": "system-xi-x86_64-sfp.ads",
             "embedded": "system-xi-x86_64-full.ads",
         }
-
-    def dump_runtime_xml(self, rts_name, rts):
-        cnt = super(X8664Target, self).dump_runtime_xml(rts_name, rts)
-        if rts_name == "embedded":
-            cnt = cnt.replace(
-                '"-nostartfiles"',
-                (
-                    '"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
-                    '        "-nostartfiles"'
-                ),
-            )
-        return cnt
 
 
 class X8664Generic(X8664Target):
@@ -116,3 +105,11 @@ class X8664Generic(X8664Target):
             "x86_64/src/i-x86_64-io_apic.adb",
             "x86_64/src/i-x86_64-io_apic.ads",
         )
+
+    def amend_rts(self, rts_profile, conf):
+        super(X8664Generic, self).amend_rts(rts_profile, conf)
+        # crti.o and crtn.o do not exist for the x86_64 bare-metal compiler
+        if "embedded" in rts_profile:
+            conf.config_files.update(
+                {"link-zcx.spec": readfile("x86_64/generic/link-zcx.spec")}
+            )

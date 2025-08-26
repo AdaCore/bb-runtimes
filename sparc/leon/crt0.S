@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
  *             Copyright (C) 2003-2006 The European Space Agency            *
- *                      Copyright (C) 2003-2019 AdaCore                     *
+ *                      Copyright (C) 2003-2025 AdaCore                     *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -407,14 +407,27 @@ hardreset:
         bleu,a .Lzerobss
         nop
 
-        /* Call the main routine */
+        /* Run global constructors */
+        call    __libc_init_array
+         nop
 
-#ifdef CALL__init
-        call    _init
-        nop
-#endif /* !CALL__init */
+        /* Call the main routine */
         call    main
-        nop
+         nop
+
+        /* Save returned value before calling the global destructors */
+        mov     %o0, %l0
+
+        /* Cleanup global destructors */
+        call    __libc_fini_array
+         nop
+
+        /* restore exit status code */
+        mov     %l0, %o0
+
+        call exit
+         nop
+
         .size hardreset, . - hardreset
 
         .global _exit, _exit

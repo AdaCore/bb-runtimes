@@ -51,6 +51,20 @@ _start_ram:
         fssr x0              /* Set rounding mode */
 1:
 
+        /* Run global constructors */
+        call __libc_init_array
+
+        /* Call the main routine */
         call main
-        call _exit
+
+        /* Save returned value before calling the global destructors */
+        mv s0, a0
+
+        /* Cleanup global destructors */
+        call __libc_fini_array
+
+        /* restore exit status code */
+        mv a0, s0
+
+        call exit
 2:      j 2b

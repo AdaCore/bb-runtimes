@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
  *             Copyright (C) 2003-2006 The European Space Agency            *
- *                   Copyright (C) 2003-2013 AdaCore                        *
+ *                   Copyright (C) 2003-2025 AdaCore                        *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -52,7 +52,9 @@ SECTIONS
   .text :
   {
     KEEP (*(.vectors))
+    KEEP (*(.init))
     *(.text .text.* .gnu.linkonce.t*)
+    KEEP (*(.fini))
     *(.gnu.warning)
   } > sram_samba
 
@@ -60,6 +62,42 @@ SECTIONS
   {
     *(.rodata .rodata.* .gnu.linkonce.r*)
     . = ALIGN(0x4);
+  } > sram_samba
+
+  .eh_frame_hdr :
+  {
+     __eh_frame_hdr = .;
+    *(.eh_frame_hdr)
+  } > sram_samba
+
+  __eh_frame_hdr_start = SIZEOF(.eh_frame_hdr) > 0 ? ADDR(.eh_frame_hdr) : 0;
+  __eh_frame_hdr_end = SIZEOF(.eh_frame_hdr) > 0 ? . : 0;
+
+  .eh_frame         :
+  {
+     __eh_frame_start = .;
+     KEEP (*(.eh_frame))
+     __eh_frame_end = .;
+  } > sram_samba
+
+  .preinit_array (ALIGN(4)) : {
+     PROVIDE_HIDDEN (__preinit_array_start = .);
+     KEEP (*(.preinit_array))
+     PROVIDE_HIDDEN (__preinit_array_end = .);
+  } > sram_samba
+
+  .init_array (ALIGN(4)) : {
+     PROVIDE_HIDDEN (__init_array_start = .);
+     KEEP (*(SORT(.init_array.*)))
+     KEEP (*(.init_array))
+     PROVIDE_HIDDEN (__init_array_end = .);
+  } > sram_samba
+
+  .fini_array (ALIGN(4)) : {
+     PROVIDE_HIDDEN (__fini_array_start = .);
+     KEEP (*(SORT(.fini_array.*)))
+     KEEP (*(.fini_array))
+     PROVIDE_HIDDEN (__fini_array_end = .);
   } > sram_samba
 
   .data :

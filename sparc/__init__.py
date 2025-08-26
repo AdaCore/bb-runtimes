@@ -46,20 +46,16 @@ class LeonTarget(DFBBTarget):
 
     def amend_rts(self, rts_profile, conf):
         super(LeonTarget, self).amend_rts(rts_profile, conf)
-        if rts_profile == "embedded":
-            # Use leon-zcx.specs to link with -lc.
+        if rts_profile in ["light", "light-tasking"]:
+            # Constructors and destructors are executed from the .ctors and
+            # .dtors sections, so we need the crti.o and crtn.o objects.
             conf.config_files.update(
-                {"link-zcx.spec": readfile("sparc/leon/leon-zcx.specs")}
+                {
+                    "link-noexceptions.spec": readfile(
+                        "sparc/leon/link-noexceptions.spec"
+                    )
+                }
             )
-
-    def dump_runtime_xml(self, rts_name, rts):
-        cnt = super(LeonTarget, self).dump_runtime_xml(rts_name, rts)
-        cnt = cnt.replace(' "-nolibc",', "")
-        if rts_name == "embedded":
-            cnt = cnt.replace(
-                '"-nostartfiles",', '"--specs=${RUNTIME_DIR(ada)}/link-zcx.spec",'
-            )
-        return cnt
 
 
 class Leon2(LeonTarget):

@@ -48,8 +48,22 @@ _start_ram:
         csrs    mstatus, t0
 #endif
 
+        /* Run global constructors */
+        call __libc_init_array
+
+        /* Call the main routine */
         call main
-        call __gnat_exit
+
+        /* Save returned value before calling the global destructors */
+        mv s0, a0
+
+        /* Cleanup global destructors */
+        call __libc_fini_array
+
+        /* restore exit status code */
+        mv a0, s0
+
+        call exit
 
 infinite_loop:
         wfi

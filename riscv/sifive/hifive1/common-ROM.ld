@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
  *             Copyright (C) 2003-2006 The European Space Agency            *
- *                   Copyright (C) 2003-2018 AdaCore                        *
+ *                   Copyright (C) 2003-2025 AdaCore                        *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -51,6 +51,26 @@ SECTIONS
     KEEP (*(SORT_NONE(.start)))
     *(.text .text.* .gnu.linkonce.t*)
     *(.gnu.warning)
+  } > flash
+
+  .preinit_array (ALIGN(4)) : {
+     PROVIDE_HIDDEN (__preinit_array_start = .);
+     KEEP (*(.preinit_array))
+     PROVIDE_HIDDEN (__preinit_array_end = .);
+  } > flash
+
+  .init_array (ALIGN(4)) : {
+     PROVIDE_HIDDEN (__init_array_start = .);
+     KEEP (*(SORT(.init_array.*)))
+     KEEP (*(.init_array))
+     PROVIDE_HIDDEN (__init_array_end = .);
+  } > flash
+
+  .fini_array (ALIGN(4)) : {
+     PROVIDE_HIDDEN (__fini_array_start = .);
+     KEEP (*(SORT(.fini_array.*)))
+     KEEP (*(.fini_array))
+     PROVIDE_HIDDEN (__fini_array_end = .);
   } > flash
 
   .rodata :

@@ -8,7 +8,7 @@
  *                                                                          *
  *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
  *             Copyright (C) 2003-2006 The European Space Agency            *
- *                   Copyright (C) 2003-2014 AdaCore                        *
+ *                   Copyright (C) 2003-2025 AdaCore                        *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -146,14 +146,6 @@ SECTIONS
     . = ALIGN(4);
   } > ram =0
 
-  /* init, ctors and dtors sections.  Assume we really need them
-     when they happen to be generated, so KEEP to prevent garbage
-     collection of per-object pieces.  */
-
-  .init  : { KEEP(*(.init)) } > ram
-  .ctors : { KEEP(SORT_BY_NAME(*)(.ctors)) } > ram
-  .dtors : { KEEP(SORT_BY_NAME(*)(.dtors)) } > ram
-
   .eh_frame_hdr :
   {
      __eh_frame_hdr = .;
@@ -161,6 +153,26 @@ SECTIONS
   } > ram
   .eh_frame  : { KEEP (*(.eh_frame)) } > ram
   .gcc_except_table : { *(.gcc_except_table .gcc_except_table.*) } > ram
+
+  .preinit_array (ALIGN(4)) : {
+     PROVIDE_HIDDEN (__preinit_array_start = .);
+     KEEP (*(.preinit_array))
+     PROVIDE_HIDDEN (__preinit_array_end = .);
+  } > ram
+
+  .init_array (ALIGN(4)) : {
+     PROVIDE_HIDDEN (__init_array_start = .);
+     KEEP (*(SORT(.init_array.*)))
+     KEEP (*(.init_array))
+     PROVIDE_HIDDEN (__init_array_end = .);
+  } > ram
+
+  .fini_array (ALIGN(4)) : {
+     PROVIDE_HIDDEN (__fini_array_start = .);
+     KEEP (*(SORT(.fini_array.*)))
+     KEEP (*(.fini_array))
+     PROVIDE_HIDDEN (__fini_array_end = .);
+  } > ram
 
   .shbss :	{
     *(.shbss)

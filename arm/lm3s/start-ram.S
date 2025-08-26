@@ -6,7 +6,7 @@
 #                                                                           #
 #                               Assembly File                               #
 #                                                                           #
-#                         Copyright (C) 2012 AdaCore                        #
+#                       Copyright (C) 2012-2025 AdaCore                     #
 #                                                                           #
 #  GNAT is free software;  you can  redistribute it  and/or modify it under #
 #  terms of the  GNU General Public License as published  by the Free Soft- #
@@ -51,9 +51,23 @@ _start_ram:
 
 1:
 	bl	_ada_setup_pll
+
+	/* Run global constructors */
+	bl	__libc_init_array
+
+	/* Call the main routine */
 	bl	main
 
-	bl	_exit
+	/* Save returned value before calling the global destructors */
+	mov	r4, r0
+
+	/* Cleanup global destructors */
+	bl	__libc_fini_array
+
+	/* restore exit status code */
+	mov	r0, r4
+
+	bl	exit
 
 	.global __aeabi_ldiv0
 	.type __aeabi_ldiv0, %function

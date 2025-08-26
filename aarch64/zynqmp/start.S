@@ -290,9 +290,22 @@ __start_master_cpu:
         cbnz    x1, 0b
 1:
 
+        /* Run global constructors */
+        bl      __libc_init_array
+
         /* Call the main routine */
-        bl  main
-        bl  _exit
+        bl      main
+
+        /* Save returned value before calling the global destructors */
+        mov     x19, x0
+
+        /* Cleanup global destructors */
+        bl      __libc_fini_array
+
+        /* restore exit status code */
+        mov     x0, x19
+
+        bl      exit
 0:      b  0b
         .size  __start_master_cpu, . - __start_master_cpu
 
