@@ -298,5 +298,6 @@ class Morello(MorelloTarget):
         self.add_linker_script("aarch64/morello/common.ld")
         self.add_linker_script("aarch64/morello/ram.ld", loader="RAM")
 
-        if using_llvm_compiler():
-            self.add_linker_switch("-nostartfiles")
+        # Remove files needed to support C++ static constructors and
+        # destructors because C++ is not supported for this target.
+        self.add_linker_switch("-nostartfiles")
