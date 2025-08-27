@@ -146,6 +146,24 @@ SECTIONS
     . = ALIGN(4);
   } > ram =0
 
+  .init  : { KEEP(*(.init)) } > ram
+
+  .ctors :
+  {
+    PROVIDE_HIDDEN (___CTOR_LIST__ = .);
+    KEEP(*(.ctors))
+    PROVIDE_HIDDEN (___CTOR_END__ = .);
+  } > ram
+
+  .dtors :
+  {
+    PROVIDE_HIDDEN (___DTOR_LIST__ = .);
+    KEEP(*(.dtors*))
+    PROVIDE_HIDDEN (___DTOR_END__ = .);
+  } > ram
+
+  .fini  : { KEEP(*(.fini)) } > ram
+
   .eh_frame_hdr :
   {
      __eh_frame_hdr = .;
