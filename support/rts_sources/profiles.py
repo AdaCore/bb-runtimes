@@ -207,8 +207,8 @@ class RTSProfiles(object):
             ret["Target_Word_Size"] = "32"
 
         # C++ constructors/destructors package
-        if self.config.is_os_target or self.config.has_cheri:
-            # not for OSs (it has libc) or morello (it does not support C++)
+        if self.config.is_os_target or self.config.has_cheri or using_llvm_compiler():
+            # not for OSs (it has libc) or morello or LLVM (they do not support C++)
             ret["Add_Ctors_Dtors"] = "no"
         else:
             ret["Add_Ctors_Dtors"] = "yes"

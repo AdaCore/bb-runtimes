@@ -240,11 +240,17 @@ class Target(TargetConfiguration, ArchSupport):
             rts.build_flags = copy.deepcopy(self.build_flags)
             rts.config_files = {}
 
-            if not self.is_os_target and not self.has_cheri:
+            if (
+                not self.is_os_target
+                and not self.has_cheri
+                and not using_llvm_compiler()
+            ):
                 # Ensure that the spec file is available for bare-metal
                 # targets to support C++ constructors/destructors and
                 # exception handling tables when supporting exception
-                # propagation.
+                # propagation. Exclude CHERI and LLVM because they do not
+                # support C++.
+
                 if base_profile in ["light", "light-tasking"]:
                     rts.config_files.update(
                         {
@@ -404,8 +410,9 @@ class Target(TargetConfiguration, ArchSupport):
 
             # Add spec file for bare-metal targets to support C++
             # constructors/destructors and exception handling tables for
-            # exception propagation.
-            if not self.has_cheri:
+            # exception propagation. Exclude CHERI and LLVM because they do
+            # not support C++.
+            if not self.has_cheri and not using_llvm_compiler():
                 ret += (
                     "\n"
                     + blank
@@ -442,11 +449,15 @@ class Target(TargetConfiguration, ArchSupport):
                     + '--end-group",'
                 )
             else:
-                ret += blank + '"-nolibc", "-lgnarl", "-lgnat", "-lc", "-lunwind",'
+                ret += (
+                    blank
+                    + '"-Wl,--eh-frame-hdr", "-nolibc", "-lgnarl", "-lgnat", "-lc", "-lunwind",'
+                )
 
             # Add spec file for bare-metal targets to support C++
-            # constructors/destructors.
-            if not self.has_cheri:
+            # constructors/destructors. Exclude CHERI and LLVM because they do
+            # not support C++.
+            if not self.has_cheri and not using_llvm_compiler():
                 ret += "\n" + blank + '"--specs=${RUNTIME_DIR(Ada)}/link-zcx.spec",'
 
         # Add linker paths (only needed for bare-metal runtimes)

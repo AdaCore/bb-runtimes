@@ -6,7 +6,7 @@
  *                                                                          *
  *                               Assembly File                              *
  *                                                                          *
- *                     Copyright (C) 2017-2019 AdaCore                      *
+ *                     Copyright (C) 2017-2025 AdaCore                      *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -290,6 +290,13 @@ __start_master_cpu:
         cbnz    x1, 0b
 1:
 
+        /* LLVM does not support C++ so we do not activate the code to
+           execute C++ static constructors and destructors. */
+#ifdef __clang__
+        /* Call the main routine */
+        bl  main
+        bl  _exit
+#else
         /* Run global constructors */
         bl      __libc_init_array
 
@@ -306,6 +313,8 @@ __start_master_cpu:
         mov     x0, x19
 
         bl      exit
+#endif
+
 0:      b  0b
         .size  __start_master_cpu, . - __start_master_cpu
 
