@@ -17,6 +17,10 @@ class ArmFreeRTOS(Target):
         return True
 
     @property
+    def is_os_target(self):
+        return True
+
+    @property
     def system_ads(self):
         return {
             "light": "system-xi-arm.ads",
