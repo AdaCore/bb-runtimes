@@ -13,6 +13,10 @@ class Windows(DFBBTarget):
     def has_libc(self, profile):
         return True
 
+    @property
+    def is_os_target(self):
+        return True
+
     def dump_runtime_xml(self, rts_name, rts):
         return (
             '<?xml version="1.0" ?>\n'

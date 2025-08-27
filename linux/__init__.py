@@ -11,6 +11,10 @@ class Linux(DFBBTarget):
         return True
 
     @property
+    def is_os_target(self):
+        return True
+
+    @property
     def name(self):
         return self.target
 
