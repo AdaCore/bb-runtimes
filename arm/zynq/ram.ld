@@ -114,6 +114,9 @@ SECTIONS
   .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > REGION_CODE
   PROVIDE_HIDDEN (__exidx_end = .);
 
+  .init  : { KEEP(*(.init)) } > REGION_CODE
+  .fini  : { KEEP(*(.fini)) } > REGION_CODE
+
   .preinit_array (ALIGN(4)) : {
      PROVIDE_HIDDEN (__preinit_array_start = .);
      KEEP (*(.preinit_array))

@@ -66,6 +66,9 @@ SECTIONS
   .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) } > flash
   PROVIDE_HIDDEN (__exidx_end = .);
 
+  .init  : { KEEP(*(.init)) } > flash
+  .fini  : { KEEP(*(.fini)) } > flash
+
   .eh_frame_hdr :
   {
      __eh_frame_hdr = .;
