@@ -116,6 +116,19 @@ class MorelloTarget(Aarch64Target):
 
         return result
 
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(MorelloTarget, self).dump_runtime_xml(rts_name, rts)
+        if rts_name == "embedded":
+            # Add options for exception propagation
+            cnt = cnt.replace(
+                '"-nolibc"',
+                (
+                    '"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
+                    '         "-nolibc"'
+                ),
+            )
+        return cnt
+
 
 class ZynqMP(Aarch64Target):
     @property
