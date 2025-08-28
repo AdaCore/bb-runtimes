@@ -73,6 +73,9 @@ SECTIONS
     . = ALIGN(0x4);
   } > sram_ro
 
+  .init  : { KEEP(*(.init)) } > sram_ro
+  .fini  : { KEEP(*(.fini)) } > sram_ro
+
   .eh_frame_hdr :
   {
      __eh_frame_hdr = .;
