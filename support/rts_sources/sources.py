@@ -2089,6 +2089,8 @@ sources = {
             "hie/s-musplo.adb",
             "libgnarl/s-tpobmu.adb",
             "libgnarl/s-linux.ads",
+            "libgnat/s-c_time.ads",
+            "libgnat/s-c_time.adb",
             "libgnat/s-oslock__posix.ads",
         ],
         "lynx_srcs": [
