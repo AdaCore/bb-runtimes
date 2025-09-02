@@ -32,8 +32,6 @@ SECTIONS
     . = ALIGN(4);
     *(.rodata .rodata.* .gnu.linkonce.r.*)
     *(.rodata1)
-    *(.got)
-    *(.got2)
     . = ALIGN(4);
   } > ROMABLE_REGION = 0
 
@@ -116,6 +114,9 @@ SECTIONS
     KEEP (*(.gnu.linkonce.d.*personality*))
     SORT(CONSTRUCTORS)
     *(.data1)
+    *(.got)
+    *(.got1)
+    *(.got2)
     PROVIDE (_SDA_BASE_ = 32768);
     *(.sdata .sdata.* .gnu.linkonce.s.*)
     . = ALIGN(4);
