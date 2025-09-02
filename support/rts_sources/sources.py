@@ -2150,6 +2150,8 @@ sources = {
             "hie/s-tpopsp__posix-raven-cert.adb",
             "hie/s-musplo.adb",
             "libgnarl/s-tpobmu.adb",
+            "libgnat/s-c_time.ads",
+            "libgnat/s-c_time.adb",
         ],
     },
     "gnarl/vx7r2cert": {
@@ -2173,6 +2175,7 @@ sources = {
             "hie/s-oscons__linux-aarch64.ads",
             "libgnat/s-parame__aarch64-linux.adb",
         ],
+        "qnx_srcs": ["hie/s-oscons__qnx-aarch64.ads"],
         "vx7r2cert_srcs": ["libgnarl/s-vxwork__aarch64.ads"],
     },
     "gnarl/arm": {
