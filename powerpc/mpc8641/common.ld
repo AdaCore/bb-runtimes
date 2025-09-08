@@ -86,6 +86,14 @@ SECTIONS
      PROVIDE_HIDDEN (__fini_array_end = .);
   } > ROMABLE_REGION
 
+  /* The .got section contains a `blrl` instruction, so the linker
+     marks it as executable. To avoid propagating the executable
+     flag to the .data section, keep .got in a separate output
+     section instead of merging it with .data. */
+  .got  : { *(.got) }  > REGION_DATA
+  .got1 : { *(.got1) } > REGION_DATA
+  .got2 : { *(.got2) } > REGION_DATA
+
   __sdata2_load = .;
   .sdata2 : AT (__sdata2_load)
   {
@@ -114,9 +122,6 @@ SECTIONS
     KEEP (*(.gnu.linkonce.d.*personality*))
     SORT(CONSTRUCTORS)
     *(.data1)
-    *(.got)
-    *(.got1)
-    *(.got2)
     PROVIDE (_SDA_BASE_ = 32768);
     *(.sdata .sdata.* .gnu.linkonce.s.*)
     . = ALIGN(4);
