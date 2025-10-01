@@ -63,7 +63,7 @@ class PolarFireSOC(RiscV64):
     @property
     def compiler_switches(self):
         # The required compiler switches
-        return ("-march=rv64imafdc", "-mabi=lp64d")
+        return ("-march=rv64gc", "-mabi=lp64d")
 
     @property
     def system_ads(self):
