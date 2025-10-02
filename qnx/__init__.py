@@ -10,7 +10,6 @@ class QNX(Target):
     def __init__(self):
         super(QNX, self).__init__()
         self.add_gnat_sources("src/s-macres__libc.adb")
-        self.add_gnarl_sources("qnx/adaint.c")
 
     @property
     def has_command_line_arguments(self):
