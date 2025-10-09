@@ -95,7 +95,8 @@ class Vx7r2Cert64(Vx7r2Cert):
     def __init__(self, is_rtp):
         super(Vx7r2Cert64, self).__init__(is_rtp)
 
-    def is_64bit(self):
+    @property
+    def is_64bit(self) -> bool:
         return True
 
 
