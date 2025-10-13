@@ -12,6 +12,13 @@ project Ravenscar_Build is
    for Library_Kind use Runtime_Build'Library_Kind;
    for Library_Options use Runtime_Build'Library_Options;
 
+   case Target_Options.Lib is
+      when "static" => null;
+      when "dynamic" =>
+         for Library_Version use
+            "libgnarl-" & external ("LIBRARY_VERSION") & ".so";
+   end case;
+
    for Library_Dir use "adalib";
    for Object_Dir use "obj";
 
