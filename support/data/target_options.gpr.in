@@ -47,10 +47,10 @@ abstract project Target_Options is
         --  -nostdlib is required for building the
         --  shared library. Otherwise it tries to
         --  link against libgnat (itself).
-        --  Since -nostdlib also removes libgcc
+        --  Since -nostdlib also removes libc
         --  from the linked libraries we have to
-        --  add -lc and -lgcc again.
-        LOPTIONS := LOPTIONS & ("-nostdlib", "-lc", "-lgcc");
+        --  add -lc again.
+        LOPTIONS := LOPTIONS & ("-nostdlib", "-lc");
 
         --  Add target-specific options, if needed
         LOPTIONS := LOPTIONS & ("{shared_linker_flags}");
