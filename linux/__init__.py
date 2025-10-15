@@ -14,15 +14,6 @@ class Linux(DFBBTarget):
     def name(self):
         return self.target
 
-    def dump_runtime_xml(self, rts_name, rts):
-        return (
-            '<?xml version="1.0" ?>\n'
-            "<gprconfig>\n"
-            "  <configuration>\n"
-            "  </configuration>\n"
-            "</gprconfig>\n"
-        )
-
     @property
     def is_legacy_format(self):
         return True
