@@ -10,6 +10,14 @@ project Runtime_Build is
   for Library_Kind use Target_Options.Lib;
   for Library_Options use Target_Options.LOPTIONS;
 
+   case Target_Options.Lib is
+      when "static" => null;
+      when "dynamic" =>
+         for Library_Version use
+            "libgnat-" & external ("LIBRARY_VERSION") & ".so";
+         null;
+   end case;
+
   for Library_Dir use "adalib";
   for Object_Dir use "obj";
 
