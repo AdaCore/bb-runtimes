@@ -942,6 +942,11 @@ stm32_board_configuration = {
         "STM32_HSE_Clock_Frequency": "25_000_000",
         "STM32_FLASH_Latency": "6",
     },
+    "stm32h7s78disco": {
+        "STM32_Main_Clock_Frequency": "600_000_000",
+        "STM32_HSE_Clock_Frequency": "24_000_000",
+        "STM32_FLASH_Latency": "7",
+    },
 }
 
 
@@ -966,7 +971,7 @@ class Stm32(ArmV7MTarget):
 
     @property
     def has_double_precision_fpu(self):
-        if self.mcu == "stm32f7x9":
+        if self.mcu in ("stm32f7x9", "stm32h7s78"):
             return True
         else:
             return False
@@ -975,7 +980,7 @@ class Stm32(ArmV7MTarget):
     def cortex(self):
         if self.mcu.startswith("stm32f4"):
             return "cortex-m4"
-        elif self.mcu.startswith("stm32f7"):
+        elif self.mcu.startswith("stm32f7") or self.mcu.startswith("stm32h7"):
             return "cortex-m7"
         else:
             assert False, "Unexpected MCU %s" % self.mcu
@@ -1014,6 +1019,8 @@ class Stm32(ArmV7MTarget):
             self.mcu = "stm32f7x"
         elif self.board in ["stm32f769disco"]:
             self.mcu = "stm32f7x9"
+        elif self.board in ["stm32h7s78disco"]:
+            self.mcu = "stm32h7s78"
         else:
             assert False, "Unknown stm32 board: %s" % self.board
 
@@ -1054,6 +1061,9 @@ class Stm32(ArmV7MTarget):
 
         elif self.mcu in ["stm32f7x", "stm32f7x9"]:
             self.add_gnat_source("arm/stm32/stm32f7x/s-stm32.adb")
+
+        elif self.mcu in ["stm32h7s78"]:
+            self.add_gnat_source("arm/stm32/stm32h7s78/s-stm32.adb")
 
         # tasking support
         self.add_gnarl_sources(
