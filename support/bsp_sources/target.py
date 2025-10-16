@@ -348,7 +348,7 @@ class Target(TargetConfiguration, ArchSupport):
         indent = 9
         blank = indent * ' '
 
-        if self.name == "qnx":
+        if self.name == "qnx" or "linux" in self.name:
             # QNX does not require additional linker switches. If -nostartfiles
             # or -nolibc are used the binary will exit with a Memory fault.
             # Since we link with libc on this platform we can't use -nostdlib
