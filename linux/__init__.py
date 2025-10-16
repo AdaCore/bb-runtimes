@@ -18,6 +18,14 @@ class Linux(DFBBTarget):
     def is_legacy_format(self):
         return True
 
+    @property
+    def is_os_target(self):
+        return True
+
+    @property
+    def use_certifiable_packages(self):
+        return True
+
 
 class X86Linux(Linux):
     @property
