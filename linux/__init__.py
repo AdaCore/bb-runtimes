@@ -11,15 +11,12 @@ class Linux(DFBBTarget):
         return True
 
     @property
+    def use_certifiable_packages(self):
+        return True
+
+    @property
     def name(self):
         return self.target
-
-    def dump_runtime_xml(self, rts_name, rts):
-        return ('<?xml version="1.0" ?>\n'
-                '<gprconfig>\n'
-                '  <configuration>\n'
-                '  </configuration>\n'
-                '</gprconfig>\n')
 
     @property
     def is_legacy_format(self):
