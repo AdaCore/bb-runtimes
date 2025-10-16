@@ -11,6 +11,10 @@ class Linux(DFBBTarget):
         return True
 
     @property
+    def use_certifiable_packages(self):
+        return True
+
+    @property
     def name(self):
         return self.target
 
