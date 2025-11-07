@@ -264,9 +264,9 @@ class MIV_RV32IMAF(RiscV32):
     @property
     def system_ads(self):
         return {
-            "light": "system-xi-riscv.ads",
-            "light-tasking": "system-xi-riscv-one-irq-prio-light-tasking.ads",
-            "embedded": "system-xi-riscv-one-irq-prio-full.ads",
+            "light": "system-xi-riscv-rv32imaf-light.ads",
+            "light-tasking": "system-xi-riscv-rv32imaf-light-tasking.ads",
+            "embedded": "system-xi-riscv-rv32imaf-embedded.ads",
         }
 
     @property
