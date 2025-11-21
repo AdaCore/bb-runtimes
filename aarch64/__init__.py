@@ -130,14 +130,35 @@ class MorelloTarget(Aarch64Target):
         return cnt
 
 
-class ZynqMP(Aarch64Target):
+class CortexA53Target(Aarch64Target):
+    def __init__(self):
+        super().__init__()
+        self.add_linker_script("aarch64/a53/common.ld")
+        self.add_gnat_sources(
+            "src/trap_dump__aarch64.ads",
+            "src/trap_dump__aarch64.adb",
+            "src/s-mmu.ads",
+            "src/s-mmu__aarch64.adb",
+        )
+
+    def compiler_switches(self):
+        # The required compiler switches
+        return ("-mcpu=cortex-a53",)
+
     @property
-    def name(self):
-        return "zynqmp"
+    def compiler_switches(self):
+        # The required compiler switches
+        return ("-mcpu=cortex-a53",)
 
     @property
     def parent(self):
         return Aarch64Arch
+
+
+class ZynqMP(CortexA53Target):
+    @property
+    def name(self):
+        return "zynqmp"
 
     @property
     def readme_file(self):
@@ -147,6 +168,9 @@ class ZynqMP(Aarch64Target):
     def loaders(self):
         return ("RAM", "QSPI", "HELIX")
 
+    def amend_rts(self, rts_profile, cfg):
+        super(ZynqMP, self).amend_rts(rts_profile, cfg)
+
     @property
     def system_ads(self):
         return {
@@ -155,18 +179,9 @@ class ZynqMP(Aarch64Target):
             "embedded": "system-xi-arm-nxstack-embedded.ads",
         }
 
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-mcpu=cortex-a53",)
-
-    def amend_rts(self, rts_profile, cfg):
-        super(ZynqMP, self).amend_rts(rts_profile, cfg)
-
     def __init__(self):
         super(ZynqMP, self).__init__()
 
-        self.add_linker_script("aarch64/zynqmp/common.ld")
         self.add_linker_script("aarch64/zynqmp/ram.ld", loader="RAM")
         self.add_linker_script("aarch64/zynqmp/qspi.ld", loader="QSPI")
         self.add_linker_script("aarch64/zynqmp/helix.ld", loader="HELIX")
@@ -187,6 +202,35 @@ class ZynqMP(Aarch64Target):
             "src/s-armgic__400.ads",
             "src/s-armgic__400.adb",
             "src/s-bbpara__zynqmp.ads",
+        )
+
+
+class AM64x(CortexA53Target):
+    @property
+    def name(self):
+        return "am64x"
+
+    @property
+    def loaders(self):
+        return ("RAM",)
+
+    def amend_rts(self, rts_profile, cfg):
+        super().amend_rts(rts_profile, cfg)
+
+    @property
+    def system_ads(self):
+        return {"light": "system-xi-arm-nxstack-light.ads"}
+
+    def __init__(self):
+        super().__init__()
+
+        self.add_linker_script("aarch64/am64x/ram.ld", loader="RAM")
+        self.add_gnat_sources(
+            "aarch64/zynqmp/start.S",
+            "aarch64/zynqmp/trap_vector.S",
+            "aarch64/am64x/memmap.S",
+            "src/s-textio__am64x.adb",
+            "src/s-macres__zynqmp.adb",
         )
 
 

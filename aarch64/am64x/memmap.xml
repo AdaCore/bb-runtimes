@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<memmap arch="aarch64" pageshift="12">
+  <!-- PL -->
+  <region access="rw-rw-" cache="nc"
+	  virt="0x00000000" size="0x80000000" name="pl"/>
+
+  <!-- DDR, 2GB -->
+  <region access="rwx---" cache="wb"
+	  virt="0x80000000" size="0x80000000" name="ram"/>
+</memmap>
