@@ -135,9 +135,11 @@ package body System.BB.CPU_Primitives is
    -- Traps --
    -----------
 
+   procedure Undef_Wrapper;
+   pragma Machine_Attribute (Undef_Wrapper, "naked");
+   pragma Export (Asm, Undef_Wrapper, "__gnat_undef_trap");
+
    procedure Undef_Handler;
-   pragma Machine_Attribute (Undef_Handler, "interrupt");
-   pragma Export (Asm, Undef_Handler, "__gnat_undef_trap");
 
    procedure Dabt_Handler;
    pragma Machine_Attribute (Dabt_Handler, "interrupt");
@@ -278,6 +280,34 @@ package body System.BB.CPU_Primitives is
    -------------------
    -- Undef_Handler --
    -------------------
+
+   procedure Undef_Wrapper is
+   begin
+      Asm (Template =>
+            --  Push non-lr regs first so we can use them to calculate
+            --  the return address.
+            "push {r0, r1, r2, r3, ip}" & NL &
+            --  Get the SPSR value
+            "mrs r0, spsr"              & NL &
+            --  Get the T bit from SPSR
+            "and r0, r0, #32"           & NL &
+            --  Shift the result 4 bits to the right, the result will be 2
+            --  for Thumb mode and 0 for ARM mode.
+            "lsr r0, r0, #4"            & NL &
+            --  Subtract the value of r0 from 4. This results in 4 for ARM and
+            --  2 for Thumb mode which is the correct offset required for lr.
+            "rsb r0, r0, #4"            & NL &
+            --  Subtract the offset from lr
+            "sub lr, lr, r0"            & NL &
+            --  Finally push lr
+            "push {lr}",
+           Volatile => True);
+      Undef_Handler;
+      Asm (Template => "pop {lr}"                 & NL &
+                       "pop {r0, r1, r2, r3, ip}" & NL &
+                       "movs pc, lr",
+           Volatile => True);
+   end Undef_Wrapper;
 
    procedure Undef_Handler is
    begin
