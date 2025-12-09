@@ -351,7 +351,7 @@ package body System.MMU is
       end loop;
 
       Start := Address'First;
-      for J in 0 .. 1 loop
+      for J in 0 .. 4 loop
          if Start < Region_Data_End_Address then
             Level_1 (J) := Level_2_Descriptor'
                              (Valid             => True,
