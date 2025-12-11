@@ -46,7 +46,7 @@ from arm.cortexm import (
 from arm.cortexar import AM64xR5, TMS570, Rpi2, Rpi2Mc, Zynq7000, ZynqmpR5
 
 # Aarch64
-from aarch64 import Morello, Rpi3, Rpi3Mc, ZynqMP
+from aarch64 import AM64x, Morello, Rpi3, Rpi3Mc, ZynqMP
 
 # Deos
 from deos import ArmDeos
@@ -134,6 +134,8 @@ def build_configs(target):
     elif target == "arm-freertos-v7a-fp":
         t = ArmV7AFP_FreeRTOS()
     # AArch64 elf
+    elif target == "am64x":
+        t = AM64x()
     elif target == "morello":
         t = Morello(uart_io=True)
     elif target == "morello-semihosting":
