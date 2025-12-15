@@ -19,7 +19,7 @@ class DefaultSourcePathResolver(SourcePathResolver):
     Default concrete source path resolver.
 
     This is just a convenience subclass of SourcePathResolver,
-    if infrastructure builders do not want to define their own subclass.
+    if concrete infrastructure builders do not want to define their own subclass.
 
     It calls 4 resolution steps in this order:
     - GnatDirManifestResolutionStep
