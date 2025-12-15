@@ -42,7 +42,6 @@ with System.Machine_Code; use System.Machine_Code;
 with System.BB.CPU_Primitives.Context_Switch_Trigger;
 
 package body System.BB.CPU_Primitives is
-   use Board_Support;
    use Board_Support.Time;
    use System.BB.CPU_Primitives.Context_Switch_Trigger;
    use Parameters;
