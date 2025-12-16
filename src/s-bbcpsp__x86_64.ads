@@ -471,7 +471,7 @@ package System.BB.CPU_Specific is
 
    type Divide_Configuration is
      (Divide_by_2,  Divide_by_4,   Divide_by_8, Divide_by_16, Divide_by_32,
-      Divide_by_64, Divide_by_128, Divide_by_1);
+      Divide_by_64, Divide_by_128, Divide_by_1) with Size => 32;
 
    for Divide_Configuration use
      (Divide_by_2   => 2#0000#,

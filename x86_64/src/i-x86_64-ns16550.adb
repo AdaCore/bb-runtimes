@@ -36,6 +36,20 @@ package body Interfaces.X86_64.NS16550 is
    Line_Control_Register  : constant := 3;
    Line_Status_Register   : constant := 5;
 
+   ----------------
+   -- Initialize --
+   ----------------
+
+   procedure Initialize (Port : IO_Port)
+   is
+   begin
+      Write_IO_Byte (16#00#, Port + 1);  --  Disable all interrupts
+      Write_IO_Byte (16#80#, Port + 3);  --  Set BAUD rate divisor
+      Write_IO_Byte (16#01#, Port + 0);  --  Set low byte to 1 (115200 BAUD)
+      Write_IO_Byte (16#00#, Port + 1);  --  Set high byte to 0
+      Write_IO_Byte (16#03#, Port + 3);  --  8 bits, no parity, 1 stop bit
+   end Initialize;
+
    ----------------------
    -- Set_Line_Control --
    ----------------------
