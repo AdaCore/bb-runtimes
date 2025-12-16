@@ -49,7 +49,6 @@ with Interfaces.CHERI;       use Interfaces.CHERI;
 with Interfaces.CHERI.Exceptions; use Interfaces.CHERI.Exceptions;
 
 package body System.BB.CPU_Primitives is
-   use System.BB.Threads;
    use Interfaces;
 
    package SSE renames System.Storage_Elements;

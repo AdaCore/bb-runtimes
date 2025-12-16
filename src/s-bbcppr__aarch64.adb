@@ -46,7 +46,6 @@ with Interfaces;
 with Interfaces.AArch64;     use Interfaces.AArch64;
 
 package body System.BB.CPU_Primitives is
-   use System.BB.Threads;
    use Interfaces;
 
    package SSE renames System.Storage_Elements;

@@ -82,7 +82,6 @@ package body System.BB.CPU_Primitives is
 
    function Pre_Context_Switch return Context_Switch_Params is
       use System.BB.Threads.Queues;
-      use System.BB.Threads;
 
       CPU_Id : constant System.Multiprocessors.CPU :=
                  Board_Support.Multiprocessors.Current_CPU;
