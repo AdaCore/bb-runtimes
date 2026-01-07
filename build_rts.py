@@ -257,7 +257,9 @@ def build_configs(target):
     elif target == "miv_rv32imaf":
         t = MIV_RV32IMAF()
     elif target == "polarfiresoc":
-        t = PolarFireSOC()
+        t = PolarFireSOC(smp=False)
+    elif target == "polarfiresoc-smp":
+        t = PolarFireSOC(smp=True)
     elif target == "rv32i":
         t = RV32I()
     elif target == "rv32im":

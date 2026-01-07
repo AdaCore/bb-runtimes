@@ -56,8 +56,36 @@ class Spike(RiscV64):
 
 
 class PolarFireSOC(RiscV64):
+    """
+    This class configures the runtime for the Polarfire SoC MSS
+    (Microprocessor Subsystem).
+    It is a 5-core RISC-V coherent CPU cluster consisting of one E51 monitor
+    hart and four U54 application harts, based on the SiFive U54-MC IP.
+
+    By default, only the U54 core 1 is used (mhartid 1), so the runtime is
+    single-core only. If the `smp` flag is set to True, all the cores
+    will be used by the runtime and will be usable for multitasking by the
+    ADA application.
+
+    Warning:
+      The SMP behavior is not implemented yet, for now the generated
+      smp runtime just acts as non-smp runtime. Remove this Warning when
+      the implementation is complete.
+    """
+
+    smp: bool
+    """
+    Flag to indicate if the runtime configured by this instance supports SMP.
+
+    It defaults to False (even if the underlying hardware always support it)
+    because the multi-core implementation is still not mature. It is intended
+    to replace the single-core version in the long run.
+    """
+
     @property
     def name(self):
+        if self.smp:
+            return "polarfiresoc-smp"
         return "polarfiresoc"
 
     @property
@@ -98,8 +126,9 @@ class PolarFireSOC(RiscV64):
             '               "-u", "__gnat_gdb_cpu_first_id"',
         )
 
-    def __init__(self):
+    def __init__(self, smp: bool = False):
         super(PolarFireSOC, self).__init__()
+        self.smp = smp
 
         self.add_linker_script("riscv/microchip/polarfiresoc/memory-map.ld")
         self.add_linker_script(
