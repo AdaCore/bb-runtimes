@@ -136,8 +136,6 @@ class CortexA53Target(Aarch64Target):
         self.add_gnat_sources(
             "src/trap_dump__aarch64.ads",
             "src/trap_dump__aarch64.adb",
-            "src/s-mmu.ads",
-            "src/s-mmu__aarch64.adb",
         )
 
     def compiler_switches(self):
@@ -232,6 +230,8 @@ class AM64x(CortexA53Target):
             "aarch64/am64x/memmap.S",
             "src/s-textio__am64x.adb",
             "src/s-macres__zynqmp.adb",
+            "src/s-mmu__am64x.ads",
+            "src/s-mmu__am64x.adb",
         )
 
 
