@@ -1,17 +1,19 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                         GNAT RUN-TIME COMPONENTS                         --
+--                  GNAT RUN-TIME LIBRARY (GNARL) COMPONENTS                --
 --                                                                          --
---                       S Y S T E M . T E X T _ I O                        --
+--               S Y S T E M . B O A R D _ P A R A M E T E R S              --
 --                                                                          --
---                                 B o d y                                  --
+--                                  S p e c                                 --
 --                                                                          --
---          Copyright (C) 1992-2022, Free Software Foundation, Inc.         --
+--        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
+--             Copyright (C) 2003-2005 The European Space Agency            --
+--                     Copyright (C) 2025, AdaCore                          --
 --                                                                          --
--- GNAT is free software;  you can  redistribute it  and/or modify it under --
+-- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
 -- ware  Foundation;  either version 3,  or (at your option) any later ver- --
--- sion.  GNAT is distributed in the hope that it will be useful, but WITH- --
+-- sion. GNARL is distributed in the hope that it will be useful, but WITH- --
 -- OUT ANY WARRANTY;  without even the  implied warranty of MERCHANTABILITY --
 -- or FITNESS FOR A PARTICULAR PURPOSE.                                     --
 --                                                                          --
@@ -24,44 +26,36 @@
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
 -- <http://www.gnu.org/licenses/>.                                          --
 --                                                                          --
--- GNAT was originally developed  by the GNAT team at  New York University. --
--- Extensive contributions were provided by Ada Core Technologies Inc.      --
+-- GNARL was developed by the GNARL team at Florida State University.       --
+-- Extensive contributions were provided by Ada Core Technologies, Inc.     --
+--                                                                          --
+-- The port of GNARL to bare board targets was initially developed by the   --
+-- Real-Time Systems Group at the Technical University of Madrid.           --
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This is the TI AM64x version of this package
+--  This package defines basic parameters used by the non tasking part of
+--  the runtime.
 
-package body System.Text_IO is
+package System.Board_Parameters with
+   No_Elaboration_Code_All,
+   Preelaborate
+is
 
-   function Get return Character is
-   begin
-      return Character'First;
-   end Get;
+   ----------
+   -- UART --
+   ----------
 
-   procedure Initialize is
-   begin
-      null;
-   end Initialize;
+   UART_Base_Address : constant := 16#0280_0000#;
+   --  UART base address
 
-   function Is_Rx_Ready return Boolean is
-   begin
-      return True;
-   end Is_Rx_Ready;
+   Number_Of_UART_Modules : constant := 6;
+   --  Number of UART Modules on the SoC
 
-   function Is_Tx_Ready return Boolean is
-   begin
-      return True;
-   end Is_Tx_Ready;
+   type UART_ID is mod Number_Of_UART_Modules;
+   --  UART Modules on the SoC
 
-   procedure Put (C : Character) is
-      pragma Unreferenced (C);
-   begin
-      null;
-   end Put;
+   IO_Module : constant UART_ID := 0;
+   --  UART Module used by System.Text_IO
 
-   function Use_Cr_Lf_For_New_Line return Boolean is
-   begin
-      return True;
-   end Use_Cr_Lf_For_New_Line;
-
-end System.Text_IO;
+end System.Board_Parameters;

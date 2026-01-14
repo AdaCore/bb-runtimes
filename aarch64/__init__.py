@@ -228,8 +228,9 @@ class AM64x(CortexA53Target):
             "aarch64/zynqmp/start.S",
             "aarch64/zynqmp/trap_vector.S",
             "aarch64/am64x/memmap.S",
-            "src/s-textio__am64x.adb",
-            "src/s-macres__zynqmp.adb",
+            "src/s-boapar__am64x.ads",
+            "src/s-textio__16C750.adb",
+            "src/s-macres__none.adb",
             "src/s-mmu__am64x.ads",
             "src/s-mmu__am64x.adb",
         )
