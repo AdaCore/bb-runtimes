@@ -39,11 +39,12 @@
 --  48 MHz clock source
 
 with Interfaces;           use Interfaces;
-with System.BB.Parameters; use System.BB.Parameters;
+with System.Board_Parameters;
+--  with System.BB.Parameters; use System.BB.Parameters;
 
 package body System.Text_IO is
 
-   use System.BB.Parameters;
+   package BP renames System.Board_Parameters;
 
    ----------------
    -- UART Types --
@@ -256,8 +257,8 @@ package body System.Text_IO is
    -- UART Registers --
    --------------------
 
-   UART : array (UART_ID) of UART_Modules
-      with Address => UART_Base_Address, Volatile_Components;
+   UART : array (BP.UART_ID) of UART_Modules
+      with Address => BP.UART_Base_Address, Volatile_Components;
    --  Access to the UART peripherals
 
    ---------
@@ -266,7 +267,7 @@ package body System.Text_IO is
 
    function Get return Character is
    begin
-      return UART (IO_Module).TX_RX_Holding_Register.Data;
+      return UART (BP.IO_Module).TX_RX_Holding_Register.Data;
    end Get;
 
    ----------------
@@ -295,12 +296,12 @@ package body System.Text_IO is
         (Mode         : UART_Config_Mode;
          Previous_LCR : out Line_Control) is
       begin
-         Previous_LCR := UART (IO_Module).Line_Control_Register;
+         Previous_LCR := UART (BP.IO_Module).Line_Control_Register;
          case Mode is
             when Configuration_Mode_A =>
                --  Configuration Mode A entered when LCR /= 16#BF#
 
-               UART (IO_Module).Line_Control_Register :=
+               UART (BP.IO_Module).Line_Control_Register :=
                  (Divisor_Latch       => Enable,
                   Break_Control_Bit   => Disable,
                   Parity_Type_2       => Not_Forced,
@@ -312,7 +313,7 @@ package body System.Text_IO is
             when Configuration_Mode_B =>
                --  Configuration Mode B entered when LCR == 16#BF#
 
-               UART (IO_Module).Line_Control_Register :=
+               UART (BP.IO_Module).Line_Control_Register :=
                  (Divisor_Latch       => Enable,
                   Break_Control_Bit   => Disable,
                   Parity_Type_2       => Not_Forced,
@@ -322,7 +323,8 @@ package body System.Text_IO is
                   Word_Length         => Five_Bits);
 
             when Operational_Mode =>
-               UART (IO_Module).Line_Control_Register.Divisor_Latch := Disable;
+               UART (BP.IO_Module).Line_Control_Register.Divisor_Latch :=
+                  Disable;
          end case;
       end Enter_UART_Mode;
 
@@ -333,45 +335,51 @@ package body System.Text_IO is
       --  Ensure the last character is sent before reseting the UART module
       --  so we don't send garbage down the link.
 
-      while not UART (IO_Module).Line_Status_Regsiter.TX_Shift_Reg_Empty loop
+      while
+         not UART (BP.IO_Module).Line_Status_Regsiter.TX_Shift_Reg_Empty
+      loop
          null;
       end loop;
 
       --  Disable the module if it is enabled
 
-      UART (IO_Module).Mode_Definition_1_Register := (Mode_Select => Disabled);
+      UART (BP.IO_Module).Mode_Definition_1_Register :=
+         (Mode_Select => Disabled);
 
       --  Reset UART module
 
-      UART (IO_Module).System_Config_Register.Software_Reset := True;
+      UART (BP.IO_Module).System_Config_Register.Software_Reset := True;
 
       loop
-         exit when UART (IO_Module).System_Status_Register.Reset_Done;
+         exit when UART (BP.IO_Module).System_Status_Register.Reset_Done;
       end loop;
 
       --  Disable module interrupts and sleep mode
 
       Enter_UART_Mode (Configuration_Mode_B);
-      UART (IO_Module).Enhanced_Feature_Register.Enhanced_Functions := Enable;
+      UART (BP.IO_Module).Enhanced_Feature_Register.Enhanced_Functions :=
+         Enable;
 
       Enter_UART_Mode (Operational_Mode);
-      UART (IO_Module).Interrupt_Enable_Register := (others => Disable);
+      UART (BP.IO_Module).Interrupt_Enable_Register := (others => Disable);
 
       Enter_UART_Mode (Configuration_Mode_B);
-      UART (IO_Module).Enhanced_Feature_Register.Enhanced_Functions := Disable;
+      UART (BP.IO_Module).Enhanced_Feature_Register.Enhanced_Functions :=
+         Disable;
 
       --  Set baud rate to 115.2 kbps and enable UART module. For the standard
       --  48 MHz source clock we use the 16x baud multiple and a divider value
       --  of 26. The clock divider is set while in Configuration_Mode_B.
 
-      UART (IO_Module).Baud_Clock_Divisor_Register :=
+      UART (BP.IO_Module).Baud_Clock_Divisor_Register :=
         (High => 16#00#, Low => 16#1A#);
-      UART (IO_Module).Mode_Definition_1_Register := (Mode_Select => UART_16x);
+      UART (BP.IO_Module).Mode_Definition_1_Register :=
+         (Mode_Select => UART_16x);
 
       --  Configure Line Control Register with 8 data bits, no parity and 1
       --  stop bit.
 
-      UART (IO_Module).Line_Control_Register :=
+      UART (BP.IO_Module).Line_Control_Register :=
         (Divisor_Latch       => Enable,
          Break_Control_Bit   => Enable,
          Parity_Type_2       => Not_Forced,
@@ -381,7 +389,7 @@ package body System.Text_IO is
          Word_Length         => Eight_Bits);
 
       Enter_UART_Mode (Operational_Mode);
-      UART (IO_Module).Line_Control_Register.Break_Control_Bit := Disable;
+      UART (BP.IO_Module).Line_Control_Register.Break_Control_Bit := Disable;
 
       Initialized := True;
    end Initialize;
@@ -396,14 +404,14 @@ package body System.Text_IO is
    --  register.
 
    function Is_Tx_Ready return Boolean is
-      (UART (IO_Module).Line_Status_Regsiter.TX_FIFO_Empty);
+      (UART (BP.IO_Module).Line_Status_Regsiter.TX_FIFO_Empty);
 
    -----------------
    -- Is_Rx_Ready --
    -----------------
 
    function Is_Rx_Ready return Boolean is
-      (UART (IO_Module).Line_Status_Regsiter.RX_FIFO_Has_Data);
+      (UART (BP.IO_Module).Line_Status_Regsiter.RX_FIFO_Has_Data);
 
    ---------
    -- Put --
@@ -411,7 +419,7 @@ package body System.Text_IO is
 
    procedure Put (C : Character) is
    begin
-      UART (IO_Module).TX_RX_Holding_Register := (Data => C);
+      UART (BP.IO_Module).TX_RX_Holding_Register := (Data => C);
    end Put;
 
    ----------------------------

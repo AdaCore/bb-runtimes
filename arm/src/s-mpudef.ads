@@ -32,6 +32,7 @@ with Interfaces;
 
 package System.MPU_Definitions is
    pragma No_Elaboration_Code_All;
+   pragma Preelaborate;
 
    package I renames Interfaces;
 
