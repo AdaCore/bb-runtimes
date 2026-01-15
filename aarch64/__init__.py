@@ -133,12 +133,9 @@ class MorelloTarget(Aarch64Target):
 class CortexA53Target(Aarch64Target):
     def __init__(self):
         super().__init__()
-        self.add_linker_script("aarch64/a53/common.ld")
         self.add_gnat_sources(
             "src/trap_dump__aarch64.ads",
             "src/trap_dump__aarch64.adb",
-            "src/s-mmu.ads",
-            "src/s-mmu__aarch64.adb",
         )
 
     def compiler_switches(self):
@@ -182,6 +179,7 @@ class ZynqMP(CortexA53Target):
     def __init__(self):
         super(ZynqMP, self).__init__()
 
+        self.add_linker_script("aarch64/zynqmp/common.ld")
         self.add_linker_script("aarch64/zynqmp/ram.ld", loader="RAM")
         self.add_linker_script("aarch64/zynqmp/qspi.ld", loader="QSPI")
         self.add_linker_script("aarch64/zynqmp/helix.ld", loader="HELIX")
@@ -224,6 +222,7 @@ class AM64x(CortexA53Target):
     def __init__(self):
         super().__init__()
 
+        self.add_linker_script("aarch64/am64x/common.ld")
         self.add_linker_script("aarch64/am64x/ram.ld", loader="RAM")
         self.add_gnat_sources(
             "aarch64/zynqmp/start.S",
@@ -231,6 +230,8 @@ class AM64x(CortexA53Target):
             "aarch64/am64x/memmap.S",
             "src/s-textio__am64x.adb",
             "src/s-macres__zynqmp.adb",
+            "src/s-mmu__am64x.ads",
+            "src/s-mmu__am64x.adb",
         )
 
 

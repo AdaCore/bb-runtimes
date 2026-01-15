@@ -256,6 +256,9 @@ __start_el1:
         # Initialize MMU tables
         bl      __initialize_mmu
         tlbi    vmalle1
+        ic      iallu
+        dsb     sy
+        isb
 
         # CPU 0 starts master, the other are slave cpus
         mrs     x7, mpidr_el1
