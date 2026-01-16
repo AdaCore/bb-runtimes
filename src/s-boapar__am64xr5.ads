@@ -49,6 +49,7 @@ with System.MPU_Definitions;
 
 package System.Board_Parameters is
    pragma No_Elaboration_Code_All;
+   pragma Preelaborate;
 
    package MD renames System.MPU_Definitions;
 
@@ -139,4 +140,21 @@ package System.Board_Parameters is
                AP                 => MD.Privileged_RW_User_RW,
                TEX_S_C_B          => MD.Outer_Inner_WB_WA_NS))
      );
+
+   ----------
+   -- UART --
+   ----------
+
+   UART_Base_Address : constant := 16#0280_0000#;
+   --  UART base address
+
+   Number_Of_UART_Modules : constant := 6;
+   --  Number of UART Modules on the SoC
+
+   type UART_ID is mod Number_Of_UART_Modules;
+   --  UART Modules on the SoC
+
+   IO_Module : constant UART_ID := 0;
+   --  UART Module used by System.Text_IO
+
 end System.Board_Parameters;
