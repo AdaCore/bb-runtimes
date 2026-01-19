@@ -408,6 +408,9 @@ class Target(TargetConfiguration, ArchSupport):
             else:
                 ret += blank + '"-nolibc",'
 
+            if using_llvm_compiler():
+                ret += '"-nostartfiles",'
+
             # Add spec file for bare-metal targets to support C++
             # constructors/destructors and exception handling tables for
             # exception propagation. Exclude CHERI and LLVM because they do
@@ -437,8 +440,9 @@ class Target(TargetConfiguration, ArchSupport):
             # the command line because it remembers defined symbols in
             # addition to undefined symbols when scanning archives (see
             # https://lld.llvm.org/NewLLD.html, "Efficient archive file
-            # handling"). We stills want "-nolibc" because it disables
-            # automatic linking of libm.
+            # handling"). We stills want "-nolibc" because it disables automatic
+            # linking of libm, and "-nostartfiles" because it gets rid of
+            # crt0.o.
 
             if not using_llvm_compiler():
                 ret += (
@@ -451,7 +455,8 @@ class Target(TargetConfiguration, ArchSupport):
             else:
                 ret += (
                     blank
-                    + '"-Wl,--eh-frame-hdr", "-nolibc", "-lgnarl", "-lgnat", "-lc", "-lunwind",'
+                    + '"-Wl,--eh-frame-hdr", "-nolibc", "-nostartfiles", '
+                    + '"-lgnarl", "-lgnat", "-lc", "-lunwind",'
                 )
 
             # Add spec file for bare-metal targets to support C++
