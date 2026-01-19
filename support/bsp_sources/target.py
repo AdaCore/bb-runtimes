@@ -196,10 +196,12 @@ class Target(TargetConfiguration, ArchSupport):
         #     a hidden runtime dependency that is considered undesirable by many
         #     of our customers. strlen is particularly problematic, as its not
         #     provided in our light and light-tasking runtimes.
+        #
+        # For GNAT LLVM, use the similar switch -fno-builtin.
         if not using_llvm_compiler():
             self.global_compiler_switches = ("-fno-tree-loop-distribute-patterns",)
         else:
-            self.global_compiler_switches = ()
+            self.global_compiler_switches = ("-fno-builtin",)
 
         readme = self.readme_file
         if readme:
