@@ -225,7 +225,7 @@ class AM64x(CortexA53Target):
         self.add_linker_script("aarch64/am64x/common.ld")
         self.add_linker_script("aarch64/am64x/ram.ld", loader="RAM")
         self.add_gnat_sources(
-            "aarch64/zynqmp/start.S",
+            "aarch64/am64x/start.S",
             "aarch64/zynqmp/trap_vector.S",
             "aarch64/am64x/memmap.S",
             "src/s-boapar__am64x.ads",
