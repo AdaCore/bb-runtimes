@@ -194,6 +194,8 @@ __int_grp1_loop:
         mov     x1, #0x80
         msr     ICC_PMR_EL1, x1
 
+        bl      __configure_el3
+
         # Switch to el2h, set AIF
         mov     x0, #(0x1c0 + 9)
         msr     spsr_el3, x0
@@ -244,6 +246,8 @@ __start_el2:
         mov     x0, #0x9
         msr     ICC_SRE_EL2, x0
 
+        bl      __configure_el2
+
         # Switch to el1, set AIF
         mov     x0, #(0x1c0 + 5)
         msr     spsr_el2, x0
@@ -254,6 +258,8 @@ __start_el2:
         eret
 
 __start_el1:
+        bl      __configure_el1
+
         # Load stack pointer (on 32bit)
         adrp    x2, system_stack_base
         add     x2, x2, #:lo12:system_stack_base
