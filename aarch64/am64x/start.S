@@ -175,7 +175,7 @@ __start_el3:
         str     x1, [x0]
 
         /* Enable lower ELs to access to the GIC CPU interface registers. */
-        mov     x0, #0x9
+        mov     x0, #0xf
         msr     ICC_SRE_EL3, x0
 
         /* Running in non-secure mode: all interrupts are group 1 */
@@ -243,7 +243,7 @@ __start_el2:
         msr     hcr_el2,x0
 
         /* Enable lower ELs to access to the GIC CPU interface registers. */
-        mov     x0, #0x9
+        mov     x0, #0xf
         msr     ICC_SRE_EL2, x0
 
         bl      __configure_el2
