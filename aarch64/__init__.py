@@ -219,6 +219,11 @@ class AM64x(CortexA53Target):
     def system_ads(self):
         return {"light": "system-xi-arm-nxstack-light.ads"}
 
+    # Enable -nostdlib and add System.GCC units
+    @property
+    def use_certifiable_packages(self):
+        return True
+
     def __init__(self):
         super().__init__()
 
