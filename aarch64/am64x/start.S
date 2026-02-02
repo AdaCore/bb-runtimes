@@ -218,7 +218,7 @@ __start_el2:
         # the configuration of ACTLR_EL3. This means we check if we actually
         # need to change the SMPEN bit or if it's already set. If already
         # set, we don't attempt to modify it
-        mrs     x0, S3_1_C15_C2_1
+        mrs     x0, CPUECTLR_EL1
         orr     x1, x0, #0x40
         cmp     x1, x0
         beq     1f
