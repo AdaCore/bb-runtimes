@@ -174,8 +174,13 @@ __start_el3:
         mov     x1, #(1 << 6) /* set DS=1 */
         str     x1, [x0]
 
-        /* Enable lower ELs to access to the GIC CPU interface registers. */
-        mov     x0, #0x9
+        /* Enable lower ELs to access to the GIC CPU interface registers.
+           Enable, bit [3]: Enables lower Exception level access to ICC_SRE_EL1 and ICC_SRE_EL2.
+           DIB, bit [2]: IRQ bypass disabled
+           DFB, bit [1]: FIQ bypass disabled.
+           SRE, bit [0]: System Register Enable.
+        */
+        mov     x0, #0b1111
         msr     ICC_SRE_EL3, x0
 
         /* Running in non-secure mode: all interrupts are group 1 */
@@ -194,7 +199,15 @@ __int_grp1_loop:
         mov     x1, #0x80
         msr     ICC_PMR_EL1, x1
 
-        # Switch to el2h, set AIF
+        bl      __configure_el3
+
+        /* Switch to el2h, set AIFM
+           M[3:0], bit [3:0]: Aarch64 EL and SP, set to EL2h
+           M[4], bit [4]: Aarch64 execution state
+           F, bit [6]: FIQ interrupt mask
+           I, bit [7]: IRQ interrupt mask
+           A, bit [8]: SError interrupt mask
+        */
         mov     x0, #(0x1c0 + 9)
         msr     spsr_el3, x0
         adr     x0, __start_el2
@@ -216,7 +229,7 @@ __start_el2:
         # the configuration of ACTLR_EL3. This means we check if we actually
         # need to change the SMPEN bit or if it's already set. If already
         # set, we don't attempt to modify it
-        mrs     x0, S3_1_C15_C2_1
+        mrs     x0, CPUECTLR_EL1
         orr     x1, x0, #0x40
         cmp     x1, x0
         beq     1f
@@ -240,11 +253,24 @@ __start_el2:
         orr     x0, x0, #(1<<29) /* Disable HVC */
         msr     hcr_el2,x0
 
-        /* Enable lower ELs to access to the GIC CPU interface registers. */
-        mov     x0, #0x9
+        /* Enable lower ELs to access to the GIC CPU interface registers.
+           Enable, bit [3]: Enables lower Exception level access to ICC_SRE_EL1.
+           DIB, bit [2]: IRQ bypass disabled
+           DFB, bit [1]: FIQ bypass disabled.
+           SRE, bit [0]: System Register Enable.
+        */
+        mov     x0, #0b1111
         msr     ICC_SRE_EL2, x0
 
-        # Switch to el1, set AIF
+        bl      __configure_el2
+
+        /* Switch to el2h, set AIFM
+           M[3:0], bit [3:0]: Aarch64 EL and SP, set to EL1h
+           M[4], bit [4]: Aarch64 execution state
+           F, bit [6]: FIQ interrupt mask
+           I, bit [7]: IRQ interrupt mask
+           A, bit [8]: SError interrupt mask
+        */
         mov     x0, #(0x1c0 + 5)
         msr     spsr_el2, x0
         adr     x0, __start_el1
@@ -254,6 +280,8 @@ __start_el2:
         eret
 
 __start_el1:
+        bl      __configure_el1
+
         # Load stack pointer (on 32bit)
         adrp    x2, system_stack_base
         add     x2, x2, #:lo12:system_stack_base
