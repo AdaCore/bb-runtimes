@@ -174,8 +174,13 @@ __start_el3:
         mov     x1, #(1 << 6) /* set DS=1 */
         str     x1, [x0]
 
-        /* Enable lower ELs to access to the GIC CPU interface registers. */
-        mov     x0, #0xf
+        /* Enable lower ELs to access to the GIC CPU interface registers.
+           Enable, bit [3]: Enables lower Exception level access to ICC_SRE_EL1 and ICC_SRE_EL2.
+           DIB, bit [2]: IRQ bypass disabled
+           DFB, bit [1]: FIQ bypass disabled.
+           SRE, bit [0]: System Register Enable.
+        */
+        mov     x0, #0b1111
         msr     ICC_SRE_EL3, x0
 
         /* Running in non-secure mode: all interrupts are group 1 */
@@ -196,7 +201,13 @@ __int_grp1_loop:
 
         bl      __configure_el3
 
-        # Switch to el2h, set AIF
+        /* Switch to el2h, set AIFM
+           M[3:0], bit [3:0]: Aarch64 EL and SP, set to EL2h
+           M[4], bit [4]: Aarch64 execution state
+           F, bit [6]: FIQ interrupt mask
+           I, bit [7]: IRQ interrupt mask
+           A, bit [8]: SError interrupt mask
+        */
         mov     x0, #(0x1c0 + 9)
         msr     spsr_el3, x0
         adr     x0, __start_el2
@@ -242,13 +253,24 @@ __start_el2:
         orr     x0, x0, #(1<<29) /* Disable HVC */
         msr     hcr_el2,x0
 
-        /* Enable lower ELs to access to the GIC CPU interface registers. */
-        mov     x0, #0xf
+        /* Enable lower ELs to access to the GIC CPU interface registers.
+           Enable, bit [3]: Enables lower Exception level access to ICC_SRE_EL1.
+           DIB, bit [2]: IRQ bypass disabled
+           DFB, bit [1]: FIQ bypass disabled.
+           SRE, bit [0]: System Register Enable.
+        */
+        mov     x0, #0b1111
         msr     ICC_SRE_EL2, x0
 
         bl      __configure_el2
 
-        # Switch to el1, set AIF
+        /* Switch to el2h, set AIFM
+           M[3:0], bit [3:0]: Aarch64 EL and SP, set to EL1h
+           M[4], bit [4]: Aarch64 execution state
+           F, bit [6]: FIQ interrupt mask
+           I, bit [7]: IRQ interrupt mask
+           A, bit [8]: SError interrupt mask
+        */
         mov     x0, #(0x1c0 + 5)
         msr     spsr_el2, x0
         adr     x0, __start_el1
