@@ -196,7 +196,6 @@ sources = {
             "libgnat/s-bitops.ads",
             "libgnat/s-bitops.adb",
             "libgnat/s-boarop.ads",
-            "libgnat/s-bytswa.ads",
             "libgnat/s-carsi8.ads",
             "libgnat/s-carsi8.adb",
             "libgnat/s-carun8.ads",
@@ -328,23 +327,9 @@ sources = {
             "hie/s-textio__libc.adb",
         ],
     },
-    "common/32": {
-        "conditions": ["Target_Word_Size:32"],
-        "srcs": ["libgnat/i-cexten.ads"],
-    },
     "common/64": {
         "conditions": ["Target_Word_Size:64"],
-        "srcs": [
-            "libgnat/i-cexten__128.ads",
-            "libgnat/s-casi128.ads",
-            "libgnat/s-casi128.adb",
-            "libgnat/s-caun128.ads",
-            "libgnat/s-caun128.adb",
-            "libgnat/s-imgllli.ads",
-            "libgnat/s-imglllu.ads",
-            "libgnat/s-widllli.ads",
-            "libgnat/s-widlllu.ads",
-        ],
+        "srcs": ["libgnat/i-cexten.ads"],
     },
     "common/cheri": {
         "conditions": ["Has_CHERI:yes"],
