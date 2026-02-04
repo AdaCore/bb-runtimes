@@ -280,6 +280,15 @@ __start_el2:
         eret
 
 __start_el1:
+
+        /* Enable EL1 to access to the GIC CPU interface registers.
+           DIB, bit [2]: IRQ bypass disabled
+           DFB, bit [1]: FIQ bypass disabled.
+           SRE, bit [0]: System Register Enable.
+        */
+        mov     x0, #0b111
+        msr     ICC_SRE_EL1, x0
+
         bl      __configure_el1
 
         # Load stack pointer (on 32bit)
@@ -287,10 +296,6 @@ __start_el1:
         add     x2, x2, #:lo12:system_stack_base
         ldr     w0, [x2, x7, lsl #2]
         mov     sp, x0
-
-        /* Enable EL1 to access to the GIC CPU interface registers.*/
-        mov     x0, #0x1
-        msr     ICC_SRE_EL1, x0
 
         ldr     x0, =vector_base
         msr     vbar_el1, x0
