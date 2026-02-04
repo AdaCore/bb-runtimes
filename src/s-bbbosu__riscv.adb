@@ -53,6 +53,30 @@ package body System.BB.Board_Support is
    procedure Poke_Handler (Unused : BB.Interrupts.Interrupt_ID);
    --  Procedure called in case of interprocessor interrupt (IPI) trap
 
+   procedure Secondary_Hart_Init;
+   --  Procedure called to initialize secondary harts
+
+   pragma Export (Asm, Secondary_Hart_Init, "init_secondary_hart");
+
+   ----------------------------
+   -- Secondary_Hart_Init --
+   ----------------------------
+
+   procedure Secondary_Hart_Init is
+   begin
+      --  Install the trap handlers for the secondary harts.
+      CPU_Specific.Install_Trap_Handler
+        (External_Interrupt_Trap_Handler'Access,
+         CPU_Specific.External_Interrupt_Trap);
+
+      CPU_Specific.Install_Trap_Handler
+       (Poke_Handler'Access,
+        CPU_Specific.Interprocessor_Interrupt_Trap);
+
+      --  For the timers interrupts use the same procedure as the primary hart.
+      BB.Time.Initialize_Timers;
+   end Secondary_Hart_Init;
+
    -----------------------------
    -- External_Interrupt_Trap --
    -----------------------------

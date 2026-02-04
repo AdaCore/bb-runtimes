@@ -184,6 +184,9 @@ _start_ram:
     csrs mstatus, t0
 #endif
 
+    /* Initialize secondary hart hardware (timer and interrupts) */
+    call init_secondary_hart
+
     /* Call the Ada RTS entry point for the secondary CPU */
     csrr a0, mhartid // Pass hart ID as first argument a0
     call __gnat_initialize_slave
@@ -216,6 +219,10 @@ __gnat_exit:
         .weak      _exit
         .set _exit,__gnat_exit
 
+
+.weak   init_secondary_hart
+init_secondary_hart:
+    j infinite_hart_parking
 
 .weak   __gnat_initialize_slave
 __gnat_initialize_slave:
