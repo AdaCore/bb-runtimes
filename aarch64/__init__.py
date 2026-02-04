@@ -240,6 +240,34 @@ class AM64x(CortexA53Target):
             "src/s-mmu__am64x.adb",
         )
 
+        self.add_gnat_source("src/s-bytswa__64.ads")
+
+    def dump_runtime_xml(self, rts_name, rts):
+        content = super().dump_runtime_xml(rts_name, rts)
+        content = content.replace(
+            'Leading_Required_Switches ("C") &',
+            'Leading_Required_Switches ("C") & ("-fno-inline-small-functions") &',
+        )
+        content = content.replace(
+            'Leading_Required_Switches ("Ada") &',
+            'Leading_Required_Switches ("Ada") & ("-fno-inline-small-functions", "-gnatd.H") &',
+        )
+        return content
+
+    def amend_rts(self, rts_profile, conf):
+        super().amend_rts(rts_profile, conf)
+        conf.rts_vars["Add_Arith128"] = "no"
+        conf.rts_vars["Add_Exponent_LLL_Int"] = "no"
+        conf.rts_vars["Add_Image_LLL_Based_Int"] = "no"
+        conf.rts_vars["Add_Image_LLL_Fixed"] = "no"
+        conf.rts_vars["Add_Image_LLL_Decimal"] = "no"
+        conf.rts_vars["Add_Image_LLL_Int"] = "no"
+        conf.rts_vars["Add_Pack64"] = "no"
+        conf.rts_vars["Add_Value_LLL_Decimal"] = "no"
+        conf.rts_vars["Add_Value_LLL_Fixed"] = "no"
+        conf.rts_vars["Add_Value_LLL_Int"] = "no"
+        conf.rts_vars["Add_Width_LLL"] = "no"
+
 
 class Rpi3Base(Aarch64Target):
     @property
