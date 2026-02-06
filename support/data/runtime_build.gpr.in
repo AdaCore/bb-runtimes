@@ -6,15 +6,18 @@ project Runtime_Build is
   {target_directive}
 
   for Library_Auto_Init use "False";
-  for Library_Name use "gnat";
   for Library_Kind use Target_Options.Lib;
   for Library_Options use Target_Options.LOPTIONS;
 
    case Target_Options.Lib is
-      when "static" => null;
+      when "static" =>
+         for Library_Name use "gnat";
+      when "static-pic" =>
+         for Library_Name use "gnat_pic";
       when "dynamic" =>
+         for Library_Name use "gnat";
          for Library_Version use
-            "libgnat-" & external ("LIBRARY_VERSION") & ".so";
+           "libgnat-" & external ("LIBRARY_VERSION") & ".so";
          null;
    end case;
 

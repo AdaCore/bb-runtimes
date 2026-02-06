@@ -8,15 +8,19 @@ project Ravenscar_Build is
    for Target use Runtime_Build'Target;
 
    for Library_Auto_Init use "False";
-   for Library_Name use "gnarl";
    for Library_Kind use Runtime_Build'Library_Kind;
    for Library_Options use Runtime_Build'Library_Options;
 
    case Target_Options.Lib is
-      when "static" => null;
+      when "static" =>
+         for Library_Name use "gnarl";
+      when "static-pic" =>
+         for Library_Name use "gnarl_pic";
       when "dynamic" =>
+         for Library_Name use "gnarl";
          for Library_Version use
-            "libgnarl-" & external ("LIBRARY_VERSION") & ".so";
+           "libgnarl-" & external ("LIBRARY_VERSION") & ".so";
+         null;
    end case;
 
    for Library_Dir use "adalib";
