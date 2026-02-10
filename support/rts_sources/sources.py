@@ -213,6 +213,8 @@ sources = {
             "libgnat/s-caun32.adb",
             "libgnat/s-caun64.ads",
             "libgnat/s-caun64.adb",
+            "libgnat/s-elaall.ads",
+            "libgnat/s-elaall.adb",
             "libgnat/s-geveop.ads",
             "libgnat/s-geveop.adb",
             "libgnat/s-imagei.ads",
