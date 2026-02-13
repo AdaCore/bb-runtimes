@@ -2041,6 +2041,7 @@ sources = {
             "libgnarl/s-tpobmu.ads",
         ],
         "bb_srcs": [
+            "hie/s-inttyp.ads",
             "libgnarl/a-interr.ads",
             "hie/a-interr__raven.adb",
             "hie/a-exetim.ads",
@@ -2110,6 +2111,7 @@ sources = {
             "libgnarl/s-taspri__lynxos.ads",
         ],
         "pikeos_srcs": [
+            "hie/s-inttyp.ads",
             "libgnarl/a-interr.ads",
             "hie/a-interr__raven.adb",
             "hie/a-reatim.ads",
