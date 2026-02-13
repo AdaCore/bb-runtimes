@@ -346,30 +346,9 @@ __start_master_cpu:
         cbnz    x1, 0b
 1:
 
-        /* LLVM does not support C++ so we do not activate the code to
-           execute C++ static constructors and destructors. */
-#ifdef __clang__
-        /* Call the main routine */
-        bl  main
-        bl  _exit
-#else
-        /* Run global constructors */
-        bl      __libc_init_array
-
         /* Call the main routine */
         bl      main
-
-        /* Save returned value before calling the global destructors */
-        mov     x19, x0
-
-        /* Cleanup global destructors */
-        bl      __libc_fini_array
-
-        /* restore exit status code */
-        mov     x0, x19
-
-        bl      exit
-#endif
+        bl      _exit
 
 0:      b  0b
         .size  __start_master_cpu, . - __start_master_cpu

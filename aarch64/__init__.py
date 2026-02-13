@@ -257,6 +257,7 @@ class AM64x(CortexA53Target):
     def amend_rts(self, rts_profile, conf):
         super().amend_rts(rts_profile, conf)
         conf.rts_vars["Add_Arith128"] = "no"
+        conf.rts_vars["Add_Ctors_Dtors"] = "no"
         conf.rts_vars["Add_Exponent_LLL_Int"] = "no"
         conf.rts_vars["Add_Image_LLL_Based_Int"] = "no"
         conf.rts_vars["Add_Image_LLL_Fixed"] = "no"
