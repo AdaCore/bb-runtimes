@@ -7,7 +7,7 @@ abstract project Target_Options is
 
   type Build_Type is ("Production", "Debug", "Assert", "Gnatcov");
   Build : Build_Type := external ("BUILD", "Production");
-  type Lib_Type is ("static", "dynamic");
+  type Lib_Type is ("static", "static-pic", "dynamic");
   Lib : Lib_Type := external ("LIBRARY_TYPE", "static");
 
   --  COMFLAGS here is common flags (used for C and Ada).
@@ -41,7 +41,7 @@ abstract project Target_Options is
   --  Linker flags, used for building shared libraries
   LOPTIONS := ();
   case Lib is
-     when "static" =>
+     when "static" | "static-pic" =>
         null;
      when "dynamic" =>
         --  -nostdlib is required for building the
