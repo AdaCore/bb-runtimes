@@ -126,20 +126,6 @@ SECTIONS
      PROVIDE_HIDDEN (__preinit_array_end = .);
   } > REGION_CODE
 
-  .init_array (ALIGN(8)) : {
-     PROVIDE_HIDDEN (__init_array_start = .);
-     KEEP (*(SORT(.init_array.*)))
-     KEEP (*(.init_array))
-     PROVIDE_HIDDEN (__init_array_end = .);
-  } > REGION_CODE
-
-  .fini_array (ALIGN(8)) : {
-     PROVIDE_HIDDEN (__fini_array_start = .);
-     KEEP (*(SORT(.fini_array.*)))
-     KEEP (*(.fini_array))
-     PROVIDE_HIDDEN (__fini_array_end = .);
-  } > REGION_CODE
-
   __region_code_end = ORIGIN(REGION_CODE) + LENGTH(REGION_CODE);
 
   . = ALIGN(0x1000);
