@@ -81,7 +81,7 @@ package body System.Text_IO is
 
    for Baud_Clock_Divisor use record
       Low  at 0 range 0 .. 7;
-      High at 4 range 0 .. 5;
+      High at 4 range 0 .. 7;
    end record;
 
    type Interrupt_Enable is record

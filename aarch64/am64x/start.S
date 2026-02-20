@@ -99,10 +99,6 @@ __start:
 
         .type   __start1, %function
 __start1:
-        # Read processor number
-        mrs     x7, mpidr_el1
-        and     x7, x7, #3
-
         # Boot conditions : check the current EL
         mrs     x1, currentel
         cmp     x1, #(3<<2)
@@ -290,6 +286,10 @@ __start_el1:
         msr     ICC_SRE_EL1, x0
 
         bl      __configure_el1
+
+        # Read processor number
+        mrs     x7, mpidr_el1
+        and     x7, x7, #3
 
         # Load stack pointer (on 32bit)
         adrp    x2, system_stack_base
