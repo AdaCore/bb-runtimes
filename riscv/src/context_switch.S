@@ -74,18 +74,18 @@ __gnat_context_switch:
         LREG s11, 13*REGBYTES(a1)
 
 #ifndef __riscv_float_abi_soft
-        FLREG fs0, 14*REGBYTES(t0)
-        FLREG fs1, 15*REGBYTES(t0)
-        FLREG fs2, 16*REGBYTES(t0)
-        FLREG fs3, 17*REGBYTES(t0)
-        FLREG fs4, 18*REGBYTES(t0)
-        FLREG fs5, 19*REGBYTES(t0)
-        FLREG fs6, 20*REGBYTES(t0)
-        FLREG fs7, 21*REGBYTES(t0)
-        FLREG fs8, 22*REGBYTES(t0)
-        FLREG fs9, 23*REGBYTES(t0)
-        FLREG fs10, 24*REGBYTES(t0)
-        FLREG fs11, 25*REGBYTES(t0)
+        FLREG fs0, 14*REGBYTES(a1)
+        FLREG fs1, 15*REGBYTES(a1)
+        FLREG fs2, 16*REGBYTES(a1)
+        FLREG fs3, 17*REGBYTES(a1)
+        FLREG fs4, 18*REGBYTES(a1)
+        FLREG fs5, 19*REGBYTES(a1)
+        FLREG fs6, 20*REGBYTES(a1)
+        FLREG fs7, 21*REGBYTES(a1)
+        FLREG fs8, 22*REGBYTES(a1)
+        FLREG fs9, 23*REGBYTES(a1)
+        FLREG fs10, 24*REGBYTES(a1)
+        FLREG fs11, 25*REGBYTES(a1)
 #endif
 
         ret

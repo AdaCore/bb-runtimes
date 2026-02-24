@@ -34,6 +34,7 @@
 
 pragma Restrictions (No_Elaboration_Code);
 
+with System.BB.Board_Parameters;
 with System.BB.Interrupts;
 
 package System.BB.CPU_Specific is
@@ -93,7 +94,9 @@ package System.BB.CPU_Specific is
    -- Traps --
    -----------
 
-   type Trap_Type is (Timer_Trap, External_Interrupt_Trap);
+   type Trap_Type is (Timer_Trap,
+     External_Interrupt_Trap,
+     Interprocessor_Interrupt_Trap);
 
    procedure Install_Trap_Handler
      (Service_Routine : BB.Interrupts.Interrupt_Handler;
@@ -125,6 +128,7 @@ package System.BB.CPU_Specific is
    function  Mie                is new Read_CSR ("mie");
    function  Mip                is new Read_CSR ("mip");
    function  Mcause             is new Read_CSR ("mcause");
+   function  Mhartid            is new Read_CSR ("mhartid");
    procedure Clear_Mstatus_Bits is new Clear_CSR_Bits ("mstatus");
    procedure Set_Mstatus_Bits   is new Set_CSR_Bits ("mstatus");
    procedure Set_Mie_Bits       is new Set_CSR_Bits ("mie");
@@ -139,5 +143,42 @@ package System.BB.CPU_Specific is
 
    Mip_MEIP : constant Register_Word := Mie_MEIE;
    --  Machine External Interrupt Pending
+
+   Mie_MSIE : constant Register_Word := 2#0000_0000_1000#;
+   --  Machine Software Interrupt Enable
+
+   Mip_MSIP : constant Register_Word := Mie_MSIE;
+   --  Machine Software Interrupt Pending
+
+   -----------------------------------
+   -- Interprocessor Interrupt (IPI) --
+   -----------------------------------
+
+   --  IPIs are triggered by writing to the memory-mapped CLINT_MSIP registers.
+   --  Writing a 1 to CLINT_MSIP (Hart_ID) asserts the MSIP bit in the 'mip'
+   --  CSR of the target Hart.
+   --
+   --  Note: Like all The 'mip' csr bits (the standard ones), they are read
+   --  only. They are automatically cleared by writing to the source. In the
+   --  case of IPI, The source is the CLINT_MSIP register. Therefore, to
+   --  clear an IPI, write a 0 to the corresponding CLINT_MSIP memory
+   --  location.
+   --  References:
+   --   - RISC-V Advanced Core-Local Interrupt Controller (ACLINT)
+   --     specification
+   --   - RISC-V Privileged specification
+
+   type CLINT_MSIP_Register is mod 2**32 with Volatile_Full_Access;
+   --  Machine Software Interrupt Pending register type (memory-mapped)
+
+   type CLINT_MSIP_Array is
+     array (Board_Parameters.Hart_Id_Range) of CLINT_MSIP_Register;
+   --  Array of MSIP registers indexed by Hart ID
+
+   CLINT_MSIP : CLINT_MSIP_Array
+     with Import, Volatile,
+          Address => System'To_Address (Board_Parameters.CLINT_Base_Address);
+   --  Machine Software Interrupt Pending registers for all harts.
+   --  Uses CLINT_Base_Address from Board_Parameters.
 
 end System.BB.CPU_Specific;

@@ -2,11 +2,13 @@
 --                                                                          --
 --                  GNAT RUN-TIME LIBRARY (GNARL) COMPONENTS                --
 --                                                                          --
---            S Y S T E M . B B . B O A R D _ P A R A M E T E R S           --
+--                   S Y S T E M . B B . P A R A M E T E R S                --
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---                    Copyright (C) 2012-2020, AdaCore                      --
+--        Copyright (C) 1999-2002 Universidad Politecnica de Madrid         --
+--             Copyright (C) 2003-2005 The European Space Agency            --
+--                     Copyright (C) 2003-2020, AdaCore                     --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -32,61 +34,48 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package defines board parameters for the PolarFire SOC
+--  This package defines basic parameters used by the low level tasking system
 
-with Interfaces;
+with System.BB.Board_Parameters;
 
-package System.BB.Board_Parameters is
-   pragma No_Elaboration_Code_All;
+package System.BB.Parameters is
    pragma Pure;
 
    --------------------
    -- Hardware clock --
    --------------------
 
-   Clock_Scale     : constant := 1;
-   --  Scaling factor for clock frequency. This is used to provide a clock
-   --  frequency that results in a definition of Time_Unit less than 20
-   --  microseconds (as Ada RM D.8 (30) requires).
+   Ticks_Per_Second : constant := Board_Parameters.Clock_Frequency;
+   --  Frequency of the system clock
 
-   Decrementer_Frequency : constant Positive := 1_000_000;
-   --  Frequency of the system clock for the decrementer timer
+   ----------------
+   -- Interrupts --
+   ----------------
 
-   Clock_Frequency : constant Positive := Decrementer_Frequency * Clock_Scale;
-   --  Scaled clock frequency
+   --  These definitions are in this package in order to isolate target
+   --  dependencies.
 
-   --  Hardware Hart (Hardware Thread) Identifiers
-   type Hart_Id_Range is range 0 .. 4;
-   --  Range of valid Hart IDs on PolarFire SoC
-   --  (0=E51 Monitor, 1-4=U54 Application)
-   --  Note: CPU #0 (E51) is not used by this run-time
+   subtype Interrupt_Range is Natural range 1 .. 186;
 
-   CLINT_Base_Address    : constant := 16#0200_0000#;
-   CLINT_Mtime_Offset    : constant := 16#BFF8#;
-   CLINT_Mtimecmp_Offset : constant := 16#4000#; --  mtimecmp for hart 0
+   ------------
+   -- Stacks --
+   ------------
 
-   Mtime_Base_Address : constant :=
-     CLINT_Base_Address + CLINT_Mtime_Offset;
-   --  Address of the memory mapped mtime register
+   Interrupt_Stack_Size : constant := 8 * 1024;
+   --  Size of each of the interrupt stacks in bytes
 
-   Mtimecmp_Base_Address : constant :=
-     CLINT_Base_Address + CLINT_Mtimecmp_Offset;
-   --  Base address of mtimecmp registers (Hart 0)
+   Interrupt_Sec_Stack_Size : constant := 1024;
+   --  Size of the secondary stack for interrupt handlers
 
-   UART_Base_Address    : constant := 16#2000_0000#;
+   ----------
+   -- CPUS --
+   ----------
 
-   --  Platform Level Interrupt Controller
-   PLIC_Base_Address     : constant := 16#0C00_0000#;
-   PLIC_Nbr_Of_Harts     : constant := 5;
-   PLIC_Nbr_Of_Sources   : constant := 185;
-   PLIC_Nbr_Of_Mask_Regs : constant := 6;
-   PLIC_Hart_Id          : constant := 1;
-   PLIC_Priority_Bits    : constant := 3;
+   Max_Number_Of_CPUs : constant := 4;
+   --  Maximum number of CPUs (For the smp runtime, the runtime supports
+   --  all 4 U54 application harts (mhartid 1-4)
 
-   GDB_First_CPU_Id : constant Interfaces.Unsigned_32 := 1;
-   pragma Export (C, GDB_First_CPU_Id, "__gnat_gdb_cpu_first_id");
-   --  This value is used by GDB to know the hardware id of the first CPU used
-   --  by the run-time. On this board CPU #0 (the monitor) is not used,
-   --  therefore the first id is 1.
+   Multiprocessor : constant Boolean := Max_Number_Of_CPUs /= 1;
+   --  Are we on a multiprocessor board?
 
-end System.BB.Board_Parameters;
+end System.BB.Parameters;

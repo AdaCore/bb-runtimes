@@ -34,16 +34,48 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with Interfaces;
+with System.BB.CPU_Primitives.Multiprocessors;
 with System.BB.CPU_Specific;
 with System.BB.RISCV_PLIC;
+with System.BB.Board_Parameters;
+with System.Machine_Code;
 
 package body System.BB.Board_Support is
+   use Machine_Code;
 
    package PLIC renames RISCV_PLIC;
 
    procedure External_Interrupt_Trap_Handler
      (Unused : BB.Interrupts.Interrupt_ID);
    --  Procedure called in case of external interrupt trap
+
+   procedure Poke_Handler (Unused : BB.Interrupts.Interrupt_ID);
+   --  Procedure called in case of interprocessor interrupt (IPI) trap
+
+   procedure Secondary_Hart_Init;
+   --  Procedure called to initialize secondary harts
+
+   pragma Export (Asm, Secondary_Hart_Init, "init_secondary_hart");
+
+   ----------------------------
+   -- Secondary_Hart_Init --
+   ----------------------------
+
+   procedure Secondary_Hart_Init is
+   begin
+      --  Install the trap handlers for the secondary harts.
+      CPU_Specific.Install_Trap_Handler
+        (External_Interrupt_Trap_Handler'Access,
+         CPU_Specific.External_Interrupt_Trap);
+
+      CPU_Specific.Install_Trap_Handler
+       (Poke_Handler'Access,
+        CPU_Specific.Interprocessor_Interrupt_Trap);
+
+      --  For the timers interrupts use the same procedure as the primary hart.
+      BB.Time.Initialize_Timers;
+   end Secondary_Hart_Init;
 
    -----------------------------
    -- External_Interrupt_Trap --
@@ -91,6 +123,21 @@ package body System.BB.Board_Support is
 
    end External_Interrupt_Trap_Handler;
 
+   ------------------
+   -- Poke_Handler --
+   ------------------
+
+   procedure Poke_Handler (Unused : BB.Interrupts.Interrupt_ID) is
+      pragma Unreferenced (Unused);
+   begin
+      --  Clear the machine software interrupt for this hart
+      CPU_Specific.CLINT_MSIP (
+        Board_Parameters.Hart_Id_Range (CPU_Specific.Mhartid)) := 0;
+
+      --  Call the generic poke handler
+      CPU_Primitives.Multiprocessors.Poke_Handler;
+   end Poke_Handler;
+
    ----------------------
    -- Initialize_Board --
    ----------------------
@@ -102,6 +149,11 @@ package body System.BB.Board_Support is
       CPU_Specific.Install_Trap_Handler
         (External_Interrupt_Trap_Handler'Access,
          CPU_Specific.External_Interrupt_Trap);
+
+      CPU_Specific.Install_Trap_Handler
+        (Poke_Handler'Access,
+         CPU_Specific.Interprocessor_Interrupt_Trap);
+
    end Initialize_Board;
 
    package body Interrupts is
@@ -136,10 +188,9 @@ package body System.BB.Board_Support is
       ----------------
       -- Power_Down --
       ----------------
-
       procedure Power_Down is
       begin
-         null;
+         Asm ("wfi", Volatile => True);
       end Power_Down;
 
       --------------------------

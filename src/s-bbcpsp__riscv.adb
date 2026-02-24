@@ -80,6 +80,15 @@ package body System.BB.CPU_Specific is
 
          case Code is
 
+            when 3 =>
+               --  Machine Software Interrupt (Interprocessor Interrupt (IPI))
+               --  This interrupt is triggered when another Hart writes to
+               --  the MSIP register in the CLINT.
+               if Handlers (Interprocessor_Interrupt_Trap) /= null then
+                  Handlers (Interprocessor_Interrupt_Trap)
+                    (BB.Interrupts.Interrupt_ID'First);
+               end if;
+
             when 7 => -- Machine Timer Interrupt
                if Handlers (Timer_Trap) /= null then
                   Handlers (Timer_Trap) (BB.Interrupts.Interrupt_ID'First);
@@ -130,6 +139,9 @@ package body System.BB.CPU_Specific is
          when External_Interrupt_Trap =>
             --  Enable the external interrupt trap
             Set_Mie_Bits (Mie_MEIE);
+         when Interprocessor_Interrupt_Trap =>
+            --  Enable the interprocessor interrupt (IPI) trap
+            Set_Mie_Bits (Mie_MSIE);
       end case;
 
       --  Set the Machine Trap-Vector address and use Direct mode

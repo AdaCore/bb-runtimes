@@ -43,6 +43,7 @@ separate (System.BB.Board_Support)
 package body Time is
 
    package BBBOPA renames System.BB.Board_Parameters;
+   package CPU_Spec renames System.BB.CPU_Specific;
 
    -----------------------
    -- Local Definitions --
@@ -57,14 +58,40 @@ package body Time is
    --  The mtime register has a 64-bit precision on all RV32, RV64, and RV128
    --  systems.
 
-   Mtimecmp_Lo : Unsigned_32
-     with Volatile,
-     Address => System'To_Address (BBBOPA.Mtimecmp_Base_Address);
-   Mtimecmp_Hi : Unsigned_32
-     with Volatile,
-     Address => System'To_Address (BBBOPA.Mtimecmp_Base_Address + 4);
-   --  The mtimecmp register has a 64-bit precision on all RV32, RV64, and
-   --  RV128 systems.
+   --  Helper procedures to access per-CPU mtimecmp registers.
+   --  Base address points to Hart 0. Hart IDs used directly as multiplier.
+   --  Each hart's mtimecmp is at base + (Hart_Id * 8).
+   --  This is specified in the RISC-V ACLINT specification.
+   function Get_Hart_Mtimecmp_Address (Byte_Offset : Natural := 0)
+     return System.Address;
+   procedure Set_Mtimecmp_Lo (Value : Unsigned_32);
+   procedure Set_Mtimecmp_Hi (Value : Unsigned_32);
+
+   function Get_Hart_Mtimecmp_Address (Byte_Offset : Natural := 0)
+     return System.Address
+   is
+      Hart_Id    : constant BBBOPA.Hart_Id_Range :=
+        BBBOPA.Hart_Id_Range (CPU_Spec.Mhartid);
+      CPU_Offset : constant Natural := Natural (Hart_Id) * 8;
+   begin
+      return System'To_Address (BBBOPA.Mtimecmp_Base_Address
+        + CPU_Offset
+        + Byte_Offset);
+   end Get_Hart_Mtimecmp_Address;
+
+   procedure Set_Mtimecmp_Lo (Value : Unsigned_32) is
+      Target : Unsigned_32
+        with Volatile, Address => Get_Hart_Mtimecmp_Address (0);
+   begin
+      Target := Value;
+   end Set_Mtimecmp_Lo;
+
+   procedure Set_Mtimecmp_Hi (Value : Unsigned_32) is
+      Target : Unsigned_32
+        with Volatile, Address => Get_Hart_Mtimecmp_Address (4);
+   begin
+      Target := Value;
+   end Set_Mtimecmp_Hi;
 
    ----------------
    -- Read_Clock --
@@ -130,9 +157,9 @@ package body Time is
       --  mtimecmp value without spuriously generating a timer interrupt due to
       --  the intermediate value of the comparand:
 
-      Mtimecmp_Lo := Unsigned_32'Last; -- No smaller than old value
-      Mtimecmp_Hi := Hi; -- No smaller than new value
-      Mtimecmp_Lo := Lo; -- New value.
+      Set_Mtimecmp_Lo (Unsigned_32'Last); -- No smaller than old value
+      Set_Mtimecmp_Hi (Hi); -- No smaller than new value
+      Set_Mtimecmp_Lo (Lo); -- New value.
    end Set_Alarm;
 
    ---------------------------
@@ -141,8 +168,8 @@ package body Time is
 
    procedure Clear_Alarm_Interrupt is
    begin
-      Mtimecmp_Lo := Unsigned_32'Last;
-      Mtimecmp_Hi := Unsigned_32'Last;
+      Set_Mtimecmp_Lo (Unsigned_32'Last);
+      Set_Mtimecmp_Hi (Unsigned_32'Last);
    end Clear_Alarm_Interrupt;
 
 end Time;

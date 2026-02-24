@@ -72,7 +72,8 @@ package System.BB.Parameters is
    ----------
 
    Max_Number_Of_CPUs : constant := 1;
-   --  Maximum number of CPUs
+   --  Maximum number of CPUs (For non smp runtime only hart 1 of
+   --  the Polarfire SoC is supported)
 
    Multiprocessor : constant Boolean := Max_Number_Of_CPUs /= 1;
    --  Are we on a multiprocessor board?

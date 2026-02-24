@@ -131,11 +131,38 @@ class PolarFireSOC(RiscV64):
         self.smp = smp
 
         self.add_linker_script("riscv/microchip/polarfiresoc/memory-map.ld")
-        self.add_linker_script(
-            "riscv/microchip/polarfiresoc/common-RAM.ld", loader="RAM"
-        )
+
+        if self.smp:
+            # SMP-specific linker script with stacks for all cores
+            self.add_linker_script(
+                "riscv/microchip/polarfiresoc/common-RAM-smp.ld",
+                dst="common-RAM.ld",
+                loader="RAM",
+            )
+            # SMP-specific startup code
+            self.add_source_alias(
+                "gnat", "start-ram.S", "riscv/microchip/polarfiresoc/start-ram-smp.S"
+            )
+
+            # Multiprocessig specific sources
+            self.add_gnarl_sources(
+                "src/s-bbsumu__riscv.adb",
+                "src/s-bbpara__polarfiresoc_smp.ads",
+            )
+
+        else:
+            # Single-processor linker script and startup
+            self.add_linker_script(
+                "riscv/microchip/polarfiresoc/common-RAM.ld", loader="RAM"
+            )
+            self.add_gnat_source("riscv/microchip/polarfiresoc/start-ram.S")
+            self.add_gnarl_sources(
+                "src/s-bbsumu__generic.adb",
+                "src/s-bbpara__polarfiresoc.ads",
+            )
+
+        # Common GNAT sources
         self.add_gnat_sources(
-            "riscv/microchip/polarfiresoc/start-ram.S",
             "riscv/sifive/fe310/svd/i-fe310.ads",
             "riscv/sifive/fe310/svd/i-fe310-plic.ads",
             "riscv/sifive/fe310/s-macres.adb",
@@ -145,16 +172,14 @@ class PolarFireSOC(RiscV64):
         )
         self.add_gnarl_sources(
             "riscv/microchip/polarfiresoc/a-intnam.ads",
-            "src/s-bbpara__polarfiresoc.ads",
             "src/s-bbbosu__riscv.adb",
             "src/s-bbsuti__riscv_clint.adb",
-            "src/s-bbsumu__generic.adb",
             "src/s-bbcppr__new.ads",
             "src/s-bbcppr__riscv.adb",
             "src/s-bbcpsp__riscv.ads",
             "src/s-bbcpsp__riscv.adb",
             "riscv/src/context_switch.S",
-            "riscv/src/trap_handler.S",
+            "riscv/src/trap_handler_smp.S",
             "riscv/src/s-bbripl.ads",
             "riscv/microchip/polarfiresoc/s-bbripl.adb",
         )

@@ -70,4 +70,8 @@
 #define MSTATUS_MPP         0x00001800
 #define MSTATUS_FS          0x00006000
 
+/* Machine interrupt pending bits definitions */
+#define IRQ_M_SOFT          3
+#define MIP_MSIP            (1U << IRQ_M_SOFT)
+
 #endif /* ! _RISCV_DEF_H_ */
