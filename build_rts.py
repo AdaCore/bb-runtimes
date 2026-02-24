@@ -62,6 +62,7 @@ from riscv import (
     HiFive1,
     MIV_RV32IMAF,
     PolarFireSOC,
+    MicroblazeV,
     Spike,
     RV32I,
     RV32IM,
@@ -260,6 +261,8 @@ def build_configs(target):
         t = PolarFireSOC(smp=False)
     elif target == "polarfiresoc-smp":
         t = PolarFireSOC(smp=True)
+    elif target == "microblazev":
+        t = MicroblazeV()
     elif target == "rv32i":
         t = RV32I()
     elif target == "rv32im":
