@@ -157,16 +157,16 @@ class PolarFireSOC(RiscV64):
             )
 
         else:
-            # Single-processor linker script, trap handler and startup
+            # Single-processor equivalent sources
             self.add_linker_script(
                 "riscv/microchip/polarfiresoc/common-RAM.ld", loader="RAM"
             )
             self.add_gnat_source("riscv/microchip/polarfiresoc/start-ram.S")
             self.add_gnarl_sources(
+                "riscv/src/trap_handler.S",
                 "src/s-bbsumu__generic.adb",
                 "src/s-bbpara__polarfiresoc.ads",
             )
-            self.add_gnat_source("riscv/src/trap_handler.S")
 
         # Common GNAT sources
         self.add_gnat_sources(
