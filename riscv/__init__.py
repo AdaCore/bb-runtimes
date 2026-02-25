@@ -143,6 +143,12 @@ class PolarFireSOC(RiscV64):
             self.add_source_alias(
                 "gnat", "start-ram.S", "riscv/microchip/polarfiresoc/start-ram-smp.S"
             )
+            # SMP-specific trap handler
+            self.add_source_alias(
+                "gnarl",
+                "trap_handler.S",
+                "riscv/src/trap_handler_smp.S",
+            )
 
             # Multiprocessig specific sources
             self.add_gnarl_sources(
@@ -151,7 +157,7 @@ class PolarFireSOC(RiscV64):
             )
 
         else:
-            # Single-processor linker script and startup
+            # Single-processor linker script, trap handler and startup
             self.add_linker_script(
                 "riscv/microchip/polarfiresoc/common-RAM.ld", loader="RAM"
             )
@@ -160,6 +166,7 @@ class PolarFireSOC(RiscV64):
                 "src/s-bbsumu__generic.adb",
                 "src/s-bbpara__polarfiresoc.ads",
             )
+            self.add_gnat_source("riscv/src/trap_handler.S")
 
         # Common GNAT sources
         self.add_gnat_sources(
@@ -179,7 +186,6 @@ class PolarFireSOC(RiscV64):
             "src/s-bbcpsp__riscv.ads",
             "src/s-bbcpsp__riscv.adb",
             "riscv/src/context_switch.S",
-            "riscv/src/trap_handler_smp.S",
             "riscv/src/s-bbripl.ads",
             "riscv/microchip/polarfiresoc/s-bbripl.adb",
         )
