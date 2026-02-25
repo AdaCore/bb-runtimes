@@ -191,6 +191,8 @@ _start_ram:
     csrr a0, mhartid // Pass hart ID as first argument a0
     call __gnat_initialize_slave
 
+    .globl infinite_hart_parking
+    .type infinite_hart_parking,@function
 infinite_hart_parking:
     wfi
     j infinite_hart_parking
