@@ -66,11 +66,6 @@ class PolarFireSOC(RiscV64):
     single-core only. If the `smp` flag is set to True, all the cores
     will be used by the runtime and will be usable for multitasking by the
     ADA application.
-
-    Warning:
-      The SMP behavior is not implemented yet, for now the generated
-      smp runtime just acts as non-smp runtime. Remove this Warning when
-      the implementation is complete.
     """
 
     smp: bool
