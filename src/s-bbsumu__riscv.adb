@@ -96,9 +96,6 @@ package body Multiprocessors is
       --  On PolarFire SoC, the secondary harts are initially parked in
       --  a WFI (wait-for-interrupt) loop in the startup code. waiting for
       --  this poke. (See startup code)
-      --  FIXME: Is there a chance that the secondary harts might miss this
-      --  poke if they haven't entered WFI yet? If so, we might need a more
-      --  robust synchronization mechanism.
 
       for CPU_Id in System.Multiprocessors.CPU range 2 .. Number_Of_CPUs loop
          Poke_CPU (CPU_Id);
