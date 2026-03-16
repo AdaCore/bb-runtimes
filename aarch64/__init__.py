@@ -138,10 +138,6 @@ class CortexA53Target(Aarch64Target):
             "src/trap_dump__aarch64.adb",
         )
 
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-mcpu=cortex-a53",)
-
     @property
     def compiler_switches(self):
         # The required compiler switches
@@ -212,12 +208,9 @@ class AM64x(CortexA53Target):
     def loaders(self):
         return ("RAM",)
 
-    def amend_rts(self, rts_profile, cfg):
-        super().amend_rts(rts_profile, cfg)
-
     @property
     def system_ads(self):
-        return {"light": "system-xi-arm-nxstack-light.ads"}
+        return {"light": "system-aero-light.ads"}
 
     # Enable -nostdlib and add System.GCC units
     @property
@@ -240,8 +233,6 @@ class AM64x(CortexA53Target):
             "src/s-mmu__am64x.adb",
         )
 
-        self.add_gnat_source("src/s-bytswa__64.ads")
-
     def dump_runtime_xml(self, rts_name, rts):
         content = super().dump_runtime_xml(rts_name, rts)
         content = content.replace(
@@ -250,7 +241,7 @@ class AM64x(CortexA53Target):
         )
         content = content.replace(
             'Leading_Required_Switches ("Ada") &',
-            'Leading_Required_Switches ("Ada") & ("-fno-inline-small-functions", "-gnatd.H") &',
+            'Leading_Required_Switches ("Ada") & ("-fno-inline-small-functions") &',
         )
         return content
 
@@ -263,7 +254,7 @@ class AM64x(CortexA53Target):
         conf.rts_vars["Add_Image_LLL_Fixed"] = "no"
         conf.rts_vars["Add_Image_LLL_Decimal"] = "no"
         conf.rts_vars["Add_Image_LLL_Int"] = "no"
-        conf.rts_vars["Add_Pack64"] = "no"
+        conf.rts_vars["Add_Pack64"] = "yes"
         conf.rts_vars["Add_Value_LLL_Decimal"] = "no"
         conf.rts_vars["Add_Value_LLL_Fixed"] = "no"
         conf.rts_vars["Add_Value_LLL_Int"] = "no"

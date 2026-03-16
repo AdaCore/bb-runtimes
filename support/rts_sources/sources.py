@@ -196,6 +196,7 @@ sources = {
             "libgnat/s-bitops.ads",
             "libgnat/s-bitops.adb",
             "libgnat/s-boarop.ads",
+            "libgnat/s-bytswa.ads",
             "libgnat/s-carsi8.ads",
             "libgnat/s-carsi8.adb",
             "libgnat/s-carun8.ads",
