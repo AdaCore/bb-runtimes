@@ -336,6 +336,45 @@ class MIV_RV32IMAF(RiscV32):
         )
 
 
+class MicroblazeV(RiscV64):
+    @property
+    def has_single_precision_fpu(self):
+        return False
+
+    @property
+    def has_double_precision_fpu(self):
+        return False
+
+    @property
+    def system_ads(self):
+        return {"light": "system-xi-riscv.ads"}
+
+    @property
+    def loaders(self):
+        return ("RAM",)
+
+    def __init__(self):
+        super(RiscV64, self).__init__()
+
+        self.add_linker_script("riscv/amd/microblaze/memory-map.ld")
+        self.add_linker_script("riscv/amd/microblaze/common-RAM.ld", loader="RAM")
+
+        self.add_gnat_sources(
+            "src/s-macres__none.adb",
+            "src/s-textio__axi_uartlite.adb",
+            "riscv/amd/microblaze/start-ram.S",
+            "riscv/src/riscv_def.h",
+        )
+
+    @property
+    def name(self):
+        return "microblazev"
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv64im_zicsr_zifencei_zicbom", "-mabi=lp64")
+
+
 class RV32BASE(RiscV32):
     """
     Generic Light run-time meant to be used with the startup generator (crt0 and
