@@ -487,7 +487,13 @@ sources = {
     # Command Line
     "command_line": {
         "conditions": ["Add_Command_Line:yes"],
-        "srcs": ["libgnat/a-comlin.ads", "libgnat/a-comlin.adb", "argv.c", "runtime.h"],
+        "srcs": [
+            "libgnat/a-comlin.ads",
+            "libgnat/a-comlin.adb",
+            "argv.c",
+            "runtime.h",
+            "env.h",
+        ],
     },
     "gccmath": {
         # gcc maths intrinsics are provided on no supported configuration
