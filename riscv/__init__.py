@@ -372,7 +372,7 @@ class MicroblazeV(RiscV64):
 
     @property
     def compiler_switches(self):
-        return ("-march=rv64im_zicsr_zifencei_zicbom", "-mabi=lp64")
+        return ("-march=rv64ima_zicsr_zifencei_zicbom", "-mabi=lp64")
 
 
 class RV32BASE(RiscV32):
