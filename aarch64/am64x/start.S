@@ -41,7 +41,6 @@
 
 /* AM64x Technical Reference Manual for base address */
 /* ARM CoreLink GIC-500 Technical Reference Manual for register offsets */
-.set    GICD_CTLR,      0x01800000
 .set    GICD_IGROUPR,   0x01800080
 
 /* ARM Cortex-A53 MPCore Technical Reference Manual */
@@ -165,10 +164,7 @@ __start_el3:
         /* Enable FPU (don't trap accesses) */
         msr     cptr_el3, xzr
 
-        /* Disable security to allow non-secure access to some GIC registers */
-        mov     x0, #GICD_CTLR
-        mov     x1, #(1 << 6) /* set DS=1 */
-        str     x1, [x0]
+        /* GICD_CTLR.DS is left at reset value 0 (security enabled).*/
 
         /* Enable lower ELs to access to the GIC CPU interface registers.
            Enable, bit [3]: Enables lower Exception level access to ICC_SRE_EL1 and ICC_SRE_EL2.
