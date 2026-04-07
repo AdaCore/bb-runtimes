@@ -115,6 +115,7 @@ from lynx import PPCLynx, Aarch64Lynx
 import argparse
 import importlib
 import os
+import shutil
 import subprocess
 import sys
 
@@ -481,6 +482,9 @@ def main():
 
             # Remove the runtime from the Python path
             sys.path.remove(rt)
+
+            # Remove python artifacts from runtime directory
+            shutil.rmtree(os.path.join(rt, "__pycache__"))
 
     print("runtimes successfully installed in %s" % dest)
 
