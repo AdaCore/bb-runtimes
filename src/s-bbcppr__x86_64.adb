@@ -71,6 +71,7 @@ with System.BB.CPU_Specific; use System.BB.CPU_Specific;
 with System.BB.Interrupts;   use System.BB.Interrupts;
 with System.BB.Parameters;   use System.BB.Parameters;
 with System.Machine_Code;    use System.Machine_Code;
+with System.Tracing_Hooks;
 
 package body System.BB.CPU_Primitives is
 
@@ -1490,6 +1491,9 @@ package body System.BB.CPU_Primitives is
       --  this file needs to be compiled at -O1 or -O2.
 
       Vector : LAPIC_Vector;
+
+      CPU_Id : System.Multiprocessors.CPU;
+
    begin
       --  On entry we are on the processor's interrupt stack. Create a new
       --  frame on the stack that we will use as the stack for handling this
@@ -1614,7 +1618,21 @@ package body System.BB.CPU_Primitives is
       --  Do a context switch if we are required to.
 
       if System.BB.Threads.Queues.Context_Switch_Needed then
+
+         --  Call tracing hooks to notify the context switch
+
+         Cpu_Id := Board_Support.Multiprocessors.Current_CPU;
+
+         System.Tracing_Hooks.Call_Task_Hook
+           (Event => System.Tracing_Hooks.Context_Switch_Out,
+            ID    => Threads.Queues.Running_Thread_Table (CPU_Id).all.ATCB);
+
+         System.Tracing_Hooks.Call_Task_Hook
+           (Event => System.Tracing_Hooks.Context_Switch_In,
+            ID    => Threads.Queues.First_Thread_Table (CPU_Id).all.ATCB);
+
          Context_Switch;
+
       end if;
 
       --  Ada code is no longer allowed at this point. Remove the NULL return
