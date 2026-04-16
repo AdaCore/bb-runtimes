@@ -40,7 +40,6 @@ with System.BB.Threads.Queues;
 with System.BB.Board_Support;
 with System.BB.Parameters;
 with System.Machine_Code; use System.Machine_Code;
-with System.Tracing_Hooks;
 
 package body System.BB.CPU_Primitives is
    use System.BB.Threads;
@@ -149,22 +148,6 @@ package body System.BB.CPU_Primitives is
 
       --  Call the handler
       Irq_User_Handler;
-
-      if Threads.Queues.Context_Switch_Needed then
-
-         --  Call tracing hooks to notify the context switch.
-         --
-         --  This is done here in case the hooks use the FPU
-
-         System.Tracing_Hooks.Call_Task_Hook
-           (Event => System.Tracing_Hooks.Context_Switch_Out,
-            ID    => Threads.Queues.Running_Thread_Table (CPU_Id).all.ATCB);
-
-         System.Tracing_Hooks.Call_Task_Hook
-           (Event => System.Tracing_Hooks.Context_Switch_In,
-            ID    => Threads.Queues.First_Thread_Table (CPU_Id).all.ATCB);
-
-      end if;
 
       --  Check FPU usage in handler
       if Current_FPU_Context (CPU_Id) = IRQ_Ctxt'Unchecked_Access then
