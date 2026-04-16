@@ -40,6 +40,7 @@ with System.BB.Threads;
 with System.BB.Threads.Queues;
 with System.Machine_Code; use System.Machine_Code;
 with System.BB.CPU_Primitives.Context_Switch_Trigger;
+with System.Tracing_Hooks;
 
 package body System.BB.CPU_Primitives is
    use Board_Support.Time;
@@ -383,6 +384,7 @@ package body System.BB.CPU_Primitives is
    ----------------------------------
 
    procedure Interrupt_Request_Handler is
+      CPU_Id : System.Multiprocessors.CPU;
    begin
       --  Call the handler (System.BB.Interrupts.Interrupt_Wrapper)
 
@@ -404,6 +406,18 @@ package body System.BB.CPU_Primitives is
 
             --  Note that the following context switch is not immediate, but
             --  will only take effect after interrupts are enabled.
+
+            --  Call tracing hooks to notify the context switch
+
+            Cpu_Id := Board_Support.Multiprocessors.Current_CPU;
+
+            System.Tracing_Hooks.Call_Task_Hook
+              (Event => System.Tracing_Hooks.Context_Switch_Out,
+               ID    => Threads.Queues.Running_Thread_Table (CPU_Id).all.ATCB);
+
+            System.Tracing_Hooks.Call_Task_Hook
+              (Event => System.Tracing_Hooks.Context_Switch_In,
+               ID    => Threads.Queues.First_Thread_Table (CPU_Id).all.ATCB);
 
             Context_Switch;
          end if;
@@ -448,6 +462,7 @@ package body System.BB.CPU_Primitives is
    procedure Sys_Tick_Handler is
       Max_Alarm_Interval : constant Timer_Interval := Timer_Interval'Last / 2;
       Now : constant Timer_Interval := Timer_Interval (Read_Clock);
+      CPU_Id : System.Multiprocessors.CPU;
 
    begin
       --  The following allows max. efficiency for "useless" tick interrupts
@@ -468,6 +483,17 @@ package body System.BB.CPU_Primitives is
       --  The interrupt handler may have scheduled a new task
 
       if Context_Switch_Needed then
+
+         Cpu_Id := Board_Support.Multiprocessors.Current_CPU;
+
+         System.Tracing_Hooks.Call_Task_Hook
+           (Event => System.Tracing_Hooks.Context_Switch_Out,
+            ID    => Threads.Queues.Running_Thread_Table (CPU_Id).all.ATCB);
+
+         System.Tracing_Hooks.Call_Task_Hook
+           (Event => System.Tracing_Hooks.Context_Switch_In,
+            ID    => Threads.Queues.First_Thread_Table (CPU_Id).all.ATCB);
+
          Context_Switch;
       end if;
 
