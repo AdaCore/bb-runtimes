@@ -7,7 +7,7 @@
 --                                 S p e c                                  --
 --                            (RiscV64 Version)                             --
 --                                                                          --
---          Copyright (C) 1992-2025, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2026, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -48,6 +48,9 @@ pragma Restrictions (No_Implicit_Dynamic_Code);
 
 pragma Restrictions (No_Finalization);
 --  Controlled types are not supported in this run time
+
+pragma Restrictions (No_Streams);
+--  Stream attributes are not supported in this run time
 
 pragma Profile (Jorvik);
 --  This is a bare metal tasking runtime
