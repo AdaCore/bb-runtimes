@@ -52,6 +52,12 @@ pragma Restrictions (No_Finalization);
 pragma Restrictions (No_Tasking);
 --  Tasking is not supported in this run time
 
+pragma Restrictions (No_Streams);
+--  Stream attributes are not supported in this run time
+
+pragma Restrictions (No_Protected_Types);
+--  Protected types are not supported in this run time
+
 package System is
    pragma Pure;
    --  Note that we take advantage of the implementation permission to make
