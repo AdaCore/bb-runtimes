@@ -7,7 +7,7 @@
 --                                 S p e c                                  --
 --                     (VxWorks7/LEVEL A Version PPC)                       --
 --                                                                          --
---          Copyright (C) 1992-2025, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2026, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This specification is derived from the Ada Reference Manual for use with --
 -- GNAT. The copyright notice above, and the license provisions that follow --
@@ -54,6 +54,12 @@ pragma Restrictions (No_Finalization);
 
 pragma Restrictions (No_Tasking);
 --  Tasking is not supported in this run time
+
+pragma Restrictions (No_Streams);
+--  Stream attributes are not supported in this run time
+
+pragma Restrictions (No_Protected_Types);
+--  Protected types are not supported in this run time
 
 package System is
    pragma Pure;
