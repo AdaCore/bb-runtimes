@@ -122,10 +122,6 @@ __start_el3:
         ldr     x0, =vector_base
         msr     vbar_el3, x0
 
-        # Set the timer frequency (indicator for software)
-        ldr     x0, =99999000
-        msr     cntfrq_el0, x0
-
         /* SCR_EL3:
          * NS  = 1  EL0 and EL1 are in Non-secure state
          * IRQ = 0  do not take exceptions from EL0-2 at EL3

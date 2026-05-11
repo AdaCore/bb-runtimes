@@ -119,3 +119,10 @@ ensure only one application uses `Ada.Text_IO`. If your other applications
 require Text_IO services, have these applications interface directly with
 different I/O peripherals, or use the AM64x IPC facilities to relay
 messages through the application designated to communicate with UART0.
+
+Timers
+------
+
+The runtime does not configure any timers. On the AM64x the system counter
+is disabled by default, so both `CNTFRQ_EL0` nor `CNTPCT_EL0` retain their
+reset values. It is up to the user to configure these as needed.
