@@ -63,7 +63,7 @@ startup code performs the following operations:
  * Initialization of the core registers
  * Enabling of the FPU
  * Clearing the BSS section
- * Dropping down to Exception Level 1 from Exception Level 3
+ * Dropping down to Exception Level 1, if started at EL 2 or EL 3
  * Initial Configuration of the MMU
 
 The ARMv8-A architecture defines four Exception Levels (EL), 3 to 0. The runtime
@@ -124,5 +124,5 @@ Timers
 ------
 
 The runtime does not configure any timers. On the AM64x the system counter
-is disabled by default, so both `CNTFRQ_EL0` nor `CNTPCT_EL0` retain their
+is disabled by default, so both `CNTFRQ_EL0` and `CNTPCT_EL0` retain their
 reset values. It is up to the user to configure these as needed.
