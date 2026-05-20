@@ -1,0 +1,28 @@
+#
+# Copyright (C) 2025-2026, AdaCore
+#
+
+[project]
+name = "rts_prebuilder"
+version = "0.1.0"
+description = "Library for restricted runtime system pre-building and configuration"
+authors = [
+    {name = "AdaCore", email = "info@adacore.com"}
+]
+requires-python = ">=3.12"
+
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "mypy"
+]
+
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["rts_prebuilder*"]
