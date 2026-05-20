@@ -1,0 +1,27 @@
+#
+# Copyright (C) 2025-2026, AdaCore
+#
+
+[project]
+name = "bb_runtimes_targets_gen"
+version = "0.1.0"
+description = "AdaCore BB-Runtimes target definitions and concrete infrastructure"
+authors = [
+    {name = "AdaCore", email = "info@adacore.com"}
+]
+requires-python = ">=3.12"
+
+dependencies = [
+    "rts_prebuilder",
+]
+
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["bb_runtimes_targets_gen*"]
+
+[tool.setuptools.package-data]
+bb_runtimes_targets_gen = ["py.typed"]

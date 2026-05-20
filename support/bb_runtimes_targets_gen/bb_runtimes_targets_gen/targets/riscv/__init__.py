@@ -1,0 +1,607 @@
+#
+# Copyright (C) 2025-2026, AdaCore
+#
+
+from bb_runtimes_targets_gen.concrete_infrastructure import DFBBTarget
+from pathlib import Path
+
+
+class RiscV64(DFBBTarget):
+    @property
+    def name(self):
+        return "riscv64"
+
+    @property
+    def target(self):
+        return "riscv64-elf"
+
+    @property
+    def has_huge_memory(self) -> bool:
+        return True
+
+    @property
+    def has_timer_64(self) -> bool:
+        return True
+
+    @property
+    def is_64bit(self) -> bool:
+        return True
+
+    @property
+    def system_ads(self):
+        return {"light": "system-xi-riscv.ads"}
+
+
+class Spike(RiscV64):
+    @property
+    def name(self):
+        return "spike"
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ("-mcmodel=medany",)
+
+    @property
+    def loaders(self):
+        return ("RAM",)
+
+    def __init__(self):
+        super(Spike, self).__init__()
+        self.add_linker_script("riscv/spike/memory-map.ld")
+        self.add_linker_script("riscv/spike/common-RAM.ld", loaders=("RAM",))
+        self.add_gnat_sources(
+            "riscv/start-ram.S",
+            "riscv/src/riscv_host_target_interface.ads",
+            "riscv/src/riscv_host_target_interface.adb",
+            "shared/s-macres__riscv-htif.adb",
+            "shared/s-textio__riscv-htif.adb",
+        )
+
+
+class PolarFireSOC(RiscV64):
+    """
+    This class configures the runtime for the Polarfire SoC MSS
+    (Microprocessor Subsystem).
+    It is a 5-core RISC-V coherent CPU cluster consisting of one E51 monitor
+    hart and four U54 application harts, based on the SiFive U54-MC IP.
+
+    By default, only the U54 core 1 is used (mhartid 1), so the runtime is
+    single-core only. If the `smp` flag is set to True, all the cores
+    will be used by the runtime and will be usable for multitasking by the
+    ADA application.
+    """
+
+    smp: bool
+    """
+    Flag to indicate if the runtime configured by this instance supports SMP.
+
+    It defaults to False (even if the underlying hardware always support it)
+    because the multi-core implementation is still not mature. It is intended
+    to replace the single-core version in the long run.
+    """
+
+    @property
+    def name(self):
+        if self.smp:
+            return "polarfiresoc-smp"
+        return "polarfiresoc"
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ("-march=rv64gc", "-mabi=lp64d")
+
+    @property
+    def system_ads(self):
+        return {
+            "light": "system-xi-riscv.ads",
+            "light-tasking": "system-xi-riscv-sifive-sfp.ads",
+            "embedded": "system-xi-riscv-sifive-full.ads",
+        }
+
+    @property
+    def has_single_precision_fpu(self) -> bool:
+        return True
+
+    @property
+    def has_double_precision_fpu(self) -> bool:
+        return True
+
+    @property
+    def loaders(self):
+        return ("RAM",)
+
+    def dump_runtime_xml(self, rts_name, rts):
+        cnt = super(PolarFireSOC, self).dump_runtime_xml(rts_name, rts)
+        return cnt.replace(
+            '"common-RAM.ld"',
+            '"common-RAM.ld",\n'
+            "               --  This symbol is used by GDB to know the\n"
+            "               --  hardware id of the first CPU used by\n"
+            "               --  the run-time. The -u option is used to make\n"
+            "               --  sure the symbol is not discared in the final\n"
+            "               --  binary.\n"
+            '               "-u", "__gnat_gdb_cpu_first_id"',
+        )
+
+    def __init__(self, smp: bool = False):
+        super(PolarFireSOC, self).__init__()
+        self.smp = smp
+
+        self.add_linker_script("riscv/microchip/polarfiresoc/memory-map.ld")
+
+        if self.smp:
+            # SMP-specific linker script with stacks for all cores
+            self.add_linker_script(
+                "riscv/microchip/polarfiresoc/common-RAM-smp.ld",
+                loaders=("RAM",),
+                dest_path_str="common-RAM.ld",
+            )
+            # SMP-specific startup code
+            self.add_gnat_source(
+                "riscv/microchip/polarfiresoc/start-ram-smp.S",
+                dest_name="start-ram.S",
+            )
+            # SMP-specific trap handler
+            self.add_gnarl_source(
+                "riscv/src/trap_handler_smp.S",
+                dest_name="trap_handler.S",
+            )
+
+            # Multiprocessig specific sources
+            self.add_gnarl_sources(
+                "shared/s-bbsumu__riscv.adb",
+                "shared/s-bbpara__polarfiresoc_smp.ads",
+            )
+
+        else:
+            # Single-processor equivalent sources
+            self.add_linker_script(
+                "riscv/microchip/polarfiresoc/common-RAM.ld", loaders=("RAM",)
+            )
+            self.add_gnat_source("riscv/microchip/polarfiresoc/start-ram.S")
+            self.add_gnarl_sources(
+                "riscv/src/trap_handler.S",
+                "shared/s-bbsumu__generic.adb",
+                "shared/s-bbpara__polarfiresoc.ads",
+            )
+
+        # Common GNAT sources
+        self.add_gnat_sources(
+            "riscv/sifive/fe310/svd/i-fe310.ads",
+            "riscv/sifive/fe310/svd/i-fe310-plic.ads",
+            "riscv/sifive/fe310/s-macres.adb",
+            "shared/s-textio__ns16550.adb",
+            "shared/s-bbbopa__polarfiresoc.ads",
+            "riscv/src/riscv_def.h",
+        )
+        self.add_gnarl_sources(
+            "riscv/microchip/polarfiresoc/a-intnam.ads",
+            "shared/s-bbbosu__riscv.adb",
+            "shared/s-bbsuti__riscv_clint.adb",
+            "shared/s-bbcppr__new.ads",
+            "shared/s-bbcppr__riscv.adb",
+            "shared/s-bbcpsp__riscv.ads",
+            "shared/s-bbcpsp__riscv.adb",
+            "riscv/src/context_switch.S",
+            "riscv/src/s-bbripl.ads",
+            "riscv/microchip/polarfiresoc/s-bbripl.adb",
+        )
+
+
+class RiscV32(DFBBTarget):
+    @property
+    def name(self):
+        return "riscv32"
+
+    @property
+    def target(self):
+        return "riscv32-elf"
+
+    @property
+    def has_timer_64(self) -> bool:
+        return True
+
+
+class HiFive1(RiscV32):
+    @property
+    def name(self):
+        return "hifive1"
+
+    @property
+    def has_single_precision_fpu(self) -> bool:
+        return False
+
+    @property
+    def has_double_precision_fpu(self) -> bool:
+        return False
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ("-march=rv32imac", "-mabi=ilp32")
+
+    @property
+    def has_small_memory(self) -> bool:
+        return True
+
+    @property
+    def loaders(self):
+        return ("ROM",)
+
+    @property
+    def system_ads(self):
+        # Only the Light runtime for this target, the tasking and embedded
+        # run-times are not stable for the moment.
+        return {"light": "system-xi-riscv.ads"}
+
+    def __init__(self):
+        super(HiFive1, self).__init__()
+        self.add_linker_script("riscv/sifive/hifive1/memory-map.ld")
+        self.add_linker_script("riscv/sifive/hifive1/common-ROM.ld", loaders=("ROM",))
+        self.add_gnat_sources(
+            "riscv/sifive/fe310/start-rom.S",
+            "riscv/sifive/fe310/svd/i-fe310.ads",
+            "riscv/sifive/fe310/svd/i-fe310-uart.ads",
+            "riscv/sifive/fe310/svd/i-fe310-gpio.ads",
+            "riscv/sifive/fe310/svd/i-fe310-plic.ads",
+            "riscv/sifive/fe310/s-macres.adb",
+            "riscv/sifive/hifive1/s-textio.adb",
+            "riscv/src/riscv_def.h",
+        )
+        self.add_gnarl_sources(
+            "riscv/sifive/fe310/svd/a-intnam.ads",
+            "shared/s-bbpara__riscv.ads",
+            "shared/s-bbbopa__hifive1.ads",
+            "shared/s-bbbosu__riscv.adb",
+            "shared/s-bbsuti__riscv_clint.adb",
+            "shared/s-bbsumu__generic.adb",
+            "shared/s-bbcppr__new.ads",
+            "shared/s-bbcppr__riscv.adb",
+            "shared/s-bbcpsp__riscv.ads",
+            "shared/s-bbcpsp__riscv.adb",
+            "riscv/src/context_switch.S",
+            "riscv/src/trap_handler.S",
+            "riscv/src/s-bbripl.ads",
+            "riscv/sifive/fe310/s-bbripl.adb",
+        )
+
+
+class MIV_RV32IMAF(RiscV32):
+    @property
+    def name(self):
+        return "miv_rv32imaf"
+
+    @property
+    def has_single_precision_fpu(self) -> bool:
+        return True
+
+    @property
+    def has_double_precision_fpu(self) -> bool:
+        return False
+
+    @property
+    def compiler_switches(self):
+        # The required compiler switches
+        return ("-march=rv32imaf_zicsr", "-mabi=ilp32f")
+
+    @property
+    def has_small_memory(self) -> bool:
+        return True
+
+    @property
+    def loaders(self):
+        return ("RAM",)
+
+    @property
+    def system_ads(self):
+        return {
+            "light": "system-xi-riscv-rv32imaf-light.ads",
+            "light-tasking": "system-xi-riscv-rv32imaf-light-tasking.ads",
+            "embedded": "system-xi-riscv-rv32imaf-embedded.ads",
+        }
+
+    @property
+    def readme_file(self):
+        return Path("riscv/microchip/miv_rv32imaf/README")
+
+    def __init__(self):
+        super(MIV_RV32IMAF, self).__init__()
+        self.add_linker_script("riscv/microchip/miv_rv32imaf/memory-map.ld")
+        self.add_linker_script(
+            "riscv/microchip/miv_rv32imaf/common-RAM.ld", loaders=("RAM",)
+        )
+        self.add_gnat_sources(
+            "riscv/microchip/miv_rv32imaf/start-ram.S",
+            "riscv/sifive/fe310/svd/i-fe310.ads",
+            "riscv/sifive/fe310/svd/i-fe310-plic.ads",
+            "shared/s-bbbopa__miv.ads",
+            "shared/s-macres__none.adb",
+            "shared/s-textio__coreuartapb.adb",
+            "shared/i-microsemi-coreuartapb.ads",
+            "shared/i-microsemi.ads",
+            "riscv/src/riscv_def.h",
+        )
+        self.add_gnarl_sources(
+            "riscv/microchip/miv_rv32imaf/a-intnam.ads",
+            "shared/s-bbpara__riscv.ads",
+            "shared/s-bbbosu__riscv.adb",
+            "shared/s-bbsuti__riscv_clint.adb",
+            "shared/s-bbsumu__generic.adb",
+            "shared/s-bbcppr__new.ads",
+            "shared/s-bbcppr__riscv.adb",
+            "shared/s-bbcpsp__riscv.ads",
+            "shared/s-bbcpsp__riscv.adb",
+            "riscv/src/context_switch.S",
+            "riscv/src/trap_handler.S",
+            "riscv/src/s-bbripl.ads",
+            "riscv/microchip/miv_rv32imaf/s-bbripl.adb",
+        )
+
+
+class MicroblazeV(RiscV64):
+    @property
+    def has_single_precision_fpu(self):
+        return False
+
+    @property
+    def has_double_precision_fpu(self):
+        return False
+
+    @property
+    def system_ads(self):
+        return {"light": "system-xi-riscv.ads"}
+
+    @property
+    def loaders(self):
+        return ("RAM",)
+
+    def __init__(self):
+        super(RiscV64, self).__init__()
+
+        self.add_linker_script("riscv/amd/microblaze/memory-map.ld")
+        self.add_linker_script("riscv/amd/microblaze/common-RAM.ld", loaders=("RAM",))
+
+        self.add_gnat_sources(
+            "shared/s-macres__none.adb",
+            "shared/s-textio__axi_uartlite.adb",
+            "riscv/amd/microblaze/start-ram.S",
+            "riscv/src/riscv_def.h",
+        )
+
+    @property
+    def name(self):
+        return "microblazev"
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv64ima_zicsr_zifencei_zicbom", "-mabi=lp64")
+
+
+class RV32BASE(RiscV32):
+    """
+    Generic Light run-time meant to be used with the startup generator (crt0 and
+    ld script).
+    """
+
+    @property
+    def has_small_memory(self) -> bool:
+        return True
+
+    @property
+    def has_single_precision_fpu(self) -> bool:
+        return False
+
+    @property
+    def has_double_precision_fpu(self) -> bool:
+        return False
+
+    @property
+    def system_ads(self):
+        # Only the Light runtime for for this generic target
+        return {"light": "system-xi-riscv.ads"}
+
+    def __init__(self):
+        super(RV32BASE, self).__init__()
+
+        self.add_gnat_sources(
+            "riscv/sifive/fe310/s-macres.adb", "shared/s-textio__stdio.adb"
+        )
+
+
+class RV32I(RV32BASE):
+    @property
+    def name(self):
+        return "rv32i"
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv32i", "-mabi=ilp32")
+
+
+class RV32IM(RV32BASE):
+    @property
+    def name(self):
+        return "rv32im"
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv32im", "-mabi=ilp32")
+
+
+class RV32IAC(RV32BASE):
+    @property
+    def name(self):
+        return "rv32iac"
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv32iac", "-mabi=ilp32")
+
+
+class RV32IMAC(RV32BASE):
+    @property
+    def name(self):
+        return "rv32imac"
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv32imac", "-mabi=ilp32")
+
+
+class RV32IMAFC(RV32BASE):
+    @property
+    def name(self):
+        return "rv32imafc"
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv32imafc", "-mabi=ilp32f")
+
+    @property
+    def has_single_precision_fpu(self) -> bool:
+        return True
+
+
+class RV32IMAFDC(RV32BASE):
+    @property
+    def name(self):
+        return "rv32imafdc"
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv32imafdc", "-mabi=ilp32d")
+
+    @property
+    def has_single_precision_fpu(self) -> bool:
+        return True
+
+    @property
+    def has_double_precision_fpu(self) -> bool:
+        return True
+
+
+class RV64BASE(RiscV64):
+    """
+    Generic Light run-time meant to be used with the startup generator (crt0 and
+    ld script).
+    """
+
+    @property
+    def has_single_precision_fpu(self) -> bool:
+        return False
+
+    @property
+    def has_double_precision_fpu(self) -> bool:
+        return False
+
+    @property
+    def system_ads(self):
+        # Only the Light runtime for for this generic target
+        return {"light": "system-xi-riscv.ads"}
+
+    def __init__(self):
+        super(RV64BASE, self).__init__()
+
+        self.add_gnat_sources(
+            "riscv/sifive/fe310/s-macres.adb", "shared/s-textio__stdio.adb"
+        )
+
+
+class RV64IM(RV64BASE):
+    @property
+    def name(self):
+        return "rv64im"
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv64im", "-mabi=lp64")
+
+
+class RV64IMC(RV64BASE):
+    @property
+    def name(self):
+        return "rv64imc"
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv64imc", "-mabi=lp64")
+
+
+class RV64IMAC(RV64BASE):
+    @property
+    def name(self):
+        return "rv64imac"
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv64imac", "-mabi=lp64")
+
+
+class RV64IMAFC(RV64BASE):
+    @property
+    def name(self):
+        return "rv64imafc"
+
+    @property
+    def has_single_precision_fpu(self) -> bool:
+        return True
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv64imafc", "-mabi=lp64f")
+
+
+class RV64IMFC(RV64BASE):
+    @property
+    def name(self):
+        return "rv64imfc"
+
+    @property
+    def has_single_precision_fpu(self) -> bool:
+        return True
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv64imfc", "-mabi=lp64f")
+
+
+class RV64IMAFDC(RV64BASE):
+    @property
+    def name(self):
+        return "rv64imafdc"
+
+    @property
+    def has_single_precision_fpu(self) -> bool:
+        return True
+
+    @property
+    def has_double_precision_fpu(self) -> bool:
+        return True
+
+    @property
+    def compiler_switches(self):
+        return ("-march=rv64imafdc", "-mabi=lp64d")
+
+
+TARGETS = [
+    Spike(),
+    HiFive1(),
+    MIV_RV32IMAF(),
+    PolarFireSOC(smp=False),
+    PolarFireSOC(smp=True),
+    MicroblazeV(),
+    RV32I(),
+    RV32IM(),
+    RV32IAC(),
+    RV32IMAC(),
+    RV32IMAFC(),
+    RV32IMAFDC(),
+    RV64IM(),
+    RV64IMC(),
+    RV64IMAC(),
+    RV64IMAFC(),
+    RV64IMFC(),
+    RV64IMAFDC(),
+]
