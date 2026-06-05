@@ -19,6 +19,7 @@ from rts_prebuilder.end_user_data.compiler_selector import (
 from rts_prebuilder.end_user_data.logger import get_logger, set_log_level
 from .cli_help_gen import list_targets_for_help
 
+from ..common.infrastructure_interface import get_resolver
 from .targetizer import RuntimeTargetizer
 
 log = get_logger(__name__)
@@ -190,6 +191,14 @@ class RuntimeTargetizerCLI:
             "(comma-separated list, e.g., 'light' or 'light,light-tasking').",
         )
 
+        parser.add_argument(
+            "--source-search-path",
+            action="append",
+            default=[],
+            type=Path,
+            help="Extra directory to search for source files (repeatable). ",
+        )
+
         return parser
 
     def run_targetizer(
@@ -208,6 +217,12 @@ class RuntimeTargetizerCLI:
 
         set_compiler(Compiler[args.compiler])
         log.info("Selected compiler: %s", args.compiler)
+
+        # Make caller-provided source roots (e.g. the bb-runtimes repo 'src'
+        # dir) visible to the resolver so board files and datafiles templates
+        # outside the installed package can be found.
+        if getattr(args, "source_search_path", None):
+            get_resolver().add_search_paths(*args.source_search_path)
 
         # Optional listing mode
         if getattr(args, "list_targets", False):
