@@ -246,11 +246,11 @@ class TargetizedRuntime:
 
         # By default, system.ads files are searched for in
         # bb-runtimes/src/system.
-        # This works fine in general, however, for custom runtimes, we may
-        # need to change the location of this file for various reasons
-        # so if we detect a slash in the base name, this means that we
-        # lookup the file as any other regular source file.
-        if "/" in system_ads_path_str:
+        # For custom runtimes the value may instead carry a directory
+        # component, in which case we look it up as a regular source file.
+        # Path(...).name strips any directory part, so when it differs from
+        # the original value the value contained a directory component.
+        if Path(system_ads_path_str).name != system_ads_path_str:
             system_ads_path = Path(system_ads_path_str)
         else:
             system_ads_path = Path("system") / system_ads_path_str
