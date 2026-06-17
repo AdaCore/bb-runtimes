@@ -1,0 +1,601 @@
+#! /usr/bin/env python
+#
+# Copyright (C) 2016-2026, AdaCore
+#
+# Python script to generate MMU tables.
+#
+# This script parses an XML file describing the memory layout and generates
+# assembly code containing the MMU tables.
+#
+# The input XML file contains a top-level <memmap> element containing one or
+# more <region> child elements. Each <region> element has the following
+# attributes, all of which have strings as values:
+#  * name: A name to identify the region. This is used for debug purposes.
+#  * virt: The virtual address of the region. This can be a hexadecimal number
+#          such as "0x80000000".
+#  * size: The size of the region in bytes. This can be a hexadecimal number.
+#  * access: Specifies the read/write/execute permissions of the region.
+#            The format contains 6 characters in the format: "rwxrwx".
+#            To disable a permission, replace it with a dash '-'.
+#            For EL1 MMU tables the first three rwx characters specify the
+#            permissions at EL1, and the second three rwx characters specify
+#            the permissions at EL0.
+#            Examples (for EL1 MMU tables):
+#              * "rw-rw-" specifies read/write permissions at EL1 and EL0.
+#              * "r-x---" specifies read/execute permissions at EL1 only.
+#            For EL2 MMU tables, the second three rwx characters are ignored.
+#  * cache: Specifies the caching mode. This can be "wc" (writeback caching)
+#           or "nc" (no caching).
+#  * cap_load: (Morello only). Sets the value of the LC bits for the region.
+#              Valid values are:
+#                * "zero_tag": Clear the capability valid tag when loading a
+#                              capability from the region.
+#                * "no_effect": No effect.
+#                * "fault_tgen_1": If CCTLR_ELx.TGENy is 1, fault loads of
+#                                  valid capabilities; otherwise no effect.
+#                * "fault_tgen_0": If CCTLR_ELx.TGENy is 0, fault loads of
+#                                  valid capabilities; otherwise no effect.
+#  * cap_store: (Morello only). Sets the value of the SC/CDBM bits for the
+#               region. Valid values are:
+#                 * "fault": Fault stores of valid capabilities.
+#                 * "track": Track stores of valid capabilities.
+#                 * "no_effect": No effect.
+#
+# Here's an example of a region on AArch64 which describes the 2 GB RAM
+# region starting at 0x80000000, with read/write/execute permissions
+# at EL1 only:
+#    <region access="rwx---" cache="wb"
+#      virt="0x80000000" size="0x80000000" name="ram"/>
+
+
+import getopt
+import sys
+import xml.etree.ElementTree as ET
+
+filename = "memmap.xml"
+
+
+class ConfigException(Exception):
+    pass
+
+
+class Arch(object):
+    """Describe the architecture to build the MMU tables"""
+
+    def pageshift(self):
+        return 12
+
+    def insert(self, name, virt, phys, size, cache, access, cap_load, cap_store):
+        pass
+
+    def generate(self, prefix):
+        pass
+
+
+class arm_mmu(Arch):
+    def __init__(self, mode, root):
+        # Translation table (initially empty)
+        self.tt = [None for x in range(4096)]
+        if "pageshift" in root.attrib:
+            self.pageshift = int(root.attrib["pageshift"])
+        else:
+            # Handle only large pages
+            self.pageshift = 20
+        self.pagesize = 1 << self.pageshift
+
+    def insert(self, name, virt, phys, size, cache, access, cap_load, cap_store):
+        # Convert cache
+        if cache == "wb":
+            tex = 7
+            c = 1
+            b = 1
+        elif cache == "nc":
+            # Must be nGnR nE
+            tex = 0
+            c = 0
+            b = 1
+        else:
+            print(f"unhandled cache attribute '{cache}' for region {name}")
+            exit(1)
+
+        # Convert access
+        if access == "rwx---":
+            ap = 3  # To be checked
+            nx = 0
+        elif access == "rw-rw-":
+            ap = 3
+            nx = 1
+        else:
+            print(f"unhandled access '{access}' for region {name}")
+            exit(1)
+        ns = 0  # Not secure
+        nG = 0  # Not global
+        S = 1  # Shareable (ignored for device)
+        domain = 0
+
+        # Fill tt
+        p = phys
+        for v in range(virt, virt + size, self.pagesize):
+            vn = v / self.pagesize
+            if self.tt[vn]:
+                print(f"overlap at {hex(v)} in region {name}")
+                exit(1)
+            val = (
+                p
+                + (ns << 19)
+                + (nG << 17)
+                + (S << 16)
+                + (((ap >> 2) & 1) << 15)
+                + (tex << 12)
+                + ((ap & 3) << 10)
+                + (domain << 5)
+                + (nx << 4)
+                + (c << 3)
+                + (b << 2)
+                + 2
+            )
+            self.tt[vn] = {
+                "name": name,
+                "format": "section",
+                "virt": v,
+                "phys": p,
+                "ns": ns,
+                "nG": nG,
+                "S": S,
+                "AP": ap,
+                "TEX": tex,
+                "domain": domain,
+                "XN": nx,
+                "C": c,
+                "B": b,
+                "val": val,
+            }
+            p += self.pagesize
+
+    def generate(self, prefix):
+        addr = 0
+        print("\t.p2align 14")
+        print(f"{prefix}_l0:")
+        for e in self.tt:
+            if e:
+                v = e["val"]
+                n = e["name"]
+            else:
+                v = 0
+                n = "*none*"
+
+            print(f"\t.long 0x{v:08x}  @ for 0x{addr:08x}, {n}")
+            addr += self.pagesize
+
+
+class aarch64_mmu(Arch):
+    class aarch64_pge(object):
+        def __init__(self, mmu, name, va, pa, upper, lower, log2_sz):
+            self.mmu = mmu
+            self.name = name
+            self.va = va
+            self.pa = pa
+            self.upper = upper
+            self.lower = lower
+            self.log2_sz = log2_sz
+            if log2_sz == self.mmu.pageshift:
+                # A level-3 descriptor
+                bt = 0x3
+            else:
+                # A block descriptor
+                bt = 0x1
+            self.val = upper + (pa & 0x0000FFFFFFFFF000) + lower + bt
+
+        def generate_table(self, prefix, level):
+            pass
+
+        def generate_entry(self, prefix, level):
+            print(f"\t.dword 0x{self.val:016x}  // for 0x{self.va:08x}, {self.name}")
+
+    class aarch64_pgd(object):
+        def __init__(self, mmu, va, va_shift):
+            self.mmu = mmu
+            self.tt = [None for x in range(1 << self.mmu.log2_entries)]
+            self.va = va
+            self.va_shift = va_shift
+
+        def generate_entry(self, prefix, level):
+            # NSTable: 0
+            # APTable: 00 (no effect)
+            # XNTable: 0
+            # PXNTable: 0
+            v = 0x3
+            print(
+                f"\t.dword {prefix}_l{level}_{self.va >> self.mmu.pageshift:09x} + 0x{v:x}"
+            )
+
+        def generate_table(self, prefix, level):
+            # First the next level
+            for t1 in self.tt:
+                if t1:
+                    t1.generate_table(prefix, level + 1)
+            # then the pgd
+            print(f"\t.p2align {self.mmu.pageshift}")
+            sym = f"{prefix}_l{level}_{self.va >> self.mmu.pageshift:09x}"
+            print(sym + ":")
+            for t1 in self.tt:
+                if t1:
+                    t1.generate_entry(prefix, level + 1)
+                else:
+                    print("\t.dword 0")
+            return sym
+
+    def __init__(self, mode, root):
+        # Pagesize
+        if "pageshift" in root.attrib:
+            self.log2_granule = int(root.attrib["pageshift"])
+        else:
+            self.log2_granule = 12
+        if self.log2_granule not in (12, 14, 16):
+            raise ConfigException("bad value for pagesize")
+
+        self.log2_entries = self.log2_granule - 3  # log2 nbr entries per page
+        self.pageshift = self.log2_granule
+        self.mode = mode
+        self.tcr = -1
+        self.max_pa = 0xFFFFFFFF
+        # Translation table (initially empty)
+        self.tt = self.aarch64_pgd(self, 0, 48 - self.log2_entries)
+
+    def insert(self, name, virt, phys, size, cache, access, cap_load, cap_store):
+        cont = 0  # Not contiguous (by default)
+
+        # Convert access
+        if self.mode is None or self.mode == "el1" or self.mode == "el2":
+            # Convert cache
+            attridx = {"wb": 0, "nc": 1}[cache]
+
+            # Permitted values of cap_load for stage1 translation.
+            # These map to the LC field.
+            # See Section 2.14.1 of the "Arm Architecture Reference
+            # Manual Supplement Morello for A-profile Architecture"
+            # (version A.k)
+            cap_load_values_stage1 = [
+                "zero_tag",  # Zero Capability Tags
+                "no_effect",  # No effect
+                "fault_tgen_1",  # If CCTLR_ELx.TGENy is 1, fault loads
+                # of valid capabilities; otherwise no effect.
+                "fault_tgen_0",  # If CCTLR_ELx.TGENy is 0, fault loads
+                # of valid capabilities; otherwise no effect.
+            ]
+
+            # Permitted vales of cap_store for stage 1 and 2 translation.
+            # These map to the SC and CDBM fields (treated as a single
+            # 2 bit field).
+            # See Section 2.14.1 of the "Arm Architecture Reference
+            # Manual Supplement Morello for A-profile Architecture"
+            # (version A.k)
+            cap_store_values = [
+                "fault",  # Fault stores of valid capabilities
+                "track",  # Track stores of valid capabilities
+                "no_effect",  # No effect
+            ]
+
+            # Choose defaults
+            if cap_load is None:
+                cap_load = cap_load_values_stage1[0]  # default to zeroing tags
+
+            if cap_store is None:
+                cap_store = cap_store_values[0]  # default to faulting
+
+            if cap_load not in cap_load_values_stage1:
+                print(f"invalid value '{cap_load}' of cap_load for region {name}")
+                print(f"valid values are: {cap_load_values_stage1}")
+                exit(1)
+
+            if cap_store not in cap_store_values:
+                print(f"invalid value '{cap_store}' of cap_store for region {name}")
+                print(f"valid values are: {cap_store_values}")
+                exit(1)
+
+            lc = cap_load_values_stage1.index(cap_load)
+            sc_cdbm = cap_store_values.index(cap_store)
+
+            if self.mode == "el2":
+                uxn = 0 if access[2] == "x" else 1
+                pxn = 0  # Res0 in el2 and el3
+                # For el2, AP[1] is res1
+                AP = {"rw": 1, "r-": 3}[access[0:2]]
+            else:
+                if access == "rwx---":
+                    AP = 0
+                    uxn = 0
+                    pxn = 0
+                elif access == "r-x---":
+                    AP = 2
+                    pxn = 0
+                    uxn = 0
+                elif access == "rw-rw-":
+                    AP = 1
+                    uxn = 1
+                    pxn = 1
+                else:
+                    print(f"unhandled access '{access}' for region {name}")
+                    exit(1)
+
+            nG = 0  # Not global
+            AF = 1  # Access flag (don't care)
+            SH = 2  # Shareability
+            NS = 1  # Not secure
+
+            upper = (
+                (lc << 61) | (sc_cdbm << 59) | (uxn << 54) | (pxn << 53) | (cont << 52)
+            )
+            lower = (
+                (nG << 11)
+                | (AF << 10)
+                | (SH << 8)
+                | (AP << 6)
+                | (NS << 5)
+                | (attridx << 2)
+            )
+        elif self.mode == "stage2":
+            xn = 0 if access[2] == "x" else 1
+
+            S2AP = {"--": 0, "r-": 1, "-w": 2, "rw": 3}[access[0:2]]
+            AF = 1  # Access flag (don't care)
+            SH = 2  # Shareability
+
+            # Convert cache
+            memattr = {"wb": 0b1111, "nc": 0}[cache]
+
+            upper = (xn << 54) | (cont << 52)
+            lower = (AF << 10) | (SH << 8) | (S2AP << 6) | (memattr << 2)
+        else:
+            print(f"unknown mode '{self.mode}' for region {name}")
+            exit(1)
+
+        # Fill tt
+        pa = phys
+        va = virt
+        block2_log2_size = 2 * self.log2_entries + self.log2_granule
+        block2_size = 1 << block2_log2_size
+        block1_log2_size = self.log2_entries + self.log2_granule
+        block1_size = 1 << block1_log2_size
+        while va < virt + size:
+            if va % block2_size == 0 and size % block2_size == 0:
+                sz = block2_log2_size
+            elif va % block1_size == 0 and size % block1_size == 0:
+                sz = block1_log2_size
+            else:
+                sz = self.log2_granule
+            e = self.aarch64_pge(
+                mmu=self, name=name, va=va, pa=pa, lower=lower, upper=upper, log2_sz=sz
+            )
+
+            while pa > self.max_pa:
+                self.max_pa = (self.max_pa << 1) | 1
+
+            self.insert_entry(self.tt, e)
+            pa += 1 << sz
+            va += 1 << sz
+
+    def insert_entry(self, t, e):
+        ia = (e.va >> t.va_shift) & ((1 << self.log2_entries) - 1)
+        if t.va_shift == e.log2_sz:
+            # E must be added in that table
+            if t.tt[ia]:
+                print(f"overlap at {hex(e.va)} in region {e.name}")
+                exit(1)
+            t.tt[ia] = e
+        elif isinstance(t.tt[ia], self.aarch64_pge):
+            # There is already a superpage
+            print(f"overlap at {hex(e.va)} in region {e.name}")
+            exit(1)
+        else:
+            if not t.tt[ia]:
+                # Create table
+                nsh = t.va_shift - self.log2_entries
+                va = (e.va >> nsh) << nsh
+                t.tt[ia] = self.aarch64_pgd(self, va, nsh)
+            self.insert_entry(t.tt[ia], e)
+
+    def set_tcr(self, level, va_max):
+        tg = {12: 0, 16: 1, 14: 2}[self.log2_granule]
+        if self.max_pa <= 0xFFFFFFFF:
+            ps = 0
+        elif self.max_pa <= 0xFFFFFFFFF:
+            ps = 1
+        elif self.max_pa <= 0xFFFFFFFFFF:
+            ps = 2
+        elif self.max_pa <= 0x3FFFFFFFFFF:
+            ps = 3
+        elif self.max_pa <= 0xFFFFFFFFFFF:
+            ps = 4
+        elif self.max_pa <= 0xFFFFFFFFFFFF:
+            ps = 5
+        elif self.max_pa <= 0xFFFFFFFFFFFFF:
+            ps = 6
+        else:
+            print(f"max_pa is too large: {self.max_pa:x}")
+
+        self.tcr = (64 - va_max) | (ps << 16) | (tg << 14)
+        if self.mode == "stage2":
+            if self.log2_granule == 12:
+                sl0 = 2 - level
+            else:
+                sl0 = 3 - level
+            self.tcr |= sl0 << 6
+
+    def generate(self, prefix):
+        #  First level
+        level = {12: 0, 14: 0, 16: 1}[self.log2_granule]
+        va_max = 48
+        sz = 1 << self.log2_entries
+        #  Look for the max size.
+        t = self.tt
+        while True:
+            if [True for e in t.tt[sz >> 1 : sz] if e]:
+                # Not empty
+                break
+            if sz == 2:
+                # Only one entry for that table
+                if level == {"stage2": 3, "el2": 2, "el1": 2}[self.mode]:
+                    # Minimum level
+                    break
+                level += 1
+                t = t.tt[0]
+                sz = 1 << self.log2_entries
+            else:
+                sz = sz >> 1
+            va_max -= 1
+        print(f"// First level: {level} (w/ {sz} entries), max VA: 2**{va_max}")
+        self.set_tcr(level, va_max)
+        t.tt = t.tt[0:sz]
+        res = t.generate_table(prefix, level)
+        print(f"{prefix}_tcr = 0x{self.tcr:08x}")
+        return res
+
+
+def parse_addr(addr_str):
+    """Helper to translate a string to a number, handling memory suffixes"""
+    ustr = addr_str.upper()
+    if ustr.startswith("0X"):
+        return int(ustr, 16)
+    elif ustr.endswith("GB"):
+        return int(ustr[:-2]) << 30
+    elif ustr.endswith("MB"):
+        return int(ustr[:-2]) << 20
+    elif ustr.endswith("KB"):
+        return int(ustr[:-2]) << 10
+    else:
+        return int(ustr)
+
+
+class mmu_region(object):
+    def __init__(self, name, virt, phys, size, cache, access, cap_load, cap_store):
+        self.name = name
+        self.virt = virt
+        self.phys = phys
+        self.size = size
+        self.cache = cache
+        self.access = access
+        self.cap_load = cap_load
+        self.cap_store = cap_store
+
+
+def parse_memmap(mmu, root):
+    res = []
+
+    # Create entries for each regions
+    pagesize = 1 << mmu.pageshift
+    for child in root:
+        name = child.attrib["name"]
+        virt = parse_addr(child.attrib["virt"])
+        if "phys" in child.attrib:
+            phys = parse_addr(child.attrib["phys"])
+        else:
+            phys = virt
+        size = parse_addr(child.attrib["size"])
+        if (virt % pagesize) != 0:
+            sys.stderr.write(f"{name}.virt is not aligned\n")
+            exit(1)
+        if (phys % pagesize) != 0:
+            sys.stderr.write(f"{name}.phys is not aligned\n")
+            exit(1)
+        if (size % pagesize) != 0:
+            sys.stderr.write(f"size of {name} is not aligned\n")
+            exit(1)
+
+        cache = child.attrib["cache"]
+        access = child.attrib["access"]
+        cap_load = child.attrib.get("cap_load", None)
+        cap_store = child.attrib.get("cap_store", None)
+
+        res.append(
+            mmu_region(name, virt, phys, size, cache, access, cap_load, cap_store)
+        )
+
+    return res
+
+
+# Supported architectures
+arches = {"arm": arm_mmu, "aarch64": aarch64_mmu}
+
+
+def create_mmu_from_xml(root, arch=None, mode=None):
+    if not arch:
+        if "arch" in root.attrib:
+            arch = root.attrib["arch"]
+        else:
+            print("error: unknown architecture")
+            print("Use --arch or set arch attribute")
+            sys.exit(3)
+
+    if arch not in arches:
+        sys.stderr.write(f"error: unknown architecture '{arch}'\n")
+        sys.exit(1)
+
+    mmu = arches[arch](mode, root)
+    return mmu
+
+
+def usage() -> None:
+    print("usage: memmap.py OPTIONS [INPUT]")
+    print("Options are:")
+    print(" --arch=ARCH      set architecture")
+    print(f"    architectures are: {', '.join(arches.keys())}")
+
+
+def main() -> None:
+    global filename
+
+    arch = None
+    mode = None
+
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "h", ["help", "arch=", "el1", "el2"])
+    except getopt.GetoptError as e:
+        sys.stderr.write("error: " + str(e) + "\n")
+        sys.stderr.write("Try --help\n")
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == "--arch":
+            arch = arg
+        elif opt == "--el1":
+            assert mode is None
+            mode = "el1"
+        elif opt == "--el2":
+            assert mode is None
+            mode = "el2"
+        elif opt in ("-h", "--help"):
+            usage()
+            sys.exit()
+        else:
+            sys.exit(2)
+
+    if len(args) == 0:
+        filename = "memmap.xml"
+    elif len(args) == 1:
+        filename = args[0]
+    else:
+        sys.stderr.write("error: too many arguments\n")
+        sys.stderr.write("Try --help\n")
+        sys.exit(2)
+
+    print(f"// Automatically generated from {filename}")
+    print(f"//  cmd line: memmap.py {' '.join(sys.argv[1:])}")
+    print("")
+
+    tree = ET.parse(filename)
+    root = tree.getroot()
+
+    mmu = create_mmu_from_xml(root, arch, mode)
+
+    regions = parse_memmap(mmu, root)
+
+    for r in regions:
+        mmu.insert(
+            r.name, r.virt, r.phys, r.size, r.cache, r.access, r.cap_load, r.cap_store
+        )
+
+    mmu.generate("__mmu")
+
+
+if __name__ == "__main__":
+    main()

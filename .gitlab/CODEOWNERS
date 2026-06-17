@@ -1,0 +1,11 @@
+#
+# Copyright (C) 2025-2026, AdaCore
+#
+
+# GitLab CODEOWNERS file
+# This file defines who is responsible for code in this repository.
+# Order is important; the last matching pattern takes precedence.
+
+/.pre-commit-config.yaml @fadli
+/setup.cfg @fadli
+/support/ @fadli

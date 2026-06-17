@@ -1,0 +1,65 @@
+--  This is the default version of the target_options.gpr file,
+--  imported by runtime_build.gpr. Variables defined here are appended
+--  to the corresponding variables there. Target configurations may
+--  their own version of this file.
+
+abstract project Target_Options is
+
+  type Build_Type is ("Production", "Debug", "Assert", "Gnatcov");
+  Build : Build_Type := external ("BUILD", "Production");
+  type Lib_Type is ("static", "static-pic", "dynamic");
+  Lib : Lib_Type := external ("LIBRARY_TYPE", "static");
+
+  --  COMFLAGS here is common flags (used for C and Ada).
+  COMFLAGS := ("{common_flags}");
+  COMGNARLFLAGS := ("{common_gnarl_flags}");
+  COMDEBUGFLAGS := ("{common_debug_flags}");
+
+  --  Per language flags (COMFLAGS will be added later)
+  ADAFLAGS := ("-gnatg", "-nostdinc", "-fno-delete-null-pointer-checks");
+  ASMFLAGS := ("{asm_flags}");
+  CFLAGS := ("{c_flags}", "-Werror", "-Wall");
+  case Build is
+     when "Production" =>
+        --  Optimize
+        COMFLAGS := COMFLAGS & ("-O2");
+        ADAFLAGS := ADAFLAGS & ("-gnatp", "-gnatn2");
+     when "Debug" =>
+        --  Disable optimization and add debug symbols
+        COMFLAGS := COMFLAGS & COMDEBUGFLAGS & ("-O0");
+        ASMFLAGS := ASMFLAGS & COMDEBUGFLAGS;
+     when "Assert" =>
+        --  Possibly enable assertions. This might use too much memory on
+        --  some systems or could be too slow.
+        COMFLAGS := COMFLAGS & ("-O");
+        ADAFLAGS := ADAFLAGS & ("-gnata");
+     when "Gnatcov" =>
+        --  For coverage
+        COMFLAGS := COMFLAGS & COMDEBUGFLAGS &
+          ("-O0", "-fdump-scos", "-fpreserve-control-flow");
+  end case;
+  --  Linker flags, used for building shared libraries
+  LOPTIONS := ();
+  case Lib is
+     when "static" | "static-pic" =>
+        null;
+     when "dynamic" =>
+        --  -nostdlib is required for building the
+        --  shared library. Otherwise it tries to
+        --  link against libgnat (itself).
+        --  Since -nostdlib also removes libc
+        --  from the linked libraries we have to
+        --  add -lc again.
+        LOPTIONS := LOPTIONS & ("-nostdlib", "-lc");
+
+        --  Add target-specific options, if needed
+        LOPTIONS := LOPTIONS & ("{shared_linker_flags}");
+  end case;
+
+  --  Concatenate with common flags
+  ALL_ADAFLAGS := ADAFLAGS & COMFLAGS;
+  ALL_CFLAGS := CFLAGS & COMFLAGS;
+  GNARL_ADAFLAGS := ALL_ADAFLAGS & COMGNARLFLAGS;
+  GNARL_CFLAGS := ALL_CFLAGS & COMGNARLFLAGS;
+
+end Target_Options;

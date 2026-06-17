@@ -104,8 +104,8 @@ package System is
    --  Priority-related Declarations (RM D.1)
 
    Nbr_Interrupt_Priority : constant Positive := 7;
-   --  There are 8 priority levels on the FE310/FU540 but value zero is
-   --  reserved to mean "never interrupt".
+   --  There are 8 priority levels on the FE310/FU540/PolarfireSoc but value
+   --  zero is reserved to mean "never interrupt".
 
    Max_Interrupt_Priority : constant Positive := 255;
    Min_Interrupt_Priority : constant Positive :=

@@ -1,111 +1,31 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 #
-# Copyright (C) 2016-2020, AdaCore
+# Copyright (C) 2025-2026, AdaCore
 #
-# Python script to gather files for the bareboard runtime.
-# Don't use any fancy features.  Ideally, this script should work with any
-# Python version starting from 2.6 (yes, it's very old but that's the system
-# python on oldest host).
 
-import argparse
-import os
+"""Simple wrapper script for generating RTS sources using RuntimeAssembler."""
 
-from support.files_holder import FilesHolder
-from support.rts_sources import SourceTree
-from support.rts_sources.sources import all_scenarios, sources
+import sys
+from pathlib import Path
 
+from bb_runtimes_targets_gen.concrete_infrastructure.engine_interface import (
+    engine_interface as interface,
+)
+from rts_prebuilder.engine import RuntimeAssemblerCLI
 
-def main():
-    # global link, gccdir, gnatdir, verbose, create_common
+_repo_root = Path(__file__).resolve().parent
+interface.common.path_resolver_instance.add_search_paths(
+    _repo_root / "src",
+    _repo_root / "src" / "datafiles",
+)
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-v", "--verbose", action="store_true", help="verbose output")
-    parser.add_argument(
-        "-l", "--link", action="store_true", help="use symlinks when installing files"
-    )
-    parser.add_argument("--gcc-dir", help="gcc sources dir")
-    parser.add_argument("--gnat-dir", help="gnat sources dir")
-    parser.add_argument(
-        "--output",
-        help=(
-            "installation location. By default the runtime descriptor is "
-            "installed in <output>/lib/gnat while the sources are installed "
-            "in <output>/include/rts-sources"
-        ),
-    )
-    parser.add_argument(
-        "--output-descriptor",
-        help="installation location for the runtime sources descriptor",
-    )
-    parser.add_argument(
-        "--output-sources", help="installation location for the runtime sources tree"
-    )
-    parser.add_argument(
-        "--rts-profile",
-        choices=["light", "light-tasking", "embedded", "cert"],
-        required=True,
-        help="supported profiles",
-    )
-    parser.add_argument(
-        "--source-profile",
-        choices=[
-            "bb",
-            "deos",
-            "freertos",
-            "linux",
-            "lynx",
-            "pikeos",
-            "vx7r2cert",
-            "qnx",
-        ],
-        default="bb",
-        help="platform specific source selections",
+interface.self_register()
+
+if __name__ == "__main__":
+    parser = RuntimeAssemblerCLI.create_parser(
+        prog="gen_rts_sources", description="Generate RTS (Runtime System) sources"
     )
 
     args = parser.parse_args()
 
-    if args.verbose:
-        FilesHolder.verbose = True
-    if args.link:
-        FilesHolder.link = True
-    if args.gcc_dir is not None:
-        FilesHolder.gccdir = os.path.abspath(args.gcc_dir)
-    if args.gnat_dir is not None:
-        FilesHolder.gnatdir = os.path.abspath(args.gnat_dir)
-
-    if args.output is not None:
-        dest = os.path.abspath(args.output)
-    else:
-        dest = os.path.abspath("install")
-
-    if args.output_descriptor is not None:
-        dest_json = os.path.abspath(args.output_descriptor)
-    else:
-        dest_json = os.path.join(dest, "lib", "gnat", "rts-sources.json")
-
-    if args.output_sources is not None:
-        dest_srcs = os.path.abspath(args.output_sources)
-    else:
-        dest_srcs = os.path.join(dest, "include", "rts-sources")
-
-    if not os.path.exists(os.path.dirname(dest_json)):
-        os.makedirs(os.path.dirname(dest_json))
-    if not os.path.exists(dest_srcs):
-        os.makedirs(dest_srcs)
-
-    # Install the shared runtime sources
-    SourceTree.dest_sources = dest_srcs
-
-    # create the rts sources object. This uses a slightly different set
-    # on pikeos.
-    rts_srcs = SourceTree(
-        sources=args.source_profile + "_srcs",
-        profile=args.rts_profile,
-        rts_sources=sources,
-        rts_scenarios=all_scenarios,
-    )
-    rts_srcs.install_tree(dest_json=dest_json, dest_sources=dest_srcs)
-
-
-if __name__ == "__main__":
-    main()
+    sys.exit(RuntimeAssemblerCLI.run_runtime_assembler(args))
