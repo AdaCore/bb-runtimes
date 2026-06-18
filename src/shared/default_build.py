@@ -9,12 +9,17 @@ import pre_build
 
 runtime_path = os.path.dirname(os.path.abspath(__file__))
 
-def get_runtime_version():
+
+def get_runtime_version() -> str:
     system_ali = os.path.join(runtime_path, "adalib", "system.ali")
     with open(system_ali, "r") as ali:
-        return re.match("V \"GNAT Lib v([0-9]{2}\\.?[^\"]*)", ali.readline()).group(1)
+        match = re.match('V "GNAT Lib v([0-9]{2}\\.?[^"]*)', ali.readline())
+        if match is None:
+            raise ValueError(f"Cannot read runtime version from {system_ali}")
+        return match.group(1)
 
-def main(shared, build_flags):
+
+def main(shared: bool, build_flags: str | None) -> None:
     projects = glob.glob("*.gpr", root_dir=runtime_path)
     projects.remove("target_options.gpr")
     projects.remove("runtime_build.gpr")
@@ -38,13 +43,15 @@ def main(shared, build_flags):
         subprocess.check_call(cmd)
         if shared:
             runtime_version = get_runtime_version()
-            cmd.extend([
-                "-f",
-                "-XLIBRARY_TYPE=dynamic",
-                "-XLIBRARY_VERSION=" + runtime_version,
-                "-largs",
-                "-L" + obj_dir,
-            ])
+            cmd.extend(
+                [
+                    "-f",
+                    "-XLIBRARY_TYPE=dynamic",
+                    "-XLIBRARY_VERSION=" + runtime_version,
+                    "-largs",
+                    "-L" + obj_dir,
+                ]
+            )
             subprocess.check_call(cmd)
         cleanup_ext = (".o", ".ali", ".stdout", ".stderr", ".d", ".lexch", ".so")
         for fname in os.listdir(obj_dir):
@@ -54,19 +61,25 @@ def main(shared, build_flags):
     if shared:
         runtime_version = get_runtime_version()
         shared_objects = [
-            so[:-3] for so in glob.glob("*.so", root_dir=os.path.join(runtime_path, "adalib"))
+            so[:-3]
+            for so in glob.glob("*.so", root_dir=os.path.join(runtime_path, "adalib"))
             if runtime_version not in so
         ]
         for so in shared_objects:
             base_so = os.path.join(runtime_path, "adalib", f"{so}.so")
-            versioned_so = os.path.join(runtime_path, "adalib", f"{so}-{runtime_version}.so")
+            versioned_so = os.path.join(
+                runtime_path, "adalib", f"{so}-{runtime_version}.so"
+            )
             if os.path.islink(base_so) and os.path.isfile(versioned_so):
                 continue
             elif os.path.isfile(base_so) and not os.path.islink(base_so):
                 os.replace(base_so, versioned_so)
                 os.symlink(os.path.basename(versioned_so), base_so)
             else:
-                raise FileNotFoundError(f"{base_so} is neither a link nor a file {os.path.islink(base_so)}")
+                raise FileNotFoundError(
+                    f"{base_so} is neither a link nor a file {os.path.islink(base_so)}"
+                )
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
