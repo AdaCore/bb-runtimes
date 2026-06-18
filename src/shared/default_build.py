@@ -5,6 +5,8 @@ import re
 import subprocess
 import sys
 
+import pre_build
+
 runtime_path = os.path.dirname(os.path.abspath(__file__))
 
 def get_runtime_version():
@@ -24,6 +26,9 @@ def main(shared, build_flags):
 
     print(f"Building runtime {runtime_path}")
     obj_dir = os.path.join(runtime_path, "obj")
+    os.makedirs(obj_dir, exist_ok=True)
+    pre_build.prebuild_step_run(obj_dir)
+
     for prj in projects:
         print(f"Building project {prj}")
         sys.stdout.flush()

@@ -2,10 +2,7 @@
 # Copyright (C) 2025-2026, AdaCore
 #
 
-import os
-import subprocess
-import tempfile
-
+from pathlib import Path
 from typing import override
 from rts_prebuilder.base_types import ProfileNameType, PlatformIdType
 from bb_runtimes_targets_gen.concrete_infrastructure import Target
@@ -15,6 +12,14 @@ class QNX(Target):
     def __init__(self):
         super(QNX, self).__init__()
         self.add_gnat_sources("shared/s-macres__libc.adb")
+
+    @property
+    @override
+    def prebuild_script(self) -> Path:
+        # Installed at the runtime root as pre_build.py; build.py calls its
+        # prebuild_step_run(obj_dir) before gprbuild to create the dummy
+        # last-chance handler lib the runtime links against.
+        return Path("qnx/pre_build.py")
 
     @property
     @override
@@ -47,23 +52,6 @@ class QNX(Target):
     @property
     def use_certifiable_packages(self):
         return True
-
-    def pre_build_step(self, obj_dir):
-        # For QNX, create a dummy shared library with the name
-        # of the shared last chance handler.
-        # Use a temporary file to create an empty file.
-        # delete_on_close is needed on windows to be able to read the
-        # file (otherwise we get a permission denied).
-        tf = tempfile.NamedTemporaryFile(mode="rt", delete_on_close=False)
-        subprocess.check_call(
-            [
-                "aarch64-nto-qnx-gcc",
-                "-shared",
-                "-o",
-                os.path.join(obj_dir, "libada_lch.so"),
-                tf.name,
-            ]
-        )
 
 
 class Aarch64QNX(QNX):
