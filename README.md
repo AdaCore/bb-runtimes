@@ -14,23 +14,24 @@ this repository to generate runtimes.
 
 ## generation of runtimes
 
-```
-./build_rts.py --output=temp --build <board1> <board2> ...
-```
-
-The list of supported boards is listed in build_rts.py within build_configs.
-
-The above call with generate the runtimes for <board1> <board2> in 'temp'
-and will build them, assuming the proper compiler is in the PATH.
-
-To install the runtime in the compiler's default location, you will thus
-need to specify
+Runtimes are generated per architecture. Each target family is its own
+runnable module; pass one or more board names (their `cli_name`):
 
 ```
-./build_rts.py --output <gnat_prefix>/<target>/lib/gnat` ...
+# List the boards an architecture supports
+python -m bb_runtimes_targets_gen.targets.<arch> --list-targets
+
+# Generate the runtimes for some boards into ./temp
+python -m bb_runtimes_targets_gen.targets.<arch> <board1> <board2> --output-dir=temp
 ```
 
-So for example --output /opt/gnat/arm-eabi/lib/gnat
+To install into the compiler's default location, point `--output-dir` at it,
+e.g. `--output-dir /opt/gnat/arm-eabi/lib/gnat`.
+
+Each generated runtime ships a `build.py` that compiles it; run it after
+generation (assuming the proper compiler is in the PATH). See
+`support/rts_prebuilder_project/docs` for the full flow and
+`python -m bb_runtimes_targets_gen.targets.<arch> --help` for all options.
 
 ## rebuild of a runtime
 

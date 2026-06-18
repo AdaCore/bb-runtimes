@@ -98,10 +98,11 @@ Uses the ``build.py`` script to compile the configured runtime. **This phase is 
 .. note::
 
    Historically, Step 1 was done in a `gen-rts-sources.py` script in the `bb-runtimes` repository, while
-   step 2 and 3 were done in one step by the `build_rts.py` script.
-   Step 3 was done only if build_rts.py was called with the `--build` option.
-   This package modularizes and generalizes these steps, allowing more flexibility and
-   reuse with different source repositories and target definitions repositories.
+   step 2 and 3 were done in one step by a `build_rts.py` script (step 3 only with its `--build` option).
+   That script has since been removed: this package modularizes and generalizes these steps, targetization
+   now runs through the per-arch entry points (`python -m bb_runtimes_targets_gen.targets.<arch>`) and the
+   build through each runtime's `build.py`, allowing more flexibility and reuse with different source
+   repositories and target definitions repositories.
 
 
 Do you need this package? And how shall you approach it?
