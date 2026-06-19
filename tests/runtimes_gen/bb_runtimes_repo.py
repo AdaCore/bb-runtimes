@@ -34,7 +34,7 @@ class BbRuntimesRepository(AbstractTestedRepository):
         """Get all targets from ALL_TARGETS."""
 
         def create_target_info(
-            target_instance: AbstractTarget, cli_name: str, target_class: str
+            target_instance: AbstractTarget, cli_name: str
         ) -> TargetInfo:
             """Helper to create TargetInfo from an AbstractTarget instance."""
             base_profile = self.deduce_top_base_profile(
@@ -44,14 +44,11 @@ class BbRuntimesRepository(AbstractTestedRepository):
                 cli_name=cli_name,
                 platform=target_instance.platform,
                 top_base_profile=base_profile,
-                target_class=target_class,
             )
 
         all_targets = ALL_TARGETS
         targets = []
         for t in all_targets:
-            target_class = t.__class__.__name__
-
             if isinstance(t, AbstractTargetGenerator):
                 # Handle target generators - instantiate variants
                 for i, variant_name in enumerate(t.generate_variants()):
@@ -60,12 +57,10 @@ class BbRuntimesRepository(AbstractTestedRepository):
                         break
                     # Instantiate the variant to get an AbstractTarget instance
                     target_instance = t.instantiate(variant_name)
-                    targets.append(
-                        create_target_info(target_instance, variant_name, target_class)
-                    )
+                    targets.append(create_target_info(target_instance, variant_name))
             else:
                 # Already an AbstractTarget instance
-                targets.append(create_target_info(t, t.cli_name, target_class))
+                targets.append(create_target_info(t, t.cli_name))
 
         return targets
 
@@ -131,7 +126,6 @@ class BbRuntimesRepository(AbstractTestedRepository):
         output_dir: Path,
         base_profile: str,
         verbose: bool = False,
-        cert_subdir: str = "",
     ) -> None:
         """Run the per-arch targetizer entry point for this target."""
         arch_module = self._arch_module_for(target_cli_name)
