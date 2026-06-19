@@ -4,7 +4,8 @@
 
 """
 Entry point for the runtime targetizer.
-This file is the same for all target packages,
+This file is the same for all target packages (including the root
+targets/ helper package).
 all they need to do is to export TARGETS from their __init__.py.
 Then adding a __main__.py symlink to this file will provide a cli.
 """
@@ -12,9 +13,7 @@ Then adding a __main__.py symlink to this file will provide a cli.
 from rts_prebuilder.engine import RuntimeTargetizerCLI
 
 # Import TARGETS from the current package
-# (Ignore this linter failure since this file is supposed to be symlinked
-# in targets packages where TARGETS is defined)
-from . import TARGETS  # type: ignore[attr-defined]
+from . import TARGETS
 
 from bb_runtimes_targets_gen.concrete_infrastructure.engine_interface import (
     engine_interface,
