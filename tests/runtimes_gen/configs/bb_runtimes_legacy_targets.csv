@@ -11,6 +11,7 @@
 # Lines starting with # are comments
 # This list is auto-generated to match current bb-runtimes targets
 
+lm3s,bb,light
 8349e,bb,embedded
 aarch64-linux,linux,light-tasking
 aarch64-lynx178,lynx,light-tasking
