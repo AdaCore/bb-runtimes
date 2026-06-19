@@ -97,6 +97,9 @@ class SourcePathResolver(ABC):
 
         resolved_path: Path | None = None
         outcome_str = "No resolution attempted"
+        # One (step name, outcome) entry per step tried, to remind the user what
+        # was attempted should resolution fail entirely.
+        tried: list[tuple[str, OutcomeDescription]] = []
 
         if unresolved_src_path.is_absolute():
             # Input path is already resolved
@@ -107,6 +110,7 @@ class SourcePathResolver(ABC):
             # Try each resolver in order
             for resolver_step in self._resolvers_steps:
                 result, outcome_str = resolver_step(unresolved_src_path)
+                tried.append((resolver_step.__class__.__name__, outcome_str))
                 log.debug(
                     "Resolving %s: step %s returned outcome: %s",
                     f"../{unresolved_src_path.name}",
@@ -120,8 +124,10 @@ class SourcePathResolver(ABC):
                     break
 
         if resolved_path is None:
+            outcomes = "\n".join(f"  - {name}: {outcome}" for name, outcome in tried)
             raise FileNotFoundError(
-                f" No resolver step could resolve path: {unresolved_src_path}"
+                f"No resolver step could resolve path: {unresolved_src_path}\n"
+                f"Resolution steps tried (in order):\n{outcomes}"
             )
 
         self.record_resolution_with_metadata(

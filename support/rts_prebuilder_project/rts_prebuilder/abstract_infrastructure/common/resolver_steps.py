@@ -74,7 +74,14 @@ class SearchPathsResolutionStep(AbstractResolutionStep):
             if candidate.exists():
                 return candidate, "File was found in search paths"
 
-        return None, f"File not found in search paths ({self._search_paths})"
+        # Flag any configured search path that does not exist on disk: a likely
+        # cause for the file not being found.
+        tried = [
+            f"{d}{' (WARNING: does not exist)' if not d.exists() else ''}"
+            for d in self._search_paths
+        ]
+        listed = ", ".join(tried) if tried else "none configured"
+        return None, f"File not found in search paths ({listed})"
 
 
 class GnatDirManifestResolutionStep(AbstractResolutionStep):
