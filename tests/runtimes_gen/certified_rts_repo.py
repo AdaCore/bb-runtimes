@@ -149,7 +149,7 @@ class CertifiedRtsRepository(AbstractTestedRepository):
         base_profile: str,
         verbose: bool = False,
     ) -> None:
-        """Run build_rts.py (python -m rts)."""
+        """Run the certified-rts targetizer entry point (python -m <cert>.rts)."""
         # Look up the platform from the descriptor file path
         # The descriptor is at: assembly/{platform}/{base_profile}/lib/gnat/rts-sources.json
         # descriptor_file.parent = gnat, .parent = lib, .parent = base_profile, .parent = platform

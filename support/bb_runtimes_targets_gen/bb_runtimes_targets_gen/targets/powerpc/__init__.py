@@ -424,7 +424,7 @@ class P5634(PPCSPETarget):
 
     @property
     def cli_name(self):
-        # For backward compatibility with old build_rts.py which expects "mpc5634"
+        # Legacy CLI selector kept for backward compatibility (was "mpc5634").
         return "mpc5634"
 
     @property

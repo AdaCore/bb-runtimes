@@ -2,7 +2,7 @@
 
 # Runtime Generation Tests
 
-Tests runtime generation by running `gen_rts_sources.py` and `build_rts.py` against all targets, comparing outputs with baseline if it's setup.
+Tests runtime generation by running `gen_rts_sources.py` and the per-arch targetizer entry points (`python -m bb_runtimes_targets_gen.targets.<arch>`) against all targets, comparing outputs with baseline if it's setup.
 
 ## Architecture
 
@@ -15,7 +15,7 @@ The framework uses an abstract `TestedRepository` base class with concrete imple
 Each implementation provides:
 - `get_targets_list()` - discover testable targets
 - `run_assembly()` - execute gen_rts_sources.py
-- `run_targetizer()` - execute build_rts.py
+- `run_targetizer()` - execute the per-arch targetizer entry point (`python -m bb_runtimes_targets_gen.targets.<arch>`); legacy variants still use `build_rts.py`
 
 ## Usage
 
@@ -27,7 +27,7 @@ python -m tests.runtimes_gen.test_runner --help
 
 For each target:
 1. Run gen_rts_sources.py to generate source trees
-2. Run build_rts.py to build the runtime
+2. Run the per-arch targetizer entry point to produce the runtime sources
 3. Diff the output against baseline
 
 Output goes to `/tmp/runtimes_gen_test_XXXXXXXX/` with baseline/ and candidate/ subdirs.
