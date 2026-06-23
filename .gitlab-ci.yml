@@ -1,5 +1,29 @@
-black:
-  services:
-    - image:e3
-  script:
-    - black --check --diff .
+# TODO: runtimes not buildable with recompilablerts (e.g. native targets) are
+# not covered here. Add a separate job that builds them directly, bypassing
+# anod.
+
+stages:
+  - check
+  - build
+
+include:
+  - component: $CI_SERVER_FQDN/eng/gitlab-templates/check-issue@~latest
+  - component: $CI_SERVER_FQDN/eng/gitlab-templates/pre-commit@~latest
+    inputs:
+      on-diff: true
+
+  - component: $CI_SERVER_FQDN/eng/gitlab-templates/build@~latest
+    inputs:
+      job-name: build-recompilablerts
+      anod-args: run build
+      plan: ci/plans/ci.plan
+      save-anod-logs: "true"
+      windows: true
+      windows-cpus: 8
+      windows-mem: 16
+
+# Run the Windows build on demand only (manual, non-blocking), on any pipeline.
+build-recompilablerts:windows:
+  rules:
+    - when: manual
+      allow_failure: true
