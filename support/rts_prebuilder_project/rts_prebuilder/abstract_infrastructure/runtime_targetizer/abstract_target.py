@@ -342,10 +342,6 @@ class AbstractTarget(ABC, SourcesAndFlagsComponentMixin, TemplateConfigListerMix
         """
         ...
 
-    def pre_build_step(self, obj_dir: Path) -> None:
-        """Actions required before building the runtime"""
-        ...
-
     @abstractmethod
     def dump_runtime_xml(self, rts_name: ProfileNameType, rts) -> str:  # type: ignore[no-untyped-def] # noqa: ANN001 E501
         """

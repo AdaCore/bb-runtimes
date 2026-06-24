@@ -132,6 +132,26 @@ class SourcesAndFlagsComponentMixin:
         self._add_source_to_dir(Path("gnarl"), source, dest_name)
 
     @final
+    def add_build_scripts(self, build_script: Path, prebuild_script: Path) -> None:
+        """Register the scripts an end user runs to rebuild the runtime after
+        changing something in it, installed at the runtime root: build.py (runs
+        gprbuild) and the pre_build.py it calls first (a target-specific step,
+        a no-op by default). The two always go together.
+        """
+        self.append_sources(
+            SourceFile(
+                dest_subdir=None,
+                unresolved_src_path=UnresolvedPath(build_script),
+                dest_path=Path("build.py"),
+            ),
+            SourceFile(
+                dest_subdir=None,
+                unresolved_src_path=UnresolvedPath(prebuild_script),
+                dest_path=Path("pre_build.py"),
+            ),
+        )
+
+    @final
     def add_linker_script(
         self,
         source_str: str,

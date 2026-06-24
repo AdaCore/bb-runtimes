@@ -457,11 +457,6 @@ class TargetizedRuntime:
                 )
             )
 
-        # Install build script
-        # TODO:2 add template resolution (or consider as normal source files)
-        build_script_tmpl = resolve_and_read_file(Path("datafiles/build.py.in"))
-        (output_dir / "build.py").write_text(build_script_tmpl)
-
     def install(self, output_dir: Path, link: bool, overwrite: bool) -> None:
         """Installs the files_holder of the instance to the given output dir"""
         log.info(

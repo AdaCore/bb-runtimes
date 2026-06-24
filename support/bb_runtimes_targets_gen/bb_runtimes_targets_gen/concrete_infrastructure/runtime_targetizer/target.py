@@ -2,6 +2,7 @@
 # Copyright (C) 2025-2026, AdaCore
 #
 
+from pathlib import Path
 from typing import override
 
 from rts_prebuilder.abstract_infrastructure import (
@@ -18,6 +19,22 @@ class Target(AbstractTarget):
     """
     Mainly same things as AbstractTarget but with some default definitions
     """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.add_build_scripts(self.build_script, self.prebuild_script)
+
+    @property
+    def build_script(self) -> Path:
+        """Build script installed as the runtime's build.py (runs gprbuild)."""
+        return Path("shared/default_build.py")
+
+    @property
+    def prebuild_script(self) -> Path:
+        """Pre-build script installed as the runtime's pre_build.py. Defaults to
+        a no-op; override to run a step before gprbuild.
+        """
+        return Path("shared/empty_prebuild.py")
 
     @override
     @property
