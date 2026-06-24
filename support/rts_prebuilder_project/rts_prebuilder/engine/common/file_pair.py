@@ -283,5 +283,8 @@ def _single_file_installer(
     if link:
         full_dst.symlink_to(src.absolute())
     else:
-        # Write content directly
-        full_dst.write_text(content, encoding="utf-8")
+        # Write content directly.
+        # newline="\n": disable newline to os.linesep translation, otherwise
+        # the run-time sources get CRLF terminators on Windows, which GNAT
+        # rejects under -gnatyd (incorrect line terminator).
+        full_dst.write_text(content, encoding="utf-8", newline="\n")
