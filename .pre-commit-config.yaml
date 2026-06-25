@@ -20,7 +20,8 @@ repos:
           - flake8-comprehensions
           - flake8_plugin_utils
           - flake8-rst-docstrings
-          - flake8-use-fstring
+          # - flake8-use-fstring # can't be pulled from CI: not mirrored by the
+          #   AdaCore package registry yet
           # - flake8-docstrings # TODO Fix then enable
           # - flake8-print # TODO Fix then enable
         name: flake8-7.1.1
