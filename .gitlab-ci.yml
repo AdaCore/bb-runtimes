@@ -22,7 +22,8 @@ include:
       windows-cpus: 8
       windows-mem: 16
 
-# Run the Windows build on demand only (manual), since it takes more time.
+# Run the Windows build on demand only (manual, non-blocking), on any pipeline.
 build-recompilablerts:windows:
   rules:
     - when: manual
+      allow_failure: true

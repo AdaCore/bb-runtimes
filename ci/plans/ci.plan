@@ -10,22 +10,29 @@ TARGETS = [
     "arm-elf",
     "aarch64-elf",
     "leon3-elf",
-    "morello-elf",
     "ppc-elf",
     "riscv32-elf",
     "riscv64-elf",
     "x86_64-elf",
     # Cross targets
     "arm-deos",
-    "arm-freertos,,qemu-zynq",
     "arm-pikeos5,5.0",
     "aarch64-qnx,8.0",
     "aarch64-vx7r2cert,helix-cert-23.06",
 ]
 
+# Targets buildable on Linux only, not Windows.
+LINUX_ONLY_TARGETS = [
+    "morello-elf",
+    "arm-freertos,,qemu-zynq",
+]
+
 
 def build():
-    for target in TARGETS:
+    targets = list(TARGETS)
+    if env.build.os.name == "linux":
+        targets += LINUX_ONLY_TARGETS
+    for target in targets:
         anod_build("recompilablerts", target=target)
 
 
