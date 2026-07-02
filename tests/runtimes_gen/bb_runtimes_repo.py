@@ -15,7 +15,7 @@ from rts_prebuilder.abstract_infrastructure import (
     AbstractTargetGenerator,
     AbstractTarget,
 )
-from bb_runtimes_targets_gen.targets.all_targets import ALL_TARGETS
+from bb_runtimes_targets_gen.targets import TARGETS as ALL_TARGETS
 
 from .tested_repository import AbstractTestedRepository, TargetInfo
 
@@ -34,7 +34,7 @@ class BbRuntimesRepository(AbstractTestedRepository):
         """Get all targets from ALL_TARGETS."""
 
         def create_target_info(
-            target_instance: AbstractTarget, cli_name: str, target_class: str
+            target_instance: AbstractTarget, cli_name: str
         ) -> TargetInfo:
             """Helper to create TargetInfo from an AbstractTarget instance."""
             base_profile = self.deduce_top_base_profile(
@@ -44,14 +44,11 @@ class BbRuntimesRepository(AbstractTestedRepository):
                 cli_name=cli_name,
                 platform=target_instance.platform,
                 top_base_profile=base_profile,
-                target_class=target_class,
             )
 
         all_targets = ALL_TARGETS
         targets = []
         for t in all_targets:
-            target_class = t.__class__.__name__
-
             if isinstance(t, AbstractTargetGenerator):
                 # Handle target generators - instantiate variants
                 for i, variant_name in enumerate(t.generate_variants()):
@@ -60,12 +57,10 @@ class BbRuntimesRepository(AbstractTestedRepository):
                         break
                     # Instantiate the variant to get an AbstractTarget instance
                     target_instance = t.instantiate(variant_name)
-                    targets.append(
-                        create_target_info(target_instance, variant_name, target_class)
-                    )
+                    targets.append(create_target_info(target_instance, variant_name))
             else:
                 # Already an AbstractTarget instance
-                targets.append(create_target_info(t, t.cli_name, target_class))
+                targets.append(create_target_info(t, t.cli_name))
 
         return targets
 
@@ -131,27 +126,47 @@ class BbRuntimesRepository(AbstractTestedRepository):
         output_dir: Path,
         base_profile: str,
         verbose: bool = False,
-        cert_subdir: str = "",
     ) -> None:
-        """Run build_rts.py targetizer."""
-        build_script = self.root_path / "build_rts.py"
-        if not build_script.exists():
-            raise FileNotFoundError(f"Targetizer script not found: {build_script}")
+        """Run the per-arch targetizer entry point for this target."""
+        arch_module = self._arch_module_for(target_cli_name)
 
         lib_gnat_dir = output_dir / "lib" / "gnat"
         lib_gnat_dir.mkdir(parents=True, exist_ok=True)
 
         cmd = [
             sys.executable,
-            str(build_script),
+            "-m",
+            arch_module,
+            target_cli_name,
             "--rts-src-descriptor",
             str(descriptor_file),
             "--output",
             str(lib_gnat_dir),
-            target_cli_name,
-            "--force",
+            # Board files and datafiles templates live in the repo 'src' dir,
+            # outside the installed package.
+            "--source-search-path",
+            str(self.root_path / "src"),
+            "--overwrite",
         ]
 
         self._run_command(
             cmd, self.root_path, f"Targetizer for {target_cli_name}", verbose
         )
+
+    @staticmethod
+    def _arch_module_for(target_cli_name: str) -> str:
+        """Return the ``python -m`` arch entry point that owns target_cli_name.
+
+        ALL_TARGETS mixes plain targets with generators (which expand to several
+        variants), so match the same way get_targets_list() enumerates them.
+        """
+        for t in ALL_TARGETS:
+            if isinstance(t, AbstractTargetGenerator):
+                names = list(t.generate_variants())
+            else:
+                names = [t.cli_name]
+            if target_cli_name in names:
+                parts = t.__class__.__module__.split(".")
+                arch = parts[parts.index("targets") + 1]
+                return f"bb_runtimes_targets_gen.targets.{arch}"
+        raise ValueError(f"No targets entry point for cli_name {target_cli_name!r}")

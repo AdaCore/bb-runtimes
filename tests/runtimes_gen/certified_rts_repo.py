@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Any, Optional, override
+from typing import Any, override
 
 from .configs.certified_rts_targets import CERTIFIED_RTS_TARGETS
 from .tested_repository import AbstractTestedRepository, TargetInfo
@@ -25,10 +25,13 @@ class CertifiedRtsRepository(AbstractTestedRepository):
     def __init__(
         self,
         root_path: Path,
-        config_file: Optional[Path] = None,
+        bb_runtimes_root: Path,
     ):
         super().__init__(root_path)
-        # config_file parameter kept for compatibility but not used anymore
+        # The bb-runtimes board sources are passed to the targetizer explicitly
+        # via --source-search-path; the cert engine's own fixed relative guess at
+        # the bb-runtimes location does not hold in every checkout layout.
+        self._bb_runtimes_root = bb_runtimes_root
         # Internal mappings: (cli_name, platform, base_profile) -> cert_subdir
         self._target_to_info: dict[tuple[str, str, str], str] = {}
 
@@ -174,6 +177,10 @@ class CertifiedRtsRepository(AbstractTestedRepository):
             str(descriptor_file),
             "--output",
             str(lib_gnat_dir),
+            # bb-runtimes board sources, passed explicitly (the cert engine's
+            # fixed relative guess at the bb-runtimes location is unreliable).
+            "--source-search-path",
+            str(self._bb_runtimes_root / "src"),
             target_cli_name,
             "--force",
         ]

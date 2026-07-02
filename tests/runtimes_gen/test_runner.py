@@ -601,7 +601,9 @@ def discover_certified_rts_repos(
     logger.info("Found certified-rts at %s", cert_rts_path)
 
     try:
-        repo = CertifiedRtsRepository(root_path=cert_rts_path)
+        repo = CertifiedRtsRepository(
+            root_path=cert_rts_path, bb_runtimes_root=bb_runtimes_path
+        )
         # Log the targets found
         targets = repo.get_targets_list()
         target_names = sorted({t.cli_name for t in targets})

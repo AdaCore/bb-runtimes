@@ -23,7 +23,6 @@ class TargetInfo:
     cli_name: str
     platform: str
     top_base_profile: str
-    target_class: str = ""
 
 
 class AbstractTestedRepository(ABC):

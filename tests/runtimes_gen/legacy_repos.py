@@ -201,10 +201,9 @@ class CertifiedRtsLegacyRepository(CertifiedRtsRepository):
         self,
         root_path: Path,
         associated_bb_runtimes: Path,
-        config_file: Path | None = None,
     ):
         # Initialize parent
-        super().__init__(root_path, config_file)
+        super().__init__(root_path, associated_bb_runtimes)
         # Store bb_runtimes path for legacy use
         self._associated_bb_runtimes = associated_bb_runtimes
 
@@ -341,9 +340,6 @@ def setup_legacy_baseline(
         cert_master_path = bb_runtimes_path.parent.parent / "Cert" / "certified-master"
 
         if cert_master_path.exists() and cert_master_path.is_dir():
-            if not cert_master_path.is_dir():
-                raise Exception(f"Expected {cert_master_path} to be a directory")
-
             # Legacy certified-rts needs legacy bb-runtimes (bb-master) for --bb-dir
             bb_master_path = bb_runtimes_path.parent / "bb-master"
             if not bb_master_path.exists():
@@ -379,9 +375,6 @@ def setup_legacy_baseline(
         bb_master_path = repo.root_path.parent / "bb-master"
 
         if bb_master_path.exists() and bb_master_path.is_dir():
-            assert (
-                bb_master_path.is_dir()
-            ), f"Expected {bb_master_path} to be a directory"
             logger.info("Found bb-master worktree at %s", bb_master_path)
             logger.info("Setting bb-master as baseline for comparison")
             baseline_repo = BbRuntimesLegacyBaselineRepository(bb_master_path)
