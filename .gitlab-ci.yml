@@ -12,6 +12,10 @@ include:
     inputs:
       on-diff: true
 
+  - component: $CI_SERVER_FQDN/eng/gitlab-templates/tox@~latest
+    inputs:
+      tox-section: py3
+
   - component: $CI_SERVER_FQDN/eng/gitlab-templates/build@~latest
     inputs:
       job-name: build-recompilablerts
