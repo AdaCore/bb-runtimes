@@ -15,7 +15,7 @@ def test_import_rts_prebuilder():
 
 def test_import_bb_runtimes_targets_gen():
     importlib.import_module("bb_runtimes_targets_gen")
-    importlib.import_module("bb_runtimes_targets_gen.targets.all_targets")
+    importlib.import_module("bb_runtimes_targets_gen.targets")
     importlib.import_module(
         "bb_runtimes_targets_gen.concrete_infrastructure.engine_interface"
     )

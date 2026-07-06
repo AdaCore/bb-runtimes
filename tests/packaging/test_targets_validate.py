@@ -2,10 +2,10 @@
 # Copyright (C) 2025-2026, AdaCore
 #
 
-"""Validate every target exposed by bb_runtimes_targets_gen.ALL_TARGETS."""
+"""Validate every target exposed by bb_runtimes_targets_gen.TARGETS."""
 
 import pytest
-from bb_runtimes_targets_gen.targets.all_targets import ALL_TARGETS
+from bb_runtimes_targets_gen.targets import TARGETS
 from bb_runtimes_targets_gen.concrete_infrastructure.engine_interface import (
     engine_interface,
 )
@@ -19,14 +19,14 @@ from rts_prebuilder.engine.common.sources_db_processor import sources_db_proc
 
 def test_all_targets_pass_validation():
     targets_to_validate: list[tuple[str, AbstractTarget]] = []
-    for item in ALL_TARGETS:
+    for item in TARGETS:
         if isinstance(item, AbstractTarget):
             targets_to_validate.append((item.name, item))
         elif isinstance(item, AbstractTargetGenerator):
             for variant in item.generate_variants():
                 targets_to_validate.append((variant, item.instantiate(variant)))
 
-    assert targets_to_validate, "ALL_TARGETS is empty"
+    assert targets_to_validate, "TARGETS is empty"
 
     failures: list[tuple[str, str]] = []
     for name, target in targets_to_validate:
