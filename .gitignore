@@ -46,3 +46,11 @@ dmypy.json
 
 # Test environment
 .test_venv/
+
+# Generated prebuild metadata (resolution records / component listings)
+.prebuild_metadata/
+
+# Test run artifacts (coverage + junit report)
+.coverage
+coverage.xml
+pytest-report.xml
