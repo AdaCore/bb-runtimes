@@ -24,7 +24,7 @@ TARGETS = [
 # Targets buildable on Linux only, not Windows.
 LINUX_ONLY_TARGETS = [
     "morello-elf",
-    "arm-freertos,,qemu-zynq",
+    "arm-freertos,10-xilinx,qemu-zynq",
 ]
 
 
