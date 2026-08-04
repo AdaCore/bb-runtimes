@@ -32,7 +32,11 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package implements the RISC-V PLIC interface from the SiFive E3 PLIC
+--  This package implements the RISC-V PLIC interface of the PolarFire SoC.
+--  The register block follows the SiFive PLIC layout, but the number of
+--  interrupt contexts and their numbering depend on the mix of harts of the
+--  SoC, so the other RISC-V boards keep their own body of this package. See
+--  the PolarFire SoC MSS Technical Reference Manual, PLIC chapter.
 
 with Interfaces; use Interfaces;
 
@@ -99,36 +103,60 @@ package body System.BB.RISCV_PLIC is
 
    Harts_Enables : Hart_Enables_Array
      with Address => PLIC_Base_Address + 16#0000_2080#;
-   --  Other harts enables
+   --  Other harts enables. One element covers the M-mode and S-mode context
+   --  pair of a single hart, so this array is indexed by hart id.
 
-   -----------------------------------
-   -- Hart Threshold/Claim/Complete --
-   -----------------------------------
+   --------------------------------------
+   -- Context Threshold/Claim/Complete --
+   --------------------------------------
 
-   pragma Warnings (Off, "32704 bits of ""Hart_Control"" unused");
-   type Hart_Control is record
+   Nbr_Of_Contexts : constant := 2 * (PLIC_Nbr_Of_Harts - 1) + 1;
+   --  A context is a (hart, privilege mode) pair, not a hart. Hart 0 (E51)
+   --  has an M-mode context only, and each of the four U54 harts an (M-mode,
+   --  S-mode) pair, which makes nine contexts in total.
+
+   pragma Warnings (Off, "32704 bits of ""Context_Control"" unused");
+   type Context_Control is record
       Threshold      : Priority_Register;
       Claim_Complete : Unsigned_32;
    end record
      with Size => 8 * 4096;
-   pragma Warnings (On, "32704 bits of ""Hart_Control"" unused");
+   pragma Warnings (On, "32704 bits of ""Context_Control"" unused");
 
-   for Hart_Control use record
+   for Context_Control use record
       Threshold      at 0 range 0 .. 31;
       Claim_Complete at 4 range 0 .. 31;
    end record;
 
-   type Hart_Control_Array is array (0 .. PLIC_Nbr_Of_Harts - 1) of
-     Hart_Control
-     with Size => 8 * 4096 * PLIC_Nbr_Of_Harts;
+   type Context_Control_Array is array (0 .. Nbr_Of_Contexts - 1) of
+     Context_Control
+     with Size => 8 * 4096 * Nbr_Of_Contexts;
 
-   Harts_Control : Hart_Control_Array
+   Contexts_Control : Context_Control_Array
      with Address => PLIC_Base_Address + 16#0020_0000#;
+   --  Unlike the enables, these blocks are one per context, not one per hart
 
    Claimed_Table : array (BBI.Any_Interrupt_ID) of Boolean := (others => False)
      with Ghost;
 
-   Use_Hart_0 : constant Boolean := PLIC_Hart_Id = 0;
+   function Current_Hart return Hart_Id_Range is
+     (Hart_Id_Range (CPU_Specific.Mhartid));
+   --  The running hart. Enables, threshold and claim/complete are all private
+   --  to a hart, so every access below must be directed at the hart
+   --  performing it: on the SMP run-time the four U54 harts each drive their
+   --  own registers.
+
+   function Current_M_Mode_Context return Natural is
+     (if Current_Hart = 0 then 0 else 2 * Natural (Current_Hart) - 1);
+   --  Context number of the running hart's M-mode. Contexts are numbered in
+   --  hart order, starting with hart 0's M-mode context 0. Each hart below
+   --  hart N added two contexts, so hart N's M-mode context is 2N - 1.
+   --
+   --  A context number is therefore not a hart id: the two only agree for
+   --  harts 0 and 1. The enable blocks are picked with the hart id, the
+   --  threshold and claim/complete blocks with the context number, and using
+   --  one where the other belongs silently lands on a neighbouring hart's
+   --  S-mode registers.
 
    ----------------
    -- Initialize --
@@ -162,13 +190,14 @@ package body System.BB.RISCV_PLIC is
    ------------
 
    procedure Enable (Interrupt : BBI.Interrupt_ID) is
+      Hart   : constant Hart_Id_Range := Current_Hart;
       Reg_Id : constant Natural := Natural (Interrupt) / 32;
       Int_Id : constant Natural := Natural (Interrupt) mod 32;
    begin
-      if Use_Hart_0 then
+      if Hart = 0 then
          Hart_0_M_Mode_Enables (Reg_Id) (Int_Id) := True;
       else
-         Harts_Enables (PLIC_Hart_Id).M_Mode (Reg_Id) (Int_Id) := True;
+         Harts_Enables (Natural (Hart)).M_Mode (Reg_Id) (Int_Id) := True;
       end if;
    end Enable;
 
@@ -186,7 +215,7 @@ package body System.BB.RISCV_PLIC is
    function Claim return BBI.Any_Interrupt_ID is
 
       Number : constant Unsigned_32 :=
-        Harts_Control (PLIC_Hart_Id).Claim_Complete;
+        Contexts_Control (Current_M_Mode_Context).Claim_Complete;
 
       Id : BBI.Any_Interrupt_ID;
    begin
@@ -213,7 +242,8 @@ package body System.BB.RISCV_PLIC is
    begin
 
       --  Writing to the CLAIM register to signal completion
-      Harts_Control (PLIC_Hart_Id).Claim_Complete := Unsigned_32 (Interrupt);
+      Contexts_Control (Current_M_Mode_Context).Claim_Complete :=
+        Unsigned_32 (Interrupt);
 
       Claimed_Table (Interrupt) := False;
    end Complete;
@@ -223,18 +253,19 @@ package body System.BB.RISCV_PLIC is
    ----------------------------
 
    procedure Set_Priority_Threshold (Priority : Integer) is
-      Hart : Hart_Control renames Harts_Control (PLIC_Hart_Id);
+      Ctx : Context_Control renames
+        Contexts_Control (Current_M_Mode_Context);
 
       Int_Priority : constant Integer :=
         Priority - Interrupt_Priority'First + 1;
 
    begin
       if Int_Priority > Integer (Priority_Type'Last) then
-         Hart.Threshold := (P => Priority_Type'Last);
+         Ctx.Threshold := (P => Priority_Type'Last);
       elsif Int_Priority < Integer (Priority_Type'First) then
-         Hart.Threshold := (P => Priority_Type'First);
+         Ctx.Threshold := (P => Priority_Type'First);
       else
-         Hart.Threshold := (P => Priority_Type (Int_Priority));
+         Ctx.Threshold := (P => Priority_Type (Int_Priority));
       end if;
    end Set_Priority_Threshold;
 
@@ -244,7 +275,7 @@ package body System.BB.RISCV_PLIC is
 
    function Threshold return Integer is
    begin
-      return Integer (Harts_Control (PLIC_Hart_Id).Threshold.P);
+      return Integer (Contexts_Control (Current_M_Mode_Context).Threshold.P);
    end Threshold;
 
    ------------------
