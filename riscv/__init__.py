@@ -69,25 +69,12 @@ class PolarFireSOC(RiscV64):
     It is a 5-core RISC-V coherent CPU cluster consisting of one E51 monitor
     hart and four U54 application harts, based on the SiFive U54-MC IP.
 
-    By default, only the U54 core 1 is used (mhartid 1), so the runtime is
-    single-core only. If the `smp` flag is set to True, all the cores
-    will be used by the runtime and will be usable for multitasking by the
-    ADA application.
-    """
-
-    smp: bool
-    """
-    Flag to indicate if the runtime configured by this instance supports SMP.
-
-    It defaults to False (even if the underlying hardware always support it)
-    because the multi-core implementation is still not mature. It is intended
-    to replace the single-core version in the long run.
+    All the U54 cores are configured by the runtime and are usable
+    for multitasking by the Ada application.
     """
 
     @property
     def name(self):
-        if self.smp:
-            return "polarfiresoc-smp"
         return "polarfiresoc"
 
     @property
@@ -128,47 +115,32 @@ class PolarFireSOC(RiscV64):
             '               "-u", "__gnat_gdb_cpu_first_id"',
         )
 
-    def __init__(self, smp: bool = False):
+    def __init__(self):
         super(PolarFireSOC, self).__init__()
-        self.smp = smp
 
         self.add_linker_script("riscv/microchip/polarfiresoc/memory-map.ld")
 
-        if self.smp:
-            # SMP-specific linker script with stacks for all cores
-            self.add_linker_script(
-                "riscv/microchip/polarfiresoc/common-RAM-smp.ld",
-                dst="common-RAM.ld",
-                loader="RAM",
-            )
-            # SMP-specific startup code
-            self.add_source_alias(
-                "gnat", "start-ram.S", "riscv/microchip/polarfiresoc/start-ram-smp.S"
-            )
-            # SMP-specific trap handler
-            self.add_source_alias(
-                "gnarl",
-                "trap_handler.S",
-                "riscv/src/trap_handler_smp.S",
-            )
+        # Linker script with stacks for all cores
+        self.add_linker_script(
+            "riscv/microchip/polarfiresoc/common-RAM.ld",
+            loader="RAM",
+        )
 
-            # Multiprocessig specific sources
-            self.add_gnarl_sources(
-                "src/s-bbsumu__riscv.adb",
-                "src/s-bbpara__polarfiresoc_smp.ads",
-            )
+        # Startup code
+        self.add_gnat_source("riscv/microchip/polarfiresoc/start-ram.S")
 
-        else:
-            # Single-processor equivalent sources
-            self.add_linker_script(
-                "riscv/microchip/polarfiresoc/common-RAM.ld", loader="RAM"
-            )
-            self.add_gnat_source("riscv/microchip/polarfiresoc/start-ram.S")
-            self.add_gnarl_sources(
-                "riscv/src/trap_handler.S",
-                "src/s-bbsumu__generic.adb",
-                "src/s-bbpara__polarfiresoc.ads",
-            )
+        # Trap handler
+        self.add_source_alias(
+            "gnarl",
+            "trap_handler.S",
+            "riscv/src/trap_handler_smp.S",
+        )
+
+        # Multiprocessig specific sources
+        self.add_gnarl_sources(
+            "src/s-bbsumu__riscv.adb",
+            "src/s-bbpara__polarfiresoc.ads",
+        )
 
         # Common GNAT sources
         self.add_gnat_sources(
