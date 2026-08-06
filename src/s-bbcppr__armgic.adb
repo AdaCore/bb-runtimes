@@ -310,35 +310,7 @@ package body System.BB.CPU_Primitives is
    -- FPU_Context_Switch --
    ------------------------
 
-   procedure FPU_Context_Switch (To : VFPU_Context_Access) is
-      CPU_Id : constant System.Multiprocessors.CPU := Current_CPU;
-      C : constant VFPU_Context_Access := Current_FPU_Context (CPU_Id);
-
-   begin
-      if C /= To then
-         if C /= null then
-            Asm (Template => "vstm %1, {d0-d15}" & NL & "fmrx %0, fpscr",
-                 Outputs  =>
-                   (Unsigned_32'Asm_Output ("=r", C.FPSCR)),
-                 Inputs   =>
-                   (Address'Asm_Input ("r", C.V'Address)),
-                 Clobber  => "memory",
-                 Volatile => True);
-            C.V_Init := True;
-         end if;
-
-         if To /= null then
-            Asm (Template => "vldm %1, {d0-d15}" & NL & "fmxr fpscr, %0",
-                 Inputs   =>
-                   (Unsigned_32'Asm_Input ("r", To.FPSCR),
-                    Address'Asm_Input ("r", To.V'Address)),
-                 Clobber  => "memory",
-                 Volatile => True);
-         end if;
-
-         Current_FPU_Context (CPU_Id) := To;
-      end if;
-   end FPU_Context_Switch;
+   procedure FPU_Context_Switch (To : VFPU_Context_Access) is separate;
 
    ----------------------
    -- Initialize_Stack --
