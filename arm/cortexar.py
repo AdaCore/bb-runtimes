@@ -17,7 +17,7 @@ class CortexARArch(ArchSupport):
             "src/i-cache.ads",
             "src/i-cache__armv7.adb",
         )
-        self.add_gnarl_sources("src/s-bbcpsp__arm.ads", "src/s-bbcppr__new.ads")
+        self.add_gnarl_sources("src/s-bbcppr__new.ads")
 
 
 class CortexARTarget(DFBBTarget):
@@ -35,6 +35,7 @@ class CortexARTarget(DFBBTarget):
 
     def amend_rts(self, rts_profile, conf):
         super(CortexARTarget, self).amend_rts(rts_profile, conf)
+
         if "embedded" in rts_profile or "tasking" in rts_profile:
             # s-bbcppr.adb uses the r7 register during context switching: this
             # is not compatible with the use of frame pointers that is emited
@@ -48,6 +49,16 @@ class CortexARTarget(DFBBTarget):
             # the registers only when they are used by apps. This means that if
             # a FPU register is used out of context, then we're doomed.
             conf.build_flags["common_gnarl_flags"] += ["-mgeneral-regs-only"]
+
+            # Select files based on FPU size ONCE during target initialization
+            if any("d16" in flag for flag in self.compiler_switches):
+                self.add_gnarl_sources(
+                    "src/s-bbcpsp__arm_d16.ads", "src/s-bcpfcs__d16.adb"
+                )
+            else:
+                self.add_gnarl_sources(
+                    "src/s-bbcpsp__arm_d32.ads", "src/s-bcpfcs__d32.adb"
+                )
 
         if "embedded" in rts_profile:
             # Exception propagation uses ARM unwind tables in .ARM.exidx and
