@@ -15,7 +15,6 @@ TARGETS = [
     "riscv64-elf",
     "x86_64-elf",
     # Cross targets
-    "arm-deos",
     "arm-pikeos5,5.0",
     "aarch64-qnx,8.0",
     "aarch64-vx7r2cert,helix-cert-23.06",
