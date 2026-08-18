@@ -43,11 +43,12 @@ support for:
 * GNATemulator
 * Multiboot 1 and Multiboot 2 complaint bootloaders (like GRUB)
 * LynxSecure (as a LynxSecure Application)
+* The x86/HVM direct boot ABI (PVH), as used by QEMU and Xen
 
 By default, applications are built for GNATemulator. To build your application
 for one of the other supported bootloaders, set the LOADER project variable
 
-to MULTIBOOT, MULTIBOOT2 or LSA. The LOADER variable can be specified as a
+to MULTIBOOT, MULTIBOOT2, LSA or PVH. The LOADER variable can be specified as a
 switch to GPRBuild:
 
    gprbuild -P proj.gpr -XLOADER=MULTIBOOT
@@ -85,6 +86,19 @@ Once converted, the application can be included in an SRP with the following
 switch:
 
    --subject-fvbmada=ram=128m,cpus=1,realtime=true,SERIAL0,lsapath=<program>.bin
+
+PVH
+~~~
+
+The PVH loader produces an ELF binary that can be booted directly through the
+x86/HVM direct boot ABI (PVH). This lets QEMU load the application with its
+-kernel option, without a firmware or an intermediate bootloader:
+
+   qemu-system-x86_64 -nographic -kernel <program>
+
+QEMU locates the entry point through a PT_NOTE program header embedded in the
+binary. The application is entered in 32-bit protected mode, just like with
+the Multiboot loaders.
 
 Resources Used
 --------------

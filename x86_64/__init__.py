@@ -71,7 +71,7 @@ class X8664Generic(X8664Target):
 
     @property
     def loaders(self):
-        return ("QEMU", "LSA", "MULTIBOOT", "MULTIBOOT2")
+        return ("QEMU", "LSA", "MULTIBOOT", "MULTIBOOT2", "PVH")
 
     def __init__(self):
         super(X8664Generic, self).__init__()
@@ -82,6 +82,7 @@ class X8664Generic(X8664Target):
         self.add_linker_script(
             "x86_64/generic/common-MULTIBOOT2.ld", loader="MULTIBOOT2"
         )
+        self.add_linker_script("x86_64/generic/common-PVH.ld", loader="PVH")
         self.add_linker_script("x86_64/generic/common-QEMU.ld", loader="QEMU")
         self.add_linker_switch("-Wl,-z,max-page-size=0x1000")
 
@@ -90,6 +91,7 @@ class X8664Generic(X8664Target):
             "x86_64/src/lynx.S",
             "x86_64/src/multiboot.S",
             "x86_64/src/multiboot2.S",
+            "x86_64/src/pvh.S",
         )
         self.add_gnarl_sources(
             "src/a-intnam__x86_64.ads",
