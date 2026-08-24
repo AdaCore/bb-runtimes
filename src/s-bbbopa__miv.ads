@@ -57,6 +57,12 @@ package System.BB.Board_Parameters is
    Clock_Frequency : constant Positive := Timer_Frequency * Clock_Scale;
    --  Scaled clock frequency
 
+   --  Hardware Hart (Hardware Thread) Identifiers
+   type Hart_Id_Range is range 0 .. 0;
+   --  Range of valid Hart IDs. The Mi-V soft cores supported here are
+   --  single-hart, but the shared RISC-V CLINT code indexes its per-hart
+   --  registers with this type.
+
    --  Core-Local Interruptor
 
    CLINT_Base_Address    : constant := 16#4400_0000#;
