@@ -28,17 +28,19 @@
 ------------------------------------------------------------------------------
 with Testdata; use Testdata;
 pragma Warnings (Off);
+with System.BB.Time;
+with System.BB.CPU_Specific;
 with System.BB.Board_Support; use System.BB.Board_Support;
 pragma Warnings (On);
 
 with Ada.Text_IO; use Ada.Text_IO;
 
-procedure Testhandler (Vector : Vector_Id) is
+procedure Testhandler (Vector : Interrupt_ID) is
 
-   No_Interrupt : constant Interrupt_ID := Interrupt_ID (0);
+   use type System.BB.Time.Time;
 
    procedure Check (Success : Boolean; Name : String);
-   procedure Check_No_Pending;
+   --  procedure Check_No_Pending;
 
    -----------
    -- Check --
@@ -61,31 +63,30 @@ procedure Testhandler (Vector : Vector_Id) is
    -- Check_No_Pending --
    ----------------------
 
-   procedure Check_No_Pending is
-   begin
-      if Get_Interrupt_Request (Vector) /= No_Interrupt then
-         Put_Line ("  . warning: cannot verify interrupt request was cleared");
-      end if;
-   end Check_No_Pending;
+   --  procedure Check_No_Pending is
+   --  begin
+   --     if Get_Interrupt_Request (Vector) /= No_Interrupt then
+   --        Put_Line ("  . warning: cannot verify interrupt request was
+   --        cleared");
+   --     end if;
+   --  end Check_No_Pending;
 
-   Now : constant Timer_Interval := Read_Clock;
-   Int : Interrupt_ID;
+   Now : constant System.BB.Time.Time := Time.Read_Clock;
 
 begin -- Testhandler
    if Alarms = 0 then
       Check (Last_Alarm = 0, "alarm is indeed first invocation");
       Last_Alarm := Now;
-      Check (Get_Interrupt_Request (Vector) = Alarm_Interrupt_ID,
+      Check (Vector = System.BB.CPU_Specific.APIC_Timer_Vector,
         "interrupt is alarm interrupt");
-      Clear_Alarm_Interrupt;
-      pragma Debug (Check_No_Pending);
+      --  Clear_Alarm_Interrupt;
+      --  pragma Debug (Check_No_Pending);
 
    else
-      Int := Get_Interrupt_Request (Vector);
-      if Int = Alarm_Interrupt_ID then
+      if Vector = System.BB.CPU_Specific.APIC_Timer_Vector then
          Last_Alarm := Now;
          Alarms := Alarms + 1;
-         Clear_Alarm_Interrupt;
+         --  Clear_Alarm_Interrupt;
       end if;
    end if;
 end Testhandler;

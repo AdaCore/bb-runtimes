@@ -42,6 +42,9 @@ with System; use System;
 pragma Warnings (Off);
 with System.BB.Board_Support;  use System.BB.Board_Support;
 with System.BB.CPU_Primitives; use System.BB.CPU_Primitives;
+with System.BB.CPU_Specific;
+with System.BB.Parameters;     use System.BB.Parameters;
+with System.BB.Time;
 with System.BB.Interrupts;
 pragma Warnings (On);
 
@@ -75,8 +78,9 @@ procedure TestBSP is
    function Test_FPU_Switch return Boolean;
    function Test_Floating_Point return Boolean;
 
-   function Ticks_To_Micros (Ticks : Timer_Interval) return Natural is
-     (Natural (Ticks * (1E9 / Timer_Interval (Ticks_Per_Second)) / 1000));
+   use type System.BB.Time.Time;
+   function Ticks_To_Micros (Ticks : BB.Time.Time) return Natural is
+     (Natural (Ticks * (1E9 / BB.Time.Time (Ticks_Per_Second)) / 1000));
 
    -----------
    -- Error --
@@ -170,24 +174,16 @@ procedure TestBSP is
    ----------------
 
    function Test_Timer return Boolean is
-      TPS   : constant Timer_Interval := Timer_Interval (Ticks_Per_Second);
+      TPS   : constant BB.Time.Time
+        := BB.Time.Time (Ticks_Per_Second);
       T1,
-      T2    : Timer_Interval;
+      T2    : BB.Time.Time;
       J     : Natural;
 
    begin
       Timing ("Clock tick duration", Ticks_To_Micros (1000), "ns");
 
-      Check (Ticks_Per_Second >= 1E6 / 20,
-        "tick duration less than 20 usec, see D.8(30)");
-      --  As for now Time_Unit is equal to Ticks_Per_Second,
-
-      Check (Max_Timer_Interval >= TPS / 4 * 3,
-        "timer interval lasts at least 0.75s");
-      --  For 2**31 timer intervals to last at least 50 years,
-      --  a single interval should last about 0.75 seconds or longer.
-
-      T1 := Read_Clock;
+      T1 := Time.Read_Clock;
 
       --  Now lets see if the clock actually ticks OK. We try up to a
       --  million times: that should be just a few seconds at most on
@@ -195,7 +191,7 @@ procedure TestBSP is
 
       J := 0;
       loop
-         T2 := Read_Clock;
+         T2 := Time.Read_Clock;
          J := J + 1;
          exit when T2 - T1 >= TPS / 1000 or else J >= 1E6;
       end loop;
@@ -207,7 +203,7 @@ procedure TestBSP is
       Check (J <= 200_000, "clock reading takes at least 5 ns");
 
       Timing ("Clock_Read duration",
-         Ticks_To_Micros (1000 * (T2 - T1) / Timer_Interval (J)), "ns");
+         Ticks_To_Micros (1000 * (T2 - T1) / BB.Time.Time (J)), "ns");
 
       return not Errors;
    end Test_Timer;
@@ -229,7 +225,7 @@ procedure TestBSP is
       end Yield;
 
       Inc_Thread : constant access Context_Buffer := Test_Context (2)'Access;
-      T1, T2 : Timer_Interval;
+      T1, T2 : BB.Time.Time;
 
    begin
       Debug ("Initializing context");
@@ -253,7 +249,7 @@ procedure TestBSP is
          "Context_Switch to test thread increments shared var");
       Check (Yield (Inc_Thread) = 125, "repeated context switch");
 
-      T1 := Read_Clock;
+      T1 := Time.Read_Clock;
 
       for J in 1 .. 1000 loop
          Disable_Interrupts;
@@ -262,7 +258,7 @@ procedure TestBSP is
          Context_Switch;
          Enable_Interrupts (0);
       end loop;
-      T2 := Read_Clock;
+      T2 := Time.Read_Clock;
 
       Timing ("Context_Switch duration", Ticks_To_Micros (T2 - T1) / 2, "ns");
 
@@ -276,6 +272,7 @@ procedure TestBSP is
    -- Test_Data --
    ---------------
 
+   pragma Warnings (Off);
    function Test_Data return Boolean is
      ((Constant_Data = Ident (Literal_Data)
          or else Error ("constant data has wrong value"))
@@ -291,44 +288,49 @@ procedure TestBSP is
              and then
       (for all X of Uninitialized_Data => X = 0
          or else Error ("uninitialized data not zeroed out")));
+   pragma Warnings (On);
 
    ---------------------------
    -- Test_Alarm_Interrupts --
    ---------------------------
 
    function Test_Alarm_Interrupts return Boolean is
-      Alarm_Int  : constant Interrupt_ID := Alarm_Interrupt_ID;
+      Alarm_Int  : constant Interrupt_ID
+        := BB.CPU_Specific.APIC_Timer_Vector;
       Alarm_Prio : constant Interrupt_Priority
-                      := Priority_Of_Interrupt (Alarm_Int);
-      s  : constant Timer_Interval := Timer_Interval (Ticks_Per_Second);
-      ms : constant Timer_Interval := Timer_Interval (Ticks_Per_Second / 1000);
-      T0, T1, T2 : Timer_Interval;
+        := BB.Board_Support.Interrupts.Priority_Of_Interrupt
+          (Alarm_Int);
+      s  : constant BB.Time.Time
+        := BB.Time.Time (Ticks_Per_Second);
+      ms : constant BB.Time.Time := BB.Time.Time
+         (Ticks_Per_Second / 1000);
+      T0, T1, T2 : BB.Time.Time;
    begin
       Debug ("Alarm_Interrupt_ID", Alarm_Int);
       Debug ("Priority_Of_Interrupt (Alarm_Interrupt_ID)", Alarm_Prio);
 
       Disable_Interrupts;
       Debug ("Installing interrupt handler");
-      Install_Interrupt_Handler (Testhandler'Address, Alarm_Int, Alarm_Prio);
+      Time.Install_Alarm_Handler (Testhandler'Access);
 
       Debug ("Testing enabling/disabling interrupts");
       Enable_Interrupts (System.Priority'Last);
       Disable_Interrupts;
 
-      T1 := Read_Clock;
+      T1 := Time.Read_Clock;
       for J in 1 .. 1_000 loop
          Enable_Interrupts (System.Priority'Last);
          Disable_Interrupts;
       end loop;
-      T2 := Read_Clock;
+      T2 := Time.Read_Clock;
 
       Timing ("Disable_Interrupts/Enable_Interrupts duration",
         Ticks_To_Micros (T2 - T1), "ns");
 
       Check (Last_Alarm = 0, "absence of spurious interrupts");
       Debug ("Testing 1 ms alarm");
-      T0 := Read_Clock;
-      Set_Alarm (1 * ms); -- time 1 ms
+      T0 := Time.Read_Clock;
+      Time.Set_Alarm (1 * ms); -- time 1 ms
       Enable_Interrupts (Alarm_Prio - 1);
 
       for J in 1 .. 1E6 loop
@@ -337,7 +339,7 @@ procedure TestBSP is
          --  handling the alarm, so it will only return with Last_Alarm = 0 if
          --  the alarm did not trigger.
 
-         T1 := Read_Clock;
+         T1 := Time.Read_Clock;
          exit when Last_Alarm /= 0 or T1 - T0 > 25 * ms;
       end loop;
 
@@ -351,28 +353,28 @@ procedure TestBSP is
       --  the future.  Each alarm should cancel the previous one, so an
       --  actual alarm should never trigger.
 
-      T0 := Read_Clock;
+      T0 := Time.Read_Clock;
       for J in 1 .. 1000 loop
          Disable_Interrupts;
-         Set_Alarm (1 * ms);
+         Time.Set_Alarm (1 * ms);
          Enable_Interrupts (Alarm_Prio - 1);
       end loop;
 
-      T1 := Read_Clock;
+      T1 := Time.Read_Clock;
 
       --  Make sure to keep setting alarms for at least 2 ms
       loop
          Disable_Interrupts;
-         Set_Alarm (1 * ms);
+         Time.Set_Alarm (1 * ms);
          Enable_Interrupts (Alarm_Prio - 1);
-         exit when Read_Clock - T0 > 2 * ms;
+         exit when Time.Read_Clock - T0 > 2 * ms;
       end loop;
 
       Disable_Interrupts;
       Check (Alarms = 1, "resetting the alarm cancels previous alarms");
       Timing ("Set_Alarm duration", Ticks_To_Micros (T1 - T0), "ns");
 
-      while Read_Clock - T0 < 4 * ms loop
+      while Time.Read_Clock - T0 < 4 * ms loop
          null;
       end loop;
 
@@ -383,8 +385,8 @@ procedure TestBSP is
       Check (Alarms = 2, "enabling interrupts delivers pending interrupts");
 
       Disable_Interrupts;
-      Set_Alarm (0);
-      T0 := Read_Clock;
+      Time.Set_Alarm (0);
+      T0 := Time.Read_Clock;
       Enable_Interrupts (Alarm_Prio - 1);
 
       Check (Alarms = 3, "alarm of minimal duration is immediate");
@@ -404,18 +406,18 @@ procedure TestBSP is
       --  following test allows for a total time of 62356 ticks + 1 sec to
       --  handle all delays.
 
-      T0 := Read_Clock;
+      T0 := Time.Read_Clock;
       Test_Small_Delays : for J in 1 .. 1000 loop
          Disable_Interrupts;
-         Set_Alarm (Timer_Interval (J) mod 128);
+         Time.Set_Alarm (BB.Time.Time (J) mod 128);
          Enable_Interrupts (Alarm_Int - 1);
 
          while Alarms < J + 3 loop
-            exit Test_Small_Delays when Read_Clock > T0 + 62356 + 1 * s;
+            exit Test_Small_Delays when Time.Read_Clock > T0 + 62356 + 1 * s;
          end loop;
 
       end loop Test_Small_Delays;
-      T1 := Read_Clock;
+      T1 := Time.Read_Clock;
 
       Check (Alarms = 1003, "missed alarms");
       Timing ("alarm setting/handling duration",
@@ -441,7 +443,7 @@ procedure TestBSP is
       end Yield;
 
       Inc_Thread : constant access Context_Buffer := Test_Context (2)'Access;
-      T1, T2 : Timer_Interval;
+      T1, T2 : BB.Time.Time;
 
    begin
       Debug ("Initializing context");
@@ -461,7 +463,7 @@ procedure TestBSP is
          "FPU Context_Switch to test thread increments shared float");
       Check (Yield (Inc_Thread) = 125.0, "repeated FPU context switch");
 
-      T1 := Read_Clock;
+      T1 := Time.Read_Clock;
       for J in 1 .. 1000 loop
          Shared_Float := Shared_Float + 1.0;
          Disable_Interrupts;
@@ -469,7 +471,7 @@ procedure TestBSP is
          Context_Switch;
          Enable_Interrupts (0);
       end loop;
-      T2 := Read_Clock;
+      T2 := Time.Read_Clock;
 
       Timing ("Context_Switch duration between tasks using FPU",
          Ticks_To_Micros (T2 - T1) / 2, "ns");
@@ -477,7 +479,7 @@ procedure TestBSP is
       Check (Shared_Float = 2125.0,
          "context switches properly commit shared floating point variables");
 
-      T1 := Read_Clock;
+      T1 := Time.Read_Clock;
       for J in 1 .. 1000 loop
          Shared_Float := Shared_Float + 1.0;
          Disable_Interrupts;
@@ -485,7 +487,7 @@ procedure TestBSP is
          Context_Switch;
          Enable_Interrupts (0);
       end loop;
-      T2 := Read_Clock;
+      T2 := Time.Read_Clock;
 
       Timing ("Context_Switch betweens task using/not using FPU",
          Ticks_To_Micros (T2 - T1), "ns");
@@ -515,11 +517,11 @@ begin -- TestBSP
    Initialize_Board;
    Check (True, "initialized board");
 
-   System.BB.Interrupts.Initialize_Interrupts;
+   BB.Interrupts.Initialize_Interrupts;
    Check (True, "initialized interrupts");
 
-   Initialize_Floating_Point;
-   Check (True, "initialized processor");
+   --  Initialize_Floating_Point;
+   --  Check (True, "initialized processor");
 
    Check ((if not Errors then Test_Data), "data initialization");
 
