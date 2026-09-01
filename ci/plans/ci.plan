@@ -3,6 +3,9 @@
 # Builds the recompilable runtimes (recompilablerts spec, in the anod specs
 # repo) across the cross targets the spec supports. board_list in the spec
 # picks the default per-target runtimes subset, so only the anod target is varied.
+# The customer runtimes (customer-runtimes spec) are built too: they use the
+# same prebuilder and boards from this repository, so a change here can break
+# them without any other CI noticing.
 
 
 TARGETS = [
@@ -26,6 +29,15 @@ LINUX_ONLY_TARGETS = [
     "arm-freertos,10-xilinx,qemu-zynq",
 ]
 
+# Customer runtimes (customer-runtimes spec, CUSTOMER_RUNTIMES in
+# customer-runtimes-db). They are not in recompilablerts' board_list, so each
+# one is requested explicitly with its anod target.
+CUSTOMER_RUNTIMES = [
+    ("r7-elf", "r7"),
+    ("riscv64-elf", "microblazev"),
+    ("riscv32-elf", "miv_rv32imaf"),
+]
+
 
 def build():
     targets = list(TARGETS)
@@ -33,6 +45,9 @@ def build():
         targets += LINUX_ONLY_TARGETS
     for target in targets:
         anod_build("recompilablerts", target=target)
+
+    for target, rts in CUSTOMER_RUNTIMES:
+        anod_build("customer-runtimes", target=target, qualifier={"rts": rts})
 
 
 # TODO when stabilized we can add build with the qualifier "build-type=Assert"

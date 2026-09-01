@@ -53,16 +53,21 @@ package System.BB.Board_Parameters is
    Clock_Frequency : constant Positive := Decrementer_Frequency * Clock_Scale;
    --  Scaled clock frequency
 
+   --  Hardware Hart (Hardware Thread) Identifiers
+   type Hart_Id_Range is range 0 .. 0;
+   --  Range of valid Hart IDs. The FE310 is single-hart, but the shared
+   --  RISC-V CLINT code indexes its per-hart registers with this type.
+
    CLINT_Base_Address    : constant := 16#02000000#;
    CLINT_Mtime_Offset    : constant := 16#BFF8#;
    CLINT_Mtimecmp_Offset : constant := 16#4000#;
 
-   Mtime_Base_Address : constant Address :=
-     System'To_Address (CLINT_Base_Address + CLINT_Mtime_Offset);
+   Mtime_Base_Address : constant :=
+     CLINT_Base_Address + CLINT_Mtime_Offset;
    --  Address of the memory mapped mtime register
 
-   Mtimecmp_Base_Address : constant Address :=
-     System'To_Address (CLINT_Base_Address + CLINT_Mtimecmp_Offset);
+   Mtimecmp_Base_Address : constant :=
+     CLINT_Base_Address + CLINT_Mtimecmp_Offset;
    --  Address of the memory mapped mtimecmp register
 
 end System.BB.Board_Parameters;
