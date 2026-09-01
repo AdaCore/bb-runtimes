@@ -36,7 +36,7 @@ abstract project Target_Options is
      when "Gnatcov" =>
         --  For coverage
         COMFLAGS := COMFLAGS & COMDEBUGFLAGS &
-          ("-O0", "-fdump-scos", "-fpreserve-control-flow");
+          ("-O0", "-fdump-scos");
   end case;
   --  Linker flags, used for building shared libraries
   LOPTIONS := ();
