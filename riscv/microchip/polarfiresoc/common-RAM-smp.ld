@@ -163,20 +163,27 @@ SECTIONS
 
     /* Individual hart stacks */
    __stack_start = .;
-   __stack_bottom_h1$ = .; . += _DEFAULT_STACK_SIZE;
-   __stack_top_h1$ = .;
+   __stack_bottom_h1$ = .;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
    . = ALIGN(0x10); /* Align stack to 128 bits as required in the ABI */
+   __stack_top_h1$ = .;
    __stack_end = .;
 
    /* Same for the secondary harts */
 
-   __stack_bottom_h2$ = .; . += _DEFAULT_STACK_SIZE; . = ALIGN(0x10);
+   __stack_bottom_h2$ = .;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
+   . = ALIGN(0x10);
    __stack_top_h2$ = .;
 
-   __stack_bottom_h3$ = .; . += _DEFAULT_STACK_SIZE; . = ALIGN(0x10);
+   __stack_bottom_h3$ = .;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
+   . = ALIGN(0x10);
    __stack_top_h3$ = .;
 
-   __stack_bottom_h4$ = .; . += _DEFAULT_STACK_SIZE; . = ALIGN(0x10);
+   __stack_bottom_h4$ = .;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
+   . = ALIGN(0x10);
    __stack_top_h4$ = .;
 
 
