@@ -189,7 +189,7 @@ class PolarFireSOC(RiscV64):
             "src/s-bbcpsp__riscv.adb",
             "riscv/src/context_switch.S",
             "riscv/src/s-bbripl.ads",
-            "riscv/microchip/polarfiresoc/s-bbripl.adb",
+            "riscv/microchip/polarfiresoc/s-bbripl__polarfiresoc.adb",
         )
 
 

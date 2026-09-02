@@ -78,10 +78,15 @@ package System.BB.Board_Parameters is
    --  Platform Level Interrupt Controller
    PLIC_Base_Address     : constant := 16#0C00_0000#;
    PLIC_Nbr_Of_Harts     : constant := 5;
+   --  Every hart the PLIC can target, hart 0 included: it owns an interrupt
+   --  context and an enable block even though the run-time never runs on it.
    PLIC_Nbr_Of_Sources   : constant := 185;
    PLIC_Nbr_Of_Mask_Regs : constant := 6;
-   PLIC_Hart_Id          : constant := 1;
    PLIC_Priority_Bits    : constant := 3;
+
+   --  There is deliberately no PLIC_Hart_Id constant here, unlike the
+   --  single-hart boards: any of harts 1 .. 4 can drive the PLIC, so the
+   --  registers to use are derived from mhartid at run time.
 
    GDB_First_CPU_Id : constant Interfaces.Unsigned_32 := 1;
    pragma Export (C, GDB_First_CPU_Id, "__gnat_gdb_cpu_first_id");
