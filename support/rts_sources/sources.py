@@ -599,6 +599,8 @@ sources = {
             "libgnat/a-strunb.adb",
             "libgnat/a-sttebu.ads",
             "libgnat/a-sttebu.adb",
+            "libgnat/a-sttefo.ads",
+            "libgnat/a-sttefo.adb",
             "libgnat/a-stunau.ads",
             "libgnat/a-stunau.adb",
             "libgnat/a-stunha.ads",
