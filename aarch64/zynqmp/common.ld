@@ -143,11 +143,6 @@ SECTIONS
 
   __region_data_start = .;
 
-  .got :
-  {
-    *(.got)
-  } > REGION_DATA
-
   .mmu_ram_table_2 : ALIGN(0x1000)
   {
       __mmu_ram_table_2_start = .;
@@ -167,6 +162,12 @@ SECTIONS
   {
     __data = .;
     __data_start = .;
+    /* The GOT must be part of the memory map because some code models reach
+       data globals through it (-fsanitize=hwaddress enables tagged-globals,
+       which does exactly that), and an orphan .got ends up past _end, on
+       top of the heap. Keeping it inside .data also makes it covered by
+       __data_start .. __data_end, which some boards copy from ROM. */
+    *(.got.plt) *(.igot.plt) *(.got) *(.igot)
     *(.data .data.* .gnu.linkonce.d*)
     *(.mmu_tbl0)
     *(.mmu_tbl1)
