@@ -6,9 +6,7 @@
  *                                                                          *
  *                            Linker Script File                            *
  *                                                                          *
- *      Copyright (C) 1999-2002 Universidad Politecnica de Madrid           *
- *             Copyright (C) 2003-2006 The European Space Agency            *
- *                   Copyright (C) 2003-2025 AdaCore                        *
+ *                       Copyright (C) 2026 AdaCore                         *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -34,7 +32,7 @@
  *                                                                          *
  ****************************************************************************/
 
-/* This is a RISC-V specific version of this file */
+/* This is a Polarfire specific version of this file */
 
 INCLUDE memory-map.ld
 
@@ -169,11 +167,31 @@ SECTIONS
    . = ALIGN(0x10); /* Align stack to 128 bits as required in the ABI */
    __interrupt_stack_end = .;
 
-
+    /* Individual hart stacks */
    __stack_start = .;
+   __stack_bottom_h1$ = .;
    . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
    . = ALIGN(0x10); /* Align stack to 128 bits as required in the ABI */
+   __stack_top_h1$ = .;
    __stack_end = .;
+
+   /* Same for the secondary harts */
+
+   __stack_bottom_h2$ = .;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
+   . = ALIGN(0x10);
+   __stack_top_h2$ = .;
+
+   __stack_bottom_h3$ = .;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
+   . = ALIGN(0x10);
+   __stack_top_h3$ = .;
+
+   __stack_bottom_h4$ = .;
+   . += DEFINED (__stack_size) ? __stack_size : _DEFAULT_STACK_SIZE;
+   . = ALIGN(0x10);
+   __stack_top_h4$ = .;
+
 
    _end = .;
    __heap_start = .;

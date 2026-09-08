@@ -71,9 +71,9 @@ package System.BB.Parameters is
    -- CPUS --
    ----------
 
-   Max_Number_Of_CPUs : constant := 1;
-   --  Maximum number of CPUs (For non smp runtime only hart 1 of
-   --  the Polarfire SoC is supported)
+   Max_Number_Of_CPUs : constant := 4;
+   --  Maximum number of CPUs (For the smp runtime, the runtime supports
+   --  all 4 U54 application harts (mhartid 1-4)
 
    Multiprocessor : constant Boolean := Max_Number_Of_CPUs /= 1;
    --  Are we on a multiprocessor board?
