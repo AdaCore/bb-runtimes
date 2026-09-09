@@ -32,13 +32,25 @@ def check_path_exists(path: Path, repo_name: _repo_name) -> None:
         )
 
 
-def set_and_check(path: Path | None, default: Path, repo_name: _repo_name) -> Path:
-    """Set and check a given path, using a default if None"""
+def set_and_check(
+    path: Path | None, default: Path, repo_name: _repo_name
+) -> Path | None:
+    """Resolve a repository directory. Fall back to a default, or to None when
+    neither is usable.
+
+    An explicitly given path must exist. A missing default is skipped in
+    silence. These directories are only a shortcut for search paths, which the
+    caller may equally well pass with ``--source-search-path``.
+    """
     if path is None:
         if not default.resolve().exists():
-            raise FileNotFoundError(
-                f"No directory given for {repo_name}, and default {default} does not exist."
+            log.debug(
+                "No directory given for %s, and default %s does not exist:"
+                " resolution will rely on the search paths only.",
+                repo_name,
+                default,
             )
+            return None
         return default.resolve()
 
     check_path_exists(path, repo_name)

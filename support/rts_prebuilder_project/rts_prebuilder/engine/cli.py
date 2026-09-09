@@ -149,14 +149,16 @@ class RuntimePrebuilderCLI:
         parser.add_argument(
             "--gcc-dir",
             type=Path,
-            help="GCC sources directory (Must exist on disk), "
-            f" will fallback to {DEFAULT_GCC_DIR} if not provided",
+            help="Optional shortcut for --source-search-path: GCC sources directory"
+            " (must exist on disk when given), tried after the search paths."
+            f" Defaults to {DEFAULT_GCC_DIR} when that directory exists.",
         )
         parser.add_argument(
             "--gnat-dir",
             type=Path,
-            help="GNAT sources directory (Must exist on disk)"
-            f" will fallback to {DEFAULT_GNAT_DIR} if not provided.",
+            help="Optional shortcut for --source-search-path: GNAT sources directory"
+            " (must exist on disk when given), tried before the search paths."
+            f" Defaults to {DEFAULT_GNAT_DIR} when that directory exists.",
         )
 
         parser.add_argument(
@@ -251,9 +253,8 @@ class RuntimePrebuilderCLI:
                 "No target specified. Provide at least one target or use --list-targets to see options."
             )
 
-        # The runtime components reference files from the GCC and GNAT source trees:
-        # make them available to the resolver (fall back to the default
-        # locations when not provided).
+        # Convenience only: a caller with no GCC/GNAT checkout at hand can reach
+        # the same files through --source-search-path.
         set_gccdir(args.gcc_dir)
         set_gnatdir(args.gnat_dir)
 
