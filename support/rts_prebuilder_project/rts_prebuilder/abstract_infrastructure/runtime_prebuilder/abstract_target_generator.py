@@ -2,8 +2,6 @@
 # Copyright (C) 2025-2026, AdaCore
 #
 
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
 from typing import Iterator
 from .abstract_target import AbstractTarget
@@ -12,14 +10,13 @@ from .abstract_target import AbstractTarget
 class AbstractTargetGenerator(ABC):
     """Lazy target family generator for targets with many variants.
 
-    This class is useful for cases where it would be tedious to define
-    each target variant as a separate concrete class, but where the variants
-    can be generated programmatically.
-    Example: STM32F0 family with many part numbers. (Each with simple differences
-    in flash/ram size and clock source.)
-    The instantiate() method should return a concrete AbstractTarget subclass
-    instance for the given variant name.
+    Use it when writing one concrete class per variant would be tedious, and
+    the variants can be generated instead. The STM32F0 family is the example.
+    It has many part numbers, and they differ only in flash and ram size and in
+    clock source.
 
+    The instantiate() method returns a concrete AbstractTarget subclass instance
+    for the given variant name.
     """
 
     @property

@@ -35,11 +35,11 @@ class FilePair:
     """
     This class is a post processed variant of SourceFile dataclass.
 
-    This class has the following responsibilities:
+    It has two jobs:
 
-    - Call resolver to get a full path for the source file
-    - Wraps the installer function to copy/link the file to its final
-      destination with the template applied if any.
+    - ask the resolver for a full path to the source file
+    - wrap the installer function that copies or links the file to its final
+      destination, applying the template if there is one
     - Provide different helper methods.
 
     Warning: A SourceFile may represent a dir, implementation should
@@ -111,8 +111,9 @@ class FilePair:
             # When source is a directory, we copy all its contents directly to the dest_subdir
             # without preserving the source directory name itself
             # IMPORTANT: We only copy FILES from the directory, NOT subdirectories.
-            # Subdirectories are only processed if they are explicitly listed as sources
-            # (e.g., through scenario filtering that adds "common/32" as a separate source).
+            # Subdirectories are only processed if they are explicitly listed as
+            # sources (e.g., by a component registering "common/32" as a
+            # separate source).
             # Calculate the target directory (install_dir + dest_subdir if any)
             if self._source_file.dest_subdir:
                 target_dir = install_dir / self._source_file.dest_subdir

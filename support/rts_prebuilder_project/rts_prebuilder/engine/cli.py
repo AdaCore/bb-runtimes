@@ -16,23 +16,29 @@ from rts_prebuilder.end_user_data.compiler_selector import (
     Compiler,
     set_compiler,
 )
+from rts_prebuilder.end_user_data.gnat_gcc_dir_selector import (
+    DEFAULT_GCC_DIR,
+    DEFAULT_GNAT_DIR,
+    set_gccdir,
+    set_gnatdir,
+)
 from rts_prebuilder.end_user_data.logger import get_logger, set_log_level
 from .cli_help_gen import list_targets_for_help
 
-from ..common.infrastructure_interface import get_resolver
-from .targetizer import RuntimeTargetizer
+from .infrastructure_interface import get_resolver
+from .prebuild_driver import RuntimePrebuildDriver
 
 log = get_logger(__name__)
 
 
-class RuntimeTargetizerCLI:
+class RuntimePrebuilderCLI:
     """CLI class to encapsulate parser creation and execution.
     To use this class, register targets using the register_targets class method,
     then call the run class method to execute the CLI. It will auto adapt
     to the registered targets.
     """
 
-    _cli_singleton: ClassVar["RuntimeTargetizerCLI | None"] = None
+    _cli_singleton: ClassVar["RuntimePrebuilderCLI | None"] = None
     """
     Singleton instance of the CLI.
     This allows for easy access to the CLI instance across the application.
@@ -49,7 +55,7 @@ class RuntimeTargetizerCLI:
     def register_targets(
         cls,
         *targets: AbstractTarget | AbstractTargetGenerator,
-    ) -> "RuntimeTargetizerCLI":
+    ) -> "RuntimePrebuilderCLI":
         """Register targets with the CLI singleton.
         If the singleton does not exist, it is created.
         Returns the CLI singleton instance for convenience.
@@ -59,7 +65,7 @@ class RuntimeTargetizerCLI:
         """
 
         if not cls._cli_singleton:
-            cls._cli_singleton = RuntimeTargetizerCLI()
+            cls._cli_singleton = RuntimePrebuilderCLI()
 
         # Split concrete targets and generators
         concrete: dict[str, AbstractTarget] = {}
@@ -89,13 +95,13 @@ class RuntimeTargetizerCLI:
             raise RuntimeError("No targets registered. Use register_targets first.")
 
         parser = cli.create_parser(
-            prog="targetize_rts_sources",
-            description="Targetize RTS (Runtime System) sources for a specific target",
+            prog="prebuild_rts_sources",
+            description="Prebuild RTS (Runtime System) sources for a specific target",
         )
 
         args = parser.parse_args()
 
-        cli.run_targetizer(args)
+        cli.run_prebuilder(args)
 
     def create_parser(self, prog: str, description: str) -> argparse.ArgumentParser:
         """Create and configure the argument parser.
@@ -120,7 +126,7 @@ class RuntimeTargetizerCLI:
             "target",
             nargs="*",
             help=(
-                "The targets names (as in AbstractTarget.cli_name) to use for targetization,"
+                "The targets names (as in AbstractTarget.cli_name) to use for prebuilding,"
                 " amongst the available ones. See below for summarized families."
             ),
             type=str,
@@ -141,10 +147,16 @@ class RuntimeTargetizerCLI:
         )
 
         parser.add_argument(
-            "--rts-src-descriptor",
-            help="The path to the runtime source descriptor file (rts-sources.json)"
-            "If not given, auto-search using locate_json_descriptor will be attempted.",
+            "--gcc-dir",
             type=Path,
+            help="GCC sources directory (Must exist on disk), "
+            f" will fallback to {DEFAULT_GCC_DIR} if not provided",
+        )
+        parser.add_argument(
+            "--gnat-dir",
+            type=Path,
+            help="GNAT sources directory (Must exist on disk)"
+            f" will fallback to {DEFAULT_GNAT_DIR} if not provided.",
         )
 
         parser.add_argument(
@@ -201,10 +213,10 @@ class RuntimeTargetizerCLI:
 
         return parser
 
-    def run_targetizer(
+    def run_prebuilder(
         self, args: argparse.Namespace
     ) -> list[Tuple[AbstractTarget, Path]]:
-        """Execute the targetization process based on parsed arguments.
+        """Execute the prebuilding process based on parsed arguments.
 
         :param args: Parsed command-line arguments.
         :return: A list of tuples containing the target and the path to each installed runtime.
@@ -239,6 +251,12 @@ class RuntimeTargetizerCLI:
                 "No target specified. Provide at least one target or use --list-targets to see options."
             )
 
+        # The runtime components reference files from the GCC and GNAT source trees:
+        # make them available to the resolver (fall back to the default
+        # locations when not provided).
+        set_gccdir(args.gcc_dir)
+        set_gnatdir(args.gnat_dir)
+
         # Resolve targets: concrete first, then generator-backed
         targets: list[AbstractTarget] = []
         for name in args.target:
@@ -263,7 +281,7 @@ class RuntimeTargetizerCLI:
 
         for target in targets:
             log.info(
-                "Targetizing runtime for target: %s (Class: %s / name: %s)",
+                "Prebuilding runtime for target: %s (Class: %s / name: %s)",
                 target.cli_name,
                 target.__class__.__name__,
                 target.name,
@@ -277,21 +295,16 @@ class RuntimeTargetizerCLI:
 
             log.info("Output directory: %s", output_dir)
 
-            runtime_targetizer = RuntimeTargetizer(
-                target=target,
-                json_descriptor=args.rts_src_descriptor,
-            )
+            prebuild_driver = RuntimePrebuildDriver(target=target)
 
-            # Step 1: Create the targetized runtimes
-            created_runtimes = runtime_targetizer.create_targetized_runtimes(
+            created_runtimes_writers = prebuild_driver.create_runtimes_writers(
                 filter_base_profile_names=args.profiles,
             )
-            if len(created_runtimes) == 0:
+            if len(created_runtimes_writers) == 0:
                 log.warning("No runtimes created for target %s", target.name)
                 continue
 
-            # Step 2: Install the created runtimes
-            runtimes = runtime_targetizer.install_targetized_runtimes(
+            runtimes = prebuild_driver.install_runtimes(
                 destination=output_dir,
                 overwrite=args.overwrite,
                 link=args.link,

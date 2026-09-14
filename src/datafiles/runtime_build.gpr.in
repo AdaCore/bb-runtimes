@@ -7,7 +7,7 @@ project Runtime_Build is
 
   for Library_Auto_Init use "False";
   for Library_Kind use Target_Options.Lib;
-  for Library_Options use Target_Options.LOPTIONS;
+  for Library_Options use Target_Options.Runtime_Link_Switches;
 
    case Target_Options.Lib is
       when "static" =>
@@ -31,38 +31,38 @@ project Runtime_Build is
   end Naming;
 
   package Compiler is
-     for Default_Switches ("C") use Target_Options.ALL_CFLAGS;
-     for Default_Switches ("Ada") use Target_Options.ALL_ADAFLAGS;
-     for Default_Switches ("Asm_Cpp") use Target_Options.ASMFLAGS;
+     for Default_Switches ("C") use Target_Options.All_C_Switches;
+     for Default_Switches ("Ada") use Target_Options.All_Ada_Switches;
+     for Default_Switches ("Asm_Cpp") use Target_Options.All_Asm_Switches;
 
      --  Some runtime files need to be compiled with debug info, so that gdb
      --  is not blind.
-     for Switches ("s-traceb.adb") use Target_Options.ALL_ADAFLAGS
+     for Switches ("s-traceb.adb") use Target_Options.All_Ada_Switches
        & ("-g")
        & ("-fno-optimize-sibling-calls", "-fno-inline-functions-called-once");
-     for Switches ("a-except.adb") use Target_Options.ALL_ADAFLAGS
+     for Switches ("a-except.adb") use Target_Options.All_Ada_Switches
        & ("-g", "-O1", "-fno-inline", "-fno-toplevel-reorder");
-     for Switches ("s-excdeb.adb") use Target_Options.ALL_ADAFLAGS
+     for Switches ("s-excdeb.adb") use Target_Options.All_Ada_Switches
        & ("-g", "-O0");
-     for Switches ("s-assert.adb") use Target_Options.ALL_ADAFLAGS
+     for Switches ("s-assert.adb") use Target_Options.All_Ada_Switches
        & ("-g");
-     for Switches ("a-tags.adb") use Target_Options.ALL_ADAFLAGS
+     for Switches ("a-tags.adb") use Target_Options.All_Ada_Switches
        & ("-g");
-     for Switches ("raise-gcc.c") use Target_Options.ALL_CFLAGS
+     for Switches ("raise-gcc.c") use Target_Options.All_C_Switches
        & ("-fexceptions");
-     for Switches ("unwind-sjlj-cert.c") use Target_Options.ALL_CFLAGS
+     for Switches ("unwind-sjlj-cert.c") use Target_Options.All_C_Switches
        & ("-fexceptions", "-Wno-error=unused-but-set-variable");
 
      --  Don't inline System.Machine_Reset otherwise we can loose our common
      --  exit system.
 
-     for Switches ("s-macres.adb") use Target_Options.ALL_ADAFLAGS
+     for Switches ("s-macres.adb") use Target_Options.All_Ada_Switches
        & ("-fno-inline");
 
      --  Generate ada_target_properties to give target-specific information
      --  to formal verification tools.
 
-     for Switches ("system.ads") use Target_Options.ALL_ADAFLAGS
+     for Switches ("system.ads") use Target_Options.All_Ada_Switches
        & ("-gnatet=" & Project'Project_Dir & "/ada_target_properties");
   end Compiler;
 

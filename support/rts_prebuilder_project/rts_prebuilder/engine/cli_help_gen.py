@@ -2,8 +2,6 @@
 # Copyright (C) 2025-2026, AdaCore
 #
 
-from __future__ import annotations
-
 from rts_prebuilder.abstract_infrastructure import (
     AbstractTarget,
     AbstractTargetGenerator,
@@ -52,7 +50,8 @@ def list_targets_for_help(
     # Concrete target instances with details
     for target_name, target in targets.items():
         profiles_list = [
-            f"{p} (rts {target.runtime_name_generator(p)})" for p in target.system_ads
+            f"{p.name} (rts {target.runtime_name_generator(p)})"
+            for p in target.profiles
         ]
         lines.append(
             f"cli_name: {target_name:30}| name: {target.name:25}| "
@@ -60,7 +59,8 @@ def list_targets_for_help(
             f"Class: {target.__class__.__module__}.{target.__class__.__name__}"
         )
 
-    # Enumerate generator variants lazily; instantiate to include class and profiles
+    # Enumerate generator variants lazily. Instantiate each one to get its
+    # class and profiles.
     for gen in generators:
         for name in gen.generate_variants():
             t = gen.instantiate(name)
@@ -72,7 +72,7 @@ def list_targets_for_help(
                 continue
 
             profiles_list = [
-                f"{p} (rts {t.runtime_name_generator(p)})" for p in t.system_ads
+                f"{p.name} (rts {t.runtime_name_generator(p)})" for p in t.profiles
             ]
 
             lines.append(

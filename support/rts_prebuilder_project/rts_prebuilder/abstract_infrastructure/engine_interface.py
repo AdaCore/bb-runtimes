@@ -2,13 +2,9 @@
 # Copyright (C) 2025-2026, AdaCore
 #
 
-from dataclasses import dataclass
-from typing import ClassVar
+from dataclasses import dataclass, field
+from typing import Callable, ClassVar
 
-from rts_prebuilder.base_types import (
-    AllPossibleScenarioConfigsType,
-    RawRtsSourcesDBType,
-)
 from rts_prebuilder.end_user_data.logger import get_logger
 
 from .common.default_resolver import DefaultSourcePathResolver
@@ -19,29 +15,24 @@ log = get_logger(__name__)
 
 
 @dataclass
-class CommonInterface:
-    """Common interface used by all features of the engine."""
-
-    all_sources_listing: RawRtsSourcesDBType
-    """This raw sources listing that will be processed
-       to give a RtsSourcesDBType instance"""
-
-    all_possible_scenarios: "AllPossibleScenarioConfigsType"
-
-    path_resolver_instance: SourcePathResolver = DefaultSourcePathResolver()
-    """ An instance of a subclass of SourcePathResolver """
-
-
-@dataclass
 class EngineToInfrastructureInterface:
     """
     Base infrastructure interface for the engine. (Only the engine)
 
-    If targetizer interface is not set, then that feature
+    If prebuilder interface is not set, then that feature
     cannot be used.
     """
 
-    common: CommonInterface
+    path_resolver_instance: SourcePathResolver = field(
+        default_factory=DefaultSourcePathResolver
+    )
+    """The resolver the engine uses to turn unresolved source paths into files."""
+
+    runtime_xml_generator: Callable[..., str] | None = None
+    """Concrete-infrastructure hook returning a target's runtime.xml content,
+    given ``(target, profile)``. The engine calls it through this interface so
+    it needs no knowledge of the concrete generator; a target never generates
+    its own runtime.xml."""
 
     def self_register(self) -> None:
         """Register this interface as the singleton instance."""

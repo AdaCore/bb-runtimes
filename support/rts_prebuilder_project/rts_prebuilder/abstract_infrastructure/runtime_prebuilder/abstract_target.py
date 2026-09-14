@@ -8,42 +8,80 @@ Base class for target configuration
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Tuple, cast, final, override, Literal, TYPE_CHECKING
+from typing import final, override, Literal
 
 from rts_prebuilder.base_types import (
-    VALID_BASE_PROFILES_SET,
-    ProfileNameType,
     ValidBaseProfileType,
     PlatformIdType,
 )
 
-from .component_mixin import SourcesAndFlagsComponentMixin
-from .runtime_config import RuntimeConfig
+from rts_prebuilder.end_user_data.logger import get_logger
+
+from ..common.source_file import Loader
+from .component import SourcesAndFlagsComponent
+from .runtime_profile import Profile
 from .template_config_mixin import TemplateConfigListerMixin
 
-if TYPE_CHECKING:
-    from .abstract_profiles_generator import (
-        AbstractProfileToScenarioGenerator,
-    )
+log = get_logger(__name__)
 
 
-class AbstractTarget(ABC, SourcesAndFlagsComponentMixin, TemplateConfigListerMixin):
+class AbstractTarget(SourcesAndFlagsComponent, ABC, TemplateConfigListerMixin):
     """
     Gives information on the target to allow proper configuration of the
     runtime
 
     Child classes must implement all abstract properties.
 
-    TODO:3 Make a pass on all non abstract properties and see if they can be
-            made abstract if the default implementation/value is not generic enough.
+    A target is the root of its runtime's component tree: the always-on part,
+    resolved for every profile it offers, on top of which a profile adds its own
+    ``components``. Its state splits like any component's:
+
+    * structure, in ``__init__``: the shared-source components it is built from,
+      via ``self.add_dependency`` and friends.
+    * entries, in ``contribute``: its own sources and switches, via
+      ``self.add_*``.
+
+    Being the root, it is also the ``target`` every node in the tree is queried
+    with, so inside its own ``contribute`` ``self`` and ``target`` are the same
+    object. Register on ``self``, but read the properties below off ``target``:
+    that spelling still holds when the code moves into a shared component.
     """
 
     def __init__(self) -> None:
         """
         Initialize
         """
+        log.debug("Instantiating target object '%s'...", type(self).__name__)
+        SourcesAndFlagsComponent.__init__(self)
         TemplateConfigListerMixin.__init__(self)
-        SourcesAndFlagsComponentMixin.__init__(self)
+
+    @property
+    def build_script(self) -> Path | None:
+        """Source of the ``build.py`` installed at the runtime root, which the
+        end user runs to rebuild the runtime. ``None`` — like
+        ``prebuild_script`` — installs neither."""
+        return None
+
+    @property
+    def prebuild_script(self) -> Path | None:
+        """Source of the ``prepare_build.py`` that ``build.py`` calls first, for a
+        step gprbuild cannot do. Goes together with ``build_script``."""
+        return None
+
+    @property
+    def loaders(self) -> tuple[Loader, ...]:
+        """The link configurations this target offers the end user, first one
+        being the generated project's ``LOADER`` default. Empty when the target
+        offers no choice.
+
+        Data, not composition: exactly one loader applies per link, whereas
+        components merge into one runtime (see ``Loader``). Everything a loader
+        owns — its scripts, its switches — is written here, so this list is the
+        whole answer to "what can this runtime be linked as".
+
+        :returns: the declared loaders, in offering order.
+        """
+        return ()
 
     @property
     @abstractmethod
@@ -76,43 +114,28 @@ class AbstractTarget(ABC, SourcesAndFlagsComponentMixin, TemplateConfigListerMix
         ...
 
     @property
-    @abstractmethod
-    def system_ads(self) -> dict[str, str]:
+    def platform_variant(self) -> str | None:
+        """Which variant of ``platform`` this target is, when one platform ships
+        several that install different sources: the PikeOS version, the VxWorks
+        kernel-vs-RTP mode. Only the platform's own components read it, so its
+        values are that platform's business. ``None`` when the platform has a
+        single variant.
         """
-        A dictionary of runtime profiles and their associated system.ads
+        return None
 
-        The keys don't have to be one of VALID_BASE_PROFILES_SET,
-        but the base_profile() method must map them to one of these.
+    @property
+    @abstractmethod
+    def profiles(self) -> list[Profile]:
+        """
+        The runtimes this target offers, one ``Profile`` per runtime.
 
-        Example::
-
-            {
-                "special-runtimeX: "path/to/system_special_runtimeX.ads"
-                "light": "path/to/system_light.ads",
-            }
-
+        Each ``Profile`` is pure data: its (commercial) name, the base profile
+        it maps to, its system.ads and the components that make it up. Profile
+        names must be unique — they drive the runtime fan-out. Build them with
+        the profile factories (``light_profile``, …) or a bespoke ``Profile``
+        for a custom runtime.
         """
         ...
-
-    def base_profile(self, profile: ProfileNameType) -> ValidBaseProfileType:
-        """
-        Returns the base profile for a given profile.
-
-        This is used to map custom profile names to one of VALID_BASE_PROFILES_SET.
-
-        Example:
-            base_profile("special-runtime-X") -> "light"
-            base_profile("automotive-runtime-Y") -> "light"
-        """
-
-        if profile not in self.system_ads or profile not in VALID_BASE_PROFILES_SET:
-            raise Exception(
-                f"Target {self.name}: Override base_profile() to map '{profile}' to one of "
-                f"VALID_BASE_PROFILES_SET and '{profile}' must be a key in system_ads"
-            )
-
-        # We can safely cast here since we checked the profile is in the set
-        return cast(ValidBaseProfileType, profile)
 
     @property
     @abstractmethod
@@ -133,26 +156,25 @@ class AbstractTarget(ABC, SourcesAndFlagsComponentMixin, TemplateConfigListerMix
         """
         return False
 
-    def runtime_name_generator(self, profile: ProfileNameType) -> str:
+    def runtime_name_generator(self, profile: Profile) -> str:
         """
-        Returns the runtime name for the given base profile.
+        Returns the runtime name for the given profile.
 
         This is the default implementation. It can be overridden by child classes
         to provide custom naming schemes. (or call legacy_runtime_name_generator())
         """
 
-        return f"{profile}-{self.name}"
+        return f"{profile.name}-{self.name}"
 
     @final
-    def legacy_runtime_name_generator(self, profile: ProfileNameType) -> str:
+    def legacy_runtime_name_generator(self, profile: Profile) -> str:
         """
-        Returns the legacy runtime name for the given base profile.
+        Returns the legacy runtime name for the given profile.
 
         This is always in the legacy format rts-<base_profile>
         """
 
-        base_profile = self.base_profile(profile)
-        return f"rts-{base_profile}"
+        return f"rts-{profile.base_profile}"
 
     @property
     def is_os_target(self) -> bool:
@@ -167,7 +189,7 @@ class AbstractTarget(ABC, SourcesAndFlagsComponentMixin, TemplateConfigListerMix
     @property
     @final
     def is_native(self) -> bool:
-        return self.target is None or "native" in self.target
+        return "native" in self.target
 
     @property
     def has_fpu(self) -> bool:
@@ -186,11 +208,12 @@ class AbstractTarget(ABC, SourcesAndFlagsComponentMixin, TemplateConfigListerMix
         return self.has_double_precision_fpu
 
     @property
+    @abstractmethod
     def has_double_precision_fpu(self) -> bool:
         """
         Whether the double precision floats are supported in FPU
         """
-        raise Exception("not implemented")
+        ...
 
     @property
     def has_small_memory(self) -> bool:
@@ -219,6 +242,22 @@ class AbstractTarget(ABC, SourcesAndFlagsComponentMixin, TemplateConfigListerMix
         return False
 
     @property
+    def supports_gc_sections(self) -> bool:
+        """Whether the runtime may be built with ``-ffunction-sections`` /
+        ``-fdata-sections``. Default True; set False where the linker script
+        can't cope with the resulting sections (e.g. PikeOS 3)."""
+        return True
+
+    @property
+    def uses_eh_frame_unwinding(self) -> bool:
+        """Whether embedded exception propagation relies on DWARF ``.eh_frame``
+        (needing ``-u _Unwind_Find_FDE`` / ``-Wl,--eh-frame-hdr`` in the app
+        link) rather than a target-native table (e.g. ARM ``.ARM.exidx``).
+        Default False; set True on targets that unwind via ``.eh_frame`` (e.g.
+        Morello, powerpc BookE)."""
+        return False
+
+    @property
     def has_compare_and_swap(self) -> bool:
         """True if the hardware supports an atomic compare-and-swap function.
 
@@ -237,9 +276,7 @@ class AbstractTarget(ABC, SourcesAndFlagsComponentMixin, TemplateConfigListerMix
         Support of C++ language in the runtime.
         By default, deduce from other properties.
         """
-        if self.has_cheri:
-            return False
-        return True
+        return not self.has_cheri
 
     @property
     def has_cheri(self) -> bool:
@@ -258,10 +295,7 @@ class AbstractTarget(ABC, SourcesAndFlagsComponentMixin, TemplateConfigListerMix
         provides a libc (newlib). While other such as "light" / "light-tasking"
         do not provide libc.
         """
-        if base_profile == "embedded":
-            return True
-        else:
-            return False
+        return base_profile == "embedded"
 
     def libc_implementation(
         self, base_profile: ValidBaseProfileType
@@ -291,66 +325,14 @@ class AbstractTarget(ABC, SourcesAndFlagsComponentMixin, TemplateConfigListerMix
         return False
 
     @property
-    def compiler_switches(self) -> Tuple[str, ...]:
-        """Switches to be used when compiling. Common to Ada, C, ASM"""
-        return ()
-
-    @property
-    def c_switches(self) -> Tuple[str, ...]:
-        """Switches to be used when compiling C code."""
-        return ()
-
-    @property
     def readme_file(self) -> Path | None:
         """Path to the readme file"""
         return None
 
-    @property
-    def config_files(self) -> dict[str, str]:
-        return {}
+    def link_spec_file(self, base_profile: ValidBaseProfileType) -> Path | None:
+        """Linker spec file installed at the runtime root for this base profile,
+        under its own name. ``None`` (the default) installs none.
 
-    @property
-    @abstractmethod
-    def profile_to_scenarios_generator(self) -> "AbstractProfileToScenarioGenerator":
+        :param base_profile: the base profile the runtime is being built for.
         """
-        Returns the class used to generate scenarios from profiles
-        """
-
-    def amend_rts(self, rts_profile: ProfileNameType, conf: RuntimeConfig) -> None:
-        """
-        This method is called after the default configuration of the runtime
-        and right before the engine actually uses the configuration to
-        generate the targetized runtime.
-        To allow target-specific amendments to the configuration.
-
-        .. note::
-            This is not considered a clean pattern, use it only when a first-class
-            configuration property cannot be used.
-            Usually you can override self.profile_to_scenarios_generator
-            to achieve most configuration changes.
-            the other config properties properties
-            such as config_files and build_flags can also just be inherited and
-            overridden to provide target-specific configuration. (with calls of
-            super() as needed).
-
-            TODO:3 Apply this existing targets
-
-
-        :param rts_profile: The profile name for which the runtime is being built
-        :param conf: The runtime configuration to amend (See RuntimeConfig)
-                     it has scenarios, build flags
-        """
-        ...
-
-    @abstractmethod
-    def dump_runtime_xml(self, rts_name: ProfileNameType, rts) -> str:  # type: ignore[no-untyped-def] # noqa: ANN001 E501
-        """
-        Generates the runtime xml for the target
-
-        :param rts_name: TODO:5 to rename to profile name
-        :param rts_filesholder: Used only to grab the scenarios configuration
-                                pregenerated for the given profile.
-                                TODO:5 must be changed to RuntimeConfig (subset) and remove the ignore type
-
-        """
-        ...
+        return None

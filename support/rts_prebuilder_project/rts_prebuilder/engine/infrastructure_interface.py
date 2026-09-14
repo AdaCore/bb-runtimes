@@ -13,29 +13,14 @@ No logic should be added to this module.
 from pathlib import Path
 
 from rts_prebuilder.abstract_infrastructure import (
+    AbstractTarget,
+    Profile,
     SourcePathResolver,
     get_infrastructure_interface,
 )
-from rts_prebuilder.base_types import (
-    AllPossibleScenarioConfigsType,
-    RtsSourcesDBType,
-    UnresolvedPath,
-)
-
-from .sources_db_processor import sources_db_proc
+from rts_prebuilder.base_types import UnresolvedPath
 
 # Accessors to common interface data
-
-
-def get_all_possible_scenarios() -> AllPossibleScenarioConfigsType:
-    """Returns all possible scenarios as defined in the infrastructure interface"""
-    return get_infrastructure_interface().common.all_possible_scenarios
-
-
-def get_all_sources_listing() -> RtsSourcesDBType:
-    """Returns a sanity-checked RtsSourcesDBType instance representing all sources listing"""
-    return sources_db_proc(get_infrastructure_interface().common.all_sources_listing)
-
 
 _resolver: SourcePathResolver
 
@@ -44,10 +29,18 @@ def get_resolver() -> SourcePathResolver:
     """Returns an instance of the path resolver class as defined in the infrastructure interface"""
     global _resolver
     if "_resolver" not in globals():
-        _resolver = get_infrastructure_interface().common.path_resolver_instance
+        _resolver = get_infrastructure_interface().path_resolver_instance
     return _resolver
 
 
 def resolve_and_read_file(path: Path) -> str:
     """Resolves and reads the content of path and returns it as a string"""
     return get_resolver().resolve_and_readtext(UnresolvedPath(path))
+
+
+def generate_runtime_xml(target: AbstractTarget, profile: Profile) -> str:
+    """Returns a target's runtime.xml content via the infrastructure hook."""
+    generator = get_infrastructure_interface().runtime_xml_generator
+    if generator is None:
+        raise RuntimeError("infrastructure registered no runtime_xml_generator")
+    return generator(target, profile)

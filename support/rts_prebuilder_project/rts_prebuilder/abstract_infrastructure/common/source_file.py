@@ -10,16 +10,40 @@ from rts_prebuilder.base_types import UnresolvedPath
 TEMPLATE_EXT = ".tmpl"
 
 
+def dest_name(source: Path) -> Path:
+    """The destination name a source path maps to: its basename without the
+    ``.tmpl`` marker and without a ``__variant`` part, so every variant of a
+    file maps to the same name.
+
+    :param source: the source path.
+    :returns: the destination file name.
+    :raises ValueError: if a ``__variant`` name has no extension to keep.
+    """
+    basename = source.name
+
+    if basename.endswith(TEMPLATE_EXT):
+        basename = basename[: -len(TEMPLATE_EXT)]
+
+    if "__" not in basename:
+        return Path(basename)
+
+    parts = basename.rsplit(".", 1)
+    if len(parts) != 2:
+        raise ValueError(f"Unexpected filename {basename}")
+    return Path(parts[0].rsplit("__", 1)[0] + f".{parts[1]}")
+
+
 @dataclass()
 class SourceFile:
     """
-    This is a frozen dataclass usable to declare source files to be used in
-    a RTS assembly or targetization. "file" here means any kind of file
-    including directory, binary file, text file, linker script...
+    Declares a source file of a RTS assembly or prebuilding. "file" here means
+    any kind of file: a directory, a binary file, a text file, a linker script
+    and so on.
 
-    This is frozen because it's considered as Data from the user (infrastructure
-    extender user), any change to that data should be done in post processing
-    in later transfomation steps.
+    This is data from the user (the infrastructure extender), so treat it as
+    read-only once built: any change belongs in a later transformation step.
+    It cannot be a frozen dataclass because ``__post_init__`` fills in
+    ``dest_path``.
     """
 
     unresolved_src_path: UnresolvedPath
@@ -58,22 +82,7 @@ class SourceFile:
                 )
 
         else:
-            # Compute dest_path from unresolved_src_path
-            basename = self.unresolved_src_path.name
-
-            # Remove .tmpl extension if present
-            if basename.endswith(TEMPLATE_EXT):
-                basename = basename[: -len(TEMPLATE_EXT)]
-
-            if "__" in basename:
-                # Split in parts to isolate the extension
-                parts = basename.rsplit(".", 1)
-                if len(parts) != 2:
-                    raise ValueError(f"Unexpected filename {basename}")
-                # Reconstitute the base name without the variant part
-                self.dest_path = Path(parts[0].rsplit("__", 1)[0] + f".{parts[1]}")
-            else:
-                self.dest_path = Path(basename)
+            self.dest_path = dest_name(self.unresolved_src_path)
 
     def is_template(self) -> bool:
         """
@@ -82,26 +91,81 @@ class SourceFile:
         return self.unresolved_src_path.name.endswith(TEMPLATE_EXT)
 
 
-@dataclass()
-class LinkerScriptSourceFile(SourceFile):
-    """
-    LinkerScriptSourceFile are specialization of SourceFile dataclass
-    with an additional information specifi to linker scripts.
-    """
+@dataclass(frozen=True)
+class Loader:
+    """One link configuration of the end user's program, selected with
+    ``-XLOADER`` by the user when building the application against this runtime.
 
-    loaders: tuple[str, ...] | None = None
-    """Linkers scripts can be associated with one or many loaders (RAM, EEPROM...)
-    """
+    Any component declares loaders, with ``add_loaders``, and the runtime offers
+    every one its tree declares. Which of them the project defaults to is
+    ``AbstractTarget.default_loader``.
+
+    A loader is a whole value. Two never merge, so their names must stay
+    distinct across a runtime, and a component cannot put a script into a
+    loader another component declared. A loader with no scripts and no
+    switches is bare: it adds no loader-specific link options."""
+
+    name: str
+    """The name as it appears in the generated project's ``Loaders`` type and in
+    ``-XLOADER``."""
+
+    linker_scripts: tuple[Path, ...] = ()
+    """The scripts this loader links, in ``-T`` order. They go under ``ld`` in
+    the runtime. A script whose name carries a ``__variant`` suffix drops it
+    there, so the ``-T`` is the same whichever variant was selected."""
+
+    included_scripts: tuple[Path, ...] = ()
+    """The scripts this loader puts under ``ld`` without linking them:
+    those a ``linker_scripts`` entry pulls in with ``INCLUDE``, which passing
+    with ``-T`` as well would define twice, and those shipped for the ``USER``
+    arm to link by hand."""
+
+    link_switches: tuple[str, ...] = ()
+    """Extra switches for linking the end user's program with this loader, after
+    its scripts."""
 
 
-@dataclass()
-class LinkerSwitch:
-    """
-    Linker related switch (example -L...)
-    """
+@dataclass(frozen=True)
+class GprSwitches:
+    """One set of gprbuild switches, split the way a gpr project splits them.
 
-    switch: str
-    """Flag value"""
+    Both builds use this same type. The runtime's own build lands in
+    ``target_options.gpr``. The end user's build against the runtime lands in
+    ``runtime.xml``. Each field has a slot on either side, so no field is dead
+    on one of them.
 
-    loader: str | None
-    """Each flag can be associated to one loader or None"""
+    There is no Ada field, because neither generated file has an Ada-only slot.
+    The runtime's Ada switches are fixed in the ``target_options.gpr`` template.
+    An application's Ada compilation takes ``common`` alone."""
+
+    common: tuple[str, ...] = ()
+    """Switches for every language: -mcpu/-march/-mabi and the like.
+    ``Common_Switches`` for the runtime, ``Common_Required_Switches`` for the
+    app."""
+
+    c: tuple[str, ...] = ()
+    """Extra switches for the C family, meaning C, C++ and Asm, which the C
+    driver preprocesses. Not Ada."""
+
+    asm: tuple[str, ...] = ()
+    """Extra switches for Asm alone, on top of the C family's."""
+
+    link: tuple[str, ...] = ()
+    """Switches for the link. Which link depends on which build holds the set.
+    The runtime build links its own library (``Runtime_Link_Switches``, and only
+    when it is shared). The app build links the end user's program
+    (``Linker'Required_Switches``)."""
+
+    def merge(self, other: "GprSwitches") -> "GprSwitches":
+        """This set followed by ``other``, field by field, in a new set.
+        Neither operand is touched."""
+        return GprSwitches(
+            common=self.common + other.common,
+            c=self.c + other.c,
+            asm=self.asm + other.asm,
+            link=self.link + other.link,
+        )
+
+    def __bool__(self) -> bool:
+        """Whether any field carries a switch."""
+        return bool(self.common or self.c or self.asm or self.link)

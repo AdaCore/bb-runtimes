@@ -5,7 +5,7 @@ import re
 import subprocess
 import sys
 
-import pre_build
+import prepare_build
 
 runtime_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -32,7 +32,7 @@ def main(shared: bool, build_flags: str | None) -> None:
     print(f"Building runtime {runtime_path}")
     obj_dir = os.path.join(runtime_path, "obj")
     os.makedirs(obj_dir, exist_ok=True)
-    pre_build.prebuild_step_run(obj_dir)
+    prepare_build.prebuild_step_run(obj_dir)
 
     for prj in projects:
         print(f"Building project {prj}")

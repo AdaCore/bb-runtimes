@@ -4,8 +4,8 @@
 
 """Pre-build step for QNX runtimes.
 
-Installed at the runtime root as pre_build.py; build.py imports it and calls
-prebuild_step_run() before gprbuild.
+Installed at the runtime root as prepare_build.py. build.py imports it and
+calls prebuild_step_run() before gprbuild.
 """
 
 import os
@@ -16,8 +16,8 @@ import tempfile
 def prebuild_step_run(obj_dir: str) -> None:
     # Create a dummy shared library named after the shared last chance handler
     # so the runtime can link against it. The temporary file is the empty
-    # translation unit; delete_on_close is needed on Windows to be able to read
-    # the file (otherwise we get a permission denied).
+    # translation unit. delete_on_close is needed on Windows to be able to read
+    # the file, otherwise we get a permission denied.
     tf = tempfile.NamedTemporaryFile(mode="rt", delete_on_close=False)
     subprocess.check_call(
         [
