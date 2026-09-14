@@ -4,32 +4,41 @@
 
 # BSP support for PowerPC/e500v2
 from pathlib import Path
+from typing import override
 
-from rts_prebuilder.engine import resolve_and_read_file
-from bb_runtimes_targets_gen.concrete_infrastructure import ArchSupport, DFBBTarget
+from rts_prebuilder.abstract_infrastructure import AbstractTarget
+from rts_prebuilder.abstract_infrastructure import Loader
+from rts_prebuilder.abstract_infrastructure import Profile
+from rts_prebuilder.base_types import ValidBaseProfileType
+
+from bb_runtimes_targets_gen.concrete_infrastructure import (
+    SourcesAndFlagsComponent,
+    DFBBTarget,
+    embedded_profile,
+    light_profile,
+    light_tasking_profile,
+)
 
 
-class PPCArch(ArchSupport):
-    @property
-    def name(self):
-        return "powerpc"
-
-    def __init__(self):
-        super(PPCArch, self).__init__()
+class PPCArch(SourcesAndFlagsComponent):
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnarl_sources("shared/s-bbcppr__new.ads", "shared/s-bbcppr__ppc.adb")
+        # kill shrink-wrap-separate when building the runtime as this prevents
+        # the frame to be properly built and thus prevents gdb from unwinding
+        # the runtime (see R220-013).
+        self.add_runtime_switches(
+            common_switches=("-fno-shrink-wrap-separate",),
+        )
 
 
-class PPC6XXArch(ArchSupport):
-    @property
-    def parent(self):
-        return PPCArch()
+class PPC6XXArch(SourcesAndFlagsComponent):
+    def __init__(self) -> None:
+        super().__init__()
+        self.add_dependency(PPCArch())
 
-    @property
-    def name(self):
-        return "6xx"
-
-    def __init__(self):
-        super(PPC6XXArch, self).__init__()
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnarl_sources(
             "powerpc/6xx/context_switch.S",
             "powerpc/6xx/handler.S",
@@ -38,17 +47,13 @@ class PPC6XXArch(ArchSupport):
         )
 
 
-class PPCBookEArch(ArchSupport):
-    @property
-    def parent(self):
-        return PPCArch()
+class PPCBookEArch(SourcesAndFlagsComponent):
+    def __init__(self) -> None:
+        super().__init__()
+        self.add_dependency(PPCArch())
 
-    @property
-    def name(self):
-        return "booke"
-
-    def __init__(self):
-        super(PPCBookEArch, self).__init__()
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnarl_sources(
             "powerpc/booke/context_switch.S",
             "powerpc/booke/handler.S",
@@ -57,17 +62,13 @@ class PPCBookEArch(ArchSupport):
         )
 
 
-class PPCSPEArch(ArchSupport):
-    @property
-    def parent(self):
-        return PPCArch()
+class PPCSPEArch(SourcesAndFlagsComponent):
+    def __init__(self) -> None:
+        super().__init__()
+        self.add_dependency(PPCArch())
 
-    @property
-    def name(self):
-        return "spe"
-
-    def __init__(self):
-        super(PPCSPEArch, self).__init__()
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnarl_sources(
             "powerpc/spe/context_switch.S",
             "powerpc/spe/handler.S",
@@ -78,67 +79,54 @@ class PPCSPEArch(ArchSupport):
 
 class PPC6XXTarget(DFBBTarget):
     @property
+    @override
     def target(self) -> str:
         return "powerpc-elf"
 
     @property
-    def parent(self) -> ArchSupport:
-        return PPC6XXArch()
-
-    @property
+    @override
     def has_timer_64(self) -> bool:
         return True
 
     @property
+    @override
     def has_fpu(self) -> bool:
         # Add fpu support
         return True
 
     @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         # But use soft float in the math lib
         return False
 
     @property
+    @override
     def has_double_precision_fpu(self) -> bool:
         # But use soft float in the math lib
         return False
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-ppc.ads",
-            "light-tasking": "system-xi-ppc-sfp.ads",
-            "embedded": "system-xi-ppc-full.ads",
-        }
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-ppc.ads")),
+            light_tasking_profile(self, Path("system-xi-ppc-sfp.ads")),
+            embedded_profile(self, Path("system-xi-ppc-full.ads")),
+        ]
 
-    def amend_rts(self, rts_profile, conf):
-        super(PPC6XXTarget, self).amend_rts(rts_profile, conf)
-        # kill shrink-wrap-separate when building the runtime as this prevents
-        # the frame to be properly built and thus prevents gdb from unwinding
-        # the runtime (see R220-013).
-        conf.build_flags["common_flags"] += ["-fno-shrink-wrap-separate"]
-        # PowerPC uses ncrti.o and ncrtn.o which are the EABI compliant
-        if rts_profile == "embedded":
-            conf.config_files.update(
-                {
-                    "link-zcx.spec": resolve_and_read_file(
-                        Path("powerpc/prep/link-zcx.spec")
-                    )
-                }
-            )
-        else:
-            conf.config_files.update(
-                {
-                    "link-noexceptions.spec": resolve_and_read_file(
-                        Path("powerpc/prep/link-noexceptions.spec")
-                    )
-                }
-            )
+    @override
+    def link_spec_file(self, base_profile: ValidBaseProfileType) -> Path | None:
+        # PowerPC uses ncrti.o and ncrtn.o which are EABI compliant.
+        if base_profile == "embedded":
+            return Path("powerpc/prep/link-zcx.spec")
+        if base_profile in ("light", "light-tasking"):
+            return Path("powerpc/prep/link-noexceptions.spec")
+        return super().link_spec_file(base_profile)
 
-    def __init__(self):
-        super(PPC6XXTarget, self).__init__()
-        if self.use_certifiable_packages:
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        if target.use_certifiable_packages:
             self.add_gnat_sources(
                 "powerpc/6xx/restfpr.S",
                 "powerpc/6xx/restgpr.S",
@@ -150,38 +138,37 @@ class PPC6XXTarget(DFBBTarget):
 
 
 class MPC5200(PPC6XXTarget):
+    def __init__(self) -> None:
+        super().__init__()
+        self.add_dependency(PPC6XXArch())
+
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "mpc5200"
 
     @property
-    def compiler_switches(self):
-        return ("-mhard-float", "-mcpu=603e")
-
-    @property
-    def loaders(self):
-        return ("RAM",)
-
-    @property
-    def use_certifiable_packages(self):
+    @override
+    def use_certifiable_packages(self) -> bool:
         return True
 
     @property
-    def readme_file(self):
+    @override
+    def readme_file(self) -> Path | None:
         return Path("powerpc/mpc5200/README")
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-ppc.ads",
-            "light-tasking": "system-xi-ppc-mpc5200-sfp.ads",
-            "embedded": "system-xi-ppc-mpc5200-full.ads",
-        }
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-ppc.ads")),
+            light_tasking_profile(self, Path("system-xi-ppc-mpc5200-sfp.ads")),
+            embedded_profile(self, Path("system-xi-ppc-mpc5200-full.ads")),
+        ]
 
-    def __init__(self):
-        super(MPC5200, self).__init__()
-        self.add_linker_script("powerpc/mpc5200/ram.ld", loaders=("RAM",))
-        self.add_linker_switch("-Wl,-u_start_ram", loader="RAM")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(common_switches=("-mhard-float", "-mcpu=603e"))
 
         self.add_gnat_sources(
             "powerpc/mpc5200/start.S",
@@ -198,27 +185,37 @@ class MPC5200(PPC6XXTarget):
             "shared/a-intnam__mpc5200.ads",
         )
 
+        self.add_loaders(
+            Loader(
+                "RAM",
+                linker_scripts=(Path("powerpc/mpc5200/ram.ld"),),
+                link_switches=("-Wl,-u_start_ram",),
+            ),
+        )
+
 
 class MPC8349e(PPC6XXTarget):
+    def __init__(self) -> None:
+        super().__init__()
+        self.add_dependency(PPC6XXArch())
+
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "mpc8349e"
 
     @property
-    def cli_name(self):
+    @override
+    def cli_name(self) -> str:
         return "8349e"
 
-    @property
-    def compiler_switches(self):
-        return ("-msoft-float", "-mno-sdata")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(common_switches=("-msoft-float", "-mno-sdata"))
 
-    def __init__(self):
-        super(MPC8349e, self).__init__()
-
-        self.add_linker_script(
-            "powerpc/mpc8349/ram.ld",
+        self.add_app_switches(
+            link_switches=("-Wl,-z,max-page-size=0x1000",),
         )
-        self.add_linker_switch("-Wl,-z,max-page-size=0x1000")
         self.add_gnat_sources(
             "powerpc/mpc8349/start-ram.S",
             "powerpc/mpc8349/setup.S",
@@ -233,29 +230,29 @@ class MPC8349e(PPC6XXTarget):
             "shared/a-intnam__8349e.ads",
         )
 
+        self.add_loaders(
+            Loader("DEFAULT", linker_scripts=(Path("powerpc/mpc8349/ram.ld"),))
+        )
+
 
 class MPC8641(PPC6XXTarget):
+    def __init__(self) -> None:
+        super().__init__()
+        self.add_dependency(PPC6XXArch())
+
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "mpc8641"
 
     @property
-    def compiler_switches(self):
-        return ("-mhard-float",)
-
-    @property
-    def loaders(self):
-        return ("ROM", "RAM")
-
-    @property
-    def readme_file(self):
+    @override
+    def readme_file(self) -> Path | None:
         return Path("powerpc/mpc8641/README")
 
-    def __init__(self):
-        super(MPC8641, self).__init__()
-        self.add_linker_script("powerpc/mpc8641/common.ld")
-        self.add_linker_script("powerpc/mpc8641/rom.ld", loaders=("ROM",))
-        self.add_linker_script("powerpc/mpc8641/ram.ld", loaders=("RAM",))
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(common_switches=("-mhard-float",))
 
         self.add_gnat_sources(
             "powerpc/mpc8641/start.S",
@@ -272,73 +269,79 @@ class MPC8641(PPC6XXTarget):
             "shared/a-intnam__ppc-openpic.ads",
         )
 
+        self.add_loaders(
+            Loader(
+                "ROM",
+                linker_scripts=(Path("powerpc/mpc8641/rom.ld"),),
+                included_scripts=(Path("powerpc/mpc8641/common.ld"),),
+            ),
+            Loader(
+                "RAM",
+                linker_scripts=(Path("powerpc/mpc8641/ram.ld"),),
+                included_scripts=(Path("powerpc/mpc8641/common.ld"),),
+            ),
+        )
+
 
 class PPCBookETarget(DFBBTarget):
     @property
-    def target(self):
+    @override
+    def target(self) -> str:
         return "powerpc-elf"
 
     @property
-    def parent(self):
-        return PPCBookEArch()
-
-    @property
+    @override
     def has_timer_64(self) -> bool:
         return True
 
     @property
+    @override
     def has_fpu(self) -> bool:
         # Add fpu support
         return True
 
     @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         # But use soft float in the math lib
         return False
 
     @property
+    @override
     def has_double_precision_fpu(self) -> bool:
         # But use soft float in the math lib
         return False
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-ppc.ads",
-            "light-tasking": "system-xi-ppc-sfp.ads",
-            "embedded": "system-xi-ppc-full.ads",
-        }
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-ppc.ads")),
+            light_tasking_profile(self, Path("system-xi-ppc-sfp.ads")),
+            embedded_profile(self, Path("system-xi-ppc-full.ads")),
+        ]
 
-    def dump_runtime_xml(self, rts_name, rts):
-        cnt = super(PPCBookETarget, self).dump_runtime_xml(rts_name, rts)
-        if rts_name == "embedded":
-            cnt = cnt.replace(
-                '"-nostartfiles"',
-                (
-                    '"-u", "_Unwind_Find_FDE", "-Wl,--eh-frame-hdr",\n'
-                    '         "--specs=${RUNTIME_DIR(ada)}/link-zcx.spec"'
-                ),
-            )
-        return cnt
+    @property
+    @override
+    def uses_eh_frame_unwinding(self) -> bool:
+        # PowerPC embedded propagates exceptions via DWARF .eh_frame. Under
+        # gcc the link-zcx spec injects the FDE-lookup switches. Under llvm
+        # there is no spec, so the generator adds them explicitly.
+        return True
 
-    def amend_rts(self, rts_profile, conf):
-        super(PPCBookETarget, self).amend_rts(rts_profile, conf)
-        # kill shrink-wrap-separate when building the runtime as this prevents
-        # the frame to be properly built and thus prevents gdb from unwinding
-        # the runtime (see R220-013).
-        conf.build_flags["common_flags"] += ["-fno-shrink-wrap-separate"]
-        if rts_profile == "embedded":
-            conf.config_files.update(
-                {
-                    "link-zcx.spec": resolve_and_read_file(
-                        Path("powerpc/prep/link-zcx.spec")
-                    )
-                }
-            )
+    @override
+    def link_spec_file(self, base_profile: ValidBaseProfileType) -> Path | None:
+        if base_profile == "embedded":
+            return Path("powerpc/prep/link-zcx.spec")
+        return super().link_spec_file(base_profile)
 
-    def __init__(self):
-        super(PPCBookETarget, self).__init__()
-        if self.use_certifiable_packages:
+    def __init__(self) -> None:
+        super().__init__()
+        self.add_dependency(PPCBookEArch())
+
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        if target.use_certifiable_packages:
             self.add_gnat_sources(
                 "powerpc/6xx/restfpr.S",
                 "powerpc/6xx/restgpr.S",
@@ -351,37 +354,34 @@ class PPCBookETarget(DFBBTarget):
 
 class Virtex5(PPCBookETarget):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "virtex5"
 
     @property
-    def compiler_switches(self):
-        return ("-mhard-float", "-mcpu=440fp")
-
-    @property
-    def loaders(self):
-        return ("RAM",)
-
-    @property
-    def use_certifiable_packages(self):
+    @override
+    def use_certifiable_packages(self) -> bool:
         return True
 
     @property
-    def readme_file(self):
+    @override
+    def readme_file(self) -> Path | None:
         return Path("powerpc/virtex5/README")
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-ppc.ads",
-            "light-tasking": "system-xi-ppc-xilinx-sfp.ads",
-            "embedded": "system-xi-ppc-xilinx-full.ads",
-        }
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-ppc.ads")),
+            light_tasking_profile(self, Path("system-xi-ppc-xilinx-sfp.ads")),
+            embedded_profile(self, Path("system-xi-ppc-xilinx-full.ads")),
+        ]
 
-    def __init__(self):
-        super(Virtex5, self).__init__()
-        self.add_linker_script("powerpc/virtex5/ram.ld", loaders=("RAM",))
-        self.add_linker_switch("-Wl,-u_start_ram", loader="RAM")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-mhard-float", "-mcpu=440fp"),
+        )
 
         self.add_gnat_sources(
             "powerpc/virtex5/start.S",
@@ -398,69 +398,75 @@ class Virtex5(PPCBookETarget):
             "shared/a-intnam__xps.ads",
         )
 
+        self.add_loaders(
+            Loader(
+                "RAM",
+                linker_scripts=(Path("powerpc/virtex5/ram.ld"),),
+                link_switches=("-Wl,-u_start_ram",),
+            ),
+        )
+
 
 class PPCSPETarget(PPC6XXTarget):
-    @property
-    def parent(self):
-        return PPCSPEArch()
+    def __init__(self) -> None:
+        super().__init__()
+        self.add_dependency(PPCSPEArch())
 
     @property
-    def target(self):
+    @override
+    def target(self) -> str:
         return "powerpc-eabispe"
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-e500v2.ads",
-            "light-tasking": "system-xi-e500v2-sfp.ads",
-            "embedded": "system-xi-e500v2-full.ads",
-        }
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-e500v2.ads")),
+            light_tasking_profile(self, Path("system-xi-e500v2-sfp.ads")),
+            embedded_profile(self, Path("system-xi-e500v2-full.ads")),
+        ]
 
 
 class P5634(PPCSPETarget):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "p5634"
 
     @property
-    def cli_name(self):
+    @override
+    def cli_name(self) -> str:
         # Legacy CLI selector kept for backward compatibility (was "mpc5634").
         return "mpc5634"
 
-    @property
-    def compiler_switches(self):
-        return ("-mfloat-gprs=single",)
-
-    def __init__(self):
-        super(P5634, self).__init__()
-        self.add_linker_script(
-            "powerpc/mpc5634/5634.ld",
-        )
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(common_switches=("-mfloat-gprs=single",))
         self.add_gnat_sources(
             "powerpc/mpc5634/start.S",
             "shared/s-macres__p55.adb",
             "shared/s-textio__p55.adb",
         )
 
+        self.add_loaders(
+            Loader("DEFAULT", linker_scripts=(Path("powerpc/mpc5634/5634.ld"),))
+        )
+
 
 class P2020(PPCSPETarget):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "p2020"
 
     @property
-    def compiler_switches(self):
-        return ("-mfloat-gprs=double",)
-
-    @property
-    def readme_file(self):
+    @override
+    def readme_file(self) -> Path | None:
         return Path("powerpc/p2020/README")
 
-    def __init__(self):
-        super(P2020, self).__init__()
-        self.add_linker_script(
-            "powerpc/p2020/p2020.ld",
-        )
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(common_switches=("-mfloat-gprs=double",))
         self.add_gnat_sources(
             "powerpc/p2020/start-ram.S",
             "powerpc/p2020/setup.S",
@@ -476,29 +482,25 @@ class P2020(PPCSPETarget):
             "shared/a-intnam__ppc-openpic.ads",
         )
 
+        self.add_loaders(
+            Loader("DEFAULT", linker_scripts=(Path("powerpc/p2020/p2020.ld"),))
+        )
+
 
 class P5566(PPCSPETarget):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "p5566"
 
     @property
-    def compiler_switches(self):
-        return ("-mfloat-gprs=single",)
-
-    @property
-    def loaders(self):
-        return ("EXTRAM", "BAM", "FLASH")
-
-    @property
-    def readme_file(self):
+    @override
+    def readme_file(self) -> Path | None:
         return Path("powerpc/p5566/README")
 
-    def __init__(self):
-        super(P5566, self).__init__()
-        self.add_linker_script("powerpc/p5566/bam.ld", loaders=("BAM",))
-        self.add_linker_script("powerpc/p5566/flash.ld", loaders=("FLASH",))
-        self.add_linker_script("powerpc/p5566/ram.ld", loaders=("EXTRAM",))
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(common_switches=("-mfloat-gprs=single",))
         self.add_gnat_sources(
             "powerpc/p5566/start-bam.S",
             "powerpc/p5566/start-ram.S",
@@ -515,6 +517,12 @@ class P5566(PPCSPETarget):
             "shared/s-bbbosu__p55.adb",
             "shared/s-bbpara__p55.ads",
             "shared/a-intnam__p55.ads",
+        )
+
+        self.add_loaders(
+            Loader("EXTRAM", linker_scripts=(Path("powerpc/p5566/ram.ld"),)),
+            Loader("BAM", linker_scripts=(Path("powerpc/p5566/bam.ld"),)),
+            Loader("FLASH", linker_scripts=(Path("powerpc/p5566/flash.ld"),)),
         )
 
 

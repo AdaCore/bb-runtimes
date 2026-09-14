@@ -51,6 +51,7 @@
 import getopt
 import sys
 import xml.etree.ElementTree as ET
+from typing import Any, TypeAlias, override
 
 filename = "memmap.xml"
 
@@ -62,20 +63,32 @@ class ConfigException(Exception):
 class Arch(object):
     """Describe the architecture to build the MMU tables"""
 
-    def pageshift(self):
-        return 12
+    pageshift = 12
 
-    def insert(self, name, virt, phys, size, cache, access, cap_load, cap_store):
+    def __init__(self, mode: str | None, root: ET.Element) -> None:
         pass
 
-    def generate(self, prefix):
+    def insert(
+        self,
+        name: str,
+        virt: int,
+        phys: int,
+        size: int,
+        cache: str,
+        access: str,
+        cap_load: str | None,
+        cap_store: str | None,
+    ) -> None:
         pass
+
+    def generate(self, prefix: str) -> str | None:
+        return None
 
 
 class arm_mmu(Arch):
-    def __init__(self, mode, root):
+    def __init__(self, mode: str | None, root: ET.Element) -> None:
         # Translation table (initially empty)
-        self.tt = [None for x in range(4096)]
+        self.tt: list[dict[str, Any] | None] = [None for x in range(4096)]
         if "pageshift" in root.attrib:
             self.pageshift = int(root.attrib["pageshift"])
         else:
@@ -83,7 +96,18 @@ class arm_mmu(Arch):
             self.pageshift = 20
         self.pagesize = 1 << self.pageshift
 
-    def insert(self, name, virt, phys, size, cache, access, cap_load, cap_store):
+    @override
+    def insert(
+        self,
+        name: str,
+        virt: int,
+        phys: int,
+        size: int,
+        cache: str,
+        access: str,
+        cap_load: str | None,
+        cap_store: str | None,
+    ) -> None:
         # Convert cache
         if cache == "wb":
             tex = 7
@@ -116,7 +140,7 @@ class arm_mmu(Arch):
         # Fill tt
         p = phys
         for v in range(virt, virt + size, self.pagesize):
-            vn = v / self.pagesize
+            vn = v // self.pagesize
             if self.tt[vn]:
                 print(f"overlap at {hex(v)} in region {name}")
                 exit(1)
@@ -152,7 +176,8 @@ class arm_mmu(Arch):
             }
             p += self.pagesize
 
-    def generate(self, prefix):
+    @override
+    def generate(self, prefix: str) -> None:
         addr = 0
         print("\t.p2align 14")
         print(f"{prefix}_l0:")
@@ -168,9 +193,22 @@ class arm_mmu(Arch):
             addr += self.pagesize
 
 
+#  Quoted: the entry types are nested in the class this alias is used in.
+Aarch64Entry: TypeAlias = "aarch64_mmu.aarch64_pge | aarch64_mmu.aarch64_pgd | None"
+
+
 class aarch64_mmu(Arch):
     class aarch64_pge(object):
-        def __init__(self, mmu, name, va, pa, upper, lower, log2_sz):
+        def __init__(
+            self,
+            mmu: "aarch64_mmu",
+            name: str,
+            va: int,
+            pa: int,
+            upper: int,
+            lower: int,
+            log2_sz: int,
+        ) -> None:
             self.mmu = mmu
             self.name = name
             self.va = va
@@ -186,20 +224,22 @@ class aarch64_mmu(Arch):
                 bt = 0x1
             self.val = upper + (pa & 0x0000FFFFFFFFF000) + lower + bt
 
-        def generate_table(self, prefix, level):
+        def generate_table(self, prefix: str, level: int) -> None:
             pass
 
-        def generate_entry(self, prefix, level):
+        def generate_entry(self, prefix: str, level: int) -> None:
             print(f"\t.dword 0x{self.val:016x}  // for 0x{self.va:08x}, {self.name}")
 
     class aarch64_pgd(object):
-        def __init__(self, mmu, va, va_shift):
+        def __init__(self, mmu: "aarch64_mmu", va: int, va_shift: int) -> None:
             self.mmu = mmu
-            self.tt = [None for x in range(1 << self.mmu.log2_entries)]
+            self.tt: list[Aarch64Entry] = [
+                None for x in range(1 << self.mmu.log2_entries)
+            ]
             self.va = va
             self.va_shift = va_shift
 
-        def generate_entry(self, prefix, level):
+        def generate_entry(self, prefix: str, level: int) -> None:
             # NSTable: 0
             # APTable: 00 (no effect)
             # XNTable: 0
@@ -209,7 +249,7 @@ class aarch64_mmu(Arch):
                 f"\t.dword {prefix}_l{level}_{self.va >> self.mmu.pageshift:09x} + 0x{v:x}"
             )
 
-        def generate_table(self, prefix, level):
+        def generate_table(self, prefix: str, level: int) -> str:
             # First the next level
             for t1 in self.tt:
                 if t1:
@@ -225,7 +265,7 @@ class aarch64_mmu(Arch):
                     print("\t.dword 0")
             return sym
 
-    def __init__(self, mode, root):
+    def __init__(self, mode: str | None, root: ET.Element) -> None:
         # Pagesize
         if "pageshift" in root.attrib:
             self.log2_granule = int(root.attrib["pageshift"])
@@ -242,7 +282,18 @@ class aarch64_mmu(Arch):
         # Translation table (initially empty)
         self.tt = self.aarch64_pgd(self, 0, 48 - self.log2_entries)
 
-    def insert(self, name, virt, phys, size, cache, access, cap_load, cap_store):
+    @override
+    def insert(
+        self,
+        name: str,
+        virt: int,
+        phys: int,
+        size: int,
+        cache: str,
+        access: str,
+        cap_load: str | None,
+        cap_store: str | None,
+    ) -> None:
         cont = 0  # Not contiguous (by default)
 
         # Convert access
@@ -375,27 +426,31 @@ class aarch64_mmu(Arch):
             pa += 1 << sz
             va += 1 << sz
 
-    def insert_entry(self, t, e):
+    def insert_entry(
+        self, t: "aarch64_mmu.aarch64_pgd", e: "aarch64_mmu.aarch64_pge"
+    ) -> None:
         ia = (e.va >> t.va_shift) & ((1 << self.log2_entries) - 1)
+        sub = t.tt[ia]
         if t.va_shift == e.log2_sz:
             # E must be added in that table
-            if t.tt[ia]:
+            if sub:
                 print(f"overlap at {hex(e.va)} in region {e.name}")
                 exit(1)
             t.tt[ia] = e
-        elif isinstance(t.tt[ia], self.aarch64_pge):
+        elif isinstance(sub, self.aarch64_pge):
             # There is already a superpage
             print(f"overlap at {hex(e.va)} in region {e.name}")
             exit(1)
         else:
-            if not t.tt[ia]:
+            if sub is None:
                 # Create table
                 nsh = t.va_shift - self.log2_entries
                 va = (e.va >> nsh) << nsh
-                t.tt[ia] = self.aarch64_pgd(self, va, nsh)
-            self.insert_entry(t.tt[ia], e)
+                sub = self.aarch64_pgd(self, va, nsh)
+                t.tt[ia] = sub
+            self.insert_entry(sub, e)
 
-    def set_tcr(self, level, va_max):
+    def set_tcr(self, level: int, va_max: int) -> None:
         tg = {12: 0, 16: 1, 14: 2}[self.log2_granule]
         if self.max_pa <= 0xFFFFFFFF:
             ps = 0
@@ -422,7 +477,8 @@ class aarch64_mmu(Arch):
                 sl0 = 3 - level
             self.tcr |= sl0 << 6
 
-    def generate(self, prefix):
+    @override
+    def generate(self, prefix: str) -> str:
         #  First level
         level = {12: 0, 14: 0, 16: 1}[self.log2_granule]
         va_max = 48
@@ -435,11 +491,15 @@ class aarch64_mmu(Arch):
                 break
             if sz == 2:
                 # Only one entry for that table
-                if level == {"stage2": 3, "el2": 2, "el1": 2}[self.mode]:
+                #  ``insert`` reads an unset mode as el1, so do the same here.
+                min_level = {"stage2": 3, "el2": 2, "el1": 2, None: 2}
+                if level == min_level[self.mode]:
                     # Minimum level
                     break
                 level += 1
-                t = t.tt[0]
+                sub = t.tt[0]
+                assert isinstance(sub, aarch64_mmu.aarch64_pgd)
+                t = sub
                 sz = 1 << self.log2_entries
             else:
                 sz = sz >> 1
@@ -452,7 +512,7 @@ class aarch64_mmu(Arch):
         return res
 
 
-def parse_addr(addr_str):
+def parse_addr(addr_str: str) -> int:
     """Helper to translate a string to a number, handling memory suffixes"""
     ustr = addr_str.upper()
     if ustr.startswith("0X"):
@@ -468,7 +528,17 @@ def parse_addr(addr_str):
 
 
 class mmu_region(object):
-    def __init__(self, name, virt, phys, size, cache, access, cap_load, cap_store):
+    def __init__(
+        self,
+        name: str,
+        virt: int,
+        phys: int,
+        size: int,
+        cache: str,
+        access: str,
+        cap_load: str | None,
+        cap_store: str | None,
+    ) -> None:
         self.name = name
         self.virt = virt
         self.phys = phys
@@ -479,8 +549,8 @@ class mmu_region(object):
         self.cap_store = cap_store
 
 
-def parse_memmap(mmu, root):
-    res = []
+def parse_memmap(mmu: Arch, root: ET.Element) -> list[mmu_region]:
+    res: list[mmu_region] = []
 
     # Create entries for each regions
     pagesize = 1 << mmu.pageshift
@@ -515,10 +585,12 @@ def parse_memmap(mmu, root):
 
 
 # Supported architectures
-arches = {"arm": arm_mmu, "aarch64": aarch64_mmu}
+arches: dict[str, type[Arch]] = {"arm": arm_mmu, "aarch64": aarch64_mmu}
 
 
-def create_mmu_from_xml(root, arch=None, mode=None):
+def create_mmu_from_xml(
+    root: ET.Element, arch: str | None = None, mode: str | None = None
+) -> Arch:
     if not arch:
         if "arch" in root.attrib:
             arch = root.attrib["arch"]

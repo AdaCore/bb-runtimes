@@ -4,18 +4,25 @@
 
 # BSP support for x86_64
 from pathlib import Path
+from typing import override
 
-from rts_prebuilder.engine import resolve_and_read_file
-from bb_runtimes_targets_gen.concrete_infrastructure import ArchSupport, DFBBTarget
+from rts_prebuilder.abstract_infrastructure import AbstractTarget
+from rts_prebuilder.abstract_infrastructure import Loader
+from rts_prebuilder.abstract_infrastructure import Profile
+from rts_prebuilder.base_types import ValidBaseProfileType
+
+from bb_runtimes_targets_gen.concrete_infrastructure import (
+    SourcesAndFlagsComponent,
+    DFBBTarget,
+    embedded_profile,
+    light_profile,
+    light_tasking_profile,
+)
 
 
-class X8664Arch(ArchSupport):
-    @property
-    def name(self):
-        return "x86_64"
-
-    def __init__(self):
-        super(X8664Arch, self).__init__()
+class X8664Arch(SourcesAndFlagsComponent):
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
             "x86_64/src/i-x86_64.adb",
             "x86_64/src/i-x86_64.ads",
@@ -32,65 +39,61 @@ class X8664Arch(ArchSupport):
 
 
 class X8664Target(DFBBTarget):
-    @property
-    def parent(self):
-        return X8664Arch()
+    def __init__(self) -> None:
+        super().__init__()
+        self.add_dependency(X8664Arch())
 
     @property
+    @override
     def has_huge_memory(self) -> bool:
         return True
 
     @property
+    @override
     def has_timer_64(self) -> bool:
         return True
 
     @property
+    @override
     def is_64bit(self) -> bool:
         return True
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-x86_64.ads",
-            "light-tasking": "system-xi-x86_64-sfp.ads",
-            "embedded": "system-xi-x86_64-full.ads",
-        }
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-x86_64.ads")),
+            light_tasking_profile(self, Path("system-xi-x86_64-sfp.ads")),
+            embedded_profile(self, Path("system-xi-x86_64-full.ads")),
+        ]
 
 
 class X8664Generic(X8664Target):
     @property
-    def target(self):
+    @override
+    def target(self) -> str:
         return "x86_64-elf"
 
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "x86_64"
 
     @property
-    def parent(self):
-        return X8664Arch()
-
-    @property
-    def readme_file(self):
+    @override
+    def readme_file(self) -> Path | None:
         return Path("x86_64/generic/README")
 
     @property
-    def loaders(self):
-        return ("QEMU", "LSA", "MULTIBOOT", "MULTIBOOT2")
+    @override
+    def default_loader(self) -> str | None:
+        return "QEMU"
 
-    def __init__(self):
-        super(X8664Generic, self).__init__()
-
-        self.add_linker_script("x86_64/generic/memory-map.ld")
-        self.add_linker_script("x86_64/generic/common-LSA.ld", loaders=("LSA",))
-        self.add_linker_script(
-            "x86_64/generic/common-MULTIBOOT.ld", loaders=("MULTIBOOT",)
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            link_switches=("-Wl,-z,max-page-size=0x1000",),
         )
-        self.add_linker_script(
-            "x86_64/generic/common-MULTIBOOT2.ld", loaders=("MULTIBOOT2",)
-        )
-        self.add_linker_script("x86_64/generic/common-QEMU.ld", loaders=("QEMU",))
-        self.add_linker_switch("-Wl,-z,max-page-size=0x1000")
 
         self.add_gnat_sources(
             "shared/s-textio__com1.adb",
@@ -113,17 +116,29 @@ class X8664Generic(X8664Target):
             "x86_64/src/i-x86_64-io_apic.ads",
         )
 
-    def amend_rts(self, rts_profile, conf):
-        super(X8664Generic, self).amend_rts(rts_profile, conf)
-        # crti.o and crtn.o do not exist for the x86_64 bare-metal compiler
-        if "embedded" in rts_profile:
-            conf.config_files.update(
-                {
-                    "link-zcx.spec": resolve_and_read_file(
-                        Path("x86_64/generic/link-zcx.spec")
-                    )
-                }
+        memory_map = Path("x86_64/generic/memory-map.ld")
+        self.add_loaders(
+            *(
+                Loader(
+                    name,
+                    linker_scripts=(Path(f"x86_64/generic/{script}"),),
+                    included_scripts=(memory_map,),
+                )
+                for name, script in (
+                    ("QEMU", "common-QEMU.ld"),
+                    ("LSA", "common-LSA.ld"),
+                    ("MULTIBOOT", "common-MULTIBOOT.ld"),
+                    ("MULTIBOOT2", "common-MULTIBOOT2.ld"),
+                )
             )
+        )
+
+    @override
+    def link_spec_file(self, base_profile: ValidBaseProfileType) -> Path | None:
+        # crti.o and crtn.o do not exist for the x86_64 bare-metal compiler.
+        if base_profile == "embedded":
+            return Path("x86_64/generic/link-zcx.spec")
+        return super().link_spec_file(base_profile)
 
 
 TARGETS = [X8664Generic()]

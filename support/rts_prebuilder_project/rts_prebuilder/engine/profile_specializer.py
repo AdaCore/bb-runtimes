@@ -113,7 +113,7 @@ def target_data_sources(target: AbstractTarget, profile: Profile) -> list[Source
     """
     sources: list[SourceFile] = []
 
-    if target.build_script is not None and target.prebuild_script is not None:
+    if target.build_script is not None and target.prepare_build_script is not None:
         sources += [
             SourceFile(
                 dest_subdir=None,
@@ -122,7 +122,7 @@ def target_data_sources(target: AbstractTarget, profile: Profile) -> list[Source
             ),
             SourceFile(
                 dest_subdir=None,
-                unresolved_src_path=UnresolvedPath(target.prebuild_script),
+                unresolved_src_path=UnresolvedPath(target.prepare_build_script),
                 dest_path=Path("prepare_build.py"),
             ),
         ]

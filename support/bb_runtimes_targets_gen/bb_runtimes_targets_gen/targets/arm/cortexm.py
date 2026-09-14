@@ -5,20 +5,26 @@
 # This module contains cortex-m bsp support
 import re
 from pathlib import Path
+from rts_prebuilder.abstract_infrastructure import AbstractTarget
+from rts_prebuilder.abstract_infrastructure import Loader
+from rts_prebuilder.abstract_infrastructure import Profile
+from rts_prebuilder.base_types import ValidBaseProfileType
+from rts_prebuilder.base_types import PlatformIdType
 from typing import override
 
 
-from rts_prebuilder.engine import resolve_and_read_file
-from bb_runtimes_targets_gen.concrete_infrastructure import ArchSupport, Target
+from bb_runtimes_targets_gen.concrete_infrastructure import (
+    SourcesAndFlagsComponent,
+    Target,
+    embedded_profile,
+    light_profile,
+    light_tasking_profile,
+)
 
 
-class CortexMArch(ArchSupport):
-    @property
-    def name(self):
-        return "cortex-m"
-
-    def __init__(self):
-        super(CortexMArch, self).__init__()
+class CortexMArch(SourcesAndFlagsComponent):
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
             "shared/s-macres__cortexm3.adb", "arm/src/breakpoint_handler-cortexm.S"
         )
@@ -31,17 +37,13 @@ class CortexMArch(ArchSupport):
         )
 
 
-class ArmV7MArch(ArchSupport):
-    @property
-    def name(self):
-        return "armv7-m"
+class ArmV7MArch(SourcesAndFlagsComponent):
+    def __init__(self) -> None:
+        super().__init__()
+        self.add_dependency(CortexMArch())
 
-    @property
-    def parent(self):
-        return CortexMArch()
-
-    def __init__(self):
-        super(ArmV7MArch, self).__init__()
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnarl_sources(
             "shared/s-bbbosu__armv7m.adb", "shared/s-bcpcst__pendsv.adb"
         )
@@ -49,111 +51,111 @@ class ArmV7MArch(ArchSupport):
 
 class ArmV6MTarget(Target):
     @property
-    def target(self):
+    @override
+    def target(self) -> str:
         return "arm-eabi"
 
     @property
-    def parent(self):
-        return CortexMArch()
-
-    @property
     @override
-    def platform(self):
+    def platform(self) -> PlatformIdType:
         return "bb"
 
     @property
+    @override
     def has_timer_64(self) -> bool:
         return False
 
     @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return False
 
     @property
+    @override
     def has_double_precision_fpu(self) -> bool:
         return False
 
     @property
+    @override
     def has_small_memory(self) -> bool:
         return True
 
-    def __init__(self):
-        super(ArmV6MTarget, self).__init__()
-
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources("shared/s-bbarat.ads", "shared/s-bbarat.adb")
 
-        if self.use_semihosting_io:
+        if target.use_semihosting_io:
             self.add_gnat_sources("shared/s-sgshca__cortexm.adb")
 
-    def amend_rts(self, rts_profile, conf):
-        super(ArmV6MTarget, self).amend_rts(rts_profile, conf)
+    @override
+    def link_spec_file(self, base_profile: ValidBaseProfileType) -> Path | None:
         # Exception propagation uses ARM unwind tables in .ARM.exidx and
         # not the DWARF .eh_frame.
-        if "embedded" in rts_profile:
-            conf.config_files.update(
-                {"link-zcx.spec": resolve_and_read_file(Path("arm/src/link-zcx.spec"))}
-            )
+        if base_profile == "embedded":
+            return Path("arm/src/link-zcx.spec")
+        return super().link_spec_file(base_profile)
 
 
 class ArmV7MTarget(ArmV6MTarget):
     @property
-    def parent(self):
-        return ArmV7MArch()
-
-    @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return True
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-arm.ads",
-            "light-tasking": "system-xi-cortexm4-sfp.ads",
-            "embedded": "system-xi-cortexm4-full.ads",
-        }
-
-    def __init__(self):
-        super(ArmV7MTarget, self).__init__()
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-arm.ads")),
+            light_tasking_profile(self, Path("system-xi-cortexm4-sfp.ads")),
+            embedded_profile(self, Path("system-xi-cortexm4-full.ads")),
+        ]
 
 
 class LM3S(ArmV7MTarget):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.add_dependency(ArmV7MArch())
+
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "lm3s"
 
     @property
-    def loaders(self):
-        return ("ROM", "RAM")
-
-    @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return False
 
     @property
+    @override
     def has_fpu(self) -> bool:
         # Still add floating point attributes
         return True
 
     @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-mlittle-endian", "-mthumb", "-mfloat-abi=soft", "-mcpu=cortex-m3")
-
-    @property
-    def readme_file(self):
+    @override
+    def readme_file(self) -> Path | None:
         return Path("arm/lm3s/README")
 
     @property
-    def system_ads(self):
+    @override
+    def profiles(self) -> list[Profile]:
         # Only the Light runtime is supported here
-        ret = super(LM3S, self).system_ads
-        return {"light": ret["light"]}
+        return [p for p in super().profiles if p.base_profile == "light"]
 
-    def __init__(self):
-        super(LM3S, self).__init__()
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-mfloat-abi=soft",
+                "-mcpu=cortex-m3",
+            ),
+        )
 
-        self.add_linker_script("arm/lm3s/lm3s-rom.ld", loaders=("ROM",))
-        self.add_linker_script("arm/lm3s/lm3s-ram.ld", loaders=("RAM",))
         self.add_gnat_sources(
             "arm/lm3s/start-rom.S",
             "arm/lm3s/start-ram.S",
@@ -162,27 +164,21 @@ class LM3S(ArmV7MTarget):
             "shared/s-textio__lm3s.adb",
         )
 
+        self.add_loaders(
+            Loader("ROM", linker_scripts=(Path("arm/lm3s/lm3s-rom.ld"),)),
+            Loader("RAM", linker_scripts=(Path("arm/lm3s/lm3s-ram.ld"),)),
+        )
 
-class SamCommonArchSupport(ArchSupport):
-    @property
-    def name(self):
-        return "sam"
 
-    @property
-    def parent(self):
-        return ArmV7MArch()
+class SamCommonArchSupport(SourcesAndFlagsComponent):
 
-    @property
-    def loaders(self):
-        return ("ROM", "SAMBA", "RAM")
+    def __init__(self) -> None:
+        super().__init__()
 
-    def __init__(self):
-        super(SamCommonArchSupport, self).__init__()
+        self.add_dependency(ArmV7MArch())
 
-        self.add_linker_script("arm/sam/common-SAMBA.ld", loaders=("SAMBA",))
-        self.add_linker_script("arm/sam/common-ROM.ld", loaders=("ROM",))
-        self.add_linker_script("arm/sam/common-RAM.ld", loaders=("RAM",))
-
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
             "arm/sam/start-rom.S",
             "arm/sam/start-ram.S",
@@ -193,18 +189,17 @@ class SamCommonArchSupport(ArchSupport):
 
 class Sam(ArmV7MTarget):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return self.board
 
     @property
-    def parent(self):
-        return SamCommonArchSupport()
-
-    @property
-    def use_semihosting_io(self):
+    @override
+    def use_semihosting_io(self) -> bool:
         return True
 
     @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         if self.board == "sam4s":
             return False
@@ -212,6 +207,7 @@ class Sam(ArmV7MTarget):
             return True
 
     @property
+    @override
     def has_double_precision_fpu(self) -> bool:
         if self.board in ("samv71", "samrh71"):
             return True
@@ -219,14 +215,14 @@ class Sam(ArmV7MTarget):
             return False
 
     @property
-    def cortex(self):
+    def cortex(self) -> str:
         if self.board in ("samv71", "samrh71"):
             return "cortex-m7"
         else:
             return "cortex-m4"
 
     @property
-    def fpu(self):
+    def fpu(self) -> str:
         if self.cortex == "cortex-m4":
             return "fpv4-sp-d16"
         elif not self.has_double_precision_fpu:
@@ -235,28 +231,19 @@ class Sam(ArmV7MTarget):
             return "fpv5-d16"
 
     @property
-    def system_ads(self):
-        ret = super(Sam, self).system_ads
-
+    @override
+    def profiles(self) -> list[Profile]:
         if self.board in ("samv71", "samrh71"):
-            return ret
+            return super().profiles
         else:
             # No Embedded runtime
-            return {"light": ret["light"], "light-tasking": ret["light-tasking"]}
+            return [
+                p
+                for p in super().profiles
+                if p.base_profile in ("light", "light-tasking")
+            ]
 
-    @property
-    def compiler_switches(self):
-        base = ("-mlittle-endian", "-mthumb", f"-mcpu={self.cortex}")
-
-        if not self.has_single_precision_fpu:
-            return base
-        else:
-            return base + (
-                "-mfloat-abi=hard",
-                f"-mfpu={self.fpu}",
-            )
-
-    def __init__(self, board):
+    def __init__(self, board: str) -> None:
         if board not in (
             "sam4s",
             "samg55",
@@ -266,30 +253,38 @@ class Sam(ArmV7MTarget):
             raise ValueError(f"Unexpected SAM board {board}")
 
         self.board = board
-        super(Sam, self).__init__()
+        super().__init__()
 
-        self.add_linker_script(f"arm/sam/{self.name}/memory-map.ld")
+        self.add_dependency(SamCommonArchSupport())
+
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        switches = ["-mlittle-endian", "-mthumb", f"-mcpu={self.cortex}"]
+        if target.has_single_precision_fpu:
+            switches += ["-mfloat-abi=hard", f"-mfpu={self.fpu}"]
+
+        self.add_app_switches(common_switches=switches)
 
         self.add_gnat_sources(
-            f"arm/sam/{self.name}/setup_pll.adb",
-            f"arm/sam/{self.name}/s-bbbopa.ads",
-            f"arm/sam/{self.name}/svd/i-sam.ads",
-            f"arm/sam/{self.name}/svd/i-sam-pmc.ads",
+            f"arm/sam/{target.name}/setup_pll.adb",
+            f"arm/sam/{target.name}/s-bbbopa.ads",
+            f"arm/sam/{target.name}/svd/i-sam.ads",
+            f"arm/sam/{target.name}/svd/i-sam-pmc.ads",
         )
 
         # tasking support
         self.add_gnarl_sources(
-            f"arm/sam/{self.name}/svd/handler.S",
-            f"arm/sam/{self.name}/s-bbmcpa.ads",
-            f"arm/sam/{self.name}/svd/a-intnam.ads",
+            f"arm/sam/{target.name}/svd/handler.S",
+            f"arm/sam/{target.name}/s-bbmcpa.ads",
+            f"arm/sam/{target.name}/svd/a-intnam.ads",
         )
 
         if self.board == "samv71":
             self.add_gnat_sources(
                 "arm/sam/samv71/s-samv71.ads",
-                f"arm/sam/{self.name}/svd/i-sam-pio.ads",
-                f"arm/sam/{self.name}/svd/i-sam-uart.ads",
-                f"arm/sam/{self.name}/svd/i-sam-efc.ads",
+                f"arm/sam/{target.name}/svd/i-sam-pio.ads",
+                f"arm/sam/{target.name}/svd/i-sam-uart.ads",
+                f"arm/sam/{target.name}/svd/i-sam-efc.ads",
             )
             self.add_gnarl_sources("shared/s-bbpara__samv71.ads")
         elif self.board == "samrh71":
@@ -297,47 +292,63 @@ class Sam(ArmV7MTarget):
         else:
             self.add_gnat_sources(
                 "arm/sam/sam4s/s-sam4s.ads",
-                f"arm/sam/{self.name}/board_config.ads",
-                f"arm/sam/{self.name}/svd/i-sam-sysc.ads",
-                f"arm/sam/{self.name}/svd/i-sam-efc.ads",
+                f"arm/sam/{target.name}/board_config.ads",
+                f"arm/sam/{target.name}/svd/i-sam-sysc.ads",
+                f"arm/sam/{target.name}/svd/i-sam-efc.ads",
             )
             self.add_gnarl_sources("shared/s-bbpara__sam4s.ads")
 
+        memory_map = Path(f"arm/sam/{self.name}/memory-map.ld")
+        self.add_loaders(
+            *(
+                Loader(
+                    name,
+                    linker_scripts=(Path(f"arm/sam/common-{name}.ld"),),
+                    included_scripts=(memory_map,),
+                )
+                for name in ("ROM", "SAMBA", "RAM")
+            )
+        )
+
 
 class SmartFusion2(ArmV7MTarget):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.add_dependency(ArmV7MArch())
+
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "smartfusion2"
 
     @property
-    def loaders(self):
-        return ("ROM",)
-
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-mlittle-endian", "-mthumb", "-mfloat-abi=soft", "-mcpu=cortex-m3")
-
-    @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return False
 
     @property
+    @override
     def has_fpu(self) -> bool:
         # Still add floating point attributes
         return True
 
     @property
-    def system_ads(self):
+    @override
+    def profiles(self) -> list[Profile]:
         # No Light or Embedded runtime
-        ret = super(SmartFusion2, self).system_ads
-        return {"light-tasking": ret["light-tasking"]}
+        return [p for p in super().profiles if p.base_profile == "light-tasking"]
 
-    def __init__(self):
-        super(SmartFusion2, self).__init__()
-
-        self.add_linker_script("arm/smartfusion2/common-ROM.ld", loaders=("ROM",))
-        self.add_linker_script("arm/smartfusion2/memory-map.ld", loaders=("ROM",))
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-mfloat-abi=soft",
+                "-mcpu=cortex-m3",
+            ),
+        )
 
         self.add_gnat_sources(
             "arm/smartfusion2/start-rom.S",
@@ -361,36 +372,53 @@ class SmartFusion2(ArmV7MTarget):
             "shared/s-bbpara__smartfusion2.ads",
         )
 
+        self.add_loaders(
+            Loader(
+                "ROM",
+                linker_scripts=(
+                    Path("arm/smartfusion2/common-ROM.ld"),
+                    Path("arm/smartfusion2/memory-map.ld"),
+                ),
+            ),
+        )
+
 
 class CortexM0CommonArchSupport(ArmV6MTarget):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.add_dependency(CortexMArch())
+
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "cortex-m0"
 
     @property
-    def loaders(self):
-        return ("ROM", "RAM")
-
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-mlittle-endian", "-mthumb", "-msoft-float", "-mcpu=cortex-m0")
-
-    @property
+    @override
     def has_fpu(self) -> bool:
         # We require floating point attributes as soft-float is supported
         return True
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-arm.ads",
-            "light-tasking": "system-xi-armv6m-sfp.ads",
-            "embedded": "system-xi-armv6m-full.ads",
-        }
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-arm.ads")),
+            light_tasking_profile(self, Path("system-xi-armv6m-sfp.ads")),
+            embedded_profile(self, Path("system-xi-armv6m-full.ads")),
+        ]
 
-    def __init__(self):
-        super(CortexM0CommonArchSupport, self).__init__()
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-msoft-float",
+                "-mcpu=cortex-m0",
+            ),
+        )
 
         self.add_gnat_sources("shared/s-bbpara__cortexm0.ads")
 
@@ -485,19 +513,17 @@ class Stm32F0(CortexM0CommonArchSupport):
     }
 
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return self.board
 
     @property
-    def use_semihosting_io(self):
+    @override
+    def use_semihosting_io(self) -> bool:
         return True
 
-    @property
-    def loaders(self):
-        return ("ROM", "RAM")
-
-    def __init__(self, board):
-        super(Stm32F0, self).__init__()
+    def __init__(self, board: str) -> None:
+        super().__init__()
 
         # Determine MCU features from board name (e.g. 'stm32f071rb-hse')
         # The -hse or -hsi suffix specifies which clock source to
@@ -506,7 +532,8 @@ class Stm32F0(CortexM0CommonArchSupport):
         if m is None:
             raise RuntimeError("Unknown STM32F0 target: " + board)
         sub_family_major = m.group(1)
-        sub_family_minor = m.group(2)
+        # Names the per-sub-family SVD source directory (see contribute).
+        self._sub_family_minor = m.group(2)
         package = m.group(3)
         user_code_memory_size = m.group(4)
         clock_source = m.group(5)
@@ -525,31 +552,9 @@ class Stm32F0(CortexM0CommonArchSupport):
 
         flash_size = self.flash_sizes[user_code_memory_size]
 
-        self.add_linker_script("arm/stm32/stm32f0xx/common-RAM.ld", loaders=("RAM",))
-        self.add_linker_script("arm/stm32/stm32f0xx/common-ROM.ld", loaders=("ROM",))
-
-        # Select memory map based on available memory size
-        # of the specific device
-        self.add_linker_script("arm/stm32/stm32f0xx/memory-map.ld.tmpl")
-
         # Set template variables required by linker script
         self.add_template_config_value("STM32_Linker_Flash_Size", f"{flash_size}K")
         self.add_template_config_value("STM32_Linker_RAM_Size", f"{ram_size}K")
-
-        # Common source files
-        self.add_gnat_sources(
-            "arm/stm32/stm32f0xx/s-stm32.ads",
-            "arm/stm32/stm32f0xx/s-stm32.adb",
-            "arm/stm32/stm32f0xx/start-rom.S",
-            "arm/stm32/stm32f0xx/start-ram.S",
-            "arm/stm32/stm32f0xx/setup_pll.ads",
-            "arm/stm32/stm32f0xx/setup_pll.adb",
-            "arm/stm32/stm32f0xx/s-bbmcpa.ads.tmpl",
-            "arm/stm32/stm32f0xx/s-bbbopa.ads.tmpl",
-            f"arm/stm32/stm32f0xx/stm32f0x{sub_family_minor}/svd/i-stm32.ads",
-            f"arm/stm32/stm32f0xx/stm32f0x{sub_family_minor}/svd/i-stm32-flash.ads",
-            f"arm/stm32/stm32f0xx/stm32f0x{sub_family_minor}/svd/i-stm32-rcc.ads",
-        )
 
         # Configure MCU parameters based on family.
         if sub_family_major in "479":
@@ -574,47 +579,83 @@ class Stm32F0(CortexM0CommonArchSupport):
             for key, value in self.board_parameters_hsi2.items():
                 self.add_template_config_value(key, value)
 
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+
+        # Select memory map based on available memory size
+        # of the specific device
+
+        svd = f"arm/stm32/stm32f0xx/stm32f0x{self._sub_family_minor}/svd"
+
+        # Common source files
+        self.add_gnat_sources(
+            "arm/stm32/stm32f0xx/s-stm32.ads",
+            "arm/stm32/stm32f0xx/s-stm32.adb",
+            "arm/stm32/stm32f0xx/start-rom.S",
+            "arm/stm32/stm32f0xx/start-ram.S",
+            "arm/stm32/stm32f0xx/setup_pll.ads",
+            "arm/stm32/stm32f0xx/setup_pll.adb",
+            "arm/stm32/stm32f0xx/s-bbmcpa.ads.tmpl",
+            "arm/stm32/stm32f0xx/s-bbbopa.ads.tmpl",
+            f"{svd}/i-stm32.ads",
+            f"{svd}/i-stm32-flash.ads",
+            f"{svd}/i-stm32-rcc.ads",
+        )
+
         # Choose interrupt names based on family
-        self.add_gnarl_sources(
-            f"arm/stm32/stm32f0xx/stm32f0x{sub_family_minor}/svd/a-intnam.ads"
+        self.add_gnarl_sources(f"{svd}/a-intnam.ads")
+
+        self.add_loaders(
+            *(
+                Loader(
+                    name,
+                    linker_scripts=(Path(f"arm/stm32/stm32f0xx/common-{name}.ld"),),
+                    included_scripts=(Path("arm/stm32/stm32f0xx/memory-map.ld.tmpl"),),
+                )
+                for name in ("ROM", "RAM")
+            )
         )
 
 
 class CortexM1CommonArchSupport(ArmV6MTarget):
+    memory_map_script: Path = Path("arm/cortex-m1/memory-map.ld")
+    """The board's memory map, linked by every arm."""
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.add_dependency(CortexMArch())
+
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "microsemim1"
 
     @property
-    def loaders(self):
-        return (
-            "TCM",
-            "RAM",
-        )
-
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-mlittle-endian", "-mthumb", "-mfloat-abi=soft", "-mcpu=cortex-m1")
-
-    @property
+    @override
     def has_fpu(self) -> bool:
         # We require floating point attributes as soft-float is supported
         return True
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-arm.ads",
-            "light-tasking": "system-xi-armv6m-sfp.ads",
-            "embedded": "system-xi-armv6m-full.ads",
-        }
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-arm.ads")),
+            light_tasking_profile(self, Path("system-xi-armv6m-sfp.ads")),
+            embedded_profile(self, Path("system-xi-armv6m-full.ads")),
+        ]
 
-    def __init__(self):
-        super(CortexM1CommonArchSupport, self).__init__()
-
-        self.add_linker_script("arm/cortex-m1/common-RAM.ld", loaders=("RAM",))
-        self.add_linker_script("arm/cortex-m1/common-TCM.ld", loaders=("TCM",))
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-mfloat-abi=soft",
+                "-mcpu=cortex-m1",
+            ),
+        )
 
         self.add_gnat_sources("arm/cortex-m1/start-tcm.S", "arm/cortex-m1/start-ram.S")
 
@@ -624,17 +665,30 @@ class CortexM1CommonArchSupport(ArmV6MTarget):
             "shared/s-bcpcst__pendsv.adb",
         )
 
+        self.add_loaders(
+            *(
+                Loader(
+                    name,
+                    linker_scripts=(
+                        Path(f"arm/cortex-m1/common-{name}.ld"),
+                        self.memory_map_script,
+                    ),
+                )
+                for name in ("TCM", "RAM")
+            )
+        )
+
 
 class MicrosemiM1(CortexM1CommonArchSupport):
+    memory_map_script = Path("arm/cortex-m1/microsemi/memory-map.ld")
+
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "microsemi-m1"
 
-    def __init__(self):
-        super(MicrosemiM1, self).__init__()
-
-        self.add_linker_script("arm/cortex-m1/microsemi/memory-map.ld")
-
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
             "arm/cortex-m1/microsemi/s-bbbopa.ads",
             "arm/cortex-m1/microsemi/s-bbmcpa.ads",
@@ -647,35 +701,44 @@ class MicrosemiM1(CortexM1CommonArchSupport):
 
 
 class NRF51(ArmV6MTarget):
+    memory_map_script = Path("arm/nordic/nrf51/memory-map__nRF51822xxAA.ld")
+    """The board's memory map, installed under one name for every board so the
+    ROM arm's -T is the same for all of them."""
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.add_dependency(CortexMArch())
+
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "nRF51"
 
     @property
-    def loaders(self):
-        return ("ROM",)
-
-    @property
+    @override
     def has_fpu(self) -> bool:
         return True
 
     @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-mlittle-endian", "-mthumb", "-mfloat-abi=soft", "-mcpu=cortex-m0")
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-arm.ads")),
+            light_tasking_profile(self, Path("system-xi-armv6m-sfp.ads")),
+            embedded_profile(self, Path("system-xi-armv6m-full.ads")),
+        ]
 
-    @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-arm.ads",
-            "light-tasking": "system-xi-armv6m-sfp.ads",
-            "embedded": "system-xi-armv6m-full.ads",
-        }
-
-    def __init__(self):
-        super(NRF51, self).__init__()
-
-        self.add_linker_script("arm/nordic/nrf51/common-ROM.ld", loaders=("ROM",))
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-mfloat-abi=soft",
+                "-mcpu=cortex-m0",
+            ),
+        )
 
         self.add_gnat_sources(
             "arm/nordic/nrf51/svd/i-nrf51.ads",
@@ -694,23 +757,28 @@ class NRF51(ArmV6MTarget):
             "shared/s-bcpcst__pendsv.adb",
         )
 
+        self.add_loaders(
+            Loader(
+                "ROM",
+                linker_scripts=(Path("arm/nordic/nrf51/common-ROM.ld"),),
+                included_scripts=(self.memory_map_script,),
+            ),
+        )
+
 
 class Microbit(NRF51):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "microbit"
 
     @property
-    def use_semihosting_io(self):
+    @override
+    def use_semihosting_io(self) -> bool:
         return False
 
-    def __init__(self):
-        super(Microbit, self).__init__()
-
-        self.add_linker_script(
-            "arm/nordic/nrf51/memory-map_nRF51822xxAA.ld", dest_path_str="memory-map.ld"
-        )
-
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
             "arm/nordic/nrf51/s-bbbopa__microbit.ads", "shared/s-textio__microbit.adb"
         )
@@ -718,51 +786,45 @@ class Microbit(NRF51):
 
 class NRF52(ArmV7MTarget):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "nRF52"
 
     @property
-    def parent(self):
-        return CortexMArch()
-
-    @property
-    def loaders(self):
-        return ("ROM",)
-
-    @property
+    @override
     def has_fpu(self) -> bool:
         return True
 
     @property
-    def system_ads(self):
+    @override
+    def profiles(self) -> list[Profile]:
         # Use custom System package since system-xi-cortexm4 assumes
         # 4-bit interrupt priorities, but the nRF52 only supports
         # 3-bit interrupt priorities. This requires different
         # definitions for Priority and Interrupt_Priority in System.
-        return {
-            "light": "system-xi-arm.ads",
-            "light-tasking": "arm/nordic/nrf52/system-xi-nrf52-sfp.ads",
-            "embedded": "arm/nordic/nrf52/system-xi-nrf52-full.ads",
-        }
+        return [
+            light_profile(self, Path("system-xi-arm.ads")),
+            light_tasking_profile(
+                self, Path("arm/nordic/nrf52/system-xi-nrf52-sfp.ads")
+            ),
+            embedded_profile(self, Path("arm/nordic/nrf52/system-xi-nrf52-full.ads")),
+        ]
 
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return (
-            "-mlittle-endian",
-            "-mthumb",
-            "-mfloat-abi=hard",
-            "-mfpu=fpv4-sp-d16",
-            "-mcpu=cortex-m4",
-        )
+    def __init__(self) -> None:
+        super().__init__()
 
-    def __init__(self):
-        super(NRF52, self).__init__()
+        self.add_dependency(CortexMArch())
 
-        self.add_linker_script("arm/nordic/nrf52/common-ROM.ld", loaders=("ROM",))
-        self.add_linker_script(
-            f"arm/nordic/nrf52/memory-map_{self.name}.ld",
-            dest_path_str="memory-map.ld",
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-mfloat-abi=hard",
+                "-mfpu=fpv4-sp-d16",
+                "-mcpu=cortex-m4",
+            ),
         )
 
         self.add_gnat_sources(
@@ -778,19 +840,30 @@ class NRF52(ArmV7MTarget):
             "shared/s-bcpcst__pendsv.adb",
         )
 
+        self.add_loaders(
+            Loader(
+                "ROM",
+                linker_scripts=(Path("arm/nordic/nrf52/common-ROM.ld"),),
+                included_scripts=(
+                    Path(f"arm/nordic/nrf52/memory-map__{self.name}.ld"),
+                ),
+            ),
+        )
+
 
 class NRF52833(NRF52):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "nrf52833"
 
     @property
-    def use_semihosting_io(self):
+    @override
+    def use_semihosting_io(self) -> bool:
         return True
 
-    def __init__(self):
-        super(NRF52833, self).__init__()
-
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
             "arm/nordic/nrf52/nrf52833/s-bbbopa.ads",
             "arm/nordic/nrf52/nrf52833/setup_board.adb",
@@ -815,16 +888,17 @@ class NRF52833(NRF52):
 
 class NRF52840(NRF52):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "nrf52840"
 
     @property
-    def use_semihosting_io(self):
+    @override
+    def use_semihosting_io(self) -> bool:
         return True
 
-    def __init__(self):
-        super(NRF52840, self).__init__()
-
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
             "arm/nordic/nrf52/nrf52840/s-bbbopa.ads",
             "arm/nordic/nrf52/nrf52840/setup_board.adb",
@@ -846,16 +920,17 @@ class NRF52840(NRF52):
 
 class NRF52832(NRF52):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "nrf52832"
 
     @property
-    def use_semihosting_io(self):
+    @override
+    def use_semihosting_io(self) -> bool:
         return True
 
-    def __init__(self):
-        super(NRF52832, self).__init__()
-
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
             "arm/nordic/nrf52/nrf52832/s-bbbopa.ads",
             "arm/nordic/nrf52/nrf52832/setup_board.adb",
@@ -875,26 +950,16 @@ class NRF52832(NRF52):
         )
 
 
-class Stm32CommonArchSupport(ArchSupport):
+class Stm32CommonArchSupport(SourcesAndFlagsComponent):
     """Holds sources common to all stm32 boards"""
 
-    @property
-    def name(self):
-        return "stm32"
+    def __init__(self) -> None:
+        super().__init__()
 
-    @property
-    def parent(self):
-        return ArmV7MArch()
+        self.add_dependency(ArmV7MArch())
 
-    @property
-    def loaders(self):
-        return ("ROM", "RAM")
-
-    def __init__(self):
-        super(Stm32CommonArchSupport, self).__init__()
-
-        self.add_linker_script("arm/stm32/common-RAM.ld", loaders=("RAM",))
-        self.add_linker_script("arm/stm32/common-ROM.ld", loaders=("ROM",))
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
 
         self.add_gnat_sources(
             "shared/s-bbpara__stm32f4.ads",
@@ -960,22 +1025,22 @@ class Stm32(ArmV7MTarget):
     """Generic handling of stm32 boards"""
 
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return self.board
 
     @property
-    def parent(self):
-        return Stm32CommonArchSupport()
-
-    @property
-    def readme_file(self):
+    @override
+    def readme_file(self) -> Path | None:
         return Path("arm/stm32/README")
 
     @property
-    def use_semihosting_io(self):
+    @override
+    def use_semihosting_io(self) -> bool:
         return True
 
     @property
+    @override
     def has_double_precision_fpu(self) -> bool:
         if self.mcu == "stm32f7x9":
             return True
@@ -983,7 +1048,7 @@ class Stm32(ArmV7MTarget):
             return False
 
     @property
-    def cortex(self):
+    def cortex(self) -> str:
         if self.mcu.startswith("stm32f4"):
             return "cortex-m4"
         elif self.mcu.startswith("stm32f7"):
@@ -992,7 +1057,7 @@ class Stm32(ArmV7MTarget):
             raise ValueError(f"Unexpected MCU {self.mcu}")
 
     @property
-    def fpu(self):
+    def fpu(self) -> str:
         if self.cortex == "cortex-m4":
             return "fpv4-sp-d16"
         elif not self.has_double_precision_fpu:
@@ -1000,18 +1065,7 @@ class Stm32(ArmV7MTarget):
         else:
             return "fpv5-d16"
 
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return (
-            "-mlittle-endian",
-            "-mfloat-abi=hard",
-            f"-mcpu={self.cortex}",
-            f"-mfpu={self.fpu}",
-            "-mthumb",
-        )
-
-    def __init__(self, board):
+    def __init__(self, board: str) -> None:
         self.board = board
         if self.board in ["stm32f4", "feather_stm32f405"]:
             self.mcu = "stm32f40x"
@@ -1028,7 +1082,9 @@ class Stm32(ArmV7MTarget):
         else:
             raise ValueError(f"Unknown stm32 board: {self.board}")
 
-        super(Stm32, self).__init__()
+        super().__init__()
+
+        self.add_dependency(Stm32CommonArchSupport())
 
         # Add board template configuration
         for key, value in stm32_board_configuration[self.board].items():
@@ -1037,7 +1093,17 @@ class Stm32(ArmV7MTarget):
         self.add_template_config_value("Board_Name", self.board)
         self.add_template_config_value("MCU_Name", self.mcu)
 
-        self.add_linker_script(f"arm/stm32/{self.mcu}/memory-map.ld")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mfloat-abi=hard",
+                f"-mcpu={self.cortex}",
+                f"-mfpu={self.fpu}",
+                "-mthumb",
+            ),
+        )
 
         # startup code
         self.add_gnat_sources(
@@ -1072,30 +1138,32 @@ class Stm32(ArmV7MTarget):
             f"arm/stm32/{self.mcu}/svd/a-intnam.ads",
         )
 
+        memory_map = Path(f"arm/stm32/{self.mcu}/memory-map.ld")
+        self.add_loaders(
+            *(
+                Loader(
+                    name,
+                    linker_scripts=(Path(f"arm/stm32/common-{name}.ld"),),
+                    included_scripts=(memory_map,),
+                )
+                for name in ("ROM", "RAM")
+            )
+        )
 
-class Stm32lCommonArchSupport(ArchSupport):
+
+class Stm32lCommonArchSupport(SourcesAndFlagsComponent):
     """Holds sources common to all stm32l boards. This is currently seperate
     from stm32 board support due to the differences between PLL and memory
     setup.
     """
 
-    @property
-    def name(self):
-        return "stm32l"
+    def __init__(self) -> None:
+        super().__init__()
 
-    @property
-    def parent(self):
-        return ArmV7MArch()
+        self.add_dependency(ArmV7MArch())
 
-    @property
-    def loaders(self):
-        return ("ROM", "RAM")
-
-    def __init__(self):
-        super(Stm32lCommonArchSupport, self).__init__()
-
-        self.add_linker_script("arm/stm32l/common-RAM.ld")
-        self.add_linker_script("arm/stm32l/common-ROM.ld")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
 
         self.add_gnat_sources(
             "shared/s-bbpara__stm32l5.ads",
@@ -1112,34 +1180,34 @@ class Stm32l(ArmV7MTarget):
     """Generic handling of stm32l boards"""
 
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return self.board
 
     @property
-    def parent(self):
-        return Stm32lCommonArchSupport()
-
-    @property
-    def readme_file(self):
+    @override
+    def readme_file(self) -> Path | None:
         return Path("arm/stm32l/README")
 
     @property
-    def use_semihosting_io(self):
+    @override
+    def use_semihosting_io(self) -> bool:
         return True
 
     @property
+    @override
     def has_double_precision_fpu(self) -> bool:
         return False
 
     @property
-    def cortex(self):
+    def cortex(self) -> str:
         if self.mcu.startswith("stm32l5"):
             return "cortex-m33"
         else:
             raise ValueError(f"Unexpected MCU {self.mcu}")
 
     @property
-    def fpu(self):
+    def fpu(self) -> str:
         if self.cortex == "cortex-m4":
             return "fpv4-sp-d16"
         elif not self.has_double_precision_fpu:
@@ -1148,42 +1216,35 @@ class Stm32l(ArmV7MTarget):
             return "fpv5-d16"
 
     @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return (
-            "-mlittle-endian",
-            "-mfloat-abi=hard",
-            f"-mcpu={self.cortex}",
-            f"-mfpu={self.fpu}",
-            "-mthumb",
-        )
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-arm.ads")),
+            light_tasking_profile(self, Path("system-xi-stm32l5-sfp.ads")),
+        ]
 
-    @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-arm.ads",
-            "light-tasking": "system-xi-stm32l5-sfp.ads",
-        }
-
-    @property
-    def loaders(self):
-        return (
-            "ROM",
-            "RAM",
-            "ROM_TZNONSECURE",
-            "ROM_TZSECURE",
-            "RAM_TZNONSECURE",
-            "RAM_TZSECURE",
-        )
-
-    def __init__(self, board):
+    def __init__(self, board: str) -> None:
         self.board = board
         if self.board in ["stm32l562disco"]:
             self.mcu = "stm32l5x2"
         else:
             raise ValueError(f"Unknown stm32l board: {self.board}")
 
-        super(Stm32l, self).__init__()
+        super().__init__()
+
+        self.add_dependency(Stm32lCommonArchSupport())
+
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mfloat-abi=hard",
+                f"-mcpu={self.cortex}",
+                f"-mfpu={self.fpu}",
+                "-mthumb",
+            ),
+        )
 
         # Add board template configuration
         # for key, value in stm32_board_configuration[self.board].items():
@@ -1191,29 +1252,6 @@ class Stm32l(ArmV7MTarget):
 
         # self.add_template_config_value('Board_Name', self.board)
         # self.add_template_config_value('MCU_Name', self.mcu)
-
-        self.add_linker_script(
-            f"arm/stm32l/{self.mcu}/memory-map-RAM.ld", loaders=("RAM",)
-        )
-        self.add_linker_script(
-            f"arm/stm32l/{self.mcu}/memory-map-ROM.ld", loaders=("ROM",)
-        )
-        self.add_linker_script(
-            f"arm/stm32l/{self.mcu}/memory-map-ROM-TZ_NONSECURE.ld",
-            loaders=("ROM_TZNONSECURE",),
-        )
-        self.add_linker_script(
-            f"arm/stm32l/{self.mcu}/memory-map-ROM-TZ_SECURE.ld",
-            loaders=("ROM_TZSECURE",),
-        )
-        self.add_linker_script(
-            f"arm/stm32l/{self.mcu}/memory-map-RAM-TZ_NONSECURE.ld",
-            loaders=("RAM_TZNONSECURE",),
-        )
-        self.add_linker_script(
-            f"arm/stm32l/{self.mcu}/memory-map-RAM-TZ_SECURE.ld",
-            loaders=("RAM_TZSECURE",),
-        )
 
         # startup code
         self.add_gnat_sources(
@@ -1240,200 +1278,317 @@ class Stm32l(ArmV7MTarget):
             f"arm/stm32l/{self.mcu}/svd/a-intnam.ads",
         )
 
+        self.add_loaders(
+            *(
+                Loader(
+                    name,
+                    linker_scripts=(Path(f"arm/stm32l/{self.mcu}/{script}"),),
+                    included_scripts=(
+                        Path("arm/stm32l/common-RAM.ld"),
+                        Path("arm/stm32l/common-ROM.ld"),
+                    ),
+                )
+                for name, script in (
+                    ("ROM", "memory-map-ROM.ld"),
+                    ("RAM", "memory-map-RAM.ld"),
+                    ("ROM_TZNONSECURE", "memory-map-ROM-TZ_NONSECURE.ld"),
+                    ("ROM_TZSECURE", "memory-map-ROM-TZ_SECURE.ld"),
+                    ("RAM_TZNONSECURE", "memory-map-RAM-TZ_NONSECURE.ld"),
+                    ("RAM_TZSECURE", "memory-map-RAM-TZ_SECURE.ld"),
+                )
+            )
+        )
 
-class CortexM0(ArmV6MTarget):
-    @property
-    def name(self):
-        return "cortex-m0"
+
+class CortexM0Base(ArmV6MTarget):
+    """What a Cortex-M0 target is, minus the arch component: the RP2040 SMP
+    runtime brings its own, so this cannot compose one for its subclasses."""
 
     @property
+    @override
     def has_fpu(self) -> bool:
         return True
 
     @property
-    def use_semihosting_io(self):
+    @override
+    def use_semihosting_io(self) -> bool:
         return True
 
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-mlittle-endian", "-mthumb", "-mfloat-abi=soft", "-mcpu=cortex-m0")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-mfloat-abi=soft",
+                "-mcpu=cortex-m0",
+            ),
+        )
 
     @property
-    def system_ads(self):
-        return {"light": "system-xi-arm.ads"}
+    @override
+    def profiles(self) -> list[Profile]:
+        return [light_profile(self, Path("system-xi-arm.ads"))]
 
 
-class CortexM0P(CortexM0):
+class CortexM0(CortexM0Base):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.add_dependency(CortexMArch())
+
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
+        return "cortex-m0"
+
+
+class CortexM0PBase(CortexM0Base):
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-mfloat-abi=soft",
+                "-mcpu=cortex-m0plus",
+            ),
+            replace_channel=True,
+        )
+
+
+class CortexM0P(CortexM0PBase):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.add_dependency(CortexMArch())
+
+    @property
+    @override
+    def name(self) -> str:
         return "cortex-m0p"
-
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-mlittle-endian", "-mthumb", "-mfloat-abi=soft", "-mcpu=cortex-m0plus")
 
 
 class CortexM1(ArmV6MTarget):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.add_dependency(CortexMArch())
+
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "cortex-m1"
 
     @property
+    @override
     def has_fpu(self) -> bool:
         return True
 
     @property
-    def use_semihosting_io(self):
+    @override
+    def use_semihosting_io(self) -> bool:
         return True
 
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-mlittle-endian", "-mthumb", "-mfloat-abi=soft", "-mcpu=cortex-m1")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-mfloat-abi=soft",
+                "-mcpu=cortex-m1",
+            ),
+        )
 
     @property
-    def system_ads(self):
-        return {"light": "system-xi-arm.ads"}
+    @override
+    def profiles(self) -> list[Profile]:
+        return [light_profile(self, Path("system-xi-arm.ads"))]
 
 
 class CortexM3(ArmV7MTarget):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.add_dependency(ArmV7MArch())
+
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "cortex-m3"
 
     @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return False
 
     @property
+    @override
     def has_fpu(self) -> bool:
         return True
 
     @property
-    def use_semihosting_io(self):
+    @override
+    def use_semihosting_io(self) -> bool:
         return True
 
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-mlittle-endian", "-mthumb", "-mfloat-abi=soft", "-mcpu=cortex-m3")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-mfloat-abi=soft",
+                "-mcpu=cortex-m3",
+            ),
+        )
 
     @property
-    def system_ads(self):
-        return {"light": "system-xi-arm.ads"}
+    @override
+    def profiles(self) -> list[Profile]:
+        return [light_profile(self, Path("system-xi-arm.ads"))]
 
 
 class CortexM4(ArmV7MTarget):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.add_dependency(ArmV7MArch())
+
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "cortex-m4"
 
     @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return False
 
     @property
+    @override
     def has_fpu(self) -> bool:
         return True
 
     @property
-    def use_semihosting_io(self):
+    @override
+    def use_semihosting_io(self) -> bool:
         return True
 
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-mlittle-endian", "-mthumb", "-mfloat-abi=soft", "-mcpu=cortex-m4")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-mfloat-abi=soft",
+                "-mcpu=cortex-m4",
+            ),
+        )
 
     @property
-    def system_ads(self):
-        return {"light": "system-xi-arm.ads"}
+    @override
+    def profiles(self) -> list[Profile]:
+        return [light_profile(self, Path("system-xi-arm.ads"))]
 
 
 class CortexM4F(CortexM4):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "cortex-m4f"
 
     @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return True
 
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return (
-            "-mlittle-endian",
-            "-mthumb",
-            "-mfloat-abi=hard",
-            "-mcpu=cortex-m4",
-            "-mfpu=fpv4-sp-d16",
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-mfloat-abi=hard",
+                "-mcpu=cortex-m4",
+                "-mfpu=fpv4-sp-d16",
+            ),
+            replace_channel=True,
         )
 
 
 class CortexM7F(ArmV7MTarget):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.add_dependency(ArmV7MArch())
+
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "cortex-m7f"
 
     @property
+    @override
     def has_fpu(self) -> bool:
         return True
 
     @property
-    def use_semihosting_io(self):
+    @override
+    def use_semihosting_io(self) -> bool:
         return True
 
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return (
-            "-mlittle-endian",
-            "-mthumb",
-            "-mfloat-abi=hard",
-            "-mcpu=cortex-m7",
-            "-mfpu=fpv5-sp-d16",
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-mfloat-abi=hard",
+                "-mcpu=cortex-m7",
+                "-mfpu=fpv5-sp-d16",
+            ),
         )
 
     @property
-    def system_ads(self):
-        return {"light": "system-xi-arm.ads"}
+    @override
+    def profiles(self) -> list[Profile]:
+        return [light_profile(self, Path("system-xi-arm.ads"))]
 
 
 class CortexM7DF(CortexM7F):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "cortex-m7df"
 
     @property
+    @override
     def has_double_precision_fpu(self) -> bool:
         return True
 
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return (
-            "-mlittle-endian",
-            "-mthumb",
-            "-mfloat-abi=hard",
-            "-mcpu=cortex-m7",
-            "-mfpu=fpv5-d16",
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-mfloat-abi=hard",
+                "-mcpu=cortex-m7",
+                "-mfpu=fpv5-d16",
+            ),
+            replace_channel=True,
         )
 
 
-class ArmV8MArch(ArchSupport):
-    @property
-    def name(self):
-        return "armv8-m"
+class ArmV8MArch(SourcesAndFlagsComponent):
+    def __init__(self) -> None:
+        super().__init__()
+        self.add_dependency(CortexMArch())
 
-    @property
-    def parent(self):
-        return CortexMArch()
-
-    def __init__(self):
-        super(ArmV8MArch, self).__init__()
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnarl_sources(
             "shared/s-bbbosu__armv7m.adb", "shared/s-bcpcst__pendsv.adb"
         )
@@ -1441,130 +1596,143 @@ class ArmV8MArch(ArchSupport):
 
 class ArmV8MTarget(ArmV7MTarget):
     @property
-    def parent(self):
-        return ArmV8MArch()
-
-    @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return True
 
     @property
+    @override
     def has_double_precision_fpu(self) -> bool:
         return True
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-arm.ads",
-            "light-tasking": "system-xi-cortexm4-sfp.ads",
-            "embedded": "system-xi-cortexm4-full.ads",
-        }
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-arm.ads")),
+            light_tasking_profile(self, Path("system-xi-cortexm4-sfp.ads")),
+            embedded_profile(self, Path("system-xi-cortexm4-full.ads")),
+        ]
 
-    def __init__(self):
-        super(ArmV7MTarget, self).__init__()
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.add_dependency(ArmV8MArch())
 
 
 class CortexM23(ArmV8MTarget):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "cortex-m23"
 
     @property
+    @override
     def has_fpu(self) -> bool:
         return True
 
     @property
-    def use_semihosting_io(self):
+    @override
+    def use_semihosting_io(self) -> bool:
         return True
 
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-mlittle-endian", "-mthumb", "-mfloat-abi=soft", "-mcpu=cortex-m23")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-mfloat-abi=soft",
+                "-mcpu=cortex-m23",
+            ),
+        )
 
     @property
-    def system_ads(self):
-        return {"light": "system-xi-arm.ads"}
+    @override
+    def profiles(self) -> list[Profile]:
+        return [light_profile(self, Path("system-xi-arm.ads"))]
 
 
 class CortexM33F(ArmV8MTarget):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "cortex-m33f"
 
     @property
+    @override
     def has_fpu(self) -> bool:
         return True
 
     @property
-    def use_semihosting_io(self):
+    @override
+    def use_semihosting_io(self) -> bool:
         return True
 
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return (
-            "-mlittle-endian",
-            "-mthumb",
-            "-mfloat-abi=hard",
-            "-mcpu=cortex-m33",
-            "-mfpu=fpv5-sp-d16",
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-mfloat-abi=hard",
+                "-mcpu=cortex-m33",
+                "-mfpu=fpv5-sp-d16",
+            ),
         )
 
     @property
-    def system_ads(self):
-        return {"light": "system-xi-arm.ads"}
+    @override
+    def profiles(self) -> list[Profile]:
+        return [light_profile(self, Path("system-xi-arm.ads"))]
 
 
 class CortexM33DF(CortexM33F):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "cortex-m33df"
 
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return (
-            "-mlittle-endian",
-            "-mthumb",
-            "-mfloat-abi=hard",
-            "-mcpu=cortex-m33",
-            "-mfpu=fpv5-d16",
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mthumb",
+                "-mfloat-abi=hard",
+                "-mcpu=cortex-m33",
+                "-mfpu=fpv5-d16",
+            ),
+            replace_channel=True,
         )
 
 
-class RP2040(CortexM0P):
+class RP2040(CortexM0PBase):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         if self.smp:
             return "rp2040-smp"
         else:
             return "rp2040"
 
     @property
-    def parent(self):
-        if self.smp:
-            # Don't refer to any parent since we need to override certain
-            # sources from CortexMArch (e.g. replace src/s-bbsumu__generic.adb)
-            return None
-        else:
-            return CortexMArch()
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_tasking_profile(self, Path("system-xi-armv6m-sfp.ads")),
+            embedded_profile(self, Path("system-xi-armv6m-full.ads")),
+        ]
 
-    @property
-    def loaders(self):
-        return ("ROM",)
-
-    @property
-    def system_ads(self):
-        return {
-            "light-tasking": "system-xi-armv6m-sfp.ads",
-            "embedded": "system-xi-armv6m-full.ads",
-        }
-
-    def __init__(self, smp):
+    def __init__(self, smp: bool) -> None:
         self.smp = smp
 
-        super(RP2040, self).__init__()
+        super().__init__()
+
+        if not self.smp:
+            # The SMP runtime contributes the arch sources itself, replacing
+            # some of CortexMArch's (e.g. src/s-bbsumu__generic.adb).
+            self.add_dependency(CortexMArch())
 
         smp_template_values = {
             # The SMP runtime uses the TIMER for task delays, which runs from
@@ -1606,6 +1774,8 @@ class RP2040(CortexM0P):
         for key, value in template_values.items():
             self.add_template_config_value(key, value)
 
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         # Common GNAT sources
         self.add_gnat_sources(
             "arm/rpi/rp2040/svd/i-rp2040.ads",
@@ -1717,11 +1887,12 @@ class RP2040Target(RP2040):
     ]
 
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return self._name
 
-    def __init__(self, name):
-        super(RP2040Target, self).__init__(smp=name.endswith("-smp"))
+    def __init__(self, name: str) -> None:
+        super().__init__(smp=name.endswith("-smp"))
 
         # Check if the base name (without -smp suffix) is one of the
         # targets supported by this class
@@ -1734,7 +1905,8 @@ class RP2040Target(RP2040):
         target_properties = self._target_properties[base_name]
         flash_properties = self._flash_properties[target_properties["flash"]]
         flash_size = flash_properties["size"]
-        boot2_variant = flash_properties["boot2"]
+        # Names the second-stage bootloader source (see contribute).
+        self._boot2_variant = flash_properties["boot2"]
 
         # Get other properties
         xosc_startup_delay_mult = target_properties["xosc_startup_delay_mult"]
@@ -1765,10 +1937,23 @@ class RP2040Target(RP2040):
         for key, value in template_values.items():
             self.add_template_config_value(key, value)
 
-        self.add_linker_script("arm/rpi/rp2040/memory-map.ld.tmpl")
-        self.add_linker_script("arm/rpi/rp2040/common-ROM.ld", loaders=("ROM",))
-        self.add_linker_script("arm/rpi/rp2040/common-RAM.ld", loaders=("RAM",))
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
 
         self.add_gnat_sources(
-            f"arm/rpi/rp2040/boot2/generated/boot2__{boot2_variant}.S"
+            f"arm/rpi/rp2040/boot2/generated/boot2__{self._boot2_variant}.S"
+        )
+
+        # A RAM-resident image is not a configuration these boards are known
+        # to boot, so common-RAM.ld ships for the USER arm to link by hand
+        # rather than as an arm of its own.
+        self.add_loaders(
+            Loader(
+                "ROM",
+                linker_scripts=(Path("arm/rpi/rp2040/common-ROM.ld"),),
+                included_scripts=(
+                    Path("arm/rpi/rp2040/memory-map.ld.tmpl"),
+                    Path("arm/rpi/rp2040/common-RAM.ld"),
+                ),
+            ),
         )

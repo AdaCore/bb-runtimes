@@ -2,6 +2,9 @@
 # Copyright (C) 2025-2026, AdaCore
 #
 
+from typing import Iterator
+from typing import override
+
 from rts_prebuilder.abstract_infrastructure import AbstractTargetGenerator
 
 from .cortexm import (
@@ -23,10 +26,12 @@ class Stm32F0Generator(AbstractTargetGenerator):
     """
 
     @property
+    @override
     def cli_name_pattern(self) -> str:
         return "stm32f0{3,4,5,7,9}[0128][cefgkrv][468bc]-hs[ie]"
 
-    def generate_variants(self):
+    @override
+    def generate_variants(self) -> Iterator[str]:
         # Build valid combinations based on the same constraints used by Stm32F0
         flash_sizes = Stm32F0.flash_sizes
         f03 = Stm32F0.f03x_ram_sizes
@@ -51,6 +56,7 @@ class Stm32F0Generator(AbstractTargetGenerator):
                         for clk in ("hsi", "hse"):
                             yield f"stm32f0{sf}{sfm}{pkg}{mem}-{clk}"
 
+    @override
     def instantiate(self, name: str) -> Stm32F0:
         return Stm32F0(name)
 
@@ -59,12 +65,15 @@ class Stm32Generator(AbstractTargetGenerator):
     """Generator for STM32 F4/F7 board targets backed by explicit config."""
 
     @property
+    @override
     def cli_name_pattern(self) -> str:
         return "{stm32f4,stm32f4*disco,stm32f769disco,nucleo_f401re,feather_stm32f405,openmv2}"
 
-    def generate_variants(self):
+    @override
+    def generate_variants(self) -> Iterator[str]:
         yield from stm32_board_configuration.keys()
 
+    @override
     def instantiate(self, name: str) -> Stm32:
         return Stm32(name)
 
@@ -73,15 +82,18 @@ class Stm32lGenerator(AbstractTargetGenerator):
     """Generator for STM32L family (currently limited to stm32l562disco)."""
 
     @property
+    @override
     def cli_name_pattern(self) -> str:
         return "stm32l562disco"
 
-    def generate_variants(self):
+    @override
+    def generate_variants(self) -> Iterator[str]:
         # Currently only one supported L5 discovery board
-        # We still use the generator pattern since the Stm32l.__init__ takes
+        # We still use the installer pattern since the Stm32l.__init__ takes
         # a name argument for future extensibility.
         yield "stm32l562disco"
 
+    @override
     def instantiate(self, name: str) -> Stm32l:
         return Stm32l(name)
 
@@ -90,13 +102,16 @@ class SamGenerator(AbstractTargetGenerator):
     """Generator for Microchip/Atmel SAM family boards supported in Sam target."""
 
     @property
+    @override
     def cli_name_pattern(self) -> str:
         return "sam{4s,g55,v71,rh71}"
 
-    def generate_variants(self):
+    @override
+    def generate_variants(self) -> Iterator[str]:
         # Valid boards as enforced in Sam.__init__
         yield from ("sam4s", "samg55", "samv71", "samrh71")
 
+    @override
     def instantiate(self, name: str) -> Sam:
         return Sam(name)
 
@@ -105,12 +120,15 @@ class RP2040Generator(AbstractTargetGenerator):
     """Generator for RP2040 boards (SP and SMP variants)."""
 
     @property
+    @override
     def cli_name_pattern(self) -> str:
         return "{rpi-pico,adafruit-*,sparkfun-*,pimoroni-*,arduino-nano-rp2040-*}[-smp]"
 
-    def generate_variants(self):
+    @override
+    def generate_variants(self) -> Iterator[str]:
         # Reuse the existing target list exposed by the class
         yield from RP2040Target.supported_targets
 
+    @override
     def instantiate(self, name: str) -> RP2040Target:
         return RP2040Target(name)

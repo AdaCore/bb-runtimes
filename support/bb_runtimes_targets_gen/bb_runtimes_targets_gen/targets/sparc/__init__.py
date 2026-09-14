@@ -4,19 +4,26 @@
 
 # BSP support for Sparc/Leon
 from pathlib import Path
+from typing import override
 
-from rts_prebuilder.engine import resolve_and_read_file
-from bb_runtimes_targets_gen.concrete_infrastructure import ArchSupport, DFBBTarget
+from rts_prebuilder.abstract_infrastructure import AbstractTarget
+from rts_prebuilder.abstract_infrastructure import Loader
+from rts_prebuilder.abstract_infrastructure import Profile
+from rts_prebuilder.base_types import ValidBaseProfileType
+
+from bb_runtimes_targets_gen.concrete_infrastructure import (
+    SourcesAndFlagsComponent,
+    DFBBTarget,
+    light_profile,
+    light_tasking_profile,
+    embedded_profile,
+)
 
 
-class LeonArch(ArchSupport):
-    @property
-    def name(self):
-        return "leon"
-
-    def __init__(self):
-        super(LeonArch, self).__init__()
-        self.add_linker_switch("-Wl,-u_start", loader=None)
+class LeonArch(SourcesAndFlagsComponent):
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(link_switches=("-Wl,-u_start",))
         self.add_gnat_sources(
             "sparc/leon/crt0.S",
             "sparc/leon/hw_init.S",
@@ -37,50 +44,43 @@ class LeonArch(ArchSupport):
 
 
 class LeonTarget(DFBBTarget):
-    @property
-    def parent(self):
-        return LeonArch()
+    def __init__(self) -> None:
+        super().__init__()
+        self.add_dependency(LeonArch())
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-sparc.ads",
-            "light-tasking": "system-xi-sparc-ravenscar.ads",
-            "embedded": "system-xi-sparc-full.ads",
-        }
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-sparc.ads")),
+            light_tasking_profile(self, Path("system-xi-sparc-ravenscar.ads")),
+            embedded_profile(self, Path("system-xi-sparc-full.ads")),
+        ]
 
-    def amend_rts(self, rts_profile, conf):
-        super(LeonTarget, self).amend_rts(rts_profile, conf)
-        if rts_profile in ["light", "light-tasking"]:
-            # Constructors and destructors are executed from the .ctors and
-            # .dtors sections, so we need the crti.o and crtn.o objects.
-            conf.config_files.update(
-                {
-                    "link-noexceptions.spec": resolve_and_read_file(
-                        Path("sparc/leon/link-noexceptions.spec")
-                    )
-                }
-            )
+    @override
+    def link_spec_file(self, base_profile: ValidBaseProfileType) -> Path | None:
+        # Constructors and destructors are executed from the .ctors and .dtors
+        # sections, so we need the crti.o and crtn.o objects.
+        if base_profile in ("light", "light-tasking"):
+            return Path("sparc/leon/link-noexceptions.spec")
+        return super().link_spec_file(base_profile)
 
 
 class Leon2(LeonTarget):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "leon"
 
     @property
-    def target(self):
+    @override
+    def target(self) -> str:
         return "leon-elf"
 
-    @property
-    def c_switches(self):
-        # The required compiler switches
-        return ("-DLEON", "-DLEON2")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(c_switches=("-DLEON", "-DLEON2"))
 
-    def __init__(self):
-        super(Leon2, self).__init__()
-
-        self.add_linker_script("sparc/leon/leon.ld")
         self.add_gnat_sources("shared/s-textio__leon.adb", "shared/s-bbbopa__leon.ads")
         self.add_gnarl_sources(
             "shared/s-bbsumu__generic.adb",
@@ -90,16 +90,35 @@ class Leon2(LeonTarget):
             "shared/a-intnam__leon.ads",
         )
 
+        self.add_loaders(
+            Loader("DEFAULT", linker_scripts=(Path("sparc/leon/leon.ld"),))
+        )
+
 
 class Leon3or4(LeonTarget):
     """
     Common class for leon3 and leon4 targets
     """
 
-    def __init__(self, smp):
+    def __init__(self, smp: bool) -> None:
         super().__init__()
         self.smp = smp
-        self.add_linker_script("sparc/leon3/leon.ld")
+
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        # see R409-022: -mcpu=leon3 makes gcc generate CASA instruction when
+        # expanding compare_and_swap_4 intrinsic, which is invalid SPARCv8 insn
+        # on most leon3.
+        common: tuple[str, ...] = ("-mcpu=leon",) if not self.smp else ("-mcpu=leon3",)
+        if self.need_fix_ut699:
+            common += ("-mfix-ut699",)
+        self.add_app_switches(common_switches=common)
+
+        c: tuple[str, ...] = ("-DLEON", "-DLEON3")
+        if self.need_fix_ut699:
+            c += ("-DFIX_UT699",)
+        self.add_app_switches(c_switches=c)
+
         self.add_gnat_sources(
             "shared/s-textio__leon3.adb",
             "shared/i-leon3.ads",
@@ -114,47 +133,30 @@ class Leon3or4(LeonTarget):
             "shared/a-intnam__leon3.ads",
         )
 
-    @property
-    def system_ads(self):
-        ret = super().system_ads
-        if self.smp:
-            # The Light runtime makes no sense in the context of SMP variant
-            del ret["light"]
-        return ret
+        self.add_loaders(
+            Loader("DEFAULT", linker_scripts=(Path("sparc/leon3/leon.ld"),))
+        )
 
     @property
-    def need_fix_ut699(self):
+    @override
+    def profiles(self) -> list[Profile]:
+        # The Light runtime makes no sense in the context of the SMP variant.
+        return [
+            p for p in super().profiles if not (self.smp and p.base_profile == "light")
+        ]
+
+    @property
+    def need_fix_ut699(self) -> bool:
         return True
 
     @property
-    def c_switches(self):
-        # The required compiler switches
-        res = ("-DLEON", "-DLEON3")
-        if self.need_fix_ut699:
-            res += ("-DFIX_UT699",)
-        return res
-
-    @property
-    def compiler_switches(self):
-        ret = ()
-        if not self.smp:
-            # see R409-022: -mcpu=leon3 makes gcc generate CASA instruction
-            # when expanding compare_and_swap_4 intrinsic, which is invalid
-            # SPARCv8 insn on most leon3.
-            ret += ("-mcpu=leon",)
-        else:
-            ret += ("-mcpu=leon3",)
-
-        if self.need_fix_ut699:
-            ret += ("-mfix-ut699",)
-        return ret
-
-    @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         # Single precision sqrt is buggy on UT699
         return not self.need_fix_ut699
 
     @property
+    @override
     def has_compare_and_swap(self) -> bool:
         if not self.smp:
             # see R409-022
@@ -163,45 +165,51 @@ class Leon3or4(LeonTarget):
             return True
 
     @property
-    def readme_file(self):
+    @override
+    def readme_file(self) -> Path | None:
         return Path("sparc/leon3/README")
 
     @property
-    def target(self):
+    @override
+    def target(self) -> str:
         return "leon3-elf"
 
 
 class Leon3(Leon3or4):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         if self.smp:
             return "leon3-smp"
         else:
             return "leon3"
 
-    def __init__(self, smp):
-        self.smp = smp
-        super().__init__(smp)
-        self.add_gnat_source(f"shared/s-bbbopa__leon3-{'smp' if smp else 'up'}.ads")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_gnat_source(
+            f"shared/s-bbbopa__leon3-{'smp' if self.smp else 'up'}.ads"
+        )
 
 
 class Leon4(Leon3or4):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         if self.smp:
             return "leon4-smp"
         else:
             return "leon4"
 
     @property
-    def need_fix_ut699(self):
+    @override
+    def need_fix_ut699(self) -> bool:
         return False
 
-    def __init__(self, smp):
-        self.smp = smp
-        super().__init__(smp)
-
-        self.add_gnat_source(f"shared/s-bbbopa__leon4-{'smp' if smp else 'up'}.ads")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_gnat_source(
+            f"shared/s-bbbopa__leon4-{'smp' if self.smp else 'up'}.ads"
+        )
 
 
 TARGETS = [

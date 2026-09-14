@@ -3,44 +3,57 @@
 #
 
 from pathlib import Path
+from typing import override
 
 from rts_prebuilder.abstract_infrastructure import (
     AbstractTarget,
     AbstractTargetGenerator,
+    Profile,
 )
-from rts_prebuilder.engine import resolve_and_read_file
-from bb_runtimes_targets_gen.concrete_infrastructure import DFBBTarget
+from rts_prebuilder.base_types import ValidBaseProfileType
+from bb_runtimes_targets_gen.concrete_infrastructure import (
+    DFBBTarget,
+    RuntimeXmlSource,
+    light_profile,
+)
 
 
 class Visium(DFBBTarget):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "mcm"
 
     @property
-    def target(self):
+    @override
+    def target(self) -> str:
         return "visium-elf"
 
-    def has_libc(self, base_profile):
+    @override
+    def has_libc(self, base_profile: ValidBaseProfileType) -> bool:
         return True
 
     @property
+    @override
     def has_small_memory(self) -> bool:
         return True
 
-    def __init__(self):
-        super(Visium, self).__init__()
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources("shared/s-macres__libc.adb", "shared/s-textio__stdio.adb")
-
-    def dump_runtime_xml(self, rts_name, rts):
-        return resolve_and_read_file(Path("visium/mcm/runtime.xml"))
-
-    def amend_rts(self, rts_profile, conf):
-        conf.build_flags["common_flags"] += ["-muser-mode"]
+        self.add_runtime_switches(
+            common_switches=("-muser-mode",),
+        )
 
     @property
-    def system_ads(self):
-        return {"light": "system-xi-visium.ads"}
+    @override
+    def runtime_xml_source(self) -> RuntimeXmlSource | None:
+        return RuntimeXmlSource(Path("visium/mcm/runtime.xml"))
+
+    @property
+    @override
+    def profiles(self) -> list[Profile]:
+        return [light_profile(self, Path("system-xi-visium.ads"))]
 
 
 # TODO:2 Visium/MCM target is not buildable.
