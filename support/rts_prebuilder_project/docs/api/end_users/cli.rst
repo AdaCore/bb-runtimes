@@ -4,19 +4,11 @@
 Command-Line Interfaces
 =======================
 
-RuntimeAssemblerCLI
-===================
+The ``rts_prebuilder`` command-line front end. Register targets, target
+generators, or both, then run it. Run the resulting command with ``--help``
+for the flags it accepts.
 
-.. autoclass:: rts_prebuilder.engine.RuntimeAssemblerCLI
-   :members:
-   :exclude-members: _*
-   :special-members: __init__
-   :show-inheritance:
-
-RuntimeTargetizerCLI
-====================
-
-.. autoclass:: rts_prebuilder.engine.RuntimeTargetizerCLI
+.. autoclass:: rts_prebuilder.engine.RuntimePrebuilderCLI
    :members:
    :exclude-members: _*
    :special-members: __init__

@@ -44,7 +44,6 @@ type PlatformIdType = Literal[
     "bb", "deos", "freertos", "linux", "lynx", "pikeos", "vx7r2cert", "qnx"
 ]
 """Allowed platforms, shall be same as VALID_PLATFORM_IDS_SET
-TODO:5 Consider renaming platform to OS
 """
 
 VALID_PLATFORM_IDS_SET = {

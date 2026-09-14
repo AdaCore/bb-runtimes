@@ -5,4 +5,4 @@
 # Requirements for building documentation
 sphinx>=5.0.0
 sphinx_rtd_theme>=1.0.0
-sphinxcontrib-mermaid>=0.9.2
+sphinxcontrib-mermaid>=1.0.0

@@ -17,7 +17,6 @@ from rts_prebuilder.base_types import (
 
 from rts_prebuilder.end_user_data.logger import get_logger
 
-from ..common.source_file import Loader
 from .component import SourcesAndFlagsComponent
 from .runtime_profile import Profile
 from .template_config_mixin import TemplateConfigListerMixin
@@ -27,24 +26,41 @@ log = get_logger(__name__)
 
 class AbstractTarget(SourcesAndFlagsComponent, ABC, TemplateConfigListerMixin):
     """
-    Gives information on the target to allow proper configuration of the
-    runtime
+    One target the prebuilder generates runtimes for.
 
-    Child classes must implement all abstract properties.
+    A target is whatever the runtimes are built for. It can be a board
+    (``HiFive1``), a SoC (``PolarFireSOC``), a bare instruction-set variant
+    (``RV32IMAC``), or an OS on an architecture (``Aarch64QNX``). Each one is a
+    subclass of this class, and that subclass is the only target-specific code
+    in the tree. Everything else is shared.
 
-    A target is the root of its runtime's component tree: the always-on part,
-    resolved for every profile it offers, on top of which a profile adds its own
-    ``components``. Its state splits like any component's:
+    A subclass holds data, not logic. Its properties answer questions about the
+    target: CPU, memory, interrupts, link configurations. They also list the
+    runtimes it offers, as ``Profile`` values. They give the answer and stop
+    there. The code acting on those answers lives in the engine and in the
+    shared components. A property that computes instead of declaring is a sign
+    its logic belongs in one of those.
 
-    * structure, in ``__init__``: the shared-source components it is built from,
-      via ``self.add_dependency`` and friends.
+    From that description the prebuilder generates one runtime per profile. It
+    walks the target and the profile's components, collects the source files
+    and switches each one contributes, and writes them out. The target sits at
+    the root of that tree and is resolved whichever profile is being generated.
+    The profile adds its own ``components`` on top.
+
+    Being itself a component, a target declares two kinds of state, each in one
+    place:
+
+    * structure, in ``__init__``: the shared-source components it is built
+      from, via ``self.add_dependency`` and friends.
     * entries, in ``contribute``: its own sources and switches, via
       ``self.add_*``.
 
-    Being the root, it is also the ``target`` every node in the tree is queried
-    with, so inside its own ``contribute`` ``self`` and ``target`` are the same
-    object. Register on ``self``, but read the properties below off ``target``:
-    that spelling still holds when the code moves into a shared component.
+    Every node in the tree is queried with the target, so inside the target's
+    own ``contribute`` ``self`` and ``target`` are the same object. Register on
+    ``self``, and read the properties below off ``target``: that spelling keeps
+    working if the code later moves into a shared component.
+
+    Child classes must implement all abstract properties.
     """
 
     def __init__(self) -> None:
@@ -58,35 +74,29 @@ class AbstractTarget(SourcesAndFlagsComponent, ABC, TemplateConfigListerMixin):
     @property
     def build_script(self) -> Path | None:
         """Source of the ``build.py`` installed at the runtime root, which the
-        end user runs to rebuild the runtime. ``None`` — like
-        ``prebuild_script`` — installs neither."""
+        end user runs to rebuild the runtime. ``None`` installs neither this
+        script nor ``prepare_build_script``."""
         return None
 
     @property
-    def prebuild_script(self) -> Path | None:
+    def prepare_build_script(self) -> Path | None:
         """Source of the ``prepare_build.py`` that ``build.py`` calls first, for a
         step gprbuild cannot do. Goes together with ``build_script``."""
         return None
 
     @property
-    def loaders(self) -> tuple[Loader, ...]:
-        """The link configurations this target offers the end user, first one
-        being the generated project's ``LOADER`` default. Empty when the target
-        offers no choice.
-
-        Data, not composition: exactly one loader applies per link, whereas
-        components merge into one runtime (see ``Loader``). Everything a loader
-        owns — its scripts, its switches — is written here, so this list is the
-        whole answer to "what can this runtime be linked as".
-
-        :returns: the declared loaders, in offering order.
-        """
-        return ()
+    def default_loader(self) -> str | None:
+        """The loader the generated project selects when the end user passes no
+        ``-XLOADER``. ``None`` takes the first one offered. That means the
+        target's own first declaration, then its dependencies depth first, then
+        the profile's components. Name one here as soon as more than one node
+        declares a loader, so the default does not follow the tree shape."""
+        return None
 
     @property
     @abstractmethod
     def name(self) -> str:
-        """Board's name, as used to name the runtime (e.g. light-<name>)
+        """Target's name, as used to name the runtime (e.g. light-<name>)
         TODO:5 Maybe rename to name_in_runtime ?
         """
         ...
@@ -131,7 +141,8 @@ class AbstractTarget(SourcesAndFlagsComponent, ABC, TemplateConfigListerMixin):
 
         Each ``Profile`` is pure data: its (commercial) name, the base profile
         it maps to, its system.ads and the components that make it up. Profile
-        names must be unique — they drive the runtime fan-out. Build them with
+        names must be unique, because they drive the runtime fan-out. Build
+        them with
         the profile factories (``light_profile``, …) or a bespoke ``Profile``
         for a custom runtime.
         """
@@ -238,35 +249,36 @@ class AbstractTarget(SourcesAndFlagsComponent, ABC, TemplateConfigListerMixin):
 
     @property
     def has_command_line_arguments(self) -> bool:
-        """True if the OS supports command line arguments"""
+        """True if this target's ``platform`` is an OS that passes command line
+        arguments to the program. False on ``bb``, which has no such thing."""
         return False
 
     @property
     def supports_gc_sections(self) -> bool:
         """Whether the runtime may be built with ``-ffunction-sections`` /
-        ``-fdata-sections``. Default True; set False where the linker script
-        can't cope with the resulting sections (e.g. PikeOS 3)."""
+        ``-fdata-sections``. The default is True. Set it False where the linker
+        script cannot cope with the resulting sections, as on PikeOS 3."""
         return True
 
     @property
     def uses_eh_frame_unwinding(self) -> bool:
         """Whether embedded exception propagation relies on DWARF ``.eh_frame``
-        (needing ``-u _Unwind_Find_FDE`` / ``-Wl,--eh-frame-hdr`` in the app
-        link) rather than a target-native table (e.g. ARM ``.ARM.exidx``).
-        Default False; set True on targets that unwind via ``.eh_frame`` (e.g.
-        Morello, powerpc BookE)."""
+        instead of a target-native table such as ARM ``.ARM.exidx``. Relying on
+        it needs ``-u _Unwind_Find_FDE`` and ``-Wl,--eh-frame-hdr`` in the app
+        link. The default is False. Set it True on targets that unwind via
+        ``.eh_frame``, such as Morello and powerpc BookE."""
         return False
 
     @property
     def has_compare_and_swap(self) -> bool:
         """True if the hardware supports an atomic compare-and-swap function.
 
-        The default is to return True here as (at least for now) only the
-        LEON processor may not support CAS, all other having proper support or
-        at the minimum proper emulation when they are uni-processor.
+        The default is True. For now, LEON is the only processor that may lack
+        CAS. Every other one supports it, or emulates it properly when it is
+        uni-processor.
 
-        On LEON target, some variants of the CPU may not support it, while gcc
-        expects the support: this may thus generate invalid instructions.
+        Some LEON CPU variants do not support it, but gcc expects them to. That
+        can generate invalid instructions.
         """
         return True
 

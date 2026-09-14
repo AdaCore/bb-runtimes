@@ -4,8 +4,12 @@
 Path Resolution
 ===============
 
+Components name sources by relative path. A resolver turns each one into a file
+on disk, and records what it did so the install carries an auditable resolution
+record.
+
 SourcePathResolver
-==========================
+==================
 
 .. autoclass:: rts_prebuilder.abstract_infrastructure.SourcePathResolver
    :members:
@@ -14,7 +18,11 @@ SourcePathResolver
    :show-inheritance:
 
 DefaultSourcePathResolver
-==========================
+=========================
+
+The default resolver looks for files in an ordered list of search paths. The
+caller, an end-user script or an infrastructure entry point, feeds those paths in
+at run time, reaching the resolver through the registered engine interface.
 
 .. autoclass:: rts_prebuilder.abstract_infrastructure.DefaultSourcePathResolver
    :members:
@@ -22,38 +30,37 @@ DefaultSourcePathResolver
    :special-members: __init__
    :show-inheritance:
 
-The default resolver looks for files in an ordered list of search paths. The
-caller (an end-user script or an infrastructure entry point) feeds those paths
-in at runtime, reaching the resolver through the registered engine interface.
+.. code-block:: python
 
-.. admonition:: Real World Example — ``bb_runtimes_targets_gen``
-   :class: tip
+   from pathlib import Path
 
-   .. code-block:: python
+   engine_interface.path_resolver_instance.add_search_paths(
+       Path("/path/to/gnat-sources"),
+       Path("/path/to/your-target-sources"),
+   )
 
-      from pathlib import Path
-
-      from bb_runtimes_targets_gen.concrete_infrastructure.engine_interface import (
-          engine_interface,
-      )
-
-
-      engine_interface.common.path_resolver_instance.add_search_paths(
-          Path("/path/to/gnat-sources"),
-          Path("/path/to/bb-runtimes/sources"),
-      )
-
-ResolutionRecord
+Resolution steps
 ================
+
+A resolver is a chain of steps. Subclass ``SourcePathResolver`` with your own
+chain only when the default one does not fit.
+
+.. autoclass:: rts_prebuilder.abstract_infrastructure.AbstractResolutionStep
+   :members:
+   :exclude-members: _*
+   :special-members: __init__
+   :show-inheritance:
+
+.. autodata:: rts_prebuilder.abstract_infrastructure.OutcomeDescription
+
+Resolution records
+==================
 
 .. autoclass:: rts_prebuilder.abstract_infrastructure.common.resolver_core.ResolutionRecord
    :members:
    :exclude-members: _*
    :special-members: __init__
    :show-inheritance:
-
-GitMetadata
-===========
 
 .. autoclass:: rts_prebuilder.abstract_infrastructure.common.resolver_core.GitMetadata
    :members:

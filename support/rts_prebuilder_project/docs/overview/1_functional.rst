@@ -4,133 +4,159 @@
 Functional
 ===========
 
-The RTS Prebuilder is a **library** for programmatically assembling restricted runtime system (RTS) source trees and configuring them for specific targets. It provides a flexible framework for generating Ada runtime sources and targeting them to new hardware platforms.
+The bb-runtimes repository generates restricted Ada runtime system (RTS)
+source trees for bareboard and OS targets. This documentation covers its two
+Python packages and how they work together. ``rts_prebuilder`` provides the
+generation engine. ``bb_runtimes_targets_gen`` supplies AdaCore's target
+definitions and components, which select sources from ``src/`` and other
+source directories.
+
+The ``bb`` in the name reflects the repository's bareboard origins. Its scope
+now includes OS targets.
 
 What is a Runtime System (RTS)?
 ===============================
 
 See `GNAT runtime <https://docs.adacore.com/gnat_ugx-docs/html/gnat_ugx/gnat_ugx/gnat_runtimes.html>`_
-
-See also `Customized bareboard runtimes libraries <https://docs.adacore.com/gnat_ugx-docs/html/gnat_ugx/gnat_ugx/customized_run-time_libraries.html#customized-bareboard-run-time-libraries>`_
-
-Note that this library is not limited to bareboard runtimes, it can be used to assemble and target any kind of Ada runtime system.
+and `Customized bareboard runtime libraries <https://docs.adacore.com/gnat_ugx-docs/html/gnat_ugx/gnat_ugx/customized_run-time_libraries.html#customized-bareboard-run-time-libraries>`_.
 
 Key concepts
 ============
 
-Three terms appear throughout the phase descriptions below:
+Six terms appear throughout these pages. They are ordered so each one builds on
+the ones above it.
 
-* **Base profile** — one of ``light``, ``light-tasking``, ``embedded`` ...
-  It selects the flavor of the restricted Ada runtime (tasking? exception
-  model? certification constraints? etc ...).
+Target
+   A Python class describing one concrete target, be it a board, a CPU or an
+   operating system on an architecture: its platform, the profiles it offers,
+   its hardware traits and its gprbuild target triplet. It is the input the
+   whole generation runs from. It also carries its own
+   always-on components, on top of those its profiles bring. See
+   :class:`~rts_prebuilder.abstract_infrastructure.AbstractTarget`.
 
-* **Platform** — a preselection of source files applicable to a given operating
-  system or bareboard environment. One of ``bb`` (bareboard), ``lynx``,
-  ``freertos``, ``linux``, etc ...
+Component
+   A coherent group of runtime sources and switches. Components stay
+   profile-unaware. See
+   :class:`~rts_prebuilder.abstract_infrastructure.SourcesAndFlagsComponent`.
 
-* **Target** — a Python class describing one concrete board / CPU. Declares its
-  platform, supported profiles, build flags, and gprbuild target name. This is
-  the main descriptor used to generate the final runtime.
+Base profile
+   The runtime family, which fixes the Ada subset a runtime supports: whether
+   it has tasking, which exception model it uses, which certification
+   constraints apply. The main runtime families are ``light``,
+   ``light-tasking`` and ``embedded``
+   (:data:`~rts_prebuilder.base_types.ValidBaseProfileType`). It drives which
+   components a runtime gets.
 
-The Three-Phase Process to build a customizable runtime:
-========================================================
+Profile
+   One runtime a target offers: a base profile made concrete for that one
+   target. In Ada terms it is one run-time library, the directory a user
+   selects with ``for Runtime ("Ada") use "light-tasking-stm32f4";`` or with
+   ``--RTS=``. That runtime is the ``light-tasking`` base profile carrying the
+   STM32F4's clock, memory map and interrupt sources, and nothing from any
+   other target. Its name is the profile's name plus the target's, so a target
+   offering several profiles ships several runtimes. As data, a profile is that
+   name, a base profile, a ``system.ads``, and the components that make up the
+   runtime. See :class:`~rts_prebuilder.abstract_infrastructure.Profile`.
 
-Assembling and Building a target specific RTS is done in three distinct phases:
+Platform
+   The operating system or bareboard environment a target runs on. One of
+   ``bb`` (bareboard, no OS), ``deos``, ``freertos``, ``linux``, ``lynx``,
+   ``pikeos``, ``vx7r2cert`` or ``qnx``
+   (:data:`~rts_prebuilder.base_types.PlatformIdType`). Components read it to
+   pick platform-specific sources.
 
-**1. Runtime Sources Assembly:**
-Collects Ada source files from source repositories and places them in a dedicated RTS source
-tree based on a **base profile** and a **platform**  selections. 
+Infrastructure
+   The code that supplies all of the above. ``rts_prebuilder`` ships only the
+   abstract infrastructure: the contracts a target, a component and a generator
+   must fill. A concrete infrastructure fills them for one family of runtimes.
+   ``bb_runtimes_targets_gen``, which prebuilds the AdaCore bareboard runtimes,
+   is one such infrastructure. A site with its own boards and its own source
+   layout writes another.
 
-**2. Runtime Source Tree Targetization:**
-Takes the assembled source tree and a **Target** description, then generates target-specific runtime directories with build configurations.
-This phase requires the target to customize the runtime for specific hardware/OS constraints.
+Prebuilding, and then building
+==============================
 
-**3. Runtime Building:**
-Uses the ``build.py`` script to compile the configured runtime. **This phase is outside the scope of the rts_prebuilder package** but is made possible by the generated build.py script.
+Generating and compiling a restricted Ada runtime takes two separate steps.
+
+Prebuilding (``rts_prebuilder``)
+   Takes a target description and generates target-specific runtime directories
+   with their build configuration. For each profile, the target's components are
+   resolved for that profile, and the resulting sources are gathered from the
+   source repositories the caller points at.
+
+Building (generated build script)
+   Compiles a prebuilt runtime directory using an Ada compiler. The prebuilder
+   makes this possible but plays no part in it. A prebuilt tree can equally be
+   edited by hand and rebuilt later, without going through the prebuilder
+   again.
 
 .. _functional_diagram:
 .. mermaid::
 
-  flowchart TB
-    subgraph Phase1["<b>Phase 1: Assembly</b>"]
-        direction TB
-            Assembler["RuntimeAssembler"]
-            Tree["Raw sources assembed in a tree<br>+ Metadata JSON <br>(rts-sources.json)"]
+   flowchart TB
+      subgraph Prebuilding["<b>Prebuilding</b><br><i>rts_prebuilder Python package</i>"]
+         direction TB
+         Prebuilder["RuntimePrebuildDriver"]
+         PrebuiltRuntime@{ shape: docs, label: "Target-specific runtime<br>with its generated .gpr files" }
       end
-    subgraph Phase2["<b>Phase 2: Targetization</b>"]
-        direction TB
-            Targetizer["RuntimeTargetizer"]
-            TargetizedRuntime["Target specific runtime  <br> With ready to build(.gpr files)"]
+      subgraph Building["<b>Building</b><br><i>(external tool)</i>"]
+         direction TB
+         BuildScript["Build script"]
+         Runtime@{ shape: docs, label: "Compiled<br>runtime" }
       end
-    subgraph RTSPrebuilder["<b>RTS Prebuilder Scope</b>"]
-        direction TB
-            Phase1
-            Phase2
+      subgraph TargetDefinitions["<b>bb_runtimes_targets_gen</b><br><i>Python package</i>"]
+         Target["Target"]
       end
-    subgraph Phase3["<b>Phase 3: Building</b><br><i>(External Tool)</i>"]
-        direction TB
-            GPRBuild["build.py"]
-            Runtime["Compiled<br>Runtime"]
-      end
-        Assembler --> Tree
-        Targetizer --> TargetizedRuntime
-        Tree -. Input to .-> Targetizer
-        GPRBuild --> Runtime
-        DB[("External repositories<br> (gnat, gcc)")] -- Provides sources --> Assembler
-        Profile["Highest Base Profile<br>(light, embedded, cert, ...)"] -- Selection argument --> Assembler
-        Platform["Platform<br>(bb, pikeos, linux, ...)"] -- Selection argument --> Assembler
-        Target["Target<br>(Board Definition)"] -- "Selects sources, both from Assembly output using scenarios, and directly from target repo. Also defines build flags and config files" --> Targetizer
-        TargetizedRuntime -- Input to --> GPRBuild
-        n1[("Sources from target repository (bb-runtimes, certified-rts ...)")] -- Provides sources --> Targetizer
-        n3["Target name"]
-        style Phase1 fill:#e1f5ff,stroke:#0288d1,stroke-width:2px
-        style Phase2 fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-        style Runtime fill:#c5e1a5,stroke:#689f38
-        style DB fill:#bbdefb,stroke:#1976d2
-        style Profile fill:#c8e6c9,stroke:#388e3c
-        style Platform fill:#c8e6c9,stroke:#388e3c
-        style Target fill:#ffe0b2,stroke:#e65100
-        style n1 fill:#bbdefb,stroke:#1976d2
-        style RTSPrebuilder fill:#f0f8ff,stroke:#0066cc,stroke-width:4px,stroke-dasharray: 5 5
-        style Phase3 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+      Prebuilder --> PrebuiltRuntime
+      BuildScript --> Runtime
+      DB[("Source repositories<br>(gnat install dir, gnat sources, gcc sources)")] -- Provides sources --> Prebuilder
+      Target -- Configures --> Prebuilder
+      PrebuiltRuntime -- Input to --> BuildScript
+      TargetSources[("bb-runtimes/src/<br>(target-specific sources)")] -- Provides sources --> Prebuilder
+      Target -. Selects sources from .-> DB
+      Target -. Selects sources from .-> TargetSources
+      style Prebuilding fill:#f0f8ff,stroke:#0066cc,stroke-width:4px
+      style Runtime fill:#c5e1a5,stroke:#689f38
+      style DB fill:#bbdefb,stroke:#1976d2
+      style Target fill:#ffe0b2,stroke:#e65100
+      style TargetDefinitions fill:#dbfaf4,stroke:#1abc9c,stroke-width:2px
+      style TargetSources fill:#bbdefb,stroke:#1976d2
+      style Building fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
 
+The target definition selects the build scripts. The prebuilder copies them
+into the generated runtime directory. Run the build script separately to
+compile the runtime.
 
-.. note::
+.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+   :class: bb-runtimes-specific
 
-   Historically, Step 1 was done in a `gen-rts-sources.py` script in the `bb-runtimes` repository, while
-   step 2 and 3 were done in one step by a `build_rts.py` script (step 3 only with its `--build` option).
-   That script has since been removed: this package modularizes and generalizes these steps, targetization
-   now runs through the per-arch entry points (`python -m bb_runtimes_targets_gen.targets.<arch>`) and the
-   build through each runtime's `build.py`, allowing more flexibility and reuse with different source
-   repositories and target definitions repositories.
+   ``bb_runtimes_targets_gen`` supplies the target definitions shown in the
+   diagram. It installs a ``build.py`` and a ``prepare_build.py`` in every
+   runtime. Run ``build.py`` to compile the generated tree.
 
+Where do you start with bb-runtimes?
+======================================
 
-Do you need this package? And how shall you approach it?
-========================================================
-
-Use the decision tree below to find your role and the right entry point.
-Answer each question top-down; click the leaf node to jump to the relevant guide.
+Answer each question top-down. Click a leaf to jump to the matching guide.
 
 .. mermaid::
 
    flowchart TD
-       Q1{"You already have a target-specific runtime to use as-is or edit and rebuild?"}
-       Q1 -- Yes --> RB["<b>Runtime builder</b> &nbsp;—&nbsp; Out of scope for rts_prebuilder (see GNAT UG: Customized Run-Time Libraries instead)"]
-       Q1 -- No --> Q2{"You want to prebuild a runtime for a Target/board that is already supported by an existing targets repository (e.g. bb_runtimes_targets_gen)?"}
-       Q2 -- Yes --> EU["<b>End user</b> &nbsp;—&nbsp; See End Users Guide. You may skip the rest of this documentation."]
-       Q2 -- No --> Q3{"A repository with existing target configurations already exists, and you only need to add a new target/board?"}
-       Q3 -- Yes --> EXT["<b>Concrete Infrastructure Extender</b> &nbsp;—&nbsp; See Extenders Guide. Read the rest of the overview first."]
-       Q3 -- No --> BLD["<b>Concrete Infrastructure Builder</b> &nbsp;—&nbsp; specific constraints prevent reuse of existing repos. See Builders Guide. Read the rest of the overview first."]
-       click RB "https://docs.adacore.com/gnat_ugx-docs/html/gnat_ugx/gnat_ugx/customized_run-time_libraries.html" _blank
-       click EU "../user_guides/end_users_guide.html"
-       click EXT "../user_guides/concrete_infrastructure_extenders.html"
-       click BLD "../user_guides/concrete_infrastructure_builders.html"
-       style RB fill:#ffeb3b,stroke:#f57f17,stroke-width:3px
-       style EU fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
-       style EXT fill:#bbdefb,stroke:#1976d2,stroke-width:2px
-       style BLD fill:#ffe0b2,stroke:#e65100,stroke-width:2px
-       style Q1 fill:#fffde7,stroke:#f9a825
-       style Q2 fill:#fffde7,stroke:#f9a825
-       style Q3 fill:#fffde7,stroke:#f9a825
-
-
+      Q1{"You already have a target-specific runtime to use as-is, or to edit and rebuild?"}
+      Q1 -- Yes --> RB["<b>Runtime builder</b> &nbsp;—&nbsp; Out of scope for rts_prebuilder (see GNAT UG: Customized Run-Time Libraries instead)"]
+      Q1 -- No --> Q2{"You want to prebuild a runtime for a target that an existing infrastructure (such as bb_runtimes_targets_gen) already supports?"}
+      Q2 -- Yes --> EU["<b>End user</b> &nbsp;—&nbsp; See End Users Guide. You may skip the rest of this documentation."]
+      Q2 -- No --> Q3{"Can you meet your needs by extending existing target definitions?"}
+      Q3 -- Yes --> EXT["<b>Concrete Infrastructure Extender</b> &nbsp;—&nbsp; See Extending with Your Own Target. Read the rest of the overview first."]
+      Q3 -- No --> BLD["<b>Concrete Infrastructure Builder</b> &nbsp;—&nbsp; See Builders Guide. Read the rest of the overview first."]
+      click RB "https://docs.adacore.com/gnat_ugx-docs/html/gnat_ugx/gnat_ugx/customized_run-time_libraries.html" _blank
+      click EU "../user_guides/end_users_guide.html"
+      click EXT "../user_guides/extending_with_your_own_target.html"
+      click BLD "../user_guides/concrete_infrastructure_builders.html"
+      style RB fill:#ffeb3b,stroke:#f57f17,stroke-width:3px
+      style EU fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
+      style EXT fill:#bbdefb,stroke:#1976d2,stroke-width:2px
+      style BLD fill:#ffe0b2,stroke:#e65100,stroke-width:2px
+      style Q1 fill:#fffde7,stroke:#f9a825
+      style Q2 fill:#fffde7,stroke:#f9a825
+      style Q3 fill:#fffde7,stroke:#f9a825

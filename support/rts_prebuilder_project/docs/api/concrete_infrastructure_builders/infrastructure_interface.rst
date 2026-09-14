@@ -4,8 +4,11 @@
 Infrastructure Implementation
 ==============================
 
+The one door between the engine and a concrete infrastructure. Build one
+instance, fill it, and register it (see :ref:`infrastructure_registration`).
+
 EngineToInfrastructureInterface
-================================
+===============================
 
 .. autoclass:: rts_prebuilder.abstract_infrastructure.EngineToInfrastructureInterface
    :members:
@@ -13,12 +16,10 @@ EngineToInfrastructureInterface
    :special-members: __init__
    :show-inheritance:
 
-CommonInterface
-===============
+Reading a source through the resolver
+=====================================
 
-.. autoclass:: rts_prebuilder.abstract_infrastructure.CommonInterface
-   :members:
-   :exclude-members: _*
-   :special-members: __init__
-   :show-inheritance:
+An infrastructure's generators sometimes need the contents of a source file,
+looked up the same way the engine looks up runtime sources.
 
+.. autofunction:: rts_prebuilder.engine.resolve_and_read_file

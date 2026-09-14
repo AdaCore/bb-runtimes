@@ -1,218 +1,188 @@
 .. Copyright (C) 2025-2026, AdaCore
 
-============================
+=====================================
 Concrete Infrastructure Builder Guide
-============================
+=====================================
 
-.. admonition:: Are You In The Right Place?
+This guide covers advanced usage: creating your own runtime generator from
+scratch with ``rts_prebuilder``.
+
+Before proceeding, reconsider whether extending an existing target definition
+meets your needs. See
+:doc:`extending_with_your_own_target` for that approach. A new generator requires
+you to maintain its component catalog, profile selection and source resolution.
+
+Read :doc:`../overview/3_architecture` alongside this guide to understand the
+contracts your infrastructure must implement.
+
+.. admonition:: Other guides
    :class: routing-box
 
-   * You already have a concrete infrastructure (e.g. ``bb_runtimes_targets_gen``)
-     and only want to add a new target (board/CPU/platform) to it →
-     :doc:`concrete_infrastructure_extenders`.
-   * You only want to *invoke* an existing infrastructure's CLI to generate a
-     buildable runtime → :doc:`end_users_guide`.
-   * You need to build a brand-new infrastructure from scratch → continue below.
+   * Extending target definitions for your board, CPU or platform:
+     :doc:`extending_with_your_own_target`.
+   * Only running an existing infrastructure's entry point to generate a
+     buildable runtime: :doc:`end_users_guide`.
 
-This guide is for developers who need to **build a completely new runtime infrastructure** from scratch.
+What rts_prebuilder requires of you
+=====================================
 
-.. admonition:: Real World Example — ``bb_runtimes_targets_gen``
-   :class: tip
+``rts_prebuilder`` requires exactly two things: an
+:class:`~rts_prebuilder.abstract_infrastructure.EngineToInfrastructureInterface`
+that has been registered, and at least one
+:class:`~rts_prebuilder.abstract_infrastructure.AbstractTarget` handed to the
+engine. Everything else below is a convention that has proved to work. Where a
+step is a convention rather than a requirement, it says so.
 
-   ``bb_runtimes_targets_gen`` is a fully-wired infrastructure for embedded
-   targets. Per-step admonitions below point at the matching files; full
-   snippets in the Reference Implementation section at the bottom.
+Step 1: Design your source organization
+=======================================
 
-Creating Your Infrastructure
-=============================
+Decide how your source files and your target definitions are laid out across
+repositories. ``rts_prebuilder`` makes no assumption here: a component names a
+source by a relative path, and the resolver turns that into a file at run time. The layout
+you pick is what those relative paths are relative to.
 
-Step 1: Design Your Source Organization
-----------------------------------------
+Step 2: Customize the path resolver (optional)
+==============================================
 
-Decide how your source files / Target definition will be organized in repositories.
-
-Step 2: (Optional) Customize the Path Resolver
------------------------------------------------
-
-Most infrastructures can reuse
+Most infrastructures reuse
 :class:`~rts_prebuilder.abstract_infrastructure.DefaultSourcePathResolver`
-as-is — it chains the manifest, libs, runtime search-paths, and GCC-dir
-resolution steps, and exposes ``add_search_paths()`` for callers to feed
-directories at runtime.
+as-is. It chains the manifest, libs, runtime search-paths and GCC-dir resolution
+steps, and exposes ``add_search_paths()`` for callers to feed directories at run
+time.
 
-Subclass :class:`~rts_prebuilder.abstract_infrastructure.SourcePathResolver`
-only when you need a different chain of resolution steps. The base class
-already implements ``resolve()`` (which dispatches through the steps and
-records each resolution via ``record_resolution_with_metadata()``), so a
-subclass's contract is:
+Subclass :class:`~rts_prebuilder.abstract_infrastructure.SourcePathResolver` only
+when you need a different chain of resolution steps. The base class already
+implements ``resolve()``, which dispatches through the steps and records each
+resolution, so a subclass's contract is:
 
 * pass a ``list[AbstractResolutionStep]`` to ``super().__init__(steps=...)``;
-* override the abstract
+* override
   :meth:`~rts_prebuilder.abstract_infrastructure.SourcePathResolver.add_search_paths`
-  to wire whichever of your steps consumes runtime search paths.
+  to wire whichever of your steps consumes run-time search paths.
 
-See ``DefaultSourcePathResolver`` for the canonical pattern.
+``DefaultSourcePathResolver`` is the canonical pattern to copy.
 
-Step 3: Provide the Sources Database
-------------------------------------
+Step 3: Provide the runtime components
+======================================
 
-Master inventory of every *source family* that can appear in any runtime
-this infrastructure can produce. Each family entry groups files plus
-metadata about when they apply.
+Write the master inventory of every source group that can appear in any runtime
+this infrastructure can produce, as
+:class:`~rts_prebuilder.abstract_infrastructure.SourcesAndFlagsComponent`
+subclasses. One class per coherent group of files: a feature, a per-CPU layer, a
+variant of an implementation. A component registers its files from
+``contribute(target, profile)`` with ``add_gnat_sources()`` and
+``add_gnarl_sources()``. When a group has platform-specific files, branch on the
+target's ``platform`` right there.
 
-A family entry can carry:
+Keep components profile-unaware. Each registers its files, branching only on
+target facts. Which profiles a component belongs to is decided in one place, your
+selection layer (Step 4).
 
-* ``srcs`` — file list always included for this family.
-* one key per :data:`~rts_prebuilder.base_types.PlatformSpecificSourcesIdType`
-  (e.g. ``"bb"``, ``"pikeos"``) — extra files included only when assembling
-  for that platform.
-* ``conditions`` — scenario predicates saying which scenario
-  configurations this family applies to.
-* ``requires`` — other scenario dimensions this family pulls in (used by
-  :func:`~rts_prebuilder.engine.common.rule.complete_scenarios_from_deps`
-  to fill scenarios the target didn't pin explicitly).
+.. note::
 
-Two engine phases use it:
+   A target also calls ``add_gnat_sources`` and ``add_gnarl_sources`` from its own
+   ``contribute``, but only for the paths that board alone brings. The components
+   here are shared building blocks, picked per profile.
 
-* **Phase 1 — Assembler**: filters by profile/platform, copies matching
-  families into the output tree, emits a JSON descriptor with each
-  family's ``conditions``/``requires``.
-* **Phase 2 — Targetizer**: reads the descriptor, evaluates the active
-  scenario against ``conditions``, picks the subset that becomes the
-  per-target runtime.
+.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+   :class: bb-runtimes-specific
 
-Hand the engine a :data:`~rts_prebuilder.base_types.RawRtsSourcesDBType`
-dict. "Raw" means untyped at the call site; the engine wraps it into the
-strongly-typed :data:`~rts_prebuilder.base_types.RtsSourcesDBType` at load
-time. Storage format is your choice — inline Python literal, JSON, YAML
-loaded at import time. The dict is passed to
-``CommonInterface(all_sources_listing=...)`` in Step 5.
-
-.. admonition:: Real World Example — ``bb_runtimes_targets_gen``
-   :class: tip
-
-   Inlined as Python literals in
-   ``bb_runtimes_targets_gen/concrete_infrastructure/common/sources_db.py``.
-   Illustrative samples of the three shapes an entry can take:
+   One class per component, grouped by theme in the source tree:
 
    .. code-block:: python
 
-      from rts_prebuilder.base_types import RawRtsSourcesDBType
+      class Fpu(SourcesAndFlagsComponent):
+          @override
+          def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+              self.add_gnat_sources(
+                  "libgnat/s-fatgen.ads",
+                  "libgnat/s-fatgen.adb",
+              )
 
-      all_sources_listing: RawRtsSourcesDBType = {
-          # 1. Plain srcs — always included.
-          "common": {
-              "srcs": ["libgnat/ada.ads", "libgnat/a-assert.ads"],
-          },
 
-          # 2. srcs + conditions — included only when the scenario matches.
-          #    Predicate syntax: "Dimension:value[,value...]" or
-          #    "Dimension:!value" for negation; multiple predicates AND.
-          "common/64": {
-              "conditions": ["Target_Word_Size:64"],
-              "srcs": [
-                  "libgnat/i-cexten__128.ads",
-                  "libgnat/s-casi128.ads",
-              ],
-          },
+      class GnarlTimer32(SourcesAndFlagsComponent):
+          @override
+          def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+              match target.platform:
+                  case "bb":
+                      self.add_gnarl_sources(
+                          "hie/s-bbbosu__timer-32.ads",
+                          "hie/s-bbtime__timer-32.adb",
+                      )
 
-          # 3. srcs + conditions + requires — when this family applies,
-          #    also pin the listed scenario dimensions. complete_scenarios_from_deps
-          #    follows the chain transitively.
-          "image/decimal": {
-              "conditions": ["Add_Image_Decimal:yes"],
-              "srcs": [
-                  "libgnat/s-imaged.ads",
-                  "libgnat/s-imaged.adb",
-              ],
-              "requires": ["Add_Image_Util:yes"],
-          },
-      }
+Step 4: Decide how a profile picks its components
+=================================================
 
-.. warning::
+The package does not select components. It reads
+:attr:`~rts_prebuilder.abstract_infrastructure.Profile.components` and merges it
+with the target's own tree. Filling that list is yours to design.
 
-   Not consumed by extenders' ``add_gnat_sources`` / ``add_gnarl_sources``.
-   Those calls are imperative and add arbitrary paths to a single target's
-   tree — independent of the sources DB.
-
-Step 4: Implement the Scenario Generator
------------------------------------------
-
-Create a class inheriting from
-:class:`~rts_prebuilder.abstract_infrastructure.AbstractProfileToScenarioGenerator`.
-The only abstract method is
-:meth:`~rts_prebuilder.abstract_infrastructure.AbstractProfileToScenarioGenerator.profile_to_scenarios`,
-which takes a :data:`~rts_prebuilder.base_types.ProfileNameType` and returns
-a :data:`~rts_prebuilder.base_types.ScenariosConfigurationType` (a dict
-keying scenario dimensions defined in your ``all_possible_scenarios`` to one
-of their valid values).
-
-The constructor receives the
-:class:`~rts_prebuilder.abstract_infrastructure.AbstractTarget` instance, so
-your implementation can read target attributes (``has_fpu``, ``is_64bit``, …)
-to drive the mapping.
-
-The generator is **not** registered globally. Each target picks one by
-overriding
-:attr:`~rts_prebuilder.abstract_infrastructure.AbstractTarget.profile_to_scenarios_generator`.
-Infrastructures typically ship a default subclass and wire it in from their
-pre-filled ``Target`` base class (Step 7).
-
-.. admonition:: Real World Example — ``bb_runtimes_targets_gen``
-   :class: tip
-
-   ``DefaultProfileToScenariosGenerator``
-   (``infrastructure/runtime_targetizer/profiles.py``) dispatches via
-   ``match self.target.base_profile(profile)`` to per-profile
-   ``light_scenarios()`` / ``embedded_scenarios()`` / … helpers. The
-   pre-filled ``Target`` base class returns it from
-   ``profile_to_scenarios_generator``.
-
-Step 5: Define the Infrastructure Interface
---------------------------------------------
-
-Build a module-level :class:`~rts_prebuilder.abstract_infrastructure.EngineToInfrastructureInterface`
-holding a :class:`~rts_prebuilder.abstract_infrastructure.CommonInterface`.
-``CommonInterface`` takes:
-
-* ``all_sources_listing`` — a :data:`~rts_prebuilder.base_types.RawRtsSourcesDBType`
-  dict mapping source-set names to their file lists.
-* ``all_possible_scenarios`` — a
-  :data:`~rts_prebuilder.base_types.AllPossibleScenarioConfigsType` dict
-  enumerating every scenario dimension and its valid values.
-* ``path_resolver_instance`` — optional; defaults to
-  :class:`~rts_prebuilder.abstract_infrastructure.DefaultSourcePathResolver`.
-  Pass your own subclass only if the default search-path strategy doesn't fit.
+The shape that has proved to work is one plain function per base profile, each
+returning the flat set of components for that runtime, plus one profile factory
+per base profile that calls it:
 
 .. code-block:: python
 
-   from rts_prebuilder.abstract_infrastructure import (
-       CommonInterface,
-       EngineToInfrastructureInterface,
-   )
+   def light_components(target):
+       ret = [Common(), Light(), ...]
+       if target.is_64bit:
+           ret.append(Common64())
+       return ret
 
-   from .common.sources_db import all_scenarios, all_sources_listing
 
+   def light_profile(target, system_ads: Path, *, name="light"):
+       return Profile(
+           name=name, base_profile="light", system_ads=system_ads,
+           components=light_components(target),
+       )
+
+Targets then call the factories from their ``profiles`` property and never list
+components by hand. The per-profile policy sits in one module instead of being
+scattered across the catalog.
+
+Leave a way to pass a component in that the function cannot derive from a target
+property, such as a platform-specific tasking layer. A keyword argument on the
+factory, forwarded into the component set, keeps that out of the target's
+component tree.
+
+Step 5: Define the infrastructure interface
+===========================================
+
+Build a module-level
+:class:`~rts_prebuilder.abstract_infrastructure.EngineToInfrastructureInterface`.
+It has two fields:
+
+``path_resolver_instance``
+   Optional. Defaults to
+   :class:`~rts_prebuilder.abstract_infrastructure.DefaultSourcePathResolver`.
+   Pass your own subclass only if the default search-path strategy does not fit.
+
+``runtime_xml_generator``
+   The callable ``(target, profile) -> str`` the engine uses to render each
+   ``runtime.xml``. Targets never generate their own.
+
+.. code-block:: python
+
+   from rts_prebuilder.abstract_infrastructure import EngineToInfrastructureInterface
+
+   from .runtime_xml_gen import generate_runtime_xml
 
    engine_interface = EngineToInfrastructureInterface(
-       common=CommonInterface(
-           all_sources_listing=all_sources_listing,
-           all_possible_scenarios=all_scenarios,
-       ),
+       runtime_xml_generator=generate_runtime_xml,
    )
 
-Step 6: Register Your Infrastructure
--------------------------------------
+Step 6: Register your infrastructure
+====================================
 
-Importing the module is not enough — the engine only sees an interface that
-has called
+Importing the module is not enough. The engine only sees an interface that has
+called
 :meth:`~rts_prebuilder.abstract_infrastructure.EngineToInfrastructureInterface.self_register`.
-Call it from the entry point that runs the engine (typically the
-``__main__`` of each target subpackage):
+Call it from the entry point that runs the engine:
 
 .. code-block:: python
 
-   from rts_prebuilder.engine import RuntimeTargetizerCLI
+   from rts_prebuilder.engine import RuntimePrebuilderCLI
+
    from your_infrastructure_module import engine_interface
    from . import TARGETS
 
@@ -220,111 +190,58 @@ Call it from the entry point that runs the engine (typically the
 
 
    def main() -> None:
-       RuntimeTargetizerCLI.register_targets(*TARGETS).run()
+       RuntimePrebuilderCLI.register_targets(*TARGETS).run()
 
 See :ref:`infrastructure_registration` for the singleton semantics.
 
-Step 7: Define Base Target Classes
-----------------------------------
+Search paths are fed to the already-built interface at run time, by whoever drives
+the engine:
 
-Strongly recommended. ``AbstractTarget`` has six abstract members an
-extender would otherwise have to fill: ``name``, ``platform``,
-``system_ads``, ``target``,
-:attr:`~rts_prebuilder.abstract_infrastructure.AbstractTarget.profile_to_scenarios_generator`,
-and
-:meth:`~rts_prebuilder.abstract_infrastructure.AbstractTarget.dump_runtime_xml`.
-The last two are infrastructure-level decisions, not per-board, so a
-pre-filled subclass should supply them once.
+.. code-block:: python
 
-Extenders then inherit from your pre-filled base and supply only ``name``,
-``target``, ``system_ads``, plus board-specific sources.
+   engine_interface.path_resolver_instance.add_search_paths(
+       Path("/path/to/gnat-sources"),
+       Path("/path/to/your-target-sources"),
+   )
 
-.. admonition:: Real World Example — ``bb_runtimes_targets_gen``
-   :class: tip
+Step 7: Define base target classes
+==================================
 
-   * ``Target(AbstractTarget)`` — fills ``profile_to_scenarios_generator``
-     (with the default generator from Step 4) and ``dump_runtime_xml``.
-   * ``DFBBTarget(Target)`` — bareboard variant: fills ``platform="bb"``,
-     plus FPU and timer defaults.
-   * ``ArchSupport(AbsractArchSupport)`` — currently a thin pass-through,
-     kept as the seam for future arch-level defaults.
+Base target classes are recommended, but ``rts_prebuilder`` does not require them.
+``AbstractTarget`` has four abstract members an extender would otherwise have
+to fill: ``name``, ``platform``,
+``target`` and
+:attr:`~rts_prebuilder.abstract_infrastructure.AbstractTarget.profiles`.
+Component selection is an infrastructure-level decision rather than a per-board
+one, so a pre-filled base is where you expose the profile factories from Step 4
+and fill in whatever is constant across your targets.
 
-.. admonition:: Real World Example — ``bb_runtimes_targets_gen`` Reference Implementation
-   :class: tip
+Extenders then inherit from your base and supply only ``name``, ``target`` and
+``profiles``, plus their board-specific sources.
 
-   The three files below show the minimal wiring as it lives in
-   ``bb_runtimes_targets_gen``.
+.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+   :class: bb-runtimes-specific
 
-   **Sources DB and scenario matrix**
-   (``infrastructure/common/sources_db.py``):
+   Two levels of base class:
 
-   .. code-block:: python
+   * ``Target(AbstractTarget)``: the generic one. The ``runtime.xml`` generator is
+     registered on the engine interface rather than on the target, and profiles
+     are declared per board with the factory helpers.
+   * ``DFBBTarget(Target)``: the bareboard variant, filling ``platform="bb"`` plus
+     FPU and timer defaults.
 
-      from rts_prebuilder.base_types import (
-          AllPossibleScenarioConfigsType,
-          RawRtsSourcesDBType,
-      )
+   The split into two levels, and which defaults sit at which level, are that
+   infrastructure's choices.
 
-      all_scenarios: AllPossibleScenarioConfigsType = {
-          "RTS_Profile": ["light", "light-tasking", "embedded", "cert"],
-          "Compiler_Backend": ["gcc", "llvm"],
-          "CPU_Family": ["arm", "aarch64", "powerpc", "x86_64", "riscv64"],
-          "Has_FPU": ["no", "yes"],
-          "Timer": ["n/a", "timer32", "timer64"],
-          # ... more dimensions ...
-      }
+Step 8: Expose an entry point
+=============================
 
-      all_sources_listing: RawRtsSourcesDBType = {
-          "common": {"srcs": ["libgnat/ada.ads", "libgnat/a-assert.ads"]},
-          # ... more source sets ...
-      }
+Decide how a user invokes your infrastructure, and hand your targets to
+:class:`~rts_prebuilder.engine.RuntimePrebuilderCLI`. ``register_targets`` accepts
+both concrete
+:class:`~rts_prebuilder.abstract_infrastructure.AbstractTarget` instances and
+:class:`~rts_prebuilder.abstract_infrastructure.AbstractTargetGenerator` instances
+for families whose variants are generated rather than written out.
 
-   **Engine interface module** (``infrastructure/engine_interface.py``):
-
-   .. code-block:: python
-
-      from rts_prebuilder.abstract_infrastructure import (
-          CommonInterface,
-          EngineToInfrastructureInterface,
-      )
-
-      from .common.sources_db import all_scenarios, all_sources_listing
-
-
-      engine_interface = EngineToInfrastructureInterface(
-          common=CommonInterface(
-              all_sources_listing=all_sources_listing,
-              all_possible_scenarios=all_scenarios,
-          ),
-      )
-
-   **CLI entry symlinked into each target subpackage**
-   (``targets/__main__to__symlink_to.py``):
-
-   .. code-block:: python
-
-      from rts_prebuilder.engine import RuntimeTargetizerCLI
-
-      from . import TARGETS  # provided by each target subpackage's __init__.py
-      from bb_runtimes_targets_gen.concrete_infrastructure.engine_interface import (
-          engine_interface,
-      )
-
-      engine_interface.self_register()
-
-
-      def main() -> None:
-          RuntimeTargetizerCLI.register_targets(*TARGETS).run()
-
-
-      if __name__ == "__main__":
-          main()
-
-   Search paths for source files are added at runtime by the caller, on the
-   already-built infrastructure::
-
-      engine_interface.common.path_resolver_instance.add_search_paths(
-          Path("/path/to/gnat-sources"),
-          Path("/path/to/bb-runtimes/sources"),
-      )
-
+The flags the resulting command accepts come from ``rts_prebuilder``. See
+:doc:`end_users_guide` for usage instructions.
