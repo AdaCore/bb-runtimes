@@ -1,50 +1,68 @@
 # bb-runtimes
 
-This repository is used to generate the runtime source trees for AdaCore's
-bare metal targets.
+## What does this repository generate?
 
-## dependencies
+This repository generates source trees programmatically for AdaCore's restricted
+Ada runtimes on bareboard and OS targets.
 
-This repository depends on both gcc and gnat repositories to generate a full
-runtime. However it can also use the sources from an installed compiler and
-rely on those to just generate the BSP part of the runtime.
+The `bb` in the name reflects the repository's bareboard origins. Its scope now
+includes OS targets.
 
-You need GNAT Pro 21.0w 20200327 or GNAT Community 2020 minimum to use
-this repository to generate runtimes.
+> [!NOTE]
+> If you already have a runtime source tree for a given target and only want to compile it,
+> follow that runtime's build instructions. You will not need this repository.
 
-## generation of runtimes
+## User guide
 
-Runtimes are generated per architecture. Each target family is its own
-runnable module; pass one or more board names (their `cli_name`):
+If you want to regenerate a restricted runtime source tree for target
+already defined in `./support/bb_runtimes_targets_gen/`. Then follow these
+steps:
 
+Use Python 3.12 or later. From the repository root, install both packages in a
+virtual environment:
+
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install ./support/rts_prebuilder_project \
+    ./support/bb_runtimes_targets_gen
 ```
-# List the boards an architecture supports
-python -m bb_runtimes_targets_gen.targets.<arch> --list-targets
 
-# Generate the runtimes for some boards into ./temp
-python -m bb_runtimes_targets_gen.targets.<arch> <board1> <board2> --output-dir=temp
+List the supported targets:
+
+```sh
+python -m bb_runtimes_targets_gen.targets --list-targets
 ```
 
-To install into the compiler's default location, point `--output-dir` at it,
-e.g. `--output-dir /opt/gnat/arm-eabi/lib/gnat`.
+Generate the runtimes for one target, such as `zynqmp`:
 
-Each generated runtime ships a `build.py` that compiles it; run it after
-generation (assuming the proper compiler is in the PATH). See
-`support/rts_prebuilder_project/docs` for the full flow and
-`python -m bb_runtimes_targets_gen.targets.<arch> --help` for all options.
-
-## rebuild of a runtime
-
-To build a runtime with non default options, use the project file present in
-the runtime folder: runtime_build.gpr for the Light runtimes and
-ravenscar_build.gpr for Tasking and Embedded runtimes.
-
-To build with debug options, use -XBUILD=Debug ; to build with assertions use
--XBUILD=Assert.
-
-So for example to rebuild the ravenscar-sfp-stm32f4 runtime with debug
-information, assuming GNAT is installed in ~/install/gnat, run the following:
-
+```sh
+python -m bb_runtimes_targets_gen.targets zynqmp \
+    --source-search-path src \
+    --source-search-path ../gnat \
+    --source-search-path ../gcc \
+    --output-dir generated
 ```
-gprbuild -P ~/install/gnat/arm-eabi/lib/gnat/ravenscar-sfp-stm32f4/ravenscar-build.gpr -XBUILD=Debug
-```
+
+This example uses GNAT and GCC source trees in `../gnat` and `../gcc`.
+Adjust the paths to match your source locations.
+The output contains `generated/light-zynqmp`, `generated/light-tasking-zynqmp`,
+and `generated/embedded-zynqmp`.
+
+For more options, run `python -m bb_runtimes_targets_gen.targets --help` or see
+the [user guide](https://bb-runtimes.readthedocs.io/en/latest/user_guides/end_users_guide.html).
+
+## Developer guide
+
+The developer guides address two questions:
+
+* [How do I extend target definitions for my board, CPU, or platform?](https://bb-runtimes.readthedocs.io/en/latest/user_guides/extending_with_your_own_target.html)
+  You will also need the [Target API reference](https://bb-runtimes.readthedocs.io/en/latest/api/concrete_infrastructure_extenders/target_definition.html)
+  as you implement your target.
+* [How do I set up my own runtime generator from scratch?](https://bb-runtimes.readthedocs.io/en/latest/user_guides/concrete_infrastructure_builders.html)
+  Advanced usage only. Before proceeding, reconsider whether extending an
+  existing target definition meets your needs.
+
+For an overview of the project, start with the
+[introduction](https://bb-runtimes.readthedocs.io/en/latest/overview/1_functional.html).
+

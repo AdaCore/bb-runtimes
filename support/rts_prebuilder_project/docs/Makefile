@@ -11,7 +11,12 @@ BUILDDIR      = _build
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)"
 
-.PHONY: help Makefile view
+.PHONY: help Makefile view build-doc show-doc
+
+build-doc: html
+
+show-doc: build-doc
+	$(MAKE) view_html
 
 # View the built documentation in a browser
 view_html:
