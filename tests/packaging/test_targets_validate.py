@@ -70,15 +70,7 @@ def _targets(limit: int | None) -> list[tuple[str, AbstractTarget]]:
 
 
 def _sample(variants: list[str], limit: int | None) -> list[str]:
-    """At most ``limit`` variants, spread across the family.
-
-    A generator emits from nested loops, so the first few names all sit in one
-    corner of it: the first five of a thousand STM32F0 parts are all stm32f030.
-
-    :param variants: every name the generator emits, in its own order.
-    :param limit: how many to keep, all of them if None.
-    :returns: the kept names.
-    """
+    """Return evenly spaced variants, or all variants if no limit is set."""
     if limit is None or len(variants) <= limit:
         return variants
     step = len(variants) / limit
