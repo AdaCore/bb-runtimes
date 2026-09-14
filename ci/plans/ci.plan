@@ -33,7 +33,7 @@ def build():
     if env.build.os.name == "linux":
         targets += LINUX_ONLY_TARGETS
     for target in targets:
-        anod_build("recompilablerts", target=target)
+        anod_build("recompilablerts", qualifier="next", target=target)
 
 
 # TODO when stabilized we can add build with the qualifier "build-type=Assert"
