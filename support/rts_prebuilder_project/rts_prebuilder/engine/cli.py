@@ -30,6 +30,8 @@ from .prebuild_driver import RuntimePrebuildDriver
 
 log = get_logger(__name__)
 
+VARIANTS_PER_GENERATOR = 5
+
 
 class RuntimePrebuilderCLI:
     """CLI class to encapsulate parser creation and execution.
@@ -130,6 +132,12 @@ class RuntimePrebuilderCLI:
                 " amongst the available ones. See below for summarized families."
             ),
             type=str,
+        )
+        parser.add_argument(
+            "--all",
+            action="store_true",
+            help="Generate every concrete target and up to "
+            f"{VARIANTS_PER_GENERATOR} evenly spaced variants per generator.",
         )
         parser.add_argument(
             "--list-targets",
@@ -247,10 +255,24 @@ class RuntimePrebuilderCLI:
             )
             return []
 
-        # Require at least one target when not listing
-        if not getattr(args, "target", []):
+        names = list(args.target)
+        if getattr(args, "all", False):
+            if names:
+                raise SystemExit("Use --all or explicit target names, not both.")
+            names = list(self._targets)
+            for generator in self._generators:
+                variants = list(generator.generate_variants())
+                if len(variants) > VARIANTS_PER_GENERATOR:
+                    variants = [
+                        variants[
+                            i * (len(variants) - 1) // (VARIANTS_PER_GENERATOR - 1)
+                        ]
+                        for i in range(VARIANTS_PER_GENERATOR)
+                    ]
+                names.extend(variants)
+        elif not names:
             raise SystemExit(
-                "No target specified. Provide at least one target or use --list-targets to see options."
+                "No target specified. Provide a target, use --all, or use --list-targets."
             )
 
         # Convenience only: a caller with no GCC/GNAT checkout at hand can reach
@@ -260,7 +282,7 @@ class RuntimePrebuilderCLI:
 
         # Resolve targets: concrete first, then generator-backed
         targets: list[AbstractTarget] = []
-        for name in args.target:
+        for name in names:
             if name in self._targets:
                 targets.append(self._targets[name])
                 continue

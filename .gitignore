@@ -54,3 +54,5 @@ dmypy.json
 .coverage
 coverage.xml
 pytest-report.xml
+
+/generated/
