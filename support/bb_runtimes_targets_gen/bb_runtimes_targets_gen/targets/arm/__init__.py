@@ -68,8 +68,8 @@ TARGETS: list[AbstractTarget | AbstractTargetGenerator] = [
     Rpi2Mc(),
     TMS570(variant="tms570ls31", uart_io=False),
     TMS570(variant="tms570ls31", uart_io=True),
-    # TMS570(variant="tms570lc31", uart_io=False), # TODO:2 Does not build, fix ?
-    # TMS570(variant="tms570lc31", uart_io=True),  # TODO:2 Does not build, fix ?
+    TMS570(variant="tms570lc43", uart_io=False),
+    TMS570(variant="tms570lc43", uart_io=True),
     ZynqmpR5(),
     Zynq7000(),
 ]

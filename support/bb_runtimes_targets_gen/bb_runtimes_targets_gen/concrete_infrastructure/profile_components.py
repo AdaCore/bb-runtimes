@@ -173,6 +173,7 @@ type CpuFamilyType = Literal[
     "x86_64",
     "riscv32",
     "riscv64",
+    "visium",
 ]
 
 
@@ -202,6 +203,8 @@ def _cpu_family(target: Target) -> CpuFamilyType:
         return "riscv32"
     elif cpu in ("riscv64",):
         return "riscv64"
+    elif cpu in ("visium",):
+        return "visium"
 
     raise ValueError(
         f"Unknown CPU '{cpu}' from {target} target triplet '{target.target}'"

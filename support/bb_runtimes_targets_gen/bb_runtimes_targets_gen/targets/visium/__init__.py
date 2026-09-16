@@ -56,7 +56,4 @@ class Visium(DFBBTarget):
         return [light_profile(self, Path("system-xi-visium.ads"))]
 
 
-# TODO:2 Visium/MCM target is not buildable.
-# (it gave "Unexpected cpu visium" error), so don't expose it as a target
-# TARGETS = [Visium()]
-TARGETS: list[AbstractTarget | AbstractTargetGenerator] = []
+TARGETS: list[AbstractTarget | AbstractTargetGenerator] = [Visium()]
