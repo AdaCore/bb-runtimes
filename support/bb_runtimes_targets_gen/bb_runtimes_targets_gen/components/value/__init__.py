@@ -11,6 +11,7 @@ from .enumeration import ValueEnum
 from .fixed import ValueFixed, ValueFixedLL, ValueFixedLLL
 from .float import ValueFloat
 from .int import ValueInt, ValueIntLL, ValueIntLLL
+from .real import ValueReal
 from .utils import ValueUtils
 
 __all__ = [
@@ -27,6 +28,7 @@ __all__ = [
     "ValueInt",
     "ValueIntLL",
     "ValueIntLLL",
+    "ValueReal",
     "ValueUtils",
     "ValueWideChar",
 ]

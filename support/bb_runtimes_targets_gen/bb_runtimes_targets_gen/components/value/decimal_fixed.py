@@ -17,8 +17,6 @@ class ValueDecimal(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "s-valuer.ads",
-            "s-valuer.adb",
             "s-valued.ads",
             "s-valued.adb",
             "s-vade32.ads",

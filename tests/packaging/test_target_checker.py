@@ -12,8 +12,12 @@ from pathlib import Path
 from typing import override
 
 import pytest
-from rts_prebuilder.abstract_infrastructure import AbstractTarget, Profile
-from rts_prebuilder.engine.target_checker import validate_target
+from rts_prebuilder.abstract_infrastructure import AbstractTarget, Profile, SourceFile
+from rts_prebuilder.base_types import UnresolvedPath
+from rts_prebuilder.engine.target_checker import (
+    check_source_destinations,
+    validate_target,
+)
 
 
 def _profile(
@@ -119,3 +123,51 @@ def test_invalid_base_profile_raises_value_error():
     )
     with pytest.raises(ValueError, match="invalid base_profile"):
         validate_target(target)
+
+
+def _source(src: str, subdir: str | None = None, dest: str | None = None) -> SourceFile:
+    return SourceFile(
+        unresolved_src_path=UnresolvedPath(Path(src)),
+        dest_subdir=Path(subdir) if subdir is not None else None,
+        dest_path=Path(dest) if dest is not None else None,
+    )
+
+
+def test_two_components_contributing_one_destination_raises_value_error():
+    target = _FakeTarget()
+    attributed = [
+        ("Common", _source("libgnat/s-widthi.ads", "gnat")),
+        ("Full", _source("libgnat/s-widthi.ads", "gnat")),
+    ]
+    with pytest.raises(ValueError, match="contributed more than once"):
+        check_source_destinations(target, _profile(), attributed)
+
+
+def test_variants_of_one_file_collide_on_their_shared_destination():
+    target = _FakeTarget()
+    attributed = [
+        ("Cert", _source("hie/g-io__c.ads", "gnat")),
+        ("Common", _source("hie/g-io__zfp.ads", "gnat")),
+    ]
+    with pytest.raises(ValueError, match="g-io.ads"):
+        check_source_destinations(target, _profile(), attributed)
+
+
+def test_dest_subdir_is_part_of_a_non_ada_destination():
+    """A header is not an Ada unit, so the two libraries may each ship one."""
+    target = _FakeTarget()
+    attributed = [
+        ("CommandLine", _source("runtime.h", "gnat")),
+        ("Gnarl", _source("runtime.h", "gnarl")),
+    ]
+    check_source_destinations(target, _profile(), attributed)
+
+
+def test_one_ada_unit_in_both_libraries_raises_value_error():
+    target = _FakeTarget()
+    attributed = [
+        ("Common", _source("libgnat/s-bb.ads", "gnat")),
+        ("Gnarl", _source("hie/s-bb.ads", "gnarl")),
+    ]
+    with pytest.raises(ValueError, match="s-bb.ads"):
+        check_source_destinations(target, _profile(), attributed)

@@ -1810,7 +1810,6 @@ class RP2040(CortexM0PBase):
                 "shared/s-bbcppr__armv7m.adb",
                 "shared/s-bbcppr__old.ads",
                 "shared/s-bbcpsp__cortexm.ads",
-                "shared/s-bbpara__cortexm0p.ads.tmpl",
                 "shared/s-bbsumu__rp2040.adb",
                 "shared/s-bcpcst__rp2040.adb",
                 "shared/s-bcpcst__armvXm.ads",

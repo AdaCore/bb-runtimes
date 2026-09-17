@@ -3,7 +3,12 @@
 #
 
 import pathlib
-from rts_prebuilder.abstract_infrastructure import AbstractTarget, Loader, Profile
+from rts_prebuilder.abstract_infrastructure import (
+    AbstractTarget,
+    Loader,
+    Profile,
+    SourceFile,
+)
 from rts_prebuilder.base_types import VALID_BASE_PROFILES_SET
 
 
@@ -95,4 +100,47 @@ def check_loader_names(
             f"Target {target.name}/{profile.name}: loader(s) {duplicated}"
             f" declared more than once; a loader is one arm of the generated"
             f" case statement"
+        )
+
+
+ADA_SUFFIXES = (".ads", ".adb")
+
+
+def check_source_destinations(
+    target: AbstractTarget,
+    profile: Profile,
+    attributed_sources: list[tuple[str, SourceFile]],
+) -> None:
+    """Raise if two contributions of one runtime install to the same place, or
+    if two of them carry one Ada unit.
+
+    Sources are collected from ``contribute``, so this cannot join
+    ``validate_target``: it takes a runtime, not a target. The engine calls it
+    while specializing.
+
+    :param target: the target the runtime is being built for.
+    :param profile: the profile the runtime is being built for.
+    :param attributed_sources: each source paired with what contributed it.
+    :raises ValueError: if a destination or an Ada unit is claimed more than
+        once.
+    """
+    owners: dict[str, list[str]] = {}
+    for owner, source in attributed_sources:
+        assert source.dest_path is not None
+        if source.dest_path.suffix in ADA_SUFFIXES:
+            key = source.dest_path.name
+        elif source.dest_subdir is not None:
+            key = str(source.dest_subdir / source.dest_path)
+        else:
+            key = str(source.dest_path)
+        owners.setdefault(key, []).append(f"{owner} ({source.unresolved_src_path})")
+
+    clashes = {key: who for key, who in owners.items() if len(who) > 1}
+    if clashes:
+        detail = "; ".join(
+            f"{key}: {', '.join(who)}" for key, who in sorted(clashes.items())
+        )
+        raise ValueError(
+            f"Runtime {target.name}/{profile.name}: destination(s) contributed"
+            f" more than once: {detail}"
         )

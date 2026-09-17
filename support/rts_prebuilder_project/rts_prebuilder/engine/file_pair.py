@@ -3,7 +3,6 @@
 #
 
 import re
-import sys
 from pathlib import Path
 from typing import override
 
@@ -16,13 +15,6 @@ from rts_prebuilder.end_user_data.logger import get_logger
 from .infrastructure_interface import get_resolver
 
 log = get_logger(__name__)
-
-HEALTH_CHECK_WARNING_ENABLED: bool = True
-"""
-Setting this to false will disable the health check warning messages
-Disable this if you temporarily want to suppress the warnings during testing
-to fix them later. do not commit with this set to false.
-"""
 
 TemplateConfigType = dict[str, str]
 """
@@ -224,8 +216,7 @@ def _apply_template_to_file(src: Path, template_config: TemplateConfigType) -> s
     :return: The processed file content with template variables replaced
     """
     if not src.is_file():
-        log.error(f"runtime file {src} does not exists")
-        sys.exit(4)
+        raise FileNotFoundError(f"runtime file {src} does not exist")
 
     src_cnt = src.read_text(encoding="us-ascii")
 
@@ -252,31 +243,15 @@ def _single_file_installer(
         dst = dst.with_suffix("")
 
     if not src.is_file():
-        log.error(f"runtime file {src} does not exists")
-        sys.exit(4)
+        raise FileNotFoundError(f"runtime file {src} does not exist")
 
     # Prepend install dir
     full_dst = install_dir / dst
 
     log.debug("Installing %s to %s", src, full_dst)
 
-    # Check if destination file already exists with same content
     if full_dst.is_file():
-        dst_cnt = full_dst.read_text()
-        if dst_cnt != content:
-            log.error(f"File {full_dst} already exists with different content")
-            sys.exit(4)
-        else:
-            if HEALTH_CHECK_WARNING_ENABLED:
-                log.warning(
-                    "File already exists & Same content, skip: %s, %s. "
-                    "This works but it is not healthy, consider tracing the source of "
-                    "duplicated sources (in verbose mode). and correctly discriminating"
-                    "which one you want in the final install.",
-                    src,
-                    full_dst,
-                )
-            return
+        raise FileExistsError(f"{full_dst} was already installed, from {src}")
 
     # Ensure parent directory exists
     full_dst.parent.mkdir(parents=True, exist_ok=True)

@@ -17,7 +17,7 @@ from rts_prebuilder.base_types import GnatOrGnarlType, UnresolvedPath
 from rts_prebuilder.end_user_data.logger import get_logger
 
 from .infrastructure_interface import generate_runtime_xml, get_resolver
-from .target_checker import check_loader_names
+from .target_checker import check_loader_names, check_source_destinations
 from .runtime_spec import RuntimeSpec
 
 log = get_logger(__name__)
@@ -46,12 +46,16 @@ def specialize(target: AbstractTarget, profile: Profile) -> RuntimeSpec:
     _check_unicity(roots, target, profile)
 
     all_sources: list[SourceFile] = target_data_sources(target, profile)
+    attributed: list[tuple[str, SourceFile]] = [
+        ("target data", source) for source in all_sources
+    ]
     profile_sources: list[SourceFile] = []
     runtime_build_switches = GprSwitches()
     runtime_gnarl_switches: list[str] = []
     runtime_debug_switches: list[str] = []
     for root in roots:
         sources = root.get_sources(target, profile)
+        attributed += [(type(root).__name__, source) for source in sources]
         if root is not target:
             profile_sources.extend(sources)
         all_sources.extend(sources)
@@ -60,6 +64,12 @@ def specialize(target: AbstractTarget, profile: Profile) -> RuntimeSpec:
         )
         runtime_gnarl_switches += root.get_runtime_gnarl_switches(target, profile)
         runtime_debug_switches += root.get_runtime_debug_switches(target, profile)
+
+    #  The writer installs the system.ads too, so it takes part in the check.
+    system_ads_source_file = _build_system_ads_source_file(profile)
+    attributed.append(("profile's system.ads", system_ads_source_file))
+
+    check_source_destinations(target, profile, attributed)
 
     # Search paths: any component may declare where its sources are found.
     search_paths: list[Path] = []
@@ -82,7 +92,7 @@ def specialize(target: AbstractTarget, profile: Profile) -> RuntimeSpec:
         runtime_build_switches=runtime_build_switches,
         runtime_gnarl_switches=runtime_gnarl_switches,
         runtime_debug_switches=runtime_debug_switches,
-        system_ads_source_file=_build_system_ads_source_file(profile),
+        system_ads_source_file=system_ads_source_file,
         runtime_xml=generate_runtime_xml(target, profile),
         template_config=target.template_config,
         target_triple=target.target,

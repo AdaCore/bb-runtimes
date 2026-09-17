@@ -28,7 +28,6 @@ class Cert(SourcesAndFlagsComponent):
             "a-exctra.ads",
             "a-exctra.adb",
             "calendar.ads",
-            "g-io__c.ads",
             "s-except__cert.ads",
             "a-excach__cert.adb",
             "s-excmac__gcc.adb",
@@ -47,9 +46,13 @@ class Cert(SourcesAndFlagsComponent):
             "libgcc/unwind-pe.h",
             "raise-gcc.c",
             "raise.h",
-            "runtime.h",
             "unwind-sjlj-cert.c",
         )
+
+        #  raise-gcc.c needs runtime.h, which CommandLine also installs.
+        if not target.has_command_line_arguments:
+            self.add_gnat_sources("runtime.h")
+
         match platform:
             case "deos":
                 self.add_gnat_sources(

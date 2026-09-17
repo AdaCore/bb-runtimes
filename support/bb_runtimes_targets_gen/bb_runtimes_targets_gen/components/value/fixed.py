@@ -17,8 +17,6 @@ class ValueFixed(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "s-valuer.ads",
-            "s-valuer.adb",
             "s-valuef.ads",
             "s-valuef.adb",
             "s-vafi32.ads",
