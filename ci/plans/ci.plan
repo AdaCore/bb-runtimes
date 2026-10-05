@@ -1,7 +1,7 @@
 # Anod CI plan for bb-runtimes.
 #
 # Builds the recompilable runtimes (recompilablerts spec, in the anod specs
-# repo) across the cross targets the spec supports. board_list in the spec
+# repo) across the cross targets the spec supports. runtime_target_list in the spec
 # picks the default per-target runtimes subset, so only the anod target is varied.
 # The customer runtimes (customer-runtimes spec) are built too: they use the
 # same prebuilder and boards from this repository, so a change here can break
@@ -30,7 +30,7 @@ LINUX_ONLY_TARGETS = [
 ]
 
 # Customer runtimes (customer-runtimes spec, CUSTOMER_RUNTIMES in
-# customer-runtimes-db). They are not in recompilablerts' board_list, so each
+# customer-runtimes-db). They are not in recompilablerts' runtime_target_list, so each
 # one is requested explicitly with its anod target.
 CUSTOMER_RUNTIMES = [
     ("r7-elf", "r7"),
@@ -46,8 +46,8 @@ def build():
     for target in targets:
         anod_build("recompilablerts", target=target)
 
-    for target, rts in CUSTOMER_RUNTIMES:
-        anod_build("customer-runtimes", target=target, qualifier={"rts": rts})
+    for target, runtime_target in CUSTOMER_RUNTIMES:
+        anod_build("customer-runtimes", target=target, qualifier={"runtime-target": runtime_target})
 
 
 # TODO when stabilized we can add build with the qualifier "build-type=Assert"
