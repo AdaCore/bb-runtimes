@@ -36,12 +36,9 @@
         HEADER_LENGTH       = multiboot_end - __magic_address2
         HEADER_CHECKSUM     = -(MULTIBOOT_MAGIC + ARCHITECTURE + HEADER_LENGTH)
 
-        # Multiboot header
-        # Placed in its own section so that its in the first 8 KiB of the image
-
         .section .multiboot2
         .global __magic_address2
-        .align 4
+        .balign 8
 __magic_address2:
         .long MULTIBOOT_MAGIC
         .long ARCHITECTURE
