@@ -17,6 +17,6 @@ class ValueBoolean(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-valboo.ads",
-            "libgnat/s-valboo.adb",
+            "s-valboo.ads",
+            "s-valboo.adb",
         )

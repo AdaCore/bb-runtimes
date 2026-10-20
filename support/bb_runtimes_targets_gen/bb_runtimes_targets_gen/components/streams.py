@@ -17,11 +17,11 @@ class Streams(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/a-stream.ads",
-            "libgnat/a-stream.adb",
-            "libgnat/s-stratt.ads",
-            "libgnat/s-statxd.ads",
-            "libgnat/s-statxd.adb",
+            "a-stream.ads",
+            "a-stream.adb",
+            "s-stratt.ads",
+            "s-statxd.ads",
+            "s-statxd.adb",
         )
 
 
@@ -29,7 +29,7 @@ class StreamsNoCheri(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-stratt.adb",
+            "s-stratt.adb",
         )
 
 
@@ -37,5 +37,5 @@ class StreamsCheri(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-stratt__cheri.adb",
+            "s-stratt__cheri.adb",
         )

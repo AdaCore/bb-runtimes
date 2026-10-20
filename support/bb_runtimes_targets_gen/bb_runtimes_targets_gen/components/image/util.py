@@ -17,6 +17,6 @@ class ImageUtil(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-imguti.ads",
-            "libgnat/s-imguti.adb",
+            "s-imguti.ads",
+            "s-imguti.adb",
         )

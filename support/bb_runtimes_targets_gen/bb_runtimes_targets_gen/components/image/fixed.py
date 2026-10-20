@@ -17,9 +17,9 @@ class ImageFixed(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-imagef.ads",
-            "libgnat/s-imagef.adb",
-            "libgnat/s-imfi32.ads",
+            "s-imagef.ads",
+            "s-imagef.adb",
+            "s-imfi32.ads",
         )
 
 
@@ -27,7 +27,7 @@ class ImageFixedLL(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-imfi64.ads",
+            "s-imfi64.ads",
         )
 
 
@@ -35,5 +35,5 @@ class ImageFixedLLL(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-imfi128.ads",
+            "s-imfi128.ads",
         )

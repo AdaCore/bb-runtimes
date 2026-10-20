@@ -61,7 +61,7 @@ There is no profile-selector component on the tree.
                   raise IncompatibleComponent()
               match target.platform_variant:
                   case "pikeos3":
-                      self.add_gnarl_sources("hie/s-osinte__pikeos3.ads", ...)
+                      self.add_gnarl_sources("s-osinte__pikeos3.ads", ...)
                   ...
 
    The factory names and the base-profile split are that infrastructure's

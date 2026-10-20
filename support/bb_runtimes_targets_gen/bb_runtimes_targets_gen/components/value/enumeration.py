@@ -17,9 +17,9 @@ class ValueEnum(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-valuen.ads",
-            "libgnat/s-valuen.adb",
-            "libgnat/s-vaen16.ads",
-            "libgnat/s-vaen32.ads",
-            "libgnat/s-vaenu8.ads",
+            "s-valuen.ads",
+            "s-valuen.adb",
+            "s-vaen16.ads",
+            "s-vaen32.ads",
+            "s-vaenu8.ads",
         )

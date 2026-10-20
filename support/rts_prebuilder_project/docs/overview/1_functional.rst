@@ -109,7 +109,7 @@ Building (generated build script)
       end
       Prebuilder --> PrebuiltRuntime
       BuildScript --> Runtime
-      DB[("Source repositories<br>(gnat install dir, gnat sources, gcc sources)")] -- Provides sources --> Prebuilder
+      DB[("Any source directory")] -- Provides sources --> Prebuilder
       Target -- Configures --> Prebuilder
       PrebuiltRuntime -- Input to --> BuildScript
       TargetSources[("bb-runtimes/src/<br>(target-specific sources)")] -- Provides sources --> Prebuilder

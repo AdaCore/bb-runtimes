@@ -17,7 +17,7 @@ class AllocC(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-memory__libc.adb",
+            "s-memory__libc.adb",
         )
 
 
@@ -25,7 +25,7 @@ class AllocNoTasking(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-memory__zfp.adb",
+            "s-memory__zfp.adb",
         )
 
 
@@ -33,7 +33,7 @@ class AllocNoTaskingCheri(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-memory__zfp_cheri.adb",
+            "s-memory__zfp_cheri.adb",
         )
 
 
@@ -41,7 +41,7 @@ class AllocNoCas(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-memory__zfp.adb",
+            "s-memory__zfp.adb",
         )
 
 
@@ -49,7 +49,7 @@ class AllocTasking(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-memory__raven.adb",
+            "s-memory__raven.adb",
         )
 
 
@@ -57,7 +57,7 @@ class AllocTaskingCheri(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-memory__raven_cheri.adb",
+            "s-memory__raven_cheri.adb",
         )
 
 
@@ -65,5 +65,5 @@ class AllocTaskingNoc(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-memory__raven_noc.adb",
+            "s-memory__raven_noc.adb",
         )

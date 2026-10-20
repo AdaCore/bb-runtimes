@@ -35,7 +35,7 @@ at run time, reaching the resolver through the registered engine interface.
    from pathlib import Path
 
    engine_interface.path_resolver_instance.add_search_paths(
-       Path("/path/to/gnat-sources"),
+       Path("/path/to/runtime-sources"),
        Path("/path/to/your-target-sources"),
    )
 

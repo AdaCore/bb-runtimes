@@ -25,13 +25,13 @@ class GnarlVx7r2Cert(SourcesAndFlagsComponent):
         match target.platform_variant:
             case "rtp":
                 self.add_gnarl_sources(
-                    "hie/s-vxwext__light-tasking-rtp.ads",
-                    "hie/s-vxwext__light-tasking-rtp.adb",
+                    "s-vxwext__light-tasking-rtp.ads",
+                    "s-vxwext__light-tasking-rtp.adb",
                 )
             case "kernel":
                 self.add_gnarl_sources(
-                    "hie/s-vxwext__light-tasking.ads",
-                    "hie/s-vxwext__light-tasking.adb",
+                    "s-vxwext__light-tasking.ads",
+                    "s-vxwext__light-tasking.adb",
                     "ivec.c",
                 )
             case _:

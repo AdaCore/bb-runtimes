@@ -17,8 +17,8 @@ class ImageChar(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-imgcha.adb",
-            "libgnat/s-imgcha.ads",
+            "s-imgcha.adb",
+            "s-imgcha.ads",
         )
 
 
@@ -26,6 +26,6 @@ class ImageWideChar(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-imgwch.ads",
-            "libgnat/s-imgwch.adb",
+            "s-imgwch.ads",
+            "s-imgwch.adb",
         )

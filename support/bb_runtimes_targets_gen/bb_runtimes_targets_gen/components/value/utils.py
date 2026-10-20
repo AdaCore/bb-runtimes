@@ -17,6 +17,6 @@ class ValueUtils(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-valuti.ads",
-            "libgnat/s-valuti.adb",
+            "s-valuti.ads",
+            "s-valuti.adb",
         )

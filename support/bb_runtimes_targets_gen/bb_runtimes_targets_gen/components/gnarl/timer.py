@@ -20,8 +20,8 @@ class GnarlTimer32(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnarl_sources(
-                    "hie/s-bbbosu__timer-32.ads",
-                    "hie/s-bbtime__timer-32.adb",
+                    "s-bbbosu__timer-32.ads",
+                    "s-bbtime__timer-32.adb",
                 )
 
 
@@ -32,6 +32,6 @@ class GnarlTimer64(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnarl_sources(
-                    "hie/s-bbbosu__timer-64.ads",
-                    "hie/s-bbtime__timer-64.adb",
+                    "s-bbbosu__timer-64.ads",
+                    "s-bbtime__timer-64.adb",
                 )

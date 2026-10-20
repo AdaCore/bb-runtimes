@@ -17,14 +17,14 @@ class UtilsFloat(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-flocon.ads",
-            "libgnat/s-flocon__none.adb",
-            "libgnat/s-dourea.ads",
-            "libgnat/s-dourea.adb",
-            "libgnat/s-dorepr.adb",
-            "libgnat/s-powflt.ads",
-            "libgnat/s-powlfl.ads",
-            "libgnat/s-powllf.ads",
+            "s-flocon.ads",
+            "s-flocon__none.adb",
+            "s-dourea.ads",
+            "s-dourea.adb",
+            "s-dorepr.adb",
+            "s-powflt.ads",
+            "s-powlfl.ads",
+            "s-powllf.ads",
         )
 
 
@@ -32,14 +32,14 @@ class UtilsFloatFma(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-flocon.ads",
-            "libgnat/s-flocon__none.adb",
-            "libgnat/s-dourea.ads",
-            "libgnat/s-dourea.adb",
-            "libgnat/s-dorepr__fma.adb",
-            "libgnat/s-powflt.ads",
-            "libgnat/s-powlfl.ads",
-            "libgnat/s-powllf.ads",
+            "s-flocon.ads",
+            "s-flocon__none.adb",
+            "s-dourea.ads",
+            "s-dourea.adb",
+            "s-dorepr__fma.adb",
+            "s-powflt.ads",
+            "s-powlfl.ads",
+            "s-powllf.ads",
         )
 
 
@@ -47,8 +47,8 @@ class UtilsCaseUtil(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-casuti.ads",
-            "libgnat/s-casuti.adb",
+            "s-casuti.ads",
+            "s-casuti.adb",
         )
 
 
@@ -56,6 +56,6 @@ class UtilsCaseUtilNss(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-cautns.ads",
-            "libgnat/s-cautns.adb",
+            "s-cautns.ads",
+            "s-cautns.adb",
         )

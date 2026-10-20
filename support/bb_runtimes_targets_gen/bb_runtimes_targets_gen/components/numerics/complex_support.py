@@ -17,16 +17,16 @@ class MathComplex(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/a-ncelfu.ads",
-            "libgnat/a-ngcefu.ads",
-            "libgnat/a-ngcefu.adb",
-            "libgnat/a-ngcoty.ads",
-            "hie/a-ngcoty__ada.adb",
-            "libgnat/a-nlcefu.ads",
-            "libgnat/a-nlcoty.ads",
-            "libgnat/a-nllcef.ads",
-            "libgnat/a-nllcty.ads",
-            "libgnat/a-nscefu.ads",
-            "libgnat/a-nscoty.ads",
-            "libgnat/a-nucoty.ads",
+            "a-ncelfu.ads",
+            "a-ngcefu.ads",
+            "a-ngcefu.adb",
+            "a-ngcoty.ads",
+            "a-ngcoty__ada.adb",
+            "a-nlcefu.ads",
+            "a-nlcoty.ads",
+            "a-nllcef.ads",
+            "a-nllcty.ads",
+            "a-nscefu.ads",
+            "a-nscoty.ads",
+            "a-nucoty.ads",
         )

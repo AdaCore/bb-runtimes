@@ -17,11 +17,11 @@ class MathFull(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/a-ngcoar.ads",
-            "libgnat/a-ngcoar.adb",
-            "libgnat/a-ngrear.ads",
-            "libgnat/a-ngrear.adb",
-            "libgnat/a-nurear.ads",
-            "libgnat/s-gearop.ads",
-            "libgnat/s-gearop.adb",
+            "a-ngcoar.ads",
+            "a-ngcoar.adb",
+            "a-ngrear.ads",
+            "a-ngrear.adb",
+            "a-nurear.ads",
+            "s-gearop.ads",
+            "s-gearop.adb",
         )

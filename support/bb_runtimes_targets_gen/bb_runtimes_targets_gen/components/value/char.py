@@ -17,8 +17,8 @@ class ValueChar(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-valcha.ads",
-            "libgnat/s-valcha.adb",
+            "s-valcha.ads",
+            "s-valcha.adb",
         )
 
 
@@ -26,6 +26,6 @@ class ValueWideChar(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-valwch.ads",
-            "libgnat/s-valwch.adb",
+            "s-valwch.ads",
+            "s-valwch.adb",
         )

@@ -20,7 +20,7 @@ class GnarlSpinlockGcc(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnarl_sources(
-                    "hie/s-musplo.adb",
+                    "s-musplo.adb",
                 )
 
 
@@ -31,5 +31,5 @@ class GnarlSpinlockLeon(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnarl_sources(
-                    "hie/s-musplo__leon.adb",
+                    "s-musplo__leon.adb",
                 )

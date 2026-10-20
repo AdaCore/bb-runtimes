@@ -20,7 +20,7 @@ class ParametersSmall(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnat_sources(
-                    "hie/s-parame__small.ads",
+                    "s-parame__small.ads",
                     "hie/s-parame.adb",
                 )
 
@@ -32,7 +32,7 @@ class ParametersLarge(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnat_sources(
-                    "hie/s-parame__large.ads",
+                    "s-parame__large.ads",
                     "hie/s-parame.adb",
                 )
 
@@ -44,7 +44,7 @@ class ParametersHuge(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnat_sources(
-                    "hie/s-parame__huge.ads",
+                    "s-parame__huge.ads",
                     "hie/s-parame.adb",
                 )
 
@@ -56,19 +56,19 @@ class ParametersLightSmall(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnat_sources(
-                    "hie/s-parame__zfp_small.ads",
+                    "s-parame__zfp_small.ads",
                 )
             case "freertos":
                 self.add_gnat_sources(
-                    "hie/s-parame__zfp_small.ads",
+                    "s-parame__zfp_small.ads",
                 )
             case "linux":
                 self.add_gnat_sources(
-                    "hie/s-parame__zfp_small.ads",
+                    "s-parame__zfp_small.ads",
                 )
             case "lynx":
                 self.add_gnat_sources(
-                    "hie/s-parame__zfp_small.ads",
+                    "s-parame__zfp_small.ads",
                 )
 
 
@@ -79,19 +79,19 @@ class ParametersLightLarge(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnat_sources(
-                    "hie/s-parame__zfp.ads",
+                    "s-parame__zfp.ads",
                 )
             case "freertos":
                 self.add_gnat_sources(
-                    "hie/s-parame__zfp.ads",
+                    "s-parame__zfp.ads",
                 )
             case "linux":
                 self.add_gnat_sources(
-                    "hie/s-parame__zfp.ads",
+                    "s-parame__zfp.ads",
                 )
             case "lynx":
                 self.add_gnat_sources(
-                    "hie/s-parame__zfp.ads",
+                    "s-parame__zfp.ads",
                 )
 
 
@@ -102,17 +102,17 @@ class ParametersLightHuge(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnat_sources(
-                    "hie/s-parame__zfp_huge.ads",
+                    "s-parame__zfp_huge.ads",
                 )
             case "freertos":
                 self.add_gnat_sources(
-                    "hie/s-parame__zfp_huge.ads",
+                    "s-parame__zfp_huge.ads",
                 )
             case "linux":
                 self.add_gnat_sources(
-                    "hie/s-parame__zfp_huge.ads",
+                    "s-parame__zfp_huge.ads",
                 )
             case "lynx":
                 self.add_gnat_sources(
-                    "hie/s-parame__zfp_huge.ads",
+                    "s-parame__zfp_huge.ads",
                 )

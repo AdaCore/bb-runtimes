@@ -397,13 +397,14 @@ found so the install can ship an auditable record (R2).
 .. admonition:: Specificity of ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
-   The end user hands in two search paths, the bb-runtimes ``src`` directory and
-   a gnat source checkout. A component that registered
-   ``"libgnat/s-atopri.adb"`` gets ``<gnat>/libgnat/s-atopri.adb``, since that
-   unit ships with the compiler. A board component that registered
-   ``"arm/zynq/start-ram.S"`` gets ``src/arm/zynq/start-ram.S``. Neither
-   component knows which of the two directories answered, and swapping in
-   another gnat checkout changes nothing in the catalog.
+   Supply source directories with ``--source-search-path``. A component that
+   registers ``"s-atopri.adb"`` finds it directly under a search root.
+   A component that registers ``"arm/zynq/start-ram.S"`` finds it under
+   ``src/arm/zynq/start-ram.S`` when ``src`` is a search root.
+
+   Sources that declare a relative directory require that directory under a
+   search root. Components retain these paths when different implementations
+   share a filename, so the resolver selects the intended source.
 
 From a target to installed runtimes
 ===================================

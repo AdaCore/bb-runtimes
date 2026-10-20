@@ -17,8 +17,8 @@ class CtorsDtors(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-libc.ads",
-            "hie/s-libc.adb",
+            "s-libc.ads",
+            "s-libc.adb",
         )
 
 
@@ -26,7 +26,7 @@ class CtorsDtorsC(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-liinfi__c.adb",
+            "s-liinfi__c.adb",
         )
 
 
@@ -34,5 +34,5 @@ class CtorsDtorsDefault(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-liinfi.adb",
+            "s-liinfi.adb",
         )

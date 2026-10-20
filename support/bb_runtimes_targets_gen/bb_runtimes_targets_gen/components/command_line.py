@@ -17,8 +17,8 @@ class CommandLine(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/a-comlin.ads",
-            "libgnat/a-comlin.adb",
+            "a-comlin.ads",
+            "a-comlin.adb",
             "argv.c",
             "runtime.h",
         )

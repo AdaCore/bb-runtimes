@@ -20,15 +20,15 @@ class MathSoftSP(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnat_sources(
-                    "hie/s-lisisq__ada.adb",
+                    "s-lisisq__ada.adb",
                 )
             case "freertos":
                 self.add_gnat_sources(
-                    "hie/s-lisisq__ada.adb",
+                    "s-lisisq__ada.adb",
                 )
             case "pikeos":
                 self.add_gnat_sources(
-                    "hie/s-lisisq__ada.adb",
+                    "s-lisisq__ada.adb",
                 )
 
 
@@ -39,15 +39,15 @@ class MathSoftDP(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnat_sources(
-                    "hie/s-lidosq__ada.adb",
+                    "s-lidosq__ada.adb",
                 )
             case "freertos":
                 self.add_gnat_sources(
-                    "hie/s-lidosq__ada.adb",
+                    "s-lidosq__ada.adb",
                 )
             case "pikeos":
                 self.add_gnat_sources(
-                    "hie/s-lidosq__ada.adb",
+                    "s-lidosq__ada.adb",
                 )
 
 
@@ -58,15 +58,15 @@ class MathHardSP(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnat_sources(
-                    "hie/s-lisisq__fpu.adb",
+                    "s-lisisq__fpu.adb",
                 )
             case "freertos":
                 self.add_gnat_sources(
-                    "hie/s-lisisq__fpu.adb",
+                    "s-lisisq__fpu.adb",
                 )
             case "pikeos":
                 self.add_gnat_sources(
-                    "hie/s-lisisq__fpu.adb",
+                    "s-lisisq__fpu.adb",
                 )
 
 
@@ -77,13 +77,13 @@ class MathHardDP(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnat_sources(
-                    "hie/s-lidosq__fpu.adb",
+                    "s-lidosq__fpu.adb",
                 )
             case "freertos":
                 self.add_gnat_sources(
-                    "hie/s-lidosq__fpu.adb",
+                    "s-lidosq__fpu.adb",
                 )
             case "pikeos":
                 self.add_gnat_sources(
-                    "hie/s-lidosq__fpu.adb",
+                    "s-lidosq__fpu.adb",
                 )

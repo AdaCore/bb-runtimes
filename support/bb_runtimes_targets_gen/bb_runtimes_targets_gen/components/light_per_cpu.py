@@ -20,11 +20,11 @@ class LightArm(SourcesAndFlagsComponent):
         match platform:
             case "qnx":
                 self.add_gnat_sources(
-                    "hie/s-traceb__dummy.adb",
+                    "s-traceb__dummy.adb",
                 )
             case "vx7r2cert":
                 self.add_gnat_sources(
-                    "hie/s-tracon__zfp-arm.adb",
+                    "s-tracon__zfp-arm.adb",
                 )
 
 
@@ -35,19 +35,19 @@ class LightAarch64(SourcesAndFlagsComponent):
         match platform:
             case "lynx":
                 self.add_gnat_sources(
-                    "hie/s-traceb__zfp.adb",
-                    "hie/s-tracon__zfp.ads",
-                    "hie/s-tracon__zfp-aarch64.adb",
+                    "s-traceb__zfp.adb",
+                    "s-tracon__zfp.ads",
+                    "s-tracon__zfp-aarch64.adb",
                 )
             case "qnx":
                 self.add_gnat_sources(
-                    "hie/s-traceb__zfp.adb",
-                    "hie/s-tracon__zfp.ads",
-                    "hie/s-tracon__zfp-aarch64.adb",
+                    "s-traceb__zfp.adb",
+                    "s-tracon__zfp.ads",
+                    "s-tracon__zfp-aarch64.adb",
                 )
             case "vx7r2cert":
                 self.add_gnat_sources(
-                    "hie/s-tracon__zfp-aarch64.adb",
+                    "s-tracon__zfp-aarch64.adb",
                 )
 
 
@@ -58,7 +58,7 @@ class LightPpc(SourcesAndFlagsComponent):
         match platform:
             case "vx7r2cert":
                 self.add_gnat_sources(
-                    "hie/s-tracon__zfp-ppc.adb",
+                    "s-tracon__zfp-ppc.adb",
                 )
 
 
@@ -69,7 +69,7 @@ class LightPpc64(SourcesAndFlagsComponent):
         match platform:
             case "vx7r2cert":
                 self.add_gnat_sources(
-                    "hie/s-tracon__zfp-ppc64.adb",
+                    "s-tracon__zfp-ppc64.adb",
                 )
 
 
@@ -80,7 +80,7 @@ class LightX86(SourcesAndFlagsComponent):
         match platform:
             case "vx7r2cert":
                 self.add_gnat_sources(
-                    "hie/s-tracon__zfp-x86.adb",
+                    "s-tracon__zfp-x86.adb",
                 )
 
 
@@ -91,5 +91,5 @@ class LightX8664(SourcesAndFlagsComponent):
         match platform:
             case "vx7r2cert":
                 self.add_gnat_sources(
-                    "hie/s-tracon__zfp-x86_64.adb",
+                    "s-tracon__zfp-x86_64.adb",
                 )

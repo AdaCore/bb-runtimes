@@ -17,9 +17,9 @@ class FullZcxArm(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-excmac__arm.adb",
-            "libgnat/s-excmac__arm.ads",
-            "hie/s-traceb__armeabi.adb",
+            "s-excmac__arm.adb",
+            "s-excmac__arm.ads",
+            "s-traceb__armeabi.adb",
         )
 
 
@@ -27,8 +27,8 @@ class FullZcxDw2(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-excmac__gcc.ads",
-            "libgnat/s-excmac__gcc.adb",
+            "s-excmac__gcc.ads",
+            "s-excmac__gcc.adb",
         )
 
 
@@ -42,7 +42,7 @@ class FullZcxDw2Gcc(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnat_sources(
-                    "hie/unwind-dw2-fde-bb.c",
+                    "unwind-dw2-fde-bb.c",
                 )
 
 
@@ -50,7 +50,7 @@ class FullZcxAarch64(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-traceb__dwarf.adb",
+            "s-traceb__dwarf.adb",
         )
 
 
@@ -58,7 +58,7 @@ class FullZcxPpc(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-traceb__ppc.adb",
+            "s-traceb__ppc.adb",
         )
 
 
@@ -66,7 +66,7 @@ class FullZcxRiscv(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-traceb__dwarf.adb",
+            "s-traceb__dwarf.adb",
         )
 
 
@@ -74,7 +74,7 @@ class FullZcxLeon(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-traceb__sparc.adb",
+            "s-traceb__sparc.adb",
         )
 
 
@@ -82,7 +82,7 @@ class FullZcxX86(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-traceb__vx653-sim.adb",
+            "s-traceb__vx653-sim.adb",
         )
 
 
@@ -90,5 +90,5 @@ class FullZcxX8664(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-traceb__dwarf.adb",
+            "s-traceb__dwarf.adb",
         )

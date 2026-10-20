@@ -17,9 +17,9 @@ class ImageFloat(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-imager.ads",
-            "libgnat/s-imager.adb",
-            "libgnat/s-imgflt.ads",
-            "libgnat/s-imglfl.ads",
-            "libgnat/s-imgllf.ads",
+            "s-imager.ads",
+            "s-imager.adb",
+            "s-imgflt.ads",
+            "s-imglfl.ads",
+            "s-imgllf.ads",
         )

@@ -20,19 +20,19 @@ class MathLongLong64bit(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnat_sources(
-                    "libgnat/a-nllefu.ads",
+                    "a-nllefu.ads",
                 )
             case "freertos":
                 self.add_gnat_sources(
-                    "libgnat/a-nllefu.ads",
+                    "a-nllefu.ads",
                 )
             case "linux":
                 self.add_gnat_sources(
-                    "hie/a-nallfl__light.ads",
+                    "a-nallfl__light.ads",
                 )
             case "pikeos":
                 self.add_gnat_sources(
-                    "libgnat/a-nllefu.ads",
+                    "a-nllefu.ads",
                 )
 
 
@@ -43,21 +43,21 @@ class MathLongLong80bit(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnat_sources(
-                    "hie/s-lilodo__ada.ads",
-                    "hie/s-lilodo__ada.adb",
-                    "hie/s-lldosq__ada.ads",
-                    "hie/s-lldosq__fpu.adb",
-                    "hie/a-nllefu__ada.ads",
+                    "s-lilodo__ada.ads",
+                    "s-lilodo__ada.adb",
+                    "s-lldosq__ada.ads",
+                    "s-lldosq__fpu.adb",
+                    "a-nllefu__ada.ads",
                 )
             case "linux":
                 self.add_gnat_sources(
-                    "hie/a-nallfl__light-long-double.ads",
+                    "a-nallfl__light-long-double.ads",
                 )
             case "pikeos":
                 self.add_gnat_sources(
-                    "hie/s-lilodo__ada.ads",
-                    "hie/s-lilodo__ada.adb",
-                    "hie/s-lldosq__ada.ads",
-                    "hie/s-lldosq__fpu.adb",
-                    "hie/a-nllefu__ada.ads",
+                    "s-lilodo__ada.ads",
+                    "s-lilodo__ada.adb",
+                    "s-lldosq__ada.ads",
+                    "s-lldosq__fpu.adb",
+                    "a-nllefu__ada.ads",
                 )

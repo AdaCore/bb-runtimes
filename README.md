@@ -39,13 +39,12 @@ Generate the runtimes for one target, such as `zynqmp`:
 ```sh
 python -m bb_runtimes_targets_gen.targets zynqmp \
     --source-search-path src \
-    --source-search-path ../gnat \
-    --source-search-path ../gcc \
+    --source-search-path ../runtime-sources \
     --output-dir generated
 ```
 
-This example uses GNAT and GCC source trees in `../gnat` and `../gcc`.
-Adjust the paths to match your source locations.
+Replace `../runtime-sources` with the directory containing your runtime sources.
+Repeat `--source-search-path` for additional source directories.
 The output contains `generated/light-zynqmp`, `generated/light-tasking-zynqmp`,
 and `generated/embedded-zynqmp`.
 

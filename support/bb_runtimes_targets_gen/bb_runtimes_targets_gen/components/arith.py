@@ -17,10 +17,10 @@ class Arith64(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-arit64.ads",
-            "libgnat/s-arit64.adb",
-            "libgnat/s-aridou.ads",
-            "libgnat/s-aridou.adb",
+            "s-arit64.ads",
+            "s-arit64.adb",
+            "s-aridou.ads",
+            "s-aridou.adb",
         )
 
 
@@ -28,6 +28,6 @@ class Arith128(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-arit128.ads",
-            "libgnat/s-arit128.adb",
+            "s-arit128.ads",
+            "s-arit128.adb",
         )

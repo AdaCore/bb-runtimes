@@ -34,12 +34,15 @@ Prerequisites
 
    The target names only the files this board adds, and they all sit in the
    bb-runtimes ``src/`` directory. The rest of the runtime comes from the common
-   components, which name units the compiler ships. You hand in a directory for
-   each::
+   components. Supply the directories containing those sources::
 
       python -m bb_runtimes_targets_gen.targets zynqmp \
           --source-search-path src \
-          --source-search-path ../gnat
+          --source-search-path ../runtime-sources
+
+   Replace ``../runtime-sources`` with your source directory. Repeat
+   ``--source-search-path`` for additional directories. Each source's declared
+   relative path must exist under one of those directories.
 
 What drives a run
 =================

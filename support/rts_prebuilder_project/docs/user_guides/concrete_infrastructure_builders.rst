@@ -46,9 +46,8 @@ Step 2: Customize the path resolver (optional)
 
 Most infrastructures reuse
 :class:`~rts_prebuilder.abstract_infrastructure.DefaultSourcePathResolver`
-as-is. It chains the manifest, libs, runtime search-paths and GCC-dir resolution
-steps, and exposes ``add_search_paths()`` for callers to feed directories at run
-time.
+as-is. It exposes ``add_search_paths()`` for callers to supply source directories
+at run time.
 
 Subclass :class:`~rts_prebuilder.abstract_infrastructure.SourcePathResolver` only
 when you need a different chain of resolution steps. The base class already
@@ -95,8 +94,8 @@ selection layer (Step 4).
           @override
           def contribute(self, target: AbstractTarget, profile: Profile) -> None:
               self.add_gnat_sources(
-                  "libgnat/s-fatgen.ads",
-                  "libgnat/s-fatgen.adb",
+                  "s-fatgen.ads",
+                  "s-fatgen.adb",
               )
 
 
@@ -106,8 +105,8 @@ selection layer (Step 4).
               match target.platform:
                   case "bb":
                       self.add_gnarl_sources(
-                          "hie/s-bbbosu__timer-32.ads",
-                          "hie/s-bbtime__timer-32.adb",
+                          "s-bbbosu__timer-32.ads",
+                          "s-bbtime__timer-32.adb",
                       )
 
 Step 4: Decide how a profile picks its components
@@ -200,7 +199,7 @@ the engine:
 .. code-block:: python
 
    engine_interface.path_resolver_instance.add_search_paths(
-       Path("/path/to/gnat-sources"),
+       Path("/path/to/runtime-sources"),
        Path("/path/to/your-target-sources"),
    )
 

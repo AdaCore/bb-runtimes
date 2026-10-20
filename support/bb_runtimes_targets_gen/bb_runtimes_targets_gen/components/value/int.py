@@ -17,12 +17,12 @@ class ValueInt(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-valint.ads",
-            "libgnat/s-valueu.ads",
-            "libgnat/s-valueu.adb",
-            "libgnat/s-valuei.ads",
-            "libgnat/s-valuei.adb",
-            "libgnat/s-valuns.ads",
+            "s-valint.ads",
+            "s-valueu.ads",
+            "s-valueu.adb",
+            "s-valuei.ads",
+            "s-valuei.adb",
+            "s-valuns.ads",
         )
 
 
@@ -30,8 +30,8 @@ class ValueIntLL(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-vallli.ads",
-            "libgnat/s-valllu.ads",
+            "s-vallli.ads",
+            "s-valllu.ads",
         )
 
 
@@ -39,6 +39,6 @@ class ValueIntLLL(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-valllli.ads",
-            "libgnat/s-vallllu.ads",
+            "s-valllli.ads",
+            "s-vallllu.ads",
         )

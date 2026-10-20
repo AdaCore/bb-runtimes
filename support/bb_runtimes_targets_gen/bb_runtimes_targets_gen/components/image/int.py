@@ -17,9 +17,9 @@ class ImageInt(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-imagew.ads",
-            "libgnat/s-imagew.adb",
-            "libgnat/s-imgwiu.ads",
+            "s-imagew.ads",
+            "s-imagew.adb",
+            "s-imgwiu.ads",
         )
 
 
@@ -27,7 +27,7 @@ class ImageIntLL(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-imgllw.ads",
+            "s-imgllw.ads",
         )
 
 
@@ -35,5 +35,5 @@ class ImageIntLLL(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-imglllw.ads",
+            "s-imglllw.ads",
         )

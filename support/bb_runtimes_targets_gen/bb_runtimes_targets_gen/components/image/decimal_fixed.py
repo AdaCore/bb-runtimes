@@ -17,9 +17,9 @@ class ImageDecimal(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-imaged.ads",
-            "libgnat/s-imaged.adb",
-            "libgnat/s-imde32.ads",
+            "s-imaged.ads",
+            "s-imaged.adb",
+            "s-imde32.ads",
         )
 
 
@@ -27,7 +27,7 @@ class ImageDecimalLL(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-imde64.ads",
+            "s-imde64.ads",
         )
 
 
@@ -35,5 +35,5 @@ class ImageDecimalLLL(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-imde128.ads",
+            "s-imde128.ads",
         )

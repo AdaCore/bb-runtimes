@@ -17,11 +17,11 @@ class ValueFloat(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-valuer.ads",
-            "libgnat/s-valuer.adb",
-            "libgnat/s-valrea.ads",
-            "libgnat/s-valrea.adb",
-            "libgnat/s-valflt.ads",
-            "libgnat/s-vallfl.ads",
-            "libgnat/s-valllf.ads",
+            "s-valuer.ads",
+            "s-valuer.adb",
+            "s-valrea.ads",
+            "s-valrea.adb",
+            "s-valflt.ads",
+            "s-vallfl.ads",
+            "s-valllf.ads",
         )

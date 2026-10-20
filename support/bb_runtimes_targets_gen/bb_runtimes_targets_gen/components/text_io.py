@@ -20,7 +20,7 @@ class SystemIO(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnat_sources(
-                    "hie/a-textio__bb.adb",
+                    "a-textio__bb.adb",
                 )
 
 
@@ -31,8 +31,8 @@ class Semihosting(SourcesAndFlagsComponent):
         match platform:
             case "bb":
                 self.add_gnat_sources(
-                    "hie/s-semiho.ads",
-                    "hie/s-semiho.adb",
-                    "hie/s-textio__semihosting.adb",
-                    "hie/a-textio__semihosting.adb",
+                    "s-semiho.ads",
+                    "s-semiho.adb",
+                    "s-textio__semihosting.adb",
+                    "a-textio__semihosting.adb",
                 )

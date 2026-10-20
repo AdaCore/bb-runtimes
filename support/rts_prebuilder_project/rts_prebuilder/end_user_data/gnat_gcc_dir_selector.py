@@ -2,6 +2,10 @@
 # Copyright (C) 2025-2026, AdaCore
 #
 
+"""Select GNAT and GCC source checkouts for internal AdaCore codebases through
+set_gnatdir and set_gccdir.
+"""
+
 from pathlib import Path
 from typing import Literal
 

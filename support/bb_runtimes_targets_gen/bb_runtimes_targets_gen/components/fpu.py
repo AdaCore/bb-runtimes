@@ -17,9 +17,9 @@ class Fpu(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-fatgen.ads",
-            "libgnat/s-fatgen.adb",
-            "libgnat/s-fatflt.ads",
-            "libgnat/s-fatlfl.ads",
-            "libgnat/s-fatllf.ads",
+            "s-fatgen.ads",
+            "s-fatgen.adb",
+            "s-fatflt.ads",
+            "s-fatlfl.ads",
+            "s-fatllf.ads",
         )

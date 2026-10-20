@@ -17,11 +17,11 @@ class Libgcc(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-gcc.ads",
-            "hie/s-gcc-di.ads",
-            "hie/s-gcc-di.adb",
-            "hie/s-gcdidi.ads",
-            "hie/s-gcdidi.adb",
+            "s-gcc.ads",
+            "s-gcc-di.ads",
+            "s-gcc-di.adb",
+            "s-gcdidi.ads",
+            "s-gcdidi.adb",
         )
 
 
@@ -29,10 +29,10 @@ class LibgccArm(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-gcdifl__arm.ads",
-            "hie/s-gcdifl__arm.adb",
-            "hie/s-gcdish__arm.ads",
-            "hie/s-gcdish.adb",
+            "s-gcdifl__arm.ads",
+            "s-gcdifl__arm.adb",
+            "s-gcdish__arm.ads",
+            "s-gcdish.adb",
         )
 
 
@@ -40,8 +40,8 @@ class LibgccOtherArchs(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-gcdifl.ads",
-            "hie/s-gcdifl.adb",
-            "hie/s-gcdish.ads",
-            "hie/s-gcdish.adb",
+            "s-gcdifl.ads",
+            "s-gcdifl.adb",
+            "s-gcdish.ads",
+            "s-gcdish.adb",
         )

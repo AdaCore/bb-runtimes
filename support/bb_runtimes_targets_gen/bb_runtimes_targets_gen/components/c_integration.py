@@ -17,13 +17,13 @@ class AdaLibc(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/s-c.ads",
-            "hie/s-cerrno.ads",
-            "hie/s-cerrno.adb",
-            "hie/s-cmallo.ads",
-            "hie/s-cmallo.adb",
-            "hie/s-cstrle.ads",
-            "hie/s-cstrle.adb",
+            "s-c.ads",
+            "s-cerrno.ads",
+            "s-cerrno.adb",
+            "s-cmallo.ads",
+            "s-cmallo.adb",
+            "s-cstrle.ads",
+            "s-cstrle.adb",
         )
 
 
@@ -31,5 +31,5 @@ class Newlib(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "hie/newlib-bb.c",
+            "newlib-bb.c",
         )

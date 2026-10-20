@@ -29,21 +29,21 @@ class GnarlPikeos(SourcesAndFlagsComponent):
         match target.platform_variant:
             case "pikeos3":
                 self.add_gnarl_sources(
-                    "hie/s-interr__pikeos3.adb",
-                    "hie/s-osinte__pikeos3.ads",
-                    "hie/s-osinte__pikeos3.adb",
+                    "s-interr__pikeos3.adb",
+                    "s-osinte__pikeos3.ads",
+                    "s-osinte__pikeos3.adb",
                 )
             case "pikeos4":
                 self.add_gnarl_sources(
-                    "hie/s-interr__pikeos4.adb",
-                    "hie/s-osinte__pikeos4.ads",
-                    "hie/s-osinte__pikeos4.adb",
+                    "s-interr__pikeos4.adb",
+                    "s-osinte__pikeos4.ads",
+                    "s-osinte__pikeos4.adb",
                 )
             case "pikeos4.2" | "pikeos5":
                 self.add_gnarl_sources(
-                    "hie/s-interr__pikeos4.adb",
-                    "hie/s-osinte__pikeos4.ads",
-                    "hie/s-osinte__p4ext.adb",
+                    "s-interr__pikeos4.adb",
+                    "s-osinte__pikeos4.ads",
+                    "s-osinte__p4ext.adb",
                 )
             case _:
                 raise ValueError(f"Unknown PikeOS version: {target.platform_variant}")

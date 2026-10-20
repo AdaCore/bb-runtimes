@@ -17,9 +17,9 @@ class Atomics(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-atopri.adb",
-            "libgnat/s-atocou__builtin.adb",
-            "libgnat/s-atocou.ads",
+            "s-atopri.adb",
+            "s-atocou__builtin.adb",
+            "s-atocou.ads",
         )
 
 
@@ -27,7 +27,7 @@ class Atomics32(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-atopri__32.ads",
+            "s-atopri__32.ads",
         )
 
 
@@ -35,5 +35,5 @@ class Atomics64(SourcesAndFlagsComponent):
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
-            "libgnat/s-atopri.ads",
+            "s-atopri.ads",
         )
