@@ -66,6 +66,7 @@ from ..components import (
     FullZcxX86,
     FullZcxX8664,
     GccMath,
+    GnarlBareboard,
     GnarlCommon,
     GnarlCommonCheri,
     GnarlCommonNoCheri,
@@ -73,8 +74,11 @@ from ..components import (
     GnarlArm,
     GnarlFull,
     GnarlFullExtended,
+    GnarlLinux,
+    GnarlLynx,
     GnarlPikeos,
     GnarlPpc,
+    GnarlQnx,
     GnarlSfp,
     GnarlSpinlockGcc,
     GnarlSpinlockLeon,
@@ -424,6 +428,14 @@ def _gnarl_subset_components(target: Target) -> list[SourcesAndFlagsComponent]:
             pass
 
     match target.platform:
+        case "bb":
+            ret.append(GnarlBareboard())
+        case "linux":
+            ret.append(GnarlLinux())
+        case "lynx":
+            ret.append(GnarlLynx())
+        case "qnx":
+            ret.append(GnarlQnx())
         case "pikeos":
             ret.append(GnarlPikeos())
         case "vx7r2cert":

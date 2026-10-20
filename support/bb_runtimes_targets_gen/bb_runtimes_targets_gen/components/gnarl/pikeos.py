@@ -15,7 +15,7 @@ from rts_prebuilder.abstract_infrastructure import (
 
 
 class GnarlPikeos(SourcesAndFlagsComponent):
-    """The PikeOS interrupt and OS-interface sources, per PikeOS version.
+    """The PikeOS GNARL sources, per PikeOS version.
 
     PikeOS 4.2 and 5 install the same set: 4.2 is where p4ext appeared, and 5
     kept it.
@@ -25,6 +25,22 @@ class GnarlPikeos(SourcesAndFlagsComponent):
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         if target.platform != "pikeos":
             raise IncompatibleComponent()
+
+        self.add_gnarl_sources(
+            "hie/s-inttyp.ads",
+            "a-interr.ads",
+            "a-interr__raven.adb",
+            "hie/a-reatim.ads",
+            "hie/a-reatim.adb",
+            "a-textio__pikeos.adb",
+            "s-interr__raven.ads",
+            "s-multip__raven-default.ads",
+            "s-musplo.adb",
+            "hie/s-taprop.ads",
+            "s-taprop__pikeos.adb",
+            "s-taspri__pikeos.ads",
+            "libgnarl/s-tpobmu.adb",
+        )
 
         match target.platform_variant:
             case "pikeos3":
