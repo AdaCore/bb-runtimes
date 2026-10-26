@@ -39,15 +39,24 @@ CUSTOMER_RUNTIMES = [
 ]
 
 
+def build_runtime(spec_name, target, qualifiers=None):
+    with defaults(target=target):
+        if config.is_release and cross_skip_outside_wavefront():
+            return
+        anod_build(spec_name, qualifier=qualifiers)
+
+
 def build():
     targets = list(TARGETS)
     if env.build.os.name == "linux":
         targets += LINUX_ONLY_TARGETS
     for target in targets:
-        anod_build("recompilablerts", target=target)
+        build_runtime("recompilablerts", target)
 
     for target, runtime_target in CUSTOMER_RUNTIMES:
-        anod_build("customer-runtimes", target=target, qualifier={"runtime-target": runtime_target})
+        build_runtime(
+            "customer-runtimes", target, qualifiers={"runtime-target": runtime_target}
+        )
 
 
 # TODO when stabilized we can add build with the qualifier "build-type=Assert"
