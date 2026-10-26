@@ -44,10 +44,16 @@ def build():
     if env.build.os.name == "linux":
         targets += LINUX_ONLY_TARGETS
     for target in targets:
-        anod_build("recompilablerts", target=target)
+        with defaults(target=target):
+            if config.is_release and cross_skip_outside_wavefront():
+                continue
+            anod_build("recompilablerts")
 
     for target, rts in CUSTOMER_RUNTIMES:
-        anod_build("customer-runtimes", target=target, qualifier={"rts": rts})
+        with defaults(target=target):
+            if config.is_release and cross_skip_outside_wavefront():
+                continue
+            anod_build("customer-runtimes", qualifier={"rts": rts})
 
 
 # TODO when stabilized we can add build with the qualifier "build-type=Assert"
