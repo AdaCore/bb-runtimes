@@ -6,6 +6,8 @@
 from pathlib import Path
 from typing import override
 
+from bb_runtimes_targets_gen.components.atomics import AtomicSupport
+
 from rts_prebuilder.end_user_data.compiler_selector import using_llvm_compiler
 from rts_prebuilder.abstract_infrastructure import AbstractTarget
 from rts_prebuilder.abstract_infrastructure import Loader

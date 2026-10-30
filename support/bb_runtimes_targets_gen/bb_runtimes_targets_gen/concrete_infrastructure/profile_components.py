@@ -32,6 +32,7 @@ from ..components import (
     AllocTaskingNoc,
     Arith64,
     Arith128,
+    AtomicSupport,
     Atomics,
     Atomics32,
     Atomics64,
@@ -229,8 +230,9 @@ def no_profile_components(target: Target) -> list[SourcesAndFlagsComponent]:
         Common(),
         Common64() if target.is_64bit else Common32(),
         Fpu(),
-        Atomics(),
     ]
+    if target.atomic_support is not AtomicSupport.NONE:
+        ret.append(Atomics())
     if target.has_cheri:
         ret.append(CommonCheri())
 
@@ -263,11 +265,13 @@ def _light_subset_components(
         ret.append(CommonCheri())
     ret.append(Fpu())
 
-    ret.append(Atomics())
-    if cpu in ("aarch64", "powerpc64", "x86", "x86_64", "riscv64"):
-        ret.append(Atomics64())
-    else:
-        ret.append(Atomics32())
+    match target.atomic_support:
+        case AtomicSupport.NONE:
+            pass
+        case AtomicSupport.UP_TO_32_BITS:
+            ret += [Atomics(), Atomics32()]
+        case AtomicSupport.UP_TO_64_BITS:
+            ret += [Atomics(), Atomics64()]
 
     ret.append(Arith64())
     if is64:

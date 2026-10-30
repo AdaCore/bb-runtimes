@@ -4,6 +4,8 @@
 
 from pathlib import Path
 from typing import override
+
+from bb_runtimes_targets_gen.components.atomics import AtomicSupport
 from rts_prebuilder.abstract_infrastructure import AbstractTarget
 from rts_prebuilder.abstract_infrastructure import Profile
 from rts_prebuilder.base_types import PlatformIdType

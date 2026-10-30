@@ -4,6 +4,7 @@
 
 """Atomic primitives support."""
 
+from enum import Enum, auto
 from typing import override
 
 from rts_prebuilder.abstract_infrastructure import (
@@ -11,6 +12,14 @@ from rts_prebuilder.abstract_infrastructure import (
     Profile,
     SourcesAndFlagsComponent,
 )
+
+
+class AtomicSupport(Enum):
+    """Selects atomic packages and the width of the System.Atomic_Primitives interface."""
+
+    NONE = auto()
+    UP_TO_32_BITS = auto()
+    UP_TO_64_BITS = auto()
 
 
 class Atomics(SourcesAndFlagsComponent):

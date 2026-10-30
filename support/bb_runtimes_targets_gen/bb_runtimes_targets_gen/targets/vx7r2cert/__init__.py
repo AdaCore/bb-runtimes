@@ -5,6 +5,8 @@
 from pathlib import Path
 from typing import Literal, override
 
+from bb_runtimes_targets_gen.components.atomics import AtomicSupport
+
 from bb_runtimes_targets_gen.concrete_infrastructure import (
     Target,
     light_profile,
@@ -337,6 +339,11 @@ class PPC64Vx7r2Cert(Vx7r2Cert64):
 
 
 class X86Vx7r2Cert(Vx7r2Cert):
+    @property
+    @override
+    def atomic_support(self) -> AtomicSupport:
+        return AtomicSupport.UP_TO_64_BITS
+
     @property
     @override
     def target(self) -> str:

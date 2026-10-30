@@ -12,7 +12,7 @@ from rts_prebuilder.base_types import (
 )
 from rts_prebuilder.end_user_data.compiler_selector import using_gcc_compiler
 
-from ..components import TargetDefaultSwitchesComponent
+from ..components import AtomicSupport, TargetDefaultSwitchesComponent
 from .def_gpr_xml_gen import RuntimeXmlSource
 
 
@@ -60,6 +60,19 @@ class Target(AbstractTarget):
         if base_profile == "embedded":
             return Path("datafiles/link-zcx.spec")
         return None
+
+    @property
+    def atomic_support(self) -> AtomicSupport:
+        """Declare atomic capabilities under the contract in ``AtomicSupport``.
+
+        Default to the target's width so only targets with different atomic
+        capabilities need an override.
+        """
+        return (
+            AtomicSupport.UP_TO_64_BITS
+            if self.is_64bit
+            else AtomicSupport.UP_TO_32_BITS
+        )
 
     @property
     def runtime_xml_source(self) -> RuntimeXmlSource | None:

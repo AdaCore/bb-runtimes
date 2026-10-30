@@ -5,6 +5,8 @@
 from pathlib import Path
 from typing import override
 
+from bb_runtimes_targets_gen.components.atomics import AtomicSupport
+
 from bb_runtimes_targets_gen.concrete_infrastructure import (
     DFBBTarget,
     RuntimeXmlSource,
@@ -45,6 +47,11 @@ class Windows(DFBBTarget):
 
 
 class X86Windows(Windows):
+    @property
+    @override
+    def atomic_support(self) -> AtomicSupport:
+        return AtomicSupport.UP_TO_64_BITS
+
     @property
     @override
     def target(self) -> str:

@@ -5,6 +5,8 @@
 from pathlib import Path
 from typing import override
 
+from bb_runtimes_targets_gen.components.atomics import AtomicSupport
+
 from bb_runtimes_targets_gen.concrete_infrastructure import (
     DFBBTarget,
     embedded_profile,

@@ -14,6 +14,8 @@ from rts_prebuilder.abstract_infrastructure import (
 )
 from rts_prebuilder.base_types import PlatformIdType
 from rts_prebuilder.base_types import ValidBaseProfileType
+from bb_runtimes_targets_gen.components.atomics import AtomicSupport
+
 from bb_runtimes_targets_gen.concrete_infrastructure import (
     RuntimeXmlSource,
     Target,
@@ -202,6 +204,11 @@ class ArmPikeOS42(PikeOS):
 
 
 class AArch64PikeOS5(PikeOS):
+    @property
+    @override
+    def atomic_support(self) -> AtomicSupport:
+        return AtomicSupport.UP_TO_64_BITS
+
     @property
     @override
     def name(self) -> str:

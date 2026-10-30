@@ -14,7 +14,7 @@ from .alloc import (
     AllocTaskingNoc,
 )
 from .arith import Arith64, Arith128
-from .atomics import Atomics, Atomics32, Atomics64
+from .atomics import AtomicSupport, Atomics, Atomics32, Atomics64
 from .c_integration import AdaLibc, Newlib
 from .cert import Cert, CertArm
 from .command_line import CommandLine
@@ -151,6 +151,7 @@ __all__ = [
     "AllocTaskingNoc",
     "Arith128",
     "Arith64",
+    "AtomicSupport",
     "Atomics",
     "Atomics32",
     "Atomics64",
