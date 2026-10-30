@@ -138,6 +138,11 @@ class Vx7r2Cert64(Vx7r2Cert):
 class AArch64Vx7r2Cert(Vx7r2Cert64):
     @property
     @override
+    def has_fma(self) -> bool:
+        return True
+
+    @property
+    @override
     def target(self) -> str:
         return "aarch64-vx7r2"
 
@@ -275,6 +280,11 @@ class ArmVx7r2Cert(Vx7r2Cert):
 class PPCVx7r2Cert(Vx7r2Cert):
     @property
     @override
+    def has_fma(self) -> bool:
+        return True
+
+    @property
+    @override
     def target(self) -> str:
         return "ppc-vx7r2"
 
@@ -306,6 +316,11 @@ class PPCVx7r2Cert(Vx7r2Cert):
 
 
 class PPC64Vx7r2Cert(Vx7r2Cert64):
+    @property
+    @override
+    def has_fma(self) -> bool:
+        return True
+
     @property
     @override
     def target(self) -> str:

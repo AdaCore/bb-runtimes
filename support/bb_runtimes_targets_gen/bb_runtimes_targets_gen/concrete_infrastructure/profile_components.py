@@ -211,17 +211,6 @@ def _cpu_family(target: Target) -> CpuFamilyType:
     )
 
 
-def _has_fma(target: Target) -> bool:
-    """Whether the target has a fused multiply-add instruction."""
-    match _cpu_family(target):
-        case "aarch64" | "powerpc" | "powerpc64":
-            return target.has_fpu
-        case "riscv32" | "riscv64":
-            return target.has_double_precision_fpu
-        case _:
-            return False
-
-
 def no_profile_components(target: Target) -> list[SourcesAndFlagsComponent]:
     """Minimal component set for the "none" base profile, meant as a base
     for custom profiles that hand-pick the rest.
@@ -313,7 +302,7 @@ def _light_subset_components(
         ret += [ValueIntLLL(), ValueDecimalLLL(), ValueFixedLLL()]
 
     ret += [UtilsCaseUtil(), UtilsCaseUtilNss()]
-    ret.append(UtilsFloatFma() if _has_fma(target) else UtilsFloat())
+    ret.append(UtilsFloatFma() if target.has_fma else UtilsFloat())
 
     ret.append(Math())
     if cpu in ("x86", "x86_64"):

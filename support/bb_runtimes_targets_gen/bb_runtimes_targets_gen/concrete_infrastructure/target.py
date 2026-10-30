@@ -75,6 +75,11 @@ class Target(AbstractTarget):
         )
 
     @property
+    def has_fma(self) -> bool:
+        """Whether floating-point helpers can use fused multiply-add operations."""
+        return False
+
+    @property
     def runtime_xml_source(self) -> RuntimeXmlSource | None:
         """Declares where this target's runtime.xml comes from. ``None`` (the
         default) means *generate it* from the target's attributes and component

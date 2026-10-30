@@ -5,7 +5,6 @@
 from pathlib import Path
 from typing import override
 
-from bb_runtimes_targets_gen.components.atomics import AtomicSupport
 from rts_prebuilder.abstract_infrastructure import AbstractTarget
 from rts_prebuilder.abstract_infrastructure import Profile
 from rts_prebuilder.base_types import PlatformIdType
@@ -70,6 +69,11 @@ class QNX(Target):
 
 
 class Aarch64QNX(QNX):
+    @property
+    @override
+    def has_fma(self) -> bool:
+        return True
+
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         # The traceback implementation in our restricted runtimes for this

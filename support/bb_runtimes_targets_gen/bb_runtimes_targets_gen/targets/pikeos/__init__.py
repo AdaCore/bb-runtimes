@@ -206,6 +206,11 @@ class ArmPikeOS42(PikeOS):
 class AArch64PikeOS5(PikeOS):
     @property
     @override
+    def has_fma(self) -> bool:
+        return True
+
+    @property
+    @override
     def atomic_support(self) -> AtomicSupport:
         return AtomicSupport.UP_TO_64_BITS
 
@@ -305,6 +310,11 @@ class ArmPikeOS5(PikeOS):
 
 
 class PPCPikeOS5(PikeOS):
+    @property
+    @override
+    def has_fma(self) -> bool:
+        return True
+
     @property
     @override
     def name(self) -> str:

@@ -80,6 +80,11 @@ class PPCSPEArch(SourcesAndFlagsComponent):
 class PPC6XXTarget(DFBBTarget):
     @property
     @override
+    def has_fma(self) -> bool:
+        return True
+
+    @property
+    @override
     def target(self) -> str:
         return "powerpc-elf"
 
@@ -284,6 +289,11 @@ class MPC8641(PPC6XXTarget):
 
 
 class PPCBookETarget(DFBBTarget):
+    @property
+    @override
+    def has_fma(self) -> bool:
+        return True
+
     @property
     @override
     def target(self) -> str:

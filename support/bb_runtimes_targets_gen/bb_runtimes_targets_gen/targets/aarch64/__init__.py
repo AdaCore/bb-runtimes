@@ -6,7 +6,6 @@
 from pathlib import Path
 from typing import override
 
-from bb_runtimes_targets_gen.components.atomics import AtomicSupport
 
 from rts_prebuilder.end_user_data.compiler_selector import using_llvm_compiler
 from rts_prebuilder.abstract_infrastructure import AbstractTarget
@@ -76,6 +75,11 @@ def _add_aarch64_gnarl_flags(component: SourcesAndFlagsComponent) -> None:
 
 
 class Aarch64Target(DFBBTarget):
+    @property
+    @override
+    def has_fma(self) -> bool:
+        return True
+
     @property
     @override
     def target(self) -> str:

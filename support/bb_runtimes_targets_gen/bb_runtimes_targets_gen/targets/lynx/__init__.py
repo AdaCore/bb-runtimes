@@ -5,8 +5,6 @@
 from pathlib import Path
 from typing import override
 
-from bb_runtimes_targets_gen.components.atomics import AtomicSupport
-
 from bb_runtimes_targets_gen.concrete_infrastructure import (
     Target,
     light_profile,
@@ -80,6 +78,11 @@ class PPCLynx(Lynx):
 
 
 class Aarch64Lynx(Lynx):
+    @property
+    @override
+    def has_fma(self) -> bool:
+        return True
+
     @override
     def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         # Build against "production" mode.

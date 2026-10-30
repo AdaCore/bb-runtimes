@@ -5,8 +5,6 @@
 from pathlib import Path
 from typing import override
 
-from bb_runtimes_targets_gen.components.atomics import AtomicSupport
-
 from bb_runtimes_targets_gen.concrete_infrastructure import (
     DFBBTarget,
     embedded_profile,
@@ -19,6 +17,11 @@ from rts_prebuilder.abstract_infrastructure import Profile
 
 
 class RiscV64(DFBBTarget):
+    @property
+    @override
+    def has_fma(self) -> bool:
+        return self.has_double_precision_fpu
+
     @property
     @override
     def name(self) -> str:
@@ -204,6 +207,11 @@ class PolarFireSOC(RiscV64):
 
 
 class RiscV32(DFBBTarget):
+    @property
+    @override
+    def has_fma(self) -> bool:
+        return self.has_double_precision_fpu
+
     @property
     @override
     def name(self) -> str:
