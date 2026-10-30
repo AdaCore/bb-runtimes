@@ -7,7 +7,7 @@ build:
 
 python:
   install:
-    - requirements: support/rts_prebuilder_project/docs/requirements.txt
+    - requirements: doc/requirements.txt
 
 sphinx:
-  configuration: support/rts_prebuilder_project/docs/conf.py
+  configuration: doc/conf.py

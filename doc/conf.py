@@ -4,12 +4,16 @@
 
 # Configuration file for the Sphinx documentation builder.
 
-import os
+from pathlib import Path
 import sys
 
 #  Ahead of any installed copy: autodoc must document this checkout, not
 #  whatever version the environment happens to have on its path.
-sys.path.insert(0, os.path.abspath(".."))
+repo_root = Path(__file__).resolve().parents[1]
+sys.path[:0] = [
+    str(repo_root / "support" / "rts_prebuilder_project"),
+    str(repo_root / "support" / "bb_runtimes_targets_gen"),
+]
 
 # -- Project information -----------------------------------------------------
 project = "bb-runtimes"

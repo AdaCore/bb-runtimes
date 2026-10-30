@@ -2,13 +2,13 @@
 # Copyright (C) 2026, AdaCore
 #
 
-DOCDIR = support/rts_prebuilder_project/docs
+DOCDIR = doc
 
 .PHONY: help build-doc check-doc-requirements show-doc lint test
 
 help:
 	@echo "Available targets:"
-	@echo "  build-doc  Build the rts_prebuilder HTML documentation"
+	@echo "  build-doc  Build the bb-runtimes HTML documentation"
 	@echo "  show-doc   Build then open the documentation in a browser"
 	@echo "  lint       Run pre-commit on all files"
 	@echo "  test       Run the testsuite through tox"
