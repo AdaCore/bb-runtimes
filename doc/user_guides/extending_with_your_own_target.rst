@@ -7,6 +7,15 @@ Extending with Your Own Target
 This guide explains how to extend target definitions for your board, CPU or
 platform, reusing an infrastructure's components and source repositories.
 Keep your extension's target definitions and sources in your own project.
+The `bb-runtimes extender template
+<https://github.com/AdaCore/bb-runtimes-extender-template>`_ contains Cortex-M3
+examples with standard Light and custom profiles.
+``example-cortex-m-light`` supplies its own ``system.ads`` and uses the standard
+Light profile with GNAT installation sources.
+``example-cortex-m-custom`` selects its own profile components and reuses the
+ARM ``System`` specification from bb-runtimes.
+The template's README provides installation, adaptation, and generation
+instructions.
 The guide is self-contained. For the architecture of the repository and both
 Python packages, see :doc:`../overview/3_architecture`.
 
@@ -65,9 +74,11 @@ Prerequisites
    :class: bb-runtimes-specific
 
    Your extension can reuse the ``bb_runtimes_targets_gen`` engine interface,
-   target bases, profile factories and components. Supply your own source directories with
-   ``--source-search-path`` and register your target instances from your own
-   entry point, as described in :ref:`step 4 <extenders_step_use>`.
+   target bases, profile factories and components. Use the
+   `bb-runtimes extender template`_ as a starting point.
+   Supply your own source directories with ``--source-search-path`` and register
+   your target instances from your own entry point, as described in
+   :ref:`step 4 <extenders_step_use>`.
 
 What you will write
 ===================

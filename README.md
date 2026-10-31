@@ -58,6 +58,8 @@ The developer guides address two questions:
 * [How do I extend target definitions for my board, CPU, or platform?](https://bb-runtimes.readthedocs.io/en/latest/user_guides/extending_with_your_own_target.html)
   You will also need the [Target API reference](https://bb-runtimes.readthedocs.io/en/latest/api/concrete_infrastructure_extenders/target_definition.html)
   as you implement your target.
+  The [extender template](https://github.com/AdaCore/bb-runtimes-extender-template)
+  provides a complete example project.
 * [How do I set up my own runtime generator from scratch?](https://bb-runtimes.readthedocs.io/en/latest/user_guides/concrete_infrastructure_builders.html)
   Advanced usage only. Before proceeding, reconsider whether extending an
   existing target definition meets your needs.
