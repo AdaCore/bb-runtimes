@@ -409,7 +409,10 @@ sources = {
         "bb_srcs": ["hie/s-sssita.ads", "hie/s-sssita.adb"],
         "deos_srcs": ["hie/s-thread__cert.ads", "hie/s-thread__cert.adb"],
         "freertos_srcs": ["hie/s-sssita.ads", "hie/s-sssita.adb"],
-        "linux_srcs": ["hie/s-sssita.ads", "hie/s-sssita.adb"],
+        "linux_srcs": [
+            "hie/s-thread__light.ads",
+            "hie/s-thread__light.adb",
+        ],
         "lynx_srcs": ["hie/s-sssita.ads", "hie/s-sssita.adb"],
         "pikeos_srcs": [
             "hie/a-textio__pikeos-light.adb",
