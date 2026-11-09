@@ -21,6 +21,9 @@ include:
       windows: true
       windows-cpus: 8
       windows-mem: 16
+  - component: $CI_SERVER_FQDN/it/gitlab-templates/gitleaks@~latest
+    inputs:
+      stage: check
 
 # Run the Windows build on demand only (manual, non-blocking), on any pipeline.
 build-recompilablerts:windows:
