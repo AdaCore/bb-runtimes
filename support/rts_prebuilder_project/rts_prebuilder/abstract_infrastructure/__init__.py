@@ -46,22 +46,23 @@ so it includes also the types of function parameters.
 from .common.resolver_core import SourcePathResolver
 from .common.default_resolver import DefaultSourcePathResolver
 from .common.resolver_steps import AbstractResolutionStep, OutcomeDescription
-from .common.source_file import SourceFile
+from .common.source_file import (
+    SourceFile,
+    GprSwitches,
+    Loader,
+    dest_name,
+)
 from .engine_interface import (
-    CommonInterface,
     EngineToInfrastructureInterface,
     get_infrastructure_interface,
 )
-from .runtime_targetizer.abstract_arch_support import AbsractArchSupport
-from .runtime_targetizer.abstract_profiles_generator import (
-    AbstractProfileToScenarioGenerator,
+from .runtime_prebuilder.abstract_target import AbstractTarget
+from .runtime_prebuilder.abstract_target_generator import AbstractTargetGenerator
+from .runtime_prebuilder.component import (
+    IncompatibleComponent,
+    SourcesAndFlagsComponent,
 )
-from .runtime_targetizer.abstract_target import AbstractTarget
-from .runtime_targetizer.abstract_target_generator import AbstractTargetGenerator
-from .runtime_targetizer.component_mixin import SourcesAndFlagsComponentMixin
-
-# Some data types
-from .runtime_targetizer.runtime_config import RuntimeConfig
+from .runtime_prebuilder.runtime_profile import Profile
 
 __all__ = [
     # Useful for all engine code, it should be able to work completely
@@ -69,20 +70,21 @@ __all__ = [
     # As well as for Target / Archs specializations.
     "AbstractTarget",
     "AbstractTargetGenerator",
-    "SourcesAndFlagsComponentMixin",
-    "AbsractArchSupport",
-    "RuntimeConfig",
+    "IncompatibleComponent",
+    "SourcesAndFlagsComponent",
+    "Profile",
     "SourceFile",
+    "GprSwitches",
+    "Loader",
+    "dest_name",
     # Engine code + for implementers a concrete infrastructure
     # Must declare and fill a (engine_interface: EngineInterface) object
     # Interface classes
     "EngineToInfrastructureInterface",
-    "CommonInterface",
     "SourcePathResolver",
     "DefaultSourcePathResolver",
     "AbstractResolutionStep",
     "OutcomeDescription",
-    "AbstractProfileToScenarioGenerator",
     # Helpers
     "get_infrastructure_interface",
 ]

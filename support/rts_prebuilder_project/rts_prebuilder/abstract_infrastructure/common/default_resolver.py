@@ -15,18 +15,7 @@ from .resolver_steps import (
 
 
 class DefaultSourcePathResolver(SourcePathResolver):
-    """
-    Default concrete source path resolver.
-
-    This is just a convenience subclass of SourcePathResolver,
-    if concrete infrastructure builders do not want to define their own subclass.
-
-    It calls 4 resolution steps in this order:
-    - GnatDirManifestResolutionStep
-    - GnatDirLibsResolutionStep
-    - SearchPathsResolutionStep (With a method to add search paths at runtime)
-    - GccDirResolutionStep
-    """
+    """Resolve source paths through the default steps with configurable search directories."""
 
     search_paths_resolver: SearchPathsResolutionStep
     """

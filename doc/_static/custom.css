@@ -1,0 +1,105 @@
+/*
+ * Copyright (C) 2025-2026, AdaCore
+ */
+
+/* The RTD theme pins table cells to `white-space: nowrap` and puts the table in
+ * a horizontally scrolling wrapper, which hides prose-heavy cells off-screen.
+ * Let them wrap instead. */
+.wy-table-responsive table td,
+.wy-table-responsive table th {
+    white-space: normal;
+}
+
+.wy-table-responsive {
+    overflow: visible;
+}
+
+/* Inline literals inside a wrapped cell must be allowed to break too, else a
+ * long dotted path re-introduces the overflow on narrow screens. */
+table.docutils td code,
+table.docutils th code {
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+/* "Are You In The Right Place?" routing boxes at the top of each guide. */
+.routing-box {
+    background: #f7fbff;
+    border-left: 4px solid #2980b9;
+}
+
+.rst-content .hint,
+.rst-content .important,
+.rst-content .tip {
+    background: #e7f2fa;
+}
+
+.rst-content .hint .admonition-title,
+.rst-content .important .admonition-title,
+.rst-content .tip .admonition-title {
+    background: #6ab0de;
+}
+
+.rst-content .bb-runtimes-specific {
+    background: #dbfaf4;
+}
+
+.rst-content .bb-runtimes-specific .admonition-title {
+    background: #1abc9c;
+}
+
+/* The RTD theme caps `.wy-nav-content` at 800px, so on a wide screen the page
+ * uses about half the width and prose-heavy tables stay cramped. */
+.wy-nav-content {
+    max-width: none;
+}
+
+/* The mermaid extension appends `pre.mermaid > svg { width: 100%; max-width:
+ * 100% !important }` to <head> at run time, so a diagram fills whatever box it
+ * sits in. On a full-width screen that is the whole page. Cap the box instead,
+ * and centre it. */
+.rst-content pre.mermaid {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Mermaid leaves the rendered SVG inline, so it sits on the text baseline of
+ * the `pre` and the line box adds leading above and below it. That reads as a
+ * gap between the diagram and the paragraph before it. */
+.rst-content pre.mermaid > svg {
+    display: block;
+    margin: 0 auto;
+}
+
+/* The RTD theme styles every `pre`, and a mermaid diagram is one: `white-space:
+ * pre` stops a label wrapping and `overflow: auto` clips what sticks out, so
+ * long labels come out cut. The labels are plain HTML inside the SVG, so they
+ * inherit both. */
+.rst-content pre.mermaid {
+    white-space: normal;
+    overflow: visible;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.rst-content pre.mermaid foreignObject div,
+.rst-content pre.mermaid .nodeLabel,
+.rst-content pre.mermaid .edgeLabel,
+.rst-content pre.mermaid .cluster-label {
+    white-space: normal;
+    font-family: inherit;
+    line-height: 1.3;
+}
+
+/* Mermaid sizes every box by measuring its text in the font it was told to
+ * use. The RTD theme puts a monospace family on anything inside a `pre`, so
+ * the glyphs come out wider than the box and a long name such as
+ * SourcesAndFlagsComponent is cut. Feed the whole diagram the same family as
+ * `mermaid_init_js`. */
+.rst-content pre.mermaid,
+.rst-content pre.mermaid text,
+.rst-content pre.mermaid tspan {
+    font-family: "Lato", Helvetica, Arial, sans-serif !important;
+}

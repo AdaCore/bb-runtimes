@@ -29,17 +29,18 @@ project Ravenscar_Build is
    for Source_Dirs use ("{source_dirs}");
 
    package Compiler is
-      for Default_Switches ("C") use Target_Options.GNARL_CFLAGS;
-      for Default_Switches ("Ada") use Target_Options.GNARL_ADAFLAGS;
-      for Default_Switches ("Asm_Cpp") use Target_Options.ASMFLAGS;
+      for Default_Switches ("C") use Target_Options.Gnarl_C_Switches;
+      for Default_Switches ("Ada") use Target_Options.Gnarl_Ada_Switches;
+      for Default_Switches ("Asm_Cpp") use Target_Options.Gnarl_Asm_Switches;
 
       --  Always build System.BB.CPU_Primitives at -O2 as some targets may make
       --  use of inline assembly that rely on specific compiler behaviour to
       --  load constants that are not enabled at -O0.
-      for Switches ("s-bbcppr.adb") use Target_Options.GNARL_ADAFLAGS & ("-O2");
+      for Switches ("s-bbcppr.adb") use
+        Target_Options.Gnarl_Ada_Switches & ("-O2");
       --  Some runtime files need to be compiled with debug info, so that gdb
       --  is not blind.
-      for Switches ("s-tasdeb.adb") use Target_Options.ALL_ADAFLAGS
+      for Switches ("s-tasdeb.adb") use Target_Options.All_Ada_Switches
         & ("-g", "-O0");
    end Compiler;
 

@@ -15,6 +15,9 @@ dependencies = [
     "rts_prebuilder",
 ]
 
+[project.scripts]
+prebuild_rts = "bb_runtimes_targets_gen.targets.__main__:main"
+
 [build-system]
 requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"

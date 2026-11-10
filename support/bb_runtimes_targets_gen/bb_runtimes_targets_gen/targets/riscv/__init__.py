@@ -2,60 +2,80 @@
 # Copyright (C) 2025-2026, AdaCore
 #
 
-from bb_runtimes_targets_gen.concrete_infrastructure import DFBBTarget
 from pathlib import Path
+from typing import override
+
+from bb_runtimes_targets_gen.concrete_infrastructure import (
+    DFBBTarget,
+    embedded_profile,
+    light_profile,
+    light_tasking_profile,
+)
+from rts_prebuilder.abstract_infrastructure import Loader
+from rts_prebuilder.abstract_infrastructure import AbstractTarget
+from rts_prebuilder.abstract_infrastructure import Profile
 
 
 class RiscV64(DFBBTarget):
     @property
-    def name(self):
+    @override
+    def has_fma(self) -> bool:
+        return self.has_double_precision_fpu
+
+    @property
+    @override
+    def name(self) -> str:
         return "riscv64"
 
     @property
-    def target(self):
+    @override
+    def target(self) -> str:
         return "riscv64-elf"
 
     @property
+    @override
     def has_huge_memory(self) -> bool:
         return True
 
     @property
+    @override
     def has_timer_64(self) -> bool:
         return True
 
     @property
+    @override
     def is_64bit(self) -> bool:
         return True
 
     @property
-    def system_ads(self):
-        return {"light": "system-xi-riscv.ads"}
+    @override
+    def profiles(self) -> list[Profile]:
+        return [light_profile(self, Path("system-xi-riscv.ads"))]
 
 
 class Spike(RiscV64):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "spike"
 
-    @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-mcmodel=medany",)
-
-    @property
-    def loaders(self):
-        return ("RAM",)
-
-    def __init__(self):
-        super(Spike, self).__init__()
-        self.add_linker_script("riscv/spike/memory-map.ld")
-        self.add_linker_script("riscv/spike/common-RAM.ld", loaders=("RAM",))
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(common_switches=("-mcmodel=medany",))
         self.add_gnat_sources(
             "riscv/start-ram.S",
             "riscv/src/riscv_host_target_interface.ads",
             "riscv/src/riscv_host_target_interface.adb",
             "shared/s-macres__riscv-htif.adb",
             "shared/s-textio__riscv-htif.adb",
+        )
+
+        self.add_loaders(
+            Loader(
+                "RAM",
+                linker_scripts=(Path("riscv/spike/common-RAM.ld"),),
+                included_scripts=(Path("riscv/spike/memory-map.ld"),),
+            ),
         )
 
 
@@ -82,62 +102,42 @@ class PolarFireSOC(RiscV64):
     """
 
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         if self.smp:
             return "polarfiresoc-smp"
         return "polarfiresoc"
 
     @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-march=rv64gc", "-mabi=lp64d")
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-riscv.ads")),
+            light_tasking_profile(self, Path("system-xi-riscv-sifive-sfp.ads")),
+            embedded_profile(self, Path("system-xi-riscv-sifive-full.ads")),
+        ]
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-riscv.ads",
-            "light-tasking": "system-xi-riscv-sifive-sfp.ads",
-            "embedded": "system-xi-riscv-sifive-full.ads",
-        }
-
-    @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return True
 
     @property
+    @override
     def has_double_precision_fpu(self) -> bool:
         return True
 
-    @property
-    def loaders(self):
-        return ("RAM",)
-
-    def dump_runtime_xml(self, rts_name, rts):
-        cnt = super(PolarFireSOC, self).dump_runtime_xml(rts_name, rts)
-        return cnt.replace(
-            '"common-RAM.ld"',
-            '"common-RAM.ld",\n'
-            "               --  This symbol is used by GDB to know the\n"
-            "               --  hardware id of the first CPU used by\n"
-            "               --  the run-time. The -u option is used to make\n"
-            "               --  sure the symbol is not discared in the final\n"
-            "               --  binary.\n"
-            '               "-u", "__gnat_gdb_cpu_first_id"',
-        )
-
-    def __init__(self, smp: bool = False):
-        super(PolarFireSOC, self).__init__()
+    def __init__(self, smp: bool = False) -> None:
+        super().__init__()
         self.smp = smp
 
-        self.add_linker_script("riscv/microchip/polarfiresoc/memory-map.ld")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-march=rv64gc", "-mabi=lp64d"),
+        )
 
         if self.smp:
-            # SMP-specific linker script with stacks for all cores
-            self.add_linker_script(
-                "riscv/microchip/polarfiresoc/common-RAM-smp.ld",
-                loaders=("RAM",),
-                dest_path_str="common-RAM.ld",
-            )
             # SMP-specific startup code
             self.add_gnat_source(
                 "riscv/microchip/polarfiresoc/start-ram-smp.S",
@@ -157,9 +157,6 @@ class PolarFireSOC(RiscV64):
 
         else:
             # Single-processor equivalent sources
-            self.add_linker_script(
-                "riscv/microchip/polarfiresoc/common-RAM.ld", loaders=("RAM",)
-            )
             self.add_gnat_source("riscv/microchip/polarfiresoc/start-ram.S")
             self.add_gnarl_sources(
                 "riscv/src/trap_handler.S",
@@ -189,57 +186,81 @@ class PolarFireSOC(RiscV64):
             "riscv/microchip/polarfiresoc/s-bbripl.adb",
         )
 
+        # The SMP script gives every core a stack. Both install as
+        # common-RAM.ld, so the -T does not depend on the variant.
+        script = Path(
+            "riscv/microchip/polarfiresoc/common-RAM__smp.ld"
+            if self.smp
+            else "riscv/microchip/polarfiresoc/common-RAM.ld"
+        )
+        self.add_loaders(
+            Loader(
+                "RAM",
+                linker_scripts=(script,),
+                included_scripts=(Path("riscv/microchip/polarfiresoc/memory-map.ld"),),
+                # Keep __gnat_gdb_cpu_first_id undefined-but-referenced: GDB
+                # reads it to learn the hardware id of the run-time's first
+                # CPU, and -u stops the linker discarding the symbol.
+                link_switches=('-u", "__gnat_gdb_cpu_first_id',),
+            ),
+        )
+
 
 class RiscV32(DFBBTarget):
     @property
-    def name(self):
+    @override
+    def has_fma(self) -> bool:
+        return self.has_double_precision_fpu
+
+    @property
+    @override
+    def name(self) -> str:
         return "riscv32"
 
     @property
-    def target(self):
+    @override
+    def target(self) -> str:
         return "riscv32-elf"
 
     @property
+    @override
     def has_timer_64(self) -> bool:
         return True
 
 
 class HiFive1(RiscV32):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "hifive1"
 
     @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return False
 
     @property
+    @override
     def has_double_precision_fpu(self) -> bool:
         return False
 
     @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-march=rv32imac", "-mabi=ilp32")
-
-    @property
+    @override
     def has_small_memory(self) -> bool:
         return True
 
     @property
-    def loaders(self):
-        return ("ROM",)
-
-    @property
-    def system_ads(self):
+    @override
+    def profiles(self) -> list[Profile]:
         # Only the Light runtime for this target, the tasking and embedded
         # run-times are not stable for the moment.
-        return {"light": "system-xi-riscv.ads"}
+        return [light_profile(self, Path("system-xi-riscv.ads"))]
 
-    def __init__(self):
-        super(HiFive1, self).__init__()
-        self.add_linker_script("riscv/sifive/hifive1/memory-map.ld")
-        self.add_linker_script("riscv/sifive/hifive1/common-ROM.ld", loaders=("ROM",))
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-march=rv32imac", "-mabi=ilp32"),
+        )
         self.add_gnat_sources(
             "riscv/sifive/fe310/start-rom.S",
             "riscv/sifive/fe310/svd/i-fe310.ads",
@@ -267,50 +288,56 @@ class HiFive1(RiscV32):
             "riscv/sifive/fe310/s-bbripl.adb",
         )
 
+        self.add_loaders(
+            Loader(
+                "ROM",
+                linker_scripts=(Path("riscv/sifive/hifive1/common-ROM.ld"),),
+                included_scripts=(Path("riscv/sifive/hifive1/memory-map.ld"),),
+            ),
+        )
+
 
 class MIV_RV32IMAF(RiscV32):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "miv_rv32imaf"
 
     @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return True
 
     @property
+    @override
     def has_double_precision_fpu(self) -> bool:
         return False
 
     @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return ("-march=rv32imaf_zicsr", "-mabi=ilp32f")
-
-    @property
+    @override
     def has_small_memory(self) -> bool:
         return True
 
     @property
-    def loaders(self):
-        return ("RAM",)
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-riscv-rv32imaf-light.ads")),
+            light_tasking_profile(
+                self, Path("system-xi-riscv-rv32imaf-light-tasking.ads")
+            ),
+            embedded_profile(self, Path("system-xi-riscv-rv32imaf-embedded.ads")),
+        ]
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-riscv-rv32imaf-light.ads",
-            "light-tasking": "system-xi-riscv-rv32imaf-light-tasking.ads",
-            "embedded": "system-xi-riscv-rv32imaf-embedded.ads",
-        }
-
-    @property
-    def readme_file(self):
+    @override
+    def readme_file(self) -> Path | None:
         return Path("riscv/microchip/miv_rv32imaf/README")
 
-    def __init__(self):
-        super(MIV_RV32IMAF, self).__init__()
-        self.add_linker_script("riscv/microchip/miv_rv32imaf/memory-map.ld")
-        self.add_linker_script(
-            "riscv/microchip/miv_rv32imaf/common-RAM.ld", loaders=("RAM",)
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-march=rv32imaf_zicsr", "-mabi=ilp32f"),
         )
         self.add_gnat_sources(
             "riscv/microchip/miv_rv32imaf/start-ram.S",
@@ -339,29 +366,36 @@ class MIV_RV32IMAF(RiscV32):
             "riscv/microchip/miv_rv32imaf/s-bbripl.adb",
         )
 
+        self.add_loaders(
+            Loader(
+                "RAM",
+                linker_scripts=(Path("riscv/microchip/miv_rv32imaf/common-RAM.ld"),),
+                included_scripts=(Path("riscv/microchip/miv_rv32imaf/memory-map.ld"),),
+            ),
+        )
+
 
 class MicroblazeV(RiscV64):
     @property
-    def has_single_precision_fpu(self):
+    @override
+    def has_single_precision_fpu(self) -> bool:
         return False
 
     @property
-    def has_double_precision_fpu(self):
+    @override
+    def has_double_precision_fpu(self) -> bool:
         return False
 
     @property
-    def system_ads(self):
-        return {"light": "system-xi-riscv.ads"}
+    @override
+    def profiles(self) -> list[Profile]:
+        return [light_profile(self, Path("system-xi-riscv.ads"))]
 
-    @property
-    def loaders(self):
-        return ("RAM",)
-
-    def __init__(self):
-        super(RiscV64, self).__init__()
-
-        self.add_linker_script("riscv/amd/microblaze/memory-map.ld")
-        self.add_linker_script("riscv/amd/microblaze/common-RAM.ld", loaders=("RAM",))
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-march=rv64ima_zicsr_zifencei_zicbom", "-mabi=lp64"),
+        )
 
         self.add_gnat_sources(
             "shared/s-macres__none.adb",
@@ -370,13 +404,18 @@ class MicroblazeV(RiscV64):
             "riscv/src/riscv_def.h",
         )
 
-    @property
-    def name(self):
-        return "microblazev"
+        self.add_loaders(
+            Loader(
+                "RAM",
+                linker_scripts=(Path("riscv/amd/microblaze/common-RAM.ld"),),
+                included_scripts=(Path("riscv/amd/microblaze/memory-map.ld"),),
+            ),
+        )
 
     @property
-    def compiler_switches(self):
-        return ("-march=rv64ima_zicsr_zifencei_zicbom", "-mabi=lp64")
+    @override
+    def name(self) -> str:
+        return "microblazev"
 
 
 class RV32BASE(RiscV32):
@@ -386,25 +425,28 @@ class RV32BASE(RiscV32):
     """
 
     @property
+    @override
     def has_small_memory(self) -> bool:
         return True
 
     @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return False
 
     @property
+    @override
     def has_double_precision_fpu(self) -> bool:
         return False
 
     @property
-    def system_ads(self):
+    @override
+    def profiles(self) -> list[Profile]:
         # Only the Light runtime for for this generic target
-        return {"light": "system-xi-riscv.ads"}
+        return [light_profile(self, Path("system-xi-riscv.ads"))]
 
-    def __init__(self):
-        super(RV32BASE, self).__init__()
-
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
             "riscv/sifive/fe310/s-macres.adb", "shared/s-textio__stdio.adb"
         )
@@ -412,72 +454,93 @@ class RV32BASE(RiscV32):
 
 class RV32I(RV32BASE):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "rv32i"
 
-    @property
-    def compiler_switches(self):
-        return ("-march=rv32i", "-mabi=ilp32")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-march=rv32i", "-mabi=ilp32"),
+        )
 
 
 class RV32IM(RV32BASE):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "rv32im"
 
-    @property
-    def compiler_switches(self):
-        return ("-march=rv32im", "-mabi=ilp32")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-march=rv32im", "-mabi=ilp32"),
+        )
 
 
 class RV32IAC(RV32BASE):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "rv32iac"
 
-    @property
-    def compiler_switches(self):
-        return ("-march=rv32iac", "-mabi=ilp32")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-march=rv32iac", "-mabi=ilp32"),
+        )
 
 
 class RV32IMAC(RV32BASE):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "rv32imac"
 
-    @property
-    def compiler_switches(self):
-        return ("-march=rv32imac", "-mabi=ilp32")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-march=rv32imac", "-mabi=ilp32"),
+        )
 
 
 class RV32IMAFC(RV32BASE):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "rv32imafc"
 
-    @property
-    def compiler_switches(self):
-        return ("-march=rv32imafc", "-mabi=ilp32f")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-march=rv32imafc", "-mabi=ilp32f"),
+        )
 
     @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return True
 
 
 class RV32IMAFDC(RV32BASE):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "rv32imafdc"
 
-    @property
-    def compiler_switches(self):
-        return ("-march=rv32imafdc", "-mabi=ilp32d")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-march=rv32imafdc", "-mabi=ilp32d"),
+        )
 
     @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return True
 
     @property
+    @override
     def has_double_precision_fpu(self) -> bool:
         return True
 
@@ -489,21 +552,23 @@ class RV64BASE(RiscV64):
     """
 
     @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return False
 
     @property
+    @override
     def has_double_precision_fpu(self) -> bool:
         return False
 
     @property
-    def system_ads(self):
+    @override
+    def profiles(self) -> list[Profile]:
         # Only the Light runtime for for this generic target
-        return {"light": "system-xi-riscv.ads"}
+        return [light_profile(self, Path("system-xi-riscv.ads"))]
 
-    def __init__(self):
-        super(RV64BASE, self).__init__()
-
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
             "riscv/sifive/fe310/s-macres.adb", "shared/s-textio__stdio.adb"
         )
@@ -511,78 +576,100 @@ class RV64BASE(RiscV64):
 
 class RV64IM(RV64BASE):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "rv64im"
 
-    @property
-    def compiler_switches(self):
-        return ("-march=rv64im", "-mabi=lp64")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-march=rv64im", "-mabi=lp64"),
+        )
 
 
 class RV64IMC(RV64BASE):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "rv64imc"
 
-    @property
-    def compiler_switches(self):
-        return ("-march=rv64imc", "-mabi=lp64")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-march=rv64imc", "-mabi=lp64"),
+        )
 
 
 class RV64IMAC(RV64BASE):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "rv64imac"
 
-    @property
-    def compiler_switches(self):
-        return ("-march=rv64imac", "-mabi=lp64")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-march=rv64imac", "-mabi=lp64"),
+        )
 
 
 class RV64IMAFC(RV64BASE):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "rv64imafc"
 
     @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return True
 
-    @property
-    def compiler_switches(self):
-        return ("-march=rv64imafc", "-mabi=lp64f")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-march=rv64imafc", "-mabi=lp64f"),
+        )
 
 
 class RV64IMFC(RV64BASE):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "rv64imfc"
 
     @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return True
 
-    @property
-    def compiler_switches(self):
-        return ("-march=rv64imfc", "-mabi=lp64f")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-march=rv64imfc", "-mabi=lp64f"),
+        )
 
 
 class RV64IMAFDC(RV64BASE):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "rv64imafdc"
 
     @property
+    @override
     def has_single_precision_fpu(self) -> bool:
         return True
 
     @property
+    @override
     def has_double_precision_fpu(self) -> bool:
         return True
 
-    @property
-    def compiler_switches(self):
-        return ("-march=rv64imafdc", "-mabi=lp64d")
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=("-march=rv64imafdc", "-mabi=lp64d"),
+        )
 
 
 TARGETS = [

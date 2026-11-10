@@ -85,9 +85,8 @@ class SearchPathsResolutionStep(AbstractResolutionStep):
 
 
 class GnatDirManifestResolutionStep(AbstractResolutionStep):
-    """
-    Resolution step that checks if a path exists in GNAT directory manifest.
-    This step handles files that are listed in the GNAT manifest file.
+    """Resolve manifest-listed root files in GNAT source checkouts for internal
+    AdaCore codebases.
     """
 
     @override
@@ -121,9 +120,8 @@ class GnatDirManifestResolutionStep(AbstractResolutionStep):
 
 
 class GnatDirLibsResolutionStep(AbstractResolutionStep):
-    """
-    Resolution step that checks if a file exists in GNAT runtime library directories.
-    This step handles files in hie, libgnarl, and libgnat subdirectories.
+    """Resolve library files in GNAT source checkouts for internal AdaCore
+    codebases, rejecting ambiguous bare filenames.
     """
 
     @override
@@ -133,22 +131,29 @@ class GnatDirLibsResolutionStep(AbstractResolutionStep):
         gnatdir = get_gnatdir()
         lib_dirs = ("hie", "libgnarl", "libgnat")
 
-        # Check if path starts with one of the library directories
         if not gnatdir or not unresolved_src_path.parts:
             return None, "No GNAT dir configured or empty path"
 
-        if unresolved_src_path.parts[0] not in lib_dirs:
+        if len(unresolved_src_path.parts) == 1:
+            candidates = [gnatdir / d / unresolved_src_path for d in lib_dirs]
+        elif unresolved_src_path.parts[0] in lib_dirs:
+            candidates = [gnatdir / unresolved_src_path]
+        else:
             return None, "Path does not start with GNAT lib dir (hie/libgnarl/libgnat)"
 
-        # Construct and verify the path
-        resolved_path = gnatdir / unresolved_src_path
-        if resolved_path.exists():
+        matches = [path for path in candidates if path.is_file()]
+        if len(matches) > 1:
+            paths = ", ".join(str(path.relative_to(gnatdir)) for path in matches)
+            raise ValueError(
+                f"Ambiguous GNAT source {unresolved_src_path}: {paths}. "
+                "Specify its library directory."
+            )
+        if matches:
             return (
-                resolved_path,
+                matches[0],
                 "File was found in GNAT runtime libs (hie/libgnarl/libgnat)",
             )
-        else:
-            return None, "File expected in GNAT libs but not found on disk"
+        return None, "File expected in GNAT libs but not found on disk"
 
 
 class GccDirResolutionStep(AbstractResolutionStep):

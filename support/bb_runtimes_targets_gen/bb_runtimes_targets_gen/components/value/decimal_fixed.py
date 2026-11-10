@@ -1,0 +1,41 @@
+#
+# Copyright (C) 2026, AdaCore
+#
+
+"""'Value support for decimal fixed-point types."""
+
+from typing import override
+
+from rts_prebuilder.abstract_infrastructure import (
+    AbstractTarget,
+    Profile,
+    SourcesAndFlagsComponent,
+)
+
+
+class ValueDecimal(SourcesAndFlagsComponent):
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_gnat_sources(
+            "s-valuer.ads",
+            "s-valuer.adb",
+            "s-valued.ads",
+            "s-valued.adb",
+            "s-vade32.ads",
+        )
+
+
+class ValueDecimalLL(SourcesAndFlagsComponent):
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_gnat_sources(
+            "s-vade64.ads",
+        )
+
+
+class ValueDecimalLLL(SourcesAndFlagsComponent):
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_gnat_sources(
+            "s-vade128.ads",
+        )

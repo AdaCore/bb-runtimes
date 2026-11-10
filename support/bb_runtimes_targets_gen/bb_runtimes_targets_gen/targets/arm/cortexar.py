@@ -4,18 +4,27 @@
 
 # BSP support for Cortex-A/R
 from pathlib import Path
+from typing import override
 
-from rts_prebuilder.engine import resolve_and_read_file
-from bb_runtimes_targets_gen.concrete_infrastructure import ArchSupport, DFBBTarget
+from rts_prebuilder.abstract_infrastructure import (
+    AbstractTarget,
+    Loader,
+    Profile,
+)
+from rts_prebuilder.base_types import ValidBaseProfileType
+
+from bb_runtimes_targets_gen.concrete_infrastructure import (
+    SourcesAndFlagsComponent,
+    DFBBTarget,
+    light_profile,
+    light_tasking_profile,
+    embedded_profile,
+)
 
 
-class CortexARArch(ArchSupport):
-    @property
-    def name(self):
-        return "cortex-ar"
-
-    def __init__(self):
-        super(CortexARArch, self).__init__()
+class CortexARArch(SourcesAndFlagsComponent):
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
             "shared/i-arm_v7ar.ads",
             "shared/i-arm_v7ar.adb",
@@ -24,27 +33,13 @@ class CortexARArch(ArchSupport):
         )
         self.add_gnarl_sources("shared/s-bbcpsp__arm.ads", "shared/s-bbcppr__new.ads")
 
-
-class CortexARTarget(DFBBTarget):
-    @property
-    def target(self):
-        return "arm-eabi"
-
-    @property
-    def parent(self):
-        return CortexARArch()
-
-    @property
-    def has_timer_64(self) -> bool:
-        return True
-
-    def amend_rts(self, rts_profile, conf):
-        super(CortexARTarget, self).amend_rts(rts_profile, conf)
-        if "embedded" in rts_profile or "tasking" in rts_profile:
+        if profile.base_profile in ("embedded", "light-tasking"):
             # s-bbcppr.adb uses the r7 register during context switching: this
             # is not compatible with the use of frame pointers that is emited
             # at -O0 by gcc. Let's disable fp even at -O0.
-            conf.build_flags["common_flags"] += ["-fomit-frame-pointer"]
+            self.add_runtime_switches(
+                common_switches=("-fomit-frame-pointer",),
+            )
 
             # The use of FPU registers (to speed up structure init or because
             # SIMD instructions are used) is incompatible with the libgnarl.
@@ -52,61 +47,75 @@ class CortexARTarget(DFBBTarget):
             # switch and does so by doing lazy context switches: this restores
             # the registers only when they are used by apps. This means that if
             # a FPU register is used out of context, then we're doomed.
-            conf.build_flags["common_gnarl_flags"] += ["-mgeneral-regs-only"]
-
-        if "embedded" in rts_profile:
-            # Exception propagation uses ARM unwind tables in .ARM.exidx and
-            # not the DWARF .eh_frame.
-            conf.config_files.update(
-                {"link-zcx.spec": resolve_and_read_file(Path("arm/src/link-zcx.spec"))}
+            self.add_runtime_switches(
+                gnarl_switches=("-mgeneral-regs-only",),
             )
+
+
+class CortexARTarget(DFBBTarget):
+    def __init__(self) -> None:
+        super().__init__()
+        self.add_dependency(CortexARArch())
+
+    @property
+    @override
+    def target(self) -> str:
+        return "arm-eabi"
+
+    @property
+    @override
+    def has_timer_64(self) -> bool:
+        return True
+
+    @override
+    def link_spec_file(self, base_profile: ValidBaseProfileType) -> Path | None:
+        # Exception propagation uses ARM unwind tables in .ARM.exidx and not the
+        # DWARF .eh_frame.
+        if base_profile == "embedded":
+            return Path("arm/src/link-zcx.spec")
+        return super().link_spec_file(base_profile)
 
 
 class AM64xR5(CortexARTarget):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "am64xr5"
 
     @property
+    @override
     def has_small_memory(self) -> bool:
         return True
 
     @property
-    def loaders(self):
-        return ("RAM",)
-
-    @property
-    def cpu(self):
+    def cpu(self) -> str:
         return "cortex-r5"
 
     @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return (
-            "-mlittle-endian",
-            "-mfloat-abi=hard",
-            f"-mcpu={self.cpu}",
-            "-mfpu=vfpv3-d16",
-            "-marm",
-        )
-
-    @property
-    def readme_file(self):
+    @override
+    def readme_file(self) -> Path | None:
         return Path("arm/am64xr5/README")
 
     @property
-    def system_ads(self):
-        return {"light-tasking": "system-xi-arm-light-tasking-no-irq-nesting.ads"}
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_tasking_profile(
+                self, Path("system-xi-arm-light-tasking-no-irq-nesting.ads")
+            )
+        ]
 
-    def add_linker_scripts(self):
-        self.add_linker_script("arm/am64xr5/common.ld")
-        self.add_linker_script("arm/am64xr5/memmap.ld")
-        self.add_linker_script("arm/am64xr5/ram.ld", loaders=("RAM",))
-
-    def __init__(self):
-        super(AM64xR5, self).__init__()
-
-        self.add_linker_scripts()
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mfloat-abi=hard",
+                f"-mcpu={self.cpu}",
+                "-mfpu=vfpv3-d16",
+                "-marm",
+            ),
+        )
 
         self.add_gnat_sources(
             "arm/am64xr5/crt0.S",
@@ -131,48 +140,55 @@ class AM64xR5(CortexARTarget):
             "shared/s-tvinma.adb",
         )
 
+        self.add_loaders(
+            Loader(
+                "RAM",
+                linker_scripts=(Path("arm/am64xr5/ram.ld"),),
+                included_scripts=(
+                    Path("arm/am64xr5/common.ld"),
+                    Path("arm/am64xr5/memmap.ld"),
+                ),
+            ),
+        )
+
 
 class Rpi2Base(CortexARTarget):
-    @property
-    def loaders(self):
-        return ("RAM",)
 
     @property
-    def mcu(self):
+    def mcu(self) -> str:
         return "cortex-a7"
 
     @property
-    def fpu(self):
+    def fpu(self) -> str:
         return "vfpv4"
 
     @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return (
-            "-mlittle-endian",
-            "-mfloat-abi=hard",
-            f"-mcpu={self.mcu}",
-            f"-mfpu={self.fpu}",
-            "-marm",
-            "-mno-unaligned-access",
-        )
-
-    @property
-    def readme_file(self):
+    @override
+    def readme_file(self) -> Path | None:
         return Path("arm/rpi2/README")
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-arm.ads",
-            "light-tasking": "system-xi-arm-sfp.ads",
-            "embedded": "system-xi-arm-full.ads",
-        }
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-arm.ads")),
+            light_tasking_profile(self, Path("system-xi-arm-sfp.ads")),
+            embedded_profile(self, Path("system-xi-arm-full.ads")),
+        ]
 
-    def __init__(self):
-        super(Rpi2Base, self).__init__()
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mfloat-abi=hard",
+                f"-mcpu={self.mcu}",
+                f"-mfpu={self.fpu}",
+                "-marm",
+                "-mno-unaligned-access",
+            ),
+        )
 
-        self.add_linker_script("arm/rpi2/ram.ld", loaders=("RAM",))
         self.add_gnat_sources("shared/i-raspberry_pi.ads", "shared/s-macres__rpi2.adb")
         self.add_gnarl_sources(
             "shared/a-intnam__rpi2.ads",
@@ -180,15 +196,17 @@ class Rpi2Base(CortexARTarget):
             "shared/s-bbcppr__arm.adb",
         )
 
+        self.add_loaders(Loader("RAM", linker_scripts=(Path("arm/rpi2/ram.ld"),)))
+
 
 class Rpi2(Rpi2Base):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "rpi2"
 
-    def __init__(self):
-        super(Rpi2, self).__init__()
-
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
             "arm/rpi2/start-ram.S",
             "arm/rpi2/memmap.S",
@@ -199,12 +217,12 @@ class Rpi2(Rpi2Base):
 
 class Rpi2Mc(Rpi2Base):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "rpi2mc"
 
-    def __init__(self):
-        super(Rpi2Mc, self).__init__()
-
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
         self.add_gnat_sources(
             "arm/rpi2-mc/start-ram.S",
             "arm/rpi2-mc/memmap.S",
@@ -215,7 +233,8 @@ class Rpi2Mc(Rpi2Base):
 
 class TMS570(CortexARTarget):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         # The TMS570LS31 runtime originally used the Debug Communication
         # Channel (DCC) for Text_IO as it facilitated inhouse board testing.
         # For other TMS570 runtimes, we default to using SCI1 for Text_IO as
@@ -239,60 +258,52 @@ class TMS570(CortexARTarget):
                 return f"{base}_dcc"
 
     @property
+    @override
     def has_small_memory(self) -> bool:
         return True
 
     @property
-    def loaders(self):
-        return ("LORAM", "FLASH", "HIRAM")
-
-    @property
-    def cpu(self):
+    def cpu(self) -> str:
         if self.variant == "tms570ls31":
             return "cortex-r4f"
         else:
             return "cortex-r5"
 
     @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return (
-            "-mbig-endian",
-            "-mfloat-abi=hard",
-            f"-mcpu={self.cpu}",
-            "-mfpu=vfpv3-d16",
-            "-marm",
-            "-mbe32",
-        )
-
-    @property
-    def readme_file(self):
+    @override
+    def readme_file(self) -> Path | None:
         return Path("arm/tms570/README")
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-arm.ads",
-            "light-tasking": "system-xi-arm-sfp.ads",
-            "embedded": "system-xi-arm-full.ads",
-        }
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-arm.ads")),
+            light_tasking_profile(self, Path("system-xi-arm-sfp.ads")),
+            embedded_profile(self, Path("system-xi-arm-full.ads")),
+        ]
 
-    def add_linker_scripts(self):
-        self.add_linker_script("arm/tms570/common.ld")
-        self.add_linker_script(
-            f"arm/tms570/{self.variant}.ld", dest_path_str="tms570.ld"
-        )
-        self.add_linker_script("arm/tms570/flash.ld", loaders=("FLASH",))
-        self.add_linker_script("arm/tms570/hiram.ld", loaders=("HIRAM",))
-        self.add_linker_script("arm/tms570/loram.ld", loaders=("LORAM",))
-        self.add_linker_switch("-Wl,-z,max-page-size=0x1000", loader=None)
-
-    def __init__(self, variant="tms570ls31", uart_io=False):
+    def __init__(self, variant: str = "tms570ls31", uart_io: bool = False) -> None:
         self.variant = variant
         self.uart_io = uart_io
-        super(TMS570, self).__init__()
+        super().__init__()
 
-        self.add_linker_scripts()
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mbig-endian",
+                "-mfloat-abi=hard",
+                f"-mcpu={self.cpu}",
+                "-mfpu=vfpv3-d16",
+                "-marm",
+                "-mbe32",
+            ),
+        )
+
+        self.add_app_switches(
+            link_switches=("-Wl,-z,max-page-size=0x1000",),
+        )
 
         self.add_gnat_sources(
             "arm/tms570/crt0.S",
@@ -317,56 +328,66 @@ class TMS570(CortexARTarget):
             "shared/s-bbcppr__arm.adb",
         )
 
+        included = (
+            Path("arm/tms570/common.ld"),
+            Path(f"arm/tms570/tms570__{self.variant}.ld"),
+        )
+        self.add_loaders(
+            *(
+                Loader(
+                    name,
+                    linker_scripts=(Path(f"arm/tms570/{script}"),),
+                    included_scripts=included,
+                )
+                for name, script in (
+                    ("LORAM", "loram.ld"),
+                    ("FLASH", "flash.ld"),
+                    ("HIRAM", "hiram.ld"),
+                )
+            )
+        )
+
 
 class ZynqmpR5(CortexARTarget):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "zynqmpr5"
 
     @property
+    @override
     def has_small_memory(self) -> bool:
         return False
 
     @property
-    def loaders(self):
-        return ("RAM",)
-
-    @property
-    def cpu(self):
+    def cpu(self) -> str:
         return "cortex-r5"
 
     @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return (
-            "-mlittle-endian",
-            "-mfloat-abi=hard",
-            f"-mcpu={self.cpu}",
-            "-mfpu=vfpv3-d16",
-            "-marm",
-        )
-
-    @property
-    def readme_file(self):
+    @override
+    def readme_file(self) -> Path | None:
         return Path("arm/zynqmpr5/README")
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-arm.ads",
-            "light-tasking": "system-xi-arm-gic-sfp.ads",
-            "embedded": "system-xi-arm-gic-full.ads",
-        }
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-arm.ads")),
+            light_tasking_profile(self, Path("system-xi-arm-gic-sfp.ads")),
+            embedded_profile(self, Path("system-xi-arm-gic-full.ads")),
+        ]
 
-    def add_linker_scripts(self):
-        self.add_linker_script("arm/zynqmpr5/common.ld")
-        self.add_linker_script("arm/zynqmpr5/memmap.ld")
-        self.add_linker_script("arm/zynqmpr5/ram.ld", loaders=("RAM",))
-
-    def __init__(self):
-        super(ZynqmpR5, self).__init__()
-
-        self.add_linker_scripts()
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mfloat-abi=hard",
+                f"-mcpu={self.cpu}",
+                "-mfpu=vfpv3-d16",
+                "-marm",
+            ),
+        )
 
         self.add_gnat_sources(
             "arm/zynqmpr5/crt0.S",
@@ -390,55 +411,63 @@ class ZynqmpR5(CortexARTarget):
             "shared/s-bbcppr__armgic.adb",
         )
 
+        self.add_loaders(
+            Loader(
+                "RAM",
+                linker_scripts=(Path("arm/zynqmpr5/ram.ld"),),
+                included_scripts=(
+                    Path("arm/zynqmpr5/common.ld"),
+                    Path("arm/zynqmpr5/memmap.ld"),
+                ),
+            ),
+        )
+
 
 class Zynq7000(CortexARTarget):
     @property
-    def name(self):
+    @override
+    def name(self) -> str:
         return "zynq7000"
 
     @property
-    def loaders(self):
-        return ("RAM",)
-
-    @property
-    def mcu(self):
+    def mcu(self) -> str:
         return "cortex-a9"
 
     @property
-    def fpu(self):
+    def fpu(self) -> str:
         return "vfpv3"
 
     @property
+    @override
     def has_huge_memory(self) -> bool:
         return True
 
     @property
-    def compiler_switches(self):
-        # The required compiler switches
-        return (
-            "-mlittle-endian",
-            "-mfloat-abi=hard",
-            f"-mcpu={self.mcu}",
-            f"-mfpu={self.fpu}",
-            "-marm",
-            "-mno-unaligned-access",
-        )
-
-    @property
-    def readme_file(self):
+    @override
+    def readme_file(self) -> Path | None:
         return Path("arm/zynq/README")
 
     @property
-    def system_ads(self):
-        return {
-            "light": "system-xi-arm.ads",
-            "light-tasking": "system-xi-arm-gic-sfp.ads",
-            "embedded": "system-xi-arm-gic-full.ads",
-        }
+    @override
+    def profiles(self) -> list[Profile]:
+        return [
+            light_profile(self, Path("system-xi-arm.ads")),
+            light_tasking_profile(self, Path("system-xi-arm-gic-sfp.ads")),
+            embedded_profile(self, Path("system-xi-arm-gic-full.ads")),
+        ]
 
-    def __init__(self):
-        super(Zynq7000, self).__init__()
-        self.add_linker_script("arm/zynq/ram.ld", loaders=("RAM",))
+    @override
+    def contribute(self, target: AbstractTarget, profile: Profile) -> None:
+        self.add_app_switches(
+            common_switches=(
+                "-mlittle-endian",
+                "-mfloat-abi=hard",
+                f"-mcpu={self.mcu}",
+                f"-mfpu={self.fpu}",
+                "-marm",
+                "-mno-unaligned-access",
+            ),
+        )
         self.add_gnat_sources(
             "arm/zynq/start-ram.S",
             "arm/zynq/memmap.inc",
@@ -454,3 +483,5 @@ class Zynq7000(CortexARTarget):
             "shared/s-bbbosu__cortexa9.adb",
             "shared/s-bbcppr__armgic.adb",
         )
+
+        self.add_loaders(Loader("RAM", linker_scripts=(Path("arm/zynq/ram.ld"),)))

@@ -15,7 +15,6 @@ TARGETS = [
     "riscv64-elf",
     "x86_64-elf",
     # Cross targets
-    "arm-deos",
     "arm-pikeos5,5.0",
     "aarch64-qnx,8.0",
     "aarch64-vx7r2cert,helix-cert-23.06",
@@ -24,7 +23,7 @@ TARGETS = [
 # Targets buildable on Linux only, not Windows.
 LINUX_ONLY_TARGETS = [
     "morello-elf",
-    "arm-freertos,,qemu-zynq",
+    "arm-freertos,10-xilinx,qemu-zynq",
 ]
 
 
@@ -33,7 +32,7 @@ def build():
     if env.build.os.name == "linux":
         targets += LINUX_ONLY_TARGETS
     for target in targets:
-        anod_build("recompilablerts", target=target)
+        anod_build("recompilablerts", qualifier="next", target=target)
 
 
 # TODO when stabilized we can add build with the qualifier "build-type=Assert"

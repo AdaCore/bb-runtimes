@@ -10,36 +10,34 @@ abstract project Target_Options is
   type Lib_Type is ("static", "static-pic", "dynamic");
   Lib : Lib_Type := external ("LIBRARY_TYPE", "static");
 
-  --  COMFLAGS here is common flags (used for C and Ada).
-  COMFLAGS := ("{common_flags}");
-  COMGNARLFLAGS := ("{common_gnarl_flags}");
-  COMDEBUGFLAGS := ("{common_debug_flags}");
+  Common_Switches := ("{common_switches}");
+  Runtime_Gnarl_Switches := ("{runtime_gnarl_switches}");
+  Runtime_Debug_Switches := ("{runtime_debug_switches}");
 
-  --  Per language flags (COMFLAGS will be added later)
-  ADAFLAGS := ("-gnatg", "-nostdinc", "-fno-delete-null-pointer-checks");
-  ASMFLAGS := ("{asm_flags}");
-  CFLAGS := ("{c_flags}", "-Werror", "-Wall");
+  --  Per language; Common_Switches joins them at the end of this file.
+  Ada_Switches := ("-gnatg", "-nostdinc", "-fno-delete-null-pointer-checks");
+  Asm_Switches := ("{asm_switches}");
+  C_Switches := ("{c_switches}", "-Werror", "-Wall");
   case Build is
      when "Production" =>
         --  Optimize
-        COMFLAGS := COMFLAGS & ("-O2");
-        ADAFLAGS := ADAFLAGS & ("-gnatp", "-gnatn2");
+        Common_Switches := Common_Switches & ("-O2");
+        Ada_Switches := Ada_Switches & ("-gnatp", "-gnatn2");
      when "Debug" =>
         --  Disable optimization and add debug symbols
-        COMFLAGS := COMFLAGS & COMDEBUGFLAGS & ("-O0");
-        ASMFLAGS := ASMFLAGS & COMDEBUGFLAGS;
+        Common_Switches := Common_Switches & Runtime_Debug_Switches & ("-O0");
+        Asm_Switches := Asm_Switches & Runtime_Debug_Switches;
      when "Assert" =>
         --  Possibly enable assertions. This might use too much memory on
         --  some systems or could be too slow.
-        COMFLAGS := COMFLAGS & ("-O");
-        ADAFLAGS := ADAFLAGS & ("-gnata");
+        Common_Switches := Common_Switches & ("-O");
+        Ada_Switches := Ada_Switches & ("-gnata");
      when "Gnatcov" =>
         --  For coverage
-        COMFLAGS := COMFLAGS & COMDEBUGFLAGS &
+        Common_Switches := Common_Switches & Runtime_Debug_Switches &
           ("-O0", "-fdump-scos", "-fpreserve-control-flow");
   end case;
-  --  Linker flags, used for building shared libraries
-  LOPTIONS := ();
+  Runtime_Link_Switches := ();
   case Lib is
      when "static" | "static-pic" =>
         null;
@@ -50,16 +48,19 @@ abstract project Target_Options is
         --  Since -nostdlib also removes libc
         --  from the linked libraries we have to
         --  add -lc again.
-        LOPTIONS := LOPTIONS & ("-nostdlib", "-lc");
+        Runtime_Link_Switches :=
+          Runtime_Link_Switches & ("-nostdlib", "-lc");
 
         --  Add target-specific options, if needed
-        LOPTIONS := LOPTIONS & ("{shared_linker_flags}");
+        Runtime_Link_Switches :=
+          Runtime_Link_Switches & ("{runtime_link_switches}");
   end case;
 
-  --  Concatenate with common flags
-  ALL_ADAFLAGS := ADAFLAGS & COMFLAGS;
-  ALL_CFLAGS := CFLAGS & COMFLAGS;
-  GNARL_ADAFLAGS := ALL_ADAFLAGS & COMGNARLFLAGS;
-  GNARL_CFLAGS := ALL_CFLAGS & COMGNARLFLAGS;
+  All_Ada_Switches := Ada_Switches & Common_Switches;
+  All_C_Switches := C_Switches & Common_Switches;
+  All_Asm_Switches := Asm_Switches;
+  Gnarl_Ada_Switches := All_Ada_Switches & Runtime_Gnarl_Switches;
+  Gnarl_C_Switches := All_C_Switches & Runtime_Gnarl_Switches;
+  Gnarl_Asm_Switches := Asm_Switches;
 
 end Target_Options;
