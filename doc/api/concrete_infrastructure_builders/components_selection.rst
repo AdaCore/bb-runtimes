@@ -25,7 +25,7 @@ function's answer alone.
 
 There is no profile-selector component on the tree.
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: In ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    One components factory per base profile: ``no_profile_components``,

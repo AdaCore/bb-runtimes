@@ -16,14 +16,14 @@ restricted Ada runtimes. The repository has three parts:
   the target definitions select during generation.
 
 These pages cover both Python packages and how they work together.
-Green boxes labelled "Specificity of ``bb_runtimes_targets_gen``" contain
-details of its targets, components, source selection and build conventions,
-as in this example:
+Green boxes contain examples and implementation details from
+``bb_runtimes_targets_gen``, including its targets, components, source selection
+and build conventions:
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: Example from ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
-   ARM target definitions live in
+   For example, ARM target definitions live in
    ``support/bb_runtimes_targets_gen/bb_runtimes_targets_gen/targets/arm/``.
    ARM-specific runtime sources live in ``src/arm/``.
 
@@ -31,7 +31,8 @@ This chapter explains the building blocks, the runtime generation process and
 the engine's separation from the target definitions.
 
 The engine's design follows the :doc:`rts_prebuilder requirements <2_requirements>`,
-identified as R1 to R5 below. Examples here are kept small. The
+identified as :ref:`R1 <requirements_table>` to :ref:`R5 <requirements_table>`
+below. Examples here are kept small. The
 ``rts_prebuilder`` API reference and working patterns are linked from the guides:
 :doc:`../user_guides/extending_with_your_own_target`
 (extending target definitions) and :doc:`../user_guides/concrete_infrastructure_builders`
@@ -46,7 +47,7 @@ The building blocks
 The smallest block. A
 :class:`~rts_prebuilder.abstract_infrastructure.SourcesAndFlagsComponent` is one
 coherent group of source files and switches: a feature, a per-CPU layer, one
-variant of an implementation (R4).
+variant of an implementation (:ref:`R4 <requirements_table>`).
 
 A component declares what it depends on in ``__init__`` and registers its own
 sources and switches in ``contribute``:
@@ -121,13 +122,14 @@ caller changing.
 
 Each half refuses the calls belonging to the other. Registering entries from
 ``contribute(target, profile)`` lets a group decide its contents at query time
-instead of at construction (R4). Composing dependencies in ``__init__`` keeps
-the graph a property of the component and not of any one runtime.
+instead of at construction (:ref:`R4 <requirements_table>`).
+Composing dependencies in ``__init__`` keeps the graph a property of the
+component and not of any one runtime.
 
-Together they meet R5, since no verb edits a graph or an entry already
-registered. To change what a runtime is made of, change which components the
-profile carries, gate inside a component's own ``contribute``, or feed the
-generator data.
+Together they meet :ref:`R5 <requirements_table>`, since no verb edits a graph
+or an entry already registered. To change what a runtime is made of, change
+which components the profile carries, gate inside a component's own
+``contribute``, or feed the generator data.
 
 How to write one is the extender's job, and the rules live with it:
 :doc:`../user_guides/extending_with_your_own_target`.
@@ -137,7 +139,8 @@ How to write one is the extender's job, and the rules live with it:
 
 A target is attributes and one component tree, with no generation logic. One
 subclass of :class:`~rts_prebuilder.abstract_infrastructure.AbstractTarget`
-describes it for every profile it offers (R3): its ``name``, the gprbuild
+describes it for every profile it offers (:ref:`R3 <requirements_table>`):
+its ``name``, the gprbuild
 ``target`` triplet, its ``platform``, the ``profiles``, and hardware traits
 (``has_fpu``, ``is_64bit``, ``uses_eh_frame_unwinding``, …). The engine and the
 infrastructure's generators read the target. It renders nothing itself.
@@ -180,7 +183,7 @@ Only ``AbstractTarget`` comes from the ``rts_prebuilder`` package. The
 pre-filled base ``MyInfraTarget`` and the profile factories above come from a
 concrete infrastructure. ``rts_prebuilder`` neither defines nor requires them.
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: In ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    That infrastructure supplies a ``Target`` base and its own profile factories.
@@ -349,7 +352,7 @@ variant can be selected before any object for it exists.
 Each :class:`~rts_prebuilder.abstract_infrastructure.Profile` is pure data: its
 commercial name, the base profile it maps to, its ``system.ads`` and the
 ``components`` that make up that runtime. It carries no selection behaviour, so
-one target instance can drive many profiles (R3).
+one target instance can drive many profiles (:ref:`R3 <requirements_table>`).
 
 The ``rts_prebuilder`` package does not decide which components a profile's
 runtime is made of. A concrete infrastructure decides that and stores the result
@@ -357,10 +360,11 @@ on ``Profile.components``.
 
 Ordinary components therefore stay profile-unaware: a component contributes its
 own sources, and the per-profile policy sits in the selection code instead of
-being spread across the catalog (R4). A custom runtime may hand-pick
+being spread across the catalog (:ref:`R4 <requirements_table>`).
+A custom runtime may hand-pick
 ``Profile.components`` directly.
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: Example from ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    One plain function per base profile, all of them in one module, each building
@@ -392,9 +396,10 @@ in some external repository. A
 :class:`~rts_prebuilder.abstract_infrastructure.SourcePathResolver` (default:
 :class:`~rts_prebuilder.abstract_infrastructure.DefaultSourcePathResolver`)
 resolves each path against search paths fed in at run time, and records what it
-found so the install can ship an auditable record (R2).
+found so the install can ship an auditable record
+(:ref:`R2 <requirements_table>`).
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: In ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    Supply source directories with ``--source-search-path``. A component that
@@ -409,7 +414,8 @@ found so the install can ship an auditable record (R2).
 From a target to installed runtimes
 ===================================
 
-R1 (produce the trees) and R3 (one target, many profiles) together give the
+:ref:`R1 <requirements_table>` (produce the trees) and
+:ref:`R3 <requirements_table>` (one target, many profiles) together give the
 pipeline. The target is profile-independent, so a policy step specializes it per
 profile and a mechanism step writes each specialization to disk. They are kept
 apart: the policy makes every profile-driven decision, the mechanism makes none.
@@ -466,13 +472,13 @@ for each.
 #. Install. ``RuntimePrebuildDriver.install_runtimes(destination)`` installs each
    runtime under ``destination/<name>/`` (copying, or symlinking with
    ``link=True``) and writes the resolution record to the metadata directory
-   (R2).
+   (:ref:`R2 <requirements_table>`).
 
 The two namespaces
 ==================
 
-R2 forces a hard split, and that split is the top-level shape of the
-``rts_prebuilder`` package:
+:ref:`R2 <requirements_table>` forces a hard split, and that split is the
+top-level shape of the ``rts_prebuilder`` package:
 
 * Abstract Infrastructure: the contracts. ABCs and dataclasses that only capture
   a concrete infrastructure's data. They do no processing and import nothing
@@ -545,21 +551,22 @@ above. The contracts are:
      - What an infrastructure puts in it
    * - :class:`~rts_prebuilder.abstract_infrastructure.SourcesAndFlagsComponent`
      - One reusable group of sources and switches, and the groups it is composed
-       of (R4).
+       of (:ref:`R4 <requirements_table>`).
    * - :class:`~rts_prebuilder.abstract_infrastructure.AbstractTarget`
-     - One target, described profile-independently (R3), with the runtimes
+     - One target, described profile-independently
+       (:ref:`R3 <requirements_table>`), with the runtimes
        it offers as ``profiles``.
    * - :class:`~rts_prebuilder.abstract_infrastructure.AbstractTargetGenerator`
      - A family's variant names, and one target built per name on demand.
    * - :class:`~rts_prebuilder.abstract_infrastructure.Profile`
      - One runtime the target offers, as pure data: base profile, system.ads,
-       and the components that make it up (R4).
+       and the components that make it up (:ref:`R4 <requirements_table>`).
    * - :class:`~rts_prebuilder.abstract_infrastructure.Loader`
      - One link configuration of the end user's program, with the scripts it
        links and the switches it adds.
    * - :class:`~rts_prebuilder.abstract_infrastructure.SourcePathResolver`
      - Where a relative source path is looked up, and how each resolution is
-       recorded (R2).
+       recorded (:ref:`R2 <requirements_table>`).
    * - :class:`~rts_prebuilder.abstract_infrastructure.EngineToInfrastructureInterface`
      - The single registered door through which the engine reaches all of the
-       above (R2).
+       above (:ref:`R2 <requirements_table>`).

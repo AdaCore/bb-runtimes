@@ -24,8 +24,14 @@ Complete the installation steps in the `template README
 <https://github.com/AdaCore/bb-runtimes-extender-template#readme>`_.
 Run all commands below from the template checkout, with its Python environment
 active. Keep the ``BB_RUNTIMES`` and ``RUNTIME_SOURCES_FROM_GNAT_INSTALL_DIR``
-variables from that setup. The GNAT sources must include tasking support for
-this exercise's Light-Tasking profile.
+variables from that setup.
+
+For this exercise, set ``RUNTIME_SOURCES_FROM_GNAT_INSTALL_DIR`` to the original
+GNAT runtime source bundle for Light-Tasking. A built Light runtime directory
+does not contain all the sources this port requires. Preserve the bundle's
+source filenames and subdirectories. Each declared source path must exist
+under one of the directories passed with ``--source-search-path``.
+See :doc:`end_users_guide` for source search paths.
 
 Record your working directory:
 

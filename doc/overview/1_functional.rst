@@ -43,20 +43,15 @@ Base profile
    The runtime family, which fixes the Ada subset a runtime supports: whether
    it has tasking, which exception model it uses, which certification
    constraints apply. The main runtime families are ``light``,
-   ``light-tasking`` and ``embedded``
+   ``light-tasking``, ``embedded`` and ``none``
    (:data:`~rts_prebuilder.base_types.ValidBaseProfileType`). It drives which
    components a runtime gets.
 
 Profile
-   One runtime a target offers: a base profile made concrete for that one
-   target. In Ada terms it is one run-time library, the directory a user
-   selects with ``for Runtime ("Ada") use "light-tasking-stm32f4";`` or with
-   ``--RTS=``. That runtime is the ``light-tasking`` base profile carrying the
-   STM32F4's clock, memory map and interrupt sources, and nothing from any
-   other target. Its name is the profile's name plus the target's, so a target
-   offering several profiles ships several runtimes. As data, a profile is that
-   name, a base profile, a ``system.ads``, and the components that make up the
-   runtime. See :class:`~rts_prebuilder.abstract_infrastructure.Profile`.
+   A description of one runtime a target offers. The resulting runtime is a
+   run-time library that implements the Ada subset defined by the base profile
+   for that target. See
+   :class:`~rts_prebuilder.abstract_infrastructure.Profile`.
 
 Platform
    The operating system or bareboard environment a target runs on. One of
@@ -84,11 +79,11 @@ Prebuilding (``rts_prebuilder``)
    resolved for that profile, and the resulting sources are gathered from the
    source repositories the caller points at.
 
-Building (generated build script)
-   Compiles a prebuilt runtime directory using an Ada compiler. The prebuilder
-   makes this possible but plays no part in it. A prebuilt tree can equally be
-   edited by hand and rebuilt later, without going through the prebuilder
-   again.
+Building (external GNAT toolchain)
+   Compiles the prebuilt runtime with an external GNAT toolchain. The
+   ``bb-runtimes`` repository supplies ``build.py``, which ``rts_prebuilder``
+   copies into the runtime directory to invoke ``gprbuild``. You can edit and
+   rebuild that directory without running ``rts_prebuilder`` again.
 
 .. _functional_diagram:
 .. mermaid::
@@ -99,7 +94,7 @@ Building (generated build script)
          Prebuilder["RuntimePrebuildDriver"]
          PrebuiltRuntime@{ shape: docs, label: "Target-specific runtime<br>with its generated .gpr files" }
       end
-      subgraph Building["<b>Building</b><br><i>(external tool)</i>"]
+      subgraph Building["<b>Building</b><br><i>(external GNAT toolchain)</i>"]
          direction TB
          BuildScript["Build script"]
          Runtime@{ shape: docs, label: "Compiled<br>runtime" }
@@ -127,7 +122,7 @@ The target definition selects the build script and optional preparation code.
 The prebuilder embeds the preparation code in the generated ``build.py``.
 Run the build script separately to compile the runtime.
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: In ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    ``bb_runtimes_targets_gen`` supplies the target definitions shown in the

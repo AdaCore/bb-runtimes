@@ -83,7 +83,7 @@ selection layer (Step 4).
    ``contribute``, but only for the paths that board alone brings. The components
    here are shared building blocks, picked per profile.
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: Example from ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    One class per component, grouped by theme in the source tree:
@@ -218,7 +218,7 @@ and fill in whatever is constant across your targets.
 Extenders then inherit from your base and supply only ``name``, ``target`` and
 ``profiles``, plus their board-specific sources.
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: In ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    Two levels of base class:

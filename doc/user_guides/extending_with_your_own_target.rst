@@ -6,10 +6,11 @@ Extending with Your Own Target
 
 This guide explains how to extend target definitions for your board, CPU or
 platform, reusing an infrastructure's components and source repositories.
-Keep your extension's target definitions and sources in your own project.
-The `bb-runtimes extender template
-<https://github.com/AdaCore/bb-runtimes-extender-template>`_ contains Cortex-M3
-examples with standard Light and custom profiles.
+Start your own target implementation from the `bb-runtimes extender template
+<https://github.com/AdaCore/bb-runtimes-extender-template>`_. Keep your target
+definitions, components, and sources in your copy of that project.
+The Cortex-M3 targets are examples of how to use the extension API. Adapt the
+project for your board, CPU, or platform, including other architectures.
 ``example-cortex-m-light`` supplies its own ``system.ads`` and uses the standard
 Light profile with GNAT installation sources.
 ``example-cortex-m-custom`` selects its own profile components and reuses the
@@ -69,7 +70,7 @@ Prerequisites
   ``EngineToInfrastructureInterface`` (see
   :doc:`concrete_infrastructure_builders` if you need to create one).
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: In ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    Your extension can reuse the ``bb_runtimes_targets_gen`` engine interface,
@@ -387,7 +388,7 @@ listed in full on
    :class:`~rts_prebuilder.abstract_infrastructure.IncompatibleComponent`. That
    reports a selection bug and stops the run. It is not a way to opt out.
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: Example from ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    An arch-level component shared by every aarch64 target of that
@@ -437,7 +438,7 @@ Inherit from :class:`~rts_prebuilder.abstract_infrastructure.AbstractTarget`, or
 much more commonly, from a pre-filled subclass your infrastructure ships. The
 examples below call that base ``MyInfraTarget``.
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: In ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    That infrastructure ships two bases. ``Target`` holds what every bb-runtimes
@@ -592,7 +593,7 @@ attributes and components, through the engine interface. A target that ships a
 hand-maintained one declares it as data, through whatever attribute the
 infrastructure exposes for it.
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: Example from ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    A family target, which composes the arch component, states the hardware facts
@@ -737,7 +738,7 @@ first. See :ref:`infrastructure_registration`.
 
 Your extension's entry point registers the target instances it exposes.
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: In ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    The shipped command-line entry points expose the built-in
@@ -846,7 +847,7 @@ yields the variant names and instantiates a target for one of them, and register
 it with the CLI alongside plain targets. The members to fill are on
 :doc:`../api/concrete_infrastructure_extenders/target_generators`.
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: In ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    ``targets/arm/generators.py`` holds the STM32, SAM and RP2040 generators.

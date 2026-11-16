@@ -23,7 +23,7 @@ Prerequisites
   path, and you say where to look, with ``--source-search-path`` once per
   directory.
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: Example from ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    ``bb_runtimes_targets_gen`` is a concrete infrastructure package. Say you want
@@ -53,7 +53,7 @@ An infrastructure normally wraps it in an entry point of its own, and that
 wrapper is what you run. Run it with ``--help`` for the flags, and with
 ``--list-targets`` for the targets it registers.
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: In ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    Every architecture module is runnable, and so is the ``targets`` package that
@@ -74,7 +74,7 @@ What you get
 One directory per generated profile, under the output directory. The default name
 is ``<profile>-<target>``, which a target may override.
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: In ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    The ZynqMP board offers three profiles, so the run above writes three
@@ -112,7 +112,7 @@ Compiling the tree is a separate step, outside ``rts_prebuilder``. How you invok
 it is the infrastructure's decision. You can edit the tree first and rebuild as
 often as you like without going back through the prebuilder.
 
-.. admonition:: Specificity of ``bb_runtimes_targets_gen``
+.. admonition:: In ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    Each generated runtime ships a ``build.py``. Run it with the right compiler on
