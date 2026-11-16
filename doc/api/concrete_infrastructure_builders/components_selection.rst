@@ -29,8 +29,8 @@ There is no profile-selector component on the tree.
    :class: bb-runtimes-specific
 
    One components factory per base profile: ``no_profile_components``,
-   ``light_components``, ``light_tasking_components``, ``embedded_components``,
-   ``cert_components``. Each returns the flat set for that runtime:
+   ``light_components``, ``light_tasking_components``, ``embedded_components``.
+   Each returns the flat set for that runtime:
 
    .. code-block:: python
 

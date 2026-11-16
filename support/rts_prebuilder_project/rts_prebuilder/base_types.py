@@ -28,11 +28,9 @@ files on disk before using them.
 # Profiles & Platform identifiers #
 ###################################
 
-type ValidBaseProfileType = Literal[
-    "light", "light-tasking", "embedded", "cert", "none"
-]
+type ValidBaseProfileType = Literal["light", "light-tasking", "embedded", "none"]
 """Allowed base profiles, Shall be same as VALID_BASE_PROFILES_SET"""
-VALID_BASE_PROFILES_SET = {"light", "light-tasking", "embedded", "cert", "none"}
+VALID_BASE_PROFILES_SET = {"light", "light-tasking", "embedded", "none"}
 
 type ProfileNameType = str
 """The commercial name of the profile (Example: auto-nvdrive, light-tasking...),

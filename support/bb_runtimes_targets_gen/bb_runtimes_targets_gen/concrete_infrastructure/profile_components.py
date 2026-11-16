@@ -36,8 +36,6 @@ from ..components import (
     Atomics,
     Atomics32,
     Atomics64,
-    Cert,
-    CertArm,
     CommandLine,
     Common,
     Common32,
@@ -137,7 +135,6 @@ from ..components import (
     ParametersLightLarge,
     ParametersLightSmall,
     ParametersSmall,
-    SecondaryStackSoftlinks,
     SecondaryStackSymbol,
     SecondaryStackSymbolCheri,
     Semihosting,
@@ -321,12 +318,9 @@ def _light_subset_components(
         ret.append(Mem())
         ret.append(MemCheri() if target.has_cheri else MemNoCheri())
 
-    if base_profile == "cert":
-        ret.append(SecondaryStackSoftlinks())
-    else:
-        ret.append(
-            SecondaryStackSymbolCheri() if target.has_cheri else SecondaryStackSymbol()
-        )
+    ret.append(
+        SecondaryStackSymbolCheri() if target.has_cheri else SecondaryStackSymbol()
+    )
 
     if target.use_certifiable_packages and base_profile != "embedded":
         ret.append(Libgcc())
@@ -340,12 +334,12 @@ def _light_subset_components(
         ret.append(CtorsDtors())
         ret.append(CtorsDtorsC() if cpu in ("powerpc", "leon") else CtorsDtorsDefault())
 
-    if base_profile != "embedded" and base_profile != "cert":
+    if base_profile != "embedded":
         ret.append(LightExceptions())
 
-    if base_profile in ("light", "light-tasking", "cert"):
+    if base_profile in ("light", "light-tasking"):
         ret.append(Light())
-    if base_profile in ("light", "cert"):
+    if base_profile == "light":
         ret.append(LightNonTasking())
 
     if base_profile in ("light", "light-tasking"):
@@ -371,10 +365,9 @@ def _light_subset_components(
         if is64 and cpu in ("arm", "aarch64", "x86"):
             ret.append(GccMath())
 
-    if base_profile != "cert":
-        ret.append(Pack())
-        if is64:
-            ret.append(Pack64())
+    ret.append(Pack())
+    if is64:
+        ret.append(Pack64())
 
     # System.Parameters, sized by the memory profile
     if target.has_small_memory:
@@ -530,21 +523,5 @@ def embedded_components(target: Target) -> list[SourcesAndFlagsComponent]:
     ret += _gnarl_subset_components(target)
     ret.append(GnarlFull())
     ret.append(GnarlFullExtended())
-
-    return ret
-
-
-def cert_components(target: Target) -> list[SourcesAndFlagsComponent]:
-    """The components for the cert profile."""
-    ret = _light_subset_components(target, "cert")
-
-    ret.append(Ioexce())
-
-    ret.append(Cert())
-    if _cpu_family(target) == "arm":
-        ret.append(CertArm())
-
-    if target.has_libc("cert"):
-        ret.append(AllocC())
 
     return ret

@@ -12,8 +12,9 @@ from rts_prebuilder.base_types import ValidBaseProfileType
 from bb_runtimes_targets_gen.concrete_infrastructure import (
     RuntimeXmlSource,
     Target,
-    cert_profile,
 )
+
+from .profile_factories import cert_profile
 
 
 class Deos(Target):
@@ -56,7 +57,7 @@ class Deos(Target):
 
     @override
     def runtime_name_generator(self, profile: Profile) -> str:
-        return self.legacy_runtime_name_generator(profile)
+        return f"rts-{profile.name}"
 
     @property
     @override
@@ -103,7 +104,7 @@ class ArmDeos(Deos):
     @property
     @override
     def profiles(self) -> list[Profile]:
-        return [cert_profile(self, Path("system-deos-arm-light.ads"))]
+        return [cert_profile()]
 
 
 TARGETS: list[AbstractTarget] = [ArmDeos()]

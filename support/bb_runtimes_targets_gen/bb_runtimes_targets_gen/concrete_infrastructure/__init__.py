@@ -15,7 +15,6 @@ from rts_prebuilder.abstract_infrastructure import (
 from .target import DFBBTarget, Target
 from .def_gpr_xml_gen import RuntimeXmlSource
 from .profile_factories import (
-    cert_profile,
     embedded_profile,
     light_profile,
     light_tasking_profile,
@@ -44,5 +43,4 @@ __all__ = [  # For engine
     "light_profile",
     "light_tasking_profile",
     "embedded_profile",
-    "cert_profile",
 ]

@@ -5,7 +5,7 @@
 """Factories for the standard runtime profiles.
 
 A target declares its runtimes by returning ``Profile`` instances from
-``profiles``. These helpers build the five standard ones. They set the right
+``profiles``. These helpers build the four standard ones. They set the right
 base profile and fill ``Profile.components`` from that profile's components
 factory, so a target only supplies the system.ads.
 
@@ -22,7 +22,6 @@ from rts_prebuilder.abstract_infrastructure import Profile
 from rts_prebuilder.base_types import ProfileNameType
 
 from .profile_components import (
-    cert_components,
     embedded_components,
     light_components,
     light_tasking_components,
@@ -84,16 +83,4 @@ def embedded_profile(
         base_profile="embedded",
         system_ads=system_ads,
         components=embedded_components(target),
-    )
-
-
-def cert_profile(
-    target: Target, system_ads: Path, *, name: ProfileNameType = "cert"
-) -> Profile:
-    """The cert profile (no GNARL)."""
-    return Profile(
-        name=name,
-        base_profile="cert",
-        system_ads=system_ads,
-        components=cert_components(target),
     )
