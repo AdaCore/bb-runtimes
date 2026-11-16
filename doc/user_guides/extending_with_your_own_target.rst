@@ -14,8 +14,7 @@ examples with standard Light and custom profiles.
 Light profile with GNAT installation sources.
 ``example-cortex-m-custom`` selects its own profile components and reuses the
 ARM ``System`` specification from bb-runtimes.
-The template's README provides installation, adaptation, and generation
-instructions.
+The template README gives the commands needed to start.
 The guide is self-contained. For the architecture of the repository and both
 Python packages, see :doc:`../overview/3_architecture`.
 
@@ -857,3 +856,11 @@ Next steps
 
 Generate a runtime with the target you wrote, then build the tree it produces:
 :doc:`end_users_guide`.
+
+Tutorials
+=========
+
+.. toctree::
+   :maxdepth: 1
+
+   porting_cortex_m
