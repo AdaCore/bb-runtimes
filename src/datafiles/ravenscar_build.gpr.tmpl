@@ -2,7 +2,7 @@ with "target_options.gpr";
 with "runtime_build.gpr";
 
 project Ravenscar_Build is
-   for Languages use ("{languages}");
+   for Languages use ("${languages}");
 
    for Runtime ("Ada") use Runtime_Build'Runtime("Ada");
    for Target use Runtime_Build'Target;
@@ -26,7 +26,7 @@ project Ravenscar_Build is
    for Library_Dir use "adalib";
    for Object_Dir use "obj";
 
-   for Source_Dirs use ("{source_dirs}");
+   for Source_Dirs use ("${source_dirs}");
 
    package Compiler is
       for Default_Switches ("C") use Target_Options.Gnarl_C_Switches;

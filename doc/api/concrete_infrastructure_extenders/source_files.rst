@@ -11,6 +11,8 @@ otherwise.
 SourceFile
 ==========
 
+Files declared with ``SourceFile`` are copied or linked without substitution.
+
 .. autoclass:: rts_prebuilder.abstract_infrastructure.SourceFile
    :members:
    :exclude-members: _*
@@ -21,7 +23,7 @@ TemplateFile
 ============
 
 ``TemplateFile`` inherits path and destination handling from ``SourceFile``.
-Templates use Python's
+The source helpers select this type for ``.tmpl`` paths. Templates use Python's
 ``string.Template`` syntax: ``${name}`` for parameters and ``$$`` for a literal
 dollar sign.
 

@@ -14,6 +14,7 @@ from rts_prebuilder.abstract_infrastructure import (
     SourcesAndFlagsComponent,
     TemplateFile,
 )
+from rts_prebuilder.abstract_infrastructure.common.source_file import TEMPLATE_EXT
 from rts_prebuilder.base_types import GnatOrGnarlType, UnresolvedPath
 from rts_prebuilder.end_user_data.logger import get_logger
 
@@ -180,7 +181,7 @@ def target_data_sources(target: AbstractTarget, profile: Profile) -> list[Source
         for script in (*loader.linker_scripts, *loader.included_scripts)
     )
     sources += [
-        SourceFile(
+        (TemplateFile if script.suffix == TEMPLATE_EXT else SourceFile)(
             unresolved_src_path=UnresolvedPath(script),
             dest_subdir=Path("ld"),
         )

@@ -14,6 +14,7 @@ from pathlib import Path
 from rts_prebuilder.abstract_infrastructure import GprSwitches
 
 from .infrastructure_interface import resolve_and_read_file
+from .template import Template
 
 # Separators as they must read inside a template's ("...") slot: the quotes
 # around each element are already in the template, so joining glues them.
@@ -35,7 +36,7 @@ def render_target_options_gpr(
     :raises ValueError: if a slot a switch was registered for is missing from
         the template, since rendering would drop it.
     """
-    template = resolve_and_read_file(Path("datafiles/target_options.gpr.in"))
+    template = Template(Path("datafiles/target_options.gpr.tmpl"))
     slots = {
         "common_switches": switches.common,
         "c_switches": switches.c,
@@ -47,7 +48,7 @@ def render_target_options_gpr(
     slotless = [
         slot
         for slot, values in slots.items()
-        if values and "{" + slot + "}" not in template
+        if values and slot not in template.parameters
     ]
     if slotless:
         raise ValueError(
@@ -56,8 +57,8 @@ def render_target_options_gpr(
             f"{'those slots' if len(slotless) > 1 else 'that slot'} would be "
             f"dropped. Add the slot to the template, or stop registering them"
         )
-    return template.format(
-        **{slot: _SWITCH_LIST_SEP.join(values) for slot, values in slots.items()}
+    return template.render(
+        {slot: _SWITCH_LIST_SEP.join(values) for slot, values in slots.items()}
     )
 
 
@@ -69,19 +70,23 @@ def render_runtime_build_gpr(
     runtime_spark_units = resolve_and_read_file(
         Path("datafiles/runtime_spark_units.lst")
     ).splitlines()
-    template = resolve_and_read_file(Path("datafiles/runtime_build.gpr.in"))
-    return template.format(
-        target_directive=target_directive,
-        source_dirs=_GPR_LIST_SEP.join(["gnat_user", "gnat"]),
-        runtime_spark_units=_GPR_LIST_SEP.join(runtime_spark_units),
-        languages=_GPR_LIST_SEP.join(sorted(languages)),
+    template = Template(Path("datafiles/runtime_build.gpr.tmpl"))
+    return template.render(
+        {
+            "target_directive": target_directive,
+            "source_dirs": _GPR_LIST_SEP.join(["gnat_user", "gnat"]),
+            "runtime_spark_units": _GPR_LIST_SEP.join(runtime_spark_units),
+            "languages": _GPR_LIST_SEP.join(sorted(languages)),
+        }
     )
 
 
 def render_ravenscar_build_gpr(languages: set[str]) -> str:
     """ravenscar_build.gpr: the libgnarl build project (tasking runtimes only)."""
-    template = resolve_and_read_file(Path("datafiles/ravenscar_build.gpr.in"))
-    return template.format(
-        source_dirs=_GPR_LIST_SEP.join(["gnarl_user", "gnarl"]),
-        languages=_GPR_LIST_SEP.join(sorted(languages)),
+    template = Template(Path("datafiles/ravenscar_build.gpr.tmpl"))
+    return template.render(
+        {
+            "source_dirs": _GPR_LIST_SEP.join(["gnarl_user", "gnarl"]),
+            "languages": _GPR_LIST_SEP.join(sorted(languages)),
+        }
     )

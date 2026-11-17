@@ -36,8 +36,8 @@
 
 MEMORY
 {
-  flash  (rx) : ORIGIN = 0x10000000, LENGTH = "${RP2040_Linker_Flash_Size}"
-  sram  (rwx) : ORIGIN = "${RP2040_Linker_SRAM_Origin}", LENGTH = 256k
+  flash  (rx) : ORIGIN = 0x10000000, LENGTH = ${RP2040_Linker_Flash_Size}
+  sram  (rwx) : ORIGIN = ${RP2040_Linker_SRAM_Origin}, LENGTH = 256k
 }
 
 REGION_ALIAS("sram_tx", sram)

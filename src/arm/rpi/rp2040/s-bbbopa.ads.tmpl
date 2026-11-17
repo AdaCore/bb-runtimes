@@ -74,7 +74,7 @@ package System.BB.Board_Parameters is
    -- Oscillator frequencies --
    ----------------------------
 
-   XOSC_Frequency : constant XOSC_Frequency_Range := "${RP2040_XOSC_Frequency}";
+   XOSC_Frequency : constant XOSC_Frequency_Range := ${RP2040_XOSC_Frequency};
    --  Frequency of the XOSC.
    --
    --  Set to 0 if the XOSC is not present.
@@ -94,7 +94,7 @@ package System.BB.Board_Parameters is
    Has_XOSC  : constant Boolean := XOSC_Frequency > 0;
    --  True if the XOSC is used.
 
-   XOSC_Startup_Delay_Mult : constant := "${RP2040_XOSC_Startup_Delay_Multiplier}";
+   XOSC_Startup_Delay_Mult : constant := ${RP2040_XOSC_Startup_Delay_Multiplier};
    --  Multiplier to increase the XOSC startup delay
    --  for slow-starting oscillators.
 
@@ -106,10 +106,10 @@ package System.BB.Board_Parameters is
    --  pll_sys configuration
    --  clk_sys = ((fref / refdiv) * vco_multiple) / (postdiv1 * postdiv2)
 
-   PLL_Sys_Reference_Div : constant := "${RP2040_PLL_Sys_Reference_Div}";
-   PLL_Sys_VCO_Multiple  : constant := "${RP2040_PLL_Sys_VCO_Multiple}";
-   PLL_Sys_Post_Div_1    : constant POSTDIV_Range := "${RP2040_PLL_Sys_Post_Div_1}";
-   PLL_Sys_Post_Div_2    : constant POSTDIV_Range := "${RP2040_PLL_Sys_Post_Div_2}";
+   PLL_Sys_Reference_Div : constant := ${RP2040_PLL_Sys_Reference_Div};
+   PLL_Sys_VCO_Multiple  : constant := ${RP2040_PLL_Sys_VCO_Multiple};
+   PLL_Sys_Post_Div_1    : constant POSTDIV_Range := ${RP2040_PLL_Sys_Post_Div_1};
+   PLL_Sys_Post_Div_2    : constant POSTDIV_Range := ${RP2040_PLL_Sys_Post_Div_2};
 
    Clk_Sys_Frequency : constant Clk_Sys_Frequency_Range :=
      (((Reference / PLL_Sys_Reference_Div) * PLL_Sys_VCO_Multiple)
@@ -118,10 +118,10 @@ package System.BB.Board_Parameters is
    --  pll_usb configuration
    --  clk_usb = ((fref / refdiv) * vco_multiple) / (postdiv1 * postdiv2)
 
-   PLL_USB_Reference_Div : constant := "${RP2040_PLL_USB_Reference_Div}";
-   PLL_USB_VCO_Multiple  : constant := "${RP2040_PLL_USB_VCO_Multiple}";
-   PLL_USB_Post_Div_1    : constant POSTDIV_Range := "${RP2040_PLL_USB_Post_Div_1}";
-   PLL_USB_Post_Div_2    : constant POSTDIV_Range := "${RP2040_PLL_USB_Post_Div_2}";
+   PLL_USB_Reference_Div : constant := ${RP2040_PLL_USB_Reference_Div};
+   PLL_USB_VCO_Multiple  : constant := ${RP2040_PLL_USB_VCO_Multiple};
+   PLL_USB_Post_Div_1    : constant POSTDIV_Range := ${RP2040_PLL_USB_Post_Div_1};
+   PLL_USB_Post_Div_2    : constant POSTDIV_Range := ${RP2040_PLL_USB_Post_Div_2};
 
    Clk_USB_Frequency : constant Clk_USB_Frequency_Range :=
      (((Reference / PLL_USB_Reference_Div) * PLL_USB_VCO_Multiple)
@@ -131,7 +131,7 @@ package System.BB.Board_Parameters is
    -- Hardware clock --
    --------------------
 
-   Runtime_Uses_SysTick : constant Boolean := "${RP2040_Runtime_Uses_SysTick}";
+   Runtime_Uses_SysTick : constant Boolean := ${RP2040_Runtime_Uses_SysTick};
 
    Main_Clock_Frequency : constant Hertz := (if Runtime_Uses_SysTick
                                              then Clk_Sys_Frequency

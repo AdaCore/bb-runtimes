@@ -66,6 +66,7 @@ from rts_prebuilder.base_types import UnresolvedPath
 from rts_prebuilder.end_user_data.logger import get_logger
 
 from ..common.source_file import (
+    TEMPLATE_EXT,
     GprSwitches,
     Loader,
     SourceFile,
@@ -591,7 +592,9 @@ class SourcesAndFlagsComponent:
         unresolved_paths_list = [UnresolvedPath(s) for s in sources]
         self.append_sources(
             *[
-                SourceFile(dest_subdir=subdir, unresolved_src_path=src)
+                (TemplateFile if src.suffix == TEMPLATE_EXT else SourceFile)(
+                    dest_subdir=subdir, unresolved_src_path=src
+                )
                 for src in unresolved_paths_list
             ],
             replace_channel=replace_channel,
@@ -638,7 +641,7 @@ class SourcesAndFlagsComponent:
         """Register a single source into ``subdir``, under ``dest_name`` or
         under its own name."""
         self.append_sources(
-            SourceFile(
+            (TemplateFile if Path(source).suffix == TEMPLATE_EXT else SourceFile)(
                 dest_subdir=subdir,
                 unresolved_src_path=UnresolvedPath(Path(source)),
                 dest_path=Path(dest_name) if dest_name is not None else None,

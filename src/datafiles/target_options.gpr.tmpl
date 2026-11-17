@@ -10,14 +10,14 @@ abstract project Target_Options is
   type Lib_Type is ("static", "static-pic", "dynamic");
   Lib : Lib_Type := external ("LIBRARY_TYPE", "static");
 
-  Common_Switches := ("{common_switches}");
-  Runtime_Gnarl_Switches := ("{runtime_gnarl_switches}");
-  Runtime_Debug_Switches := ("{runtime_debug_switches}");
+  Common_Switches := ("${common_switches}");
+  Runtime_Gnarl_Switches := ("${runtime_gnarl_switches}");
+  Runtime_Debug_Switches := ("${runtime_debug_switches}");
 
   --  Per language; Common_Switches joins them at the end of this file.
   Ada_Switches := ("-gnatg", "-nostdinc", "-fno-delete-null-pointer-checks");
-  Asm_Switches := ("{asm_switches}");
-  C_Switches := ("{c_switches}", "-Werror", "-Wall");
+  Asm_Switches := ("${asm_switches}");
+  C_Switches := ("${c_switches}", "-Werror", "-Wall");
   case Build is
      when "Production" =>
         --  Optimize
@@ -53,7 +53,7 @@ abstract project Target_Options is
 
         --  Add target-specific options, if needed
         Runtime_Link_Switches :=
-          Runtime_Link_Switches & ("{runtime_link_switches}");
+          Runtime_Link_Switches & ("${runtime_link_switches}");
   end case;
 
   All_Ada_Switches := Ada_Switches & Common_Switches;

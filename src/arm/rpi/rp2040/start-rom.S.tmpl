@@ -69,8 +69,8 @@ __vectors:
 	.word __gnat_irq_trap        /* 28 DMA_IRQ_1 */
 	.word __gnat_irq_trap        /* 29 IO_IRQ_BANK0 */
 	.word __gnat_irq_trap        /* 30 IO_IRQ_QSPI */
-	.word "${RP2040_SIO_IRQ_PROC0_Handler}"        /* 31 SIO_IRQ_PROC0 */
-	.word "${RP2040_SIO_IRQ_PROC1_Handler}"        /* 32 SIO_IRQ_PROC1 */
+	.word ${RP2040_SIO_IRQ_PROC0_Handler}        /* 31 SIO_IRQ_PROC0 */
+	.word ${RP2040_SIO_IRQ_PROC1_Handler}        /* 32 SIO_IRQ_PROC1 */
 	.word __gnat_irq_trap        /* 33 CLOCKS */
 	.word __gnat_irq_trap        /* 34 SPI0 */
 	.word __gnat_irq_trap        /* 35 SPI1 */

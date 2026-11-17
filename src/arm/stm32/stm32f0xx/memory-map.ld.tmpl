@@ -36,8 +36,8 @@
 
 MEMORY
 {
-  flash  (rx) : ORIGIN = 0x08000000, LENGTH = "${STM32_Linker_Flash_Size}"
-  sram  (rwx) : ORIGIN = 0x20000000, LENGTH = "${STM32_Linker_RAM_Size}"
+  flash  (rx) : ORIGIN = 0x08000000, LENGTH = ${STM32_Linker_Flash_Size}
+  sram  (rwx) : ORIGIN = 0x20000000, LENGTH = ${STM32_Linker_RAM_Size}
 }
 
 REGION_ALIAS("sram_tx", sram)

@@ -1,9 +1,9 @@
 with "target_options.gpr";
 
 project Runtime_Build is
-  for Languages use ("{languages}");
+  for Languages use ("${languages}");
   for Runtime ("Ada") use Project'Project_Dir;
-  {target_directive}
+  ${target_directive}
 
   for Library_Auto_Init use "False";
   for Library_Kind use Target_Options.Lib;
@@ -24,7 +24,7 @@ project Runtime_Build is
   for Library_Dir use "adalib";
   for Object_Dir use "obj";
 
-  for Source_Dirs use ("{source_dirs}");
+  for Source_Dirs use ("${source_dirs}");
 
   package Naming is
      for Spec_Suffix ("Asm_CPP") use ".inc";
@@ -67,7 +67,7 @@ project Runtime_Build is
   end Compiler;
 
   package CodePeer is
-    for Excluded_Source_Files use ("{runtime_spark_units}");
+    for Excluded_Source_Files use ("${runtime_spark_units}");
   end CodePeer;
 
 end Runtime_Build;

@@ -2,12 +2,10 @@
 # Copyright (C) 2025-2026, AdaCore
 #
 
-import re
 from pathlib import Path
 from typing import override
 
 from rts_prebuilder.abstract_infrastructure.common.source_file import (
-    TEMPLATE_EXT,
     SourceFile,
     TemplateFile,
 )
@@ -18,12 +16,6 @@ from .template import Template
 
 log = get_logger(__name__)
 
-TemplateConfigType = dict[str, str]
-"""
-A dict of key/value to be applied as template instantiation
-(only valid for *.tmpl files)
-"""
-
 
 class FilePair:
     """
@@ -33,7 +25,7 @@ class FilePair:
 
     - ask the resolver for a full path to the source file
     - wrap the installer function that copies or links the file to its final
-      destination, applying the template if there is one
+      destination
     - Provide different helper methods.
 
     Warning: A SourceFile may represent a dir, implementation should
@@ -91,15 +83,8 @@ class FilePair:
         """
         raise Exception("__eq__ not implemented for FilePair")
 
-    def install(
-        self, install_dir: Path, link: bool, template_config: TemplateConfigType
-    ) -> None:
-        """Install the file to the destination, applying templates if necessary.
-
-        This method handles both template processing and file installation by
-        calling the appropriate functions in sequence.
-        """
-
+    def install(self, install_dir: Path, link: bool) -> None:
+        """Copy or link the source into its declared destination."""
         if self._resolved_src_path.is_dir():
             # Copy contents of directory (flatten structure)
             # When source is a directory, we copy all its contents directly to the dest_subdir
@@ -129,24 +114,12 @@ class FilePair:
                         dest_subdir=None,  # Already included in item
                     )
                     file_pair = FilePair(file_source)
-                    file_pair.install(target_dir, link, template_config)
+                    file_pair.install(target_dir, link)
                 # Note: We intentionally skip subdirectories here.
                 # They will be processed separately if they are explicitly listed as sources.
             return
 
-        # Check if this is a template file that needs processing
-        src_is_template = (
-            self._resolved_src_path.suffix == TEMPLATE_EXT and len(template_config) > 0
-        )
-
-        # Get content - either processed template or original file content
-        if src_is_template:
-            content = _apply_template_to_file(self._resolved_src_path, template_config)
-            # For templates, we can't use symlinks since we've processed the content
-            link = False
-        else:
-            # The run-time sources may contain UTF-8 characters (copyright symbols, etc.)
-            content = self._resolved_src_path.read_text(encoding="utf-8")
+        content = self._resolved_src_path.read_text(encoding="utf-8")
 
         # Install the file with the content
         _single_file_installer(
@@ -190,45 +163,6 @@ class FilePair:
             return False
 
 
-def _apply_template_config(content: str, template_config: TemplateConfigType) -> str:
-    """
-    Replace all instances matching the format "${key}" with the corresponding
-    value in template_config. The matching pattern is enclosed in
-    double-quotes (") to avoid invalid characters in Ada source code.
-
-    :param content: The original content to be modified
-    :param template_config: See TemplateConfigType
-    :return: The modified content with applied template configuration
-    """
-
-    def lookup(match: re.Match[str]) -> str:
-        key = match.group(1)
-        if key not in template_config:
-            raise KeyError(f"key '{key}' not defined in template configuration")
-        return str(template_config.get(key))
-
-    return re.sub(r"\"\$\{([^\$\"\}]*)\}\"", lookup, content)
-
-
-def _apply_template_to_file(src: Path, template_config: TemplateConfigType) -> str:
-    """Apply template configuration to a source file and return the processed content.
-
-    :param src: The source file path (must be a template file)
-    :param template_config: Template configuration to apply
-    :return: The processed file content with template variables replaced
-    """
-    if not src.is_file():
-        raise FileNotFoundError(f"runtime file {src} does not exist")
-
-    src_cnt = src.read_text(encoding="us-ascii")
-
-    if len(template_config) > 0:
-        log.debug(f"Apply template config to {src}: {template_config}")
-        src_cnt = _apply_template_config(src_cnt, template_config)
-
-    return src_cnt
-
-
 class TemplateFilePair(FilePair):
     """Resolve a template and install its rendered content at the declared destination."""
 
@@ -238,12 +172,7 @@ class TemplateFilePair(FilePair):
         self._values = values
 
     @override
-    def install(
-        self,
-        install_dir: Path,
-        link: bool,
-        template_config: TemplateConfigType | None = None,
-    ) -> None:
+    def install(self, install_dir: Path, link: bool) -> None:
         # Write rendered content even when linking is requested, because linking the
         # template input would leave placeholders in the installed file.
         _single_file_installer(
@@ -273,10 +202,6 @@ def _single_file_installer(
     :param link: If true, files will be linked instead of copied during install
     :param content: The file content to install
     """
-    # Remove template extension from destination filename, if any
-    if dst.name.endswith(TEMPLATE_EXT):
-        dst = dst.with_suffix("")
-
     if not src.is_file():
         raise FileNotFoundError(f"runtime file {src} does not exist")
 

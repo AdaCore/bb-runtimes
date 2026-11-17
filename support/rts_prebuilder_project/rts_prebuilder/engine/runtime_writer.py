@@ -190,7 +190,6 @@ class RuntimeWriter:
             file_pair.install(
                 install_dir=output_dir,
                 link=link,
-                template_config=self._spec.template_config,
             )
 
         # Fill the output directory with generated files and directories

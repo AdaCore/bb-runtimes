@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-import rts_prebuilder.engine.gpr_project_gen as gprgen
+import rts_prebuilder.engine.template as template_engine
 from rts_prebuilder.abstract_infrastructure import GprSwitches
 from rts_prebuilder.engine.gpr_project_gen import render_target_options_gpr
 
@@ -31,11 +31,11 @@ def _render(
 
 def _template(monkeypatch: pytest.MonkeyPatch, text: str) -> None:
     """Make the renderer read ``text`` instead of the shipped template."""
-    monkeypatch.setattr(gprgen, "resolve_and_read_file", lambda path: text)
+    monkeypatch.setattr(template_engine, "resolve_and_read_file", lambda path: text)
 
 
 def test_slots_are_filled_per_field(monkeypatch):
-    _template(monkeypatch, 'C := ("{c_switches}"); Asm := ("{asm_switches}");')
+    _template(monkeypatch, 'C := ("${c_switches}"); Asm := ("${asm_switches}");')
 
     rendered = _render(GprSwitches(c=("-DIN_RTS",), asm=("-x",)))
 
@@ -43,7 +43,7 @@ def test_slots_are_filled_per_field(monkeypatch):
 
 
 def test_field_no_target_filled_renders_empty(monkeypatch):
-    _template(monkeypatch, 'Asm := ("{asm_switches}");')
+    _template(monkeypatch, 'Asm := ("${asm_switches}");')
 
     assert _render() == 'Asm := ("");'
 
@@ -51,7 +51,7 @@ def test_field_no_target_filled_renders_empty(monkeypatch):
 def test_gnarl_and_debug_fill_their_own_slots(monkeypatch):
     _template(
         monkeypatch,
-        'G := ("{runtime_gnarl_switches}"); D := ("{runtime_debug_switches}");',
+        'G := ("${runtime_gnarl_switches}"); D := ("${runtime_debug_switches}");',
     )
 
     assert _render(gnarl=["-mg"], debug=["-g"]) == 'G := ("-mg"); D := ("-g");'
@@ -59,14 +59,14 @@ def test_gnarl_and_debug_fill_their_own_slots(monkeypatch):
 
 def test_switches_for_a_slotless_field_raise(monkeypatch):
     # Rendering would drop them, so refuse instead.
-    _template(monkeypatch, 'C := ("{c_switches}");')
+    _template(monkeypatch, 'C := ("${c_switches}");')
 
     with pytest.raises(ValueError, match="no slot for asm_switches"):
         _render(GprSwitches(asm=("-x",)))
 
 
 def test_slotless_field_without_switches_is_fine(monkeypatch):
-    _template(monkeypatch, 'C := ("{c_switches}");')
+    _template(monkeypatch, 'C := ("${c_switches}");')
 
     assert _render(GprSwitches(asm=())) == 'C := ("");'
 
@@ -88,7 +88,7 @@ def test_shipped_template_has_a_slot_for_every_switch():
     Read it straight off disk, not through the resolver. The resolver's
     gnat/gcc dirs are process-global, and belong to whichever test ran last."""
     template = (
-        Path(__file__).parents[2] / "src/datafiles/target_options.gpr.in"
+        Path(__file__).parents[2] / "src/datafiles/target_options.gpr.tmpl"
     ).read_text()
 
-    assert [s for s in _TEMPLATE_SLOTS if "{" + s + "}" not in template] == []
+    assert [s for s in _TEMPLATE_SLOTS if "${" + s + "}" not in template] == []

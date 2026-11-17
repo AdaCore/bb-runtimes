@@ -74,21 +74,21 @@ class SourceFile:
         And some other defensive checks.
         """
 
+        if self.unresolved_src_path.suffix == TEMPLATE_EXT and not isinstance(
+            self, TemplateFile
+        ):
+            raise ValueError(
+                f"Use TemplateFile for template {self.unresolved_src_path}"
+            )
+
         if self.dest_path is not None:
             if str(self.dest_path).endswith(TEMPLATE_EXT):
                 raise ValueError(
-                    f"dest_path cannot contain {TEMPLATE_EXT} extension/marker - "
-                    f"it is only acceptable in unresolved_src_path"
+                    f"dest_path must name the installed file without {TEMPLATE_EXT}"
                 )
 
         else:
             self.dest_path = dest_name(self.unresolved_src_path)
-
-    def is_template(self) -> bool:
-        """
-        Returns True if this source file is a template file (ends with .tmpl).
-        """
-        return self.unresolved_src_path.name.endswith(TEMPLATE_EXT)
 
 
 class TemplateFile(SourceFile):

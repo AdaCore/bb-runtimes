@@ -48,10 +48,10 @@ package System.BB.Board_Parameters is
    --  If either of these values are changed then the clock configuration
    --  below will also need to be changed (e.g. update PLLMUL_Value).
 
-   Main_Clock_Frequency : constant := "${STM32_Main_Clock_Frequency}";
+   Main_Clock_Frequency : constant := ${STM32_Main_Clock_Frequency};
    --  Optimal frequency of the system clock.
 
-   HSE_Clock_Frequency : constant := "${STM32_HSE_Clock_Frequency}";
+   HSE_Clock_Frequency : constant := ${STM32_HSE_Clock_Frequency};
    --  Frequency of High Speed External clock.
 
    --  If either of the above values are changed then the clock configuration
@@ -61,26 +61,26 @@ package System.BB.Board_Parameters is
    -- Clock configuration --
    -------------------------
 
-   HSE_Bypass  : constant Boolean := "${STM32_HSE_Bypass}";
-   LSI_Enabled : constant Boolean := "${STM32_LSI_Enabled}";
+   HSE_Bypass  : constant Boolean := ${STM32_HSE_Bypass};
+   LSI_Enabled : constant Boolean := ${STM32_LSI_Enabled};
 
    --  Selection of clock sources
 
    PLL_Src    : constant System.STM32.PLL_Source    :=
-     "${STM32_PLL_Src}";
+     ${STM32_PLL_Src};
 
    SYSCLK_Src : constant System.STM32.SYSCLK_Source :=
-     "${STM32_SYSCLK_Src}";
+     ${STM32_SYSCLK_Src};
 
    --  Configure derived clocks
 
-   PREDIV       : constant System.STM32.PREDIV_Range := "${STM32_PREDIV}";
-   PLLMUL_Value : constant                           := "${STM32_PLLMUL_Value}";
+   PREDIV       : constant System.STM32.PREDIV_Range := ${STM32_PREDIV};
+   PLLMUL_Value : constant                           := ${STM32_PLLMUL_Value};
 
    AHB_PRE : constant System.STM32.AHB_Prescaler :=
-     "${STM32_AHB_PRE}";
+     ${STM32_AHB_PRE};
 
    APB_PRE : constant System.STM32.APB_Prescaler :=
-     "${STM32_APB_PRE}";
+     ${STM32_APB_PRE};
 
 end System.BB.Board_Parameters;
