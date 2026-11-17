@@ -12,11 +12,16 @@ from rts_prebuilder.abstract_infrastructure import (
     Profile,
     SourceFile,
     SourcesAndFlagsComponent,
+    TemplateFile,
 )
 from rts_prebuilder.base_types import GnatOrGnarlType, UnresolvedPath
 from rts_prebuilder.end_user_data.logger import get_logger
 
-from .infrastructure_interface import generate_runtime_xml, get_resolver
+from .infrastructure_interface import (
+    generate_runtime_xml,
+    get_resolver,
+    resolve_and_read_file,
+)
 from .target_checker import check_loader_names, check_source_destinations
 from .runtime_spec import RuntimeSpec
 
@@ -94,10 +99,38 @@ def specialize(target: AbstractTarget, profile: Profile) -> RuntimeSpec:
         runtime_debug_switches=runtime_debug_switches,
         system_ads_source_file=system_ads_source_file,
         runtime_xml=generate_runtime_xml(target, profile),
-        template_config=target.template_config,
+        template_config=_prepare_template_config(target),
         target_triple=target.target,
         is_native=target.is_native,
     )
+
+
+def _prepare_template_config(target: AbstractTarget) -> dict[str, str]:
+    """Return template values, rejecting fragments without a build template.
+
+    Invalid Python fragments raise SyntaxError.
+    """
+    config = target.template_config
+    preparation_fragment = target.build_preparation_fragment
+    if target.build_script_template is None:
+        if preparation_fragment is not None:
+            raise ValueError(
+                f"Target {target.name}: build_preparation_fragment requires "
+                "build_script_template"
+            )
+        return config
+
+    fragment = ""
+    if preparation_fragment is not None:
+        fragment = resolve_and_read_file(preparation_fragment)
+        # Compile without execution so syntax errors are reported before installation.
+        compile(fragment, str(preparation_fragment), "exec")
+
+    config["BUILD_PREPARATION"] = fragment
+    config["BUILD_PREPARATION_CALL"] = (
+        "prepare_build(obj_dir)" if preparation_fragment is not None else ""
+    )
+    return config
 
 
 def libs_tuple(profile_sources: list[SourceFile]) -> tuple[GnatOrGnarlType, ...]:
@@ -123,19 +156,14 @@ def target_data_sources(target: AbstractTarget, profile: Profile) -> list[Source
     """
     sources: list[SourceFile] = []
 
-    if target.build_script is not None and target.prepare_build_script is not None:
-        sources += [
-            SourceFile(
+    if target.build_script_template is not None:
+        sources.append(
+            TemplateFile(
                 dest_subdir=None,
-                unresolved_src_path=UnresolvedPath(target.build_script),
+                unresolved_src_path=UnresolvedPath(target.build_script_template),
                 dest_path=Path("build.py"),
-            ),
-            SourceFile(
-                dest_subdir=None,
-                unresolved_src_path=UnresolvedPath(target.prepare_build_script),
-                dest_path=Path("prepare_build.py"),
-            ),
-        ]
+            )
+        )
 
     if target.readme_file is not None:
         sources.append(

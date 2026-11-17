@@ -196,7 +196,7 @@ its own entries:
    flowchart TB
       SFC["<b>SourcesAndFlagsComponent</b><br/>contribute()<br/>add_dependency()<br/>add_gnat_sources()<br/>add_runtime_switches()<br/>get_sources()"]
       AT["<b>AbstractTarget</b><br/>name<br/>profiles"]
-      T["<b>Target</b><br/>build_script<br/>link_spec_file()"]
+      T["<b>Target</b><br/>build_script_template<br/>link_spec_file()"]
       A6["<b>ArmV6MTarget</b><br/>s-bbarat.ads<br/>s-bbarat.adb"]
       A7["<b>ArmV7MTarget</b><br/>has_single_precision_fpu<br/>profiles"]
       S["<b>Stm32</b><br/>s-bbmcpa.ads<br/>svd/i-stm32-rcc.ads<br/>switch -mcpu=cortex-m4"]

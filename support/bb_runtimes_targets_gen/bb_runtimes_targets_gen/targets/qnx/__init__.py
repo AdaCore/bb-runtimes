@@ -23,11 +23,8 @@ class QNX(Target):
 
     @property
     @override
-    def prepare_build_script(self) -> Path:
-        # Installed at the runtime root as prepare_build.py. build.py calls
-        # its prebuild_step_run(obj_dir) before gprbuild, to create the dummy
-        # last-chance handler lib the runtime links against.
-        return Path("qnx/prepare_build.py")
+    def build_preparation_fragment(self) -> Path:
+        return Path("qnx/build_preparation.py.inc")
 
     @property
     @override

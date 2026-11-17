@@ -462,10 +462,12 @@ and ``profiles``, plus ``loaders`` when the runtime offers a link choice
 ``uses_eh_frame_unwinding``, ``use_certifiable_packages``, ``has_cheri``,
 ``has_libc(base_profile)``, …) are overridden as needed to describe the hardware.
 They are plain declarations: the mechanism that acts on them lives once in the
-engine or the generators, never in the target. Two more non-abstract properties
-are not hardware facts at all: ``prepare_build_script`` and ``build_script`` name the
-scripts the build runs around gprbuild. The full set, with each default, is on
-:doc:`../api/concrete_infrastructure_extenders/target_definition`.
+engine or the generators, never in the target. For build customization, see
+:attr:`~rts_prebuilder.abstract_infrastructure.AbstractTarget.build_script_template`
+and :attr:`~rts_prebuilder.abstract_infrastructure.AbstractTarget.build_preparation_fragment`.
+See
+:doc:`../api/concrete_infrastructure_extenders/target_definition` for the full set
+of properties and their defaults.
 
 Composing the components in
 ---------------------------

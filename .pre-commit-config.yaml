@@ -8,12 +8,13 @@ repos:
     hooks:
     - id: black
       types_or: [file]
-      files: \.py$
+      files: \.py(?:\.inc)?$
   - repo: git@ssh.gitlab.adacore-it.com:it/flake8.git
     rev: 7.3.0
     hooks:
       - id: flake8
-        files: '^(?!examples/).*\.py$' # Exclude examples/ directory
+        types: [file]
+        files: '^(?!examples/).*\.py(?:\.inc)?$' # Exclude examples/ directory
         additional_dependencies:
           - flake8-bugbear
           - flake8-builtins
@@ -29,4 +30,5 @@ repos:
     rev: v1.18.2
     hooks:
       - id: mypy
-        files: '^(?!examples/).*\.py$' # Exclude examples/ directory
+        types_or: [file]
+        files: '^(?!examples/).*\.py(?:\.inc)?$' # Exclude examples/ directory

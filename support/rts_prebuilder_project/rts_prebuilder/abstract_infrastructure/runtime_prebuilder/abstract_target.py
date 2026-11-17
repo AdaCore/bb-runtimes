@@ -72,16 +72,18 @@ class AbstractTarget(SourcesAndFlagsComponent, ABC, TemplateConfigListerMixin):
         TemplateConfigListerMixin.__init__(self)
 
     @property
-    def build_script(self) -> Path | None:
-        """Source of the ``build.py`` installed at the runtime root, which the
-        end user runs to rebuild the runtime. ``None`` installs neither this
-        script nor ``prepare_build_script``."""
+    def build_script_template(self) -> Path | None:
+        """Template for the installed ``build.py``, or ``None`` to omit it.
+
+        ``${BUILD_PREPARATION}`` embeds ``build_preparation_fragment``, and
+        ``${BUILD_PREPARATION_CALL}`` calls ``prepare_build(obj_dir)`` before gprbuild.
+        Both placeholders are empty when no fragment is supplied.
+        """
         return None
 
     @property
-    def prepare_build_script(self) -> Path | None:
-        """Source of the ``prepare_build.py`` that ``build.py`` calls first, for a
-        step gprbuild cannot do. Goes together with ``build_script``."""
+    def build_preparation_fragment(self) -> Path | None:
+        """Optional source fragment that defines ``prepare_build(obj_dir)`` for ``build.py``."""
         return None
 
     @property

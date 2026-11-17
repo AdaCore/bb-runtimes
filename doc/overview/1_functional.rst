@@ -123,16 +123,16 @@ Building (generated build script)
       style TargetSources fill:#bbdefb,stroke:#1976d2
       style Building fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
 
-The target definition selects the build scripts. The prebuilder copies them
-into the generated runtime directory. Run the build script separately to
-compile the runtime.
+The target definition selects the build script and optional preparation code.
+The prebuilder embeds the preparation code in the generated ``build.py``.
+Run the build script separately to compile the runtime.
 
 .. admonition:: Specificity of ``bb_runtimes_targets_gen``
    :class: bb-runtimes-specific
 
    ``bb_runtimes_targets_gen`` supplies the target definitions shown in the
-   diagram. It installs a ``build.py`` and a ``prepare_build.py`` in every
-   runtime. Run ``build.py`` to compile the generated tree.
+   diagram. It installs ``build.py`` in every runtime. Run ``build.py`` to
+   compile the generated tree, including any preparation required by the target.
 
 Where do you start with bb-runtimes?
 ======================================

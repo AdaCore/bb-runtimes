@@ -35,13 +35,8 @@ class Target(AbstractTarget):
 
     @property
     @override
-    def build_script(self) -> Path | None:
-        return Path("shared/default_build.py")
-
-    @property
-    @override
-    def prepare_build_script(self) -> Path | None:
-        return Path("shared/empty_prebuild.py")
+    def build_script_template(self) -> Path | None:
+        return Path("shared/default_build.py.tmpl")
 
     @override
     def link_spec_file(self, base_profile: ValidBaseProfileType) -> Path | None:
