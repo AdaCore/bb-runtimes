@@ -35,6 +35,7 @@ signature, the arguments and what each one raises:
 * :doc:`../api/concrete_infrastructure_extenders/source_files` — the value types
   those calls take and return:
   :class:`~rts_prebuilder.abstract_infrastructure.SourceFile`,
+  :class:`~rts_prebuilder.abstract_infrastructure.TemplateFile`,
   :class:`~rts_prebuilder.abstract_infrastructure.Loader`,
   :class:`~rts_prebuilder.abstract_infrastructure.GprSwitches`.
 * :doc:`../api/concrete_infrastructure_extenders/profiles` — the
@@ -219,9 +220,12 @@ Sources
        option.
    * - :meth:`~rts_prebuilder.abstract_infrastructure.SourcesAndFlagsComponent.append_sources_for_dir`
      - Lower level: sources installed under an arbitrary ``subdir``.
+   * - :meth:`~rts_prebuilder.abstract_infrastructure.SourcesAndFlagsComponent.append_sources_templates`
+     - Register template paths.
    * - :meth:`~rts_prebuilder.abstract_infrastructure.SourcesAndFlagsComponent.append_sources`
      - Lowest level: pre-built
-       :class:`~rts_prebuilder.abstract_infrastructure.SourceFile` objects, for
+       :class:`~rts_prebuilder.abstract_infrastructure.SourceFile` or
+       :class:`~rts_prebuilder.abstract_infrastructure.TemplateFile` objects, for
        full control over destination and name.
    * - :meth:`~rts_prebuilder.abstract_infrastructure.SourcesAndFlagsComponent.prepend_sources_search_paths`
      - Extra directories to look this component's sources up in. Its channel

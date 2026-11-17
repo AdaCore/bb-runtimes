@@ -48,6 +48,7 @@ from .common.default_resolver import DefaultSourcePathResolver
 from .common.resolver_steps import AbstractResolutionStep, OutcomeDescription
 from .common.source_file import (
     SourceFile,
+    TemplateFile,
     GprSwitches,
     Loader,
     dest_name,
@@ -74,6 +75,7 @@ __all__ = [
     "SourcesAndFlagsComponent",
     "Profile",
     "SourceFile",
+    "TemplateFile",
     "GprSwitches",
     "Loader",
     "dest_name",

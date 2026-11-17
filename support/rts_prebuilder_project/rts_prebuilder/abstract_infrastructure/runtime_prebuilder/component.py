@@ -69,6 +69,7 @@ from ..common.source_file import (
     GprSwitches,
     Loader,
     SourceFile,
+    TemplateFile,
 )
 
 if TYPE_CHECKING:
@@ -174,9 +175,9 @@ class SourcesAndFlagsComponent:
     """
     A node of the sources/switches Composite tree.
 
-    It registers SourceFile and GprSwitches objects. It also owns dependencies,
-    composed in with ``add_dependency``. A query returns this node's own entries
-    merged with every dependency's, recursively.
+    It registers SourceFile, TemplateFile and GprSwitches objects. It also owns
+    dependencies, composed in with ``add_dependency``. A query returns this node's
+    own entries merged with every dependency's, recursively.
 
     The two halves live in different places, and each rejects the other's:
 
@@ -429,7 +430,7 @@ class SourcesAndFlagsComponent:
     def append_sources(
         self, *sources: SourceFile, replace_channel: bool = False
     ) -> None:
-        """Register source files. ``replace_channel`` drops the whole
+        """Register files or templates. ``replace_channel`` drops the whole
         ``sources`` channel. That covers gnat, gnarl, linker scripts and root
         files, not only the kind being added."""
         self._register("sources", list(sources), replace_channel)
@@ -592,6 +593,22 @@ class SourcesAndFlagsComponent:
             *[
                 SourceFile(dest_subdir=subdir, unresolved_src_path=src)
                 for src in unresolved_paths_list
+            ],
+            replace_channel=replace_channel,
+        )
+
+    @final
+    def append_sources_templates(
+        self,
+        *sources: Path,
+        dest_subdir: Path | None = None,
+        replace_channel: bool = False,
+    ) -> None:
+        """Register templates under ``dest_subdir``, or at the runtime root when omitted."""
+        self.append_sources(
+            *[
+                TemplateFile(UnresolvedPath(source), dest_subdir=dest_subdir)
+                for source in sources
             ],
             replace_channel=replace_channel,
         )

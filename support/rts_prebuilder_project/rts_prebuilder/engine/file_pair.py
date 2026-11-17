@@ -9,10 +9,12 @@ from typing import override
 from rts_prebuilder.abstract_infrastructure.common.source_file import (
     TEMPLATE_EXT,
     SourceFile,
+    TemplateFile,
 )
 from rts_prebuilder.end_user_data.logger import get_logger
 
 from .infrastructure_interface import get_resolver
+from .template import Template
 
 log = get_logger(__name__)
 
@@ -225,6 +227,39 @@ def _apply_template_to_file(src: Path, template_config: TemplateConfigType) -> s
         src_cnt = _apply_template_config(src_cnt, template_config)
 
     return src_cnt
+
+
+class TemplateFilePair(FilePair):
+    """Resolve a template and install its rendered content at the declared destination."""
+
+    def __init__(self, source_file: TemplateFile, values: dict[str, str]) -> None:
+        super().__init__(source_file)
+        self._template = Template(self._resolved_src_path)
+        self._values = values
+
+    @override
+    def install(
+        self,
+        install_dir: Path,
+        link: bool,
+        template_config: TemplateConfigType | None = None,
+    ) -> None:
+        # Write rendered content even when linking is requested, because linking the
+        # template input would leave placeholders in the installed file.
+        _single_file_installer(
+            install_dir,
+            self._resolved_src_path,
+            self._dest_path,
+            False,
+            self._template.render(self._values),
+        )
+
+    @property
+    @override
+    def suffixes(self) -> set[str]:
+        # Use the destination suffix for language detection because .tmpl identifies
+        # the input as a template without identifying its output language.
+        return {self._dest_path.suffix}
 
 
 def _single_file_installer(

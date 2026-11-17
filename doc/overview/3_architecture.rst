@@ -457,8 +457,9 @@ for each.
    already-resolved values the next step needs. This is the seam that keeps
    policy and mechanism apart.
 
-#. ``RuntimeWriter``, the mechanism. Output only: it turns the spec's source
-   list into file pairs and writes them alongside the generated build files
+#. ``RuntimeWriter``, the mechanism. It resolves ``SourceFile`` and
+   ``TemplateFile`` declarations into ``FilePair`` and ``TemplateFilePair``
+   objects. These install sources alongside the generated build files
    (``.gpr`` projects, ``runtime.xml``, path files, scaffolding). It needs no
    target and makes no profile decision.
 
@@ -506,7 +507,7 @@ With no interface registered, the engine raises (see
             subgraph Extenders["For infrastructure extenders"]
                direction TB
                BaseClasses["Base classes<br/>AbstractTarget<br/>SourcesAndFlagsComponent"]
-               DataClasses["Data classes<br/>SourceFile · Loader · Profile"]
+               DataClasses["Data classes<br/>SourceFile · TemplateFile · Loader · Profile"]
                BaseClasses -->|composed of| DataClasses
             end
             subgraph Builders["For infrastructure builders"]

@@ -91,6 +91,10 @@ class SourceFile:
         return self.unresolved_src_path.name.endswith(TEMPLATE_EXT)
 
 
+class TemplateFile(SourceFile):
+    """Declare a template input and its destination in the generated runtime."""
+
+
 @dataclass(frozen=True)
 class Loader:
     """One link configuration of the end user's program, selected with

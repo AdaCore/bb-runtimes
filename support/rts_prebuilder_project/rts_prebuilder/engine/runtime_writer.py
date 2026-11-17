@@ -5,10 +5,10 @@
 import shutil
 from pathlib import Path
 
-from rts_prebuilder.abstract_infrastructure import SourceFile
+from rts_prebuilder.abstract_infrastructure import SourceFile, TemplateFile
 from rts_prebuilder.end_user_data.logger import get_logger
 
-from .file_pair import FilePair
+from .file_pair import FilePair, TemplateFilePair
 from .gpr_project_gen import (
     render_ravenscar_build_gpr,
     render_runtime_build_gpr,
@@ -23,8 +23,8 @@ class RuntimeWriter:
     """
     Turns a ``RuntimeSpec`` into an installable runtime.
 
-    It is pure mechanism. It resolves the spec's component sources into a list
-    of FilePair. On install it writes those out, together with the generated
+    It is pure mechanism. It resolves sources into FilePair or TemplateFilePair
+    objects. On install it writes those out, together with the generated
     build files: gprbuild projects, runtime.xml, path files and scaffolding
     directories. It knows nothing of targets or profiles beyond what the spec
     carries.
@@ -44,16 +44,20 @@ class RuntimeWriter:
         log.debug("Prepared runtime '%s', ready for install", self.name)
 
     def _append_source_files(self, *sources: SourceFile) -> None:
-        """Resolve each SourceFile into a FilePair and add it to the collection."""
+        """Resolve the declared files and templates for installation."""
         for source in sources:
-            file_pair = FilePair(source)
+            file_pair: FilePair
+            if isinstance(source, TemplateFile):
+                file_pair = TemplateFilePair(source, self._spec.template_config)
+            else:
+                file_pair = FilePair(source)
             log.debug("Inserting new filepair %s", file_pair)
             self._file_pairs.append(file_pair)
 
     def _fill_source_files(self) -> None:
         """
-        Gather the system.ads and the spec's resolved sources into the file
-        pairs. The sources are the profile's components plus the target's,
+        Gather the system.ads and the spec's resolved sources for installation.
+        The sources are the profile's components plus the target's,
         already flattened. They are split per lib, with one extra bucket for
         the sources outside any lib.
         """
@@ -99,11 +103,12 @@ class RuntimeWriter:
             )
 
     def _extensions_in_dir(self, _dir: Path) -> set[str]:
-        """Union of file suffixes across the file pairs installed under _dir."""
+        """Extensions of source files and template outputs installed under _dir."""
         extensions: set[str] = set()
         for file_pair in self._file_pairs:
             if file_pair.is_in_dir(_dir):
                 extensions |= file_pair.suffixes
+
         return extensions
 
     def _generate_scaffolding_for_install_dir(self, output_dir: Path) -> None:
@@ -160,7 +165,7 @@ class RuntimeWriter:
             )
 
     def install(self, output_dir: Path, link: bool, overwrite: bool) -> None:
-        """Installs the runtime's resolved file pairs to the given output dir."""
+        """Install source files and render templates into the runtime directory."""
         log.info(
             "Installing runtime for profile '%s' in %s",
             self._spec.base_profile_name,
