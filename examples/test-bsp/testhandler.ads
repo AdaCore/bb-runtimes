@@ -27,7 +27,9 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with System.BB.Interrupts;
+
 pragma Warnings (Off);
 with System.BB.CPU_Primitives; use System.BB.CPU_Primitives;
 pragma Warnings (On);
-procedure Testhandler (Vector : Vector_Id);
+procedure Testhandler (Vector : System.BB.Interrupts.Interrupt_ID);
