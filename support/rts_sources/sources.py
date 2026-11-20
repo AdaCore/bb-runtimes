@@ -843,6 +843,7 @@ sources = {
             "libgnat/s-traent.adb",
             "libgnat/s-trasym.ads",
             "libgnat/s-trasym.adb",
+            "libgnat/s-trsyos.adb",
             "libgnat/s-utf_32.ads",
             "libgnat/s-utf_32.adb",
             "libgnat/s-vercon.ads",
